@@ -1,0 +1,119 @@
+openapi: 3.0.0
+info:
+  title: Promotions API
+  version: 1.0.0
+paths:
+  /api/v2/promotions:
+    get:
+      summary: List promotions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [awaiting_admin_review, approved, rejected, expired]
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Promotion'
+    post:
+      summary: Create a promotion request
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_id
+                - tier
+                - start_date
+                - end_date
+              properties:
+                product_id:
+                  type: integer
+                tier:
+                  type: string
+                  enum: [standard, premium, gold]
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Promotion created
+        '403':
+          description: Insufficient credits or limit reached
+        '422':
+          description: Validation error (overlap)
+
+  /api/v2/promotions/{id}:
+    patch:
+      summary: Update promotion status
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [approved, rejected, expired]
+      responses:
+        '200':
+          description: Status updated
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Promotion:
+      type: object
+      properties:
+        id:
+          type: integer
+        product_id:
+          type: integer
+        user_id:
+          type: integer
+        tier:
+          type: string
+        status:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time

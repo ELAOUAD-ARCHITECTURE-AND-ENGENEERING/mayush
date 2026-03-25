@@ -1,0 +1,76 @@
+PHPUnit 10.5.63 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.2.12
+Configuration: C:\xampp\htdocs\mayush\phpunit.xml
+
+EEEEEEE                                                             7 / 7 (100%)
+
+Time: 00:00.616, Memory: 48.00 MB
+
+There were 7 errors:
+
+1) Tests\Integration\Controllers\Backend\AdminCategoryControllerTest::admin_can_view_categories_index
+BadMethodCallException: Call to undefined method App\Models\Language::factory()
+
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:67
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:36
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2335
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2347
+C:\xampp\htdocs\mayush\tests\Integration\Controllers\Backend\AdminCategoryControllerTest.php:20
+
+2) Tests\Integration\Controllers\Backend\AdminCategoryControllerTest::admin_can_view_create_category_page
+BadMethodCallException: Call to undefined method App\Models\Language::factory()
+
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:67
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:36
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2335
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2347
+C:\xampp\htdocs\mayush\tests\Integration\Controllers\Backend\AdminCategoryControllerTest.php:20
+
+3) Tests\Integration\Controllers\Backend\AdminCategoryControllerTest::admin_can_store_new_category
+BadMethodCallException: Call to undefined method App\Models\Language::factory()
+
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:67
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:36
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2335
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2347
+C:\xampp\htdocs\mayush\tests\Integration\Controllers\Backend\AdminCategoryControllerTest.php:20
+
+4) Tests\Integration\Controllers\Backend\AdminCategoryControllerTest::admin_can_edit_category
+BadMethodCallException: Call to undefined method App\Models\Language::factory()
+
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:67
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:36
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2335
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2347
+C:\xampp\htdocs\mayush\tests\Integration\Controllers\Backend\AdminCategoryControllerTest.php:20
+
+5) Tests\Integration\Controllers\Backend\AdminCategoryControllerTest::admin_can_update_category
+BadMethodCallException: Call to undefined method App\Models\Language::factory()
+
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:67
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:36
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2335
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2347
+C:\xampp\htdocs\mayush\tests\Integration\Controllers\Backend\AdminCategoryControllerTest.php:20
+
+6) Tests\Integration\Controllers\Backend\AdminCategoryControllerTest::admin_can_delete_category
+BadMethodCallException: Call to undefined method App\Models\Language::factory()
+
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:67
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:36
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2335
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2347
+C:\xampp\htdocs\mayush\tests\Integration\Controllers\Backend\AdminCategoryControllerTest.php:20
+
+7) Tests\Integration\Controllers\Backend\AdminCategoryControllerTest::non_authorized_user_cannot_access_categories
+BadMethodCallException: Call to undefined method App\Models\Language::factory()
+
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:67
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Traits\ForwardsCalls.php:36
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2335
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:2347
+C:\xampp\htdocs\mayush\tests\Integration\Controllers\Backend\AdminCategoryControllerTest.php:20
+
+ERRORS!
+Tests: 7, Assertions: 0, Errors: 7, PHPUnit Deprecations: 1.

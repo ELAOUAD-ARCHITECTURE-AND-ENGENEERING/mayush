@@ -1,0 +1,58 @@
+﻿
+> production
+> cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js
+
+node.exe : node:interna
+l/modules/cjs/loader:12
+52
+At C:\Program Files\nod
+ejs\npm.ps1:29 char:3
++   & $NODE_EXE 
+$NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (node:internal   
+ /modules/cjs/loade    
+r:1252:String) [],     
+RemoteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+  throw err;
+  ^
+
+Error: Cannot find 
+module 'C:\xampp\htdocs
+\mayush\node_modules\cr
+oss-env\dist\bin\cross-
+env.js'
+    at Function._resolv
+eFilename (node:interna
+l/modules/cjs/loader:12
+49:15)
+    at Function._load (
+node:internal/modules/c
+js/loader:1075:27)
+    at TracingChannel.t
+raceSync (node:diagnost
+ics_channel:315:14)
+    at wrapModuleLoad (
+node:internal/modules/c
+js/loader:218:24)
+    at Function.execute
+UserEntryPoint [as 
+runMain] (node:internal
+/modules/run_main:170:5
+)
+    at node:internal/ma
+in/run_main_module:36:4
+9 {
+  code: 
+'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.11.0

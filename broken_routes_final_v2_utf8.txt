@@ -1,0 +1,504 @@
+﻿Starting comprehensive route verification using artisan route list...
+FAILURE: Found broken routes in Blade files:
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\inc\admin_sidenav.blade.php
+  - Broken Route: brand_bulk_upload.index
+  - Broken Route: custom_label.index
+  - Broken Route: smart.bar
+  - Broken Route: sellers.rating_followers
+  - Broken Route: custom-alerts.index
+  - Broken Route: email-templates.index
+  - Broken Route: custom_product_visitors
+  - Broken Route: contacts
+  - Broken Route: shiprocket_configuration
+  - Broken Route: steadfast_configuration
+  - Broken Route: pathao_configuration
+  - Broken Route: website.select-homepage
+  - Broken Route: website.select-font-family
+  - Broken Route: website.authentication-layout-settings
+  - Broken Route: elements.index
+  - Broken Route: website.select-header
+  - Broken Route: top_banner.index
+  - Broken Route: top_banner.setting
+  - Broken Route: website.portfolioheader
+  - Broken Route: business_settings.index
+  - Broken Route: whatsapp_chat.index
+  - Broken Route: shipping_configuration.shipping_method
+  - Broken Route: areas.index
+  - Broken Route: pickup_address.index
+  - Broken Route: shipping_box_size.index
+  - Broken Route: sitemap_generator
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\marketing\coupons\index.blade.php
+  - Broken Route: coupon.update_status
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\marketing\custom_alert\create.blade.php
+  - Broken Route: custom-alerts.store
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\marketing\custom_alert\edit.blade.php
+  - Broken Route: custom-alerts.update
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\marketing\custom_alert\index.blade.php
+  - Broken Route: custom-alerts.create
+  - Broken Route: custom-sale-alert.edit
+  - Broken Route: custom-alerts.edit
+  - Broken Route: custom-alerts.destroy
+  - Broken Route: custom-alerts.update-status
+  - Broken Route: bulk-custom-alerts-delete
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\marketing\custom_product_visitors.blade.php
+  - Broken Route: custom_product_visitors.update
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\marketing\custom_sale_alert\index.blade.php
+  - Broken Route: custom-sale-alerts.product_update
+  - Broken Route: custom_sale_alerts.products
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\marketing\dynamic_popup\index.blade.php
+  - Broken Route: dynamic-popups.update-status
+  - Broken Route: bulk-dynamic-popup-delete
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\note\index.blade.php
+  - Broken Route: get-single-note
+  - Broken Route: note.delete
+  - Broken Route: note.update-seller-access
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\notification\custom_notification.blade.php
+  - Broken Route: notification_type.get_default_text
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\notification\custom_notification_history.blade.php
+  - Broken Route: custom-notifications.delete
+  - Broken Route: custom-notifications.bulk_delete
+  - Broken Route: custom_notified_customers_list
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\notification\index.blade.php
+  - Broken Route: admin.notifications.bulk_delete
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\notification\notification_types\index.blade.php
+  - Broken Route: notification-type.update-status
+  - Broken Route: notifications-type.bulk_delete
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\brands\index.blade.php
+  - Broken Route: bulk-brands-delete
+  - Broken Route: brands.filter
+  - Broken Route: brand_category.show
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\brand_bulk_upload\index.blade.php
+  - Broken Route: brand_bulk_upload
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\categories\create.blade.php
+  - Broken Route: categories.categories-by-type
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\categories\edit.blade.php
+  - Broken Route: categories.categories-by-type
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\categories\index.blade.php
+  - Broken Route: categories.hot
+  - Broken Route: bulk-categories-delete
+  - Broken Route: bulk-categories-featured
+  - Broken Route: bulk-categories-hot
+  - Broken Route: categories.filter
+  - Broken Route: categories.details
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\color\index.blade.php
+  - Broken Route: colors.create
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\custom_label\custom_label_create.blade.php
+  - Broken Route: custom_label.store
+  - Broken Route: custom_label.products
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\custom_label\custom_label_edit.blade.php
+  - Broken Route: custom_label.edit
+  - Broken Route: custom_label.update
+  - Broken Route: custom_label.products
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\custom_label\custom_label_list.blade.php
+  - Broken Route: custom_label.create
+  - Broken Route: custom-label.update-status
+  - Broken Route: custom_label.index
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\custom_label\partials\table.blade.php
+  - Broken Route: custom_label.edit
+  - Broken Route: custom_label.delete
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\digital_products\create.blade.php
+  - Broken Route: product.search
+  - Broken Route: get-selected-products
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\digital_products\edit.blade.php
+  - Broken Route: product.search
+  - Broken Route: get-selected-products
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\products\create.blade.php
+  - Broken Route: shipping_configuration.shipping_method
+  - Broken Route: product.search
+  - Broken Route: get-selected-products
+  - Broken Route: get_notes
+  - Broken Route: products.search
+  - Broken Route: products.store_as_draft
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\products\edit.blade.php
+  - Broken Route: shipping_configuration.shipping_method
+  - Broken Route: product.search
+  - Broken Route: get-selected-products
+  - Broken Route: get_notes
+  - Broken Route: products.store_as_draft
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\products\index.blade.php
+  - Broken Route: bulk-product-publish
+  - Broken Route: bulk-product-featured
+  - Broken Route: bulk-product-todays-deal
+  - Broken Route: products.filter
+  - Broken Route: stock.show
+  - Broken Route: bulk-product-stock-update
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\products\smartBar.blade.php
+  - Broken Route: business_settings.smart_bar_status
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\reviews\create_custom_review.blade.php
+  - Broken Route: get-custom-review-product-by-category
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\reviews\detail_reviews.blade.php
+  - Broken Route: custom-review.create
+  - Broken Route: custom-review.edit
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\reviews\edit_custom_review.blade.php
+  - Broken Route: custom-review.update
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\reviews\index.blade.php
+  - Broken Route: custom-review.create
+  - Broken Route: detail-reviews
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\sizeCharts\create.blade.php
+  - Broken Route: size-charts.get-combination
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\product\sizeCharts\edit.blade.php
+  - Broken Route: size-charts.get-combination
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\sales\show.blade.php
+  - Broken Route: pickup.addresses.list
+  - Broken Route: box.sizes.list
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\sellers\index.blade.php
+  - Broken Route: seller.suspicious
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\sellers\pending_seller.blade.php
+  - Broken Route: sellers.registration.approved
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\sellers\profile\index.blade.php
+  - Broken Route: seller.suspicious
+  - Broken Route: invoice.print
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\sellers\profile\seller_documents.blade.php
+  - Broken Route: seller.verification.file.delete
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\areas\edit.blade.php
+  - Broken Route: areas.edit
+  - Broken Route: areas.update
+  - Broken Route: get-cities-by-country
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\areas\index.blade.php
+  - Broken Route: areas.edit
+  - Broken Route: areas.destroy
+  - Broken Route: areas.store
+  - Broken Route: areas.status
+  - Broken Route: get-cities-by-country
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\box_size\create.blade.php
+  - Broken Route: shipping_box_size.store
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\box_size\edit.blade.php
+  - Broken Route: shipping_box_size.update
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\box_size\index.blade.php
+  - Broken Route: shipping_box_size.create
+  - Broken Route: shipping_box_size.delete
+  - Broken Route: bulk-shipping-box-sizes-delete
+  - Broken Route: shipping_box_sizes.filter
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\box_size\table.blade.php
+  - Broken Route: shipping_box_size.edit
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\business_settings.blade.php
+  - Broken Route: business_info.update
+  - Broken Route: admin.get-state
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\email_templates\edit.blade.php
+  - Broken Route: email-templates.update
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\email_templates\index.blade.php
+  - Broken Route: email-templates.edit
+  - Broken Route: email-template.update-status
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\languages\language_view.blade.php
+  - Broken Route: app-translations.sync
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\payment_method\index.blade.php
+  - Broken Route: payment.activation
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\pickup\pickup_address_create.blade.php
+  - Broken Route: pickup_address.store
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\pickup\pickup_address_edit.blade.php
+  - Broken Route: pickup_address.update
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\pickup\pickup_address_list.blade.php
+  - Broken Route: pickup_address.create
+  - Broken Route: pickup_addresses.status
+  - Broken Route: pickup_address.delete
+  - Broken Route: bulk-pickup-addresses-delete
+  - Broken Route: pickup_addresses.filter
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\pickup\pickup_address_table.blade.php
+  - Broken Route: pickup_address.edit
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\shipping_configuration\index.blade.php
+  - Broken Route: areas.index
+  - Broken Route: shipping_configuration.state
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\setup_configurations\whatsapp_chat.blade.php
+  - Broken Route: whatsapp_chat.update
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\shipping_system\index.blade.php
+  - Broken Route: shipping.activation
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\support\contact\contacts.blade.php
+  - Broken Route: contact.query_modal
+  - Broken Route: contact.reply_modal
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\support\contact\reply_modal.blade.php
+  - Broken Route: contact.reply
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\system\import_demo_data.blade.php
+  - Broken Route: import_data
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\system\sitemap_generator.blade.php
+  - Broken Route: generate_sitemap
+  - Broken Route: delete_sitemap
+  - Broken Route: download_old_sitemap
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\system\update.blade.php
+  - Broken Route: final_update
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\website_settings\pages\element\edit.blade.php
+  - Broken Route: elements.edit
+  - Broken Route: elements.update
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\website_settings\pages\element\element_style\edit.blade.php
+  - Broken Route: update-element-type
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\website_settings\pages\element\element_style\index.blade.php
+  - Broken Route: destroy-element-style
+  - Broken Route: store-element-style
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\website_settings\pages\element\element_type\edit.blade.php
+  - Broken Route: update-element-type
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\website_settings\pages\element\element_type\index.blade.php
+  - Broken Route: show-element-style
+  - Broken Route: edit-element-type
+  - Broken Route: destroy-element-type
+  - Broken Route: store-element-type
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\website_settings\pages\element\index.blade.php
+  - Broken Route: elements.show
+  - Broken Route: elements.edit
+  - Broken Route: elements.destroy
+  - Broken Route: elements.store
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\website_settings\select_header.blade.php
+  - Broken Route: settings.select-header
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\website_settings\topBanner\top_banner_create.blade.php
+  - Broken Route: top_banner.store
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\website_settings\topBanner\top_banner_edit.blade.php
+  - Broken Route: top_banner.edit
+  - Broken Route: top_banner.update
+
+File: C:\xampp\htdocs\mayush/resources/views\backend\website_settings\topBanner\top_banner_list.blade.php
+  - Broken Route: top_banner.create
+  - Broken Route: top_banner.edit
+  - Broken Route: top_banner.delete
+  - Broken Route: top-banner.update-status
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\checkout.blade.php
+  - Broken Route: checkout.updateDeliveryAddress
+  - Broken Route: checkout.updateBillingAddress
+  - Broken Route: checkout.updateDeliveryInfo
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\classic\partials\todays_deal.blade.php
+  - Broken Route: todays-deal
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\contact_us_page.blade.php
+  - Broken Route: contact
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\inc\floating_buttons.blade.php
+  - Broken Route: todays-deal
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\inc\footer.blade.php
+  - Broken Route: customer.all-notifications
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\inc\nav.blade.php
+  - Broken Route: customer.all-notifications
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\layouts\app.blade.php
+  - Broken Route: home.section.todays_deal
+  - Broken Route: home.section.newest_products
+  - Broken Route: home.section.preorder_products
+  - Broken Route: cart.selectVariantCanvas
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\megamart\partials\todays_deal.blade.php
+  - Broken Route: todays-deal
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\metro\partials\todays_deal.blade.php
+  - Broken Route: todays-deal
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\minima\index.blade.php
+  - Broken Route: todays-deal
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\minima\partials\todays_deal.blade.php
+  - Broken Route: todays-deal
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\partials\address\address_js.blade.php
+  - Broken Route: guest_customer_info_check
+  - Broken Route: billing_addresses.edit
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\partials\address\billing_address_edit_modal.blade.php
+  - Broken Route: billing_addresses.update
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\partials\address\billing_address_modal.blade.php
+  - Broken Route: billing_addresses.store
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\partials\cart\cart_summary.blade.php
+  - Broken Route: checkout
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\payhere\order_re_payment_form.blade.php
+  - Broken Route: payhere.order_re_payment.return
+  - Broken Route: payhere.order_re_payment.cancel
+  - Broken Route: payhere.order_re_payment.notify
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\product_details.blade.php
+  - Broken Route: products.reviews
+  - Broken Route: size-charts-show
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\product_listing.blade.php
+  - Broken Route: suggestion.search2
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\reclassic\partials\todays_deal.blade.php
+  - Broken Route: todays-deal
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\thecore\index.blade.php
+  - Broken Route: best-selling
+  - Broken Route: todays-deal
+  - Broken Route: home.section.newest_products
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\thecore\partials\featured_products.blade.php
+  - Broken Route: featured-products
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\thecore\partials\todays_deal.blade.php
+  - Broken Route: todays-deal
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\user\customer\dashboard.blade.php
+  - Broken Route: user.verify.update
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\user\customer\notification\index.blade.php
+  - Broken Route: notifications.bulk_delete
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\user\order_details_customer.blade.php
+  - Broken Route: order.re_payment
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\user\profile.blade.php
+  - Broken Route: user.email.update.verify.code
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\user\purchase_history.blade.php
+  - Broken Route: purchase_history.filter
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\user\single_purchase_history.blade.php
+  - Broken Route: re_order
+
+File: C:\xampp\htdocs\mayush/resources/views\frontend\view_cart.blade.php
+  - Broken Route: cart.updateCartStatus
+
+File: C:\xampp\htdocs\mayush/resources/views\header\header1.blade.php
+  - Broken Route: customer.all-notifications
+
+File: C:\xampp\htdocs\mayush/resources/views\header\header2.blade.php
+  - Broken Route: customer.all-notifications
+
+File: C:\xampp\htdocs\mayush/resources/views\header\header3.blade.php
+  - Broken Route: customer.all-notifications
+
+File: C:\xampp\htdocs\mayush/resources/views\header\header4.blade.php
+  - Broken Route: customer.all-notifications
+
+File: C:\xampp\htdocs\mayush/resources/views\header\header5.blade.php
+  - Broken Route: customer.all-notifications
+
+File: C:\xampp\htdocs\mayush/resources/views\header\header6.blade.php
+  - Broken Route: customer.all-notifications
+
+File: C:\xampp\htdocs\mayush/resources/views\installation\step0.blade.php
+  - Broken Route: step1
+
+File: C:\xampp\htdocs\mayush/resources/views\installation\step1.blade.php
+  - Broken Route: step3
+  - Broken Route: step2
+
+File: C:\xampp\htdocs\mayush/resources/views\installation\step2.blade.php
+  - Broken Route: purchase.code
+  - Broken Route: step1
+
+File: C:\xampp\htdocs\mayush/resources/views\installation\step3.blade.php
+  - Broken Route: install.db
+  - Broken Route: step1
+  - Broken Route: step2
+
+File: C:\xampp\htdocs\mayush/resources/views\installation\step4.blade.php
+  - Broken Route: step3
+  - Broken Route: import_sql_with_demo
+  - Broken Route: import_sql
+
+File: C:\xampp\htdocs\mayush/resources/views\installation\step5.blade.php
+  - Broken Route: system_settings
+
+File: C:\xampp\htdocs\mayush/resources/views\preorder\backend\notification_types\index.blade.php
+  - Broken Route: notification-type.update-status
+
+File: C:\xampp\htdocs\mayush/resources/views\preorder\backend\products\backup.php
+  - Broken Route: product.search
+  - Broken Route: get-selected-products
+
+File: C:\xampp\htdocs\mayush/resources/views\preorder\backend\products\create.blade.php
+  - Broken Route: product.search
+  - Broken Route: get-selected-products
+  - Broken Route: get_notes
+
+File: C:\xampp\htdocs\mayush/resources/views\preorder\backend\products\edit.blade.php
+  - Broken Route: product.search
+  - Broken Route: get-selected-products
+  - Broken Route: get_notes
+
+File: C:\xampp\htdocs\mayush/resources/views\preorder\frontend\order\show.blade.php
+  - Broken Route: checkout.updateDeliveryAddress
+
+File: C:\xampp\htdocs\mayush/resources/views\preorder\seller\products\create.blade.php
+  - Broken Route: get_notes
+
+File: C:\xampp\htdocs\mayush/resources/views\preorder\seller\products\edit.blade.php
+  - Broken Route: get_notes
+
+File: C:\xampp\htdocs\mayush/resources/views\seller\note\index.blade.php
+  - Broken Route: get-single-note
+
+File: C:\xampp\htdocs\mayush/resources/views\seller\product\products\create.blade.php
+  - Broken Route: get_notes
+
+File: C:\xampp\htdocs\mayush/resources/views\seller\product\products\edit.blade.php
+  - Broken Route: get_notes
+
+File: C:\xampp\htdocs\mayush/resources/views\seller\profile\index.blade.php
+  - Broken Route: user.email.update.verify.code
+
+File: C:\xampp\htdocs\mayush/resources/views\update\step1.blade.php
+  - Broken Route: update.code
+

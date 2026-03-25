@@ -1,0 +1,29 @@
+{
+    "visitor_stats_success": true,
+    "visitor_stats_data_keys": [
+        "total_visits",
+        "unique_visitors",
+        "bounce_rate",
+        "revenue",
+        "avg_duration_sec",
+        "visit_trend",
+        "bounce_trend",
+        "duration_trend",
+        "total_visits_delta",
+        "avg_duration_delta",
+        "bounce_rate_delta",
+        "countries",
+        "hourly_traffic",
+        "funnel_stats"
+    ],
+    "finance_success": true,
+    "finance_data_keys": [
+        "kpis",
+        "chart",
+        "refund_trend",
+        "payouts",
+        "aov",
+        "items_per_order",
+        "tax_data"
+    ]
+}

@@ -1,0 +1,36 @@
+# CRITICAL AI SYSTEM RULES FOR MAYUSHDESIGN WORKSPACE
+
+**DO NOT IGNORE THESE RULES UNDER ANY CIRCUMSTANCES.**
+**THESE PRECAUTIONS MUST BE CHECKED BEFORE EXECUTING ANY SCRIPT OR COMMAND.**
+
+## 1. NEVER DROP OR DELETE DATABASE TABLES
+- You are **STRICTLY FORBIDDEN** from executing `DROP TABLE`, `DROP VIEW`, `TRUNCATE TABLE`, or any equivalent command on this database.
+- You are **STRICTLY FORBIDDEN** from writing or executing scripts (PHP, Bash, SQL) that automatically delete database tables to "fix" migration errors.
+- **Why:** The database in this environment is populated from an external SQL dump (`amsadesign.sql`), meaning the physical tables exist even if the Laravel `migrations` table is completely empty or out of sync. Dropping tables deletes live data permanently.
+
+## 2. HANDLING MIGRATION ERRORS CAREFULLY
+- If a migration fails with `1050 Table '...' already exists` or `1060 Duplicate column name`, **DO NOT DROP THE TABLE OR COLUMN**.
+- **The Correct Action:** Assume the data is correct. Manually sync the Laravel `migrations` table by inserting a record for that specific migration file using `artisan tinker` or a safe PHP script, so Laravel skips it in the future.
+- Use the principles found in `deploy_vps.sh` (`run_safe_migrate` function) which catches "already exists" errors and safely fakes the migration record without data loss.
+
+## 3. DATA PRESERVATION BEFORE DESTRUCTION
+- Never prioritize clean migration states over actual data retention.
+- If you are unsure if a table contains important data, assume it is **CRITICAL PRODUCTION DATA**.
+- Always query `SELECT COUNT(*) FROM table_name;` before making *any* structural assumptions if absolutely forced to interact with a table (e.g., altering schemas). 
+
+## 4. DEPLOYMENT & VPS SAFEGUARDS
+- Always assume commands are running against a production-like environment. 
+- Do not execute destructive cleanup scripts.
+
+## 5. NEVER DELETE OR CLEAR ROUTE FILES
+- You are **STRICTLY FORBIDDEN** from clearing, deleting, or making destructive edits to route files (e.g., `routes/admin.php`, `routes/web.php`, `routes/api.php`).
+- Accidental deletion or clearing of these files causes widespread application failure (`RouteNotFoundException`).
+- **The Correct Action:** Use granular edits (`replace_file_content` or `multi_replace_file_content`) to add or modify routes. Never overwrite an entire route file with a subset of routes unless you are certain you have the complete content.
+- Always verify that critical routes like `admin.dashboard` remain intact after any modification to routing files.
+
+## 6. MANDATORY PROJECT TRACKER UPDATES
+- You are **REQUIRED** to update the `PROJECT_TRACKER.md` file after completing **EVERY** task or significant sub-task.
+- Updates must include concise summaries of progress, specific changes made (files modified, new features added), and any risks or stability issues addressed.
+- **Why:** This file serves as the system's "long-term memory" and provides the user with an accurate, real-time snapshot of the project's health and completion percentage.
+
+**By reading this file, you agree that protecting the user's existing data and application stability is your absolute #1 priority, overriding all other tasks, optimizations, or framework conventions.**

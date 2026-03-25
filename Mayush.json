@@ -1,0 +1,13 @@
+{
+  "arcforge": "arcforge:architecture",
+  "version": "1.0",
+  "nodes": [
+    {
+      "id": "arch:entry",
+      "type": "arch_entry",
+      "label": "Entry",
+      "metadata": {}
+    }
+  ],
+  "edges": []
+}

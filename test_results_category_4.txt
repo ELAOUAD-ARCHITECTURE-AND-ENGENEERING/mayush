@@ -1,0 +1,20 @@
+PHPUnit 10.5.63 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.2.12
+Configuration: C:\xampp\htdocs\mayush\phpunit.xml
+
+......F                                                             7 / 7 (100%)
+
+Time: 00:03.346, Memory: 60.00 MB
+
+There was 1 failure:
+
+1) Tests\Integration\Controllers\Backend\AdminCategoryControllerTest::non_authorized_user_cannot_access_categories
+Expected response status code [302] but received 500.
+Failed asserting that 500 is identical to 302.
+
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:148
+C:\xampp\htdocs\mayush\tests\Integration\Controllers\Backend\AdminCategoryControllerTest.php:125
+
+FAILURES!
+Tests: 7, Assertions: 12, Failures: 1, PHPUnit Deprecations: 1.

@@ -1,0 +1,9 @@
+Duplicate name: profile.edit
+  - URI: admin/profile/{profile}/edit | Action: App\Http\Controllers\ProfileController@edit
+  - URI: customer-products/admin/iyzico | Action: App\Http\Controllers\Payment\IyzicoController@initPayment
+Duplicate name: password.update
+  - URI: password/reset | Action: App\Http\Controllers\Auth\ResetPasswordController@reset
+  - URI: password/reset/email/submit | Action: App\Http\Controllers\HomeController@reset_password_with_code
+Duplicate name: payhere.checkout.testing
+  - URI: payhere/checkout/testing | Action: App\Http\Controllers\Payment\PayhereController@checkout_testing
+  - URI: payhere/wallet/testing | Action: App\Http\Controllers\Payment\PayhereController@wallet_testing

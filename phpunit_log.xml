@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="Tests\Feature\DatabaseMigrationTest" file="C:\xampp\htdocs\mayush\tests\Feature\DatabaseMigrationTest.php" tests="1" assertions="0" errors="1" failures="0" skipped="0" time="0.000000">
+    <testcase name="it_can_run_migrations_successfully" file="C:\xampp\htdocs\mayush\tests\Feature\DatabaseMigrationTest.php" line="14" class="Tests\Feature\DatabaseMigrationTest" classname="Tests.Feature.DatabaseMigrationTest" assertions="0" time="0.000000">
+      <error type="Illuminate\Database\QueryException">Tests\Feature\DatabaseMigrationTest::it_can_run_migrations_successfully&#13;
+Illuminate\Database\QueryException: SQLSTATE[HY000]: General error: 1 no such table: orders (Connection: sqlite, SQL: alter table "orders" add column "abandoned_reminder_sent" tinyint(1) not null default '0')
+&#13;
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Connection.php:783
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Connection.php:576
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Schema\Blueprint.php:110
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Schema\Builder.php:602
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Schema\Builder.php:444
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\Facades\Facade.php:355
+C:\xampp\htdocs\mayush\database\migrations\2026_03_03_104703_add_abandoned_reminder_sent_to_orders_table.php:14
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:501
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:418
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:427
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:224
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Console\View\Components\Task.php:37
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:783
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:224
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:189
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:132
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Console\Migrations\MigrateCommand.php:90
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:641
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Console\Migrations\MigrateCommand.php:83
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:36
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Container\Util.php:41
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:93
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:35
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Container\Container.php:662
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Console\Command.php:211
+C:\xampp\htdocs\mayush\vendor\symfony\console\Command\Command.php:326
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Console\Command.php:180
+C:\xampp\htdocs\mayush\vendor\symfony\console\Application.php:1083
+C:\xampp\htdocs\mayush\vendor\symfony\console\Application.php:324
+C:\xampp\htdocs\mayush\vendor\symfony\console\Application.php:175
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Console\Application.php:162
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php:400
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Testing\PendingCommand.php:297
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Testing\PendingCommand.php:484
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\InteractsWithConsole.php:80
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Foundation\Testing\RefreshDatabase.php:47
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Foundation\Testing\RefreshDatabase.php:22
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\InteractsWithTestCaseLifecycle.php:183
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\InteractsWithTestCaseLifecycle.php:84
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Foundation\Testing\TestCase.php:40</error>
+    </testcase>
+  </testsuite>
+</testsuites>

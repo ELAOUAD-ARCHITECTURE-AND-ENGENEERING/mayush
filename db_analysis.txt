@@ -1,0 +1,14 @@
+DATABASE STATE ANALYSIS:
+- Table 'business_settings': EXISTS
+- Table 'attributes': EXISTS
+- Table 'attribute_category': EXISTS
+- Table 'uploads': EXISTS
+- Table 'jobs': EXISTS
+- Column 'abandoned_reminder_sent' in 'orders': EXISTS
+- FULLTEXT Indexes on 'products' table: 4 found
+
+MIGRATION TRACKER STATUS:
+- Migration '2022_01_01_000003_create_missing_tables': Recorded
+- Migration '2026_03_03_104703_add_abandoned_reminder_sent_to_orders_table': Recorded
+- Migration '2026_03_03_114304_add_fulltext_index_to_products_table': Recorded
+- Migration '2026_03_03_114449_create_jobs_table': Recorded

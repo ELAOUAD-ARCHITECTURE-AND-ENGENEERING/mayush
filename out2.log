@@ -1,0 +1,113 @@
+
+  [30;43;1m WARN [39;49;22m Your XML configuration validates against a deprecated schema. Migrate your XML configuration using "--migrate-configuration"!
+
+   FAIL  Tests\Unit\FlashDealStockServiceTest
+  ⨯ it returns…  0.17s  
+  ⨯ it returns…  0.05s  
+  ⨯ it returns…  0.05s  
+  ⨯ it returns…  0.05s  
+  ⨯ it handles…  0.05s  
+  ────────────────────  
+   F…  QueryException   
+  SQLSTATE[HY000]: General error: 1 table translations has no column named updated_at (Connection: sqlite, SQL: insert into "translations" ("lang", "lang_key", "lang_value", "updated_at", "created_at") values (en, left_in_stock, left in stock, 2026-03-24 00:37:36, 2026-03-24 00:37:36))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕ 
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:581
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[HY000]: General error: 1 table translations has no column named updated_at")
+
+  ────────────────────  
+   F…  QueryException   
+  SQLSTATE[HY000]: General error: 1 table translations has no column named updated_at (Connection: sqlite, SQL: insert into "translations" ("lang", "lang_key", "lang_value", "updated_at", "created_at") values (en, left_in_stock, left in stock, 2026-03-24 00:37:36, 2026-03-24 00:37:36))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕ 
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:581
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[HY000]: General error: 1 table translations has no column named updated_at")
+
+  ────────────────────  
+   F…  QueryException   
+  SQLSTATE[HY000]: General error: 1 table translations has no column named updated_at (Connection: sqlite, SQL: insert into "translations" ("lang", "lang_key", "lang_value", "updated_at", "created_at") values (en, left_in_stock, left in stock, 2026-03-24 00:37:36, 2026-03-24 00:37:36))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕ 
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:581
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[HY000]: General error: 1 table translations has no column named updated_at")
+
+  ────────────────────  
+   F…  QueryException   
+  SQLSTATE[HY000]: General error: 1 table translations has no column named updated_at (Connection: sqlite, SQL: insert into "translations" ("lang", "lang_key", "lang_value", "updated_at", "created_at") values (en, out_of_stock, Out of stock, 2026-03-24 00:37:36, 2026-03-24 00:37:36))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕ 
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:581
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[HY000]: General error: 1 table translations has no column named updated_at")
+
+  ────────────────────  
+   F…  QueryException   
+  SQLSTATE[HY000]: General error: 1 table translations has no column named updated_at (Connection: sqlite, SQL: insert into "translations" ("lang", "lang_key", "lang_value", "updated_at", "created_at") values (en, out_of_stock, Out of stock, 2026-03-24 00:37:36, 2026-03-24 00:37:36))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕ 
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:581
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[HY000]: General error: 1 table translations has no column named updated_at")
+
+
+  Tests:    5 failed (0 assertions)
+  Duration: 0.46s
+

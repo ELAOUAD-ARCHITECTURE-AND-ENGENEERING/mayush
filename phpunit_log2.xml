@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="Tests\Feature\UploadTest" file="C:\xampp\htdocs\mayush\tests\Feature\UploadTest.php" tests="1" assertions="0" errors="1" failures="0" skipped="0" time="0.211165">
+    <testcase name="it_triggers_webp_conversion_on_image_upload_record_creation" file="C:\xampp\htdocs\mayush\tests\Feature\UploadTest.php" line="19" class="Tests\Feature\UploadTest" classname="Tests.Feature.UploadTest" assertions="0" time="0.211165">
+      <error type="Illuminate\Database\QueryException">Tests\Feature\UploadTest::it_triggers_webp_conversion_on_image_upload_record_creation&#13;
+Illuminate\Database\QueryException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'amsadesign_db.uploads' doesn't exist (Connection: mysql, SQL: insert into `uploads` (`file_original_name`, `file_name`, `user_id`, `extension`, `type`, `file_size`, `updated_at`, `created_at`) values (test.jpg, test.jpg, 348, jpg, image/jpeg, 1024, 2026-03-04 14:38:40, 2026-03-04 14:38:40))
+&#13;
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Connection.php:783
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\MySqlConnection.php:34
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Query\Processors\MySqlProcessor.php:35
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Query\Builder.php:3549
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Builder.php:1982
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:1334
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:1299
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php:1138
+C:\xampp\htdocs\mayush\app\Traits\PreventDemoModeChanges.php:38
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Builder.php:1025
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Support\helpers.php:320
+C:\xampp\htdocs\mayush\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Builder.php:1024
+C:\xampp\htdocs\mayush\app\Traits\PreventDemoModeChanges.php:20
+C:\xampp\htdocs\mayush\tests\Feature\UploadTest.php:25</error>
+    </testcase>
+  </testsuite>
+</testsuites>
