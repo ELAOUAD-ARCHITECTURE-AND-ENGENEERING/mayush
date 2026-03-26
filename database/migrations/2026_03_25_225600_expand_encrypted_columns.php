@@ -14,13 +14,21 @@ class ExpandEncryptedColumns extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->text('phone')->nullable()->change();
-            $table->text('address')->nullable()->change();
-            $table->text('postal_code')->nullable()->change();
+            if (Schema::hasColumn('users', 'phone')) {
+                $table->text('phone')->nullable()->change();
+            }
+            if (Schema::hasColumn('users', 'address')) {
+                $table->text('address')->nullable()->change();
+            }
+            if (Schema::hasColumn('users', 'postal_code')) {
+                $table->text('postal_code')->nullable()->change();
+            }
         });
 
         Schema::table('shops', function (Blueprint $table) {
-            $table->text('bank_name')->nullable()->change();
+            if (Schema::hasColumn('shops', 'bank_name')) {
+                $table->text('bank_name')->nullable()->change();
+            }
         });
     }
 
