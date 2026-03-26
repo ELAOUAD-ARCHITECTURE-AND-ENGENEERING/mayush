@@ -205,6 +205,50 @@
         </div>
     </section>
 
+    <!-- Elite Artisan Story Section -->
+    @if ($shop->isElite() && ($shop->story_title || $shop->story_content || $shop->hero_media_id))
+        <section class="mb-5 mt-4">
+            <div class="container">
+                <div class="row align-items-center bg-white p-4 rounded" style="box-shadow: 0px 5px 20px rgba(0,0,0,0.05);">
+                    @if ($shop->hero_media_id)
+                        <div class="col-lg-6 mb-4 mb-lg-0">
+                            @php
+                                $media = \App\Models\Upload::find($shop->hero_media_id);
+                            @endphp
+                            @if($media)
+                                @if(in_array($media->extension, ['mp4', 'webm', 'ogg']))
+                                    <video controls class="w-100 rounded shadow-sm" style="max-height: 400px; object-fit: cover;">
+                                        <source src="{{ uploaded_asset($media->id) }}" type="video/{{ $media->extension }}">
+                                        {{ translate('Your browser does not support the video tag.') }}
+                                    </video>
+                                @else
+                                    <img src="{{ uploaded_asset($media->id) }}" class="img-fluid rounded shadow-sm w-100" style="max-height: 400px; object-fit: cover;" alt="{{ $shop->name }}">
+                                @endif
+                            @endif
+                        </div>
+                    @endif
+                    <div class="col-lg-{{ $shop->hero_media_id ? '6' : '12' }}">
+                        <div class="p-lg-4 {{ !$shop->hero_media_id ? 'text-center' : '' }}">
+                            @if($shop->story_title)
+                                <h2 class="h3 fw-700 mb-3" style="color: #c9a13b;">
+                                    <i class="las la-crown mr-2"></i>{{ $shop->story_title }}
+                                </h2>
+                            @else
+                                <h2 class="h3 fw-700 mb-3" style="color: #c9a13b;">
+                                    <i class="las la-crown mr-2"></i>{{ translate('The Artisan Story') }}
+                                </h2>
+                            @endif
+                            
+                            <div class="fs-15 text-muted" style="line-height: 1.8;">
+                                {!! html_entity_decode($shop->story_content) !!}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
+
     @if (!isset($type))
 
         <!-- Featured Products -->
