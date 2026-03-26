@@ -386,6 +386,16 @@
                     </a>
                 </li>
 
+                @if(get_setting('elite_system_active') == 1)
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('seller.elite.index') }}"
+                        class="aiz-side-nav-link {{ areActiveRoutes(['seller.elite.index']) }}">
+                        <i class="las la-crown aiz-side-nav-icon" style="color: #f1c40f;"></i>
+                        <span class="aiz-side-nav-text" style="color: #f1c40f; font-weight: bold;">{{ translate('Elite Profile') }}</span>
+                    </a>
+                </li>
+                @endif
+
                 <li class="aiz-side-nav-item">
                     <a href="{{ route('seller.payments.index') }}"
                         class="aiz-side-nav-link {{ areActiveRoutes(['seller.payments.index']) }}">

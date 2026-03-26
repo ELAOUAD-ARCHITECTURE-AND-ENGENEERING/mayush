@@ -154,6 +154,14 @@ Route::group(['namespace' => 'App\Http\Controllers\Seller', 'prefix' => 'seller'
         Route::post('/profile/update/{id}', 'update')->name('profile.update');
     });
 
+    // Artisan Elite Profile
+    Route::controller(\App\Http\Controllers\Seller\SellerEliteController::class)->group(function () {
+        Route::get('/profile/elite', 'index')->name('elite.profile');
+        Route::post('/elite/apply', 'apply')->name('elite.apply');
+        Route::post('/elite/cancel', 'cancel')->name('elite.cancel');
+        Route::post('/elite/update', 'updateProfile')->name('elite.update_profile');
+    });
+
     // Address
     Route::resource('addresses', AddressController::class);
     Route::controller(AddressController::class)->group(function () {

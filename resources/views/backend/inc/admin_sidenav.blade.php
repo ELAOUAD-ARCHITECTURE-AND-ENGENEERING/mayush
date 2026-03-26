@@ -1088,6 +1088,16 @@
                 @endcanany
                 @endif
 
+                <!-- Elite System -->
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('elite.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['elite.index']) }}">
+                        <div class="aiz-side-nav-icon">
+                            <i class="las la-crown" style="color: #f1c40f;"></i>
+                        </div>
+                        <span class="aiz-side-nav-text" style="color: #f1c40f; font-weight: bold;">{{ translate('Elite System') }}</span>
+                    </a>
+                </li>
+
                 {{-- Uploads Files --}}
                 <li class="aiz-side-nav-item">
                     <a href="{{ route('uploaded-files.index') }}"

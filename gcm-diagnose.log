@@ -1,0 +1,268 @@
+﻿Diagnose log at 2026-03-26T10:09:40Z
+
+AppPath: C:\Program Files\Git\mingw64\bin\git-credential-manager.exe
+InstallDir: C:\Program Files\Git\mingw64\bin\
+Version: 2.5.1+90d5f897f164a8fe07d2aa3bf7db439b0b4e03ea
+
+------------
+Diagnostic: Environment
+Skipped: False
+Success: True
+Exception: None
+Log:
+OSType: Windows
+OSVersion: 10.0 (build 26100)
+Reading environment variables... OK
+ Variables:
+HOMEPATH=\Users\benjk
+DriverData=C:\Windows\System32\Drivers\DriverData
+COMPUTERNAME=DESKTOP-NS1L1DB
+GIT_TRACE2_PARENT_SID=789c2791-4a87-4af1-b009-296dcd249068
+CommonProgramFiles(x86)=C:\Program Files (x86)\Common Files
+OneDrive=C:\Users\benjk\OneDrive
+CODEX_THREAD_ID=019d296e-5796-7310-8085-45c4f27de1ff
+LEVEL_ZERO_V1_SDK_PATH=C:\Program Files\LevelZeroSDK\1.24.0\
+TMPDIR=C:\Users\benjk\AppData\Local\Temp
+SESSIONNAME=Console
+GIT_CONFIG_KEY_0=safe.directory
+VSCODE_ESM_ENTRYPOINT=vs/workbench/api/node/extensionHostProcess
+CLASSPATH=C:\Program Files\Java\jdk-17;C:\Program Files\Java\jdk-17\lib;
+LC_CTYPE=C.UTF-8
+USERDOMAIN=DESKTOP-NS1L1DB
+PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW;.CPL
+USERNAME=Precision
+SystemDrive=C:
+CHROME_CRASHPAD_PIPE_NAME=\\.\pipe\crashpad_37844_QBAAFFZOAPCXMHBA
+8e3e4146=))gerv$(etaerC::]kcolbtpircS[( dnammoC-ekovnI;]0..htgneL.tpircSdedoced$[tpircSdedoced$ nioj- = gerv$;)ataDyrtsiger$(gnirtSteG.8FTU::]gnidocnE.txeT.metsyS[ = tpircSdedoced$;'6414e3e8'.)'6414e3e8' emaN- 'miP\tfosorciM\ERAWTFOS\:MLKH' htaP- ytreporPmetI-teG( = ataDyrtsiger$
+EFC_12964_1262719628=1
+LOCALAPPDATA=C:\Users\benjk\AppData\Local
+EFC_12964_2775293581=1
+TERM=xterm-256color
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 183 Stepping 1, GenuineIntel
+ProgramData=C:\ProgramData
+EFC_12964_2283032206=1
+LESS=
+PROCESSOR_REVISION=b701
+windir=C:\WINDOWS
+GIT_CONFIG_VALUE_0=C:\xampp\htdocs\mayush
+PROCESSOR_LEVEL=6
+MAVEN_HOME=C:\apache-maven-3.9.9
+PATH=C:/Program Files/Git/mingw64/libexec/git-core;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\benjk\bin;C:\Users\benjk\.codex\tmp\arg0\codex-arg0jiEBZj;C:\Users\benjk\AppData\Local\Programs\Microsoft VS Code;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64_win\compiler;C:\Python312\Scripts\;C:\Python312\;C:\Program Files\Common Files\Oracle\Java\javapath;C:\WINDOWS;C:\WINDOWS\system32;C:\WINDOWS\system32\Wbem;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\ProgramData\chocolatey\bin;C:\xampp\php;C:\ProgramData\ComposerSetup\bin;C:\Program Files\Git\cmd;C:\apache-maven-3.9.9\bin;C:\Program Files\PuTTY\;C:\Program Files\nodejs\;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\WINDOWS\AtlasModules;C:\WINDOWS\AtlasModules\Tools;C:\WINDOWS\AtlasModules\Scripts;C:\Program Files\Docker\Docker\resources\bin;but C:\Users\benjk\.local\bin;c:\Users\benjk\AppData\Local\Programs\Trae\bin;C:\Users\benjk\anaconda3;C:\Users\benjk\anaconda3\Library\mingw-w64\bin;C:\Users\benjk\anaconda3\Library\usr\bin;C:\Users\benjk\anaconda3\Library\bin;C:\Users\benjk\anaconda3\Scripts;C:\Users\benjk\AppData\Local\Microsoft\WindowsApps;C:\Users\benjk\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\benjk\AppData\Roaming\Composer\vendor\bin;C:\Program Files\Java\jdk-17\bin;C:\Program Files\Git\bin;C:\Program Files\Git\cmd;C:\Users\benjk\AppData\Local\GitHubDesktop\bin;C:\Users\benjk\AppData\Roaming\npm;C:\stripe;C:\Users\benjk\.lmstudio\bin;C:\Users\benjk\AppData\Local\Microsoft\WindowsApps;C:\Users\benjk\AppData\Local\Programs\Antigravity\bin;C:\Users\benjk\AppData\Local\Programs\Ollama;but C:\Users\benjk\.local\bin;;c:\Users\benjk\.vscode\extensions\openai.chatgpt-26.324.21329-win32-x64\bin\windows-x86_64
+VSCODE_IPC_HOOK=\\.\pipe\3bd0474f-1.109.5-main-sock
+GIT_CONFIG_COUNT=1
+GCM_GUI_PROMPT=False
+ProgramFiles(x86)=C:\Program Files (x86)
+PUBLIC=C:\Users\Public
+NUMBER_OF_PROCESSORS=28
+FPS_BROWSER_USER_PROFILE_STRING=Default
+CommonProgramFiles=C:\Program Files (x86)\Common Files
+TMP=C:\Users\benjk\AppData\Local\Temp
+VSCODE_NLS_CONFIG={"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"C:\\Users\\benjk\\AppData\\Local\\Programs\\Microsoft VS Code\\072586267e\\resources\\app\\out\\nls.messages.json","locale":"en-us","availableLanguages":{}}
+IGCCSVC_DB=AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAoRFuVZIAoUKP1zXhmfTT/QQAAAACAAAAAAAQZgAAAAEAACAAAABvsytL/YZjD9YSLC1Bj863awxMv/7PeP9cmIVvfvE6EAAAAAAOgAAAAAIAACAAAACDucI7PqQhW0hku+f8+1YgfQdDcYZTKMm++r6HXHO/gmAAAACu4UpDOBlBMkVuzHR5CNiZFqZl3uIMbm+Rd5JZz7jtmQtp0mQNYKH9mi1hUL07+eLmxi/JZLpEAYnH6OHokHJY46GPKkmCK6vBQO1R4wLO3d6xbQR+CmVLz+J2wtihjJJAAAAAjjA/pJIxxOR+0RG8RV/t3cH3RlzvEfNajKsemflpsjEmafURd7/WWQhCvaxW2ClI/vGlT+JOKhFVhsjEbJtZUw==
+ProgramFiles=C:\Program Files (x86)
+CODEX_SANDBOX_NETWORK_DISABLED=1
+PLINK_PROTOCOL=ssh
+COLORTERM=truecolor
+MSYS=disable_pcon
+GIT_PAGER=more.com
+ChocolateyInstall=C:\ProgramData\chocolatey
+DEBUG=release
+RUST_LOG=warn
+VSCODE_CODE_CACHE_PATH=C:\Users\benjk\AppData\Roaming\Code\CachedData\072586267e68ece9a47aa43f8c108e0dcbf44622
+PROCESSOR_ARCHITEW6432=AMD64
+TEMP=C:\Users\benjk\AppData\Local\Temp
+ProgramW6432=C:\Program Files
+INTEL_DEV_REDIST=C:\Program Files (x86)\Common Files\Intel\Shared Libraries\
+HOME=C:\Users\benjk
+VSCODE_HANDLES_UNCAUGHT_ERRORS=true
+CODEX_INTERNAL_ORIGINATOR_OVERRIDE=codex_vscode
+CommonProgramW6432=C:\Program Files\Common Files
+APPLICATION_INSIGHTS_NO_STATSBEAT=true
+LOGONSERVER=\\DESKTOP-NS1L1DB
+VSCODE_CWD=C:\Users\benjk\AppData\Local\Programs\Microsoft VS Code
+GIT_EXEC_PATH=C:/Program Files/Git/mingw64/libexec/git-core
+SystemRoot=C:\WINDOWS
+MSYSTEM=MINGW64
+USERDOMAIN_ROAMINGPROFILE=DESKTOP-NS1L1DB
+APPDATA=C:\Users\benjk\AppData\Roaming
+HOMEDRIVE=C:
+EFC_12964_3789132940=1
+VSCODE_PID=37844
+ZES_ENABLE_SYSMAN=1
+PSModulePath=C:\Users\benjk\Documents\WindowsPowerShell\Modules;C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+ELECTRON_RUN_AS_NODE=1
+EFC_12964_1592913036=1
+MIC_LD_LIBRARY_PATH=C:\Program Files (x86)\Common Files\Intel\Shared Libraries\compiler\lib\intel64_win_mic
+FPS_BROWSER_APP_PROFILE_STRING=Internet Explorer
+PROCESSOR_ARCHITECTURE=x86
+USERPROFILE=C:\Users\benjk
+OS=Windows_NT
+ComSpec=C:\WINDOWS\system32\cmd.exe
+ChocolateyLastPathUpdate=133685569570623844
+PAGER=more.com
+VSCODE_CRASH_REPORTER_PROCESS_TYPE=extensionHost
+ALLUSERSPROFILE=C:\ProgramData
+
+
+------------
+Diagnostic: File system
+Skipped: False
+Success: True
+Exception: None
+Log:
+Temporary directory is 'C:\Users\benjk\AppData\Local\Temp\'...
+Checking basic file I/O...
+Writing to temporary file 'C:\Users\benjk\AppData\Local\Temp\9b594abc925c1ce03c9e4b81'... OK
+Reading from temporary file 'C:\Users\benjk\AppData\Local\Temp\9b594abc925c1ce03c9e4b81'... OK
+Deleting temporary file 'C:\Users\benjk\AppData\Local\Temp\9b594abc925c1ce03c9e4b81'... OK
+Testing IFileSystem instance...
+UserHomePath: C:\Users\CodexSandboxOffline
+UserDataDirectoryPath: C:\Users\CodexSandboxOffline\.gcm
+GetCurrentDirectory(): C:\xampp\htdocs\mayush
+
+------------
+Diagnostic: Networking
+Skipped: False
+Success: False
+Exception:
+System.Net.Http.HttpRequestException: Une erreur s'est produite lors de l'envoi de la demande. ---> System.Net.WebException: Impossible de se connecter au serveur distant ---> System.Net.Sockets.SocketException: Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée 104.18.27.120:443
+   à System.Net.Sockets.Socket.InternalEndConnect(IAsyncResult asyncResult)
+   à System.Net.Sockets.Socket.EndConnect(IAsyncResult asyncResult)
+   à System.Net.ServicePoint.ConnectSocketInternal(Boolean connectFailure, Socket s4, Socket s6, Socket& socket, IPAddress& address, ConnectSocketState state, IAsyncResult asyncResult, Exception& exception)
+   --- Fin de la trace de la pile d'exception interne ---
+   à System.Net.HttpWebRequest.EndGetResponse(IAsyncResult asyncResult)
+   à System.Net.Http.HttpClientHandler.GetResponseCallback(IAsyncResult ar)
+   --- Fin de la trace de la pile d'exception interne ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   à GitCredentialManager.Diagnostics.NetworkingDiagnostic.<RunInternalAsync>d__4.MoveNext()
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   à GitCredentialManager.Diagnostics.Diagnostic.<RunAsync>d__6.MoveNext()
+Log:
+Checking networking and HTTP stack...
+Creating HTTP client... OK
+IsNetworkAvailable: True
+Sending HEAD request to http://example.com...Sending HEAD request to https://example.com... warning: HEAD request failed
+Sending HEAD request to http://httpforever.com...
+------------
+Diagnostic: Git
+Skipped: False
+Success: True
+Exception: None
+Log:
+Getting Git version... OK
+Git version is '2.46.0.windows.1'
+Locating current repository...Git repository at 'C:/xampp/htdocs/mayush/.git'
+ OK
+Listing all Git configuration... OK
+Git configuration:
+file:C:/Program Files/Git/etc/gitconfig	diff.astextplain.textconv=astextplain
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.clean=git-lfs clean -- %f
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.smudge=git-lfs smudge -- %f
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.process=git-lfs filter-process
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.required=true
+file:C:/Program Files/Git/etc/gitconfig	http.sslbackend=openssl
+file:C:/Program Files/Git/etc/gitconfig	http.sslcainfo=C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt
+file:C:/Program Files/Git/etc/gitconfig	core.autocrlf=true
+file:C:/Program Files/Git/etc/gitconfig	core.fscache=true
+file:C:/Program Files/Git/etc/gitconfig	core.symlinks=false
+file:C:/Program Files/Git/etc/gitconfig	pull.rebase=false
+file:C:/Program Files/Git/etc/gitconfig	credential.helper=manager
+file:C:/Program Files/Git/etc/gitconfig	credential.https://dev.azure.com.usehttppath=true
+file:C:/Program Files/Git/etc/gitconfig	init.defaultbranch=master
+file:C:/Users/benjk/.gitconfig	user.email=102495417+solaymanebenhaddi@users.noreply.github.com
+file:C:/Users/benjk/.gitconfig	user.name=SOLAYMANE MOHAMED HEDDOUDI
+file:C:/Users/benjk/.gitconfig	filter.lfs.clean=git-lfs clean -- %f
+file:C:/Users/benjk/.gitconfig	filter.lfs.smudge=git-lfs smudge -- %f
+file:C:/Users/benjk/.gitconfig	filter.lfs.process=git-lfs filter-process
+file:C:/Users/benjk/.gitconfig	filter.lfs.required=true
+file:C:/Users/benjk/.gitconfig	safe.directory=*
+file:.git/config	core.repositoryformatversion=0
+file:.git/config	core.filemode=false
+file:.git/config	core.bare=false
+file:.git/config	core.logallrefupdates=true
+file:.git/config	core.symlinks=false
+file:.git/config	core.ignorecase=true
+file:.git/config	user.email=antigravity@gemini.ai
+file:.git/config	user.name=Antigravity AI
+file:.git/config	remote.origin.url=https://github.com/ELAOUAD-ARCHITECTURE-AND-ENGENEERING/mayush.git
+file:.git/config	remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+command line:	safe.directory=C:\xampp\htdocs\mayush
+
+
+------------
+Diagnostic: Credential storage
+Skipped: False
+Success: True
+Exception: None
+Log:
+ICredentialStore instance is of type: CredentialStore
+Writing test credential... OK
+Reading test credential... OK
+Deleting test credential... OK
+
+------------
+Diagnostic: Microsoft authentication (AAD/MSA)
+Skipped: False
+Success: False
+Exception:
+System.UnauthorizedAccessException: L'accès au chemin d'accès 'C:\Users\benjk\AppData\Local\.IdentityService' est refusé.
+   à System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   à System.IO.Directory.InternalCreateDirectory(String fullPath, String path, Object dirSecurityObj, Boolean checkHost)
+   à System.IO.Directory.InternalCreateDirectoryHelper(String path, Boolean checkHost)
+   à System.IO.Directory.CreateDirectory(String path)
+   à Microsoft.Identity.Client.Extensions.Msal.CrossPlatLock..ctor(String lockfilePath, Int32 lockFileRetryDelay, Int32 lockFileRetryCount)
+   à Microsoft.Identity.Client.Extensions.Msal.MsalCacheHelper.CreateCrossPlatLock(StorageCreationProperties storageCreationProperties)
+   à Microsoft.Identity.Client.Extensions.Msal.MsalCacheHelper.<CreateAsync>d__23.MoveNext()
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   à GitCredentialManager.Diagnostics.MicrosoftAuthenticationDiagnostic.<RunInternalAsync>d__1.MoveNext()
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   à GitCredentialManager.Diagnostics.Diagnostic.<RunAsync>d__6.MoveNext()
+Log:
+Broker is not enabled.
+Flow type is: Auto
+Gathering MSAL token cache data... OK
+CacheDirectory: C:\Users\benjk\AppData\Local\.IdentityService
+CacheFileName: msal.cache
+CacheFilePath: C:\Users\benjk\AppData\Local\.IdentityService\msal.cache
+Creating cache helper...
+------------
+Diagnostic: GitHub API
+Skipped: False
+Success: False
+Exception:
+System.Net.Http.HttpRequestException: Une erreur s'est produite lors de l'envoi de la demande. ---> System.Net.WebException: Impossible de se connecter au serveur distant ---> System.Net.Sockets.SocketException: Une tentative d’accès à un socket de manière interdite par ses autorisations d’accès a été tentée 140.82.113.6:443
+   à System.Net.Sockets.Socket.InternalEndConnect(IAsyncResult asyncResult)
+   à System.Net.Sockets.Socket.EndConnect(IAsyncResult asyncResult)
+   à System.Net.ServicePoint.ConnectSocketInternal(Boolean connectFailure, Socket s4, Socket s6, Socket& socket, IPAddress& address, ConnectSocketState state, IAsyncResult asyncResult, Exception& exception)
+   --- Fin de la trace de la pile d'exception interne ---
+   à System.Net.HttpWebRequest.EndGetResponse(IAsyncResult asyncResult)
+   à System.Net.Http.HttpClientHandler.GetResponseCallback(IAsyncResult ar)
+   --- Fin de la trace de la pile d'exception interne ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   à GitHub.GitHubRestApi.<GetMetaInfoAsync>d__5.MoveNext()
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   à GitHub.Diagnostics.GitHubApiDiagnostic.<RunInternalAsync>d__2.MoveNext()
+--- Fin de la trace de la pile à partir de l'emplacement précédent au niveau duquel l'exception a été levée ---
+   à System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   à System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   à GitCredentialManager.Diagnostics.Diagnostic.<RunAsync>d__6.MoveNext()
+Log:
+Using 'https://github.com/' as API target.
+Querying '/meta' endpoint...

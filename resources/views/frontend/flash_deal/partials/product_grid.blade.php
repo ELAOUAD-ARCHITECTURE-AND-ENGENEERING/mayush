@@ -86,11 +86,28 @@
               <div class="card-name">{{ $product->name }}</div>
               <div class="card-desc">{{ $product->meta_description }}</div>
 
-              <div class="price-row">
-                <span class="curr-prc">{{ home_discounted_base_price($product) }}</span>
-                <span class="old-prc">{{ home_base_price($product) }}</span>
-                @if($product->discount > 0)
-                  <span class="p-save">{{ translate('Save') }} {{ $product->discount }}%</span>
+@php
+    $base_price_val = home_base_price($product, false);
+    $discounted_price_val = home_discounted_base_price($product, false);
+    if ($discounted_price_val >= $base_price_val && isset($fd_product) && $fd_product->discount > 0) {
+        if ($fd_product->discount_type == 'percent') {
+            $discounted_price_val = $base_price_val - ($base_price_val * $fd_product->discount) / 100;
+        } elseif ($fd_product->discount_type == 'amount') {
+            $discounted_price_val = $base_price_val - convert_price($fd_product->discount);
+        }
+    }
+    $base_price_fmt = format_price($base_price_val);
+    $discounted_price_fmt = format_price($discounted_price_val);
+    $active_discount_pct = 0;
+    if ($base_price_val > 0 && $discounted_price_val < $base_price_val) {
+        $active_discount_pct = round((($base_price_val - $discounted_price_val) / $base_price_val) * 100);
+    }
+@endphp
+              <div class="price-row d-flex align-items-center" style="gap: 8px; margin-bottom: 8px;">
+                <span class="curr-prc" style="color: #ff4500; font-size: 24px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.2;">{{ $discounted_price_fmt }}</span>
+                <span class="old-prc" style="font-size: 14px; color: #888; font-weight: 500; text-decoration: line-through;">{{ $base_price_fmt }}</span>
+                @if($active_discount_pct > 0)
+                  <span class="p-save" style="background-color: #e8f5e9; color: #00c853; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; display: inline-block;">{{ translate('Save') }} {{ $active_discount_pct }}%</span>
                 @endif
               </div>
 

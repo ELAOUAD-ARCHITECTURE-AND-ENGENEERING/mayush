@@ -18,10 +18,11 @@ class Shop extends Model
    * @var array
    */
   protected $casts = [
-      'bank_name'          => 'encrypted',
-      'bank_info'          => 'encrypted',
-      'business_info'      => 'encrypted',
-      'verification_info'  => 'encrypted',
+      'bank_name'          => \App\Casts\SafeEncrypted::class,
+      'bank_info'          => \App\Casts\SafeEncrypted::class,
+      'business_info'      => \App\Casts\SafeEncrypted::class,
+      'verification_info'  => \App\Casts\SafeEncrypted::class,
+      'social_links'       => 'array',
   ];
 
   public function user()
@@ -34,5 +35,30 @@ class Shop extends Model
   }
   public function followers(){
     return $this->hasMany(FollowSeller::class);
+  }
+
+  /**
+   * Get the active Elite subscription for this shop.
+   */
+  public function activeEliteSubscription()
+  {
+    return $this->hasOne(\App\Models\EliteSubscription::class)
+                ->where('status', 'active')
+                ->where(function ($q) {
+                    $q->whereNull('expires_at')
+                      ->orWhere('expires_at', '>', now());
+                });
+  }
+
+  /**
+   * Determine if this shop currently has an active Elite subscription
+   * AND the global Elite system is enabled.
+   */
+  public function isElite(): bool
+  {
+    if (get_setting('elite_system_active') != 1) {
+        return false;
+    }
+    return $this->activeEliteSubscription()->exists();
   }
 }

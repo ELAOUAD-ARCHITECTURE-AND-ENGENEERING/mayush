@@ -40,6 +40,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SellerController;
 use App\Http\Controllers\SellerWithdrawRequestController;
+use App\Http\Controllers\Backend\EliteSubscriptionController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\SubscriberController;
@@ -246,6 +247,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/sellers/resend-verification/{id}', 'resendVerification')->name('sellers.email_verification_resend');
     });
     Route::resource('sellers', SellerController::class)->except('destroy');
+
+    // Elite Artisans
+    Route::controller(EliteSubscriptionController::class)->group(function () {
+        Route::get('elite-subscriptions', 'index')->name('elite.index');
+        Route::post('elite-subscriptions/{id}/approve', 'approve')->name('elite.approve');
+        Route::post('elite-subscriptions/{id}/reject', 'reject')->name('elite.reject');
+        Route::post('elite-subscriptions/{id}/revoke', 'revoke')->name('elite.revoke');
+        Route::post('elite-settings', 'updateSettings')->name('elite.settings');
+    });
 
     // Seller Payment
     Route::controller(PaymentController::class)->group(function () {

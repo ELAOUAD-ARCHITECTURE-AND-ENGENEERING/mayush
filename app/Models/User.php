@@ -47,9 +47,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'address'           => 'encrypted',
-        'postal_code'       => 'encrypted',
-        'phone'             => 'encrypted',
+        'address'           => \App\Casts\SafeEncrypted::class,
+        'postal_code'       => \App\Casts\SafeEncrypted::class,
+        'phone'             => \App\Casts\SafeEncrypted::class,
     ];
 
     public function wishlists()
