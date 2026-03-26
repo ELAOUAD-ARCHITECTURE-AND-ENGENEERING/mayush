@@ -323,6 +323,11 @@
 
     </div>
 
+    {{-- Elite Artisans --}}
+    <div id="load-elite-artisans-section">
+
+    </div>
+
     {{-- Top 10 categories and Brands --}}
     @if (get_setting('top10_categories') != null || get_setting('top10_brands') != null)
     @php
@@ -438,6 +443,10 @@
             });
             $.post('{{ route('home.section.best_sellers') }}', {_token:'{{ csrf_token() }}'}, function(data){
                 $('#section_best_sellers').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+            $.post('{{ route('load-elite-artisans-section') }}', {_token:'{{ csrf_token() }}'}, function(data){
+                $('#load-elite-artisans-section').html(data);
                 AIZ.plugins.slickCarousel();
             });
         });

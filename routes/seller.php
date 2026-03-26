@@ -191,6 +191,12 @@ Route::group(['namespace' => 'App\Http\Controllers\Seller', 'prefix' => 'seller'
         Route::post('conversations/message/store', 'message_store')->name('conversations.message_store');
     });
 
+    // Elite System
+    Route::controller(App\Http\Controllers\Seller\SellerEliteController::class)->group(function () {
+        Route::get('/elite-profile', 'index')->name('seller.elite.index');
+        Route::post('/elite-profile/update', 'update')->name('seller.elite_profile.update');
+    });
+
     // product query (comments) show on seller panel
     Route::controller(ProductQueryController::class)->group(function () {
         Route::get('/product-queries', 'index')->name('product_query.index');

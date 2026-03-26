@@ -149,6 +149,14 @@ class HomeController extends Controller
         return view('frontend.' . get_setting('homepage_select') . '.partials.preorder_products_section', compact('preorder_products'));
     }
 
+    public function load_elite_artisans_section()
+    {
+        $elite_shops = Shop::whereHas('activeEliteSubscription')
+            ->where('verification_status', 1)
+            ->get();
+        return view('frontend.partials.elite_artisans_section', compact('elite_shops'));
+    }
+
     public function login()
     {
         if (Auth::check()) {
