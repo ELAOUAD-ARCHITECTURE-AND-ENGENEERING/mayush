@@ -27,6 +27,7 @@ jobs:
           [[ -z "${{ secrets.VPS_HOST }}"            ]] && missing+=("VPS_HOST")
           [[ -z "${{ secrets.VPS_USERNAME }}"         ]] && missing+=("VPS_USERNAME")
           [[ -z "${{ secrets.VPS_SSH_KEY }}"          ]] && missing+=("VPS_SSH_KEY")
+          [[ -z "${{ secrets.VPS_SSH_PASSPHRASE }}"   ]] && missing+=("VPS_SSH_PASSPHRASE")
           [[ -z "${{ secrets.VPS_PORT }}"             ]] && missing+=("VPS_PORT")
           [[ -z "${{ secrets.DEPLOY_DB_PASSWORD }}"   ]] && missing+=("DEPLOY_DB_PASSWORD")
           [[ -z "${{ secrets.DEPLOY_DB_USER }}"       ]] && missing+=("DEPLOY_DB_USER")
@@ -84,6 +85,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
           port: ${{ secrets.VPS_PORT }}
           request_pty: true
           script_stop: true
