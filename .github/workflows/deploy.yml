@@ -7,30 +7,216 @@ on:
 
 jobs:
   deploy:
+    name: 🚀 Production Deployment
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 15
+
     steps:
-      - name: 🚀 Secure SSH Deployment Trigger
+      # ----------------------------------------------------------
+      # 1. CHECKOUT
+      # ----------------------------------------------------------
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      # ----------------------------------------------------------
+      # 2. VALIDATE REQUIRED SECRETS
+      # ----------------------------------------------------------
+      - name: 🔐 Validate required secrets
+        run: |
+          missing=()
+          [[ -z "${{ secrets.VPS_HOST }}"            ]] && missing+=("VPS_HOST")
+          [[ -z "${{ secrets.VPS_USERNAME }}"         ]] && missing+=("VPS_USERNAME")
+          [[ -z "${{ secrets.VPS_SSH_KEY }}"          ]] && missing+=("VPS_SSH_KEY")
+          [[ -z "${{ secrets.VPS_PORT }}"             ]] && missing+=("VPS_PORT")
+          [[ -z "${{ secrets.DB_PASSWORD }}"          ]] && missing+=("DB_PASSWORD")
+          [[ -z "${{ secrets.TELEGRAM_BOT_TOKEN }}"   ]] && missing+=("TELEGRAM_BOT_TOKEN")
+          [[ -z "${{ secrets.TELEGRAM_CHAT_ID }}"     ]] && missing+=("TELEGRAM_CHAT_ID")
+
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "❌ Missing required GitHub Secrets: ${missing[*]}"
+            echo "   Go to: Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+
+          echo "✔ All required secrets are present"
+
+      # ----------------------------------------------------------
+      # 3. NOTIFY TELEGRAM — DEPLOY STARTED
+      # ----------------------------------------------------------
+      - name: 📣 Notify Telegram — Deploy started
+        run: |
+          COMMIT_MSG=$(git log -1 --format='%s' | head -c 80)
+          COMMIT_HASH=$(git log -1 --format='%h')
+          AUTHOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+          RUN_URL="https://github.com/${REPO}/actions/runs/${{ github.run_id }}"
+
+          TEXT=$(cat <<EOF
+          🚀 *Mayush Deploy Started*
+
+          📦 *Repo:* \`${REPO}\`
+          👤 *Author:* ${AUTHOR}
+          🔖 *Commit:* \`${COMMIT_HASH}\` — ${COMMIT_MSG}
+          🌿 *Branch:* \`main\`
+
+          ⏳ Deployment is in progress\.\.\. please wait\.
+          [🔍 View Run](${RUN_URL})
+          EOF
+          )
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode "text=${TEXT}" \
+            --data-urlencode "parse_mode=MarkdownV2" \
+            --data-urlencode "disable_web_page_preview=true" > /dev/null
+
+      # ----------------------------------------------------------
+      # 4. SSH DEPLOYMENT
+      # ----------------------------------------------------------
+      - name: 🚀 Deploy via SSH
+        id: ssh_deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          request_pty: true
+          script_stop: true
+          envs: DEPLOY_DB_PASSWORD
           script: |
-            echo "1. Jumping into project directory..."
+            set -euo pipefail
+
+            export DEPLOY_DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "  MAYUSHDESIGN — DEPLOY STARTED"
+            echo "  $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+            # ── [1/4] Pull latest code ──────────────────────────────
+            echo ""
+            echo "▶ [1/4] Pulling latest code from GitHub..."
             cd /home/mayushdesign/public_html
-            
-            echo "2. Securing local changes and pulling latest code from GitHub..."
-            # Restore any file permission changes to prevent merge conflicts
             git restore .
-            git pull origin main
-            
-            echo "3. Installing backend dependencies..."
-            # Run composer install safely for production
-            composer install --no-dev --optimize-autoloader --no-interaction
-            
-            echo "4. Triggering Global Server Deployment Script..."
-            # The custom Mayush environment/cache deployer requested by the user
-            sudo deploy_mayush_env_and_cache.sh
-            
-            echo "✅ Deployment Process Finished Successfully!"
+            git pull origin main --ff-only
+            echo "✔ Code up to date — $(git log -1 --format='%h %s')"
+
+            # ── [2/4] PHP dependencies ──────────────────────────────
+            echo ""
+            echo "▶ [2/4] Installing PHP dependencies..."
+            composer install \
+              --no-dev \
+              --optimize-autoloader \
+              --no-interaction \
+              --prefer-dist
+            echo "✔ Composer done"
+
+            # ── [3/4] Frontend assets ───────────────────────────────
+            echo ""
+            echo "▶ [3/4] Building frontend assets..."
+            npm ci --prefer-offline
+            npm run build
+            echo "✔ Vite build done"
+
+            # ── [4/4] Laravel deploy script ─────────────────────────
+            echo ""
+            echo "▶ [4/4] Running Laravel deploy script..."
+            sudo -E /usr/local/bin/deploy_mayush_env_and_cache.sh
+            echo "✔ Deploy script finished"
+
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "  ✅ DEPLOYMENT COMPLETE — $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      # ----------------------------------------------------------
+      # 5. NOTIFY TELEGRAM — SUCCESS
+      # ----------------------------------------------------------
+      - name: ✅ Notify Telegram — Success
+        if: success()
+        run: |
+          COMMIT_MSG=$(git log -1 --format='%s' | head -c 80)
+          COMMIT_HASH=$(git log -1 --format='%h')
+          AUTHOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+          RUN_URL="https://github.com/${REPO}/actions/runs/${{ github.run_id }}"
+          NOW=$(date '+%Y-%m-%d %H:%M UTC')
+
+          TEXT="✅ *Mayush Deploy Succeeded*
+
+          📦 *Repo:* \`${REPO}\`
+          👤 *Pushed by:* ${AUTHOR}
+          🔖 *Commit:* \`${COMMIT_HASH}\` — ${COMMIT_MSG}
+          🌿 *Branch:* \`main\`
+          🕐 *Finished:* ${NOW}
+
+          *Completed steps:*
+          ✔ Code pulled from GitHub
+          ✔ Composer dependencies installed
+          ✔ Vite frontend assets built
+          ✔ \.env configured
+          ✔ Migrations ran \(safe mode\)
+          ✔ Caches rebuilt \(config / routes / views\)
+          ✔ Queue workers restarted
+          ✔ App is live 🟢
+
+          [🔍 View Run](${RUN_URL})"
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode "text=${TEXT}" \
+            --data-urlencode "parse_mode=MarkdownV2" \
+            --data-urlencode "disable_web_page_preview=true" > /dev/null
+
+      # ----------------------------------------------------------
+      # 6. NOTIFY TELEGRAM — FAILURE
+      # ----------------------------------------------------------
+      - name: ❌ Notify Telegram — Failure
+        if: failure()
+        run: |
+          COMMIT_MSG=$(git log -1 --format='%s' | head -c 80)
+          COMMIT_HASH=$(git log -1 --format='%h')
+          AUTHOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+          RUN_URL="https://github.com/${REPO}/actions/runs/${{ github.run_id }}"
+          NOW=$(date '+%Y-%m-%d %H:%M UTC')
+          LOG_DATE=$(date '+%Y-%m-%d')
+
+          # Identify which step failed
+          FAILED_STEP="Unknown step"
+          if [[ "${{ steps.ssh_deploy.outcome }}" == "failure" ]]; then
+            FAILED_STEP="SSH Deployment \(git pull / composer / npm / deploy script\)"
+          fi
+
+          TEXT="❌ *Mayush Deploy FAILED*
+
+          📦 *Repo:* \`${REPO}\`
+          👤 *Pushed by:* ${AUTHOR}
+          🔖 *Commit:* \`${COMMIT_HASH}\` — ${COMMIT_MSG}
+          🌿 *Branch:* \`main\`
+          🕐 *Failed at:* ${NOW}
+
+          💥 *Failed step:* ${FAILED_STEP}
+
+          *What to check on VPS:*
+          • Deploy log: \`/home/mayushdesign/deploy\.log\`
+          • Laravel log: \`storage/logs/laravel\-${LOG_DATE}\.log\`
+          • Apache log: \`/var/log/apache2/error\.log\`
+
+          ⚠️ App may be stuck in maintenance mode\.
+          Run on VPS if needed:
+          \`\`\`
+          php8\.2 artisan up
+          \`\`\`
+
+          [🔍 View Full Logs](${RUN_URL})"
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode "text=${TEXT}" \
+            --data-urlencode "parse_mode=MarkdownV2" \
+            --data-urlencode "disable_web_page_preview=true" > /dev/null
+
+          echo "::error::Deployment FAILED — Commit: ${COMMIT_HASH} by ${AUTHOR}"
+          echo "::error::Full logs: ${RUN_URL}"
