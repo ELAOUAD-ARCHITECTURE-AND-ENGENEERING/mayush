@@ -107,7 +107,14 @@ jobs:
             git config --global --add safe.directory /home/mayushdesign/public_html
             
             git restore .
-            git pull origin main --ff-only
+            
+            # Force Git to never prompt for passwords (which causes 10-minute hangs in CI/CD)
+            export GIT_TERMINAL_PROMPT=0
+            export GIT_SSH_COMMAND="ssh -o BatchMode=yes"
+            
+            # Pull via HTTPS with the Action's ephemeral token to guarantee Auth success
+            git pull https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main --ff-only
+            
             echo "✔ Code up to date — $(git log -1 --format='%h %s')"
 
             # ── [2/4] PHP dependencies ──────────────────────────────
