@@ -53,24 +53,21 @@ jobs:
           REPO="${{ github.repository }}"
           RUN_URL="https://github.com/${REPO}/actions/runs/${{ github.run_id }}"
 
-          TEXT=$(cat <<EOF
-          🚀 *Mayush Deploy Started*
+          TEXT="🚀 <b>Mayush Deploy Started</b>
 
-          📦 *Repo:* \`${REPO}\`
-          👤 *Author:* ${AUTHOR}
-          🔖 *Commit:* \`${COMMIT_HASH}\` — ${COMMIT_MSG}
-          🌿 *Branch:* \`main\`
+          📦 <b>Repo:</b> <code>${REPO}</code>
+          👤 <b>Author:</b> ${AUTHOR}
+          🔖 <b>Commit:</b> <code>${COMMIT_HASH}</code> — ${COMMIT_MSG}
+          🌿 <b>Branch:</b> <code>main</code>
 
-          ⏳ Deployment is in progress\.\.\. please wait\.
-          [🔍 View Run](${RUN_URL})
-          EOF
-          )
+          ⏳ Deployment is in progress... please wait.
+          <a href=\"${RUN_URL}\">🔍 View Run</a>"
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
             --data-urlencode "text=${TEXT}" \
-            --data-urlencode "parse_mode=MarkdownV2" \
-            --data-urlencode "disable_web_page_preview=true" > /dev/null
+            --data-urlencode "parse_mode=HTML" \
+            --data-urlencode "disable_web_page_preview=true"
 
       # ----------------------------------------------------------
       # 4. BUILD FRONTEND ASSETS (ON RUNNER)
@@ -182,31 +179,32 @@ jobs:
           RUN_URL="https://github.com/${REPO}/actions/runs/${{ github.run_id }}"
           NOW=$(date '+%Y-%m-%d %H:%M UTC')
 
-          TEXT="✅ *Mayush Deploy Succeeded*
+          TEXT="✅ <b>Mayush Deploy Succeeded</b>
 
-          📦 *Repo:* \`${REPO}\`
-          👤 *Pushed by:* ${AUTHOR}
-          🔖 *Commit:* \`${COMMIT_HASH}\` — ${COMMIT_MSG}
-          🌿 *Branch:* \`main\`
-          🕐 *Finished:* ${NOW}
+          📦 <b>Repo:</b> <code>${REPO}</code>
+          👤 <b>Pushed by:</b> ${AUTHOR}
+          🔖 <b>Commit:</b> <code>${COMMIT_HASH}</code> — ${COMMIT_MSG}
+          🌿 <b>Branch:</b> <code>main</code>
+          🕐 <b>Finished:</b> ${NOW}
 
-          *Completed steps:*
-          ✔ Code pulled from GitHub
+          <b>Completed steps:</b>
+          ✔ Code synced (Hard Reset)
           ✔ Composer dependencies installed
-          ✔ Vite frontend assets built
-          ✔ \.env configured
-          ✔ Migrations ran \(safe mode\)
-          ✔ Caches rebuilt \(config / routes / views\)
+          ✔ Vite frontend assets built (on Runner)
+          ✔ Build assets uploaded (SCP)
+          ✔ .env configured
+          ✔ Migrations ran (safe mode)
+          ✔ Caches rebuilt (config / routes / views)
           ✔ Queue workers restarted
           ✔ App is live 🟢
 
-          [🔍 View Run](${RUN_URL})"
+          <a href=\"${RUN_URL}\">🔍 View Run</a>"
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
             --data-urlencode "text=${TEXT}" \
-            --data-urlencode "parse_mode=MarkdownV2" \
-            --data-urlencode "disable_web_page_preview=true" > /dev/null
+            --data-urlencode "parse_mode=HTML" \
+            --data-urlencode "disable_web_page_preview=true"
 
       # ----------------------------------------------------------
       # 6. NOTIFY TELEGRAM — FAILURE
@@ -225,37 +223,35 @@ jobs:
           # Identify which step failed
           FAILED_STEP="Unknown step"
           if [[ "${{ steps.ssh_deploy.outcome }}" == "failure" ]]; then
-            FAILED_STEP="SSH Deployment \(git pull / composer / npm / deploy script\)"
+            FAILED_STEP="SSH Deployment (git pull / composer / deploy script)"
           fi
 
-          TEXT="❌ *Mayush Deploy FAILED*
+          TEXT="❌ <b>Mayush Deploy FAILED</b>
 
-          📦 *Repo:* \`${REPO}\`
-          👤 *Pushed by:* ${AUTHOR}
-          🔖 *Commit:* \`${COMMIT_HASH}\` — ${COMMIT_MSG}
-          🌿 *Branch:* \`main\`
-          🕐 *Failed at:* ${NOW}
+          📦 <b>Repo:</b> <code>${REPO}</code>
+          👤 <b>Pushed by:</b> ${AUTHOR}
+          🔖 <b>Commit:</b> <code>${COMMIT_HASH}</code> — ${COMMIT_MSG}
+          🌿 <b>Branch:</b> <code>main</code>
+          🕐 <b>Failed at:</b> ${NOW}
 
-          💥 *Failed step:* ${FAILED_STEP}
+          💥 <b>Failed step:</b> ${FAILED_STEP}
 
-          *What to check on VPS:*
-          • Deploy log: \`/home/mayushdesign/deploy\.log\`
-          • Laravel log: \`storage/logs/laravel\-${LOG_DATE}\.log\`
-          • Apache log: \`/var/log/apache2/error\.log\`
+          <b>What to check on VPS:</b>
+          • Deploy log: <code>/home/mayushdesign/deploy.log</code>
+          • Laravel log: <code>storage/logs/laravel-${LOG_DATE}.log</code>
+          • Apache log: <code>/var/log/apache2/error.log</code>
 
-          ⚠️ App may be stuck in maintenance mode\.
+          ⚠️ App may be stuck in maintenance mode.
           Run on VPS if needed:
-          \`\`\`
-          php8\.2 artisan up
-          \`\`\`
+          <code>php8.2 artisan up</code>
 
-          [🔍 View Full Logs](${RUN_URL})"
+          <a href=\"${RUN_URL}\">🔍 View Full Logs</a>"
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
             --data-urlencode "text=${TEXT}" \
-            --data-urlencode "parse_mode=MarkdownV2" \
-            --data-urlencode "disable_web_page_preview=true" > /dev/null
+            --data-urlencode "parse_mode=HTML" \
+            --data-urlencode "disable_web_page_preview=true"
 
           echo "::error::Deployment FAILED — Commit: ${COMMIT_HASH} by ${AUTHOR}"
           echo "::error::Full logs: ${RUN_URL}"
