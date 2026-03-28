@@ -73,7 +73,35 @@ jobs:
             --data-urlencode "disable_web_page_preview=true" > /dev/null
 
       # ----------------------------------------------------------
-      # 4. SSH DEPLOYMENT
+      # 4. BUILD FRONTEND ASSETS (ON RUNNER)
+      # ----------------------------------------------------------
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Build Frontend Assets
+        run: |
+          npm ci --prefer-offline
+          npm run build
+        
+      # ----------------------------------------------------------
+      # 5. UPLOAD COMPILED ASSETS TO VPS
+      # ----------------------------------------------------------
+      - name: 📤 Upload Build Assets via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "public/build/"
+          target: "/home/mayushdesign/public_html/"
+
+      # ----------------------------------------------------------
+      # 6. SSH DEPLOYMENT
       # ----------------------------------------------------------
       - name: 🚀 Deploy via SSH
         id: ssh_deploy
@@ -98,9 +126,9 @@ jobs:
             echo "  $(date '+%Y-%m-%d %H:%M:%S')"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-            # ── [1/4] Pull latest code ──────────────────────────────
+            # ── [1/3] Pull latest code ──────────────────────────────
             echo ""
-            echo "▶ [1/4] Pulling latest code from GitHub..."
+            echo "▶ [1/3] Pulling latest code from GitHub..."
             cd /home/mayushdesign/public_html
             
             # Bypass Git CVE-2022-24765 dubious ownership block
@@ -120,9 +148,9 @@ jobs:
             
             echo "✔ Code up to date — $(git log -1 --format='%h %s')"
 
-            # ── [2/4] PHP dependencies ──────────────────────────────
+            # ── [2/3] PHP dependencies ──────────────────────────────
             echo ""
-            echo "▶ [2/4] Installing PHP dependencies..."
+            echo "▶ [2/3] Installing PHP dependencies..."
             php8.2 $(which composer) install \
               --no-dev \
               --optimize-autoloader \
@@ -130,16 +158,9 @@ jobs:
               --prefer-dist
             echo "✔ Composer done"
 
-            # ── [3/4] Frontend assets ───────────────────────────────
+            # ── [3/3] Laravel deploy script ─────────────────────────
             echo ""
-            echo "▶ [3/4] Building frontend assets..."
-            npm ci --prefer-offline
-            npm run build
-            echo "✔ Vite build done"
-
-            # ── [4/4] Laravel deploy script ─────────────────────────
-            echo ""
-            echo "▶ [4/4] Running Laravel deploy script..."
+            echo "▶ [3/3] Running Laravel deploy script..."
             sudo -E /usr/local/bin/deploy_mayush_env_and_cache.sh
             echo "✔ Deploy script finished"
 
