@@ -1,0 +1,22 @@
+# Additional Files - Git Ignore Rules
+# Exclude sensitive backups and temporary files
+
+# Sensitive environment backups
+additional-files/backups/*.env*
+additional-files/backups/*.sql
+additional-files/backups/*.key
+
+# Temporary files
+additional-files/**/*.tmp
+additional-files/**/*.bak
+additional-files/**/*.swp
+additional-files/**/*~
+
+# OS-generated files
+additional-files/**/.DS_Store
+additional-files/**/Thumbs.db
+
+# Large binary files (archives, dumps)
+additional-files/backups/*.zip
+additional-files/backups/*.tar.gz
+additional-files/backups/*.gz

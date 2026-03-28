@@ -114,4 +114,45 @@ class EliteSystemTest extends TestCase
         $sub->refresh();
         $this->assertEquals('expired', $sub->status);
     }
+
+    /** @test */
+    public function elite_payment_redirection_works_correctly()
+    {
+        $user = User::factory()->create(['user_type' => 'seller']);
+        $shop = $this->createShop($user);
+        
+        // Mock session and auth
+        $this->actingAs($user);
+        
+        // Mock basic business settings for CMI
+        BusinessSetting::updateOrCreate(['type' => 'cmi_merchant_id'], ['value' => 'TEST_MERCHANT']);
+        BusinessSetting::updateOrCreate(['type' => 'cmi_store_key'], ['value' => 'TEST_KEY']);
+
+        // 1. Initiate processPayment to set session
+        $response = $this->post(route('seller.elite.process_payment'), [
+            'billing_cycle' => 'monthly'
+        ]);
+        
+        $sub = EliteSubscription::where('shop_id', $shop->id)->first();
+        $this->assertNotNull($sub);
+        
+        // 2. Follow redirect to cmi.pay
+        $response->assertRedirect(route('cmi.pay'));
+        
+        // 3. Test cmi.pay directly with session set
+        $response = $this->withSession([
+            'payment_type' => 'elite_payment',
+            'payment_data' => [
+                'subscription_id' => $sub->id,
+                'amount' => $sub->amount_paid
+            ],
+            'elite_subscription_id' => $sub->id
+        ])->get(route('cmi.pay'));
+
+        // Assert it does NOT redirect to home, instead returns the CMI payment view (status 200)
+        // Note: CmiController::pay() returns a view 'frontend.payment.cmi'
+        $response->assertStatus(200);
+        $response->assertViewIs('frontend.payment.cmi');
+        $response->assertSee('Redirecting to CMI');
+    }
 }

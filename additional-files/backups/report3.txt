@@ -1,0 +1,50 @@
+
+  [30;43;1m WARN [39;49;22m Your XML configuration validates against a deprecated schema. Migrate your XML configuration using "--migrate-configuration"!
+Successfully encrypted PII for 0 users.
+Successfully encrypted financial data for 0 shops.
+Successfully encrypted PII for 0 users.
+Successfully encrypted financial data for 0 shops.
+
+   FAIL  Tests\Feature\Security\ClamavUploadTest
+  ⨯ upload with… 0.64s  
+  ⨯ clamav fail… 0.18s  
+  ────────────────────  
+   FAILED  Tests\Feature\Security\ClamavUploadTest > upload with eicar virus is blocked and alerts sent  RouteNotFoundException   
+  Route [aiz-uploader.upload] not defined.
+
+  at vendor\laravel\framework\src\Illuminate\Routing\UrlGenerator.php:477
+    473▕             ! is_null($url = call_user_func($this->missingNamedRouteResolver, $name, $parameters, $absolute))) {
+    474▕             return $url;
+    475▕         }
+    476▕ 
+  ➜ 477▕         throw new RouteNotFoundException("Route [{$name}] not defined.");
+    478▕     }
+    479▕ 
+    480▕     /**
+    481▕      * Get the URL for a given route instance.
+
+  1   vendor\laravel\framework\src\Illuminate\Routing\UrlGenerator.php:477
+  2   vendor\laravel\framework\src\Illuminate\Foundation\helpers.php:811
+
+  ────────────────────  
+   FAILED  Tests\Feature\Security\ClamavUploadTest > clamav fail open behavior on connection error  RouteNotFoundException   
+  Route [aiz-uploader.upload] not defined.
+
+  at vendor\laravel\framework\src\Illuminate\Routing\UrlGenerator.php:477
+    473▕             ! is_null($url = call_user_func($this->missingNamedRouteResolver, $name, $parameters, $absolute))) {
+    474▕             return $url;
+    475▕         }
+    476▕ 
+  ➜ 477▕         throw new RouteNotFoundException("Route [{$name}] not defined.");
+    478▕     }
+    479▕ 
+    480▕     /**
+    481▕      * Get the URL for a given route instance.
+
+  1   vendor\laravel\framework\src\Illuminate\Routing\UrlGenerator.php:477
+  2   vendor\laravel\framework\src\Illuminate\Foundation\helpers.php:811
+
+
+  Tests:    2 failed (1 assertions)
+  Duration: 1.10s
+

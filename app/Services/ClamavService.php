@@ -32,16 +32,21 @@ class ClamavService
         }
 
         try {
+            if (!function_exists('socket_create')) {
+                $this->reportFailure('Extension Missing', 'The PHP sockets extension is not enabled on this server.');
+                return true; // Fail-safe (Fail-Open)
+            }
+
             $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
             if (!$socket) {
-                Log::warning('ClamAV: Could not create socket.');
-                return true; // Fail-safe
+                $this->reportFailure('Socket Creation Failed', 'Could not create ClamAV socket connect thread.');
+                return true; // Fail-safe (Fail-Open)
             }
 
             if (!@socket_connect($socket, $this->host, $this->port)) {
-                Log::warning('ClamAV: Could not connect to daemon at ' . $this->host . ':' . $this->port);
+                $this->reportFailure('Connection Refused', 'Could not connect to ClamAV daemon at ' . $this->host . ':' . $this->port);
                 socket_close($socket);
-                return true; // Fail-safe
+                return true; // Fail-safe (Fail-Open)
             }
 
             // Send INSTREAM command
@@ -84,8 +89,31 @@ class ClamavService
 
             return true;
         } catch (\Exception $e) {
-            Log::error('ClamAV Error: ' . $e->getMessage());
-            return true; // Fail-safe
+            $this->reportFailure('Unexpected Exception', $e->getMessage());
+            return true; // Fail-safe (Fail-Open)
         }
+    }
+
+    /**
+     * Dispatch critical system error logic and configure degraded frontend.
+     */
+    protected function reportFailure($errorContext, $errorMessage)
+    {
+        Log::critical('ClamAV Failure: ' . $errorContext . ' - ' . $errorMessage);
+        
+        // Cache the degraded state flag for 10 minutes so frontend can show maintenance popups continuously 
+        // without burning DB resources polling it.
+        \Illuminate\Support\Facades\Cache::put('system_degraded', [
+            'component' => 'Malware Scanner (ClamAV)',
+            'timestamp' => now()->toDateTimeString()
+        ], now()->addMinutes(10));
+
+        // Fire comprehensive critical alert
+        event(new \App\Events\CriticalSystemError(
+            'ClamAV Scanner',
+            $errorMessage,
+            ['context' => $errorContext, 'host' => $this->host, 'port' => $this->port],
+            'critical'
+        ));
     }
 }

@@ -13,6 +13,10 @@ class ExpandEncryptedColumns extends Migration
      */
     public function up()
     {
+        if (Schema::getConnection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
             if (Schema::hasColumn('users', 'phone')) {
                 $table->text('phone')->nullable()->change();
@@ -39,6 +43,10 @@ class ExpandEncryptedColumns extends Migration
      */
     public function down()
     {
+        if (Schema::getConnection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
             $table->string('phone', 20)->nullable()->change();
             $table->string('address', 300)->nullable()->change();

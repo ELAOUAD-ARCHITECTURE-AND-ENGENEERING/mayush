@@ -14,11 +14,15 @@ class EliteSubscription extends Model
         'status',
         'expires_at',
         'admin_notes',
+        'transaction_id',
+        'payment_method',
+        'payment_details',
     ];
 
     protected $casts = [
         'expires_at' => 'datetime',
         'amount_paid' => 'decimal:2',
+        'payment_details' => 'array',
     ];
 
     /**

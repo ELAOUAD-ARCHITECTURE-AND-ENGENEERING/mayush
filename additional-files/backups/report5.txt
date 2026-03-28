@@ -1,0 +1,52 @@
+
+  [30;43;1m WARN [39;49;22m Your XML configuration validates against a deprecated schema. Migrate your XML configuration using "--migrate-configuration"!
+Successfully encrypted PII for 0 users.
+Successfully encrypted financial data for 0 shops.
+Successfully encrypted PII for 0 users.
+Successfully encrypted financial data for 0 shops.
+
+   FAIL  Tests\Feature\Security\ClamavUploadTest
+  ⨯ upload with… 0.70s  
+  ⨯ clamav fail… 0.20s  
+  ────────────────────  
+   F…  QueryException   
+  SQLSTATE[23000]: Integrity constraint violation: 19 NOT NULL constraint failed: audit_logs.target_user_id (Connection: sqlite, SQL: insert into "audit_logs" ("admin_user_id", "action_type", "description", "ip_address", "updated_at", "created_at") values (2, MALWARE_BLOCKED, Infected file rejected: eicar.txt, 127.0.0.1, 2026-03-28 16:45:36, 2026-03-28 16:45:36))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+    825▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕                 );
+    827▕             }
+    828▕ 
+  ➜ 829▕             throw new QueryException(
+    830▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    831▕             );
+    832▕         }
+    833▕     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:829
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:587
+      NunoMaduro\Collision\Exceptions\TestException::("SQLSTATE[23000]: Integrity constraint violation: 19 NOT NULL constraint failed: audit_logs.target_user_id")
+
+  ────────────────────  
+   FAILED  Te…  Error   
+  Call to undefined function App\Services\socket_create()
+
+  at app\Services\ClamavService.php:35
+     31▕             return true;
+     32▕         }
+     33▕ 
+     34▕         try {
+  ➜  35▕             $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+     36▕             if (!$socket) {
+     37▕                 $this->reportFailure('Socket Creation Failed', 'Could not create ClamAV socket connect thread.');
+     38▕                 return true; // Fail-safe (Fail-Open)
+     39▕             }
+
+  1   app\Services\ClamavService.php:35
+  2   app\Http\Controllers\AizUploadController.php:119
+
+
+  Tests:    2 failed (1 assertions)
+  Duration: 1.17s
+

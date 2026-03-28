@@ -34,3 +34,34 @@
 - **Why:** This file serves as the system's "long-term memory" and provides the user with an accurate, real-time snapshot of the project's health and completion percentage.
 
 **By reading this file, you agree that protecting the user's existing data and application stability is your absolute #1 priority, overriding all other tasks, optimizations, or framework conventions.**
+
+## 7. ADDITIONAL FILES POLICY
+
+### Mandatory Placement
+- All supplementary files (documentation, scripts, experiments, backups) that are NOT part of the
+  original Mayush codebase MUST be placed inside the `additional-files/` directory.
+- NEVER create loose supplementary files in the project root or inside existing app directories.
+
+### Subfolder Categorization
+Files must be categorized into the correct subfolder based on their purpose:
+- `additional-files/documentation/` → Guides, notes, architecture diagrams, explanatory files
+- `additional-files/utilities/` → Helper scripts, automation tools, CLI utilities
+- `additional-files/experiments/` → Test implementations, prototypes, proof-of-concept code
+- `additional-files/backups/` → Version snapshots, temporary saves, rollback references
+
+### Naming Conventions
+- **Folders:** Use lowercase kebab-case (e.g., `my-subfolder`)
+- **Files:** Use date-prefixed descriptive names: `YYYY-MM-DD_purpose-description.ext`
+  - Example: `2026-03-28_clamav-integration-notes.md`
+  - Example: `2026-03-28_deploy-helper.sh`
+
+### Manifest & Documentation
+- After adding any file, update `additional-files/index.json` to include the new entry
+- After adding any file, update the `README.md` in the corresponding subfolder
+- Each subfolder's `README.md` must document the purpose of every file it contains
+
+### Protection of Existing Files
+- NEVER move, rename, or relocate existing project files into `additional-files/`
+- NEVER place additional/supplementary files inside `app/`, `resources/`, `routes/`, `config/`,
+  `database/`, `public/`, `storage/`, `vendor/`, or `tests/` unless they are actual application code
+

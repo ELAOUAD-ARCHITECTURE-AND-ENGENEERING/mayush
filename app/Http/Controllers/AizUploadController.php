@@ -115,13 +115,14 @@ class AizUploadController extends Controller
 
         if ($request->hasFile('aiz_file')) {
             // Secure Evolution: Virus Scanning
-            $clamav = new ClamavService();
+            $clamav = app(ClamavService::class);
             if (!$clamav->scan($request->file('aiz_file'))) {
                 $filename = $request->file('aiz_file')->getClientOriginalName();
                 $ip = $request->ip();
 
                 AuditLog::create([
                     'admin_user_id' => auth()->id(),
+                    'target_user_id' => auth()->id(),
                     'action_type' => 'MALWARE_BLOCKED',
                     'description' => "Infected file rejected: {$filename}",
                     'ip_address' => $ip,

@@ -87,7 +87,7 @@
 
                                                 @if(get_setting('cloudflare_turnstile') == 1 && get_setting('turnstile_customer_login') == 1)
                                                     <input type="hidden" name="turnstile_action" value="turnstile_customer_login">
-                                                    <div class="cf-turnstile mb-3" data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}"></div>
+                                                    <div class="cf-turnstile mb-3" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
                                                     @if ($errors->has('cf-turnstile-response'))
                                                         <span class="border invalid-feedback rounded p-2 mb-3 bg-danger text-white" role="alert" style="display: block;">
                                                             <strong>{{ $errors->first('cf-turnstile-response') }}</strong>

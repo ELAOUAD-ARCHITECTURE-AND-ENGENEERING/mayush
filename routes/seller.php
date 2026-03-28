@@ -155,9 +155,13 @@ Route::group(['namespace' => 'App\Http\Controllers\Seller', 'prefix' => 'seller'
     });
 
     // Artisan Elite Profile
-    Route::controller(\App\Http\Controllers\Seller\SellerEliteController::class)->group(function () {
-        Route::get('/profile/elite', 'index')->name('elite.profile');
-        Route::post('/elite/apply', 'apply')->name('elite.apply');
+    Route::controller(SellerEliteController::class)->group(function () {
+        Route::get('/elite-profile', 'index')->name('elite.index');
+        Route::get('/elite/pricing', 'pricing')->name('elite.pricing');
+        Route::post('/elite/recap', 'recap')->name('elite.recap');
+        Route::post('/elite/process-payment', 'processPayment')->name('elite.process_payment');
+        Route::get('/elite/payment-success', 'paymentSuccess')->name('elite.payment.success');
+        Route::get('/elite/payment-failed', 'paymentFail')->name('elite.payment.fail');
         Route::post('/elite/cancel', 'cancel')->name('elite.cancel');
         Route::post('/elite/update', 'updateProfile')->name('elite.update_profile');
     });
@@ -191,11 +195,6 @@ Route::group(['namespace' => 'App\Http\Controllers\Seller', 'prefix' => 'seller'
         Route::post('conversations/message/store', 'message_store')->name('conversations.message_store');
     });
 
-    // Elite System
-    Route::controller(App\Http\Controllers\Seller\SellerEliteController::class)->group(function () {
-        Route::get('/elite-profile', 'index')->name('seller.elite.index');
-        Route::post('/elite-profile/update', 'update')->name('seller.elite_profile.update');
-    });
 
     // product query (comments) show on seller panel
     Route::controller(ProductQueryController::class)->group(function () {

@@ -3,55 +3,6 @@
 @section('panel_content')
 <div class="row">
     <div class="col-lg-12">
-        @if(!$shop->isElite() && (!$subscription || $subscription->status == 'expired' || $subscription->status == 'rejected'))
-        <div class="card">
-            <div class="card-header bg-dark text-white">
-                <h5 class="mb-0 h6 text-warning"><i class="las la-crown"></i> {{translate('Become an Elite Artisan')}}</h5>
-            </div>
-            <div class="card-body">
-                <p class="mb-4">
-                    {{translate('Unlock premium features by becoming an Elite Artisan. You will gain access to the immersive Artisan Story profile, ad-free storefront, and a priority showcase on our homepage.')}}
-                </p>
-                <form action="{{ route('seller.elite.apply') }}" method="POST">
-                    @csrf
-                    <div class="form-group row">
-                        <label class="col-md-3 col-from-label">{{translate('Select Billing Cycle')}}</label>
-                        <div class="col-md-9">
-                            <div class="radio-inline">
-                                <label class="aiz-radio">
-                                    <input type="radio" name="billing_cycle" value="monthly" checked>
-                                    {{translate('Monthly')}} - {{ single_price($monthly_price) }}
-                                    <span class="aiz-rounded-check"></span>
-                                </label>
-                                <label class="aiz-radio">
-                                    <input type="radio" name="billing_cycle" value="yearly">
-                                    {{translate('Yearly')}} - {{ single_price($yearly_price) }}
-                                    <span class="aiz-rounded-check"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group mb-0 text-right">
-                        <button type="submit" class="btn btn-warning text-dark font-weight-bold">{{translate('Apply Now')}}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        @elseif($subscription && $subscription->status == 'pending')
-        <div class="card">
-            <div class="card-header bg-warning">
-                <h5 class="mb-0 h6 text-white"><i class="las la-clock"></i> {{translate('Application Pending')}}</h5>
-            </div>
-            <div class="card-body text-center">
-                <h4 class="mb-3">{{translate('Your Elite Artisan application is under review.')}}</h4>
-                <p>{{translate('We are currently processing your request. You will be notified once it is approved.')}}</p>
-                <form action="{{ route('seller.elite.cancel') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-danger mt-3">{{translate('Cancel Application')}}</button>
-                </form>
-            </div>
-        </div>
-        @elseif($shop->isElite())
         <div class="card">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0 h6"><i class="las la-crown text-warning"></i> {{translate('Elite Artisan Profile')}}</h5>
@@ -71,7 +22,7 @@
                             <input type="text" class="form-control" name="story_title" value="{{ $shop->story_title }}" placeholder="{{translate('e.g., The Heritage of Handcrafted Pottery')}}">
                         </div>
                     </div>
-                    
+
                     <div class="form-group row">
                         <label class="col-md-3 col-form-label">{{translate('Story Content')}}</label>
                         <div class="col-md-9">
@@ -136,7 +87,6 @@
                 </form>
             </div>
         </div>
-        @endif
     </div>
 </div>
 @endsection

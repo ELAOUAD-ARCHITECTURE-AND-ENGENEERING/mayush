@@ -230,8 +230,4 @@
         </script>
     @endif
 
-    @if(get_setting('cloudflare_turnstile') == 1 && get_setting('turnstile_customer_login') == 1)
-        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    @endif
-
 @endsection

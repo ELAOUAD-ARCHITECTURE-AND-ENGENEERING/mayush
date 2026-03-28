@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Order;
 use App\Models\CombinedOrder;
 use App\Models\User;
+use App\Models\EliteSubscription;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\CustomerPackageController;
 use App\Http\Controllers\SellerPackageController;
+use App\Http\Controllers\Seller\SellerEliteController;
 use App\Models\BusinessSetting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -26,12 +28,14 @@ class CmiController extends Controller
         Log::info('CMI Payment Initiated', ['user_id' => Auth::id(), 'session_data' => Session::all()]);
 
         if (!Session::has('combined_order_id')) {
-             Log::error('CMI Payment Error: Session expired or combined_order_id missing.');
-             // Allow proceeding if order_id is present in payment_data for re-payment
-             if (!Session::has('payment_type') || Session::get('payment_type') != 'order_re_payment') {
-                Session::flash('error', translate('Session expired or invalid order. Please try again.'));
-                return redirect()->route('home');
-             }
+            $paymentType = Session::get('payment_type');
+            $nonCartPayments = ['order_re_payment', 'wallet_payment', 'customer_package_payment', 'seller_package_payment', 'elite_payment'];
+            
+            if (!$paymentType || !in_array($paymentType, $nonCartPayments)) {
+                 Log::error('CMI Payment Error: Session expired or combined_order_id missing.', ['payment_type' => $paymentType]);
+                 Session::flash('error', translate('Session expired or invalid order. Please try again.'));
+                 return redirect()->route('home');
+            }
         }
 
         try {
@@ -84,6 +88,15 @@ class CmiController extends Controller
                     $amount = round($seller_package->amount, 2);
                     $oid = 'SP-' . $seller_package->id . '-' . time();
                      $shipping_info = [
+                        'name' => $user->name ?? 'Guest',
+                        'email' => $user->email ?? 'email@domain.com',
+                        'phone' => $user->phone ?? '0000000000'
+                    ];
+                } elseif ($paymentType == 'elite_payment') {
+                    $eliteSub = EliteSubscription::findOrFail($paymentData['subscription_id']);
+                    $amount = round($eliteSub->amount_paid, 2);
+                    $oid = 'EA-' . $eliteSub->id . '-' . time();
+                    $shipping_info = [
                         'name' => $user->name ?? 'Guest',
                         'email' => $user->email ?? 'email@domain.com',
                         'phone' => $user->phone ?? '0000000000'
@@ -242,6 +255,9 @@ class CmiController extends Controller
                          // but for safety in callback we assume it's valid if user_id $id exists)
                          $order = User::find($id);
                          $db_amount = $amount_received; 
+                    } elseif ($type == 'EA') {
+                         $order = EliteSubscription::find($id);
+                         $db_amount = $order ? (float) $order->amount_paid : 0;
                     }
 
                     if (!$order) {
@@ -289,6 +305,11 @@ class CmiController extends Controller
                             $wallet->payment_method = 'cmi';
                             $wallet->payment_details = $payment_details;
                             $wallet->save();
+                        } elseif ($type == 'EA' && $order instanceof EliteSubscription) {
+                            // Activate Elite subscription via dedicated handler
+                            $txnId = $input['TransId'] ?? $input['oid'] ?? null;
+                            SellerEliteController::activateSubscription($order->id, $payment_details, $txnId);
+                            Log::info('CMI Callback: Elite subscription activated', ['subscription_id' => $order->id]);
                         }
 
                         Log::info('CMI Callback: Returning ACTION=POSTAUTH');
@@ -392,6 +413,8 @@ class CmiController extends Controller
                     return (new CustomerPackageController)->purchase_payment_done($paymentData, $paymentDetails);
                 } elseif ($paymentType == 'seller_package_payment') {
                     return (new SellerPackageController)->purchase_payment_done($paymentData, $paymentDetails);
+                } elseif ($paymentType == 'elite_payment') {
+                    return redirect()->route('seller.elite.payment.success');
                 }
              }
              

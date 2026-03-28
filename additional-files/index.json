@@ -1,0 +1,89 @@
+{
+  "name": "additional-files",
+  "description": "Supplementary files created during Mayush development, separate from the core project codebase.",
+  "created": "2026-03-28",
+  "lastUpdated": "2026-03-28",
+  "structure": {
+    "documentation": {
+      "description": "Guides, notes, architecture diagrams, and explanatory files",
+      "files": [
+        "BLADE_ROUTING_AUDIT_REPORT.md",
+        "SECURITY_IMPLEMENTATION.md",
+        "TEST_PLAN.md",
+        "PROJECT_TRACKER.md",
+        "checklist.md",
+        "spec.md",
+        "tasks.md",
+        "test_report.md",
+        "vps_infrastructure_guide.md"
+      ]
+    },
+    "utilities": {
+      "description": "Helper scripts, automation tools, and CLI utilities",
+      "files": [
+        "check_assets.php", "check_blade_routes.php", "check_db_raw.php",
+        "check_deals.php", "check_deals_active.php", "check_deals_simple.php",
+        "check_flash_deals.php", "check_php.php", "check_pii_data.php",
+        "check_schema.php", "check_schema_lengths.php", "check_sql.php",
+        "create_test_deal.php", "debug_500.php", "debug_500_file.php",
+        "debug_db.php", "debug_flash_deals.php", "debug_migrations.php",
+        "debug_test.php", "debug_trace.php", "deploy_vps.sh",
+        "dev_router.php", "diagnose_pii.php", "dump_db_structure.php",
+        "dump_schema.php", "extract_log.php", "final_discovery.php",
+        "find_ajax.ps1", "find_ajax_v2.ps1", "fix_controllers.php",
+        "fix_preorder.php", "fix_routes.php", "full_route_check.php",
+        "get_final_cols.php", "inspect_schema.php", "list_tables.php",
+        "list_tables_clean.php", "script.php", "update_ajax.ps1",
+        "update_ajax_v2.ps1", "verify_db_urls.php",
+        "verify_migration_fix.php", "verify_security_fix.php"
+      ]
+    },
+    "experiments": {
+      "description": "Test implementations, prototypes, and proof-of-concept code",
+      "files": [
+        "force_create_fd.php", "test-log.php", "test_analytics.php",
+        "test_analytics_verbose.php", "test_brands.php", "test_curl.php",
+        "test_db_connection.php", "test_debugbar.php", "test_failing.php",
+        "test_final_sync.php", "test_http_pipeline.php", "test_routes.php",
+        "test_security.php", "test_static_asset.php", "test_store_logic.php",
+        "test_upload.php", "test_url.php", "test_web_env.php", "testpush.html"
+      ]
+    },
+    "backups": {
+      "description": "Version snapshots, logs, route dumps, schema outputs, and temporary saves",
+      "files": [
+        ".arcforge-mayush", "Mayush.json", "ajax_search.txt",
+        "all_routes.json", "all_routes_fix_check.json", "all_routes_full.txt",
+        "all_tables.txt", "broken_routes_after_batch1.txt", "broken_routes_after_batch2.txt",
+        "broken_routes_after_batch3.txt", "broken_routes_after_batch4.txt",
+        "broken_routes_after_fix.txt", "broken_routes_after_fix_utf8.txt",
+        "broken_routes_final.txt", "broken_routes_final_utf8.txt",
+        "broken_routes_final_v2.txt", "broken_routes_final_v2_utf8.txt",
+        "broken_routes_list.txt", "broken_routes_utf8.txt", "build_error.txt",
+        "clean_tables.txt", "columns.txt", "db_analysis.txt", "debug.json",
+        "debug.txt", "debug_forecasting.json", "debug_out.txt", "debug_output.txt",
+        "duplicates_output.txt", "duplicates_output_utf8.txt", "final_schema.txt",
+        "fixed_categories_translations.sql", "flash_deals_debug.txt",
+        "gcm-diagnose.log", "health.html", "insert_deal.sql", "migrate_out.log",
+        "missing_admin_routes.txt", "missing_admin_routes_utf8.txt",
+        "npm_build_log.txt", "npm_install_log.txt", "out.log", "out2.log", "out3.log",
+        "phpunit_log.xml", "phpunit_log2.xml", "phpunit_out.txt",
+        "remaining_broken_routes.txt", "remaining_broken_routes2.txt",
+        "remaining_broken_routes3.txt", "remaining_broken_routes4.txt",
+        "report.txt", "report2.txt", "report3.txt", "report4.txt",
+        "report5.txt", "report6.txt", "report7.txt", "route_cache_output.txt",
+        "route_error.txt", "routes.json", "routes_debug.json", "routes_list.json",
+        "routes_list.txt", "routes_list_dump.txt", "routes_log.txt", "routes_order.txt",
+        "schema.txt", "schema_debug.txt", "schema_full.txt", "schema_out.json",
+        "schema_output.txt", "script_output.txt", "shop.sql", "tables.txt",
+        "temp_err.txt", "test_output.log", "test_results.txt",
+        "test_results_category.txt", "test_results_category_2.txt",
+        "test_results_category_3.txt", "test_results_category_4.txt",
+        "test_results_category_5.txt", "trace2.json", "unique_broken_routes.txt",
+        "verify_final.log", "verify_results.log", "verify_results.txt"
+      ]
+    }
+  },
+  "namingConvention": "YYYY-MM-DD_purpose-description.ext",
+  "folderNamingConvention": "lowercase-kebab-case"
+}

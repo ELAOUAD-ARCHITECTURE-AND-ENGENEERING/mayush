@@ -32,6 +32,13 @@
                             <input type="number" step="0.01" class="form-control" name="elite_yearly_price" value="{{ get_setting('elite_yearly_price', '179.99') }}">
                         </div>
                     </div>
+                    <div class="form-group row">
+                        <label class="col-md-3 col-from-label">{{translate('Tax Rate (%)')}}</label>
+                        <div class="col-md-8">
+                            <input type="number" step="0.01" class="form-control" name="elite_tax_rate" value="{{ get_setting('elite_tax_rate', '20') }}">
+                            <small class="text-muted">{{translate('Applied on top of subtotal during checkout.')}}</small>
+                        </div>
+                    </div>
                     <div class="form-group mb-0 text-right">
                         <button type="submit" class="btn btn-primary">{{translate('Save Settings')}}</button>
                     </div>
@@ -58,6 +65,7 @@
                             <th>{{translate('Seller')}}</th>
                             <th>{{translate('Billing Cycle')}}</th>
                             <th>{{translate('Amount Paid')}}</th>
+                            <th>{{translate('Transaction ID')}}</th>
                             <th>{{translate('Status')}}</th>
                             <th>{{translate('Expires At')}}</th>
                             <th class="text-right">{{translate('Actions')}}</th>
@@ -71,6 +79,13 @@
                             <td>{{ $sub->shop->user->name ?? 'N/A' }}</td>
                             <td>{{ ucfirst($sub->billing_cycle) }}</td>
                             <td>{{ single_price($sub->amount_paid) }}</td>
+                            <td>
+                                @if($sub->transaction_id)
+                                    <code>{{ $sub->transaction_id }}</code>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                             <td>
                                 @if($sub->status == 'active')
                                     <span class="badge badge-inline badge-success">{{translate('Active')}}</span>

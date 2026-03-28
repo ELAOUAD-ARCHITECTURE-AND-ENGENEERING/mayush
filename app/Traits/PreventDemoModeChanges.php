@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Builder;
 trait PreventDemoModeChanges
 {
     protected static function isActive(): bool {
+        if (app()->runningUnitTests()) {
+            return false;
+        }
         return env('DEMO_MODE') == 'On' ? true : false;
     }
 

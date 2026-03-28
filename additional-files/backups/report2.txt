@@ -1,0 +1,50 @@
+
+  [30;43;1m WARN [39;49;22m Your XML configuration validates against a deprecated schema. Migrate your XML configuration using "--migrate-configuration"!
+Successfully encrypted PII for 0 users.
+Successfully encrypted financial data for 0 shops.
+Successfully encrypted PII for 0 users.
+Successfully encrypted financial data for 0 shops.
+
+   FAIL  Tests\Feature\Security\ClamavUploadTest
+  ⨯ upload with eicar virus is blocked and alerts sent
+  ⨯ clamav fail open behavior on connection error
+  ────────────────────  
+   FAILED  Tests\Feature\Security\ClamavUploadTest > upload with eicar virus is blocked and alerts sent  BadMethodCallException   
+  Method Illuminate\Database\Schema\SQLiteBuilder::getDriverName does not exist.
+
+  at vendor\laravel\framework\src\Illuminate\Macroable\Traits\Macroable.php:112
+    108▕      */
+    109▕     public function __call($method, $parameters)
+    110▕     {
+    111▕         if (! static::hasMacro($method)) {
+  ➜ 112▕             throw new BadMethodCallException(sprintf(
+    113▕                 'Method %s::%s does not exist.', static::class, $method
+    114▕             ));
+    115▕         }
+    116▕
+
+  1   vendor\laravel\framework\src\Illuminate\Macroable\Traits\Macroable.php:112
+  2   database\migrations\2026_03_25_225600_expand_encrypted_columns.php:16
+
+  ────────────────────  
+   FAILED  Tests\Feature\Security\ClamavUploadTest > clamav fail open behavior on connection error  BadMethodCallException   
+  Method Illuminate\Database\Schema\SQLiteBuilder::getDriverName does not exist.
+
+  at vendor\laravel\framework\src\Illuminate\Macroable\Traits\Macroable.php:112
+    108▕      */
+    109▕     public function __call($method, $parameters)
+    110▕     {
+    111▕         if (! static::hasMacro($method)) {
+  ➜ 112▕             throw new BadMethodCallException(sprintf(
+    113▕                 'Method %s::%s does not exist.', static::class, $method
+    114▕             ));
+    115▕         }
+    116▕
+
+  1   vendor\laravel\framework\src\Illuminate\Macroable\Traits\Macroable.php:112
+  2   database\migrations\2026_03_25_225600_expand_encrypted_columns.php:16
+
+
+  Tests:    2 failed (0 assertions)
+  Duration: 1.02s
+

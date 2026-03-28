@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('elite_subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('shop_id');
+            $table->integer('shop_id');
             $table->decimal('amount_paid', 10, 2)->default(0);
             $table->enum('billing_cycle', ['monthly', 'yearly'])->default('monthly');
             $table->enum('status', ['pending', 'active', 'expired', 'rejected'])->default('pending');

@@ -1,0 +1,46 @@
+
+  [30;43;1m WARN [39;49;22m Your XML configuration validates against a deprecated schema. Migrate your XML configuration using "--migrate-configuration"!
+Successfully encrypted PII for 0 users.
+Successfully encrypted financial data for 0 shops.
+Successfully encrypted PII for 0 users.
+Successfully encrypted financial data for 0 shops.
+
+   FAIL  Tests\Feature\Security\ClamavUploadTest
+  ⨯ upload with… 0.72s  
+  ⨯ clamav fail… 0.22s  
+  ────────────────────  
+   FAILED  Tests\Fea…   
+  Expected response status code [403] but received 500.
+Failed asserting that 500 is identical to 403.
+
+  at tests\Feature\Security\ClamavUploadTest.php:53
+     49▕         $response = $this->postJson('/aiz-uploader/upload', [
+     50▕             'aiz_file' => $file
+     51▕         ]);
+     52▕ 
+  ➜  53▕         $response->assertStatus(403)
+     54▕                  ->assertJsonPath('status', 'error')
+     55▕                  ->assertJsonPath('message', translate('Infected file detected. Upload rejected.'));
+     56▕ 
+     57▕         Event::assertDispatched(SecurityAlert::class, function ($event) {
+
+  ────────────────────  
+   FAILED  Tests\Fea…   
+  Expected response status code [200] but received 500.
+Failed asserting that 500 is identical to 200.
+
+  at tests\Feature\Security\ClamavUploadTest.php:84
+     80▕         $response = $this->postJson('/aiz-uploader/upload', [
+     81▕             'aiz_file' => $file
+     82▕         ]);
+     83▕ 
+  ➜  84▕         $response->assertStatus(200);
+     85▕ 
+     86▕         // Ensure the CriticalSystemError was fired to alert the admin
+     87▕         Event::assertDispatched(CriticalSystemError::class, function ($event) {
+     88▕             return $event->component === 'ClamAV Scanner';
+
+
+  Tests:    2 failed (3 assertions)
+  Duration: 1.20s
+
