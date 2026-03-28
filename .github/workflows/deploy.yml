@@ -123,7 +123,7 @@ jobs:
             # ── [2/4] PHP dependencies ──────────────────────────────
             echo ""
             echo "▶ [2/4] Installing PHP dependencies..."
-            composer install \
+            php8.2 $(which composer) install \
               --no-dev \
               --optimize-autoloader \
               --no-interaction \
