@@ -2689,14 +2689,21 @@ if (!function_exists('get_image')) {
 
 //Get 1st prodyct image
 if (!function_exists('get_first_product_image')) {
-     function get_first_product_image($photos = null, $thumbnail = null, $size = null)
+    function get_first_product_image($photos = null, $thumbnail = null, $size = null)
     {
         $photos = $photos != null ? explode(',', $photos) : [];
         $photos = array_diff($photos, [$thumbnail]);
-        $firstPhotoId = reset($photos);
         
-        if (!empty($firstPhotoId)) {
-            return uploaded_asset($firstPhotoId, $size);
+        foreach ($photos as $photoId) {
+            if (!empty($photoId)) {
+                $asset = \App\Models\Upload::find($photoId);
+                if ($asset) {
+                    $file_path = public_path($asset->file_name);
+                    if (file_exists($file_path)) {
+                        return uploaded_asset($photoId, $size);
+                    }
+                }
+            }
         }
         
         if ($thumbnail != null) {

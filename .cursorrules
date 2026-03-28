@@ -65,3 +65,11 @@ Files must be categorized into the correct subfolder based on their purpose:
 - NEVER place additional/supplementary files inside `app/`, `resources/`, `routes/`, `config/`,
   `database/`, `public/`, `storage/`, `vendor/`, or `tests/` unless they are actual application code
 
+## 8. ALWAYS PUSH TO GITHUB
+- After completing any task or significant set of changes, you **MUST** push the changes to the remote repository.
+- Ensure the commit message is descriptive of the changes made.
+
+## 9. ALWAYS CLEAN PROJECT
+- Before concluding a task and notifying the user, you **MUST** delete any temporary diagnostic, test, or experimental files created during the process.
+- This includes files in `additional-files/diagnostics/`, `additional-files/utilities/`, or any other temporary location.
+- Never leave "scaffolding" or "scratch" code in the production codebase.

@@ -34,7 +34,7 @@
                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
 
                                     <img class="lazyload img-fit m-auto rounded-2 has-transition product-main-image product-hover-image position-absolute"
-                                        src="{{ get_first_product_image($product->thumbnail, $product->photos) }}"
+                                        src="{{ get_first_product_image($product->photos, $product->thumbnail) }}"
                                         alt="{{ $product->getTranslation('name') }}"
                                         title="{{ $product->getTranslation('name') }}"
                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">

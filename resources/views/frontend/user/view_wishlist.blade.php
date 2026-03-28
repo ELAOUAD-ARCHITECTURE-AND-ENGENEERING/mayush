@@ -20,7 +20,7 @@
                                 title="{{ $wishlist->product->getTranslation('name') }}">
 
                                 <img class="lazyload mx-auto img-fit  product-hover-image position-absolute"
-                                    src="{{ get_first_product_image($wishlist->product->thumbnail_img, $wishlist->product->photos) }}"
+                                    src="{{ get_first_product_image($wishlist->product->photos, $wishlist->product->thumbnail_img) }}"
                                     alt="{{ $wishlist->product->getTranslation('name') }}"
                                     title="{{$wishlist->product->getTranslation('name') }}">
                         </a>

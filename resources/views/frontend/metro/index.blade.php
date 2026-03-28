@@ -213,7 +213,7 @@
                                                             alt="{{ $flash_deal_product->product->getTranslation('name') }}"
                                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                                                         <img class="lazyload h-60px h-md-100px h-lg-120px w-100 mx-auto has-transition product-hover-image position-absolute"
-                                                            src="{{ get_first_product_image($flash_deal_product->product->thumbnail, $flash_deal_product->product->photos, 'medium') }}"
+                                                            src="{{ get_first_product_image($flash_deal_product->product->photos, $flash_deal_product->product->thumbnail, 'medium') }}"
                                                             alt="{{ $flash_deal_product->product->getTranslation('name') }}"
                                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                                                     </div>  
