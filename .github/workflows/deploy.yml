@@ -102,6 +102,10 @@ jobs:
             echo ""
             echo "▶ [1/4] Pulling latest code from GitHub..."
             cd /home/mayushdesign/public_html
+            
+            # Bypass Git CVE-2022-24765 dubious ownership block
+            git config --global --add safe.directory /home/mayushdesign/public_html
+            
             git restore .
             git pull origin main --ff-only
             echo "✔ Code up to date — $(git log -1 --format='%h %s')"
