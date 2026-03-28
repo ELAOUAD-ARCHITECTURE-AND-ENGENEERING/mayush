@@ -1,37 +1,37 @@
+### Laravel Core Security ###
 .env
-/bootstrap/compiled.php
+.env.backup
 .env.*.php
-.env.php
+/bootstrap/compiled.php
 
-/node_modules
-/public/assets
-/public/storage
-/public/uploads
+### Dependency Management (TRACK LOCK FILES!) ###
+/vendor/
+/node_modules/
+# REMOVED: composer.lock and *.lock
+
+### Cache & Temporary Files ###
 /storage/*.key
-/storage/debugbar
-/vendor
-/temp
-/.idea
-/.vscode
-/.vagrant
-Homestead.json
-Homestead.yaml
+/storage/debugbar/
+/.phpunit.result.cache
+/temp/
+updates/
+*.zip
 npm-debug.log
 yarn-error.log
-.DS_Store
-.idea/
-/public/*
-updates/
-composer.lock
-*.lock
-resources/lang/en.json
-updates.zip
-ecommerce.zip
-install.zip
-/nbproject/private/
-/nbproject
-/public/app-translations
-public/uploads.zip
-.env
-public/all
 
+### IDEs & OS Files ###
+/.idea/
+/.vscode/
+/.vagrant/
+Homestead.json
+Homestead.yaml
+.DS_Store
+/nbproject/
+
+### Public Directory (Safe Handling) ###
+# DO NOT ignore the whole public folder!
+# Only ignore user uploads, generated storage symlinks, and temp dumps:
+/public/storage/
+/public/uploads/
+/public/all/
+/public/app-translations/
