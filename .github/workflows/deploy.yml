@@ -112,8 +112,11 @@ jobs:
             export GIT_TERMINAL_PROMPT=0
             export GIT_SSH_COMMAND="ssh -o BatchMode=yes"
             
-            # Pull via HTTPS with the Action's ephemeral token to guarantee Auth success
-            git pull https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main --ff-only
+            # Fetch the latest objects securely using the GitHub Action token
+            git fetch https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
+            
+            # Force the server to perfectly match GitHub (Overwrites any conflicting untracked files on the server)
+            git reset --hard FETCH_HEAD
             
             echo "✔ Code up to date — $(git log -1 --format='%h %s')"
 
