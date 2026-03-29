@@ -318,4 +318,54 @@ class CartController extends Controller
 
         return view('frontend.partials.cart.cart_details', compact('carts'))->render();
     }
+
+    public function buyNow(Request $request)
+    {
+        $authUser = auth()->user();
+        if ($authUser != null) {
+            $user_id = $authUser->id;
+            // Clear existing cart for a clean Buy Now experience
+            Cart::where('user_id', $user_id)->delete();
+        } else {
+            if ($request->session()->get('temp_user_id')) {
+                $temp_user_id = $request->session()->get('temp_user_id');
+                Cart::where('temp_user_id', $temp_user_id)->delete();
+            } else {
+                $temp_user_id = bin2hex(random_bytes(10));
+                $request->session()->put('temp_user_id', $temp_user_id);
+            }
+        }
+
+        // Reuse addToCart logic but without returning array
+        $product = Product::findOrFail($request->id);
+        
+        $quantity = $request->quantity ?? $product->min_qty;
+        if ($quantity < $product->min_qty) {
+            $quantity = $product->min_qty;
+        }
+
+        $str = CartUtility::create_cart_variant($product, $request->all());
+        $product_stock = $product->stocks->where('variant', $str)->first();
+        
+        if (!$product_stock && $product->stocks->count() > 0) {
+            $product_stock = $product->stocks->first();
+            $str = $product_stock->variant;
+        }
+
+        $cart = new Cart();
+        $cart->product_id = $request->id;
+        $cart->variation = $str;
+        if ($authUser != null) {
+            $cart->user_id = $authUser->id;
+        } else {
+            $cart->temp_user_id = $request->session()->get('temp_user_id');
+        }
+        
+        $price = CartUtility::get_price($product, $product_stock, $quantity);
+        $tax = CartUtility::tax_calculation($product, $price);
+
+        CartUtility::save_cart_data($cart, $product, $price, $tax, $quantity);
+
+        return redirect()->route('checkout.shipping_info');
+    }
 }

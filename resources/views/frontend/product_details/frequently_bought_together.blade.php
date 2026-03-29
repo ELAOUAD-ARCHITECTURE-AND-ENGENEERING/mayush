@@ -1,5 +1,5 @@
 <div
-    class="frequently-bought-container py-20px px-30px border bg-white border-light-gray rounded-2">
+    class="frequently-bought-container py-20px px-30px border bg-white border-light-gray rounded-2 fade-in-up">
     <p class="fs-20 fw-bold text-dark">{{ translate('Frequently Bought Together') }}</p>
 
     <div class="aiz-carousel arrow-x-0 arrow-inactive-none" data-items="6" data-xxl-items="6"

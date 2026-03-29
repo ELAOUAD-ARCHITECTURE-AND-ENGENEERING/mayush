@@ -595,7 +595,7 @@
                         @if ($detailedProduct->digital == 1 || $total_qty > 0)
                             {{-- Show buttons only when stock is available or product is digital --}}
                             <button type="button" @if (Auth::check() || get_Setting('guest_checkout_activation')==1) onclick="buyNow()" @else onclick="showLoginModal()" @endif
-                                class="buy-now text-white border-0 rounded-1 fs-14 fw-bold bg-black hov-opacity-70 has-transition py-20px px-20px d-block w-100 mb-2 mb-md-0 mr-0 mr-md-2">{{ translate('Buy Now') }}</button>
+                                class="buy-now buy-now-pulse text-white border-0 rounded-1 fs-14 fw-bold bg-black hov-opacity-70 has-transition py-20px px-20px d-block w-100 mb-2 mb-md-0 mr-0 mr-md-2">{{ translate('Buy Now') }}</button>
                             <button type="button" id="added_to_cart_btn" @if (Auth::check() || get_Setting('guest_checkout_activation')==1) onclick="addToCart()" @else onclick="showLoginModal()" @endif
                                 class="add-to-cart text-blue border-0 rounded-1 fs-14 fw-bold bg-soft-blue hov-bg-blue hov-text-white py-20px px-20px d-block w-100">{{translate('Add to Cart')}} <span id="add_to_cart_count">(01)</span></button>
                         @else

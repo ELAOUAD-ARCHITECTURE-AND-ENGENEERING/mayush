@@ -214,6 +214,7 @@ Route::controller(CartController::class)->group(function () {
     Route::post('/cart/updateQuantity', 'updateQuantity')->name('cart.updateQuantity');
     Route::post('/cart/update-status', 'updateCartStatus')->name('cart.updateCartStatus');
     Route::post('/cart/show-cart-modal-auction', 'showCartModalAuction')->name('cart.showCartModalAuction');
+    Route::post('/cart/buy-now', 'buyNow')->name('cart.buy_now');
 });
 
 Route::middleware(['throttle:payments'])->group(function () {

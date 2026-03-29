@@ -41,7 +41,7 @@ class CriticalErrorNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'slack'];
+        return ['mail'];
     }
 
     /**
@@ -60,24 +60,6 @@ class CriticalErrorNotification extends Notification implements ShouldQueue
                     ->line('**Timestamp:** ' . Carbon::now()->toDateTimeString())
                     ->line('**Details:** ' . json_encode($this->event->details))
                     ->action('Investigate System Logs', url(env('APP_URL') . '/admin'));
-    }
-
-    /**
-     * Get the Slack representation of the notification.
-     */
-    public function toSlack(object $notifiable): SlackMessage
-    {
-        $color = ($this->event->severity === 'critical') ? '#ff0000' : '#ffa500';
-
-        return (new SlackMessage)
-            ->from('Mayush Watchdog')
-            ->to(env('SLACK_SECURITY_CHANNEL', '#security-alerts'))
-            ->attachment(function ($attachment) use ($color) {
-                $attachment->title("System Alert: " . $this->event->component)
-                           ->content($this->event->message . "\n" . json_encode($this->event->details))
-                           ->color($color)
-                           ->timestamp(Carbon::now());
-            });
     }
 
     /**
