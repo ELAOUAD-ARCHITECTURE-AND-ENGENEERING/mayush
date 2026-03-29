@@ -834,6 +834,13 @@
                         $('#option-choice-form #selected_variant').html(data.variation);
                         $('#available-quantity').html(data.quantity);
                         $('.input-number').prop('max', data.max_limit);
+
+                        if (data.quantity > 0 && data.quantity < 10) {
+                            $('.low-stock-indicator-wrapper').removeClass('d-none');
+                            $('.low-stock-indicator .stock-count').html(data.quantity);
+                        } else {
+                            $('.low-stock-indicator-wrapper').addClass('d-none');
+                        }
                         if(parseInt(data.in_stock) == 0 && data.digital  == 0){
                            $('.buy-now').addClass('d-none');
                            $('.add-to-cart').addClass('d-none');

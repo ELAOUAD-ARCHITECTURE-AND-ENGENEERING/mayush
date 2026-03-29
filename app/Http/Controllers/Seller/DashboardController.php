@@ -47,6 +47,29 @@ class DashboardController extends Controller
                                     ->sum('grand_total');
         
         $data['products'] = filter_products(Product::where('user_id', Auth::user()->id)->orderBy('num_of_sale', 'desc'))->limit(12)->get();
+        
+        // Phase 2b: Seller Analytics & Insights
+        $sellerProducts = Product::where('user_id', $authUserId);
+        
+        $data['total_views'] = $sellerProducts->sum('num_of_view');
+        $data['total_sales_count'] = $sellerProducts->sum('num_of_sale');
+        $data['avg_conversion_rate'] = $data['total_views'] > 0 ? ($data['total_sales_count'] / $data['total_views']) * 100 : 0;
+        
+        // Actionable Insights: Low Stock
+        $data['low_stock_products'] = Product::where('user_id', $authUserId)
+                                    ->whereRaw('current_stock <= low_stock_quantity')
+                                    ->where('published', 1)
+                                    ->limit(5)
+                                    ->get();
+
+        // Actionable Insights: High View but Low Conversion (Conversion < 1%)
+        $data['underperforming_products'] = Product::where('user_id', $authUserId)
+                                            ->where('num_of_view', '>', 20)
+                                            ->whereRaw('(num_of_sale / num_of_view) < 0.01')
+                                            ->orderBy('num_of_view', 'desc')
+                                            ->limit(5)
+                                            ->get();
+
         $data['last_7_days_sales'] = Order::where('created_at', '>=', Carbon::now()->subDays(7))
                                 ->where('seller_id', '=', Auth::user()->id)
                                 ->where('delivery_status', '=', 'delivered')

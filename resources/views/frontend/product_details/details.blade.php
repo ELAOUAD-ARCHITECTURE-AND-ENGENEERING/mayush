@@ -346,7 +346,18 @@
                             @if (addon_is_activated('club_point') && $detailedProduct->earn_point > 0)
                                 <span class="fs-12 fw-bold text-orange text-uppercase opacity-80 py-1 py-md-2 px-10px bg-soft-light rounded-1 ml-1">{{ translate('Club Point') }}: {{ $detailedProduct->earn_point }}</span>
                             @endif
-                        </div>
+                        @if ($is_flash_deal || ($total_stock > 0 && $total_stock < 10))
+                            <div class="mt-2 low-stock-indicator-wrapper @if($total_stock >= 10 && !$is_flash_deal) d-none @endif">
+                                <span class="fs-14 fw-700 text-danger animate-pulse low-stock-indicator">
+                                    <i class="las la-fire mr-1"></i>
+                                    @if($total_stock > 0)
+                                        {{ translate('Only') }} <span class="stock-count">{{ $total_stock }}</span> {{ translate('items left in stock!') }}
+                                    @else
+                                        {{ translate('Sold Out!') }}
+                                    @endif
+                                </span>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 @endif

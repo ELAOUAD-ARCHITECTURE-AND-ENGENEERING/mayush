@@ -2691,17 +2691,16 @@ if (!function_exists('get_image')) {
 if (!function_exists('get_first_product_image')) {
     function get_first_product_image($photos = null, $thumbnail = null, $size = null)
     {
-        $photos = $photos != null ? explode(',', $photos) : [];
-        $photos = array_diff($photos, [$thumbnail]);
+        $photosArray = $photos != null ? explode(',', $photos) : [];
+        $photosArray = array_diff($photosArray, [$thumbnail]);
         
-        foreach ($photos as $photoId) {
+        foreach ($photosArray as $photoId) {
             if (!empty($photoId)) {
                 $asset = \App\Models\Upload::find($photoId);
                 if ($asset) {
-                    $file_path = public_path($asset->file_name);
-                    if (file_exists($file_path)) {
-                        return uploaded_asset($photoId, $size);
-                    }
+                    // Try to return the asset if it exists in the database
+                    // Removing the file_exists(public_path()) check as it can fail on Windows cross-slashes or cloud storage
+                    return uploaded_asset($photoId, $size);
                 }
             }
         }
