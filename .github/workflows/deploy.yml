@@ -155,15 +155,118 @@ jobs:
               --prefer-dist
             echo "✔ Composer done"
 
-            # ── [3/3] Laravel deploy script ─────────────────────────
+            # ── [3/4] Laravel deploy script ─────────────────────────
             echo ""
-            echo "▶ [3/3] Running Laravel deploy script..."
+            echo "▶ [3/4] Running Laravel deploy script..."
             sudo -E /usr/local/bin/deploy_mayush_env_and_cache.sh
             echo "✔ Deploy script finished"
+
+            # ── [4/4] AI Service Setup ─────────────────────────────
+            echo ""
+            echo "▶ [4/4] Setting up AI Visual Search Service..."
+            AI_DIR="/home/mayushdesign/public_html/ai_service"
+            AI_LOG="$AI_DIR/ai_service.log"
+            AI_PID="$AI_DIR/ai_service.pid"
+            AI_VENV="$AI_DIR/venv"
+            AI_HASH_FILE="$AI_DIR/.requirements.hash"
+            AI_STATUS="unknown"
+
+            # ── 4a. Ensure Python3 + pip are available ─────────────
+            if command -v python3 &>/dev/null; then
+              echo "  ✔ Python3 found: $(python3 --version 2>&1)"
+            else
+              echo "  📦 Installing Python3..."
+              sudo apt-get update -qq && sudo apt-get install -y -qq python3 python3-pip python3-venv
+              echo "  ✔ Python3 installed: $(python3 --version 2>&1)"
+            fi
+
+            # ── 4b. Create virtual environment if missing ──────────
+            if [[ ! -d "$AI_VENV" ]]; then
+              echo "  📦 Creating Python virtual environment..."
+              python3 -m venv "$AI_VENV"
+              echo "  ✔ Virtual environment created"
+            else
+              echo "  ✔ Virtual environment exists"
+            fi
+
+            # ── 4c. Install dependencies (hash-based skip) ─────────
+            CURRENT_HASH=$(sha256sum "$AI_DIR/requirements.txt" | awk '{print $1}')
+            if [[ -f "$AI_HASH_FILE" ]] && [[ "$(cat "$AI_HASH_FILE")" == "$CURRENT_HASH" ]]; then
+              echo "  ✔ Dependencies unchanged — skipping pip install"
+            else
+              echo "  📥 Installing Python dependencies..."
+              INSTALL_OK=false
+              for attempt in 1 2 3; do
+                if "$AI_VENV/bin/pip" install -r "$AI_DIR/requirements.txt" --quiet 2>>"$AI_LOG"; then
+                  echo "$CURRENT_HASH" > "$AI_HASH_FILE"
+                  echo "  ✔ Dependencies installed (attempt $attempt)"
+                  INSTALL_OK=true
+                  break
+                fi
+                echo "  ⚠ pip install failed (attempt $attempt/3) — retrying in $((attempt * 5))s..."
+                sleep $((attempt * 5))
+              done
+              if [[ "$INSTALL_OK" != "true" ]]; then
+                echo "  ❌ pip install failed after 3 attempts"
+                AI_STATUS="deps_failed"
+              fi
+            fi
+
+            # ── 4d. Process management ─────────────────────────────
+            if [[ "$AI_STATUS" != "deps_failed" ]]; then
+              NEED_START=true
+
+              # Check if already running
+              if [[ -f "$AI_PID" ]]; then
+                OLD_PID=$(cat "$AI_PID")
+                if kill -0 "$OLD_PID" 2>/dev/null; then
+                  echo "  🔄 AI Service running (PID $OLD_PID) — restarting for new code..."
+                  kill "$OLD_PID" 2>/dev/null || true
+                  sleep 2
+                  kill -0 "$OLD_PID" 2>/dev/null && kill -9 "$OLD_PID" 2>/dev/null || true
+                  rm -f "$AI_PID"
+                else
+                  echo "  ⚠ Stale PID file found — cleaning up"
+                  rm -f "$AI_PID"
+                fi
+              fi
+
+              # Start the service
+              echo "  🚀 Starting AI Service on port 5001..."
+              echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting AI Service..." >> "$AI_LOG"
+              source "$AI_VENV/bin/activate"
+              nohup python "$AI_DIR/app.py" >> "$AI_LOG" 2>&1 &
+              NEW_PID=$!
+              echo "$NEW_PID" > "$AI_PID"
+              deactivate 2>/dev/null || true
+
+              # ── 4e. Health check with retries ────────────────────
+              echo "  🔍 Running health check..."
+              HEALTH_OK=false
+              for attempt in 1 2 3; do
+                sleep $((attempt * 5))
+                if curl -sf "http://127.0.0.1:5001/" >/dev/null 2>&1; then
+                  echo "  ✔ Health check passed (attempt $attempt)"
+                  HEALTH_OK=true
+                  break
+                fi
+                echo "  ⏳ Health check attempt $attempt/3 — waiting..."
+              done
+
+              if [[ "$HEALTH_OK" == "true" ]]; then
+                AI_STATUS="running"
+                echo "  ✅ AI Service is live (PID $NEW_PID, port 5001)"
+              else
+                AI_STATUS="health_failed"
+                echo "  ❌ AI Service failed health check — see $AI_LOG"
+                # Don't fail the entire deploy for this
+              fi
+            fi
 
             echo ""
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "  ✅ DEPLOYMENT COMPLETE — $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "  🤖 AI Service Status: $AI_STATUS"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
       # ----------------------------------------------------------
@@ -197,6 +300,7 @@ jobs:
           ✔ Caches rebuilt (config / routes / views)
           ✔ Queue workers restarted
           ✔ App is live 🟢
+          🤖 AI Visual Search Service: deployed (port 5001)
 
           <a href=\"${RUN_URL}\">🔍 View Run</a>"
 
@@ -240,10 +344,14 @@ jobs:
           • Deploy log: <code>/home/mayushdesign/deploy.log</code>
           • Laravel log: <code>storage/logs/laravel-${LOG_DATE}.log</code>
           • Apache log: <code>/var/log/apache2/error.log</code>
+          • AI Service log: <code>/home/mayushdesign/public_html/ai_service/ai_service.log</code>
 
           ⚠️ App may be stuck in maintenance mode.
           Run on VPS if needed:
           <code>php8.2 artisan up</code>
+
+          🤖 To manually restart AI Service:
+          <code>bash /home/mayushdesign/public_html/ai_service/start_ai_prod.sh restart</code>
 
           <a href=\"${RUN_URL}\">🔍 View Full Logs</a>"
 
