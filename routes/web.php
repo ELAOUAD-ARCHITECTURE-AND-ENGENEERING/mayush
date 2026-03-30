@@ -346,7 +346,6 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
 
     // Product Review
     Route::post('/product_review_modal', [ReviewController::class, 'product_review_modal'])->name('product_review_modal');
-
     Route::controller(FollowSellerController::class)->group(function () {
         Route::get('/followed-seller', 'index')->name('followed_seller');
         Route::post('/followed-seller-store', 'store')->name('followed_seller.store');

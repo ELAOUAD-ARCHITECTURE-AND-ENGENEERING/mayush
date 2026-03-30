@@ -84,10 +84,12 @@ class SearchController extends Controller
             $products = PreorderProduct::where('is_published', 1);
             $products = filter_preorder_product($products);
             if ($category_id != null) {
+                $category_ids = CategoryUtility::children_ids($category_id);
                 $category_ids[] = $category_id;
                 $category = Category::with('childrenCategories')->find($category_id);
-
-                $products = $category->preorderProducts();
+                $products->whereHas('categories', function ($categoryQuery) use ($category_ids) {
+                    $categoryQuery->whereIn('categories.id', $category_ids);
+                });
             } else {
                 $categories = Category::with('childrenCategories', 'coverImage')->where('level', 0)->orderBy('order_level', 'desc')->get();
             }
@@ -181,8 +183,9 @@ class SearchController extends Controller
             $category_ids = CategoryUtility::children_ids($category_id);
             $category_ids[] = $category_id;
             $category = Category::with('childrenCategories')->find($category_id);
-            $products = $category->products();
-
+            $products->whereHas('categories', function ($categoryQuery) use ($category_ids) {
+                $categoryQuery->whereIn('categories.id', $category_ids);
+            });
         }
         //------------------- category product count start here ----------------------
 
@@ -384,10 +387,12 @@ class SearchController extends Controller
             $products = filter_preorder_product($products);
 
             if ($category_id != null) {
+                $category_ids = CategoryUtility::children_ids($category_id);
                 $category_ids[] = $category_id;
                 $category = Category::with('childrenCategories')->find($category_id);
-
-                $products = $category->preorderProducts();
+                $products->whereHas('categories', function ($categoryQuery) use ($category_ids) {
+                    $categoryQuery->whereIn('categories.id', $category_ids);
+                });
             } else {
                 $categories = Category::with('childrenCategories', 'coverImage')->where('level', 0)->orderBy('order_level', 'desc')->get();
             }

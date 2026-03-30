@@ -424,8 +424,8 @@ class HomeController extends Controller
                 abort(404);
             }
 
-            $product_queries = ProductQuery::where('product_id', $detailedProduct->id)->where('customer_id', '!=', Auth::id())->latest('id')->paginate(3);
-            $total_query = ProductQuery::where('product_id', $detailedProduct->id)->count();
+            $product_queries = ProductQuery::where('product_id', $detailedProduct->id)->where('customer_id', '!=', Auth::id())->whereNotNull('reply')->latest('id')->paginate(3);
+            $total_query = ProductQuery::where('product_id', $detailedProduct->id)->whereNotNull('reply')->count();
             $reviews = $detailedProduct->reviews()->where('status', 1)->orderBy('created_at', 'desc')->paginate(3);
 
             // Pagination using Ajax

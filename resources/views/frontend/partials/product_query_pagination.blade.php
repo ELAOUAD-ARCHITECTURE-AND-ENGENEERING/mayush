@@ -1,4 +1,4 @@
-<h5 class="fs-16 fw-bold text-dark">{{ translate('Other Questions') }}</h5>
+<h5 class="fs-16 fw-bold text-dark">{{ translate('Public Q&A') }}</h5>
 <div class="d-flex flex-column pt-20px other-question">
     <!--Single Question-->
     @forelse ($product_queries as $product_query)

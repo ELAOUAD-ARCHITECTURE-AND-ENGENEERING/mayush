@@ -686,8 +686,14 @@
     </div>
 </footer>
 
+<style>
+.aiz-mobile-bottom-nav a { transition: all 0.2s ease-in-out; }
+.aiz-mobile-bottom-nav a:active { transform: scale(0.92); opacity: 0.8; }
+.aiz-mobile-bottom-nav svg { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.aiz-mobile-bottom-nav a.svg-active svg { transform: translateY(-3px) scale(1.1); fill: var(--primary); }
+</style>
 <!-- Mobile bottom nav -->
-<div class="aiz-mobile-bottom-nav d-xl-none fixed-bottom border-top border-sm-bottom border-sm-left border-sm-right mx-auto mb-sm-2" style="background-color: rgb(255 255 255 / 90%)!important;">
+<div class="aiz-mobile-bottom-nav d-xl-none fixed-bottom border-top mx-auto" style="background-color: rgba(255, 255, 255, 0.90)!important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid rgba(0,0,0,0.05) !important; box-shadow: 0 -4px 20px rgba(0,0,0,0.02);">
     <div class="row align-items-center gutters-5">
         <!-- Home -->
         <div class="col">
@@ -716,37 +722,37 @@
             </a>
         </div>
 
-        @if (Auth::check() && auth()->user()->user_type == 'customer')
-            <!-- Cart -->
-            @php
-                $count = count(get_user_cart());
-            @endphp
-            <div class="col-auto">
-                <a href="{{ route('cart') }}" class="text-secondary d-block text-center pb-2 pt-3 px-3 {{ areActiveRoutes(['cart'],'svg-active')}}">
-                    <span class="d-inline-block position-relative px-2">
-                        <svg id="Group_25499" data-name="Group 25499" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16.001" height="16" viewBox="0 0 16.001 16">
-                            <defs>
-                            <clipPath id="clip-pathw">
-                                <rect id="Rectangle_1383" data-name="Rectangle 1383" width="16" height="16" fill="#91919c"/>
-                            </clipPath>
-                            </defs>
-                            <g id="Group_8095" data-name="Group 8095" transform="translate(0 0)" clip-path="url(#clip-pathw)">
-                            <path id="Path_2926" data-name="Path 2926" d="M8,24a2,2,0,1,0,2,2,2,2,0,0,0-2-2m0,3a1,1,0,1,1,1-1,1,1,0,0,1-1,1" transform="translate(-3 -11.999)" fill="#91919c"/>
-                            <path id="Path_2927" data-name="Path 2927" d="M24,24a2,2,0,1,0,2,2,2,2,0,0,0-2-2m0,3a1,1,0,1,1,1-1,1,1,0,0,1-1,1" transform="translate(-10.999 -11.999)" fill="#91919c"/>
-                            <path id="Path_2928" data-name="Path 2928" d="M15.923,3.975A1.5,1.5,0,0,0,14.5,2h-9a.5.5,0,1,0,0,1h9a.507.507,0,0,1,.129.017.5.5,0,0,1,.355.612l-1.581,6a.5.5,0,0,1-.483.372H5.456a.5.5,0,0,1-.489-.392L3.1,1.176A1.5,1.5,0,0,0,1.632,0H.5a.5.5,0,1,0,0,1H1.544a.5.5,0,0,1,.489.392L3.9,9.826A1.5,1.5,0,0,0,5.368,11h7.551a1.5,1.5,0,0,0,1.423-1.026Z" transform="translate(0 -0.001)" fill="#91919c"/>
-                            </g>
-                        </svg>
-                        @if($count > 0)
-                            <span class="badge badge-sm badge-dot badge-circle badge-primary position-absolute absolute-top-right" style="right: 5px;top: -2px;"></span>
-                        @endif
-                    </span>
-                    <span class="d-block mt-1 fs-10 fw-600 text-reset {{ areActiveRoutes(['cart'],'text-primary')}}">
-                        {{ translate('Cart') }}
-                        (<span class="cart-count">{{$count}}</span>)
-                    </span>
-                </a>
-            </div>
+        <!-- Cart -->
+        @php
+            $count = count(get_user_cart());
+        @endphp
+        <div class="col-auto">
+            <a href="{{ route('cart') }}" class="text-secondary d-block text-center pb-2 pt-3 px-3 {{ areActiveRoutes(['cart'],'svg-active')}}">
+                <span class="d-inline-block position-relative px-2">
+                    <svg id="Group_25499" data-name="Group 25499" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16.001" height="16" viewBox="0 0 16.001 16">
+                        <defs>
+                        <clipPath id="clip-pathw">
+                            <rect id="Rectangle_1383" data-name="Rectangle 1383" width="16" height="16" fill="#91919c"/>
+                        </clipPath>
+                        </defs>
+                        <g id="Group_8095" data-name="Group 8095" transform="translate(0 0)" clip-path="url(#clip-pathw)">
+                        <path id="Path_2926" data-name="Path 2926" d="M8,24a2,2,0,1,0,2,2,2,2,0,0,0-2-2m0,3a1,1,0,1,1,1-1,1,1,0,0,1-1,1" transform="translate(-3 -11.999)" fill="#91919c"/>
+                        <path id="Path_2927" data-name="Path 2927" d="M24,24a2,2,0,1,0,2,2,2,2,0,0,0-2-2m0,3a1,1,0,1,1,1-1,1,1,0,0,1-1,1" transform="translate(-10.999 -11.999)" fill="#91919c"/>
+                        <path id="Path_2928" data-name="Path 2928" d="M15.923,3.975A1.5,1.5,0,0,0,14.5,2h-9a.5.5,0,1,0,0,1h9a.507.507,0,0,1,.129.017.5.5,0,0,1,.355.612l-1.581,6a.5.5,0,0,1-.483.372H5.456a.5.5,0,0,1-.489-.392L3.1,1.176A1.5,1.5,0,0,0,1.632,0H.5a.5.5,0,1,0,0,1H1.544a.5.5,0,0,1,.489.392L3.9,9.826A1.5,1.5,0,0,0,5.368,11h7.551a1.5,1.5,0,0,0,1.423-1.026Z" transform="translate(0 -0.001)" fill="#91919c"/>
+                        </g>
+                    </svg>
+                    @if($count > 0)
+                        <span class="badge badge-sm badge-dot badge-circle badge-primary position-absolute absolute-top-right" style="right: 5px;top: -2px;"></span>
+                    @endif
+                </span>
+                <span class="d-block mt-1 fs-10 fw-600 text-reset {{ areActiveRoutes(['cart'],'text-primary')}}">
+                    {{ translate('Cart') }}
+                    (<span class="cart-count">{{$count}}</span>)
+                </span>
+            </a>
+        </div>
 
+        @if (Auth::check() && auth()->user()->user_type == 'customer')
             <!-- Notifications -->
             <div class="col">
                 <a href="{{ (Route::has('all-notifications') ? route('all-notifications') : '#') }}" class="text-secondary d-block text-center pb-2 pt-3 {{ areActiveRoutes(['all-notifications'],'svg-active')}}">
