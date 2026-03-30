@@ -407,6 +407,8 @@
 
     @include('frontend.partials.modal')
 
+    @include('frontend.partials.visual_search')
+
     @include('frontend.partials.account_delete_modal')
 
     <div class="modal fade" id="addToCart">

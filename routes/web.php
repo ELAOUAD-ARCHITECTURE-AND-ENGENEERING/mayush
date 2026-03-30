@@ -23,6 +23,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PurchaseHistoryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\VisualSearchController;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\WalletController;
@@ -116,6 +117,9 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/customer-reg/verify-code/{id}', 'regVerifyCode')->name('customer-reg.verify_code');
     Route::post('/customer-reg/verify-code-confirmation', 'regVerifyCodeConfirmation')->name('customer-reg.verify_code_confirmation');
 
+
+    // Visual Search
+    Route::post('/search/visual', [VisualSearchController::class, 'visualSearch'])->name('search.visual');
 
     //Home Page
     Route::get('/', 'index')->name('home');

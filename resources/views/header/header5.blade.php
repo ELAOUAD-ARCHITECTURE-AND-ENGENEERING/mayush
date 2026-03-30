@@ -470,8 +470,13 @@ $middleHeaderTextColor = get_setting('middle_header_text_color');
 
                                             <button class="btn px-2 search-close-desktop position-absolute"
                                                 type="button"
-                                                style="right: 30px; top: 50%; transform: translateY(-50%);">
+                                                style="right: 60px; top: 50%; transform: translateY(-50%);">
                                                 <i class="la la-times"></i>
+                                            </button>
+
+                                            {{-- Visual Search Camera Button --}}
+                                            <button type="button" class="btn visual-search-btn position-absolute" onclick="document.getElementById('visual-search-input').click()" title="{{ translate('Search by Image') }}" style="right: 30px; top: 50%; transform: translateY(-50%);">
+                                                <i class="las la-camera la-lg"></i>
                                             </button>
 
                                             <svg id="Group_723" data-name="Group 723" xmlns="http://www.w3.org/2000/svg"
