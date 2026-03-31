@@ -32,6 +32,7 @@ class Kernel extends ConsoleKernel
         
         // MA-106: Predictive Restock Alerts
         $schedule->command('inventory:check-velocity')->daily();
+        $schedule->command('inventory:update-affinities')->daily();
     }
 
     /**

@@ -2176,17 +2176,45 @@ if (!function_exists('get_frequently_bought_products')) {
     {
         $productSelectionType = $product->frequently_bought_selection_type;
         $fqbProducts = [];
-        if($productSelectionType == 'product' || empty($productSelectionType)){
-            $fqbProductIds = $product->frequently_bought_products()->where('category_id', null)->pluck('frequently_bought_product_id')->toArray();
-            $fqbProducts = filter_products(Product::whereIn('id', $fqbProductIds))->get();
-        }
-        elseif($productSelectionType == 'category'){
-            $fqb_product_category = $product->frequently_bought_products()->where('category_id','!=', null)->first();
+
+        if ($productSelectionType == 'product' || empty($productSelectionType)) {
+            $fqbProductIds = $product->frequently_bought_products()
+                ->where('category_id', null)
+                ->where('source', 'manual')
+                ->pluck('frequently_bought_product_id')
+                ->toArray();
+            
+            // Fallback: If no manual products, look for automated ones
+            if (empty($fqbProductIds) && empty($productSelectionType)) {
+                $fqbProductIds = $product->frequently_bought_products()
+                    ->where('source', 'automated')
+                    ->orderBy('affinity_score', 'desc')
+                    ->take(10)
+                    ->pluck('frequently_bought_product_id')
+                    ->toArray();
+            }
+
+            if (!empty($fqbProductIds)) {
+                $fqbProducts = filter_products(Product::whereIn('id', $fqbProductIds))->get();
+            }
+        } elseif ($productSelectionType == 'automated') {
+             $fqbProductIds = $product->frequently_bought_products()
+                ->where('source', 'automated')
+                ->orderBy('affinity_score', 'desc')
+                ->take(10)
+                ->pluck('frequently_bought_product_id')
+                ->toArray();
+            
+            if (!empty($fqbProductIds)) {
+                $fqbProducts = filter_products(Product::whereIn('id', $fqbProductIds))->get();
+            }
+        } elseif ($productSelectionType == 'category') {
+            $fqb_product_category = $product->frequently_bought_products()->where('category_id', '!=', null)->first();
             $fqbCategoryID = $fqb_product_category != null ? $fqb_product_category->category_id : null;
-            if($fqbCategoryID != null){
+            if ($fqbCategoryID != null) {
                 $category = Category::with('childrenCategories')->find($fqbCategoryID);
 
-                $fqbProducts = $category->products()->where('id','!=',$product->id);
+                $fqbProducts = $category->products()->where('id', '!=', $product->id);
                 $fqbProducts = $product->added_by == 'admin' ? $fqbProducts->where('added_by', 'admin') : $fqbProducts->where('user_id', $product->user_id);
 
                 $fqbProducts = filter_products($fqbProducts)->orderByRaw('RAND()')->take(10)->get();

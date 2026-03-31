@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_views', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('product_id')->index();
-            $table->unsignedBigInteger('user_id')->nullable()->index();
-            $table->string('ip_address')->nullable();
-            $table->string('session_id')->nullable()->index();
-            $table->timestamp('created_at')->nullable()->index();
-            $table->timestamp('updated_at')->nullable();
+        if (!Schema::hasTable('product_views')) {
+            Schema::create('product_views', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('product_id')->index();
+                $table->unsignedBigInteger('user_id')->nullable()->index();
+                $table->string('ip_address')->nullable();
+                $table->string('session_id')->nullable()->index();
+                $table->timestamp('created_at')->nullable()->index();
+                $table->timestamp('updated_at')->nullable();
 
-            // $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-        });
+                // $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            });
+        }
     }
 
     /**
