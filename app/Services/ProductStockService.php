@@ -4,8 +4,10 @@ namespace App\Services;
 
 use AizPackages\CombinationGenerate\Services\CombinationService;
 use App\Models\ProductStock;
+use App\Models\InventoryLog;
 use App\Utility\ProductUtility;
 use Illuminate\Support\Facades\Log;
+use Auth;
 
 class ProductStockService
 {
@@ -33,6 +35,16 @@ class ProductStockService
                 $product_stock->qty = request()['qty_' . str_replace('.', '_', $str)];
                 $product_stock->image = request()['img_' . str_replace('.', '_', $str)];
                 $product_stock->save();
+
+                // Log change (MA-105)
+                InventoryLog::create([
+                    'product_id' => $product->id,
+                    'user_id' => Auth::check() ? Auth::user()->id : null,
+                    'quantity_delta' => $product_stock->qty,
+                    'previous_stock' => 0, // Since it recreates or we don't know the delta easily here
+                    'current_stock' => $product_stock->qty,
+                    'reason' => 'manual',
+                ]);
             }
         } else {
             $product->variant_product = 0;
@@ -44,7 +56,17 @@ class ProductStockService
 
             $data = $collection->merge(compact('variant', 'qty', 'price'))->toArray();
             
-            ProductStock::create($data);
+            $product_stock = ProductStock::create($data);
+
+            // Log change (MA-105)
+            InventoryLog::create([
+                'product_id' => $product->id,
+                'user_id' => Auth::check() ? Auth::user()->id : null,
+                'quantity_delta' => $product_stock->qty,
+                'previous_stock' => 0, 
+                'current_stock' => $product_stock->qty,
+                'reason' => 'manual',
+            ]);
         }
     }
 

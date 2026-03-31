@@ -410,8 +410,18 @@ class HomeController extends Controller
         $detailedProduct  = Product::with('reviews', 'brand', 'stocks', 'user', 'user.shop')->where('auction_product', 0)->where('slug', $slug)->where('approved', 1)->first();
 
         if ($detailedProduct != null && $detailedProduct->published) {
-            // Increment view count
-            $detailedProduct->increment('num_of_view');
+            // Time-series view tracking (MA-104)
+            $view_session_key = 'viewed_product_' . $detailedProduct->id;
+            if (!Session::has($view_session_key)) {
+                $detailedProduct->increment('num_of_view');
+                \App\Models\ProductView::create([
+                    'product_id' => $detailedProduct->id,
+                    'user_id'    => Auth::check() ? Auth::id() : null,
+                    'ip_address' => $request->ip(),
+                    'session_id' => Session::getId(),
+                ]);
+                Session::put($view_session_key, time());
+            }
             if ((get_setting('vendor_system_activation') != 1) && $detailedProduct->added_by == 'seller') {
                 abort(404);
             }
