@@ -164,7 +164,11 @@ jobs:
             # ── [4/4] AI Service Setup ─────────────────────────────
             echo ""
             echo "▶ [4/4] Setting up AI Visual Search Service..."
+            set -x # Enable verbose tracing for debugging status 1
+            
             AI_DIR="/home/mayushdesign/public_html/ai_service"
+            mkdir -p "$AI_DIR"
+            
             AI_LOG="$AI_DIR/ai_service.log"
             AI_PID="$AI_DIR/ai_service.pid"
             AI_VENV="$AI_DIR/venv"
@@ -185,7 +189,6 @@ jobs:
 
             if [[ -n "$MISSING_PKGS" ]]; then
               echo "  📦 Installing missing packages: $MISSING_PKGS"
-              # Try install directly first; fallback to update only if necessary
               sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $MISSING_PKGS || \
               (echo "  🔄 Direct install failed, trying with update..." && \
                sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq && \
@@ -226,9 +229,12 @@ jobs:
                 if [[ "$INSTALL_OK" != "true" ]]; then
                   echo "  ❌ pip install failed after 3 attempts"
                   AI_STATUS="deps_failed"
+                else
+                  AI_STATUS="ready"
                 fi
               fi
             fi
+            set +x # Disable verbose tracing after initialization
 
             # ── 4d. Process management ─────────────────────────────
             if [[ "$AI_STATUS" != "deps_failed" ]]; then
