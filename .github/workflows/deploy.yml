@@ -171,14 +171,23 @@ jobs:
             AI_HASH_FILE="$AI_DIR/.requirements.hash"
             AI_STATUS="unknown"
 
-            # ── 4a. Ensure Python3 + pip are available ─────────────
-            if command -v python3 &>/dev/null; then
-              echo "  ✔ Python3 found: $(python3 --version 2>&1)"
-            else
+            # ── 4a. Ensure Python3 + venv + pip are available ──────
+            echo "  🔍 Checking Python environment..."
+            if ! command -v python3 &>/dev/null; then
               echo "  📦 Installing Python3..."
-              sudo apt-get update -qq && sudo apt-get install -y -qq python3 python3-pip python3-venv
-              echo "  ✔ Python3 installed: $(python3 --version 2>&1)"
+              sudo apt-get update -qq && sudo apt-get install -y -qq python3
             fi
+
+            if ! python3 -m venv --help &>/dev/null; then
+              echo "  📦 Installing python3-venv..."
+              sudo apt-get update -qq && sudo apt-get install -y -qq python3-venv
+            fi
+
+            if ! command -v pip3 &>/dev/null && ! python3 -m pip --version &>/dev/null; then
+              echo "  📦 Installing python3-pip..."
+              sudo apt-get update -qq && sudo apt-get install -y -qq python3-pip
+            fi
+            echo "  ✔ Python environment ready: $(python3 --version 2>&1)"
 
             # ── 4b. Create virtual environment if missing ──────────
             if [[ ! -d "$AI_VENV" ]]; then
@@ -190,25 +199,30 @@ jobs:
             fi
 
             # ── 4c. Install dependencies (hash-based skip) ─────────
-            CURRENT_HASH=$(sha256sum "$AI_DIR/requirements.txt" | awk '{print $1}')
-            if [[ -f "$AI_HASH_FILE" ]] && [[ "$(cat "$AI_HASH_FILE")" == "$CURRENT_HASH" ]]; then
-              echo "  ✔ Dependencies unchanged — skipping pip install"
+            if [[ ! -f "$AI_DIR/requirements.txt" ]]; then
+              echo "  ⚠ requirements.txt missing — skipping dependency install"
+              AI_STATUS="missing_requirements"
             else
-              echo "  📥 Installing Python dependencies..."
-              INSTALL_OK=false
-              for attempt in 1 2 3; do
-                if "$AI_VENV/bin/pip" install -r "$AI_DIR/requirements.txt" --quiet 2>>"$AI_LOG"; then
-                  echo "$CURRENT_HASH" > "$AI_HASH_FILE"
-                  echo "  ✔ Dependencies installed (attempt $attempt)"
-                  INSTALL_OK=true
-                  break
+              CURRENT_HASH=$(sha256sum "$AI_DIR/requirements.txt" | awk '{print $1}')
+              if [[ -f "$AI_HASH_FILE" ]] && [[ "$(cat "$AI_HASH_FILE")" == "$CURRENT_HASH" ]]; then
+                echo "  ✔ Dependencies unchanged — skipping pip install"
+              else
+                echo "  📥 Installing Python dependencies..."
+                INSTALL_OK=false
+                for attempt in 1 2 3; do
+                  if "$AI_VENV/bin/pip" install -r "$AI_DIR/requirements.txt" --quiet 2>>"$AI_LOG"; then
+                    echo "$CURRENT_HASH" > "$AI_HASH_FILE"
+                    echo "  ✔ Dependencies installed (attempt $attempt)"
+                    INSTALL_OK=true
+                    break
+                  fi
+                  echo "  ⚠ pip install failed (attempt $attempt/3) — retrying in $((attempt * 5))s..."
+                  sleep $((attempt * 5))
+                done
+                if [[ "$INSTALL_OK" != "true" ]]; then
+                  echo "  ❌ pip install failed after 3 attempts"
+                  AI_STATUS="deps_failed"
                 fi
-                echo "  ⚠ pip install failed (attempt $attempt/3) — retrying in $((attempt * 5))s..."
-                sleep $((attempt * 5))
-              done
-              if [[ "$INSTALL_OK" != "true" ]]; then
-                echo "  ❌ pip install failed after 3 attempts"
-                AI_STATUS="deps_failed"
               fi
             fi
 
