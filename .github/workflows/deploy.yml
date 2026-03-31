@@ -175,17 +175,21 @@ jobs:
             echo "  🔍 Checking Python environment..."
             if ! command -v python3 &>/dev/null; then
               echo "  📦 Installing Python3..."
-              sudo apt-get update -qq && sudo apt-get install -y -qq python3
+              sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3
             fi
 
-            if ! python3 -m venv --help &>/dev/null; then
-              echo "  📦 Installing python3-venv..."
-              sudo apt-get update -qq && sudo apt-get install -y -qq python3-venv
-            fi
+            # Use dpkg for fast offline check to avoid repo-hangs
+            MISSING_PKGS=""
+            if ! dpkg -s python3-venv &>/dev/null; then MISSING_PKGS="python3-venv $MISSING_PKGS"; fi
+            if ! dpkg -s python3-pip &>/dev/null; then MISSING_PKGS="python3-pip $MISSING_PKGS"; fi
 
-            if ! command -v pip3 &>/dev/null && ! python3 -m pip --version &>/dev/null; then
-              echo "  📦 Installing python3-pip..."
-              sudo apt-get update -qq && sudo apt-get install -y -qq python3-pip
+            if [[ -n "$MISSING_PKGS" ]]; then
+              echo "  📦 Installing missing packages: $MISSING_PKGS"
+              # Try install directly first; fallback to update only if necessary
+              sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $MISSING_PKGS || \
+              (echo "  🔄 Direct install failed, trying with update..." && \
+               sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq && \
+               sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $MISSING_PKGS)
             fi
             echo "  ✔ Python environment ready: $(python3 --version 2>&1)"
 
