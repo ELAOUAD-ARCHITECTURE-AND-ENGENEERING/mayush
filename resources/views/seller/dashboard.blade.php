@@ -223,6 +223,123 @@
                 </div>
             </div>
         </div>
+
+        <!-- Analytics Additions: Phase 2b -->
+        <div class="col-sm-6 col-md-6 col-xxl-3">
+            <div class="card shadow-none mb-4 bg-primary">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <p class="small text-muted mb-0">
+                                <span class="fe fe-eye fe-12"></span>
+                                <span class="fs-14 text-light">{{ translate('Total Product Views') }}</span>
+                            </p>
+                            <h3 class="mb-0 text-white fs-30">
+                                {{ number_format($total_views) }}
+                            </h3>
+                        </div>
+                        <div class="col-auto text-right text-white">
+                            <i class="las la-eye la-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-6 col-xxl-3">
+            <div class="card shadow-none mb-4 bg-primary">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <p class="small text-muted mb-0">
+                                <span class="fe fe-trending-up fe-12"></span>
+                                <span class="fs-14 text-light">{{ translate('Avg. Conversion Rate') }}</span>
+                            </p>
+                            <h3 class="mb-0 text-white fs-30">
+                                {{ number_format($avg_conversion_rate, 2) }}%
+                            </h3>
+                        </div>
+                        <div class="col-auto text-right text-white">
+                            <i class="las la-chart-line la-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Amazon-style Actionable Insights -->
+    <div class="row gutters-16">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm border-left-lg border-warning">
+                <div class="card-header border-light bg-white py-3">
+                    <h5 class="h6 mb-0 text-primary d-flex align-items-center">
+                        <i class="las la-exclamation-triangle la-lg mr-2 text-warning"></i>
+                        {{ translate('Urgent: Attention Required') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if(count($low_stock_products) > 0)
+                        <ul class="list-group list-group-flush">
+                            @foreach($low_stock_products as $product)
+                                <li class="list-group-item px-0 border-light d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center" style="min-width: 0;">
+                                        <img src="{{ uploaded_asset($product->thumbnail_img) }}" width="40" class="mr-3 rounded shadow-sm flex-shrink-0">
+                                        <div style="min-width: 0;">
+                                            <p class="mb-0 fs-13 fw-600 text-truncate" style="max-width: 200px;">{{ $product->getTranslation('name') }}</p>
+                                            <span class="badge badge-inline badge-soft-danger">{{ translate('Only') }} {{ $product->current_stock }} {{ translate('left') }}</span>
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('seller.products.edit', ['id' => $product->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}" class="btn btn-soft-primary btn-sm rounded-2 ml-2 flex-shrink-0">{{ translate('Restock') }}</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <div class="text-center py-4">
+                            <i class="las la-check-circle la-3x text-success mb-2"></i>
+                            <p class="text-muted mb-0">{{ translate('All stock levels are healthy') }}</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm border-left-lg border-info">
+                <div class="card-header border-light bg-white py-3">
+                    <h5 class="h6 mb-0 text-primary d-flex align-items-center">
+                        <i class="las la-rocket la-lg mr-2 text-info"></i>
+                        {{ translate('Optimization & Growth') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if(count($underperforming_products) > 0)
+                        <ul class="list-group list-group-flush">
+                            @foreach($underperforming_products as $product)
+                                <li class="list-group-item px-0 border-light">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="d-flex align-items-center" style="min-width: 0;">
+                                            <img src="{{ uploaded_asset($product->thumbnail_img) }}" width="40" class="mr-3 rounded shadow-sm flex-shrink-0">
+                                            <p class="mb-0 fs-13 fw-600 text-truncate" style="max-width: 200px;">{{ $product->getTranslation('name') }}</p>
+                                        </div>
+                                        <span class="text-info fw-600 fs-12 ml-2 flex-shrink-0">{{ number_format(($product->num_of_sale / $product->num_of_view)*100, 2) }}% Conv.</span>
+                                    </div>
+                                    <div class="bg-soft-info p-2 rounded-2 fs-12">
+                                        <i class="las la-lightbulb mr-1"></i>
+                                        {{ translate('High interest (') }} {{ $product->num_of_view }} {{ translate('views) but low sales. Try a temporary Flash Deal discount to boost conversion.') }}
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <div class="text-center py-4">
+                            <i class="las la-star la-3x text-warning mb-2 opacity-50"></i>
+                            <p class="text-muted mb-0">{{ translate('Your products are converting effectively!') }}</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row">

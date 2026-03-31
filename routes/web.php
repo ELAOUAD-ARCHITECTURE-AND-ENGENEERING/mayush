@@ -23,6 +23,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PurchaseHistoryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\VisualSearchController;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\WalletController;
@@ -116,6 +117,9 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/customer-reg/verify-code/{id}', 'regVerifyCode')->name('customer-reg.verify_code');
     Route::post('/customer-reg/verify-code-confirmation', 'regVerifyCodeConfirmation')->name('customer-reg.verify_code_confirmation');
 
+
+    // Visual Search
+    Route::post('/search/visual', [VisualSearchController::class, 'visualSearch'])->name('search.visual');
 
     //Home Page
     Route::get('/', 'index')->name('home');
@@ -214,6 +218,7 @@ Route::controller(CartController::class)->group(function () {
     Route::post('/cart/updateQuantity', 'updateQuantity')->name('cart.updateQuantity');
     Route::post('/cart/update-status', 'updateCartStatus')->name('cart.updateCartStatus');
     Route::post('/cart/show-cart-modal-auction', 'showCartModalAuction')->name('cart.showCartModalAuction');
+    Route::post('/cart/buy-now', 'buyNow')->name('cart.buy_now');
 });
 
 Route::middleware(['throttle:payments'])->group(function () {
@@ -345,7 +350,6 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
 
     // Product Review
     Route::post('/product_review_modal', [ReviewController::class, 'product_review_modal'])->name('product_review_modal');
-
     Route::controller(FollowSellerController::class)->group(function () {
         Route::get('/followed-seller', 'index')->name('followed_seller');
         Route::post('/followed-seller-store', 'store')->name('followed_seller.store');

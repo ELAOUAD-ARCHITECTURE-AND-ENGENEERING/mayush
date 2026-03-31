@@ -70,6 +70,11 @@ $bottomHeaderTextColor = get_setting('bottom_header_text_color');
                                             d="M24.4,25.2a.8.8,0,0,1-.565-.234l-6.15-6.15a.8.8,0,0,1,1.13-1.13l6.15,6.15A.8.8,0,0,1,24.4,25.2Z"
                                             transform="translate(-5.2 -5.2)" fill="#b5b5bf" />
                                     </svg>
+
+                                    {{-- Visual Search Camera Button --}}
+                                    <button type="button" class="btn visual-search-btn" onclick="document.getElementById('visual-search-input').click()" title="{{ translate('Search by Image') }}">
+                                        <i class="las la-camera la-lg"></i>
+                                    </button>
                                 </div>
                             </div>
                         </form>

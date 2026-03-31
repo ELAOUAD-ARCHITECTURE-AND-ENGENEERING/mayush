@@ -9,6 +9,8 @@ use App\Traits\PreventDemoModeChanges;
 class FrequentlyBoughtProduct extends Model
 {
     use HasFactory,PreventDemoModeChanges;
+    
+    public $timestamps = false;
 
 
     public function product()

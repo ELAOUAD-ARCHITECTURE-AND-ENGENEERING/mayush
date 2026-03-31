@@ -1,5 +1,5 @@
 <div
-    class="frequently-bought-container py-20px px-30px border bg-white border-light-gray rounded-2">
+    class="frequently-bought-container py-20px px-30px border bg-white border-light-gray rounded-2 fade-in-up">
     <p class="fs-20 fw-bold text-dark">{{ translate('Frequently Bought Together') }}</p>
 
     <div class="aiz-carousel arrow-x-0 arrow-inactive-none" data-items="6" data-xxl-items="6"
@@ -18,7 +18,7 @@
                         alt="{{ $related_product->getTranslation('name') }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
 
                     <img class="lazyload img-fit m-auto has-transition product-main-image product-hover-image position-absolute"
-                        src="{{ get_first_product_image($related_product->thumbnail, $related_product->photos) }}" alt="{{ $related_product->getTranslation('name') }}"
+                        src="{{ get_first_product_image($related_product->photos, $related_product->thumbnail) }}" alt="{{ $related_product->getTranslation('name') }}"
                         title="" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                 </a>
             </div>

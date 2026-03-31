@@ -28,6 +28,38 @@
         </div>
 
         @if($detailedProduct->reviews()->where('status', 1)->count() > 0)
+        
+        @php
+            $reviewPhotos = [];
+            foreach ($detailedProduct->reviews->where('status', 1) as $review) {
+                if ($review->photos != null && $review->photos != "") {
+                    $photos = explode(',', $review->photos);
+                    foreach ($photos as $photo) {
+                        if(trim($photo) != "") {
+                            $reviewPhotos[] = $photo;
+                        }
+                    }
+                }
+            }
+        @endphp
+        @if(count($reviewPhotos) > 0)
+        <!-- Customer Photos Gallery -->
+        <div class="customer-photos-gallery-wrapper mb-4">
+            <span class="fs-14 fw-700 text-dark">{{ translate('Customer Photos') }}</span>
+            <div class="d-flex overflow-auto mt-2 pb-2" style="gap: 12px; white-space: nowrap; scrollbar-width: thin;">
+                @foreach($reviewPhotos as $photo)
+                    <a class="w-80px h-80px cursor-pointer bg-soft-light border border-light-gray has-transition rounded-2 overflow-hidden d-flex flex-shrink-0 align-items-center justify-content-center hov-scale"
+                        href="javascript:void(0);" onclick="showReviewImageModal('{{ uploaded_asset($photo) }}', '{{ json_encode(array_map('uploaded_asset', $reviewPhotos)) }}')">
+                        <img class="img-fit h-100 w-100 lazyload has-transition"
+                            src="{{ static_asset('assets/img/placeholder.jpg') }}"
+                            data-src="{{ uploaded_asset($photo) }}"
+                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                    </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         <!-- Reviews & Ratings Show by Filter Start -->
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-2">
             <div>

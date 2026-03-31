@@ -75,7 +75,7 @@
                                 <tr>
                                     <td>{{ ($key+1) + ($areas->currentPage() - 1) * $areas->perPage() }}</td>
                                     <td>{{ $area->getTranslation('name') }}</td>
-                                    <td>{{ $area->city->name }}</td>
+                                    <td>{{ $area->city->name ?? translate('No City') }}</td>
                                     <td>{{ single_price($area->cost) }}</td>
                                     <td>
                                         <label class="aiz-switch aiz-switch-success mb-0">

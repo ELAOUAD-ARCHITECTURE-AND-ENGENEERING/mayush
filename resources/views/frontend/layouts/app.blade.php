@@ -407,6 +407,8 @@
 
     @include('frontend.partials.modal')
 
+    @include('frontend.partials.visual_search')
+
     @include('frontend.partials.account_delete_modal')
 
     <div class="modal fade" id="addToCart">
@@ -834,6 +836,13 @@
                         $('#option-choice-form #selected_variant').html(data.variation);
                         $('#available-quantity').html(data.quantity);
                         $('.input-number').prop('max', data.max_limit);
+
+                        if (data.quantity > 0 && data.quantity < 10) {
+                            $('.low-stock-indicator-wrapper').removeClass('d-none');
+                            $('.low-stock-indicator .stock-count').html(data.quantity);
+                        } else {
+                            $('.low-stock-indicator-wrapper').addClass('d-none');
+                        }
                         if(parseInt(data.in_stock) == 0 && data.digital  == 0){
                            $('.buy-now').addClass('d-none');
                            $('.add-to-cart').addClass('d-none');
@@ -980,24 +989,12 @@
                 $('#addToCart-modal-body').html(null);
                 $('#addToCart').modal();
                 $('.c-preloader').show();
-                $.ajax({
-                    type:"POST",
-                    url: '{{ route('cart.addToCart') }}',
-                    data: $('#option-choice-form').serializeArray(),
-                    success: function(data){
-                        if(data.status == 1){
-                            $('#addToCart-modal-body').html(data.modal_view);
-                            updateNavCart(data.nav_cart_view,data.cart_count);
-                            window.location.replace("{{ route('cart') }}");
-                        }
-                        else{
-                            $('#addToCart-modal-body').html(null);
-                            $('.c-preloader').hide();
-                            $('#modal-size').removeClass('modal-lg');
-                            $('#addToCart-modal-body').html(data.modal_view);
-                        }
-                    }
-               });
+                
+                // Using a regular form submission for buyNow to handle the redirect properly in the controller
+                var form = $('#option-choice-form');
+                form.attr('action', '{{ route('cart.buy_now') }}');
+                form.attr('method', 'POST');
+                form.submit();
             }
             else{
                 AIZ.plugins.notify('warning', "{{ translate('Please choose all the options') }}");

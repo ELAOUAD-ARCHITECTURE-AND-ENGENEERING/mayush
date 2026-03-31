@@ -220,6 +220,19 @@
             <a href="{{ $product_url }}" class="d-block text-reset hov-text-primary"
                 title="{{ $product->getTranslation('name') }}">{{ $product->getTranslation('name') }}</a>
         </h3>
+
+        @php
+            $total_stock = $product->stocks->sum('qty');
+        @endphp
+        @if($total_stock > 0 && $total_stock < 10)
+            <div class="mt-2 text-center">
+                <span class="badge badge-inline badge-soft-danger animate-pulse">{{ translate('Only') }} {{ $total_stock }} {{ translate('left!') }}</span>
+            </div>
+        @elseif($total_stock > 0 && $product->num_of_sale > 100)
+            <div class="mt-2 text-center">
+                <span class="badge badge-inline badge-soft-warning">{{ translate('Selling Fast!') }}</span>
+            </div>
+        @endif
         <div class="fs-14 d-flex justify-content-center mt-3">
             @if ($product->auction_product == 0)
                 <!-- Previous price -->

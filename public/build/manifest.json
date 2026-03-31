@@ -1,0 +1,14 @@
+{
+  "resources/js/analytics-tracker.js": {
+    "file": "assets/analytics-tracker-BglyRnQE.js",
+    "name": "analytics-tracker",
+    "src": "resources/js/analytics-tracker.js",
+    "isEntry": true
+  },
+  "resources/js/dashboard.jsx": {
+    "file": "assets/dashboard-DQ3LoL0p.js",
+    "name": "dashboard",
+    "src": "resources/js/dashboard.jsx",
+    "isEntry": true
+  }
+}

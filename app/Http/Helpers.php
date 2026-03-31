@@ -2164,7 +2164,7 @@ if (!function_exists('get_frequently_bought_products')) {
     {
         $productSelectionType = $product->frequently_bought_selection_type;
         $fqbProducts = [];
-        if($productSelectionType == 'product'){
+        if($productSelectionType == 'product' || empty($productSelectionType)){
             $fqbProductIds = $product->frequently_bought_products()->where('category_id', null)->pluck('frequently_bought_product_id')->toArray();
             $fqbProducts = filter_products(Product::whereIn('id', $fqbProductIds))->get();
         }
@@ -2689,14 +2689,20 @@ if (!function_exists('get_image')) {
 
 //Get 1st prodyct image
 if (!function_exists('get_first_product_image')) {
-     function get_first_product_image($photos = null, $thumbnail = null, $size = null)
+    function get_first_product_image($photos = null, $thumbnail = null, $size = null)
     {
-        $photos = $photos != null ? explode(',', $photos) : [];
-        $photos = array_diff($photos, [$thumbnail]);
-        $firstPhotoId = reset($photos);
+        $photosArray = $photos != null ? explode(',', $photos) : [];
+        $photosArray = array_diff($photosArray, [$thumbnail]);
         
-        if (!empty($firstPhotoId)) {
-            return uploaded_asset($firstPhotoId, $size);
+        foreach ($photosArray as $photoId) {
+            if (!empty($photoId)) {
+                $asset = \App\Models\Upload::find($photoId);
+                if ($asset) {
+                    // Try to return the asset if it exists in the database
+                    // Removing the file_exists(public_path()) check as it can fail on Windows cross-slashes or cloud storage
+                    return uploaded_asset($photoId, $size);
+                }
+            }
         }
         
         if ($thumbnail != null) {

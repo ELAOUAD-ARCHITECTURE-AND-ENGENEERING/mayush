@@ -410,6 +410,8 @@ class HomeController extends Controller
         $detailedProduct  = Product::with('reviews', 'brand', 'stocks', 'user', 'user.shop')->where('auction_product', 0)->where('slug', $slug)->where('approved', 1)->first();
 
         if ($detailedProduct != null && $detailedProduct->published) {
+            // Increment view count
+            $detailedProduct->increment('num_of_view');
             if ((get_setting('vendor_system_activation') != 1) && $detailedProduct->added_by == 'seller') {
                 abort(404);
             }
@@ -422,8 +424,8 @@ class HomeController extends Controller
                 abort(404);
             }
 
-            $product_queries = ProductQuery::where('product_id', $detailedProduct->id)->where('customer_id', '!=', Auth::id())->latest('id')->paginate(3);
-            $total_query = ProductQuery::where('product_id', $detailedProduct->id)->count();
+            $product_queries = ProductQuery::where('product_id', $detailedProduct->id)->where('customer_id', '!=', Auth::id())->whereNotNull('reply')->latest('id')->paginate(3);
+            $total_query = ProductQuery::where('product_id', $detailedProduct->id)->whereNotNull('reply')->count();
             $reviews = $detailedProduct->reviews()->where('status', 1)->orderBy('created_at', 'desc')->paginate(3);
 
             // Pagination using Ajax

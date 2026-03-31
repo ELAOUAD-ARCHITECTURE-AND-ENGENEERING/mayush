@@ -1,6 +1,6 @@
 @if(get_setting('product_query_activation') == 1)
     <div class="product-queries-container py-20px px-30px border bg-white border-light-gray rounded-2">
-        <p class="fs-20 fw-bold text-dark">{{ translate(' Product Queries ') }} ({{ count($detailedProduct->product_queries) }})</p>
+        <p class="fs-20 fw-bold text-dark">{{ translate(' Product Queries ') }} ({{ $detailedProduct->product_queries->whereNotNull('reply')->count() + (Auth::check() ? $detailedProduct->product_queries->where('customer_id', Auth::id())->whereNull('reply')->count() : 0) }})</p>
         <div class="mb-2 bg-white has-transition">
             <!-- Login & Register -->
             @guest
