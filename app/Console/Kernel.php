@@ -29,6 +29,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('search:reindex')->daily();
         $schedule->command('promotions:expire')->daily();
         $schedule->command('elite:expire')->hourly();
+        
+        // MA-106: Predictive Restock Alerts
+        $schedule->command('inventory:check-velocity')->daily();
     }
 
     /**

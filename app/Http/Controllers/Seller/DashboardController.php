@@ -94,6 +94,16 @@ class DashboardController extends Controller
                                 ->orderBy('created_at', 'asc')
                                 ->get()->pluck('total', 'date');
 
+        // MA-106: Predictive Stockout (Days Remaining)
+        $data['predictive_stockout'] = $data['inventory_velocity']->map(function($v) use ($authUserId) {
+            $product = $v->product;
+            $dailyVelocity = $v->total_sold / 7;
+            $v->days_remaining = $dailyVelocity > 0 ? ($product->current_stock / $dailyVelocity) : 999;
+            return $v;
+        })->filter(function($v) {
+            return $v->days_remaining <= 7; // Show anything running out within a week
+        })->sortBy('days_remaining');
+
         return view('seller.dashboard', $data);
     }
 }
