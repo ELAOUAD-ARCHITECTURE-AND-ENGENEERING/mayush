@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\OrderNotification;
 use App\Utility\EmailUtility;
 use App\Models\ProductStock;
+use App\Models\InventoryLog;
 use DB;
 
 class OrderController extends Controller
@@ -276,8 +277,20 @@ class OrderController extends Controller
                     }
                     
                     // Deduct stock
+                    $previous_qty = $product_stock->qty;
                     $product_stock->qty -= $cartItem['quantity'];
                     $product_stock->save();
+
+                    // Log inventory change (MA-105)
+                    InventoryLog::create([
+                        'product_id' => $product->id,
+                        'user_id' => Auth::user()->id,
+                        'quantity_delta' => -$cartItem['quantity'],
+                        'previous_stock' => $previous_qty,
+                        'current_stock' => $product_stock->qty,
+                        'reason' => 'order',
+                        'order_id' => $order->id
+                    ]);
                 }
 
                 $order_detail = new OrderDetail;

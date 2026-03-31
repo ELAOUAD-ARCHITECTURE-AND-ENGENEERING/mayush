@@ -1688,9 +1688,21 @@ if (!function_exists('product_restock')) {
                 $product->save();
             }
 
+            $previous_qty = $product_stock->qty;
             $product_stock->qty += $orderDetail->quantity;
             $product_stock->save();
             
+            // Log inventory change (MA-105)
+            \App\Models\InventoryLog::create([
+                'product_id' => $orderDetail->product_id,
+                'user_id' => auth()->check() ? auth()->user()->id : null,
+                'quantity_delta' => $orderDetail->quantity,
+                'previous_stock' => $previous_qty,
+                'current_stock' => $product_stock->qty,
+                'reason' => 'restock',
+                'order_id' => $orderDetail->order_id
+            ]);
+
             \Log::info("Restocked Product ID: {$orderDetail->product_id}, Variant: {$variant}, Qty: {$orderDetail->quantity}");
         } else {
              \Log::warning("Restock skipped for Product ID: {$orderDetail->product_id}, Stock Found: " . ($product_stock ? 'Yes' : 'No') . ", Status: {$orderDetail->delivery_status}");

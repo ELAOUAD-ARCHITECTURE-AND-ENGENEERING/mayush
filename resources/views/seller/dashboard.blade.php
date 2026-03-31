@@ -344,12 +344,13 @@
 
     <div class="row">
         <div class="col-sm-6 col-md-6 col-lg-3 mb-4">
-            <div class="card shadow-none bg-soft-primary">
-                <div class="card-body">
+            <div class="card shadow-none bg-soft-primary mb-3">
+                <div class="card-body text-center">
                     <div class="card-title text-primary fs-16 fw-600">
-                        {{ translate('Sales Stat') }}
+                        {{ translate('Performance Trends') }}
                     </div>
-                    <canvas id="graph-1" class="w-100" height="150"></canvas>
+                    <p class="small text-muted">{{ translate('Last 7 Days Traffic') }}</p>
+                    <canvas id="graph-views" class="w-100" height="150"></canvas>
                 </div>
             </div>
             <div class="card shadow-none bg-soft-primary mb-0">
@@ -747,6 +748,89 @@
       
     </div>
 
+    <!-- Analytics Insights Row (MA-104 & MA-105) -->
+    <div class="row">
+        <!-- Inventory Velocity (MA-105) -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-none h-100">
+                <div class="card-header border-0 pb-0">
+                    <h6 class="mb-0 fs-16 fw-600">{{ translate('Inventory Velocity') }} 
+                        <span class="badge badge-inline badge-soft-info ml-2">{{ translate('Last 7 Days') }}</span>
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>{{ translate('Product') }}</th>
+                                <th class="text-right">{{ translate('Units Sold') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($inventory_velocity as $velocity)
+                                <tr>
+                                    <td>
+                                        <div class="text-truncate-2 fs-13 fw-600">{{ $velocity->product->getTranslation('name') }}</div>
+                                        <small class="text-muted">{{ translate('In Stock') }}: {{ $velocity->product->current_stock }}</small>
+                                    </td>
+                                    <td class="text-right align-middle">
+                                        <span class="badge badge-inline badge-soft-primary fs-14">{{ $velocity->total_sold }}</span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            @if(count($inventory_velocity) == 0)
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted small">{{ translate('No recent movement data') }}</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Health / Underperforming (MA-104) -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-none h-100">
+                <div class="card-header border-0 pb-0">
+                    <h6 class="mb-0 fs-16 fw-600">{{ translate('Product Health Alerts') }}
+                        <span class="badge badge-inline badge-soft-danger ml-2">{{ translate('Critical') }}</span>
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-3">{{ translate('Products with high traffic but low conversions (<1%)') }}</p>
+                    <ul class="list-group list-group-flush">
+                        @foreach ($underperforming_products as $product)
+                            <li class="list-group-item px-0 pt-0">
+                                <div class="d-flex align-items-center">
+                                    <div class="mr-3">
+                                        <img src="{{ uploaded_asset($product->thumbnail_img) }}" class="size-40px rounded" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                                    </div>
+                                    <div class="col pl-0">
+                                        <h6 class="mb-0 fs-13 fw-600 text-truncate-1">
+                                            <a href="{{ route('product', $product->slug) }}" class="text-reset">{{ $product->getTranslation('name') }}</a>
+                                        </h6>
+                                        <div class="fs-11 text-muted">
+                                            {{ translate('Views') }}: <span class="fw-600">{{ $product->num_of_view }}</span> | 
+                                            {{ translate('Sales') }}: <span class="fw-600">{{ $product->num_of_sale }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto text-right">
+                                        <span class="text-danger fw-600">{{ number_format(($product->num_of_sale / max(1, $product->num_of_view)) * 100, 2) }}%</span>
+                                        <div class="fs-10 text-muted">{{ translate('Conv.') }}</div>
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                        @if(count($underperforming_products) == 0)
+                            <li class="list-group-item px-0 text-center text-muted small">{{ translate('All products performing well') }}</li>
+                        @endif
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <div class="card-title text-primary">
@@ -1037,6 +1121,63 @@
                         barThickness: 7,
                         barPercentage: .5,
                         categoryPercentage: .5,
+                    }],
+                },
+                legend: {
+                    display: false
+                }
+            }
+        });
+
+        // View Trends Chart (MA-104)
+        AIZ.plugins.chart('#graph-views', {
+            type: 'line',
+            data: {
+                labels: [
+                    @foreach ($last_7_days_views as $key => $value)
+                        '{{ $key }}',
+                    @endforeach
+                ],
+                datasets: [{
+                    label: 'Views',
+                    data: [
+                        @foreach ($last_7_days_views as $key => $value)
+                            '{{ $value }}',
+                        @endforeach
+                    ],
+                    fill: true,
+                    backgroundColor: 'rgba(46, 41, 78, 0.1)',
+                    borderColor: '#2E294E',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#2E294E',
+                    pointRadius: 3,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        gridLines: {
+                            color: '#E0E0E0',
+                            zeroLineColor: '#E0E0E0'
+                        },
+                        ticks: {
+                            fontColor: "#AFAFAF",
+                            fontFamily: 'Roboto',
+                            fontSize: 10,
+                            beginAtZero: true,
+                            stepSize: 1
+                        },
+                    }],
+                    xAxes: [{
+                        gridLines: {
+                            display: false
+                        },
+                        ticks: {
+                            fontColor: "#AFAFAF",
+                            fontFamily: 'Roboto',
+                            fontSize: 10
+                        },
                     }],
                 },
                 legend: {
