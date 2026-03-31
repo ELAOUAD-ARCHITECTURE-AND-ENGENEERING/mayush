@@ -1,0 +1,9 @@
+TaskID,Name,Developer,Status,Progress (%),Story Points,Priority,ETR,Blockers,Commit Hash,JIRA Link
+MAY-102,AI Visual Search Integration,Solaymane ben haddy,Completed,100,8,HIGH,0,None,394a845,https://jira.mayush.example.com/browse/MAY-102
+MAY-103,Customer Photos Gallery,Solaymane ben haddy,Completed,100,5,MEDIUM,0,None,e55761c,https://jira.mayush.example.com/browse/MAY-103
+MAY-104,Seller Analytics Dashboard,Solaymane ben haddy,WIP,65,8,HIGH,2 Days,MAY-105 Connectivity,N/A,https://jira.mayush.example.com/browse/MAY-104
+MAY-105,Real-time Inventory Tracking,Platform Core Team,Incomplete,40,5,HIGH,3 Days,Database Sync latency,N/A,https://jira.mayush.example.com/browse/MAY-105
+MAY-098,Recommendation Engine,Solaymane ben haddy,Delayed,20,8,HIGH,5 Days,Model API Latency,N/A,https://jira.mayush.example.com/browse/MAY-098
+MAY-099,Express Buy (1-Click),Platform Core Team,Delayed,10,5,HIGH,8 Days,CMI Compliance Review,N/A,https://jira.mayush.example.com/browse/MAY-099
+MAY-106,Artisan Storytelling Profiles,Solaymane ben haddy,Not Started,0,13,HIGH,10 Days,Asset Readiness,N/A,https://jira.mayush.example.com/browse/MAY-106
+MAY-107,Real-time Stock Alerts,Platform Core Team,Not Started,0,3,MEDIUM,5 Days,Notification Queue,N/A,https://jira.mayush.example.com/browse/MAY-107
