@@ -764,6 +764,7 @@
                             <tr>
                                 <th>{{ translate('Product') }}</th>
                                 <th class="text-right">{{ translate('Units Sold') }}</th>
+                                <th class="text-right">{{ translate('Days Remaining') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -775,6 +776,12 @@
                                     </td>
                                     <td class="text-right align-middle">
                                         <span class="badge badge-inline badge-soft-primary fs-14">{{ $velocity->total_sold }}</span>
+                                    </td>
+                                    <td class="text-right align-middle">
+                                        @php $dr = $velocity->days_remaining; @endphp
+                                        <span class="badge badge-inline @if($dr <= 3) badge-soft-danger @elseif($dr <= 7) badge-soft-warning @else badge-soft-success @endif fs-14">
+                                            {{ $dr > 90 ? '90+' : round($dr, 1) }}
+                                        </span>
                                     </td>
                                 </tr>
                             @endforeach
