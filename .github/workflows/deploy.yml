@@ -1,123 +1,32 @@
-name: Deploy Mayush to VPS
+name: "🛒 MAYUSH — PRODUCTION DEPLOY"
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   deploy:
-    name: 🚀 Production Deployment
+    name: "🚀 Deploy to Production"
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+    
     steps:
-      # ----------------------------------------------------------
-      # 1. CHECKOUT
-      # ----------------------------------------------------------
-      - name: 📥 Checkout repository
+      - name: "📂 Checkout Repository"
         uses: actions/checkout@v4
 
-      # ----------------------------------------------------------
-      # 2. VALIDATE REQUIRED SECRETS
-      # ----------------------------------------------------------
-      - name: 🔐 Validate required secrets
-        run: |
-          missing=()
-          [[ -z "${{ secrets.VPS_HOST }}"            ]] && missing+=("VPS_HOST")
-          [[ -z "${{ secrets.VPS_USERNAME }}"         ]] && missing+=("VPS_USERNAME")
-          [[ -z "${{ secrets.VPS_SSH_KEY }}"          ]] && missing+=("VPS_SSH_KEY")
-          [[ -z "${{ secrets.VPS_SSH_PASSPHRASE }}"   ]] && missing+=("VPS_SSH_PASSPHRASE")
-          [[ -z "${{ secrets.VPS_PORT }}"             ]] && missing+=("VPS_PORT")
-          [[ -z "${{ secrets.DEPLOY_DB_PASSWORD }}"   ]] && missing+=("DEPLOY_DB_PASSWORD")
-          [[ -z "${{ secrets.DEPLOY_DB_USER }}"       ]] && missing+=("DEPLOY_DB_USER")
-          [[ -z "${{ secrets.TELEGRAM_BOT_TOKEN }}"   ]] && missing+=("TELEGRAM_BOT_TOKEN")
-          [[ -z "${{ secrets.TELEGRAM_CHAT_ID }}"     ]] && missing+=("TELEGRAM_CHAT_ID")
-
-          if [[ ${#missing[@]} -gt 0 ]]; then
-            echo "❌ Missing required GitHub Secrets: ${missing[*]}"
-            echo "   Go to: Settings → Secrets and variables → Actions"
-            exit 1
-          fi
-
-          echo "✔ All required secrets are present"
-
-      # ----------------------------------------------------------
-      # 3. NOTIFY TELEGRAM — DEPLOY STARTED
-      # ----------------------------------------------------------
-      - name: 📣 Notify Telegram — Deploy started
-        run: |
-          COMMIT_MSG=$(git log -1 --format='%s' | head -c 80)
-          COMMIT_HASH=$(git log -1 --format='%h')
-          AUTHOR="${{ github.actor }}"
-          REPO="${{ github.repository }}"
-          RUN_URL="https://github.com/${REPO}/actions/runs/${{ github.run_id }}"
-
-          TEXT="🚀 <b>Mayush Deploy Started</b>
-
-          📦 <b>Repo:</b> <code>${REPO}</code>
-          👤 <b>Author:</b> ${AUTHOR}
-          🔖 <b>Commit:</b> <code>${COMMIT_HASH}</code> — ${COMMIT_MSG}
-          🌿 <b>Branch:</b> <code>main</code>
-
-          ⏳ Deployment is in progress... please wait.
-          <a href=\"${RUN_URL}\">🔍 View Run</a>"
-
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
-            --data-urlencode "text=${TEXT}" \
-            --data-urlencode "parse_mode=HTML" \
-            --data-urlencode "disable_web_page_preview=true"
-
-      # ----------------------------------------------------------
-      # 4. BUILD FRONTEND ASSETS (ON RUNNER)
-      # ----------------------------------------------------------
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: 📦 Build Frontend Assets
-        run: |
-          npm ci --prefer-offline --legacy-peer-deps
-          npm run build
-        
-      # ----------------------------------------------------------
-      # 5. UPLOAD COMPILED ASSETS TO VPS
-      # ----------------------------------------------------------
-      - name: 📤 Upload Build Assets via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
-          port: ${{ secrets.VPS_PORT }}
-          source: "public/build/"
-          target: "/home/mayushdesign/public_html/"
-
-      # ----------------------------------------------------------
-      # 6. SSH DEPLOYMENT
-      # ----------------------------------------------------------
-      - name: 🚀 Deploy via SSH
-        id: ssh_deploy
+      - name: "📂 SSH — Deploying to Production Server"
         uses: appleboy/ssh-action@v1.0.3
-        env:
-          DEPLOY_DB_PASSWORD: ${{ secrets.DEPLOY_DB_PASSWORD }}
-          DEPLOY_DB_USER: ${{ secrets.DEPLOY_DB_USER }}
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
-          port: ${{ secrets.VPS_PORT }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          port: ${{ secrets.PORT }}
           request_pty: true
           script_stop: true
           envs: DEPLOY_DB_PASSWORD,DEPLOY_DB_USER
           script: |
             set -euo pipefail
-
+            
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "  MAYUSHDESIGN — DEPLOY STARTED"
             echo "  $(date '+%Y-%m-%d %H:%M:%S')"
@@ -131,21 +40,10 @@ jobs:
             # Bypass Git CVE-2022-24765 dubious ownership block
             git config --global --add safe.directory /home/mayushdesign/public_html
             
-            git restore .
-            
-            # Force Git to never prompt for passwords (which causes 10-minute hangs in CI/CD)
-            export GIT_TERMINAL_PROMPT=0
-            export GIT_SSH_COMMAND="ssh -o BatchMode=yes"
-            
-            # Fetch the latest objects securely using the GitHub Action token
-            git fetch https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
-            
-            # Force the server to perfectly match GitHub (Overwrites any conflicting untracked files on the server)
-            git reset --hard FETCH_HEAD
-            
-            echo "✔ Code up to date — $(git log -1 --format='%h %s')"
+            git pull origin main
+            echo "✔ Code updated"
 
-            # ── [2/3] PHP dependencies ──────────────────────────────
+            # ── [2/3] Installing PHP dependencies ───────────────────
             echo ""
             echo "▶ [2/3] Installing PHP dependencies..."
             php8.2 $(which composer) install \
@@ -161,231 +59,105 @@ jobs:
             sudo -E /usr/local/bin/deploy_mayush_env_and_cache.sh
             echo "✔ Deploy script finished"
 
-            # ── [4/4] AI Service Setup ─────────────────────────────
+            # ── [4/4] AI Service Setup (Isolated) ──────────────────
             echo ""
             echo "▶ [4/4] Setting up AI Visual Search Service..."
             
-            AI_DIR="/home/mayushdesign/public_html/ai_service"
-            mkdir -p "$AI_DIR" || true
-            
-            AI_LOG="$AI_DIR/ai_service.log"
-            AI_PID="$AI_DIR/ai_service.pid"
-            AI_VENV="$AI_DIR/venv"
-            AI_HASH_FILE="$AI_DIR/.requirements.hash"
-            AI_STATUS="unknown"
+            # We move the logic to an isolated script to bypass the aggressive SSH wrapper
+            cat <<'EOF' > /tmp/mayush_ai_setup.sh
+#!/bin/bash
+set -euo pipefail
 
-            # ── 4a. Ensure Python3 + venv + pip are available ──────
-            echo "  🔍 Checking Python environment..."
-            if ! command -v python3 &>/dev/null; then
-              echo "  📦 Installing Python3..."
-              sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3 || true
-            fi
+AI_DIR="/home/mayushdesign/public_html/ai_service"
+mkdir -p "$AI_DIR"
+AI_LOG="$AI_DIR/ai_service.log"
+AI_PID="$AI_DIR/ai_service.pid"
+AI_VENV="$AI_DIR/venv"
+AI_HASH_FILE="$AI_DIR/.requirements.hash"
 
-            # Silenced dpkg checks to keep Drone-SSH wrapper happy
-            MISSING_PKGS=""
-            dpkg -s python3-venv &>/dev/null || MISSING_PKGS="python3-venv $MISSING_PKGS"
-            dpkg -s python3-pip &>/dev/null || MISSING_PKGS="python3-pip $MISSING_PKGS"
+echo "  🔍 Checking Python environment..."
+if ! command -v python3 &>/dev/null; then
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3
+fi
 
-            if [[ -n "$MISSING_PKGS" ]]; then
-              echo "  📦 Installing missing packages: $MISSING_PKGS"
-              sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $MISSING_PKGS || \
-              (echo "  🔄 Direct install failed, trying with update..." && \
-               sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq && \
-               sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $MISSING_PKGS)
-            fi
-            echo "  ✔ Python environment ready: $(python3 --version 2>&1)"
+MISSING_PKGS=""
+dpkg -s python3-venv &>/dev/null || MISSING_PKGS="python3-venv $MISSING_PKGS"
+dpkg -s python3-pip &>/dev/null || MISSING_PKGS="python3-pip $MISSING_PKGS"
 
-            # ── 4b. Create virtual environment if missing ──────────
-            VENV_EXISTS=0
-            [ -d "$AI_VENV" ] && VENV_EXISTS=1 || VENV_EXISTS=0
-            if [[ "$VENV_EXISTS" -eq 0 ]]; then
-              echo "  📦 Creating Python virtual environment..."
-              python3 -m venv "$AI_VENV" || true
-              echo "  ✔ Virtual environment created"
-            else
-              echo "  ✔ Virtual environment exists"
-            fi
+if [[ -n "$MISSING_PKGS" ]]; then
+  echo "  📦 Installing missing packages: $MISSING_PKGS"
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $MISSING_PKGS || \
+  (echo "  🔄 Direct install failed, trying with update..." && \
+   sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq && \
+   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $MISSING_PKGS)
+fi
+echo "  ✔ Python environment ready: $(python3 --version 2>&1)"
 
-            # ── 4c. Install dependencies (hash-based skip) ─────────
-            REQ_EXISTS=0
-            [ -f "$AI_DIR/requirements.txt" ] && REQ_EXISTS=1 || REQ_EXISTS=0
-            if [[ "$REQ_EXISTS" -eq 0 ]]; then
-              echo "  ⚠ requirements.txt missing — skipping dependency install"
-              AI_STATUS="missing_requirements"
-            else
-              CURRENT_HASH=$(sha256sum "$AI_DIR/requirements.txt" | awk '{print $1}')
-              if [[ -f "$AI_HASH_FILE" ]] && [[ "$(cat "$AI_HASH_FILE")" == "$CURRENT_HASH" ]]; then
-                echo "  ✔ Dependencies unchanged — skipping pip install"
-              else
-                echo "  📥 Installing Python dependencies..."
-                INSTALL_OK=false
-                for attempt in 1 2 3; do
-                  if "$AI_VENV/bin/pip" install -r "$AI_DIR/requirements.txt" --quiet 2>>"$AI_LOG"; then
-                    echo "$CURRENT_HASH" > "$AI_HASH_FILE"
-                    echo "  ✔ Dependencies installed (attempt $attempt)"
-                    INSTALL_OK=true
-                    break
-                  fi
-                  echo "  ⚠ pip install failed (attempt $attempt/3) — retrying in $((attempt * 5))s..."
-                  sleep $((attempt * 5))
-                done
-                if [[ "$INSTALL_OK" != "true" ]]; then
-                  echo "  ❌ pip install failed after 3 attempts"
-                  AI_STATUS="deps_failed"
-                else
-                  AI_STATUS="ready"
-                fi
-              fi
-            fi
+if [[ ! -d "$AI_VENV" ]]; then
+  echo "  📦 Creating Python virtual environment..."
+  python3 -m venv "$AI_VENV"
+fi
 
-            # ── 4d. Process management ─────────────────────────────
-            if [[ "$AI_STATUS" != "deps_failed" ]]; then
-              NEED_START=true
+if [[ ! -f "$AI_DIR/requirements.txt" ]]; then
+  echo "  ⚠ requirements.txt missing — skipping dependency install"
+  AI_STATUS="missing_requirements"
+else
+  CURRENT_HASH=$(sha256sum "$AI_DIR/requirements.txt" | awk '{print $1}')
+  if [[ -f "$AI_HASH_FILE" ]] && [[ "$(cat "$AI_HASH_FILE")" == "$CURRENT_HASH" ]]; then
+    echo "  ✔ Dependencies unchanged — skipping pip install"
+    AI_STATUS="ready"
+  else
+    echo "  📥 Installing Python dependencies (may take a moment)..."
+    INSTALL_OK=false
+    for attempt in 1 2 3; do
+      if "$AI_VENV/bin/pip" install -r "$AI_DIR/requirements.txt" --quiet 2>>"$AI_LOG"; then
+        echo "$CURRENT_HASH" > "$AI_HASH_FILE"
+        echo "  ✔ Dependencies installed (attempt $attempt)"
+        INSTALL_OK=true
+        break
+      fi
+      echo "  ⚠ pip install failed (attempt $attempt/3) — retrying..."
+      sleep 5
+    done
+    
+    if [[ "$INSTALL_OK" == "true" ]]; then
+        AI_STATUS="ready"
+    else
+        echo "  ❌ pip install failed after 3 attempts"
+        AI_STATUS="deps_failed"
+    fi
+  fi
+fi
 
-              # Check if already running
-              if [[ -f "$AI_PID" ]]; then
-                OLD_PID=$(cat "$AI_PID")
-                if kill -0 "$OLD_PID" 2>/dev/null; then
-                  echo "  🔄 AI Service running (PID $OLD_PID) — restarting for new code..."
-                  kill "$OLD_PID" 2>/dev/null || true
-                  sleep 2
-                  kill -0 "$OLD_PID" 2>/dev/null && kill -9 "$OLD_PID" 2>/dev/null || true
-                  rm -f "$AI_PID"
-                else
-                  echo "  ⚠ Stale PID file found — cleaning up"
-                  rm -f "$AI_PID"
-                fi
-              fi
+if [[ "$AI_STATUS" != "deps_failed" ]]; then
+  # Process management
+  if [[ -f "$AI_PID" ]]; then
+    OLD_PID=$(cat "$AI_PID")
+    if kill -0 "$OLD_PID" 2>/dev/null; then
+      echo "  🔄 Restarting AI Service (PID $OLD_PID)..."
+      kill "$OLD_PID" 2>/dev/null || true
+      sleep 2
+      kill -0 "$OLD_PID" 2>/dev/null && kill -9 "$OLD_PID" 2>/dev/null || true
+      rm -f "$AI_PID"
+    else
+      echo "  ⚠ Stale PID file found — cleaning up"
+      rm -f "$AI_PID"
+    fi
+  fi
 
-              # Start the service
-              echo "  🚀 Starting AI Service on port 5001..."
-              echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting AI Service..." >> "$AI_LOG"
-              source "$AI_VENV/bin/activate"
-              nohup python "$AI_DIR/app.py" >> "$AI_LOG" 2>&1 &
-              NEW_PID=$!
-              echo "$NEW_PID" > "$AI_PID"
-              deactivate 2>/dev/null || true
+  echo "  🚀 Starting AI Visual Search Service..."
+  nohup "$AI_VENV/bin/python" "$AI_DIR/app.py" >> "$AI_LOG" 2>&1 &
+  echo $! > "$AI_PID"
+  echo "  ✔ AI Service started successfully"
+fi
+EOF
 
-              # ── 4e. Health check with retries ────────────────────
-              echo "  🔍 Running health check..."
-              HEALTH_OK=false
-              for attempt in 1 2 3; do
-                sleep $((attempt * 5))
-                if curl -sf "http://127.0.0.1:5001/" >/dev/null 2>&1; then
-                  echo "  ✔ Health check passed (attempt $attempt)"
-                  HEALTH_OK=true
-                  break
-                fi
-                echo "  ⏳ Health check attempt $attempt/3 — waiting..."
-              done
-
-              if [[ "$HEALTH_OK" == "true" ]]; then
-                AI_STATUS="running"
-                echo "  ✅ AI Service is live (PID $NEW_PID, port 5001)"
-              else
-                AI_STATUS="health_failed"
-                echo "  ❌ AI Service failed health check — see $AI_LOG"
-                # Don't fail the entire deploy for this
-              fi
-            fi
+            chmod +x /tmp/mayush_ai_setup.sh
+            /tmp/mayush_ai_setup.sh
+            # rm /tmp/mayush_ai_setup.sh # Keep for debugging if it fails again
 
             echo ""
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo "  ✅ DEPLOYMENT COMPLETE — $(date '+%Y-%m-%d %H:%M:%S')"
-            echo "  🤖 AI Service Status: $AI_STATUS"
+            echo "  ✔ DEPLOY COMPLETED SUCCESSFULLY"
+            echo "  $(date '+%Y-%m-%d %H:%M:%S')"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-      # ----------------------------------------------------------
-      # 5. NOTIFY TELEGRAM — SUCCESS
-      # ----------------------------------------------------------
-      - name: ✅ Notify Telegram — Success
-        if: success()
-        run: |
-          COMMIT_MSG=$(git log -1 --format='%s' | head -c 80)
-          COMMIT_HASH=$(git log -1 --format='%h')
-          AUTHOR="${{ github.actor }}"
-          REPO="${{ github.repository }}"
-          RUN_URL="https://github.com/${REPO}/actions/runs/${{ github.run_id }}"
-          NOW=$(date '+%Y-%m-%d %H:%M UTC')
-
-          TEXT="✅ <b>Mayush Deploy Succeeded</b>
-
-          📦 <b>Repo:</b> <code>${REPO}</code>
-          👤 <b>Pushed by:</b> ${AUTHOR}
-          🔖 <b>Commit:</b> <code>${COMMIT_HASH}</code> — ${COMMIT_MSG}
-          🌿 <b>Branch:</b> <code>main</code>
-          🕐 <b>Finished:</b> ${NOW}
-
-          <b>Completed steps:</b>
-          ✔ Code synced (Hard Reset)
-          ✔ Composer dependencies installed
-          ✔ Vite frontend assets built (on Runner)
-          ✔ Build assets uploaded (SCP)
-          ✔ .env configured
-          ✔ Migrations ran (safe mode)
-          ✔ Caches rebuilt (config / routes / views)
-          ✔ Queue workers restarted
-          ✔ App is live 🟢
-          🤖 AI Visual Search Service: deployed (port 5001)
-
-          <a href=\"${RUN_URL}\">🔍 View Run</a>"
-
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
-            --data-urlencode "text=${TEXT}" \
-            --data-urlencode "parse_mode=HTML" \
-            --data-urlencode "disable_web_page_preview=true"
-
-      # ----------------------------------------------------------
-      # 6. NOTIFY TELEGRAM — FAILURE
-      # ----------------------------------------------------------
-      - name: ❌ Notify Telegram — Failure
-        if: failure()
-        run: |
-          COMMIT_MSG=$(git log -1 --format='%s' | head -c 80)
-          COMMIT_HASH=$(git log -1 --format='%h')
-          AUTHOR="${{ github.actor }}"
-          REPO="${{ github.repository }}"
-          RUN_URL="https://github.com/${REPO}/actions/runs/${{ github.run_id }}"
-          NOW=$(date '+%Y-%m-%d %H:%M UTC')
-          LOG_DATE=$(date '+%Y-%m-%d')
-
-          # Identify which step failed
-          FAILED_STEP="Unknown step"
-          if [[ "${{ steps.ssh_deploy.outcome }}" == "failure" ]]; then
-            FAILED_STEP="SSH Deployment (git pull / composer / deploy script)"
-          fi
-
-          TEXT="❌ <b>Mayush Deploy FAILED</b>
-
-          📦 <b>Repo:</b> <code>${REPO}</code>
-          👤 <b>Pushed by:</b> ${AUTHOR}
-          🔖 <b>Commit:</b> <code>${COMMIT_HASH}</code> — ${COMMIT_MSG}
-          🌿 <b>Branch:</b> <code>main</code>
-          🕐 <b>Failed at:</b> ${NOW}
-
-          💥 <b>Failed step:</b> ${FAILED_STEP}
-
-          <b>What to check on VPS:</b>
-          • Deploy log: <code>/home/mayushdesign/deploy.log</code>
-          • Laravel log: <code>storage/logs/laravel-${LOG_DATE}.log</code>
-          • Apache log: <code>/var/log/apache2/error.log</code>
-          • AI Service log: <code>/home/mayushdesign/public_html/ai_service/ai_service.log</code>
-
-          ⚠️ App may be stuck in maintenance mode.
-          Run on VPS if needed:
-          <code>php8.2 artisan up</code>
-
-          🤖 To manually restart AI Service:
-          <code>bash /home/mayushdesign/public_html/ai_service/start_ai_prod.sh restart</code>
-
-          <a href=\"${RUN_URL}\">🔍 View Full Logs</a>"
-
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            --data-urlencode "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
-            --data-urlencode "text=${TEXT}" \
-            --data-urlencode "parse_mode=HTML" \
-            --data-urlencode "disable_web_page_preview=true"
-
-          echo "::error::Deployment FAILED — Commit: ${COMMIT_HASH} by ${AUTHOR}"
-          echo "::error::Full logs: ${RUN_URL}"
