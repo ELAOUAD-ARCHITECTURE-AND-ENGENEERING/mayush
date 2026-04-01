@@ -63,98 +63,94 @@ jobs:
             echo ""
             echo "▶ [4/4] Setting up AI Visual Search Service..."
             
-            # We move the logic to an isolated script to bypass the aggressive SSH wrapper
-            cat <<'EOF' > /tmp/mayush_ai_setup.sh
-#!/bin/bash
-set -euo pipefail
+            SETUPSH="/tmp/mayush_ai_setup.sh"
+            cat << 'EOF' > $SETUPSH
+            #!/bin/bash
+            set -euo pipefail
+            
+            AI_DIR="/home/mayushdesign/public_html/ai_service"
+            mkdir -p "$AI_DIR"
+            AI_LOG="$AI_DIR/ai_service.log"
+            AI_PID="$AI_DIR/ai_service.pid"
+            AI_VENV="$AI_DIR/venv"
+            AI_HASH_FILE="$AI_DIR/.requirements.hash"
+            
+            echo "  🔍 Checking Python environment..."
+            if ! command -v python3 &>/dev/null; then
+              sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3
+            fi
+            
+            MISSING_PKGS=""
+            dpkg -s python3-venv &>/dev/null || MISSING_PKGS="python3-venv $MISSING_PKGS"
+            dpkg -s python3-pip &>/dev/null || MISSING_PKGS="python3-pip $MISSING_PKGS"
+            
+            if [[ -n "$MISSING_PKGS" ]]; then
+              echo "  📦 Installing missing packages: $MISSING_PKGS"
+              sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $MISSING_PKGS || \
+              (echo "  🔄 Direct install failed, trying with update..." && \
+               sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq && \
+               sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $MISSING_PKGS)
+            fi
+            
+            echo "  ✔ Python environment ready: $(python3 --version 2>&1)"
+            
+            if [[ ! -d "$AI_VENV" ]]; then
+              echo "  📦 Creating Python virtual environment..."
+              python3 -m venv "$AI_VENV"
+            fi
+            
+            if [[ ! -f "$AI_DIR/requirements.txt" ]]; then
+              echo "  ⚠ requirements.txt missing — skipping dependency install"
+              AI_STATUS="missing_requirements"
+            else
+              CURRENT_HASH=$(sha256sum "$AI_DIR/requirements.txt" | awk '{print $1}')
+              if [[ -f "$AI_HASH_FILE" ]] && [[ "$(cat "$AI_HASH_FILE")" == "$CURRENT_HASH" ]]; then
+                echo "  ✔ Dependencies unchanged — skipping pip install"
+                AI_STATUS="ready"
+              else
+                echo "  📥 Installing Python dependencies (may take a moment)..."
+                INSTALL_OK=false
+                for attempt in 1 2 3; do
+                  if "$AI_VENV/bin/pip" install -r "$AI_DIR/requirements.txt" --quiet 2>>"$AI_LOG"; then
+                    echo "$CURRENT_HASH" > "$AI_HASH_FILE"
+                    echo "  ✔ Dependencies installed (attempt $attempt)"
+                    INSTALL_OK=true
+                    break
+                  fi
+                  echo "  ⚠ pip install failed (attempt $attempt/3) — retrying..."
+                  sleep 5
+                done
+                if [[ "$INSTALL_OK" == "true" ]]; then 
+                  AI_STATUS="ready"
+                else 
+                  echo "  ❌ pip install failed"
+                  AI_STATUS="deps_failed"
+                fi
+              fi
+            fi
+            
+            if [[ "$AI_STATUS" != "deps_failed" ]]; then
+              if [[ -f "$AI_PID" ]]; then
+                OLD_PID=$(cat "$AI_PID")
+                if kill -0 "$OLD_PID" 2>/dev/null; then
+                  echo "  🔄 Restarting AI Service (PID $OLD_PID)..."
+                  kill "$OLD_PID" 2>/dev/null || true
+                  sleep 2
+                  kill -0 "$OLD_PID" 2>/dev/null && kill -9 "$OLD_PID" 2>/dev/null || true
+                fi
+                rm -f "$AI_PID"
+              fi
+              
+              echo "  🚀 Starting AI Visual Search Service..."
+              nohup "$AI_VENV/bin/python" "$AI_DIR/app.py" >> "$AI_LOG" 2>&1 &
+              echo $! > "$AI_PID"
+              echo "  ✔ AI Service started successfully"
+            fi
+            EOF
 
-AI_DIR="/home/mayushdesign/public_html/ai_service"
-mkdir -p "$AI_DIR"
-AI_LOG="$AI_DIR/ai_service.log"
-AI_PID="$AI_DIR/ai_service.pid"
-AI_VENV="$AI_DIR/venv"
-AI_HASH_FILE="$AI_DIR/.requirements.hash"
-
-echo "  🔍 Checking Python environment..."
-if ! command -v python3 &>/dev/null; then
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3
-fi
-
-MISSING_PKGS=""
-dpkg -s python3-venv &>/dev/null || MISSING_PKGS="python3-venv $MISSING_PKGS"
-dpkg -s python3-pip &>/dev/null || MISSING_PKGS="python3-pip $MISSING_PKGS"
-
-if [[ -n "$MISSING_PKGS" ]]; then
-  echo "  📦 Installing missing packages: $MISSING_PKGS"
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $MISSING_PKGS || \
-  (echo "  🔄 Direct install failed, trying with update..." && \
-   sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq && \
-   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $MISSING_PKGS)
-fi
-echo "  ✔ Python environment ready: $(python3 --version 2>&1)"
-
-if [[ ! -d "$AI_VENV" ]]; then
-  echo "  📦 Creating Python virtual environment..."
-  python3 -m venv "$AI_VENV"
-fi
-
-if [[ ! -f "$AI_DIR/requirements.txt" ]]; then
-  echo "  ⚠ requirements.txt missing — skipping dependency install"
-  AI_STATUS="missing_requirements"
-else
-  CURRENT_HASH=$(sha256sum "$AI_DIR/requirements.txt" | awk '{print $1}')
-  if [[ -f "$AI_HASH_FILE" ]] && [[ "$(cat "$AI_HASH_FILE")" == "$CURRENT_HASH" ]]; then
-    echo "  ✔ Dependencies unchanged — skipping pip install"
-    AI_STATUS="ready"
-  else
-    echo "  📥 Installing Python dependencies (may take a moment)..."
-    INSTALL_OK=false
-    for attempt in 1 2 3; do
-      if "$AI_VENV/bin/pip" install -r "$AI_DIR/requirements.txt" --quiet 2>>"$AI_LOG"; then
-        echo "$CURRENT_HASH" > "$AI_HASH_FILE"
-        echo "  ✔ Dependencies installed (attempt $attempt)"
-        INSTALL_OK=true
-        break
-      fi
-      echo "  ⚠ pip install failed (attempt $attempt/3) — retrying..."
-      sleep 5
-    done
-    
-    if [[ "$INSTALL_OK" == "true" ]]; then
-        AI_STATUS="ready"
-    else
-        echo "  ❌ pip install failed after 3 attempts"
-        AI_STATUS="deps_failed"
-    fi
-  fi
-fi
-
-if [[ "$AI_STATUS" != "deps_failed" ]]; then
-  # Process management
-  if [[ -f "$AI_PID" ]]; then
-    OLD_PID=$(cat "$AI_PID")
-    if kill -0 "$OLD_PID" 2>/dev/null; then
-      echo "  🔄 Restarting AI Service (PID $OLD_PID)..."
-      kill "$OLD_PID" 2>/dev/null || true
-      sleep 2
-      kill -0 "$OLD_PID" 2>/dev/null && kill -9 "$OLD_PID" 2>/dev/null || true
-      rm -f "$AI_PID"
-    else
-      echo "  ⚠ Stale PID file found — cleaning up"
-      rm -f "$AI_PID"
-    fi
-  fi
-
-  echo "  🚀 Starting AI Visual Search Service..."
-  nohup "$AI_VENV/bin/python" "$AI_DIR/app.py" >> "$AI_LOG" 2>&1 &
-  echo $! > "$AI_PID"
-  echo "  ✔ AI Service started successfully"
-fi
-EOF
-
-            chmod +x /tmp/mayush_ai_setup.sh
-            /tmp/mayush_ai_setup.sh
-            # rm /tmp/mayush_ai_setup.sh # Keep for debugging if it fails again
+            chmod +x $SETUPSH
+            /bin/bash $SETUPSH
+            rm $SETUPSH
 
             echo ""
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
