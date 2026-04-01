@@ -40,7 +40,9 @@ jobs:
             # Bypass Git CVE-2022-24765 dubious ownership block
             git config --global --add safe.directory /home/mayushdesign/public_html
             
-            git pull origin main
+            export GIT_TERMINAL_PROMPT=0
+            GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git fetch origin main
+            git reset --hard origin/main
             echo "✔ Code updated"
 
             # ── [2/3] Installing PHP dependencies ───────────────────
