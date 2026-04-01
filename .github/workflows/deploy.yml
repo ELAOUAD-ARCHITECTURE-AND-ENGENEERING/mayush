@@ -24,7 +24,7 @@ jobs:
           passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
           port: ${{ secrets.VPS_PORT }}
           request_pty: true
-          script_stop: true
+          script_stop: false
           envs: DEPLOY_DB_PASSWORD,DEPLOY_DB_USER,GITHUB_TOKEN
           script: |
             set -euo pipefail
@@ -168,3 +168,13 @@ jobs:
             echo "  ✔ DEPLOY COMPLETED SUCCESSFULLY"
             echo "  $(date '+%Y-%m-%d %H:%M:%S')"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: "📣 Send Telegram Notification"
+        if: always()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            🚀 Mayush Production Deploy
+            Status: ${{ job.status }}
