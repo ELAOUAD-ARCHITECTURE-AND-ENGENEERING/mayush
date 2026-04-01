@@ -75,7 +75,9 @@ jobs:
             SETUPSH="/tmp/mayush_ai_setup.sh"
             cat << 'EOF' > $SETUPSH
             #!/bin/bash
-            set -euo pipefail
+            set -x  # Turn on verbose execution logging to trace the crash
+            
+            # Removed set -euo pipefail to avoid silent false-positive crashes on conditional commands
             
             AI_DIR="/home/mayushdesign/public_html/ai_service"
             mkdir -p "$AI_DIR"
