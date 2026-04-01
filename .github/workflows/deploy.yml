@@ -15,6 +15,8 @@ jobs:
 
       - name: "📂 SSH — Deploying to Production Server"
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
@@ -23,7 +25,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           request_pty: true
           script_stop: true
-          envs: DEPLOY_DB_PASSWORD,DEPLOY_DB_USER
+          envs: DEPLOY_DB_PASSWORD,DEPLOY_DB_USER,GITHUB_TOKEN
           script: |
             set -euo pipefail
             
@@ -40,9 +42,14 @@ jobs:
             # Bypass Git CVE-2022-24765 dubious ownership block
             git config --global --add safe.directory /home/mayushdesign/public_html
             
+            # Authenticate using GitHub Actions token to prevent HTTPS credential prompts
+            git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}.git
             export GIT_TERMINAL_PROMPT=0
             GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git fetch origin main
             git reset --hard origin/main
+            
+            # Restore safe origin URL immediately so token isn't cached permanently in config
+            git remote set-url origin https://github.com/${{ github.repository }}.git
             echo "✔ Code updated"
 
             # ── [2/3] Installing PHP dependencies ───────────────────
