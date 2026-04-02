@@ -244,7 +244,7 @@
     @include('frontend.metro.partials.category_icon_navigation')
 
     <!-- Featured Products -->
-    @include('frontend.partials.promoted_category_section')
+
 
 
     <div id="section_featured" class="pt-2 pt-md-3" style="background: #f5f5fa;">

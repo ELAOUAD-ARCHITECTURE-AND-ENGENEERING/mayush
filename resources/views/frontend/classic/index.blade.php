@@ -271,7 +271,7 @@ $flash_deal = get_featured_flash_deal();
 @endif
 
 <!-- Featured Products -->
-    @include('frontend.partials.promoted_category_section')
+
 
 
 <div id="section_featured">

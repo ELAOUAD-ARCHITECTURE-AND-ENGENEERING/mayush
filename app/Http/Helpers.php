@@ -1322,7 +1322,7 @@ if (!function_exists('uploaded_asset')) {
             $asset = Upload::find($id);
         }
 
-        if ($asset instanceof \Illuminate\Database\Eloquent\Collection) {
+        if ($asset instanceof \Illuminate\Database\Eloquent\Collection || $asset instanceof \Illuminate\Support\Collection) {
             $asset = $asset->first();
         }
 

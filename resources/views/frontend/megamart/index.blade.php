@@ -222,7 +222,7 @@
     </div>
 
     <!-- Featured Products -->
-    @include('frontend.partials.promoted_category_section')
+
 
 
     <div id="section_featured">

@@ -1,0 +1,16 @@
+﻿app/Providers/AppServiceProvider.php
+resources/views/backend/website_settings/pages/classic/home_page_edit.blade.php
+resources/views/backend/website_settings/pages/megamart/home_page_edit.blade.php
+resources/views/backend/website_settings/pages/minima/home_page_edit.blade.php
+resources/views/frontend/classic/index.blade.php
+resources/views/frontend/index.blade.php
+resources/views/frontend/layouts/app.blade.php
+resources/views/frontend/megamart/index.blade.php
+resources/views/frontend/minima/index.blade.php
+resources/views/frontend/partials/visual_search.blade.php
+resources/views/header/header1.blade.php
+resources/views/header/header2.blade.php
+resources/views/header/header3.blade.php
+resources/views/header/header4.blade.php
+resources/views/header/header6.blade.php
+routes/admin.php
