@@ -41,7 +41,7 @@ use App\Models\AffiliateOption;
 use App\Models\BusinessSetting;
 use App\Models\CustomerPackage;
 use App\Models\CustomerProduct;
-use App\Utility\SendSMSUtility;;
+use App\Utility\SendSMSUtility;
 use App\Models\AuctionProductBid;
 use App\Models\ManualPaymentMethod;
 use App\Models\SellerPackagePayment;
