@@ -16,11 +16,6 @@
 <style>
 /* Visual Search Camera Button */
 .visual-search-btn {
-    position: absolute;
-    right: 32px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 5;
     padding: 2px 6px;
     color: #b5b5bf;
     background: transparent;
@@ -28,10 +23,13 @@
     cursor: pointer;
     transition: all 0.2s ease;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .visual-search-btn:hover {
     color: var(--primary);
-    transform: translateY(-50%) scale(1.15);
+    transform: scale(1.15);
 }
 .visual-search-btn i {
     font-size: 20px;

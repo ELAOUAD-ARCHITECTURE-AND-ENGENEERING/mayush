@@ -166,33 +166,30 @@
                                     <button class="btn px-2" type="button"><i
                                             class="la la-2x la-long-arrow-left"></i></button>
                                 </div>
-                                <div class="search-input-box">
-                                    <input type="text"
-                                        class="border border-soft-light form-control fs-14 hov-animate-outline"
-                                        id="search" name="keyword" @isset($query) value="{{ $query }}" @endisset
-                                        placeholder="{{ translate('I am shopping for...') }}" autocomplete="off">
-
-                                    <div class="ai-mode-toggle-wrap" data-toggle="tooltip" data-placement="bottom" title="{{ translate('Search by Vibe: Describe your room aesthetic (e.g., Warm Cozy Coastal) to find matching products!') }}">
-                                        <div class="ai-toggle-btn" id="ai-mode-toggle" onclick="toggleAiMode()"></div>
-                                        <div class="d-flex flex-column align-items-start">
-                                            <span class="ai-toggle-label">✨ AI</span>
-                                            <span class="ai-toggle-desc">{{ translate('Describe a vibe to find matches') }}</span>
-                                        </div>
+                                <div class="search-input-box d-flex align-items-center bg-white border border-soft-light rounded-pill overflow-hidden hov-animate-outline" style="height: 48px; flex: 1;">
+                                    <div class="ai-mode-toggle-wrap ml-3" data-toggle="tooltip" data-placement="bottom" title="{{ translate('AI Semantic Search') }}" onclick="toggleAiMode()">
+                                        <div class="ai-toggle-btn" id="ai-mode-toggle"></div>
+                                        <span class="ai-toggle-label">✨ AI</span>
                                     </div>
-                                    <svg id="Group_723" data-name="Group 723" xmlns="http://www.w3.org/2000/svg"
-                                        width="20.001" height="20" viewBox="0 0 20.001 20">
-                                        <path id="Path_3090" data-name="Path 3090"
-                                            d="M9.847,17.839a7.993,7.993,0,1,1,7.993-7.993A8,8,0,0,1,9.847,17.839Zm0-14.387a6.394,6.394,0,1,0,6.394,6.394A6.4,6.4,0,0,0,9.847,3.453Z"
-                                            transform="translate(-1.854 -1.854)" fill="#b5b5bf" />
-                                        <path id="Path_3091" data-name="Path 3091"
-                                            d="M24.4,25.2a.8.8,0,0,1-.565-.234l-6.15-6.15a.8.8,0,0,1,1.13-1.13l6.15,6.15A.8.8,0,0,1,24.4,25.2Z"
-                                            transform="translate(-5.2 -5.2)" fill="#b5b5bf" />
-                                    </svg>
+                                    
+                                    <input type="text"
+                                        class="border-0 shadow-none form-control fs-14 h-100 bg-transparent px-2"
+                                        id="search" name="keyword" @isset($query) value="{{ $query }}" @endisset
+                                        placeholder="{{ translate('I am shopping for...') }}" autocomplete="off" style="min-width: 0;">
 
-                                    {{-- Visual Search Camera Button --}}
-                                    <button type="button" class="btn visual-search-btn" onclick="document.getElementById('visual-search-input').click()" title="{{ translate('Search by Image') }}">
-                                        <i class="las la-camera la-lg"></i>
-                                    </button>
+                                    <div class="d-flex align-items-center pr-2 pl-2 border-left border-soft-light" style="gap: 4px; height: 32px;">
+                                        {{-- Visual Search Camera Button --}}
+                                        <button type="button" class="btn btn-sm btn-icon text-secondary hov-text-primary visual-search-btn" onclick="document.getElementById('visual-search-input').click()" title="{{ translate('Search by Image') }}">
+                                            <i class="las la-camera la-xl"></i>
+                                        </button>
+                                        
+                                        <button type="submit" class="btn btn-sm btn-icon text-secondary hov-text-primary p-2" title="{{ translate('Search') }}" style="background: none; border: none; outline: none; box-shadow: none;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20.001 20">
+                                                <path d="M9.847,17.839a7.993,7.993,0,1,1,7.993-7.993A8,8,0,0,1,9.847,17.839Zm0-14.387a6.394,6.394,0,1,0,6.394,6.394A6.4,6.4,0,0,0,9.847,3.453Z" transform="translate(-1.854 -1.854)" fill="currentColor" />
+                                                <path d="M24.4,25.2a.8.8,0,0,1-.565-.234l-6.15-6.15a.8.8,0,0,1,1.13-1.13l6.15,6.15A.8.8,0,0,1,24.4,25.2Z" transform="translate(-5.2 -5.2)" fill="currentColor" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </form>

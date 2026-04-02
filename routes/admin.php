@@ -65,6 +65,7 @@ use App\Http\Controllers\CustomLabelController;
 use App\Http\Controllers\ShippingSystemController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\TopBannerController;
+use App\Http\Controllers\PromotionalCategoryController;
 
 /*
   |--------------------------------------------------------------------------
@@ -739,4 +740,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::post('/custom-notified-customers-list', [NotificationController::class, 'customNotifiedCustomersList'])->name('custom_notified_customers_list');
 
     Route::get('/admin-permissions', [RoleController::class, 'create_admin_permissions']);
+
+    // Promotional Category
+    Route::controller(PromotionalCategoryController::class)->group(function () {
+        Route::post('/promotional-category/products', 'getProducts')->name('promotional_category.products');
+        Route::post('/promotional-category/update-discounts', 'updateDiscounts')->name('promotional_category.update_discounts');
+    });
 });

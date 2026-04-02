@@ -631,8 +631,10 @@
 
         function toggleAiMode() {
             const $toggle = $('#ai-mode-toggle');
+            const $wrap = $('.ai-mode-toggle-wrap');
             const $input = $('#search');
             $toggle.toggleClass('active');
+            $wrap.toggleClass('active');
             
             if ($toggle.hasClass('active')) {
                 $input.attr('placeholder', '{{ translate('Describe a vibe... (e.g. Warm Cozy Minimal)') }}');

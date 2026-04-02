@@ -18,7 +18,8 @@ class AppServiceProvider extends ServiceProvider
       Schema::defaultStringLength(191);
       Paginator::useBootstrap();
       
-      if (env('FORCE_HTTPS') == 'On') {
+      // Force HTTPS if explicitly enabled OR if APP_URL is already https
+      if (env('FORCE_HTTPS') == 'On' || str_starts_with(env('APP_URL', ''), 'https')) {
           \URL::forceScheme('https');
       }
       // \App\Models\Upload::observe(\App\Observers\UploadObserver::class);
