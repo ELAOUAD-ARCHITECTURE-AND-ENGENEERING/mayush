@@ -1,4 +1,4 @@
-@if (isset($elite_subscriptions) && count($elite_subscriptions) > 0)
+@if (isset($elite_shops) && count($elite_shops) > 0)
 <section class="mb-4">
     <div class="container">
         <div class="px-2 py-4 px-md-4 py-md-3 bg-white shadow-sm rounded border-warning" style="border: 2px solid #f1c40f;">
@@ -11,11 +11,7 @@
             </div>
             
             <div class="aiz-carousel gutters-10 half-outside-arrow" data-items="4" data-xl-items="4" data-lg-items="3" data-md-items="2" data-sm-items="1" data-xs-items="1" data-arrows='true'>
-                @foreach ($elite_subscriptions as $subscription)
-                    @php
-                        $shop = $subscription->shop;
-                    @endphp
-                    @if($shop)
+                @foreach ($elite_shops as $shop)
                     <div class="carousel-box">
                         <div class="aiz-card-box border border-light rounded hov-shadow-md mt-1 mb-2 has-transition bg-white">
                             <div class="position-relative">
@@ -47,7 +43,6 @@
                             </div>
                         </div>
                     </div>
-                    @endif
                 @endforeach
             </div>
         </div>

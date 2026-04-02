@@ -151,10 +151,10 @@ class HomeController extends Controller
 
     public function load_elite_artisans_section()
     {
-        $elite_subscriptions = Shop::whereHas('activeEliteSubscription')
+        $elite_shops = Shop::whereHas('activeEliteSubscription')
             ->where('verification_status', 1)
             ->get();
-        return view('frontend.partials.elite_artisans_section', compact('elite_subscriptions'));
+        return view('frontend.partials.elite_artisans_section', compact('elite_shops'));
     }
 
     public function login()
