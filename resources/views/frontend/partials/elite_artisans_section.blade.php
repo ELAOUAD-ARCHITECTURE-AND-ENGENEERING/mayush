@@ -1,4 +1,4 @@
-@if (count($elite_subscriptions) > 0)
+@if (isset($elite_subscriptions) && count($elite_subscriptions) > 0)
 <section class="mb-4">
     <div class="container">
         <div class="px-2 py-4 px-md-4 py-md-3 bg-white shadow-sm rounded border-warning" style="border: 2px solid #f1c40f;">

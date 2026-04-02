@@ -1316,7 +1316,17 @@ if (!function_exists('app_timezone')) {
 if (!function_exists('uploaded_asset')) {
     function uploaded_asset($id, $size = null)
     {
-        if (($asset = Upload::find($id)) != null) {
+        if (is_object($id) && $id instanceof \App\Models\Upload) {
+            $asset = $id;
+        } else {
+            $asset = Upload::find($id);
+        }
+
+        if ($asset instanceof \Illuminate\Database\Eloquent\Collection) {
+            $asset = $asset->first();
+        }
+
+        if ($asset != null) {
             $file_name = $asset->file_name;
             $info = pathinfo($file_name);
             $extension = isset($info['extension']) ? strtolower($info['extension']) : '';
@@ -1328,6 +1338,7 @@ if (!function_exists('uploaded_asset')) {
             if ($size && in_array($size, ['thumb', 'medium'])) {
                 $suffix = '_' . $size;
                 $size_file_name = ($dirname ? $dirname . '/' : '') . $filename . $suffix . ($extension ? '.' . $extension : '');
+                $size_file_name = str_replace(['\\', '//'], '/', $size_file_name);
                 if (file_exists(public_path($size_file_name))) {
                     $file_name = $size_file_name;
                 }
@@ -1341,6 +1352,7 @@ if (!function_exists('uploaded_asset')) {
                     $webp_file = ($dirname ? $dirname . '/' : '') . $filename . '_' . $size . '.webp';    
                 }
 
+                $webp_file = str_replace(['\\', '//'], '/', $webp_file);
                 if (file_exists(public_path($webp_file))) {
                     $file_name = $webp_file;
                 }
@@ -2731,8 +2743,9 @@ if (!function_exists('get_image')) {
 if (!function_exists('get_first_product_image')) {
     function get_first_product_image($photos = null, $thumbnail = null, $size = null)
     {
-        $photosArray = $photos != null ? explode(',', $photos) : [];
-        $photosArray = array_diff($photosArray, [$thumbnail]);
+        $photosArray = $photos != null ? (is_string($photos) ? explode(',', $photos) : (is_array($photos) ? $photos : [])) : [];
+        $thumbnail_id = is_object($thumbnail) ? $thumbnail->id : $thumbnail;
+        $photosArray = array_diff($photosArray, [$thumbnail_id]);
         
         foreach ($photosArray as $photoId) {
             if (!empty($photoId)) {
