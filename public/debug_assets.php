@@ -1,3 +1,4 @@
+<?php
 echo "Current Dir Files:<pre>";
 print_r(scandir('.'));
 echo "</pre>";
