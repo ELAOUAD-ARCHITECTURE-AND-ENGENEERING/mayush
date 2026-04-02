@@ -239,16 +239,14 @@
             </div>
         </section>
     @endif
-    <!-- Today's Deal -->
-    <div id="todays_deal">
-
-    </div>
-
 
     <!-- Category icon navigation -->
     @include('frontend.metro.partials.category_icon_navigation')
 
     <!-- Featured Products -->
+    @include('frontend.partials.promoted_category_section')
+
+
     <div id="section_featured" class="pt-2 pt-md-3" style="background: #f5f5fa;">
 
     </div>
@@ -400,11 +398,6 @@
     @endif
 
 
-    <!-- New Products -->
-    <div id="section_newest">
-
-    </div>
-
     <!-- Banner Section 3 -->
     @php $homeBanner3Images = get_setting('home_banner3_images', null, $lang);   @endphp
     @if ($homeBanner3Images != null)
@@ -433,13 +426,6 @@
                     @endforeach
                 </div>
             </div>
-        </div>
-    @endif
-
-    <!-- Auction Product -->
-    @if (addon_is_activated('auction'))
-        <div id="auction_products">
-
         </div>
     @endif
 
@@ -525,13 +511,6 @@
         </div>
     @endif
 
-    <!-- Category wise Products -->
-    <div id="section_home_categories" style="background: #f5f5fa;">
-
-    </div>
-
-
-
     <!-- Classified Product (Promoted) -->
     @php
         $promoted_products = get_promoted_products(20);
@@ -577,162 +556,15 @@
             </section>
     @endif
 
-    <!-- Marketplace banner -->
-    @include('frontend.metro.partials.marketplace_banner')
-
-    <!-- Best Selling Products -->
-    @php
-        $best_selling_products = get_best_selling_products(10);
-    @endphp
-    @if (count($best_selling_products) > 0)
-        <section class="mb-2 mb-md-3 mt-2 mt-md-3">
-            <div class="container">
-                <!-- Top Section -->
-                <div class="d-flex mb-2 mb-md-3 align-items-baseline justify-content-between">
-                    <!-- Title -->
-                    <h3 class="fs-16 fs-md-20 fw-700 mb-2 mb-sm-0">
-                        <span class="">{{ translate('Best Selling Products') }}</span>
-                    </h3>
-                    <!-- Links -->
-                    <div class="d-flex">
-                        <a class="text-blue fs-10 fs-md-12 fw-700 hov-text-primary animate-underline-primary"
-                            href="{{ route('search') }}">{{ translate('View All Products') }}</a>
-                    </div>
-                </div>
-                <!-- Product Section -->
-                <div class="px-sm-3">
-                    <div class="aiz-carousel sm-gutters-16 arrow-none" data-items="6" data-xl-items="5" data-lg-items="4"  data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='false'>
-                        @foreach ($best_selling_products as $key => $product)
-                            <div class="carousel-box px-3 position-relative has-transition hov-animate-outline border-right border-top border-bottom @if($key == 0) border-left @endif">
-                                @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </section>
+    <!-- Detailed Dynamic Sections -->
+    <div id="todays_deal"></div>
+    <div id="section_best_selling"></div>
+    <div id="section_home_categories" style="background: #f5f5fa;"></div>
+    <div id="section_newest"></div>
+    @if (addon_is_activated('auction'))
+        <div id="auction_products"></div>
     @endif
-
-    <!-- Top Sellers -->
-    @if (get_setting('vendor_system_activation') == 1)
-        @php
-            $best_selers = get_best_sellers(10);
-        @endphp
-        @if (count($best_selers) > 0)
-        <section class="mb-2 mb-md-3 mt-2 mt-md-3">
-            <div class="container">
-                <!-- Top Section -->
-                <div class="d-flex mb-2 mb-md-3 align-items-baseline justify-content-between">
-                    <!-- Title -->
-                    <h3 class="fs-16 fs-md-20 fw-700 mb-2 mb-sm-0">
-                        <span class="pb-3">{{ translate('Top Sellers') }}</span>
-                    </h3>
-                    <!-- Links -->
-                    <div class="d-flex">
-                        <a class="text-blue fs-10 fs-md-12 fw-700 hov-text-primary animate-underline-primary"
-                            href="{{ route('sellers') }}">{{ translate('View All Sellers') }}</a>
-                    </div>
-                </div>
-                <!-- Sellers Section -->
-                <div class="aiz-carousel arrow-x-0 arrow-inactive-none" data-items="5" data-xxl-items="5"
-                    data-xl-items="4" data-lg-items="3.4" data-md-items="2.5" data-sm-items="2" data-xs-items="1.4"
-                    data-arrows="true" data-dots="false">
-                    @foreach ($best_selers as $key => $seller)
-                        @if ($seller->user != null)
-                            <div
-                                class="carousel-box h-100 position-relative text-center border-right border-top border-bottom @if ($key == 0) border-left @endif has-transition hov-animate-outline">
-                                <div class="position-relative px-3" style="padding-top: 2rem; padding-bottom:2rem;">
-                                    <!-- Shop logo & Verification Status -->
-                                    <div class="mx-auto size-100px size-md-120px">
-                                        <a href="{{ route('shop.visit', $seller->slug) }}"
-                                            class="d-flex mx-auto justify-content-center align-item-center size-100px size-md-120px border overflow-hidden hov-scale-img"
-                                            tabindex="0"
-                                            style="border: 1px solid #e5e5e5; border-radius: 50%; box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.06);">
-                                            <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
-                                                data-src="{{ uploaded_asset($seller->logo, 'thumb') }}" alt="{{ $seller->name }}"
-                                                class="img-fit lazyload has-transition"
-                                                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
-                                        </a>
-                                    </div>
-                                    <!-- Shop name -->
-                                    <h2 class="fs-14 fw-700 text-dark text-truncate-2 h-40px mt-3 mt-md-4 mb-0 mb-md-3">
-                                        <a href="{{ route('shop.visit', $seller->slug) }}"
-                                            class="text-reset hov-text-primary" tabindex="0">{{ $seller->name }}</a>
-                                    </h2>
-                                    <!-- Shop Rating -->
-                                    <div class="rating rating-mr-2 text-dark mb-3">
-                                        {{ renderStarRating($seller->rating) }}
-                                        <span class="opacity-60 fs-14">({{ $seller->num_of_reviews }}
-                                            {{ translate('Reviews') }})</span>
-                                    </div>
-                                    <!-- Visit Button -->
-                                    <a href="{{ route('shop.visit', $seller->slug) }}" class="btn-visit">
-                                        <span class="circle" aria-hidden="true">
-                                            <span class="icon arrow"></span>
-                                        </span>
-                                        <span class="button-text">{{ translate('Visit Store') }}</span>
-                                    </a>
-                                    @if ($seller->verification_status == 1)
-                                        <span class="absolute-top-right mr-2rem">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="31.999" height="48.001" viewBox="0 0 31.999 48.001">
-                                                <g id="Group_25062" data-name="Group 25062" transform="translate(-532 -1033.999)">
-                                                <path id="Union_3" data-name="Union 3" d="M1937,12304h16v14Zm-16,0h16l-16,14Zm0,0v-34h32v34Z" transform="translate(-1389 -11236)" fill="#85b567"/>
-                                                <path id="Union_5" data-name="Union 5" d="M1921,12280a10,10,0,1,1,10,10A10,10,0,0,1,1921,12280Zm1,0a9,9,0,1,0,9-9A9.011,9.011,0,0,0,1922,12280Zm1,0a8,8,0,1,1,8,8A8.009,8.009,0,0,1,1923,12280Zm4.26-1.033a.891.891,0,0,0-.262.636.877.877,0,0,0,.262.632l2.551,2.551a.9.9,0,0,0,.635.266.894.894,0,0,0,.639-.266l4.247-4.244a.9.9,0,0,0-.639-1.542.893.893,0,0,0-.635.266l-3.612,3.608-1.912-1.906a.89.89,0,0,0-1.274,0Z" transform="translate(-1383 -11226)" fill="#fff"/>
-                                                </g>
-                                            </svg>
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-        </section>
-        @endif
-    @endif
-
-    <!-- Top Brands -->
-    @if (get_setting('top_brands') != null)
-        <section class="mb-2 mb-md-3 mt-2 mt-md-3">
-            <div class="container">
-                <!-- Top Section -->
-                <div class="d-flex mb-2 mb-md-3 align-items-baseline justify-content-between">
-                    <!-- Title -->
-                    <h3 class="fs-16 fs-md-20 fw-700 mb-2 mb-sm-0">{{ translate('Top Brands') }}</h3>
-                    <!-- Links -->
-                    <div class="d-flex">
-                        <a class="text-blue fs-10 fs-md-12 fw-700 hov-text-primary animate-underline-primary"
-                            href="{{ route('brands.all') }}">{{ translate('View All Brands') }}</a>
-                    </div>
-                </div>
-                <!-- Brands Section -->
-                <div class="bg-white px-3">
-                    <div
-                        class="row row-cols-xxl-6 row-cols-xl-6 row-cols-lg-4 row-cols-md-4 row-cols-3 gutters-16 border-top border-left">
-                        @php
-                            $top_brands = json_decode(get_setting('top_brands'));
-                            $brands = get_brands($top_brands);
-                        @endphp
-                        @foreach ($brands as $brand)
-                            <div
-                                class="col text-center border-right border-bottom hov-scale-img has-transition hov-shadow-out z-1">
-                                <a href="{{ route('products.brand', $brand->slug) }}" class="d-block p-sm-3">
-                                    <img src="{{ $brand->logo != null ? uploaded_asset($brand->logo, 'thumb')  : static_asset('assets/img/placeholder.jpg') }}"
-                                        class="lazyload h-100 h-md-100px mx-auto has-transition p-2 p-sm-4 mw-100"
-                                        alt="{{ $brand->getTranslation('name') }}"
-                                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                    <p class="text-center text-dark fs-12 fs-md-14 fw-700 mt-2">
-                                        {{ $brand->getTranslation('name') }}
-                                    </p>
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </section>
-    @endif
+    <div id="elite_artisans_section"></div>
 
     @if (addon_is_activated('preorder'))
         <!-- Preorder Banner 1 -->
@@ -774,4 +606,54 @@
     @endif
 
 @endsection
+
+@section('script')
+    <script>
+        $(document).ready(function(){
+            $.post('{{ route('home.section.featured') }}', {_token:'{{ csrf_token() }}'}, function(data){
+                $('#section_featured').html(data);
+                AIZ.plugins.slickCarousel();
+                AIZ.extra.plusMinus();
+            });
+            $.post('{{ route('home.section.best_selling') }}', {_token:'{{ csrf_token() }}'}, function(data){
+                $('#section_best_selling').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+            $.post('{{ route('home.section.home_categories') }}', {_token:'{{ csrf_token() }}'}, function(data){
+                $('#section_home_categories').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+
+            @if (addon_is_activated('auction'))
+            $.post('{{ route('home.section.auction_products') }}', {_token:'{{ csrf_token() }}'}, function(data){
+                $('#auction_products').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+            @endif
+            
+            $.get('{{ route('home.section.todays_deal') }}', function(data){
+                $('#todays_deal').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+
+            $.get('{{ route('home.section.newest_products') }}', function(data){
+                $('#section_newest').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+
+            @if (addon_is_activated('preorder'))
+            $.get('{{ route('home.section.preorder_products') }}', function(data){
+                $('#section_featured_preorder_products').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+            @endif
+
+            $.post('{{ route('load-elite-artisans-section') }}', {_token:'{{ csrf_token() }}'}, function(data){
+                $('#elite_artisans_section').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+        });
+    </script>
+@endsection
+
 
