@@ -39,22 +39,36 @@ jobs:
             echo "▶ [1/3] Pulling latest code from GitHub..."
             cd /home/mayushdesign/public_html
             
+            # Record current version for logging
+            PRE_DEPLOY_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "none")
+            echo "  🔹 Current Commit: $PRE_DEPLOY_COMMIT"
+
             # Bypass Git CVE-2022-24765 dubious ownership block
             git config --global --add safe.directory /home/mayushdesign/public_html
             
-            # Authenticate using GitHub Actions token to prevent HTTPS credential prompts
+            # Authenticate using GitHub Actions token
             git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}.git
-            export GIT_TERMINAL_PROMPT=0
-            GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git fetch origin main
+            
+            # Force fetch and hard reset to ensure 1:1 synchronization
+            git fetch --all --prune
             git reset --hard origin/main
             
-            # Restore safe origin URL immediately so token isn't cached permanently in config
+            # Verify new version
+            POST_DEPLOY_COMMIT=$(git rev-parse --short HEAD)
+            echo "  ✔ Code updated to: $POST_DEPLOY_COMMIT"
+            
+            # Restore safe origin URL
             git remote set-url origin https://github.com/${{ github.repository }}.git
-            echo "✔ Code updated"
 
-            # ── [2/3] Installing PHP dependencies ───────────────────
+            # ── [2/4] Generating Version Manifest ───────────────────
             echo ""
-            echo "▶ [2/3] Installing PHP dependencies..."
+            echo "▶ [2/4] Generating Version Manifest..."
+            echo "{\"commit\": \"${{ github.sha }}\", \"short_sha\": \"${POST_DEPLOY_COMMIT}\", \"timestamp\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\", \"branch\": \"${{ github.ref_name }}\"}" > public/version.json
+            echo "✔ public/version.json created"
+
+            # ── [3/4] Installing PHP dependencies ───────────────────
+            echo ""
+            echo "▶ [3/4] Installing PHP dependencies..."
             php8.2 $(which composer) install \
               --no-dev \
               --optimize-autoloader \
@@ -62,11 +76,19 @@ jobs:
               --prefer-dist
             echo "✔ Composer done"
 
-            # ── [3/4] Laravel deploy script ─────────────────────────
+            # ── [4/4] Laravel Deploy & Cache Clearing ──────────────
             echo ""
-            echo "▶ [3/4] Running Laravel deploy script..."
+            echo "▶ [4/4] Running Laravel deploy & cache clearing..."
+            
+            # Primary cache clear
+            php8.2 artisan optimize:clear
+            php8.2 artisan view:clear
+            php8.2 artisan queue:restart
+            
+            # Run the server's specific ENV and cache script
             sudo -E /usr/local/bin/deploy_mayush_env_and_cache.sh
-            echo "✔ Deploy script finished"
+            
+            echo "✔ Deploy & cache clearing finished"
 
             # ── [4/4] AI Service Setup (Isolated) ──────────────────
             echo ""
