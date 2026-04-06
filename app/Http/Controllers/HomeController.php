@@ -130,6 +130,11 @@ class HomeController extends Controller
     {
         return view('frontend.' . get_setting('homepage_select') . '.partials.best_sellers_section');
     }
+
+    public function load_promoted_category_section()
+    {
+        return view('frontend.partials.promoted_category_section');
+    }
     public function load_preorder_featured_products_section()
     {
 
@@ -535,7 +540,18 @@ class HomeController extends Controller
                             ->get();
                     }
                 }
-            }
+            } // ends if(Auth::check())
+
+            // 5. Frequently Bought Together (MA-107)
+            $frequently_bought = Product::isApprovedPublished()
+                ->whereIn('id', function ($query) use ($detailedProduct) {
+                    $query->select('frequently_bought_product_id')
+                        ->from('frequently_bought_products')
+                        ->where('product_id', $detailedProduct->id)
+                        ->orderBy('affinity_score', 'desc');
+                })
+                ->limit(5)
+                ->get();
 
             return view('frontend.product_details', compact(
                 'detailedProduct', 
@@ -547,7 +563,8 @@ class HomeController extends Controller
                 'related_deals',
                 'also_viewed',
                 'category_best_sellers',
-                'history_recommendations'
+                'history_recommendations',
+                'frequently_bought'
             ));
         }
         abort(404);

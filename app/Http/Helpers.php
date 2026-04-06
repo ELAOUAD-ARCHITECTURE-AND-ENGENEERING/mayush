@@ -1338,11 +1338,13 @@ if (!function_exists('uploaded_asset')) {
             if ($size && in_array($size, ['thumb', 'medium'])) {
                 $suffix = '_' . $size;
                 $size_file_name = ($dirname ? $dirname . '/' : '') . $filename . $suffix . ($extension ? '.' . $extension : '');
-                $size_file_name = str_replace(['\\', '//'], '/', $size_file_name);
+                $size_file_name = str_replace('\\', '/', $size_file_name);
                 if (file_exists(public_path($size_file_name))) {
                     $file_name = $size_file_name;
                 }
             }
+
+            $file_name = str_replace('\\', '/', $file_name);
 
             // Prefer WebP if it's an image and not already webp
             if (str_contains($asset->type, 'image') && $extension !== 'webp') {
@@ -1355,6 +1357,17 @@ if (!function_exists('uploaded_asset')) {
                 $webp_file = str_replace(['\\', '//'], '/', $webp_file);
                 if (file_exists(public_path($webp_file))) {
                     $file_name = $webp_file;
+                }
+            }
+
+            // If local file is missing, try adding uploads/all/ prefix if not present
+            if ($asset->external_link == null && !file_exists(public_path($file_name))) {
+                $basename = basename($file_name);
+                $prefixed_path = 'uploads/all/' . $basename;
+                if (file_exists(public_path($prefixed_path))) {
+                    $file_name = $prefixed_path;
+                } else {
+                    return static_asset('assets/img/placeholder.jpg');
                 }
             }
 
@@ -1376,6 +1389,11 @@ if (!function_exists('my_asset')) {
     {
         if (config('filesystems.default') != 'local') {
             return Storage::disk(config('filesystems.default'))->url($path);
+        }
+
+        $path = str_replace('public/', '', $path);
+        if (str_starts_with($path, '/')) {
+            $path = substr($path, 1);
         }
 
         return app('url')->asset('public/' . $path, $secure);

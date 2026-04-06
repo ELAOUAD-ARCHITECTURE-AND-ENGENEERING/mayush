@@ -1,0 +1,27 @@
+=== DIAGNOSING MISSING FILES vs LOCAL FILES ===
+
+Missing from disk according to DB exact match:
+  [1652] uploads/all/CAS7nJVN684nwIPIC9gywlSUFiX1v7p42Snl0Jem.png
+  [1655] uploads/all/Gs3Shv8DrN9Mk8wrM5mPJOxxgkcJny4RbKSl1R5V.jpg
+  [1656] uploads/all/X0VTuEjSGRUJJg3EbitdhO3YT3b7cSeuGrNrgths.jpg
+  [1691] uploads/all/c7r0GuOamo3EpLQxRv9iJauTF3m0VTqXCR70sGcE.png
+  [1817] uploads/all/u7sdWUaqQMJtkM4gJdAIQxVAInwZio3Xis5Xog2F.png
+  [1818] uploads/all/WlwRXRegOLJNvThJTf3LXL84IucL3OVjNgFbANHX.png
+  [1819] uploads/all/qGCsUMFCi0lq42f2KrVGjnwTYxtFespEpaXkmwYq.png
+  [1820] uploads/all/2p7S2p1uHcKl6rH7P8o2tXkFFIdg9Qrt4svJnPRp.png
+  [1821] uploads/all/ZPazMMwi1ORSmj7Y9ubsYCdr2iTUhSsPGCdsA87v.png
+  [1822] uploads/all/RPbpAxWIRkMC96F5P0gLArK3oRGUVkQiLpfQZ3XT.jpg
+
+Disk files: 14071
+
+Files on disk but not matched to exact DB basename:
+  - 02K8OCpnmdxTrRFHMiwYex5aGjh4fjDlaTiSyaK8_medium.jpg
+  - 02K8OCpnmdxTrRFHMiwYex5aGjh4fjDlaTiSyaK8_thumb.jpg
+  - 02QnmKcy94XZk74zI2kYeUPrrM7AcU7EYUhYpEhJ_thumb.webp
+  - 03bMq3i7plXUIcMxuDegrTPaUxAol80wsiZ6Jfg1.jpeg
+  - 03bMq3i7plXUIcMxuDegrTPaUxAol80wsiZ6Jfg1_medium.jpeg
+  - 03bMq3i7plXUIcMxuDegrTPaUxAol80wsiZ6Jfg1_medium.webp
+  - 03bMq3i7plXUIcMxuDegrTPaUxAol80wsiZ6Jfg1_thumb.jpeg
+  - 03bMq3i7plXUIcMxuDegrTPaUxAol80wsiZ6Jfg1_thumb.webp
+  - 03cWAGpDNVEUBGRxVfAoDwhUYLBjetX8ZQrtygiO_medium.jpg
+  - 03cWAGpDNVEUBGRxVfAoDwhUYLBjetX8ZQrtygiO_thumb.jpg

@@ -64,7 +64,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/auction/purchase_history', [AuctionProductController::class, 'purchase_history_user'])->name('auction_product.purchase_history');
 });
 
-Route::post('/home/section/auction_products', [HomeController::class, 'load_auction_products_section'])->name('home.section.auction_products');
+Route::get('/home/section/auction_products', [HomeController::class, 'load_auction_products_section'])->name('home.section.auction_products');
 
 Route::controller(AuctionProductController::class)->group(function () {
     Route::get('/auction-product/{slug}', 'auction_product_details')->name('auction-product');

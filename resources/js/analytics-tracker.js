@@ -1,6 +1,8 @@
 (function () {
-    const API_URL = '/api/v2/analytics/track-visit';
-    const HEALTH_URL = '/api/v2/analytics/track-health';
+    const appUrl = document.querySelector('meta[name="app-url"]')?.content || '';
+    const cleanAppUrl = appUrl.endsWith('/') ? appUrl.slice(0, -1) : appUrl;
+    const API_URL = cleanAppUrl + '/api/v2/analytics/track-visit';
+    const HEALTH_URL = cleanAppUrl + '/api/v2/analytics/track-health';
     const SESSION_KEY = 'mayush_analytics_sid';
 
     // Manage session ID

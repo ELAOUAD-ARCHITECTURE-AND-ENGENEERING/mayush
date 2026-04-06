@@ -13,7 +13,7 @@
 <head>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="app-url" content="{{ getBaseURL() }}">
+    <meta name="app-url" content="{{ url('/') }}">
     <meta name="file-base-url" content="{{ getFileBaseURL() }}">
 
     <title>@yield('meta_title', get_setting('website_name') . ' | ' . get_setting('site_motto'))</title>
@@ -486,9 +486,7 @@
     <script>
         @if (Route::currentRouteName() == 'home' || Route::currentRouteName() == '/')
 
-            $.post('{{ route('home.section.featured') }}', {
-                _token: '{{ csrf_token() }}'
-            }, function(data) {
+            $.get('{{ route('home.section.featured') }}', function(data) {
                 $('#section_featured').html(data);
                 AIZ.plugins.slickCarousel();
             });
@@ -498,9 +496,7 @@
                 AIZ.plugins.slickCarousel();
             });
 
-            $.post('{{ route('home.section.best_selling') }}', {
-                _token: '{{ csrf_token() }}'
-            }, function(data) {
+            $.get('{{ route('home.section.best_selling') }}', function(data) {
                 $('#section_best_selling').html(data);
                 AIZ.plugins.slickCarousel();
             });
@@ -513,9 +509,7 @@
                 @endif
             });
 
-            $.post('{{ route('home.section.auction_products') }}', {
-                _token: '{{ csrf_token() }}'
-            }, function(data) {
+            $.get('{{ route('home.section.auction_products') }}', function(data) {
                 $('#auction_products').html(data);
                 AIZ.plugins.slickCarousel();
             });
@@ -529,9 +523,7 @@
                 });
             }
 
-            $.post('{{ route('home.section.home_categories') }}', {
-                _token: '{{ csrf_token() }}'
-            }, function(data) {
+            $.get('{{ route('home.section.home_categories') }}', function(data) {
                 $('#section_home_categories').html(data);
                 AIZ.plugins.slickCarousel();
             });

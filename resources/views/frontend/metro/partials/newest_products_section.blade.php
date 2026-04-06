@@ -15,11 +15,11 @@
         </div>
         <!-- Products Section -->
         <div class="px-sm-3">
-            <div class="aiz-carousel arrow-none sm-gutters-16" data-items="6" data-xl-items="5" data-lg-items="4"  data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='false'>
+            <div class="aiz-carousel arrow-inactive-none sm-gutters-16" data-items="6" data-xxl-items="6" data-xl-items="6" data-lg-items="4"  data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='false' data-autoplay='true'>
                 @if (count($newest_products) > 0)
                     @foreach ($newest_products as $key => $new_product)
                     <div class="carousel-box px-3 position-relative has-transition border-right border-top border-bottom @if($key == 0) border-left @endif hov-animate-outline">
-                        @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $new_product])
+                        @include('frontend.'.get_setting('homepage_select').'.partials.product_box_2',['product' => $new_product])
                     </div>
                     @endforeach
                 @else
