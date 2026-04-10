@@ -34,9 +34,72 @@ jobs:
             echo "  $(date '+%Y-%m-%d %H:%M:%S')"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-            # ── [1/3] Pull latest code ──────────────────────────────
+            # ── [1/6] Zero-Touch Infrastructure Provisioning ────────────────
             echo ""
-            echo "▶ [1/3] Pulling latest code from GitHub..."
+            echo "▶ [1/6] Running Zero-Touch Infrastructure Provisioning..."
+            
+            # Setup dependencies
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq redis-server supervisor
+            
+            # Auto-configure .env & Redis Password
+            ENV_FILE="/home/mayushdesign/public_html/.env"
+            if [ -f "$ENV_FILE" ]; then
+              # Get current password or generate one
+              CURRENT_REDIS_PASS=$(grep '^REDIS_PASSWORD=' "$ENV_FILE" | cut -d '=' -f 2- | tr -d '"' || true)
+              if [ -z "$CURRENT_REDIS_PASS" ] || [ "$CURRENT_REDIS_PASS" == "null" ] || [ "$CURRENT_REDIS_PASS" == "YOUR_COMPLEX_REDIS_PASSWORD" ]; then
+                NEW_REDIS_PASS=$(openssl rand -hex 16)
+                # Overwrite .env rules securely
+                sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=redis/' "$ENV_FILE"
+                sed -i 's/^REDIS_CLIENT=.*/REDIS_CLIENT=phpredis/' "$ENV_FILE" || echo "REDIS_CLIENT=phpredis" >> "$ENV_FILE"
+                sed -i 's/^REDIS_QUEUE_DB=.*/REDIS_QUEUE_DB=1/' "$ENV_FILE" || echo "REDIS_QUEUE_DB=1" >> "$ENV_FILE"
+                
+                # Replace REDIS_PASSWORD exactly
+                if grep -q "^REDIS_PASSWORD=" "$ENV_FILE"; then
+                  sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=\"$NEW_REDIS_PASS\"/" "$ENV_FILE"
+                else
+                  echo "REDIS_PASSWORD=\"$NEW_REDIS_PASS\"" >> "$ENV_FILE"
+                fi
+                CURRENT_REDIS_PASS="$NEW_REDIS_PASS"
+                echo "  ✔ Generated and injected secure REDIS_PASSWORD into .env"
+              else
+                echo "  ✔ Secure REDIS_PASSWORD already exists in .env"
+              fi
+            fi
+
+            # Harden Redis
+            REDIS_CONF="/etc/redis/redis.conf"
+            sudo touch "$REDIS_CONF" 
+            sudo sed -i '/^requirepass /d' "$REDIS_CONF"
+            sudo sed -i '/^bind /d' "$REDIS_CONF"
+            sudo sed -i '/^maxmemory /d' "$REDIS_CONF"
+            sudo sed -i '/^maxmemory-policy /d' "$REDIS_CONF"
+            echo -e "\nbind 127.0.0.1\nmaxmemory 512mb\nmaxmemory-policy allkeys-lru\nrequirepass \"$CURRENT_REDIS_PASS\"" | sudo tee -a "$REDIS_CONF" >/dev/null
+            sudo systemctl restart redis-server || true
+            sudo systemctl enable redis-server || true
+            echo "  ✔ Redis daemon hardened safely."
+
+            # Construct Horizon configuration
+            SUP_CONF="/etc/supervisor/conf.d/mayush-horizon.conf"
+            sudo bash -c "cat > $SUP_CONF <<EOF
+[program:mayush-horizon]
+process_name=%(program_name)s
+command=php8.2 /home/mayushdesign/public_html/artisan horizon
+autostart=true
+autorestart=true
+user=mayushdesign
+redirect_stderr=true
+stdout_logfile=/home/mayushdesign/public_html/storage/logs/horizon.log
+stopwaitsecs=3600
+EOF"
+            
+            sudo supervisorctl reread || true
+            sudo supervisorctl update || true
+            sudo supervisorctl start mayush-horizon || true
+            echo "  ✔ Supervisor Horizon daemon safely updated."
+
+            # ── [2/6] Pull latest code ──────────────────────────────
+            echo ""
+            echo "▶ [2/6] Pulling latest code from GitHub..."
             cd /home/mayushdesign/public_html
             
             # Record current version for logging
@@ -60,15 +123,15 @@ jobs:
             # Restore safe origin URL
             git remote set-url origin https://github.com/${{ github.repository }}.git
 
-            # ── [2/4] Generating Version Manifest ───────────────────
+            # ── [3/6] Generating Version Manifest ───────────────────
             echo ""
-            echo "▶ [2/4] Generating Version Manifest..."
+            echo "▶ [3/6] Generating Version Manifest..."
             echo "{\"commit\": \"${{ github.sha }}\", \"short_sha\": \"${POST_DEPLOY_COMMIT}\", \"timestamp\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\", \"branch\": \"${{ github.ref_name }}\"}" > public/version.json
             echo "✔ public/version.json created"
 
-            # ── [3/4] Installing PHP dependencies ───────────────────
+            # ── [4/6] Installing PHP dependencies ───────────────────
             echo ""
-            echo "▶ [3/4] Installing PHP dependencies..."
+            echo "▶ [4/6] Installing PHP dependencies..."
             php8.2 $(which composer) install \
               --no-dev \
               --optimize-autoloader \
@@ -76,9 +139,9 @@ jobs:
               --prefer-dist
             echo "✔ Composer done"
 
-            # ── [4/4] Laravel Deploy & Cache Clearing ──────────────
+            # ── [5/6] Laravel Deploy & Cache Clearing ──────────────
             echo ""
-            echo "▶ [4/4] Running Laravel deploy & cache clearing..."
+            echo "▶ [5/6] Running Laravel deploy & cache clearing..."
             
             # Primary cache clear
             php8.2 artisan optimize:clear
@@ -92,9 +155,9 @@ jobs:
             
             echo "✔ Deploy & cache clearing finished"
 
-            # ── [4/4] AI Service Setup (Isolated) ──────────────────
+            # ── [6/6] AI Service Setup (Isolated) ──────────────────
             echo ""
-            echo "▶ [4/4] Setting up AI Visual Search Service..."
+            echo "▶ [6/6] Setting up AI Visual Search Service..."
             
             SETUPSH="/tmp/mayush_ai_setup.sh"
             cat << 'EOF' > $SETUPSH
