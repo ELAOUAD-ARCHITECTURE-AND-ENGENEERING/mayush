@@ -44,6 +44,18 @@
                 </li>
                 @endcan
 
+                {{-- Task Dashboard --}}
+                @can('admin_dashboard')
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('admin.task_dashboard') }}" class="aiz-side-nav-link {{ areActiveRoutes(['admin.task_dashboard']) }}">
+                        <div class="aiz-side-nav-icon">
+                            <i class="las la-tasks"></i>
+                        </div>
+                        <span class="aiz-side-nav-text" style="color: #27ae60; font-weight: bold;">{{translate('Task Dashboard')}}</span>
+                    </a>
+                </li>
+                @endcan
+
                 {{-- Technical Analytics --}}
                 <li class="aiz-side-nav-item">
                     <a href="{{ route('admin.technical_analytics') }}" class="aiz-side-nav-link">

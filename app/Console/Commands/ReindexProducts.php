@@ -34,6 +34,9 @@ class ReindexProducts extends Command
         foreach ($products as $product) {
             \App\Utility\SemanticUtility::syncEmbedding($product);
             $bar->advance();
+            
+            // Limit Gemini requests to 60 per minute max (Free Tier)
+            sleep(1);
         }
 
         $bar->finish();

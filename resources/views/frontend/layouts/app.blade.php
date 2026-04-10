@@ -67,7 +67,14 @@
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
 
     <!-- Vite Assets -->
-    @vite(['resources/js/analytics-tracker.js'])
+    @php
+        $_manifestPath = public_path('build/manifest.json');
+        $_manifest = file_exists($_manifestPath) ? json_decode(file_get_contents($_manifestPath), true) : [];
+        $_trackerJs = $_manifest['resources/js/analytics-tracker.js']['file'] ?? null;
+    @endphp
+    @if($_trackerJs)
+        <script type="module" src="{{ static_asset('build/' . $_trackerJs) }}"></script>
+    @endif
     @yield('styles')
     @yield('script_at_head')
 

@@ -26,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
           \URL::forceScheme('https');
       }
       // \App\Models\Upload::observe(\App\Observers\UploadObserver::class);
+      \App\Models\Product::observe(\App\Observers\ProductObserver::class);
   }
 
   /**

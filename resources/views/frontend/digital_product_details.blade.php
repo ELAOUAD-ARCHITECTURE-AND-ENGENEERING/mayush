@@ -301,6 +301,25 @@
                                 <button type="button" class="btn btn-primary buy-now fw-600 add-to-cart w-150px rounded-0" onclick="buyNow()">
                                     <i class="la la-shopping-cart"></i> {{ translate('Buy Now')}}
                                 </button>
+                                @if (Auth::check())
+                                    <button type="button" onclick="expressBuy({{ $detailedProduct->id }})" class="btn text-white fw-bold w-100 mt-2 rounded-0" style="background-color: #ff9900;">⚡ {{ translate('Express Buy (1-Click)') }}</button>
+                                    <script>
+                                        function expressBuy(id) {
+                                            $.get('{{ route("express.check") }}', function(data) {
+                                                if(data.eligible) {
+                                                    if(confirm('{{ translate("Confirm Express Buy with") }} ' + data.preferred_payment + '?')) {
+                                                        const form = $('#option-choice-form');
+                                                        form.attr('action', '{{ url("express-buy") }}/' + id);
+                                                        form.attr('method', 'POST');
+                                                        form.submit();
+                                                    }
+                                                } else {
+                                                    alert('{{ translate("Please set a default address and payment method to use Express Buy.") }}');
+                                                }
+                                            });
+                                        }
+                                    </script>
+                                @endif
                             </div>
 
                             <!-- Promote Link -->

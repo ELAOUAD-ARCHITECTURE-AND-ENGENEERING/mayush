@@ -9,7 +9,7 @@ use Auth;
 class PaymentVaultService
 {
     /**
-     * Check if the user is eligible for 1-click purchase.
+     * Check if the user is eligible for 1-click purchase via Vault.
      */
     public static function isEligible()
     {
@@ -25,13 +25,8 @@ class PaymentVaultService
             return false;
         }
 
-        // 2. Must have a previous successful order to determine payment preference
-        $lastOrder = Order::where('user_id', $user->id)
-            ->where('payment_status', 'paid')
-            ->latest()
-            ->first();
-
-        return ($lastOrder !== null);
+        // 2. Must have a valid vaulted token
+        return self::hasVaultedToken($user->id);
     }
 
     /**
@@ -43,11 +38,27 @@ class PaymentVaultService
             return null;
         }
 
-        $lastOrder = Order::where('user_id', Auth::id())
+        // Return the mocked token method
+        if (self::hasVaultedToken(Auth::id())) {
+            return 'cmi_vault';
+        }
+
+        return 'cash_on_delivery';
+    }
+
+    /**
+     * Mock sandbox method checking for tokenized CMI card.
+     * In production, this will query a PaymentVault token table.
+     */
+    public static function hasVaultedToken($userId)
+    {
+        // SANDBOX MOCK: We simulate a vault token existing if they have any past paid order.
+        // This unblocks the CMI Sandbox testing flow without storing PCI data locally.
+        $lastOrder = Order::where('user_id', $userId)
             ->where('payment_status', 'paid')
             ->latest()
             ->first();
 
-        return $lastOrder ? $lastOrder->payment_type : 'cash_on_delivery';
+        return ($lastOrder !== null);
     }
 }

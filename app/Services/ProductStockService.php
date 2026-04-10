@@ -13,6 +13,8 @@ class ProductStockService
 {
     public function store(array $data, $product)
     {
+        $previousTotalQty = $product->stocks()->sum('qty');
+        
         //Log::info('Product Stock Request:', $data);
         $collection = collect($data);
 
@@ -67,6 +69,12 @@ class ProductStockService
                 'current_stock' => $product_stock->qty,
                 'reason' => 'manual',
             ]);
+        }
+
+        // Fire restock event (MAY-107)
+        $newTotalQty = $product->stocks()->sum('qty');
+        if ($previousTotalQty <= 0 && $newTotalQty > 0) {
+            event(new \App\Events\ProductRestockedEvent($product));
         }
     }
 

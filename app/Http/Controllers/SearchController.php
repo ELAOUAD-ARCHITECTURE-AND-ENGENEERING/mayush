@@ -87,8 +87,11 @@ class SearchController extends Controller
                 $category_ids = CategoryUtility::children_ids($category_id);
                 $category_ids[] = $category_id;
                 $category = Category::with('childrenCategories')->find($category_id);
-                $products->whereHas('categories', function ($categoryQuery) use ($category_ids) {
-                    $categoryQuery->whereIn('categories.id', $category_ids);
+                $products->where(function ($query) use ($category_ids) {
+                    $query->whereIn('category_id', $category_ids)
+                          ->orWhereHas('categories', function ($categoryQuery) use ($category_ids) {
+                              $categoryQuery->whereIn('categories.id', $category_ids);
+                          });
                 });
             } else {
                 $categories = Category::with('childrenCategories', 'coverImage')->where('level', 0)->orderBy('order_level', 'desc')->get();
@@ -183,17 +186,31 @@ class SearchController extends Controller
             $category_ids = CategoryUtility::children_ids($category_id);
             $category_ids[] = $category_id;
             $category = Category::with('childrenCategories')->find($category_id);
-            $products->whereHas('categories', function ($categoryQuery) use ($category_ids) {
-                $categoryQuery->whereIn('categories.id', $category_ids);
+            $products->where(function ($query) use ($category_ids) {
+                $query->whereIn('category_id', $category_ids)
+                      ->orWhereHas('categories', function ($categoryQuery) use ($category_ids) {
+                          $categoryQuery->whereIn('categories.id', $category_ids);
+                      });
             });
         }
         //------------------- category product count start here ----------------------
 
-        $filteredProductIds = filter_products(Product::query())->pluck('id');
+        $filteredProductIds = filter_products(Product::query())->pluck('id')->toArray();
 
-        $productCountsSubCategory = ProductCategory::select('category_id')
-            ->selectRaw('COUNT(product_id) as count')
+        $mainCategories = DB::table('products')
+            ->whereIn('id', $filteredProductIds)
+            ->whereNotNull('category_id')
+            ->select('id as product_id', 'category_id');
+
+        $pivotCategories = DB::table('product_categories')
             ->whereIn('product_id', $filteredProductIds)
+            ->select('product_id', 'category_id');
+
+        $combinedCategories = $mainCategories->union($pivotCategories);
+
+        $productCountsSubCategory = DB::table(DB::raw("({$combinedCategories->toSql()}) as combined"))
+            ->mergeBindings($combinedCategories)
+            ->select('category_id', DB::raw('COUNT(DISTINCT product_id) as count'))
             ->groupBy('category_id')
             ->pluck('count', 'category_id');
 
@@ -215,14 +232,22 @@ class SearchController extends Controller
             // ################# preorder category start here #################
 
             $preorder_products = PreorderProduct::where('is_published', 1);
-            $preorder_products_ids = filter_preorder_product($preorder_products)->pluck('id');
+            $preorder_products_ids = filter_preorder_product($preorder_products)->pluck('id')->toArray();
 
+            $preorder_mainCategories = DB::table('preorder_products')
+                ->whereIn('id', $preorder_products_ids)
+                ->whereNotNull('category_id')
+                ->select('id as product_id', 'category_id');
 
-            //    return $preorder_products_ids;
-
-            $preorder_productCountsSubCategory = PreorderProductCategory::select('category_id')
-                ->selectRaw('COUNT(preorder_product_id) as count')
+            $preorder_pivotCategories = DB::table('preorder_product_categories')
                 ->whereIn('preorder_product_id', $preorder_products_ids)
+                ->select('preorder_product_id as product_id', 'category_id');
+
+            $preorder_combinedCategories = $preorder_mainCategories->union($preorder_pivotCategories);
+
+            $preorder_productCountsSubCategory = DB::table(DB::raw("({$preorder_combinedCategories->toSql()}) as combined"))
+                ->mergeBindings($preorder_combinedCategories)
+                ->select('category_id', DB::raw('COUNT(DISTINCT product_id) as count'))
                 ->groupBy('category_id')
                 ->pluck('count', 'category_id');
             // return $preorder_productCountsSubCategory;
@@ -380,9 +405,12 @@ class SearchController extends Controller
             $products = PreorderProduct::where('is_published', 1);
 
             if (count($category_list_preorder) > 0) {
-                $products_ids = PreorderProductCategory::whereIn('category_id', $category_list_preorder)->pluck('preorder_product_id')->toArray();;
-
-                $products->whereIn('id', $products_ids);
+                $products->where(function ($query) use ($category_list_preorder) {
+                    $query->whereIn('category_id', $category_list_preorder)
+                          ->orWhereHas('categories', function ($q) use ($category_list_preorder) {
+                              $q->whereIn('categories.id', $category_list_preorder);
+                          });
+                });
             }
             $products = filter_preorder_product($products);
 
@@ -390,8 +418,11 @@ class SearchController extends Controller
                 $category_ids = CategoryUtility::children_ids($category_id);
                 $category_ids[] = $category_id;
                 $category = Category::with('childrenCategories')->find($category_id);
-                $products->whereHas('categories', function ($categoryQuery) use ($category_ids) {
-                    $categoryQuery->whereIn('categories.id', $category_ids);
+                $products->where(function ($query) use ($category_ids) {
+                    $query->whereIn('category_id', $category_ids)
+                          ->orWhereHas('categories', function ($categoryQuery) use ($category_ids) {
+                              $categoryQuery->whereIn('categories.id', $category_ids);
+                          });
                 });
             } else {
                 $categories = Category::with('childrenCategories', 'coverImage')->where('level', 0)->orderBy('order_level', 'desc')->get();
@@ -519,9 +550,12 @@ class SearchController extends Controller
         $products = Product::where($conditions);
 
         if (count($category_list) > 0) {
-            $products_ids = ProductCategory::whereIn('category_id', $category_list)->pluck('product_id')->toArray();;
-
-            $products = Product::whereIn('id', $products_ids);
+            $products->where(function ($query) use ($category_list) {
+                $query->whereIn('category_id', $category_list)
+                      ->orWhereHas('categories', function ($q) use ($category_list) {
+                          $q->whereIn('categories.id', $category_list);
+                      });
+            });
         }
 
 
@@ -792,14 +826,21 @@ class SearchController extends Controller
 
     public function categoryProductCount($category, $productCounts, $childrenKey = 'childrenCategories')
     {
+        // Start with this category's own direct product count
+        $ownCount = $productCounts[$category->id] ?? 0;
+        $totalCount = $ownCount;
 
-        $category->products_count = $productCounts[$category->id] ?? 0;
-
-        // If children exist, loop recursively
+        // Recurse into children and accumulate their totals
         if (!empty($category->{$childrenKey})) {
             foreach ($category->{$childrenKey} as $child) {
-                $this->categoryProductCount($child, $productCounts, $childrenKey);
+                $childTotal = $this->categoryProductCount($child, $productCounts, $childrenKey);
+                $totalCount += $childTotal;
             }
         }
+
+        // Assign the aggregated count (own + all descendants) to this node
+        $category->products_count = $totalCount;
+
+        return $totalCount;
     }
 }

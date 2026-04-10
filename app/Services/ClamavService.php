@@ -27,7 +27,7 @@ class ClamavService
      */
     public function scan($file)
     {
-        if (env('DISABLE_CLAMAV', true)) {
+        if (env('DISABLE_CLAMAV', false)) {
             return true;
         }
 

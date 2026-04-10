@@ -262,6 +262,27 @@
                                 <i class="la la-bolt"></i>
                                 <span class="d-none d-md-inline-block">{{ translate('Buy Now')}}</span>
                             </button>
+                            @if (Auth::check())
+                                <button type="button" class="btn text-white fw-bold express-buy-btn" onclick="expressBuy({{ $product->id }})" style="background-color: #ff9900;">
+                                    ⚡ <span class="d-none d-md-inline-block">{{ translate('Express Buy')}}</span>
+                                </button>
+                                <script>
+                                    function expressBuy(id) {
+                                        $.get('{{ route("express.check") }}', function(data) {
+                                            if(data.eligible) {
+                                                if(confirm('{{ translate("Confirm Express Buy with") }} ' + data.preferred_payment + '?')) {
+                                                    const form = $('#option-choice-form');
+                                                    form.attr('action', '{{ url("express-buy") }}/' + id);
+                                                    form.attr('method', 'POST');
+                                                    form.submit();
+                                                }
+                                            } else {
+                                                alert('{{ translate("Please set a default address and payment method to use Express Buy.") }}');
+                                            }
+                                        });
+                                    }
+                                </script>
+                            @endif
                         @endif
                     @endif
                     <button type="button" class="btn btn-secondary out-of-stock fw-600 d-none" disabled>

@@ -15,7 +15,7 @@ class UpdateFrequentlyBought extends Command
      *
      * @var string
      */
-    protected $signature = 'inventory:update-affinities {--days=90 : Number of days to analyze}';
+    protected $signature = 'inventory:update-affinities {--days=90 : Number of days to analyze} {--threshold=2 : Minimum co-occurrences to register affinity}';
 
     /**
      * The console command description.
@@ -30,7 +30,8 @@ class UpdateFrequentlyBought extends Command
     public function handle()
     {
         $days = $this->option('days');
-        $this->info("Analyzing order history for the last $days days...");
+        $threshold = $this->option('threshold');
+        $this->info("Analyzing order history for the last $days days with a threshold of $threshold...");
 
         // 1. Get all successful order IDs in the timeframe
         $orderIds = Order::where('created_at', '>=', now()->subDays($days))
@@ -91,6 +92,15 @@ class UpdateFrequentlyBought extends Command
 
             $totalInserted = 0;
             foreach ($affinities as $productId => $relatedProducts) {
+                // Filter by threshold
+                $relatedProducts = array_filter($relatedProducts, function($count) use ($threshold) {
+                    return $count >= $threshold;
+                });
+
+                if (empty($relatedProducts)) {
+                    continue;
+                }
+
                 // Sort by frequency descending and take top 5
                 arsort($relatedProducts);
                 $topProducts = array_slice($relatedProducts, 0, 5, true);

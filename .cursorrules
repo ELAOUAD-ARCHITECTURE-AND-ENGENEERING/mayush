@@ -28,112 +28,26 @@
 - **The Correct Action:** Use granular edits (`replace_file_content` or `multi_replace_file_content`) to add or modify routes. Never overwrite an entire route file with a subset of routes unless you are certain you have the complete content.
 - Always verify that critical routes like `admin.dashboard` remain intact after any modification to routing files.
 
-## 6. MANDATORY PROJECT TRACKER UPDATES
-- You are **REQUIRED** to update the `PROJECT_TRACKER.md` file after completing **EVERY** task or significant sub-task.
+## 6. MANDATORY PROJECT TRACKER & SESSION ALIGNMENT
+- **MANDATORY SESSION START:** At the beginning of EVERY new work session, you MUST read the `PROJECT_TRACKER.md` to align on current status and priorities before taking any other action.
+- **MANDATORY UPDATES:** You are REQUIRED to update the `PROJECT_TRACKER.md` file after completing **EVERY** task or significant sub-task.
 - Updates must include concise summaries of progress, specific changes made (files modified, new features added), and any risks or stability issues addressed.
 - **Why:** This file serves as the system's "long-term memory" and provides the user with an accurate, real-time snapshot of the project's health and completion percentage.
 
-**By reading this file, you agree that protecting the user's existing data and application stability is your absolute #1 priority, overriding all other tasks, optimizations, or framework conventions.**
-
 ## 7. ADDITIONAL FILES POLICY
-
-### Mandatory Placement
-- All supplementary files (documentation, scripts, experiments, backups) that are NOT part of the
-  original Mayush codebase MUST be placed inside the `additional-files/` directory.
+- All supplementary files (documentation, scripts, experiments, backups) that are NOT part of the original Mayush codebase MUST be placed inside the `additional-files/` directory.
 - NEVER create loose supplementary files in the project root or inside existing app directories.
-
-### Subfolder Categorization
-Files must be categorized into the correct subfolder based on their purpose:
-- `additional-files/documentation/` → Guides, notes, architecture diagrams, explanatory files
-- `additional-files/utilities/` → Helper scripts, automation tools, CLI utilities
-- `additional-files/experiments/` → Test implementations, prototypes, proof-of-concept code
-- `additional-files/backups/` → Version snapshots, temporary saves, rollback references
-
-### Naming Conventions
-- **Folders:** Use lowercase kebab-case (e.g., `my-subfolder`)
-- **Files:** Use date-prefixed descriptive names: `YYYY-MM-DD_purpose-description.ext`
-  - Example: `2026-03-28_clamav-integration-notes.md`
-  - Example: `2026-03-28_deploy-helper.sh`
-
-### Manifest & Documentation
-- After adding any file, update `additional-files/index.json` to include the new entry
-- After adding any file, update the `README.md` in the corresponding subfolder
-- Each subfolder's `README.md` must document the purpose of every file it contains
-# CRITICAL AI SYSTEM RULES FOR MAYUSHDESIGN WORKSPACE
-
-**DO NOT IGNORE THESE RULES UNDER ANY CIRCUMSTANCES.**
-**THESE PRECAUTIONS MUST BE CHECKED BEFORE EXECUTING ANY SCRIPT OR COMMAND.**
-
-## 1. NEVER DROP OR DELETE DATABASE TABLES
-- You are **STRICTLY FORBIDDEN** from executing `DROP TABLE`, `DROP VIEW`, `TRUNCATE TABLE`, or any equivalent command on this database.
-- You are **STRICTLY FORBIDDEN** from writing or executing scripts (PHP, Bash, SQL) that automatically delete database tables to "fix" migration errors.
-- **Why:** The database in this environment is populated from an external SQL dump (`amsadesign.sql`), meaning the physical tables exist even if the Laravel `migrations` table is completely empty or out of sync. Dropping tables deletes live data permanently.
-
-## 2. HANDLING MIGRATION ERRORS CAREFULLY
-- If a migration fails with `1050 Table '...' already exists` or `1060 Duplicate column name`, **DO NOT DROP THE TABLE OR COLUMN**.
-- **The Correct Action:** Assume the data is correct. Manually sync the Laravel `migrations` table by inserting a record for that specific migration file using `artisan tinker` or a safe PHP script, so Laravel skips it in the future.
-- Use the principles found in `deploy_vps.sh` (`run_safe_migrate` function) which catches "already exists" errors and safely fakes the migration record without data loss.
-
-## 3. DATA PRESERVATION BEFORE DESTRUCTION
-- Never prioritize clean migration states over actual data retention.
-- If you are unsure if a table contains important data, assume it is **CRITICAL PRODUCTION DATA**.
-- Always query `SELECT COUNT(*) FROM table_name;` before making *any* structural assumptions if absolutely forced to interact with a table (e.g., altering schemas). 
-
-## 4. DEPLOYMENT & VPS SAFEGUARDS
-- Always assume commands are running against a production-like environment. 
-- Do not execute destructive cleanup scripts.
-
-## 5. NEVER DELETE OR CLEAR ROUTE FILES
-- You are **STRICTLY FORBIDDEN** from clearing, deleting, or making destructive edits to route files (e.g., `routes/admin.php`, `routes/web.php`, `routes/api.php`).
-- Accidental deletion or clearing of these files causes widespread application failure (`RouteNotFoundException`).
-- **The Correct Action:** Use granular edits (`replace_file_content` or `multi_replace_file_content`) to add or modify routes. Never overwrite an entire route file with a subset of routes unless you are certain you have the complete content.
-- Always verify that critical routes like `admin.dashboard` remain intact after any modification to routing files.
-
-## 6. MANDATORY PROJECT TRACKER UPDATES
-- You are **REQUIRED** to update the `PROJECT_TRACKER.md` file after completing **EVERY** task or significant sub-task.
-- Updates must include concise summaries of progress, specific changes made (files modified, new features added), and any risks or stability issues addressed.
-- **Why:** This file serves as the system's "long-term memory" and provides the user with an accurate, real-time snapshot of the project's health and completion percentage.
-
-**By reading this file, you agree that protecting the user's existing data and application stability is your absolute #1 priority, overriding all other tasks, optimizations, or framework conventions.**
-
-## 7. ADDITIONAL FILES POLICY
-
-### Mandatory Placement
-- All supplementary files (documentation, scripts, experiments, backups) that are NOT part of the
-  original Mayush codebase MUST be placed inside the `additional-files/` directory.
-- NEVER create loose supplementary files in the project root or inside existing app directories.
-
-### Subfolder Categorization
-Files must be categorized into the correct subfolder based on their purpose:
-- `additional-files/documentation/` → Guides, notes, architecture diagrams, explanatory files
-- `additional-files/utilities/` → Helper scripts, automation tools, CLI utilities
-- `additional-files/experiments/` → Test implementations, prototypes, proof-of-concept code
-- `additional-files/backups/` → Version snapshots, temporary saves, rollback references
-
-### Naming Conventions
-- **Folders:** Use lowercase kebab-case (e.g., `my-subfolder`)
-- **Files:** Use date-prefixed descriptive names: `YYYY-MM-DD_purpose-description.ext`
-  - Example: `2026-03-28_clamav-integration-notes.md`
-  - Example: `2026-03-28_deploy-helper.sh`
-
-### Manifest & Documentation
-- After adding any file, update `additional-files/index.json` to include the new entry
-- After adding any file, update the `README.md` in the corresponding subfolder
-- Each subfolder's `README.md` must document the purpose of every file it contains
-
-### Protection of Existing Files
-- NEVER move, rename, or relocate existing project files into `additional-files/`
-- NEVER place additional/supplementary files inside `app/`, `resources/`, `routes/`, `config/`,
-  `database/`, `public/`, `storage/`, `vendor/`, or `tests/` unless they are actual application code
+- Categorize into: `documentation/`, `utilities/`, `experiments/`, `backups/`.
+- Use naming: `YYYY-MM-DD_purpose-description.ext`.
 
 ## 8. MANDATORY GITHUB SYNCHRONIZATION (ALWAYS PUSH)
 - **CRITICAL:** You are REQUIRED to push every completed task or significant change to the remote GitHub repository immediately.
 - Never conclude a session or a major task without executing a successful `git push`.
-- You must verify that the push was successful by checking the command output for remote confirmation (e.g., `dev -> dev`).
-- Ensure commit messages strictly follow the project's descriptive standards.
-
+- Ensure commit messages strictly follow the project's descriptive standards (reference Task IDs).
 
 ## 9. ALWAYS CLEAN PROJECT
 - Before concluding a task and notifying the user, you **MUST** delete any temporary diagnostic, test, or experimental files created during the process.
-- This includes files in `additional-files/diagnostics/`, `additional-files/utilities/`, or any other temporary location.
-- Never leave "scaffolding" or "scratch" code in the production codebase.
+- Never leave "scaffolding" or "scratch" code in the primary codebase.
+
+**By reading this file, you agree that protecting the user's existing data and application stability is your absolute #1 priority, overriding all other tasks, optimizations, or framework conventions.**
+

@@ -683,6 +683,7 @@
                 },
                 url: "{{ route('suggestion.search2') }}",
                 type: 'get',
+                cache: false,
                 data: formData,
                 success: function(response) {
                     // alert(JSON.stringify(response))
@@ -838,7 +839,7 @@
         });
     </script>
     <!-- Treeview js -->
-    <script src="{{ static_asset('assets/js/hummingbird-treeview2.js') }}"></script>
+    <script src="{{ static_asset('assets/js/hummingbird-treeview2.js') }}?v={{ filemtime(public_path('assets/js/hummingbird-treeview2.js')) }}"></script>
 
     <script>
         $(document).ready(function() {

@@ -15,6 +15,7 @@ use App\Http\Controllers\CustomerProductController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\DigitalProductController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ExpressBuyController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MessageController;
@@ -361,6 +362,9 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
 Route::group(['middleware' => ['auth']], function() {
     
     Route::get('invoice/{order_id}', [InvoiceController::class, 'invoice_download'])->name('invoice.download');
+
+    Route::get('/express-buy/check', [ExpressBuyController::class, 'eligibility'])->name('express.check');
+    Route::post('/express-buy/{product_id}', [ExpressBuyController::class, 'submit'])->name('express.buy');
 
     // Reviews
     Route::resource('/reviews', ReviewController::class);

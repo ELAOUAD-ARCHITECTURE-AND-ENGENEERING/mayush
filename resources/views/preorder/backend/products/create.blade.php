@@ -811,7 +811,7 @@
 
 @section('script')
 <!-- Treeview js -->
-<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}"></script>
+<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}?v={{ filemtime(public_path('assets/js/hummingbird-treeview.js')) }}"></script>
 
 <script type="text/javascript">
     $(document).ready(function() {

@@ -13,13 +13,39 @@ class SemanticUtility
      */
     public static function generateEmbedding($text)
     {
-        // Mocking a vector (e.g., 512 dimensions of random floats for testing infrastructure)
-        // In production, this would be: return AIZ::gemini()->embed($text);
-        $vector = [];
-        for ($i = 0; $i < 32; $i++) { // Reduced dimensions for mock simplicity
-            $vector[] = (float)rand() / (float)getrandmax();
+        $apiKey = config('services.gemini.key');
+        if (empty($apiKey)) {
+            // Development fallback mock if key missing
+            $vector = [];
+            for ($i = 0; $i < 32; $i++) {
+                $vector[] = (float)rand() / (float)getrandmax();
+            }
+            return $vector;
         }
-        return $vector;
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={$apiKey}", [
+                'model' => 'models/gemini-embedding-001',
+                'content' => [
+                    'parts' => [
+                        ['text' => $text]
+                    ]
+                ],
+                'outputDimensionality' => 768
+            ]);
+
+            if ($response->successful()) {
+                return $response->json('embedding.values') ?? [];
+            }
+            
+            \Illuminate\Support\Facades\Log::error("Gemini API Error: " . $response->body());
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Gemini Request Failed: " . $e->getMessage());
+        }
+
+        return [];
     }
 
     /**
@@ -40,7 +66,8 @@ class SemanticUtility
             $text .= "Tags: " . $model->tags;
         }
 
-        return trim($text);
+        // Limit to 2000 characters to prevent API token limit crashes
+        return substr(trim($text), 0, 2000);
     }
 
     /**
@@ -87,8 +114,8 @@ class SemanticUtility
                 
                 $score = self::calculateSimilarity($queryVector, $vector);
                 
-                // Only include results with a decent similarity (e.g. > 0.4 for mock)
-                if ($score > 0.4) {
+                // Only include results with a decent similarity (tuned for real 768-dim Gemini embeddings)
+                if ($score > 0.65) {
                     $results[] = [
                         'score' => $score,
                         'model' => $embedding->embeddable,

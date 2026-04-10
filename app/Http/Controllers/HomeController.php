@@ -42,6 +42,7 @@ use ZipArchive;
 use Carbon\Carbon;
 use Session;
 use App\Models\LastViewedProduct;
+use App\Services\HomeLayoutService;
 
 class HomeController extends Controller
 {
@@ -75,30 +76,15 @@ class HomeController extends Controller
         return view('frontend.' . get_setting('homepage_select') . '.index', compact('featured_categories','hot_categories', 'lang'));
     }
 
-    public function load_todays_deal_section()
+    public function load_todays_deal_section(HomeLayoutService $layoutService)
     {
-        $todays_deal_products = filter_products(Product::where('todays_deal', '1'))->orderBy('id', 'desc')->get();
+        $todays_deal_products = $layoutService->getTodaysDealProducts();
         return view('frontend.' . get_setting('homepage_select') . '.partials.todays_deal', compact('todays_deal_products'));
     }
 
-    public function load_newest_product_section(Request $request)
+    public function load_newest_product_section(Request $request, HomeLayoutService $layoutService)
     {
-        $limit = 12;
-        if ($request->has('page') && is_numeric($request->page)) {
-            $limit=18;
-            $page = max(1, (int)$request->page);
-            $offset = ($page - 1) * $limit;
-
-            $newest_products = filter_products(Product::latest())
-                ->skip($offset)
-                ->take($limit)
-                ->get();
-            return view('frontend.' . get_setting('homepage_select') . '.partials.newest_products_section', compact('newest_products'));
-        }
-        $newest_products = Cache::remember('newest_products', 3600, function () use ($limit) {
-            return filter_products(Product::latest())->take($limit)->get();
-        });
-
+        $newest_products = $layoutService->getNewestProducts(12, $request->page);
         return view('frontend.' . get_setting('homepage_select') . '.partials.newest_products_section', compact('newest_products'));
     }
 
@@ -135,30 +121,15 @@ class HomeController extends Controller
     {
         return view('frontend.partials.promoted_category_section');
     }
-    public function load_preorder_featured_products_section()
+    public function load_preorder_featured_products_section(HomeLayoutService $layoutService)
     {
-
-        // $preorder_products = Cache::remember('preorder_products', 3600, function () {
-            $preorder_products = PreorderProduct::where('is_published', 1)->where('is_featured',1)
-            ->where(function ($query) {
-                $query->whereHas('user', function ($q) {
-                    $q->where('user_type', 'admin');
-                })->orWhereHas('user.shop', function ($q) {
-                    $q->where('verification_status', 1);
-                });
-            })
-            ->latest()
-            ->limit(12)
-            ->get();
-        // });
+        $preorder_products = $layoutService->getPreorderFeaturedProducts();
         return view('frontend.' . get_setting('homepage_select') . '.partials.preorder_products_section', compact('preorder_products'));
     }
 
-    public function load_elite_artisans_section()
+    public function load_elite_artisans_section(HomeLayoutService $layoutService)
     {
-        $elite_shops = Shop::whereHas('activeEliteSubscription')
-            ->where('verification_status', 1)
-            ->get();
+        $elite_shops = $layoutService->getEliteArtisans();
         return view('frontend.partials.elite_artisans_section', compact('elite_shops'));
     }
 

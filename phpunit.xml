@@ -40,6 +40,7 @@
         <env name="MAIL_DRIVER" value="array"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
+        <env name="DISABLE_CLAMAV" value="false"/>
         <server name="DEFAULT_LANGUAGE" value="en"/>
         <server name="DEMO_MODE" value="Off"/>
         <server name="FORCE_HTTPS" value="Off"/>

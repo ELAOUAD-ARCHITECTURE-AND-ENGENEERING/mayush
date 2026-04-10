@@ -5,10 +5,10 @@
     }
 @endphp
 
-<li  d-item="{{ $childCategory->products_count }}" id="generel_{{ $childCategory->id }}">{{ $value }}
-    {{ $childCategory->getTranslation('name') }}
-    @if($childCategory->products_count > 0)
-        {{ "   (". $childCategory->products_count . ")" }}
+<li  d-item="{{ $child_category->products_count }}" id="generel_{{ $child_category->id }}">{{ $value }}
+    {{ $child_category->getTranslation('name') }}
+    @if($child_category->products_count > 0)
+        {{ "   (". $child_category->products_count . ")" }}
     @endif
 </li>
 

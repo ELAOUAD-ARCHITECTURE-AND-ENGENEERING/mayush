@@ -1396,7 +1396,7 @@ if (!function_exists('my_asset')) {
             $path = substr($path, 1);
         }
 
-        return app('url')->asset('public/' . $path, $secure);
+        return rtrim(getBaseURL(), '/') . '/public/' . $path;
     }
 }
 
@@ -1410,7 +1410,8 @@ if (!function_exists('static_asset')) {
      */
     function static_asset($path, $secure = null)
     {
-        return app('url')->asset('public/' . $path, $secure);
+        $path = ltrim($path, '/');
+        return rtrim(getBaseURL(), '/') . '/public/' . $path;
     }
 }
 

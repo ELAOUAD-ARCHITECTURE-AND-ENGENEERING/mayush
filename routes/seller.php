@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AizUploadController;
+use App\Http\Controllers\Seller\AnalyticsDashboardController;
 use App\Http\Controllers\Seller\AddressController;
 use App\Http\Controllers\Seller\CommissionHistoryController;
 use App\Http\Controllers\Seller\ConversationController;
@@ -37,6 +38,14 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user
 Route::group(['namespace' => 'App\Http\Controllers\Seller', 'prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user', 'prevent-back-history'], 'as' => 'seller.'], function () {
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
+    });
+
+    Route::prefix('analytics')->name('analytics.')->group(function () {
+        Route::get('/', [AnalyticsDashboardController::class, 'index'])->name('index');
+        Route::get('/stats', [AnalyticsDashboardController::class, 'stats'])->name('stats');
+        Route::get('/funnel', [AnalyticsDashboardController::class, 'funnel'])->name('funnel');
+        Route::get('/top-products', [AnalyticsDashboardController::class, 'topProducts'])->name('top_products');
+        Route::get('/revenue-trend', [AnalyticsDashboardController::class, 'revenueTrend'])->name('revenue_trend');
     });
 
     // Product

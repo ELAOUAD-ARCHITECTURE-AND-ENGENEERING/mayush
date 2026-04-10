@@ -38,6 +38,12 @@ class ShopController extends Controller
             $shop->meta_description = $request->meta_description;
             $shop->logo             = $request->logo;
         }
+        
+        if ($request->has('artisan_story') || $request->has('brand_philosophy') || $request->has('workshop_video_url')) {
+            $shop->artisan_story = $request->artisan_story;
+            $shop->brand_philosophy = $request->brand_philosophy;
+            $shop->workshop_video_url = $request->workshop_video_url;
+        }
 
         if ($request->has('delivery_pickup_longitude') && $request->has('delivery_pickup_latitude'))
         {

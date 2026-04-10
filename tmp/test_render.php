@@ -1,17 +1,17 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-$kernel = $app->make('Illuminate\Contracts\Console\Kernel');
+require __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-$url = route('home.section.featured');
-echo "route('home.section.featured') generates: {$url}\n";
+$request = Illuminate\Http\Request::create('/category/office-furniture', 'GET');
+$controller = new App\Http\Controllers\SearchController();
 
-// Let's also check if the DB is failing during load_featured_section
+// Test the view compilation
 try {
-    $controller = new \App\Http\Controllers\HomeController();
-    $html = $controller->load_featured_section()->render();
-    echo "Section rendered successfully. Length: " . strlen($html) . " bytes\n";
+    $response = $controller->listingByCategory($request, 'office-furniture');
+    file_put_contents('tmp/test_view.html', $response->render());
+    echo "Saved view.\n";
 } catch (\Exception $e) {
-    echo "ERROR rendering section: " . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n";
+    echo "Error: " . $e->getMessage() . "\n";
 }

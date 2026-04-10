@@ -1,20 +1,64 @@
-# Mayush Project Tracker
+# Project Master Tracker: MAYUSH Marketplace
 
-## Current Status: Restored & Analyzed
-**Completion Percentage**: 85% (Core restoration complete; Strategic optimizations pending)
+> [!IMPORTANT]
+> **MANDATORY SESSION RULE:** All team members (AI and Human) MUST review and update this tracking document at the beginning of EVERY work session to ensure alignment on current status and next priorities.
 
-## Task Log (Recent & Completed)
-- [x] **Flash Deal Restoration**: Extended deal end-dates to re-activate the homepage grid.
-- [x] **Global Hover Image Fix**: Hardened `get_first_product_image` helper and swapped argument orders site-wide to fix placeholders.
-- [x] **Behavioral Rules Injection**: Updated `.cursorrules` with Mandatory Push and Mandatory Clean mandates.
-- [x] **Comprehensive Platform Analysis**: bench-marked against Amazon/Etsy; established a multi-phased growth roadmap (`analysis_report.md`).
+## 📊 Current High-Level Status
+- **Overall Completion:** 88%
+- **Current Sprint:** Phase 1: Security & Compliance
+- **RAG Status:** 🟢 Green (On Track)
 
-## Strategic Roadmap (Pending Implementation)
-- **Phase 1 (Growth)**: Automated "Frequently Bought Together" logic.
-- **Phase 1 (Conversion)**: Express Buy (1-Click) Implementation.
-- **Phase 2 (Experience)**: Artisan Storytelling Profiles & Q&A.
+---
 
-## Stability & Risk Assessment
-- **Stability**: High; deployment pipeline is active via GitHub Actions.
-- **Security**: Hardened; ClamAV and Field Encryption are live.
-- **Next Primary Metric**: Average Order Value (AOV) through automated cross-sells.
+## 📅 Chronological Project Timeline
+
+| Date | ID | Task / Link | Category | Deliverable | Status |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| **2026-04-07** | **PH-0** | Critical Hardening | Security | `phpunit.xml` fix, ClamAV enabled. | ✅ Completed |
+| **2026-04-07** | **MA-104** | Seller Analytics Dashboard | Performance | `AnalyticsDashboardController`, Views. | ✅ Completed |
+| **2026-04-07** | **MA-099** | Express Buy (1-Click) | Conversion | `ExpressBuyController`, UI Button Injection. | ✅ Completed |
+| **2026-04-07** | **MA-098** | Co-Purchase Affinity Engine | Growth | `PruneStaleFrequentlyBought`, Scheduler. | ✅ Completed |
+| **2026-04-07** | **MA-101** | Unified Admin Task Dashboard | Ops | Central task widget for Admin panel. | ✅ Completed |
+| **2026-04-08** | **OPS-01** | Scheduler Verification | Ops | Verify `schedule:run` on Server Side. | ✅ Completed |
+| **2026-04-09** | **MA-099b** | CMI Tokenization & Vault | Security | Transition preference to Gateway Tokens. | 🔵 Pending |
+| **2026-04-10** | **QA-01** | Local Test Suite (SQLite) | Security | Full feature test coverage for Checkout. | 🔵 Pending |
+| **2026-04-12** | **MA-106** | Artisan Storytelling Profiles | Growth | `Shop` model extension, Story views. | ⚪ Pending |
+| **2026-04-15** | **MA-107** | Real-time Stock Alerts | Retention | Notification engine for wishlists. | ⚪ Pending |
+| **2026-04-18** | **AI-SEM** | Semantic Search Pipeline | Discovery | Vector-based search implementation. | ⚪ Pending |
+| **2026-04-20** | **REF-01** | HomeController Decomposition | Maintenance | Refactor monolithic 52KB controller. | ⚪ Pending |
+
+---
+
+## 🛠️ Detailed Task Breakdown Structure (TBS)
+
+### 1. Security & Compliance (Rank 1)
+- **MA-099b: CMI Tokenization**
+    - [ ] Create `PaymentToken` model and migration.
+    - [ ] Update `ExpressBuyController` to use tokens instead of preferences.
+    - [ ] Implement secure handoff for CMI redirect with token capture.
+- **QA-01: Coverage Expansion**
+    - [ ] Configure `phpunit.xml` for local SQLite.
+    - [ ] Write Integration tests for `CombinedOrder` splitting logic.
+
+### 2. Seller Empowerment (Rank 2)
+- **MA-106: Artisan Storytelling**
+    - [ ] Add `story_content`, `artisan_quote`, `gallery_json` to `Shop` table.
+    - [ ] Create `ArtisanProfileController`.
+    - [ ] Build responsive Blade partial for "Our Story" section on Seller pages.
+
+### 3. Customer Engagement (Rank 3)
+- **MA-107: Stock Alerts**
+    - [ ] Create `SubscribedProduct` table for OOS alerts.
+    - [ ] Update `ProductStockService` to fire events on restock.
+    - [ ] Design email template via `Mailable` classes.
+
+---
+
+## 📖 Team Guidelines
+- **Commit Messages:** Must reference Task ID (e.g., `feat(MA-106): add story field to shop model`).
+- **Clean Code:** No `dd()`, no commented-out code, no legacy debug scripts in root.
+- **Progress Tracking:** Mark items as `[/]` for in-progress and `[x]` for completed in this file.
+
+---
+
+*Last Updated by Antigravity AI — 2026-04-08T10:40:00Z*

@@ -60,7 +60,8 @@ class AnalyticsService
             ->select([
                 DB::raw('COUNT(*) as total_visits'),
                 DB::raw('COUNT(DISTINCT session_id) as unique_visitors'),
-                DB::raw('SUM(CASE WHEN is_entry = 1 AND is_exit = 1 THEN 1 ELSE 0 END) as bounces')
+                DB::raw('SUM(CASE WHEN is_entry = 1 AND is_exit = 1 THEN 1 ELSE 0 END) as bounces'),
+                DB::raw('AVG(CASE WHEN time_spent > 0 THEN time_spent ELSE NULL END) as avg_duration')
             ])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->first();
@@ -69,6 +70,7 @@ class AnalyticsService
             'total_visits' => $stats->total_visits,
             'unique_visitors' => $stats->unique_visitors,
             'bounce_rate' => $stats->total_visits > 0 ? round(($stats->bounces / $stats->total_visits) * 100, 2) : 0,
+            'avg_duration_sec' => round($stats->avg_duration ?? 0),
         ];
     }
 
@@ -84,6 +86,7 @@ class AnalyticsService
                 DB::raw('SUM(visits) as total_visits'),
                 DB::raw('SUM(unique_visitors) as unique_visitors'),
                 DB::raw('AVG(bounce_rate) as avg_bounce_rate'),
+                DB::raw('AVG(avg_duration_sec) as avg_duration_sec'),
                 DB::raw('AVG(aov) as avg_aov'),
                 DB::raw('SUM(orders) as total_orders')
             ])->first();
@@ -98,10 +101,10 @@ class AnalyticsService
             'unique_visitors' => (int)$sum->unique_visitors,
             'bounce_rate' => round($sum->avg_bounce_rate ?? 0, 1),
             'revenue' => (float)$sum->total_revenue,
-            'avg_duration_sec' => 0, // Mock fallback since summaries table does not track duration
+            'avg_duration_sec' => round($sum->avg_duration_sec ?? 0),
             'visit_trend' => $trends->pluck('visits')->toArray(),
             'bounce_trend' => $trends->pluck('bounce_rate')->map(fn($v) => (float)$v)->toArray(),
-            'duration_trend' => [], // Fallback since summaries don't track it
+            'duration_trend' => $trends->pluck('avg_duration_sec')->map(fn($v) => (int)$v)->toArray(),
         ];
     }
 
@@ -175,34 +178,37 @@ class AnalyticsService
      */
     public function getHeatmapGrid($url, $startDate, $endDate, $gridSize = 20)
     {
-        $metrics = DB::table('visitor_metrics')
-            ->where('url', $url)
-            ->whereNotNull('click_paths')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->get();
+        $cacheKey = 'heatmap_' . md5($url . $startDate->toDateString() . $endDate->toDateString() . $gridSize);
+        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function() use ($url, $startDate, $endDate, $gridSize) {
+            $metrics = DB::table('visitor_metrics')
+                ->where('url', $url)
+                ->whereNotNull('click_paths')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->get();
 
-        $points = [];
-        foreach ($metrics as $metric) {
-            $paths = is_string($metric->click_paths) ? json_decode($metric->click_paths, true) : $metric->click_paths;
-            if (is_array($paths)) {
-                foreach ($paths as $p) {
-                    if (isset($p['x']) && isset($p['y'])) {
-                        $gridX = round($p['x'] / $gridSize) * $gridSize;
-                        $gridY = round($p['y'] / $gridSize) * $gridSize;
-                        $key = "$gridX,$gridY";
-                        $points[$key] = ($points[$key] ?? 0) + 1;
+            $points = [];
+            foreach ($metrics as $metric) {
+                $paths = is_string($metric->click_paths) ? json_decode($metric->click_paths, true) : $metric->click_paths;
+                if (is_array($paths)) {
+                    foreach ($paths as $p) {
+                        if (isset($p['x']) && isset($p['y'])) {
+                            $gridX = round($p['x'] / $gridSize) * $gridSize;
+                            $gridY = round($p['y'] / $gridSize) * $gridSize;
+                            $key = "$gridX,$gridY";
+                            $points[$key] = ($points[$key] ?? 0) + 1;
+                        }
                     }
                 }
             }
-        }
 
-        $heatmap = [];
-        foreach ($points as $coords => $intensity) {
-            [$x, $y] = explode(',', $coords);
-            $heatmap[] = ['x' => (int)$x, 'y' => (int)$y, 'intensity' => $intensity];
-        }
+            $heatmap = [];
+            foreach ($points as $coords => $intensity) {
+                [$x, $y] = explode(',', $coords);
+                $heatmap[] = ['x' => (int)$x, 'y' => (int)$y, 'intensity' => $intensity];
+            }
 
-        return $heatmap;
+            return $heatmap;
+        });
     }
 
     /**
@@ -246,6 +252,7 @@ class AnalyticsService
                 'visits' => $visitorStats['total_visits'],
                 'unique_visitors' => $visitorStats['unique_visitors'],
                 'bounce_rate' => $visitorStats['bounce_rate'],
+                'avg_duration_sec' => $visitorStats['avg_duration_sec'],
                 'aov' => $aov,
                 'orders' => $orders,
                 'updated_at' => now()

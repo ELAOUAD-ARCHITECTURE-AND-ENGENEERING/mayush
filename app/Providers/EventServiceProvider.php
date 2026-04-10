@@ -21,6 +21,9 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\CriticalSystemError::class => [
             \App\Listeners\SendCriticalErrorNotification::class,
         ],
+        \App\Events\ProductRestockedEvent::class => [
+            \App\Listeners\SendStockAlertNotifications::class,
+        ],
     ];
 
   /**

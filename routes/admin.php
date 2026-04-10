@@ -130,6 +130,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/dashboard/top-brands-products-section', 'top_brands_products_section')->name('dashboard.top_brands_products_section');
     });
 
+    // Task Dashboard
+    Route::get('/task-dashboard', [App\Http\Controllers\Admin\TaskDashboardController::class, 'index'])->name('admin.task_dashboard');
+
     // category
     Route::resource('categories', CategoryController::class)->except('destroy');
     Route::controller(CategoryController::class)->group(function () {
