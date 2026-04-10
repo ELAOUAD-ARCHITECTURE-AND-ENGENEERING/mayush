@@ -83,7 +83,7 @@ jobs:
             sudo sed -i '/^bind /d' "$REDIS_CONF"
             sudo sed -i '/^maxmemory /d' "$REDIS_CONF"
             sudo sed -i '/^maxmemory-policy /d' "$REDIS_CONF"
-            echo -e "\nbind 127.0.0.1\nmaxmemory 512mb\nmaxmemory-policy allkeys-lru\nrequirepass \"$CURRENT_REDIS_PASS\"" | sudo tee -a "$REDIS_CONF" >/dev/null
+            echo -e "\nbind 127.0.0.1\nmaxmemory 512mb\nmaxmemory-policy allkeys-lru\nrequirepass $CURRENT_REDIS_PASS" | sudo tee -a "$REDIS_CONF" >/dev/null
             sudo systemctl restart redis-server || true
             sudo systemctl enable redis-server || true
             echo "  ✔ Redis daemon hardened safely."
@@ -141,6 +141,11 @@ jobs:
             # ── [4/6] Installing PHP dependencies ───────────────────
             echo ""
             echo "▶ [4/6] Installing PHP dependencies..."
+            
+            # CACHE POISONING FIX: Composer triggers post-autoload hooks (like package:discover) which boot Laravel.
+            # If the config cache has poisoned Redis credentials, Composer fails. Clear it FIRST.
+            rm -f /home/mayushdesign/public_html/bootstrap/cache/*.php
+            
             php8.2 $(which composer) install \
               --no-dev \
               --optimize-autoloader \
@@ -151,10 +156,6 @@ jobs:
             # ── [5/6] Laravel Deploy & Cache Clearing ──────────────
             echo ""
             echo "▶ [5/6] Running Laravel deploy & cache clearing..."
-            
-            # CACHE POISONING FIX: If old cached configs have bad Redis passwords, artisan commands crash.
-            # We must aggressively delete the cache files before running optimize.
-            rm -f /home/mayushdesign/public_html/bootstrap/cache/*.php
             
             # Primary cache clear
             php8.2 artisan optimize:clear
