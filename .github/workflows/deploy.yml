@@ -50,8 +50,18 @@ jobs:
                 NEW_REDIS_PASS=$(openssl rand -hex 16)
                 # Overwrite .env rules securely
                 sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=redis/' "$ENV_FILE"
-                sed -i 's/^REDIS_CLIENT=.*/REDIS_CLIENT=phpredis/' "$ENV_FILE" || echo "REDIS_CLIENT=phpredis" >> "$ENV_FILE"
-                sed -i 's/^REDIS_QUEUE_DB=.*/REDIS_QUEUE_DB=1/' "$ENV_FILE" || echo "REDIS_QUEUE_DB=1" >> "$ENV_FILE"
+                
+                if grep -q "^REDIS_CLIENT=" "$ENV_FILE"; then
+                  sed -i 's/^REDIS_CLIENT=.*/REDIS_CLIENT=phpredis/' "$ENV_FILE"
+                else
+                  echo "REDIS_CLIENT=phpredis" >> "$ENV_FILE"
+                fi
+
+                if grep -q "^REDIS_QUEUE_DB=" "$ENV_FILE"; then
+                  sed -i 's/^REDIS_QUEUE_DB=.*/REDIS_QUEUE_DB=1/' "$ENV_FILE"
+                else
+                  echo "REDIS_QUEUE_DB=1" >> "$ENV_FILE"
+                fi
                 
                 # Replace REDIS_PASSWORD exactly
                 if grep -q "^REDIS_PASSWORD=" "$ENV_FILE"; then
@@ -141,6 +151,10 @@ jobs:
             # ── [5/6] Laravel Deploy & Cache Clearing ──────────────
             echo ""
             echo "▶ [5/6] Running Laravel deploy & cache clearing..."
+            
+            # CACHE POISONING FIX: If old cached configs have bad Redis passwords, artisan commands crash.
+            # We must aggressively delete the cache files before running optimize.
+            rm -f /home/mayushdesign/public_html/bootstrap/cache/*.php
             
             # Primary cache clear
             php8.2 artisan optimize:clear
