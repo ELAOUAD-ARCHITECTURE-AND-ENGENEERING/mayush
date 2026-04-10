@@ -74,17 +74,39 @@ jobs:
 
             echo ""
             echo "▶ [4/5] Pre-Flight Redis Connectivity Validation..."
-            # Fail fast if Redis NOAUTH or Connection Refused occurs BEFORE running optimize checks
-            php8.2 artisan tinker --execute="try { Illuminate\Support\Facades\Redis::ping(); } catch (\Exception \$e) { echo 'REDIS_FAIL: ' . \$e->getMessage(); exit(1); } exit(0);"
-            echo "✔ Redis Authenticated successfully!"
+            
+            ENV_FILE="/home/mayushdesign/public_html/.env"
+            
+            REDIS_PASS=$(grep '^REDIS_PASSWORD=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//;s/"$//')
+            REDIS_HOST=$(grep '^REDIS_HOST=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//;s/"$//' || true)
+            REDIS_PORT=$(grep '^REDIS_PORT=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//;s/"$//' || true)
+            
+            REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
+            REDIS_PORT="${REDIS_PORT:-6379}"
+            
+            if [ -z "$REDIS_PASS" ]; then
+              echo "REDIS_FAIL: REDIS_PASSWORD is empty in .env"
+              exit 1
+            fi
+            
+            if ! command -v redis-cli >/dev/null 2>&1; then
+              sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
+              sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq redis-tools
+            fi
+            
+            if ! redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" -a "$REDIS_PASS" ping | grep -q PONG; then
+              echo "REDIS_FAIL: Redis authentication failed for ${REDIS_HOST}:${REDIS_PORT}"
+              exit 1
+            fi
+            
+            echo "✔ Redis connectivity validated successfully"
 
             echo ""
             echo "▶ [5/5] Deploying Application..."
             php8.2 artisan optimize:clear
             php8.2 artisan view:clear
             php8.2 artisan migrate --force
-            
-            # Signal Horizon natively. Do not execute queue:restart.
+            php8.2 artisan queue:restart
             php8.2 artisan horizon:terminate
             
             # Generate manifest directly
