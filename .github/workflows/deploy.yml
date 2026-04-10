@@ -77,9 +77,9 @@ jobs:
             
             ENV_FILE="/home/mayushdesign/public_html/.env"
             
-            REDIS_PASS=$(grep '^REDIS_PASSWORD=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//;s/"$//')
-            REDIS_HOST=$(grep '^REDIS_HOST=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//;s/"$//' || true)
-            REDIS_PORT=$(grep '^REDIS_PORT=' "$ENV_FILE" | cut -d '=' -f2- | sed 's/^"//;s/"$//' || true)
+            REDIS_PASS=$(grep '^REDIS_PASSWORD=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
+            REDIS_HOST=$(grep '^REDIS_HOST=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//' || true)
+            REDIS_PORT=$(grep '^REDIS_PORT=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//' || true)
             
             REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
             REDIS_PORT="${REDIS_PORT:-6379}"
