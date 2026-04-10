@@ -34,9 +34,8 @@ jobs:
             echo "  $(date '+%Y-%m-%d %H:%M:%S')"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-            # ── [2/6] Pull latest code ──────────────────────────────
             echo ""
-            echo "▶ [2/6] Pulling latest code from GitHub..."
+            echo "▶ [1/5] Pulling latest code..."
             cd /home/mayushdesign/public_html
             
             # Record current version for logging
@@ -60,20 +59,12 @@ jobs:
             # Restore safe origin URL
             git remote set-url origin https://github.com/${{ github.repository }}.git
 
-            # ── [3/6] Generating Version Manifest ───────────────────
             echo ""
-            echo "▶ [3/6] Generating Version Manifest..."
-            echo "{\"commit\": \"${{ github.sha }}\", \"short_sha\": \"${POST_DEPLOY_COMMIT}\", \"timestamp\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\", \"branch\": \"${{ github.ref_name }}\"}" > public/version.json
-            echo "✔ public/version.json created"
+            echo "▶ [2/5] Cleaning Poisoned Caches BEFORE Composer..."
+            rm -f bootstrap/cache/*.php
 
-            # ── [4/6] Installing PHP dependencies ───────────────────
             echo ""
-            echo "▶ [4/6] Installing PHP dependencies..."
-            
-            # CACHE POISONING FIX: Composer triggers post-autoload hooks (like package:discover) which boot Laravel.
-            # If the config cache has poisoned Redis credentials, Composer fails. Clear it FIRST.
-            rm -f /home/mayushdesign/public_html/bootstrap/cache/*.php
-            
+            echo "▶ [3/5] Installing Dependencies..."
             php8.2 $(which composer) install \
               --no-dev \
               --optimize-autoloader \
@@ -81,16 +72,23 @@ jobs:
               --prefer-dist
             echo "✔ Composer done"
 
-            # ── [5/6] Laravel Deploy & Cache Clearing ──────────────
             echo ""
-            echo "▶ [5/6] Running Laravel deploy & cache clearing..."
-            
-            # Primary cache clear
+            echo "▶ [4/5] Pre-Flight Redis Connectivity Validation..."
+            # Fail fast if Redis NOAUTH or Connection Refused occurs BEFORE running optimize checks
+            php8.2 artisan tinker --execute="try { Illuminate\Support\Facades\Redis::ping(); } catch (\Exception \$e) { echo 'REDIS_FAIL: ' . \$e->getMessage(); exit(1); } exit(0);"
+            echo "✔ Redis Authenticated successfully!"
+
+            echo ""
+            echo "▶ [5/5] Deploying Application..."
             php8.2 artisan optimize:clear
             php8.2 artisan view:clear
             php8.2 artisan migrate --force
-            php8.2 artisan queue:restart
+            
+            # Signal Horizon natively. Do not execute queue:restart.
             php8.2 artisan horizon:terminate
+            
+            # Generate manifest directly
+            echo "{\"commit\": \"${{ github.sha }}\", \"short_sha\": \"${POST_DEPLOY_COMMIT}\", \"timestamp\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\", \"branch\": \"${{ github.ref_name }}\"}" > public/version.json
             
             # Run the server's specific ENV and cache script
             sudo -E /usr/local/bin/deploy_mayush_env_and_cache.sh
