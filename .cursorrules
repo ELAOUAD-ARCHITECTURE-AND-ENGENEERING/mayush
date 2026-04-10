@@ -51,3 +51,27 @@
 
 **By reading this file, you agree that protecting the user's existing data and application stability is your absolute #1 priority, overriding all other tasks, optimizations, or framework conventions.**
 
+## 10. MANDATORY AI KNOWLEDGE BASE CONSULTATION
+
+A structured knowledge base for AI agents exists at: `additional-files/documentation/ai-knowledge/`\
+
+> **This folder is in `.gitignore` -- NEVER commit or push it to GitHub.**
+> It is a local-only AI agent memory layer, not part of the deployable codebase.
+
+**MANDATORY:** Before executing ANY of the following tasks, you MUST read the relevant Knowledge Item (KI) files:
+
+| Task Type | Read Before Starting |
+|-----------|---------------------|
+| Any deployment or CI/CD change | `KNOWLEDGE_INDEX.md`, `KI-001`, `KI-002` |
+| Any Redis/cache/queue work | `KI-001-redis-deployment.md`, `KI-003-laravel-cache-poisoning.md` |
+| Any `.github/workflows/` edit | `KI-002-github-actions-deploy.md` |
+| Any Supervisor/Horizon work | `KI-005-supervisor-horizon.md` |
+| Any bash script reading `.env` | `KI-004-env-file-parsing.md` |
+| Any error you encounter | Search `ERRORS_REGISTRY.md` by error string FIRST |
+
+**MANDATORY AFTER COMPLETING A TASK:**
+- If you encountered a new error, add it to `ERRORS_REGISTRY.md`
+- If you discovered a new pattern or rule, update the relevant KI file
+- Update the `Last Updated` date in the KI file and `KNOWLEDGE_INDEX.md`
+
+**Why:** This knowledge base captures solved problems so future agents never repeat the same debugging cycles. Every deployment session that is spent solving a known issue is wasted time. The agents that check this system first are the ones that succeed on the first try.

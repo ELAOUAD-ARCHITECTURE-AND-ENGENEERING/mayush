@@ -35,3 +35,6 @@ Homestead.yaml
 /public/uploads/
 /public/all/
 /public/app-translations/
+
+### AI Agent Knowledge Base & Supplementary Files (never push to GitHub) ###
+/additional-files/
