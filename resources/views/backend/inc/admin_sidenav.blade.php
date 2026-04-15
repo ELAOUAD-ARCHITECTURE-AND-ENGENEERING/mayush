@@ -2218,6 +2218,15 @@
                             </a>
                         </li>
                         @endcan
+                        
+                        @can('business_settings')
+                        <!-- Phase 4: Loyalty Configuration -->
+                        <li class="aiz-side-nav-item">
+                            <a href="{{route('admin.loyalty.config')}}" class="aiz-side-nav-link {{ areActiveRoutes(['admin.loyalty.config'])}}">
+                                <span class="aiz-side-nav-text">{{translate('Loyalty Configuration')}}</span>
+                            </a>
+                        </li>
+                        @endcan
                         @can('language_setup')
                         <li class="aiz-side-nav-item">
                             <a href="{{route('languages.index')}}"
