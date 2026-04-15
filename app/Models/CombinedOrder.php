@@ -8,6 +8,8 @@ use App\Traits\PreventDemoModeChanges;
 class CombinedOrder extends Model
 {
     use PreventDemoModeChanges;
+    
+    protected $fillable = ['user_id', 'shipping_address', 'grand_total'];
 
     public function orders(){
     	return $this->hasMany(Order::class);

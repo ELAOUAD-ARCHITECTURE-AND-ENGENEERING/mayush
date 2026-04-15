@@ -27,7 +27,8 @@ class AppServiceProvider extends ServiceProvider
       }
       // \App\Models\Upload::observe(\App\Observers\UploadObserver::class);
       \App\Models\Product::observe(\App\Observers\ProductObserver::class);
-  }
+      \App\Models\ProductStock::observe(\App\Observers\ProductStockObserver::class);
+    }
 
   /**
    * Register any application services.

@@ -12,14 +12,16 @@
         <!-- Image -->
         <a href="{{ $product_url }}" class="d-block h-100 position-relative image-hover-effect">
             <img
-                class="lazyload mx-auto img-fit has-transition product-main-image"
-                src="{{ get_image($product->thumbnail, 'medium') }}"
+                class="lazyload mx-auto img-fit has-transition product-main-image skeleton-shimmer"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                data-src="{{ get_image($product->thumbnail, 'medium') }}"
                 alt="{{ $product->getTranslation('name') }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
             <img
-                class="lazyload mx-auto img-fit has-transition product-hover-image position-absolute"
-                src="{{ get_first_product_image($product->photos, $product->thumbnail, 'medium') }}"
+                class="lazyload mx-auto img-fit has-transition product-hover-image position-absolute skeleton-shimmer"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                data-src="{{ get_first_product_image($product->photos, $product->thumbnail, 'medium') }}"
                 alt="{{ $product->getTranslation('name') }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">

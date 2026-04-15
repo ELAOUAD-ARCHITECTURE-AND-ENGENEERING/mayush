@@ -89,6 +89,9 @@
     @if(get_setting('homepage_select') == 'thecore')
     <link rel="stylesheet" href="{{ static_asset('assets/css/thecore.css') }}">
     @endif
+    
+    <!-- AOS Animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
 
     @if (get_setting('cloudflare_turnstile') == 1)
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -195,6 +198,24 @@
 
         .home-category-banner::after {
             content: "{{ translate('View All') }}";
+        }
+
+        /* Application-wide Skeleton CSS */
+        .skeleton-shimmer {
+            background: #e2e5e7 !important;
+            background: linear-gradient(90deg, #e2e5e7 8%, #f4f6f8 18%, #e2e5e7 33%) !important;
+            background-size: 200% 100% !important;
+            animation: placeholderShimmer 1.5s linear infinite !important;
+            display: block !important;
+        }
+        @keyframes placeholderShimmer {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+        
+        img.lazyloaded.skeleton-shimmer {
+            background: transparent !important;
+            animation: none !important;
         }
     </style>
 
@@ -1359,5 +1380,18 @@
             }
         </script>
     @endif
+
+    <!-- AOS Initialization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        $(document).ready(function() {
+            AOS.init({
+                duration: 1000,
+                once: true,
+                offset: 120,
+                easing: 'ease-out-cubic'
+            });
+        });
+    </script>
 </body>
 </html>

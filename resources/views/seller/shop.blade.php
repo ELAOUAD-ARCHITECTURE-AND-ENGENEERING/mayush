@@ -77,6 +77,60 @@
                         <textarea name="meta_description" rows="3" class="form-control mb-3" required>{{ $shop->meta_description }}</textarea>
                     </div>
                 </div>
+
+                <hr class="mt-2 mb-4">
+                <h6 class="mb-4">{{ translate('Storytelling Profile') }}</h6>
+
+                <div class="row">
+                    <label class="col-md-2 col-form-label">{{ translate('Story Title') }}</label>
+                    <div class="col-md-10">
+                        <input type="text" class="form-control mb-3" placeholder="{{ translate('e.g. Generations of Moroccan Craftsmanship') }}" name="story_title" value="{{ $shop->story_title }}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">{{ translate('Story Hero Image') }}</label>
+                    <div class="col-md-10">
+                        <div class="input-group" data-toggle="aizuploader" data-type="image">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+                            </div>
+                            <div class="form-control file-amount">{{ translate('Choose Image') }}</div>
+                            <input type="hidden" name="hero_media_id" value="{{ $shop->hero_media_id }}" class="selected-files">
+                        </div>
+                        <div class="file-preview box sm">
+                        </div>
+                        <small class="text-muted">{{ translate('High-quality image representing your workshop or artisan journey.') }}</small>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label class="col-md-2 col-form-label">{{ translate('Artisan Story (Short)') }}</label>
+                    <div class="col-md-10">
+                        <textarea name="artisan_story" rows="3" class="form-control mb-3" placeholder="{{ translate('A brief summary of your craft...') }}">{{ $shop->artisan_story }}</textarea>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label class="col-md-2 col-form-label">{{ translate('The Full Story') }}</label>
+                    <div class="col-md-10">
+                        <textarea name="story_content" rows="6" class="form-control mb-3 aiz-text-editor" placeholder="{{ translate('Describe your process, history, and passion in detail...') }}">{{ $shop->story_content }}</textarea>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label class="col-md-2 col-form-label">{{ translate('Brand Philosophy') }}</label>
+                    <div class="col-md-10">
+                        <textarea name="brand_philosophy" rows="3" class="form-control mb-3" placeholder="{{ translate('What values guide your process?') }}">{{ $shop->brand_philosophy }}</textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-md-2 col-form-label">{{ translate('Workshop Video URL (YouTube)') }}</label>
+                    <div class="col-md-10">
+                        <input type="url" class="form-control mb-3" placeholder="{{ translate('e.g. https://www.youtube.com/watch?v=...') }}" name="workshop_video_url" value="{{ $shop->workshop_video_url }}">
+                    </div>
+                </div>
+
                 <div class="form-group mb-0 text-right">
                     <button type="submit" class="btn btn-sm btn-primary">{{translate('Save')}}</button>
                 </div>

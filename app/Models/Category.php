@@ -97,4 +97,22 @@ class Category extends Model
         return $this->hasMany(ProductCategory::class);
     }
 
+    public function descendantIds($ids = [])
+    {
+        foreach ($this->childrenCategories as $child) {
+            $ids[] = $child->id;
+            $ids = $child->descendantIds($ids);
+        }
+        return $ids;
+    }
+
+    public function getTotalProductCountAttribute()
+    {
+        $categoryIds = array_merge([$this->id], $this->descendantIds());
+
+        $directProductIds = \App\Models\Product::whereIn('category_id', $categoryIds)->pluck('id');
+        $pivotProductIds = \DB::table('product_categories')->whereIn('category_id', $categoryIds)->pluck('product_id');
+
+        return $directProductIds->merge($pivotProductIds)->unique()->count();
+    }
 }

@@ -217,6 +217,15 @@ class SellerController extends Controller
         }
         $user->is_intern = $request->has('is_intern') ? 1 : 0;
         if ($user->save()) {
+            if ($request->has('artisan_story')) {
+                $shop->artisan_story = $request->artisan_story;
+            }
+            if ($request->has('brand_philosophy')) {
+                $shop->brand_philosophy = $request->brand_philosophy;
+            }
+            if ($request->has('workshop_video_url')) {
+                $shop->workshop_video_url = $request->workshop_video_url;
+            }
             if ($shop->save()) {
                 flash(translate('Seller has been updated successfully'))->success();
                 return redirect()->route('sellers.index');
@@ -304,6 +313,7 @@ class SellerController extends Controller
         $shop->verification_status = 1;
         $shop->save();
         Cache::forget('verified_sellers_id');
+        Cache::forget('internal_sellers_id');
 
         $users = User::findMany([$shop->user->id]);
         $data = array();
@@ -323,6 +333,7 @@ class SellerController extends Controller
         $shop->verification_info = null;
         $shop->save();
         Cache::forget('verified_sellers_id');
+        Cache::forget('internal_sellers_id');
 
         $users = User::findMany([$shop->user->id]);
         $data = array();
@@ -354,6 +365,7 @@ class SellerController extends Controller
         $shop->verification_status = $request->status;
         $shop->save();
         Cache::forget('verified_sellers_id');
+        Cache::forget('internal_sellers_id');
 
         $status = $request->status == 1 ? 'approved' : 'rejected';
         $users = User::findMany([$shop->user->id]);

@@ -34,6 +34,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('inventory:check-velocity')->daily();
         $schedule->command('inventory:update-affinities --threshold=2')->daily();
         $schedule->command('inventory:prune-affinities --days=30')->daily();
+
+        // Stock alerts for users
+        $schedule->command('stock:send-alerts')->hourly();
     }
 
     /**

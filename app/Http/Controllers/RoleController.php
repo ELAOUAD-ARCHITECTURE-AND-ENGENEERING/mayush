@@ -110,7 +110,6 @@ class RoleController extends Controller
 
         flash(translate('Role has been updated successfully'))->success();
         return back();
-        // return redirect()->route('roles.index');
     }
 
     /**

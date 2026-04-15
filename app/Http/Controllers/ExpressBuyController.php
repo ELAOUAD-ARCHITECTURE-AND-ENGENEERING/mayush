@@ -26,7 +26,7 @@ class ExpressBuyController extends Controller
         if (!PaymentVaultService::isEligible()) {
             return response()->json([
                 'eligible' => false,
-                'reason' => 'no_default_address_or_prior_order'
+                'reason' => 'no_default_address_or_vault_token'
             ]);
         }
 
@@ -37,7 +37,7 @@ class ExpressBuyController extends Controller
             'preferred_payment' => PaymentVaultService::getPreferredPaymentMethod(),
             'default_address' => [
                 'name' => Auth::user()->name,
-                'address' => $address->address . ($address->area ? ', ' . $address->area->name : ''),
+                'address' => $address->address . ($address->area_id && $address->area ? ', ' . $address->area->name : ''),
                 'phone' => $address->phone
             ]
         ]);
@@ -61,10 +61,10 @@ class ExpressBuyController extends Controller
         $shippingAddress = [
             'name' => Auth::user()->name,
             'email' => Auth::user()->email,
-            'address' => $address->address . ($address->area ? ', ' . $address->area->name : ''),
-            'country' => $address->country ? $address->country->name : '',
-            'state' => (get_setting('has_state') == 1 && $address->state) ? $address->state->name : '',
-            'city' => $address->city ? $address->city->name : '',
+            'address' => $address->address . ($address->area_id && $address->area ? ', ' . $address->area->name : ''),
+            'country' => ($address->country_id && $address->country) ? $address->country->name : '',
+            'state' => (get_setting('has_state') == 1 && $address->state_id && $address->state) ? $address->state->name : '',
+            'city' => ($address->city_id && $address->city) ? $address->city->name : '',
             'postal_code' => $address->postal_code,
             'phone' => $address->phone,
             'lat_lang' => ($address->latitude && $address->longitude) ? $address->latitude . ',' . $address->longitude : null
@@ -218,8 +218,15 @@ class ExpressBuyController extends Controller
             EmailUtility::order_email($order, $order->delivery_status);
             NotificationUtility::sendNotification($order, $order->delivery_status);
 
-            // Redirect
             $request->session()->put('combined_order_id', $combined_order->id);
+
+            // CMI Vault execution for express charge
+            $token = PaymentVaultService::getActiveToken(Auth::id());
+            if ($order->payment_type == 'cmi_vault' && $token) {
+                return app(\App\Http\Controllers\Payment\CmiController::class)->expressCharge($combined_order->id, $token);
+            }
+
+            // Redirect for cash on delivery or wallet
             return redirect()->route('order_confirmed');
 
         } catch (\Exception $e) {

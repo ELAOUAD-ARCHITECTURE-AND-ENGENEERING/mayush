@@ -206,14 +206,12 @@ class SearchController extends Controller
             ->whereIn('product_id', $filteredProductIds)
             ->select('product_id', 'category_id');
 
-        $combinedCategories = $mainCategories->union($pivotCategories);
+        $combinedCategories = $mainCategories->union($pivotCategories)->get();
 
-        $productCountsSubCategory = DB::table(DB::raw("({$combinedCategories->toSql()}) as combined"))
-            ->mergeBindings($combinedCategories)
-            ->select('category_id', DB::raw('COUNT(DISTINCT product_id) as count'))
-            ->groupBy('category_id')
-            ->pluck('count', 'category_id');
-
+        $directCategoryProducts = [];
+        foreach ($combinedCategories as $row) {
+            $directCategoryProducts[$row->category_id][] = $row->product_id;
+        }
 
         $allCategories = Category::with('childrenCategories', 'coverImage')
             ->orderBy('order_level', 'desc')
@@ -221,13 +219,13 @@ class SearchController extends Controller
             ->get();
 
         foreach ($allCategories as $category1) {
-            $this->categoryProductCount($category1, $productCountsSubCategory);
+            $this->assignUniqueProductCounts($category1, $directCategoryProducts);
         }
 
         $categories = $allCategories;
         // return $categories;
         
-       $preorder_categories=[];
+        $preorder_categories=[];
        if (addon_is_activated('preorder')) {
             // ################# preorder category start here #################
 
@@ -243,14 +241,12 @@ class SearchController extends Controller
                 ->whereIn('preorder_product_id', $preorder_products_ids)
                 ->select('preorder_product_id as product_id', 'category_id');
 
-            $preorder_combinedCategories = $preorder_mainCategories->union($preorder_pivotCategories);
+            $preorder_combinedCategoriesResults = $preorder_combinedCategories->get();
 
-            $preorder_productCountsSubCategory = DB::table(DB::raw("({$preorder_combinedCategories->toSql()}) as combined"))
-                ->mergeBindings($preorder_combinedCategories)
-                ->select('category_id', DB::raw('COUNT(DISTINCT product_id) as count'))
-                ->groupBy('category_id')
-                ->pluck('count', 'category_id');
-            // return $preorder_productCountsSubCategory;
+            $preorder_directCategoryProducts = $preorder_combinedCategoriesResults->groupBy('category_id')
+                ->map(function ($items) {
+                    return $items->pluck('product_id')->toArray();
+                })->toArray();
 
             $preorder_allCategories = Category::with('childrenCategories', 'coverImage')
                 ->orderBy('order_level', 'desc')
@@ -258,7 +254,7 @@ class SearchController extends Controller
                 ->get();
 
             foreach ($preorder_allCategories as $category1) {
-                $this->categoryProductCount($category1, $preorder_productCountsSubCategory);
+                $this->assignUniqueProductCounts($category1, $preorder_directCategoryProducts);
             }
 
             $preorder_categories = $preorder_allCategories;
@@ -842,5 +838,28 @@ class SearchController extends Controller
         $category->products_count = $totalCount;
 
         return $totalCount;
+    }
+
+    public function assignUniqueProductCounts($category, $directCategoryProducts, $childrenKey = 'childrenCategories')
+    {
+        // Start with own products
+        $productIds = $directCategoryProducts[$category->id] ?? [];
+        
+        if (!empty($category->{$childrenKey})) {
+            foreach ($category->{$childrenKey} as $child) {
+                // Recursively gather product IDs from children
+                $childProductIds = $this->assignUniqueProductCounts($child, $directCategoryProducts, $childrenKey);
+                // Merge them with this category's IDs
+                $productIds = array_merge($productIds, $childProductIds);
+            }
+        }
+        
+        // Remove duplicates to get the TRUE distinct product count for this category and all subcategories
+        $uniqueProductIds = array_unique($productIds);
+        
+        $category->products_count = count($uniqueProductIds);
+        
+        // Return the unique product IDs so parents can use them
+        return $uniqueProductIds;
     }
 }

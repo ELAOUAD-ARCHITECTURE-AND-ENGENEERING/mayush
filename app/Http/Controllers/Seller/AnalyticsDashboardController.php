@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Seller;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\AnalyticsService;
+use App\Services\SellerFinancialService;
 use Carbon\Carbon;
 use Auth;
 use DB;
@@ -12,10 +13,12 @@ use DB;
 class AnalyticsDashboardController extends Controller
 {
     protected $analyticsService;
+    protected $financialService;
 
-    public function __construct(AnalyticsService $analyticsService)
+    public function __construct(AnalyticsService $analyticsService, SellerFinancialService $financialService)
     {
         $this->analyticsService = $analyticsService;
+        $this->financialService = $financialService;
     }
 
     public function index()
@@ -88,6 +91,26 @@ class AnalyticsDashboardController extends Controller
             ->get();
             
         return response()->json($trends);
+    }
+
+    public function financialStats(Request $request)
+    {
+        $dates = $this->getDateRange($request);
+        $summary = $this->financialService->getEarningsSummary(Auth::user()->id, $dates['start'], $dates['end']);
+        return response()->json($summary);
+    }
+
+    public function geoStats(Request $request)
+    {
+        $dates = $this->getDateRange($request);
+        $geo = $this->financialService->getGeoStats(Auth::user()->id, $dates['start'], $dates['end']);
+        return response()->json($geo);
+    }
+
+    public function projectedStats()
+    {
+        $projected = $this->financialService->getProjectedEarnings(Auth::user()->id);
+        return response()->json($projected);
     }
 
     private function getDateRange(Request $request)

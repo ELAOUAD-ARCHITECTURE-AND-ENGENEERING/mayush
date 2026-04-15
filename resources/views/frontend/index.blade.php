@@ -201,18 +201,48 @@
 
 
     <div id="section_featured">
-
+        <section class="mb-4">
+            <div class="container">
+                <div class="px-2 py-4 px-md-4 py-md-3 bg-white shadow-sm rounded">
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                        @for ($i=0; $i<5; $i++)
+                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     {{-- Best Selling  --}}
     <div id="section_best_selling">
-
+        <section class="mb-4">
+            <div class="container">
+                <div class="px-2 py-4 px-md-4 py-md-3 bg-white shadow-sm rounded">
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                        @for ($i=0; $i<5; $i++)
+                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- Auction Product -->
     @if(addon_is_activated('auction'))
         <div id="auction_products">
-
+            <section class="mb-4">
+                <div class="container">
+                    <div class="px-2 py-4 px-md-4 py-md-3 bg-white shadow-sm rounded">
+                        <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                            @for ($i=0; $i<5; $i++)
+                                <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                            @endfor
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     @endif
 
@@ -240,7 +270,17 @@
 
     {{-- Category wise Products --}}
     <div id="section_home_categories">
-
+        <section class="mb-4">
+            <div class="container">
+                <div class="px-2 py-4 px-md-4 py-md-3 bg-white shadow-sm rounded">
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                        @for ($i=0; $i<5; $i++)
+                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     {{-- Classified Product Redesign (Phase 4) --}}
@@ -323,12 +363,20 @@
 
     {{-- Best Seller --}}
     <div id="section_best_sellers">
-
+        <section class="mb-4">
+            <div class="container">
+                <div class="skeleton-shimmer h-150px w-100 rounded"></div>
+            </div>
+        </section>
     </div>
 
     {{-- Elite Artisans --}}
     <div id="load-elite-artisans-section">
-
+        <section class="mb-4">
+            <div class="container text-center">
+                <div class="skeleton-shimmer h-150px w-100 rounded"></div>
+            </div>
+        </section>
     </div>
 
     {{-- Top 10 categories and Brands --}}

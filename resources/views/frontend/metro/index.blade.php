@@ -84,13 +84,37 @@
     @endif
 
     <!-- 4. Today's Deal (Yellow Banner Style) -->
-    <div id="todays_deal_section"></div>
+    <div id="todays_deal_section">
+        <section class="mb-4">
+            <div class="container">
+                <div class="bg-white px-3 py-4 px-md-4 hov-shadow-md has-transition rounded">
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                        @for ($i=0; $i<5; $i++)
+                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <!-- 5. Category Icon Navigation -->
     @include('frontend.metro.partials.category_icon_navigation')
 
     <!-- 6. Featured Products -->
-    <div id="section_featured"></div>
+    <div id="section_featured">
+        <section class="mb-4">
+            <div class="container">
+                <div class="bg-white px-3 py-4 px-md-4 hov-shadow-md has-transition rounded">
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                        @for ($i=0; $i<5; $i++)
+                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <!-- 7. Banner Level 1 -->
     @include('frontend.metro.partials.banner_section', ['banner_key' => 'home_banner1'])
@@ -102,23 +126,65 @@
     @include('frontend.metro.partials.banner_section', ['banner_key' => 'home_banner2'])
 
     <!-- 10. Best Selling -->
-    <div id="section_best_selling"></div>
+    <div id="section_best_selling">
+        <section class="mb-4">
+            <div class="container">
+                <div class="bg-white px-3 py-4 px-md-4 hov-shadow-md has-transition rounded">
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                        @for ($i=0; $i<5; $i++)
+                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <!-- 11. New Products -->
-    <div id="section_newest"></div>
+    <div id="section_newest">
+        <section class="mb-4">
+            <div class="container">
+                <div class="bg-white px-3 py-4 px-md-4 hov-shadow-md has-transition rounded">
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                        @for ($i=0; $i<5; $i++)
+                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <!-- 12. Banner Level 3 -->
     @include('frontend.metro.partials.banner_section', ['banner_key' => 'home_banner3'])
 
     <!-- 13. Category Wise Products -->
-    <div id="section_home_categories"></div>
+    <div id="section_home_categories">
+        <section class="mb-4">
+            <div class="container">
+                <div class="bg-white px-3 py-4 px-md-4 hov-shadow-md has-transition rounded">
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                        @for ($i=0; $i<5; $i++)
+                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <!-- 15. Marketplace Banner -->
     @include('frontend.metro.partials.marketplace_banner')
 
     <!-- 16. Top Sellers -->
     @if (get_setting('vendor_system_activation') == 1)
-        <div id="section_best_sellers"></div>
+        <div id="section_best_sellers">
+            <section class="mb-4 text-center">
+                <div class="container">
+                    <div class="skeleton-shimmer h-150px w-100 rounded"></div>
+                </div>
+            </section>
+        </div>
     @endif
 
     <!-- 17. Top Brands -->

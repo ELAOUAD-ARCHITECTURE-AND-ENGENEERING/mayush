@@ -9,7 +9,20 @@ class Address extends Model
 {
     use PreventDemoModeChanges;
 
-    protected $fillable = ['set_default'];
+    protected $fillable = [
+        'user_id',
+        'address',
+        'country_id',
+        'state_id',
+        'city_id',
+        'postal_code',
+        'area_id',
+        'phone',
+        'set_default',
+        'set_billing',
+        'longitude',
+        'latitude'
+    ];
 
     public function user()
     {

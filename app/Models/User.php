@@ -181,4 +181,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Preorder::class);
     }
+
+    public function payment_tokens()
+    {
+        return $this->hasMany(PaymentToken::class);
+    }
 }

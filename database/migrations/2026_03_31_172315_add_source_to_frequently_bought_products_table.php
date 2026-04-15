@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('frequently_bought_products', function (Blueprint $table) {
-            if (!Schema::hasColumn('frequently_bought_products', 'source')) {
-                $table->string('source')->default('manual')->after('category_id'); // 'manual' or 'automated'
-            }
-            if (!Schema::hasColumn('frequently_bought_products', 'affinity_score')) {
-                $table->float('affinity_score')->nullable()->after('source');
-            }
-        });
+        if (\Illuminate\Support\Facades\Schema::hasTable('frequently_bought_products')) {
+            Schema::table('frequently_bought_products', function (Blueprint $table) {
+                if (!Schema::hasColumn('frequently_bought_products', 'source')) {
+                    $table->string('source')->default('manual')->after('category_id'); // 'manual' or 'automated'
+                }
+                if (!Schema::hasColumn('frequently_bought_products', 'affinity_score')) {
+                    $table->float('affinity_score')->nullable()->after('source');
+                }
+            });
+        }
     }
 
     /**

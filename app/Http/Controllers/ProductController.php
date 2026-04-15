@@ -206,7 +206,16 @@ class ProductController extends Controller
             if (in_array('all-publish', $filters)) {
                 $products->where('published', 1);
             }
+            if (in_array('show-unpublished', $filters)) {
+                // Only show unpublished non-draft products
+                $products->where('published', 0);
+            }
         }
+        // No default published filter — admin backend shows all products by default.
+        // Use 'all-publish' to restrict to published, or 'show-unpublished' to see only hidden products.
+
+        $show_unpublished = in_array('show-unpublished', $filters);
+
         if ( $request->filled('brand_id')) {
             $products = $products->where('brand_id', $request->brand_id);
         } 
@@ -220,7 +229,7 @@ class ProductController extends Controller
         $type = $request->seller_type;
 
         $view = view('backend.product.products.products_table',
-            compact('products', 'type', 'col_name', 'query', 'sort_search')
+            compact('products', 'type', 'col_name', 'query', 'sort_search', 'show_unpublished')
         )->render();
 
         return response()->json(['html' => $view]);

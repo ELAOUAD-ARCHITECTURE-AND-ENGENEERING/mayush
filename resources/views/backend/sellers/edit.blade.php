@@ -43,6 +43,29 @@
                         </label>
                     </div>
                 </div>
+                
+                <hr>
+                <h6 class="mb-4">{{ translate('Storytelling Profile') }}</h6>
+                
+                <div class="form-group row">
+                    <label class="col-sm-3 col-from-label">{{translate('Artisan Story')}}</label>
+                    <div class="col-sm-9">
+                        <textarea name="artisan_story" class="form-control" rows="4">{{ $shop->artisan_story }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-from-label">{{translate('Brand Philosophy')}}</label>
+                    <div class="col-sm-9">
+                        <textarea name="brand_philosophy" class="form-control" rows="3">{{ $shop->brand_philosophy }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-from-label">{{translate('Workshop Video URL (YouTube)')}}</label>
+                    <div class="col-sm-9">
+                        <input type="url" name="workshop_video_url" class="form-control" value="{{ $shop->workshop_video_url }}">
+                    </div>
+                </div>
+
                 <div class="form-group mb-0 text-right">
                     <button type="submit" class="btn btn-primary">{{translate('Save')}}</button>
                 </div>

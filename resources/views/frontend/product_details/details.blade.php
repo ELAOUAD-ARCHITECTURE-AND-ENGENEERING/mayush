@@ -613,13 +613,63 @@
                                 class="add-to-cart text-blue border-0 rounded-1 fs-14 fw-bold bg-soft-blue hov-bg-blue hov-text-white py-20px px-20px d-block w-100 mb-2 mb-md-0">{{translate('Add to Cart')}} <span id="add_to_cart_count">(01)</span></button>
                         @else
                             {{-- Show out of stock message when stock is 0 --}}
-                            <div class="out-of-stock text-center w-100 py-20px px-20px border-2 rounded-2 bg-soft-danger text-danger fw-bold fs-16">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="15" y1="9" x2="9" y2="15"></line>
-                                    <line x1="9" y1="9" x2="15" y2="15"></line>
-                                </svg>
-                                {{ translate('Out of Stock') }}
+                            <div class="out-of-stock w-100 mb-2">
+                                <div class="text-center w-100 py-20px px-20px border-2 rounded-2 bg-soft-danger text-danger fw-bold fs-16 mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                                    </svg>
+                                    {{ translate('Out of Stock') }}
+                                </div>
+                                <form action="{{ route('stock.alert.subscribe') }}" method="POST" class="w-100 mt-2 stock-alert-form">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $detailedProduct->id }}">
+                                    @if(Auth::check())
+                                        <button type="submit" class="btn btn-outline-warning w-100 py-15px rounded-1 fs-14 fw-bold stock-alert-submit">
+                                            <i class="las la-bell" style="font-size: 1.2rem;"></i> {{ translate('Notify me when back in stock') }}
+                                        </button>
+                                    @else
+                                        <button type="button" onclick="showLoginModal()" class="btn btn-outline-warning w-100 py-15px rounded-1 fs-14 fw-bold">
+                                            <i class="las la-bell" style="font-size: 1.2rem;"></i> {{ translate('Notify me when back in stock') }}
+                                        </button>
+                                    @endif
+                                </form>
+                                <script>
+                                    $(document).on('submit', '.stock-alert-form', function(e) {
+                                        e.preventDefault();
+                                        let $form = $(this);
+                                        let $btn = $form.find('.stock-alert-submit');
+                                        let originalHtml = $btn.html();
+                                        
+                                        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ' + '{{ translate("Subscribing...") }}');
+
+                                        $.ajax({
+                                            url: $form.attr('action'),
+                                            type: 'POST',
+                                            data: $form.serialize(),
+                                            success: function(response) {
+                                                if (response.status === 'success') {
+                                                    AIZ.plugins.notify('success', response.message);
+                                                    $btn.removeClass('btn-outline-warning').addClass('btn-success').html('<i class="las la-check"></i> ' + '{{ translate("Subscribed") }}');
+                                                } else {
+                                                    AIZ.plugins.notify('info', response.message);
+                                                    $btn.prop('disabled', false).html(originalHtml);
+                                                }
+                                            },
+                                            error: function(xhr) {
+                                                let message = '{{ translate("Something went wrong. Please try again.") }}';
+                                                if (xhr.status === 401) {
+                                                    showLoginModal();
+                                                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                                    message = xhr.responseJSON.message;
+                                                }
+                                                AIZ.plugins.notify('danger', message);
+                                                $btn.prop('disabled', false).html(originalHtml);
+                                            }
+                                        });
+                                    });
+                                </script>
                             </div>
                         @endif
                     </div>

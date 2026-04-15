@@ -193,6 +193,20 @@
                 </li>
                 @endif
 
+                <!-- Saved Cards (Payment Vault) -->
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('payment.tokens') }}"
+                        class="aiz-side-nav-link {{ areActiveRoutes(['payment.tokens']) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                            <g fill="#b5b5bf">
+                                <path d="M14,2H2A2,2,0,0,0,0,4v8a2,2,0,0,0,2,2H14a2,2,0,0,0,2-2V4A2,2,0,0,0,14,2M1,6H15v2H1ZM2,3H14a1,1,0,0,1,1,1V5H1V4A1,1,0,0,1,2,3m12,10H2a1,1,0,0,1-1-1V9H15v3A1,1,0,0,1,14,13"/>
+                                <rect x="2" y="10" width="4" height="1" rx="0.5"/>
+                            </g>
+                        </svg>
+                        <span class="aiz-side-nav-text ml-3">{{ translate('Saved Cards') }}</span>
+                    </a>
+                </li>
+
                 <!-- Classified Products -->
                 {{-- 
                 @if (get_setting('classified_product') == 1)
@@ -315,6 +329,19 @@
                         </a>
                     </li>
                 @endif
+
+                <!-- Phase 4: Loyalty Lounge -->
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('loyalty.hub') }}"
+                        class="aiz-side-nav-link {{ areActiveRoutes(['loyalty.hub']) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                            <g fill="#b5b5bf">
+                                <path d="M8,0 L10.5,5.5 L16,6.5 L12,10.5 L13,16 L8,13 L3,16 L4,10.5 L0,6.5 L5.5,5.5 Z M8,2.5 L6.2,6.2 L2.2,6.9 L5.1,9.8 L4.4,13.8 L8,11.8 L11.6,13.8 L10.9,9.8 L13.8,6.9 L9.8,6.2 Z"/>
+                            </g>
+                        </svg>
+                        <span class="aiz-side-nav-text ml-3">{{ translate('Loyalty Lounge') }}</span>
+                    </a>
+                </li>
 
                 <!-- Affiliate -->
                 @if (addon_is_activated('affiliate_system') &&

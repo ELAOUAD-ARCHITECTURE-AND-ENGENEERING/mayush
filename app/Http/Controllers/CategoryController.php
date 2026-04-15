@@ -366,7 +366,7 @@ class CategoryController extends Controller
 
     public function categories_details($id)
     {
-        $category = Category::withCount('productCategories')->findOrFail($id);
+        $category = Category::findOrFail($id);
         return view('backend.product.categories.details', compact('category'));
     }
 

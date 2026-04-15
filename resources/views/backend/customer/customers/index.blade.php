@@ -68,6 +68,7 @@
                         <th data-breakpoints="lg">{{translate('Email Address')}}</th>
                         <th data-breakpoints="lg">{{translate('Phone')}}</th>
                         <th data-breakpoints="lg">{{translate('Package')}}</th>
+                        <th data-breakpoints="lg">{{translate('Loyalty Tier')}}</th>
                         <th data-breakpoints="lg">{{translate('Wallet Balance')}}</th>
                         <th data-breakpoints="lg">{{translate('Verification Status')}}</th>
                         <th class="text-right">{{translate('Options')}}</th>
@@ -102,6 +103,15 @@
                                     @if ($user->customer_package != null)
                                         {{$user->customer_package->getTranslation('name')}}
                                     @endif
+                                </td>
+                                <td>
+                                    @php
+                                        $tierLvl = ($user->customer_package && isset($user->customer_package->tier_level)) ? $user->customer_package->tier_level : 0;
+                                        $tierMeta = \App\Services\LoyaltyService::getTierMeta($tierLvl);
+                                    @endphp
+                                    <span class="badge" style="background:{{ $tierMeta['color'] }}20; color:{{ $tierMeta['color'] }}; border: 1px solid {{ $tierMeta['color'] }}40; padding: 4px 10px; border-radius: 20px; font-weight: 600;">
+                                        {{ $tierMeta['icon'] }} {{ $tierMeta['label'] }}
+                                    </span>
                                 </td>
                                 <td>{{single_price($user->balance)}}</td>
                                 <td>

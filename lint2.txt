@@ -1,1 +1,0 @@
-No syntax errors detected in c:/xampp/htdocs/mayush/app/Http/Controllers/HomeController.php

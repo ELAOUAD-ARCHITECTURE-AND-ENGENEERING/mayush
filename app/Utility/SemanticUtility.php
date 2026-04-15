@@ -9,18 +9,13 @@ class SemanticUtility
 {
     /**
      * Generate an embedding vector for the given text.
-     * Currently a shell/mock - should be replaced with OpenAI/Gemini API call.
      */
     public static function generateEmbedding($text)
     {
         $apiKey = config('services.gemini.key');
         if (empty($apiKey)) {
-            // Development fallback mock if key missing
-            $vector = [];
-            for ($i = 0; $i < 32; $i++) {
-                $vector[] = (float)rand() / (float)getrandmax();
-            }
-            return $vector;
+            Log::error("Gemini API Key missing in configuration.");
+            return [];
         }
 
         try {
@@ -37,12 +32,15 @@ class SemanticUtility
             ]);
 
             if ($response->successful()) {
-                return $response->json('embedding.values') ?? [];
+                $values = $response->json('embedding.values');
+                if (is_array($values) && count($values) === 768) {
+                    return $values;
+                }
             }
             
-            \Illuminate\Support\Facades\Log::error("Gemini API Error: " . $response->body());
+            Log::error("Gemini API Error: " . ($response->json('error.message') ?? $response->body()));
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Gemini Request Failed: " . $e->getMessage());
+            Log::error("Gemini Request Failed: " . $e->getMessage());
         }
 
         return [];
@@ -62,7 +60,7 @@ class SemanticUtility
             $text .= strip_tags($model->description ?? '') . ". ";
         }
         
-        if (isset($model->tags)) {
+        if (!empty($model->tags)) {
             $text .= "Tags: " . $model->tags;
         }
 
@@ -73,11 +71,23 @@ class SemanticUtility
     /**
      * Stores or updates the embedding for a given model.
      */
-    public static function syncEmbedding($model)
+    public static function syncEmbedding($model, $force = false)
     {
         try {
             $content = self::extractText($model);
+            $hash = hash('sha256', $content);
+
+            // Check if existing embedding is still valid (same content)
+            $existing = SemanticEmbedding::where('embeddable_type', get_class($model))
+                ->where('embeddable_id', $model->id)
+                ->first();
+
+            if (!$force && $existing && $existing->content_hash === $hash) {
+                return true; // No changes needed
+            }
+
             $vector = self::generateEmbedding($content);
+            if (empty($vector)) return false;
             
             SemanticEmbedding::updateOrCreate(
                 [
@@ -87,6 +97,7 @@ class SemanticUtility
                 [
                     'vector' => json_encode($vector),
                     'content' => $content,
+                    'content_hash' => $hash,
                     'metadata' => json_encode(['last_updated' => now()->toDateTimeString()])
                 ]
             );
@@ -105,23 +116,27 @@ class SemanticUtility
     {
         try {
             $queryVector = self::generateEmbedding($query);
-            $embeddings = SemanticEmbedding::all();
-            
+            if (empty($queryVector)) return [];
+
             $results = [];
-            foreach ($embeddings as $embedding) {
-                $vector = json_decode($embedding->vector, true);
-                if (!$vector) continue;
-                
-                $score = self::calculateSimilarity($queryVector, $vector);
-                
-                // Only include results with a decent similarity (tuned for real 768-dim Gemini embeddings)
-                if ($score > 0.65) {
-                    $results[] = [
-                        'score' => $score,
-                        'model' => $embedding->embeddable,
-                    ];
+            
+            // Process in chunks of 500 to maintain low memory profile
+            SemanticEmbedding::chunk(500, function($embeddings) use ($queryVector, &$results) {
+                foreach ($embeddings as $embedding) {
+                    $vector = json_decode($embedding->vector, true);
+                    if (!$vector) continue;
+                    
+                    $score = self::calculateSimilarity($queryVector, $vector);
+                    
+                    // Similarity threshold for Gemini 768-dim embeddings
+                    if ($score > 0.68) {
+                        $results[] = [
+                            'score' => $score,
+                            'model' => $embedding->embeddable,
+                        ];
+                    }
                 }
-            }
+            });
             
             // Sort by score descending
             usort($results, fn($a, $b) => $b['score'] <=> $a['score']);

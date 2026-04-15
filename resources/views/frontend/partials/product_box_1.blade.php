@@ -11,8 +11,8 @@
         @endphp
         <a href="{{ $product_url }}" class="d-block text-center py-1">
             <img
-                class="product-img-fit width-img lazyload mx-auto h-140px h-md-210px"
-                src="{{ static_asset('assets/img/placeholder.jpg') }}"
+                class="product-img-fit width-img lazyload mx-auto h-140px h-md-210px skeleton-shimmer"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                 data-src="{{ uploaded_asset($product->thumbnail_img, 'medium') }}"
                 alt="{{  $product->getTranslation('name')  }}"
                 loading="lazy"
@@ -50,9 +50,24 @@
             <a href="{{ $product_url }}" class="d-block text-reset">{{  $product->getTranslation('name')  }}</a>
         </h3>
         @if (addon_is_activated('club_point'))
-            <div class="rounded px-2 mt-2 bg-soft-primary border-soft-primary border">
-                {{ translate('Club Point') }}:
-                <span class="fw-700 float-right">{{ $product->earn_point }}</span>
+            @php
+                $loyaltyPts = $product->earn_point;
+                $ptsEquivalent = '';
+                try {
+                    $loyaltySvc = app(\App\Services\LoyaltyService::class);
+                    $loyaltyPts = $loyaltySvc->getPotentialPoints($product, auth()->user());
+                    $moneyVal = $loyaltySvc->pointsToMonetaryValue($loyaltyPts);
+                    if ($moneyVal > 0) {
+                        $ptsEquivalent = ' (' . single_price($moneyVal) . ')';
+                    }
+                } catch (\Exception $e) {}
+            @endphp
+            <div class="rounded px-2 mt-2 bg-soft-primary border-soft-primary border d-flex justify-content-between align-items-center">
+                <span class="fs-11">
+                    <i class="las la-star text-warning"></i>
+                    {{ translate('Earn') }} <span class="fw-700">{{ $loyaltyPts }}</span> {{ translate('pts') }}
+                    <span class="text-muted fs-10">{{ $ptsEquivalent }}</span>
+                </span>
             </div>
         @endif
     </div>

@@ -38,7 +38,6 @@ class PaymentVaultService
             return null;
         }
 
-        // Return the mocked token method
         if (self::hasVaultedToken(Auth::id())) {
             return 'cmi_vault';
         }
@@ -47,18 +46,68 @@ class PaymentVaultService
     }
 
     /**
-     * Mock sandbox method checking for tokenized CMI card.
-     * In production, this will query a PaymentVault token table.
+     * Check if the user has an active vaulted token.
      */
-    public static function hasVaultedToken($userId)
+    public static function hasVaultedToken($userId): bool
     {
-        // SANDBOX MOCK: We simulate a vault token existing if they have any past paid order.
-        // This unblocks the CMI Sandbox testing flow without storing PCI data locally.
-        $lastOrder = Order::where('user_id', $userId)
-            ->where('payment_status', 'paid')
-            ->latest()
-            ->first();
+        return \App\Models\PaymentToken::where('user_id', $userId)
+            ->where('gateway', 'cmi')
+            ->where('is_active', true)
+            ->exists();
+    }
 
-        return ($lastOrder !== null);
+    /**
+     * Get the active default token. If no default, get the latest.
+     */
+    public static function getActiveToken($userId)
+    {
+        return \App\Models\PaymentToken::where('user_id', $userId)
+            ->where('gateway', 'cmi')
+            ->where('is_active', true)
+            ->where('is_default', true)
+            ->first()
+            ?? \App\Models\PaymentToken::where('user_id', $userId)
+                ->where('gateway', 'cmi')
+                ->where('is_active', true)
+                ->latest()
+                ->first();
+    }
+
+    /**
+     * Store a new token from the CMI callback.
+     */
+    public static function storeToken(int $userId, array $cmiCallbackData)
+    {
+        // Require a valid TransId
+        if (empty($cmiCallbackData['TransId'])) {
+            return null;
+        }
+
+        // Unset old defaults for this user
+        \App\Models\PaymentToken::where('user_id', $userId)
+            ->where('gateway', 'cmi')
+            ->update(['is_default' => false]);
+
+        $token = new \App\Models\PaymentToken();
+        $token->user_id = $userId;
+        $token->gateway = 'cmi';
+        $token->token = $cmiCallbackData['TransId'];
+
+        if (!empty($cmiCallbackData['MaskedPan'])) {
+            // Usually format: 411111****1111 -> take last 4
+            $token->card_last_four = substr($cmiCallbackData['MaskedPan'], -4);
+            
+            // Derive brand simple logic (4=Visa, 5=Mastercard, etc)
+            $firstChar = substr($cmiCallbackData['MaskedPan'], 0, 1);
+            if ($firstChar === '4') $token->card_brand = 'Visa';
+            elseif ($firstChar === '5') $token->card_brand = 'Mastercard';
+            else $token->card_brand = 'Card';
+        }
+
+        $token->is_default = true;
+        $token->is_active = true;
+        $token->save();
+
+        return $token;
     }
 }

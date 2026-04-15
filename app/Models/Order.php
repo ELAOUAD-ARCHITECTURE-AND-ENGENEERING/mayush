@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Order extends Model
 {
     use PreventDemoModeChanges, HasFactory;
+
+    protected $fillable = [
+        'combined_order_id', 'user_id', 'seller_id', 'shipping_address', 'billing_address',
+        'payment_type', 'payment_status', 'grand_total', 'code', 'date'
+    ];
     public function orderDetails()
     {
         return $this->hasMany(OrderDetail::class);

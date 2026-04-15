@@ -287,9 +287,17 @@ class CmiController extends Controller
                                 $subOrder->payment_status = 'paid';
                                 $subOrder->payment_details = $payment_details;
                                 $subOrder->save();
-                                
-                                // Specific checkout_done logic is usually in success() but we update status here
                             }
+
+                            // Capture CMI Vault Token
+                            if (isset($input['TransId'])) {
+                                $userId = $order->user_id ?? ($order->orders->first()->user_id ?? null);
+                                if ($userId) {
+                                    \App\Services\PaymentVaultService::storeToken($userId, $input);
+                                    Log::info('CMI Vault: Token stored for user', ['transId' => $input['TransId']]);
+                                }
+                            }
+
                         } elseif ($type == 'OR' && $order instanceof Order) {
                             $order->payment_status = 'paid';
                             $order->payment_details = $payment_details;
@@ -505,5 +513,78 @@ class CmiController extends Controller
         $str = preg_replace('#&[^;]+;#', '', $str);
         $str = preg_replace('/[^a-zA-Z0-9_ -]/s','',$str);
         return trim($str);
+    }
+
+    /**
+     * Express Charge (Reference transaction) using a stored TransId Token
+     */
+    public function expressCharge($combinedOrderId, $tokenObj)
+    {
+        try {
+            $combined_order = CombinedOrder::findOrFail($combinedOrderId);
+            $amount = round($combined_order->grand_total, 2);
+            $oid = 'CO-' . $combined_order->id . '-' . time();
+            $user = Auth::user();
+
+            $clientId = config('cmi.merchant_id');
+            $storeKey = config('cmi.secret_key');
+            $storeType = config('cmi.store_type');
+            
+            $dbClientId = BusinessSetting::where('type', 'cmi_client_id')->first();
+            if($dbClientId && $dbClientId->value) $clientId = $dbClientId->value;
+            
+            $dbStoreKey = BusinessSetting::where('type', 'cmi_store_key')->first();
+            if($dbStoreKey && $dbStoreKey->value) $storeKey = $dbStoreKey->value;
+
+            $data = [];
+            $data['clientid'] = $clientId;
+            $data['amount'] = $amount;
+            $data['oid'] = $oid;
+            $data['TranType'] = "PreAuth";
+            $data['isRecurring'] = "true";
+            $data['recurringTrxnRef'] = $tokenObj->token;
+            $data['currency'] = "504";
+            $data['rnd'] = microtime();
+            $data['storetype'] = $storeType;
+            $data['hashAlgorithm'] = "ver3";
+            $data['lang'] = Session::get('locale', 'fr');
+            $data['encoding'] = "UTF-8";
+            $address = Address::where('user_id', $user->id)->where('set_default', 1)->first();
+            
+            $data['email'] = $user->email ?? 'email@domain.com';
+            $data['tel'] = $this->str_without_accents($user->phone ?? '0000000000');
+            $data['BillToName'] = $this->str_without_accents($user->name ?: 'Customer');
+            if ($address) {
+                $data['BillToStreet1'] = $this->str_without_accents($address->address);
+                $data['BillToCity'] = $this->str_without_accents($address->city ? $address->city->name : '');
+                $data['BillToStateProv'] = $this->str_without_accents($address->state ? $address->state->name : '');
+                $data['BillToPostalCode'] = $this->str_without_accents($address->postal_code);
+                $data['BillToCountry'] = $this->str_without_accents($address->country ? $address->country->name : '504');
+            }
+            
+            $data['okUrl'] = config('cmi.ok_url') ?: route('cmi.success');
+            $data['failUrl'] = config('cmi.fail_url') ?: route('cmi.fail');
+            $data['callbackUrl'] = config('cmi.callback_url') ?: route('cmi.callback');
+
+            $data['hash'] = $this->generateHash($data, $storeKey);
+            
+            $actionUrl = config('cmi.gateway_url');
+
+            // Redirect the user to CMI gateway with the recurringTrxnRef populated.
+            // For Reference transactions, CMI will bypass card entry and process it.
+            return view('frontend.payment.cmi', compact('data', 'actionUrl'));
+
+        } catch (\Exception $e) {
+            Log::error('CMI Express Charge Error: ' . $e->getMessage());
+            $combined_order = CombinedOrder::find($combinedOrderId);
+            if ($combined_order) {
+                foreach ($combined_order->orders as $subOrder) {
+                    $subOrder->delete();
+                }
+                $combined_order->delete();
+            }
+            Session::flash('error', translate('Failed to process Express Buy setup.'));
+            return redirect()->route('home');
+        }
     }
 }

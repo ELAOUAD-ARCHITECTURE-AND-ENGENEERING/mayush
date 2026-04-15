@@ -28,6 +28,8 @@ use App\Http\Controllers\VisualSearchController;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\ProductDetailsController;
+use App\Http\Controllers\FrontendShopController;
 
 use App\Http\Controllers\Payment\AamarpayController;
 use App\Http\Controllers\Payment\AuthorizenetController;
@@ -139,24 +141,31 @@ Route::controller(HomeController::class)->group(function () {
     Route::post('/category/nav-element-list', 'get_category_items')->name('category.elements');
 
     //Flash Deal Details Page
-    Route::get('/flash-deals', 'all_flash_deals')->name('flash-deals');
-    Route::get('/flash-deals-grid', 'flash_deals_grid')->name('flash-deals-grid'); // AJAX only – returns product grid HTML
-    Route::get('/flash-deal/{slug}', 'flash_deal_details')->name('flash-deal-details');
-    Route::get('/flash-deal-details-grid/{slug}', 'flash_deal_details_grid')->name('flash-deal-details-grid'); // AJAX only
+    Route::controller(ProductDetailsController::class)->group(function () {
+        Route::get('/flash-deals', 'all_flash_deals')->name('flash-deals');
+        Route::get('/flash-deals-grid', 'flash_deals_grid')->name('flash-deals-grid'); // AJAX only – returns product grid HTML
+        Route::get('/flash-deal/{slug}', 'flash_deal_details')->name('flash-deal-details');
+        Route::get('/flash-deal-details-grid/{slug}', 'flash_deal_details_grid')->name('flash-deal-details-grid'); // AJAX only
 
-    Route::get('/product/{slug}', 'product')->name('product');
-    Route::post('/product/variant_price', 'variant_price')->name('products.variant_price');
-    Route::get('/shop/{slug}', 'shop')->name('shop.visit');
-    Route::get('/shop/{slug}/{type}', 'filter_shop')->name('shop.visit.type');
+        Route::get('/product/{slug}', 'product')->name('product');
+        Route::post('/product/variant_price', 'variant_price')->name('products.variant_price');
+        Route::get('/todays-deal', 'todays_deal')->name('todays-deal');
+        Route::get('/best-selling', 'best_selling')->name('best-selling');
+        Route::get('/featured-products', 'featured_products')->name('featured-products');
+        Route::get('/track-your-order', 'trackOrder')->name('orders.track');
+        Route::get('/product-reviews', 'product_reviews')->name('product.reviews');
+    });
+
+    Route::controller(FrontendShopController::class)->group(function () {
+        Route::get('/shop/{slug}', 'shop')->name('shop.visit');
+        Route::get('/shop/{slug}/{type}', 'filter_shop')->name('shop.visit.type');
+        Route::get('/sellers', 'all_seller')->name('sellers');
+    });
 
     Route::get('/customer-packages', 'premium_package_index')->name('customer_packages_list_show');
 
     Route::get('/brands', 'all_brands')->name('brands.all');
-    Route::get('/todays-deal', 'todays_deal')->name('todays-deal');
-    Route::get('/best-selling', 'best_selling')->name('best-selling');
-    Route::get('/featured-products', 'featured_products')->name('featured-products');
     Route::get('/categories', 'all_categories')->name('categories.all');
-    Route::get('/sellers', 'all_seller')->name('sellers');
     Route::get('/coupons', 'all_coupons')->name('coupons.all');
     Route::get('/inhouse', 'inhouse_products')->name('inhouse.all');
 
@@ -168,7 +177,7 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/terms', 'terms')->name('terms');
     Route::get('/privacy-policy', 'privacypolicy')->name('privacypolicy');
 
-    Route::get('/track-your-order', 'trackOrder')->name('orders.track');
+    Route::get('/privacy-policy', 'privacypolicy')->name('privacypolicy');
 });
 
 // Language Switch
@@ -366,6 +375,9 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/express-buy/check', [ExpressBuyController::class, 'eligibility'])->name('express.check');
     Route::post('/express-buy/{product_id}', [ExpressBuyController::class, 'submit'])->name('express.buy');
 
+    // Stock Alert
+    Route::post('/stock-alert/subscribe', [App\Http\Controllers\StockAlertController::class, 'subscribe'])->name('stock.alert.subscribe');
+
     // Reviews
     Route::resource('/reviews', ReviewController::class);
     
@@ -390,6 +402,17 @@ Route::group(['middleware' => ['auth']], function() {
         Route::get('/addresses/set_default/{id}', 'set_default')->name('addresses.set_default');
         Route::get('/addresses/set_billing/{id}', 'set_billing')->name('addresses.set_billing');
     });
+
+    // Payment Tokens (Vault)
+    Route::controller(\App\Http\Controllers\PaymentTokenController::class)->group(function () {
+        Route::get('/payment-methods', 'index')->name('payment.tokens');
+        Route::get('/payment-methods/{token}/default', 'setDefault')->name('payment.token.default');
+        Route::get('/payment-methods/{token}/remove', 'destroy')->name('payment.token.remove');
+    });
+
+    // Phase 4: Customer Loyalty Hub
+    Route::get('/loyalty', [\App\Http\Controllers\LoyaltyController::class, 'hub'])->name('loyalty.hub');
+
 });
 
 Route::resource('shops', ShopController::class);

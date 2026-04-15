@@ -14,6 +14,7 @@ class XssProtectionTest extends TestCase
     /** @test */
     public function product_names_are_escaped_in_views()
     {
+        $this->withoutExceptionHandling();
         $xss_payload = "<script>alert('xss')</script>";
         $product = Product::factory()->create(['name' => $xss_payload, 'published' => 1, 'approved' => 1]);
 

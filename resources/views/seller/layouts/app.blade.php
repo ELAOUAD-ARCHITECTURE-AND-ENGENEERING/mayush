@@ -47,6 +47,19 @@
             z-index: 100000;
         }
 
+        /* Application-wide Skeleton CSS */
+        .skeleton-shimmer {
+            background: #e2e5e7 !important;
+            background: linear-gradient(90deg, #e2e5e7 8%, #f4f6f8 18%, #e2e5e7 33%) !important;
+            background-size: 200% 100% !important;
+            animation: placeholderShimmer 1.5s linear infinite !important;
+            display: block !important;
+        }
+        @keyframes placeholderShimmer {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+
     </style>
 	<script>
     	var AIZ = AIZ || {};

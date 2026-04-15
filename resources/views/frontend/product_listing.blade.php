@@ -393,8 +393,42 @@
                                 </div>
                             </div>
                         @endif
-                        <!-- Breadcrumb -->
-                        <ul class="breadcrumb mb-0 bg-transparent py-0 px-0 mt-2 d-flex align-items-center">
+                         <!-- Breadcrumb -->
+                         <style>
+                            .aiz-ai-search-btn {
+                                background: #f0f2f5;
+                                color: #67308f;
+                                border: 2px solid #67308f;
+                                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                                position: relative;
+                                overflow: hidden;
+                            }
+                            .aiz-ai-search-btn:hover {
+                                background: #67308f;
+                                color: #fff;
+                                transform: translateY(-2px);
+                                box-shadow: 0 5px 15px rgba(103, 48, 143, 0.3);
+                            }
+                            .aiz-ai-search-btn.active {
+                                background: linear-gradient(135deg, #67308f 0%, #a259ff 100%);
+                                color: #fff;
+                                border-color: transparent;
+                                box-shadow: 0 5px 20px rgba(103, 48, 143, 0.5);
+                                transform: scale(1.05);
+                            }
+                            .aiz-ai-search-btn i {
+                                transition: all 0.3s ease;
+                            }
+                            .aiz-ai-search-btn.active i {
+                                animation: sparkle 1.5s infinite;
+                            }
+                            @keyframes sparkle {
+                                0% { transform: scale(1) rotate(0deg); opacity: 1; }
+                                50% { transform: scale(1.3) rotate(15deg); opacity: 0.8; }
+                                100% { transform: scale(1) rotate(0deg); opacity: 1; }
+                            }
+                         </style>
+                         <ul class="breadcrumb mb-0 bg-transparent py-0 px-0 mt-2 d-flex align-items-center">
                             <li class=" has-transition opacity-50 hov-opacity-100">
                                 <a class="text-reset" href="{{ route('home') }}">{{ translate('Home') }}</a>
                             </li>
@@ -441,21 +475,36 @@
                         <div class="text-left mb-3">
                             <div class="row gutters-5 flex-wrap align-items-center">
                                 <div class="col-lg col-10">
-                                    <h1 class="fs-18 fs-md-20 fw-700 text-dark line-height_0_7">
-                                        @if (isset($category_id))
-                                            {{-- {{ $category_search->getTranslation('name') }} --}}
-                                            {{ translate('Showing results') }}
-                                        @elseif(isset($query))
-                                            {{ translate('Search result for ') }} "{{ $query }}"
-                                        @else
-                                            {{ translate('Showing results') }}
+                                    <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                                        <h1 class="fs-18 fs-md-20 fw-700 text-dark mb-0">
+                                            @if (isset($category_id))
+                                                {{ translate('Showing results') }}
+                                            @elseif(isset($query))
+                                                {{ translate('Search result for ') }} "{{ $query }}"
+                                            @else
+                                                {{ translate('Showing results') }}
+                                            @endif
+                                        </h1>
+                                        
+                                        @if(!empty($query))
+                                        <div class="ai-toggle-wrap mt-2 mt-md-0">
+                                            <button type="button" id="ai-mode-toggle" 
+                                                class="btn btn-sm aiz-ai-search-btn rounded-pill px-3 fw-700 h-35px d-flex align-items-center gap-2" 
+                                                onclick="toggleAiMode(this)"
+                                                data-toggle="tooltip"
+                                                title="{{ translate('AI Semantic Search understands concepts, not just keywords.') }}">
+                                                <i class="las la-magic fs-16"></i>
+                                                <span>{{ translate('AI Mode') }}</span>
+                                            </button>
+                                        </div>
                                         @endif
-                                    </h1>
-                                    <div class="fs-12 display-none" id="search_product_count"><span class="fw-bold"
-                                            id="total_product_count">{{ $products->total() }}</span><span
-                                            class="product-name-color "> Products Found</span></div>
-                                    <div class="display-none fs-12 product-name-color" id="searching_product">searching..
                                     </div>
+
+                                    <div class="fs-12 mt-1 @if(!isset($products) || $products->total() == 0) d-none @endif" id="search_product_count">
+                                        <span class="fw-bold" id="total_product_count">{{ $products->total() }}</span>
+                                        <span class="product-name-color">{{ translate('Products Found') }}</span>
+                                    </div>
+                                    <div class="d-none fs-12 product-name-color mt-1" id="searching_product">{{ translate('AI is analyzing your request...') }}</div>
                                     <input type="hidden" name="keyword" value="{{ $query }}">
                                 </div>
                                 <div class="col-2 col-lg-auto d-xl-none mb-lg-3 text-right">
@@ -613,9 +662,32 @@
             filter_data();
         }
 
+        function toggleAiMode(btn) {
+            $(btn).toggleClass('active');
+            filter_data();
+        }
+
         function filter_data(page = 1) {
             $("#search_product_count").hide();
             $("#searching_product").show();
+
+            // SKELETON LOADER INJECTION
+            let skeletonHtml = '';
+            for (let i = 0; i < 8; i++) {
+                skeletonHtml += `
+                <div class="col border-right border-bottom p-3">
+                    <div class="skeleton-shimmer h-200px w-100 mb-2 rounded"></div>
+                    <div class="skeleton-shimmer h-15px w-75 mb-2 rounded"></div>
+                    <div class="skeleton-shimmer h-15px w-50 mb-3 rounded"></div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="skeleton-shimmer h-20px w-40px rounded"></div>
+                        <div class="skeleton-shimmer h-30px w-30px rounded-circle"></div>
+                    </div>
+                </div>`;
+            }
+            $('#products-row').html(skeletonHtml);
+            $('#pagination').html('');
+
             var formData = $('#search-form').serialize();
             var searchMode = $('#ai-mode-toggle').length ? ($('#ai-mode-toggle').hasClass('active') ? 'ai' : 'standard') : 'standard';
             formData += '&page=' + page + '&mode=' + searchMode;

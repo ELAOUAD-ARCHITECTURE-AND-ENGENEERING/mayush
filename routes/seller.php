@@ -46,6 +46,9 @@ Route::group(['namespace' => 'App\Http\Controllers\Seller', 'prefix' => 'seller'
         Route::get('/funnel', [AnalyticsDashboardController::class, 'funnel'])->name('funnel');
         Route::get('/top-products', [AnalyticsDashboardController::class, 'topProducts'])->name('top_products');
         Route::get('/revenue-trend', [AnalyticsDashboardController::class, 'revenueTrend'])->name('revenue_trend');
+        Route::get('/financial', [AnalyticsDashboardController::class, 'financialStats'])->name('financial');
+        Route::get('/geo', [AnalyticsDashboardController::class, 'geoStats'])->name('geo');
+        Route::get('/projected', [AnalyticsDashboardController::class, 'projectedStats'])->name('projected');
     });
 
     // Product

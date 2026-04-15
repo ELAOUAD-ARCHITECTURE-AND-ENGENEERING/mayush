@@ -8,13 +8,15 @@ class CreateCategoryTranslationsTable extends Migration
 {
     public function up()
     {
-        Schema::create('category_translations', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('category_id');
-            $table->string('name');
-            $table->string('lang');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('category_translations')) {
+            Schema::create('category_translations', function (Blueprint $table) {
+                $table->increments('id');
+                $table->integer('category_id');
+                $table->string('name');
+                $table->string('lang');
+                $table->timestamps();
+            });
+        }
     }
 
     public function down()

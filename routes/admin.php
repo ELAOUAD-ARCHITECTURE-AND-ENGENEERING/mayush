@@ -591,6 +591,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         // Route::get('/customer_packages/destroy/{id}', 'destroy')->name('customer_packages.destroy');
     });
 
+    // Phase 4: Loyalty Configuration
+    Route::controller(\App\Http\Controllers\LoyaltyController::class)->group(function () {
+        Route::get('/loyalty-config', 'adminConfig')->name('admin.loyalty.config');
+        Route::post('/loyalty-config/update', 'adminConfigUpdate')->name('admin.loyalty.config.update');
+    });
+
     //Classified Products
     Route::controller(CustomerProductController::class)->group(function () {
         Route::get('/classified_products', 'customer_product_index')->name('classified_products');
