@@ -137,7 +137,7 @@ class VerificationController extends Controller
             flash(translate('Sorry, we could not verifiy you. Please try again'))->error();
         }
 
-        if($user->user_type == 'seller') {
+        if($user != null && $user->user_type == 'seller') {
             return redirect()->route('seller.dashboard');
         }
 
