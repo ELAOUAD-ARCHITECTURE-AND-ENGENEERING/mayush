@@ -33,7 +33,7 @@ class PointManagementController extends Controller
         $brands = Brand::all();
         $templates = PointTemplate::where('status', 1)->get();
 
-        $query = Product::with('category')->where('added_by', 'admin');
+        $query = Product::with('categories')->where('added_by', 'admin');
 
         // Advanced Filtering
         if ($request->has('category_id') && $request->category_id != null) {
