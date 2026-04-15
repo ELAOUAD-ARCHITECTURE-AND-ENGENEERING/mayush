@@ -2226,6 +2226,13 @@
                                 <span class="aiz-side-nav-text">{{translate('Loyalty Configuration')}}</span>
                             </a>
                         </li>
+                        
+                        <!-- Phase 5: Loyalty Points Management -->
+                        <li class="aiz-side-nav-item">
+                            <a href="{{route('admin.loyalty.points.dashboard')}}" class="aiz-side-nav-link {{ areActiveRoutes(['admin.loyalty.points.dashboard', 'admin.loyalty.points.templates', 'admin.loyalty.points.history'])}}">
+                                <span class="aiz-side-nav-text">{{translate('Loyalty Points Admin')}}</span>
+                            </a>
+                        </li>
                         @endcan
                         @can('language_setup')
                         <li class="aiz-side-nav-item">

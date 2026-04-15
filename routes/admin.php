@@ -597,6 +597,22 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/loyalty-config/update', 'adminConfigUpdate')->name('admin.loyalty.config.update');
     });
 
+    // Phase 5: Loyalty Points Management
+    Route::controller(\App\Http\Controllers\Backend\PointManagementController::class)->group(function () {
+        Route::get('/loyalty-points', 'dashboard')->name('admin.loyalty.points.dashboard');
+        Route::post('/loyalty-points/bulk', 'bulkAssign')->name('admin.loyalty.points.bulk');
+        
+        Route::get('/loyalty-points/templates', 'templates')->name('admin.loyalty.points.templates');
+        Route::post('/loyalty-points/templates', 'storeTemplate')->name('admin.loyalty.points.templates.store');
+        Route::get('/loyalty-points/templates/delete/{id}', 'destroyTemplate')->name('admin.loyalty.points.templates.destroy');
+        
+        Route::get('/loyalty-points/history', 'history')->name('admin.loyalty.points.history');
+        Route::post('/loyalty-points/rollback/{id}', 'rollback')->name('admin.loyalty.points.rollback');
+        
+        Route::get('/loyalty-points/export', 'csvExport')->name('admin.loyalty.points.export');
+        Route::post('/loyalty-points/import', 'csvImport')->name('admin.loyalty.points.import');
+    });
+
     //Classified Products
     Route::controller(CustomerProductController::class)->group(function () {
         Route::get('/classified_products', 'customer_product_index')->name('classified_products');
