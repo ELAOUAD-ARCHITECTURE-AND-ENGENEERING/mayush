@@ -32,15 +32,15 @@ class OnesstaShippingServiceProvider extends ServiceProvider
 
         $this->app->singleton(OnesstaClient::class, function ($app) {
             return new OnesstaClient(
-                config('onessta.base_url'),
-                config('onessta.auth.token'),
-                config('onessta.auth.api_key'),
-                config('onessta.auth.client_id'),
-                config('onessta.http.timeout', 30),
-                config('onessta.http.connect_timeout', 10),
-                config('onessta.http.retry_times', 3),
-                config('onessta.http.retry_sleep_ms', 500),
-                config('onessta.http.retry_codes', [408, 502, 503, 504])
+                (string) config('onessta.base_url', 'https://api.onessta.com/api/v1'),
+                (string) config('onessta.auth.token', ''),
+                (string) config('onessta.auth.api_key', ''),
+                (string) config('onessta.auth.client_id', ''),
+                (int) config('onessta.http.timeout', 30),
+                (int) config('onessta.http.connect_timeout', 10),
+                (int) config('onessta.http.retry_times', 3),
+                (int) config('onessta.http.retry_sleep_ms', 500),
+                (array) config('onessta.http.retry_codes', [408, 502, 503, 504])
             );
         });
 

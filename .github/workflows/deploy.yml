@@ -17,6 +17,14 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ONESSTA_ENABLED: ${{ secrets.ONESSTA_ENABLED }}
+          ONESSTA_BASE_URL: ${{ secrets.ONESSTA_BASE_URL }}
+          ONESSTA_TOKEN: ${{ secrets.ONESSTA_TOKEN }}
+          ONESSTA_API_KEY: ${{ secrets.ONESSTA_API_KEY }}
+          ONESSTA_CLIENT_ID: ${{ secrets.ONESSTA_CLIENT_ID }}
+          ONESSTA_WEBHOOK_SECRET: ${{ secrets.ONESSTA_WEBHOOK_SECRET }}
+          ONESSTA_WEBHOOK_API_KEY: ${{ secrets.ONESSTA_WEBHOOK_API_KEY }}
+          ONESSTA_WEBHOOK_CALLBACKURL: ${{ secrets.ONESSTA_WEBHOOK_CALLBACKURL }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
@@ -25,7 +33,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           request_pty: true
           script_stop: false
-          envs: DEPLOY_DB_PASSWORD,DEPLOY_DB_USER,GITHUB_TOKEN
+          envs: DEPLOY_DB_PASSWORD,DEPLOY_DB_USER,GITHUB_TOKEN,ONESSTA_ENABLED,ONESSTA_BASE_URL,ONESSTA_TOKEN,ONESSTA_API_KEY,ONESSTA_CLIENT_ID,ONESSTA_WEBHOOK_SECRET,ONESSTA_WEBHOOK_API_KEY,ONESSTA_WEBHOOK_CALLBACKURL
           script: |
             set -euo pipefail
             
@@ -60,11 +68,34 @@ jobs:
             git remote set-url origin https://github.com/${{ github.repository }}.git
 
             echo ""
-            echo "▶ [2/5] Cleaning Poisoned Caches BEFORE Composer..."
+            echo "▶ [2/5] Injecting ONESSTA Environment Variables..."
+            ENV_FILE="/home/mayushdesign/public_html/.env"
+            
+            # Ensure .env exists
+            [ -f "$ENV_FILE" ] || (echo ".env missing on server" && exit 1)
+
+            # Remove old ONESSTA keys if they exist
+            sed -i "/^ONESSTA_ENABLED=/d" "$ENV_FILE"
+            sed -i "/^ONESSTA_BASE_URL=/d" "$ENV_FILE"
+            sed -i "/^ONESSTA_TOKEN=/d" "$ENV_FILE"
+            sed -i "/^ONESSTA_API_KEY=/d" "$ENV_FILE"
+            sed -i "/^ONESSTA_CLIENT_ID=/d" "$ENV_FILE"
+            sed -i "/^ONESSTA_WEBHOOK_SECRET=/d" "$ENV_FILE"
+            sed -i "/^ONESSTA_WEBHOOK_API_KEY=/d" "$ENV_FILE"
+            sed -i "/^ONESSTA_WEBHOOK_CALLBACKURL=/d" "$ENV_FILE"
+
+            # Inject the secrets into .env
+            printf "\nONESSTA_ENABLED=%s\nONESSTA_BASE_URL=%s\nONESSTA_TOKEN=%s\nONESSTA_API_KEY=%s\nONESSTA_CLIENT_ID=%s\nONESSTA_WEBHOOK_SECRET=%s\nONESSTA_WEBHOOK_API_KEY=%s\nONESSTA_WEBHOOK_CALLBACKURL=%s\n" \
+              "$ONESSTA_ENABLED" "$ONESSTA_BASE_URL" "$ONESSTA_TOKEN" "$ONESSTA_API_KEY" "$ONESSTA_CLIENT_ID" "$ONESSTA_WEBHOOK_SECRET" "$ONESSTA_WEBHOOK_API_KEY" "$ONESSTA_WEBHOOK_CALLBACKURL" >> "$ENV_FILE"
+            
+            echo "✔ Environment Variables Injected"
+
+            echo ""
+            echo "▶ [3/5] Cleaning Poisoned Caches BEFORE Composer..."
             rm -f bootstrap/cache/*.php
 
             echo ""
-            echo "▶ [3/5] Installing Dependencies..."
+            echo "▶ [4/5] Installing Dependencies..."
             php8.2 $(which composer) install \
               --no-dev \
               --optimize-autoloader \
