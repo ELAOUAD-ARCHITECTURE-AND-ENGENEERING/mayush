@@ -18,7 +18,11 @@ return new class extends Migration
         // Add dimension_unit to product_stocks
         if (!Schema::hasColumn('product_stocks', 'dimension_unit')) {
             Schema::table('product_stocks', function (Blueprint $table) {
-                $table->string('dimension_unit')->nullable()->default('cm')->after('height');
+                if (Schema::hasColumn('product_stocks', 'height')) {
+                    $table->string('dimension_unit')->nullable()->default('cm')->after('height');
+                } else {
+                    $table->string('dimension_unit')->nullable()->default('cm');
+                }
             });
         }
 
