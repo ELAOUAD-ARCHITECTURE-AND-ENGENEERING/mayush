@@ -678,6 +678,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         // Route::get('/cities/edit/{id}', 'edit')->name('cities.edit');
         // Route::get('/cities/destroy/{id}', 'destroy')->name('cities.destroy');
         Route::post('/cities/status', 'updateStatus')->name('cities.status');
+        Route::post('/bulk-city-delete', 'bulk_destroy')->name('bulk-city-delete');
+        Route::post('/bulk-city-update', 'bulk_update')->name('bulk-city-update');
     });
 
     Route::view('/system/update', 'backend.system.update')->name('system_update');

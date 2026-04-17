@@ -170,4 +170,32 @@ class CityController extends Controller
         $cities = City::where('country_id', $request->country_id)->where('status', 1)->get(['id', 'name']);
         return response()->json($cities);
     }
+
+    public function bulk_destroy(Request $request)
+    {
+        if ($request->id && count($request->id) > 0) {
+            foreach ($request->id as $id) {
+                $city = City::findOrFail($id);
+                $city->city_translations()->delete();
+                City::destroy($id);
+            }
+            return 1;
+        }
+        return 0;
+    }
+
+    public function bulk_update(Request $request)
+    {
+        if ($request->ids && count($request->ids) > 0) {
+            foreach ($request->ids as $key => $id) {
+                $city = City::findOrFail($id);
+                $city->cost = $request->costs[$key];
+                $city->save();
+            }
+            flash(translate('Cities updated successfully'))->success();
+            return back();
+        }
+        flash(translate('No cities selected'))->error();
+        return back();
+    }
 }

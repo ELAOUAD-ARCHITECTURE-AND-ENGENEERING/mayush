@@ -11,86 +11,131 @@
     <div class="row">
         <div class="col-md-7">
             <div class="card">
-                <form class="" id="sort_cities" action="" method="GET">
-                    <div class="card-header row gutters-5">
-                        <div class="col text-center text-md-left">
-                            <h5 class="mb-md-0 h6">{{ translate('Cities') }}</h5>
+                <div class="card-header row gutters-5">
+                    <div class="col text-center text-md-left">
+                        <h5 class="mb-md-0 h6">{{ translate('Cities') }}</h5>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="dropdown">
+                            <button class="btn border dropdown-toggle border-light text-secondary fs-14 fw-400 w-100" type="button" data-toggle="dropdown">
+                                {{ translate('Bulk Action') }}
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item text-danger fs-14 fw-500 hov-bg-light hov-text-blue" href="javascript:void(0)" onclick="bulkDelete()">
+                                    {{ translate('Delete Selected') }}
+                                </a>
+                            </div>
                         </div>
-                        <div class="col-md-4">
+                    </div>
+
+                    <div class="col-md-3">
+                        <form class="" id="sort_cities" action="" method="GET">
                             <input type="text" class="form-control" id="sort_city" name="sort_city" @isset($sort_city) value="{{ $sort_city }}" @endisset placeholder="{{ translate('Type city name & Enter') }}">
-                        </div>
-                        @if (get_setting('has_state') == 1)
-                        <div class="col-md-4">
-                            <select class="form-control aiz-selectpicker" data-live-search="true" id="sort_state" name="sort_state">
+                        </form>
+                    </div>
+
+                    @if (get_setting('has_state') == 1)
+                    <div class="col-md-3">
+                        <form action="" method="GET">
+                            <select class="form-control aiz-selectpicker" data-live-search="true" id="sort_state" name="sort_state" onchange="this.form.submit()">
                                 <option value="">{{ translate('Select State') }}</option>
                                 @foreach ($states as $state)
-                                    <option value="{{ $state->id }}" @if ($sort_state == $state->id) selected @endif {{$sort_state}}>
+                                    <option value="{{ $state->id }}" @if ($sort_state == $state->id) selected @endif>
                                         {{ $state->name }}
                                     </option>
                                 @endforeach
                             </select>
-                        </div>
-                        @else
-                        <div class="col-md-4">
-                            <select class="form-control aiz-selectpicker" data-live-search="true" id="sort_country" name="sort_country">
+                        </form>
+                    </div>
+                    @else
+                    <div class="col-md-3">
+                        <form action="" method="GET">
+                            <select class="form-control aiz-selectpicker" data-live-search="true" id="sort_country" name="sort_country" onchange="this.form.submit()">
                                 <option value="">{{ translate('Select Country') }}</option>
                                 @foreach ($countries as $country)
-                                    <option value="{{ $country->id }}" @if ($sort_country == $country->id) selected @endif {{$sort_country}}>
+                                    <option value="{{ $country->id }}" @if ($sort_country == $country->id) selected @endif>
                                         {{ $country->name }}
                                     </option>
                                 @endforeach
                             </select>
-                        </div>
-                        @endif
-
-                        <div class="col-md-1">
-                            <button class="btn btn-primary" type="submit">{{ translate('Filter') }}</button>
-                        </div>
+                        </form>
                     </div>
-                </form>
+                    @endif
+                </div>
                 <div class="card-body">
-                    <table class="table aiz-table mb-0">
-                        <thead>
-                            <tr>
-                                <th data-breakpoints="lg">#</th>
-                                <th>{{translate('Name')}}</th>
-                                @if (get_setting('has_state') == 1)
-                                <th>{{translate('State')}}</th>
-                                @endif
-                                <th>{{translate('Country')}}</th>
-                                <th>{{translate('Area Wise Shipping Cost')}}</th>
-                                <th>{{translate('Show/Hide')}}</th>
-                                <th data-breakpoints="lg" class="text-right">{{translate('Options')}}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($cities as $key => $city)
+                    <form action="{{ route('bulk-city-update') }}" method="POST" id="bulk-city-update-form">
+                        @csrf
+                        <table class="table aiz-table mb-0">
+                            <thead>
                                 <tr>
-                                    <td>{{ ($key+1) + ($cities->currentPage() - 1) * $cities->perPage() }}</td>
-                                    <td>{{ $city->getTranslation('name') }}</td>
-                                    @if (get_setting('has_state') == 1)
-                                    <td>{{ $city->state->name ?? ''}}</td>
-                                    @endif
-                                    <td>{{ $city->country->name ?? '' }}</td>
-                                    <td>{{ single_price($city->cost) }}</td>
-                                    <td>
-                                        <label class="aiz-switch aiz-switch-success mb-0">
-                                          <input onchange="triggerConfirmation(this)" value="{{ $city->id }}" type="checkbox" <?php if($city->status == 1) echo "checked";?> >
-                                          <span class="slider round"></span>
+                                    <th class="w-40px">
+                                        <label class="aiz-checkbox mb-0">
+                                            <input type="checkbox" class="check-all">
+                                            <span class="aiz-square-check"></span>
                                         </label>
-                                      </td>
-                                    <td class="text-right">
-                                        <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{ route('cities.edit', ['city'=>$city->id, 'lang'=>env('DEFAULT_LANGUAGE')]) }}" title="{{ translate('Edit') }}">
-                                            <i class="las la-edit"></i>
-                                        </a>
-                                        <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('cities.destroy', $city->id)}}" title="{{ translate('Delete') }}">
-                                            <i class="las la-trash"></i>
-                                        </a>
-                                    </td>
+                                    </th>
+                                    <th data-breakpoints="lg">#</th>
+                                    <th>{{translate('Name')}}</th>
+                                    @if (get_setting('has_state') == 1)
+                                    <th>{{translate('State')}}</th>
+                                    @endif
+                                    <th>{{translate('Country')}}</th>
+                                    <th width="200">{{translate('Shipping Cost')}}</th>
+                                    <th>{{translate('Show/Hide')}}</th>
+                                    <th data-breakpoints="lg" class="text-right">{{translate('Options')}}</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach($cities as $key => $city)
+                                    <tr>
+                                        <td>
+                                            <label class="aiz-checkbox mb-0">
+                                                <input type="checkbox" class="check-one" name="id[]" value="{{ $city->id }}">
+                                                <span class="aiz-square-check"></span>
+                                            </label>
+                                            <input type="hidden" name="ids[]" value="{{ $city->id }}">
+                                        </td>
+                                        <td>{{ ($key+1) + ($cities->currentPage() - 1) * $cities->perPage() }}</td>
+                                        <td>{{ $city->getTranslation('name') }}</td>
+                                        @if (get_setting('has_state') == 1)
+                                        <td>{{ $city->state->name ?? ''}}</td>
+                                        @endif
+                                        <td>{{ $city->country->name ?? '' }}</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <input type="number" step="0.01" class="form-control h-auto city-cost-input" name="costs[]" value="{{ $city->cost }}" placeholder="0.00">
+                                                @if($loop->first)
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-soft-primary btn-sm btn-icon h-auto" type="button" onclick="applyToAllCosts(this)" title="{{ translate('Apply to all visible') }}">
+                                                            <i class="las la-sync"></i>
+                                                        </button>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label class="aiz-switch aiz-switch-success mb-0">
+                                              <input onchange="triggerConfirmation(this)" value="{{ $city->id }}" type="checkbox" <?php if($city->status == 1) echo "checked";?> >
+                                              <span class="slider round"></span>
+                                            </label>
+                                          </td>
+                                        <td class="text-right">
+                                            <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{ route('cities.edit', ['city'=>$city->id, 'lang'=>env('DEFAULT_LANGUAGE')]) }}" title="{{ translate('Edit') }}">
+                                                <i class="las la-edit"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('cities.destroy', $city->id)}}" title="{{ translate('Delete') }}">
+                                                <i class="las la-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <div class="card-footer px-0 text-right">
+                            <button type="submit" class="btn btn-primary">{{ translate('Save All Changes') }}</button>
+                        </div>
+                    </form>
                     <div class="aiz-pagination">
                         {{ $cities->appends(request()->input())->links() }}
                     </div>
@@ -225,5 +270,51 @@
             });
         }
 
+        $(document).on("change", ".check-all", function() {
+            if(this.checked) {
+                $('.check-one:checkbox').each(function() {
+                    this.checked = true;
+                });
+            } else {
+                $('.check-one:checkbox').each(function() {
+                    this.checked = false;
+                });
+            }
+        });
+
+        function applyToAllCosts(el) {
+            var val = $(el).closest('.input-group').find('.city-cost-input').val();
+            $('.city-cost-input').val(val);
+            AIZ.plugins.notify('info', '{{ translate('Applied to all visible cities') }}');
+        }
+
+        function bulkDelete() {
+            if ($('.check-one:checked').length == 0) {
+                AIZ.plugins.notify('danger', '{{ translate('Please select at least one item') }}');
+                return;
+            }
+            $('#delete-modal').modal('show');
+            $('#delete-modal .btn-primary').parent().attr('onclick', 'confirmBulkDelete()');
+            // AIZ.plugins.notify('info', 'Confirmation required');
+        }
+
+        function confirmBulkDelete() {
+            var ids = [];
+            $('.check-one:checked').each(function() {
+                ids.push($(this).val());
+            });
+
+            $.post('{{ route('bulk-city-delete') }}', {
+                _token: '{{ csrf_token() }}',
+                id: ids
+            }, function(data) {
+                if (data == 1) {
+                    AIZ.plugins.notify('success', '{{ translate('Selected items deleted successfully') }}');
+                    location.reload();
+                } else {
+                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
+                }
+            });
+        }
     </script>
 @endsection
