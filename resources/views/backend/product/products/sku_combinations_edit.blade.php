@@ -15,6 +15,12 @@
                 {{translate('Quantity')}}
             </td>
             <td class="text-center" data-breakpoints="lg">
+                {{translate('Dimensions (L x W x H)')}}
+            </td>
+            <td class="text-center" data-breakpoints="lg">
+                {{translate('Unit')}}
+            </td>
+            <td class="text-center" data-breakpoints="lg">
                 {{translate('Photo')}}
             </td>
         </tr>
@@ -46,11 +52,8 @@
                             $sku .='-'.str_replace(' ', '', $item);
                         }
                     }
-                    $stock = $product->stocks->where('variant', $str)->first();
-                    // if($stock != null) {
-                    //     $variation_available = true;
-                    // }
                 }
+                $stock = $product->stocks->where('variant', $str)->first();
             @endphp
             @if(strlen($str) > 0)
             <tr class="variant">
@@ -91,6 +94,25 @@
                                 echo '10';
                             }
                            @endphp" min="0" step="1" class="form-control" required>
+                </td>
+                <td>
+                    <div class="row gutters-5">
+                        <div class="col">
+                            <input type="number" lang="en" name="length_{{ $str }}" value="{{ $stock->length ?? 0 }}" min="0" step="0.01" class="form-control" placeholder="{{ translate('L') }}">
+                        </div>
+                        <div class="col">
+                            <input type="number" lang="en" name="width_{{ $str }}" value="{{ $stock->width ?? 0 }}" min="0" step="0.01" class="form-control" placeholder="{{ translate('W') }}">
+                        </div>
+                        <div class="col">
+                            <input type="number" lang="en" name="height_{{ $str }}" value="{{ $stock->height ?? 0 }}" min="0" step="0.01" class="form-control" placeholder="{{ translate('H') }}">
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <select name="unit_{{ $str }}" class="form-control aiz-selectpicker">
+                        <option value="cm" @selected(($stock->dimension_unit ?? 'cm') == 'cm')>cm</option>
+                        <option value="inch" @selected(($stock->dimension_unit ?? 'cm') == 'inch')>inch</option>
+                    </select>
                 </td>
                 <td>
                     <div class="input-group" data-toggle="aizuploader" data-type="image">

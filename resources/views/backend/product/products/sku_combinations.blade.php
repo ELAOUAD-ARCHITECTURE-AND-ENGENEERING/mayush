@@ -15,6 +15,12 @@
 				{{translate('Quantity')}}
 			</td>
 			<td class="text-center" data-breakpoints="lg">
+				{{translate('Dimensions (L x W x H)')}}
+			</td>
+			<td class="text-center" data-breakpoints="lg">
+				{{translate('Unit')}}
+			</td>
+			<td class="text-center" data-breakpoints="lg">
 				{{translate('Photo')}}
 			</td>
 		</tr>
@@ -59,6 +65,25 @@
 				</td>
 				<td>
 					<input type="number" lang="en" name="qty_{{ $str }}" value="10" min="0" step="1" class="form-control" required>
+				</td>
+				<td>
+					<div class="row gutters-5">
+						<div class="col">
+							<input type="number" lang="en" name="length_{{ $str }}" value="0" min="0" step="0.01" class="form-control" placeholder="{{ translate('L') }}">
+						</div>
+						<div class="col">
+							<input type="number" lang="en" name="width_{{ $str }}" value="0" min="0" step="0.01" class="form-control" placeholder="{{ translate('W') }}">
+						</div>
+						<div class="col">
+							<input type="number" lang="en" name="height_{{ $str }}" value="0" min="0" step="0.01" class="form-control" placeholder="{{ translate('H') }}">
+						</div>
+					</div>
+				</td>
+				<td>
+					<select name="unit_{{ $str }}" class="form-control aiz-selectpicker">
+						<option value="cm">cm</option>
+						<option value="inch">inch</option>
+					</select>
 				</td>
 				<td>
 					<div class=" input-group " data-toggle="aizuploader" data-type="image">

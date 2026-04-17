@@ -37,13 +37,21 @@ class ProductStockService
                 $product_stock->qty = request()['qty_' . str_replace('.', '_', $str)];
                 $product_stock->image = request()['img_' . str_replace('.', '_', $str)];
 
-                // Parse dimensions from variant string if applicable
-                foreach ($combination as $item) {
-                    if (preg_match('/(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*([a-zA-Z]+)/i', $item, $matches)) {
-                        $product_stock->length = $matches[1];
-                        $product_stock->width = $matches[2];
-                        $product_stock->height = $matches[3];
-                        $product_stock->dimension_unit = $matches[4];
+                // Variant-specific dimensions
+                $product_stock->length = request()['length_' . str_replace('.', '_', $str)] ?? 0;
+                $product_stock->width = request()['width_' . str_replace('.', '_', $str)] ?? 0;
+                $product_stock->height = request()['height_' . str_replace('.', '_', $str)] ?? 0;
+                $product_stock->dimension_unit = request()['unit_' . str_replace('.', '_', $str)] ?? 'cm';
+
+                // Parse dimensions from variant string if applicable (fallback)
+                if ($product_stock->length == 0 && $product_stock->width == 0 && $product_stock->height == 0) {
+                    foreach ($combination as $item) {
+                        if (preg_match('/(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*([a-zA-Z]+)/i', $item, $matches)) {
+                            $product_stock->length = $matches[1];
+                            $product_stock->width = $matches[2];
+                            $product_stock->height = $matches[3];
+                            $product_stock->dimension_unit = $matches[4];
+                        }
                     }
                 }
 
