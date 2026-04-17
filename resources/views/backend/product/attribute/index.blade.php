@@ -46,7 +46,7 @@
                                     <td class="text-right w-140px"> 
                                         @can('edit_product_attribute')
                                             <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
-                                                href="{{ route('attributes.edit', ['id' => $attribute->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}"
+                                                href="{{ route('attributes.edit', ['attribute' => $attribute->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}"
                                                 title="{{ translate('Edit') }}">
                                                 <i class="las la-edit"></i>
                                             </a>

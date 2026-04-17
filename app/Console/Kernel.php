@@ -37,6 +37,11 @@ class Kernel extends ConsoleKernel
 
         // Stock alerts for users
         $schedule->command('stock:send-alerts')->hourly();
+
+        // ONESSTA 3PL Shipping Integration
+        $schedule->job(\Mayush\Shipping\Onessta\Jobs\SyncCitiesJob::class)->dailyAt('00:00');
+        $schedule->job(\Mayush\Shipping\Onessta\Jobs\SyncPickupCitiesJob::class)->dailyAt('01:00');
+        $schedule->job(\Mayush\Shipping\Onessta\Jobs\PollTrackingJob::class)->everyFiveMinutes();
     }
 
     /**

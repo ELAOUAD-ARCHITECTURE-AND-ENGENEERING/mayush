@@ -177,6 +177,7 @@ return [
         /*
          * Package Service Providers...
          */
+        Mayush\Shipping\Onessta\OnesstaShippingServiceProvider::class,
 
         /*
          * Application Service Providers...

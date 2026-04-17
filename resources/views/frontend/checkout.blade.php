@@ -688,7 +688,17 @@
         });
 
         function stepCompletionDeliveryInfo() {
-            return $('.delivery_shipping_cost:checked').length > 0 || $('.pickup_point_id:checked').length > 0;
+            let isOk = $('.delivery_shipping_cost:checked').length > 0;
+            
+            // If they chose pickup_point, ensure a specific point is selected
+            if($('.shipping-type-radio:checked[value="pickup_point"]').length > 0) {
+                isOk = false;
+                $('.pickup_point_id').each(function() {
+                    if($(this).val()) isOk = true;
+                });
+            }
+            
+            return isOk;
         }
 
         function updateDeliveryInfo(shipping_type, type_id, user_id, country_id = 0, city_id = 0) {

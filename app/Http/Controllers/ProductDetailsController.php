@@ -284,7 +284,10 @@ class ProductDetailsController extends Controller
             'variation' => $str,
             'max_limit' => $max_limit,
             'in_stock' => $in_stock,
-            'sku'      => $sku
+            'sku'      => $sku,
+            'length'   => $product_stock->length,
+            'width'    => $product_stock->width,
+            'height'   => $product_stock->height
         );
     }
 

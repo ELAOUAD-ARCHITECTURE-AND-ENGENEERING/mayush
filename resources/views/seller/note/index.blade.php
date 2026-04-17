@@ -52,7 +52,7 @@
                                 </a>
                                 @if($note->user_id == auth()->id())
                                     <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
-                                        href="{{route('seller.note.edit', ['id'=>$note->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}"
+                                        href="{{route('seller.note.edit', ['note'=>$note->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}"
                                         title="{{ translate('Edit') }}">
                                         <i class="las la-edit"></i>
                                     </a>

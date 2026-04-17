@@ -176,6 +176,11 @@ class CmiController extends Controller
                 $data['oid'] = $oid;
                 $data['encoding'] = "UTF-8";
     
+                // Security: Cache the save_card preference for the callback (OID-linked)
+                if (isset($paymentData['save_card']) && $paymentData['save_card']) {
+                    \Cache::put('cmi_save_card_' . $oid, true, 3600); // 1 hour TTL
+                }
+
                 // Hash Calculation
                 $data['hash'] = $this->generateHash($data, $storeKey);
     
@@ -289,12 +294,17 @@ class CmiController extends Controller
                                 $subOrder->save();
                             }
 
-                            // Capture CMI Vault Token
+                            // Capture CMI Vault Token ONLY if user opted-in
                             if (isset($input['TransId'])) {
                                 $userId = $order->user_id ?? ($order->orders->first()->user_id ?? null);
-                                if ($userId) {
+                                $optIn = \Cache::get('cmi_save_card_' . $input['oid']);
+                                
+                                if ($userId && $optIn) {
                                     \App\Services\PaymentVaultService::storeToken($userId, $input);
-                                    Log::info('CMI Vault: Token stored for user', ['transId' => $input['TransId']]);
+                                    Log::info('CMI Vault: Token stored for user (Opt-in confirmed)', ['transId' => $input['TransId']]);
+                                    \Cache::forget('cmi_save_card_' . $input['oid']);
+                                } else {
+                                    Log::info('CMI Vault: Token skipped (No opt-in)', ['oid' => $input['oid']]);
                                 }
                             }
 

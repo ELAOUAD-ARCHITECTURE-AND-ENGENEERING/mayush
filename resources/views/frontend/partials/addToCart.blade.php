@@ -272,6 +272,14 @@
                                             if(data.eligible) {
                                                 if(confirm('{{ translate("Confirm Express Buy with") }} ' + data.preferred_payment + '?')) {
                                                     const form = $('#option-choice-form');
+                                                    
+                                                    // Add v_token for security session binding
+                                                    if (form.find('input[name="v_token"]').length == 0) {
+                                                        form.append('<input type="hidden" name="v_token" value="' + data.v_token + '">');
+                                                    } else {
+                                                        form.find('input[name="v_token"]').val(data.v_token);
+                                                    }
+
                                                     form.attr('action', '{{ url("express-buy") }}/' + id);
                                                     form.attr('method', 'POST');
                                                     form.submit();

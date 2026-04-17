@@ -30,6 +30,7 @@ use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\ProductDetailsController;
 use App\Http\Controllers\FrontendShopController;
+use App\Http\Controllers\OTPVerificationController;
 
 use App\Http\Controllers\Payment\AamarpayController;
 use App\Http\Controllers\Payment\AuthorizenetController;
@@ -104,6 +105,12 @@ Route::controller(VerificationController::class)->group(function () {
     Route::get('/email/waiting', 'waiting')->name('verification.waiting');
     Route::get('/email/check-verification', 'check_status')->name('verification.check');
     Route::get('/verification-confirmation/{code}', 'verification_confirmation')->name('email.verification.confirmation');
+});
+
+Route::controller(OTPVerificationController::class)->group(function () {
+    Route::get('/otp-verification', 'show_verification_form')->name('verification');
+    Route::post('/otp-verification', 'verify')->name('otp.verify');
+    Route::get('/otp-resend', 'resend')->name('otp.resend');
 });
 
 Route::controller(HomeController::class)->group(function () {
@@ -373,7 +380,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('invoice/{order_id}', [InvoiceController::class, 'invoice_download'])->name('invoice.download');
 
     Route::get('/express-buy/check', [ExpressBuyController::class, 'eligibility'])->name('express.check');
-    Route::post('/express-buy/{product_id}', [ExpressBuyController::class, 'submit'])->name('express.buy');
+    Route::post('/express-buy/{product_id}', [ExpressBuyController::class, 'submit'])->middleware('throttle:5,1')->name('express.buy');
 
     // Stock Alert
     Route::post('/stock-alert/subscribe', [App\Http\Controllers\StockAlertController::class, 'subscribe'])->name('stock.alert.subscribe');
@@ -412,6 +419,10 @@ Route::group(['middleware' => ['auth']], function() {
 
     // Phase 4: Customer Loyalty Hub
     Route::get('/loyalty', [\App\Http\Controllers\LoyaltyController::class, 'hub'])->name('loyalty.hub');
+
+    // Phase 5: Affiliate
+    Route::get('/affiliate', [\App\Http\Controllers\AffiliateController::class, 'index'])->name('affiliate.user.index');
+    Route::post('/affiliate/apply', [\App\Http\Controllers\AffiliateController::class, 'apply'])->name('affiliate.apply');
 
 });
 

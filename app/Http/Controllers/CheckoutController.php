@@ -189,6 +189,7 @@ class CheckoutController extends Controller
 
         $data['combined_order_id'] = $request->session()->get('combined_order_id');
         $data['payment_method'] = $request->input('payment_option');
+        $data['save_card'] = $request->input('save_card', 0);
         $request->session()->put('payment_data', $data);
         if ($request->session()->get('combined_order_id') != null) {
             // If block for Online payment, wallet and cash on delivery. Else block for Offline payment

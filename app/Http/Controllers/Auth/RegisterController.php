@@ -60,7 +60,10 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone' => 'required|string|max:20|unique:users',
             'password' => 'required|string|min:6|confirmed',
+            'verification_method' => 'required|in:email,phone',
             'g-recaptcha-response' => [
                 Rule::when(get_setting('google_recaptcha') == 1 && get_setting('recaptcha_customer_register') == 1 , ['required', new Recaptcha()], ['sometimes'])
             ],
@@ -85,36 +88,19 @@ class RegisterController extends Controller
         if(get_setting('portfolio_landing') && get_setting('customer_verification')){
             $data['verification_status'] = 0;
         }
-        if (isset($data['email']) && filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $user = User::create([
-                'name' => $data['name'] . (isset($data['l_name']) && $data['l_name'] !== '' ? ' ' . $data['l_name'] : ''),
-                'email' => $data['email'],
-                'phone' => isset($data['phone']) ? '+'.$data['country_code'].preg_replace('/\D+/', '', $data['phone']) : null,
-                'password' => Hash::make($data['password']),
-                'verification_status' => $data['verification_status'] ?? 1
-            ]);
-        }
-        else {
-            if (addon_is_activated('otp_system')){
-                $cleanPhone = preg_replace('/\D+/', '', $data['phone']);
-                $user = User::create([
-                    'name' => $data['name'] . (isset($data['l_name']) && $data['l_name'] !== '' ? ' ' . $data['l_name'] : ''),
-                    'phone' => '+'.$data['country_code'].$cleanPhone,
-                    'password' => Hash::make($data['password']),
-                    'verification_code' => rand(100000, 999999),
-                    'verification_status' => $data['verification_status'] ?? 1
-                ]);
 
-                if(get_setting('customer_registration_verify') != '1' ){
-                    $otpController = new OTPVerificationController;
-                    $otpController->send_code($user);
-                }
+        $cleanPhone = preg_replace('/\D+/', '', $data['phone']);
+        $phone = '+'.$data['country_code'].$cleanPhone;
 
-            }
-        }
+        $user = User::create([
+            'name' => $data['name'] . (isset($data['l_name']) && $data['l_name'] !== '' ? ' ' . $data['l_name'] : ''),
+            'email' => $data['email'],
+            'phone' => $phone,
+            'password' => Hash::make($data['password']),
+            'verification_code' => rand(100000, 999999),
+            'verification_status' => $data['verification_status'] ?? 1
+        ]);
 
-         
-        
         if(session('temp_user_id') != null){
             if(auth()->user()->user_type == 'customer'){
                 Cart::where('temp_user_id', session('temp_user_id'))
@@ -147,26 +133,13 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
-        //dd($request->all());
-        if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
-            if(User::where('email', $request->email)->first() != null){
-                flash(translate('Email or Phone already exists.'));
-                return back();
-                
-            }
-        }
-        elseif (User::where('phone', '+'.$request->country_code.$request->phone)->first() != null) {
-            flash(translate('Phone already exists.'));
-            return back();
-        }
-
         $this->validator($request->all())->validate();
 
         $user = $this->create($request->all());
 
         $this->guard()->login($user);
 
-        if($user->email != null){
+        if($request->verification_method == 'email'){
             if(BusinessSetting::where('type', 'email_verification')->first()->value != 1 || get_setting('customer_registration_verify') === '1'){
                 $user->email_verified_at = date('Y-m-d H:m:s');
                 $user->save();
@@ -178,27 +151,36 @@ class RegisterController extends Controller
                     EmailUtility::email_verification($user, 'customer');
                     flash(translate('Registration successful. Please verify your email.'))->success();
                 } catch (\Throwable $e) {
-                    dd($e);
                     $user->delete();
                     flash(translate('Registration failed. Please try again later.'))->error();
+                    return back();
                 }
             }
-
-            // Account Opening Email to customer
-            if ( $user != null && (get_email_template_data('registration_email_to_customer', 'status') == 1)) {
-                try {
-                    EmailUtility::customer_registration_email('registration_email_to_customer', $user, null);
-                } catch (\Exception $e) {}
-            }
         }
-
-        if($user->phone != null){
-            if(get_setting('email_verification') != 1 || get_setting('customer_registration_verify') === '1'){
+        else {
+            if(get_setting('customer_registration_verify') != '1' ){
+                try {
+                    $otpController = new OTPVerificationController;
+                    $otpController->send_code($user);
+                    flash(translate('Registration successful. Please verify your phone.'))->success();
+                } catch (\Throwable $e) {
+                    $user->delete();
+                    flash(translate('Registration failed. Please try again later.'))->error();
+                    return back();
+                }
+            } else {
                 $user->email_verified_at = date('Y-m-d H:m:s');
                 $user->save();
                 offerUserWelcomeCoupon();
                 flash(translate('Registration successful.'))->success();
             }
+        }
+
+        // Account Opening Email to customer
+        if ( $user != null && (get_email_template_data('registration_email_to_customer', 'status') == 1)) {
+            try {
+                EmailUtility::customer_registration_email('registration_email_to_customer', $user, null);
+            } catch (\Exception $e) {}
         }
 
         // customer Account Opening Email to Admin
@@ -214,7 +196,7 @@ class RegisterController extends Controller
 
     protected function registered(Request $request, $user)
     {
-        if ($user->email == null && $user->email_verified_at == null) {
+        if ($user->email_verified_at == null) {
             return redirect()->route('verification');
         }elseif(session('link') != null){
             return redirect(session('link'));

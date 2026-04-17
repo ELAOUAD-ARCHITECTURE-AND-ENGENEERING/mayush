@@ -1,0 +1,1163 @@
+Below is a complete integration plan based only on the documentation visible in the supplied screenshots.
+
+## 1. What the supplied docs actually document
+
+### Authentication
+
+The docs show a 3-part auth model for partner API calls:
+
+* `Authorization: Bearer <token>`
+* `API-Key: <api key>`
+* `Client-ID: <client id>`
+* plus:
+
+  * `Content-Type: application/json`
+  * `Accept: application/json`
+
+The screenshots also state:
+
+* the bearer token is created from the ONESSTA dashboard under API Tokens
+* `Client-ID` and `Api-Key` must be obtained from the client using the ONESSTA platform
+* webhook management also has its own API key and secret key for signing
+
+### Documented production endpoints
+
+From the screenshots, these endpoints are visible:
+
+* `POST https://api.onessta.com/api/v1/p/parcels/add`
+* `POST https://api.onessta.com/api/v1/p/parcels/get_by_code`
+* `POST {{env('API_URL')}}/p/parcels/tracking` or equivalent tracking route shown in docs
+* `GET https://api.onessta.com/api/v1/p/products`
+* `POST https://api.onessta.com/api/v1/p/products/add`
+* `POST https://api.onessta.com/api/v1/p/products/update_stock`
+* `GET https://api.onessta.com/api/v1/p/cities`
+* `GET https://api.onessta.com/api/v1/p/pickup_cities`
+
+### Shipment creation fields
+
+The parcel creation doc shows these fields:
+
+Required:
+
+* `code` string
+* `receiver` string
+* `phone` string
+* `price` float
+* `city` integer or city object containing id
+* `address` string
+
+Optional or shown in example:
+
+* `sku` string, refs separated by `;`, repeated ref for quantity
+* `pickup_city` object
+* `note`
+* `product_nature`
+* `can_open`
+* `replace`
+
+### Parcel info and tracking
+
+The docs show:
+
+* parcel info lookup by `code`
+* tracking lookup by `code`
+* tracking response contains a `history` array
+* each history item includes:
+
+  * `status`
+  * `name`
+  * `created_at`
+  * `new_date`
+
+Example statuses visible:
+
+* `WAITING_PICKUP`
+* `PICKED_UP`
+* `SENT`
+* `RECEIVED`
+* `DISTRIBUTION`
+* final webhook example also shows `DELIVERED`
+
+### Products and stock
+
+Documented:
+
+* list products
+* add product
+* update stock
+
+### Cities
+
+Documented:
+
+* list cities
+* list pickup cities
+
+### Webhooks
+
+Documented webhook details include:
+
+Headers:
+
+* `Content-Type: application/json`
+* `X-Api-Key`
+* `X-Webhook-Event`
+* `X-Signature`
+
+Event types:
+
+* `parcel.status_updated`
+* `parcel.status_second_updated`
+* `parcel.info_updated`
+
+Signature:
+
+* HMAC-SHA256 over raw JSON payload
+* compare with `X-Signature`
+
+Retries:
+
+* 3 attempts
+* delays of `10s`, `30s`, `60s`
+* timeout `30s`
+* recommendation: respond quickly and process async
+
+### What is not documented in the supplied screenshots
+
+These items are not shown and should not be invented:
+
+* no shipping quote endpoint
+* no label download or label format endpoint
+* no sandbox base URL
+* no explicit rate-limit rule
+* no pagination rules
+* no formal idempotency header
+* no label PDF/ZPL/PNG spec
+* no documented carrier service-level matrix
+
+That means your plugin must support these as capability flags, not as completed features.
+
+---
+
+## 2. Integration conclusion
+
+For Mayush, ONESSTA should be integrated as a reusable shipping provider plugin with these supported capabilities now:
+
+* authentication
+* shipment creation
+* parcel lookup
+* tracking
+* city sync
+* pickup city sync
+* webhook processing
+* optional product and stock sync
+
+These requested capabilities cannot be fully delivered from the supplied docs alone:
+
+* unified quoting method
+* shipment creation with label retrieval
+* sandbox certification
+
+So the plugin should expose them as:
+
+* `quote()` => capability unavailable exception or null quote adapter
+* `getLabel()` => not-supported until vendor supplies endpoint/spec
+* `sandbox_mode` => config placeholder pending vendor URL/credentials
+
+---
+
+## 3. Recommended Laravel plugin architecture
+
+### Package name
+
+`mayush/onessta-shipping`
+
+### Namespace
+
+```php
+Mayush\Shipping\Onessta\
+```
+
+### Folder structure
+
+```text
+packages/
+  mayush/
+    onessta-shipping/
+      src/
+        OnesstaShippingServiceProvider.php
+        Contracts/
+          CarrierInterface.php
+          QuoteInterface.php
+          LabelInterface.php
+        Config/
+          onessta.php
+        DTO/
+          AddressDto.php
+          ShipmentRequestDto.php
+          ShipmentResponseDto.php
+          TrackingEventDto.php
+          TrackingResponseDto.php
+          CityDto.php
+          PickupCityDto.php
+          ProductDto.php
+        Exceptions/
+          OnesstaException.php
+          AuthenticationException.php
+          ValidationException.php
+          UnsupportedCapabilityException.php
+          SignatureVerificationException.php
+          RemoteApiException.php
+        Http/
+          Controllers/
+            WebhookController.php
+          Middleware/
+        Client/
+          OnesstaClient.php
+          RequestSigner.php
+          WebhookSignatureVerifier.php
+        Services/
+          AuthService.php
+          ShipmentService.php
+          TrackingService.php
+          CatalogService.php
+          ReferenceDataService.php
+          WebhookService.php
+          QuoteService.php
+          LabelService.php
+        Support/
+          StatusMapper.php
+          ErrorMapper.php
+          CacheKeys.php
+          CapabilityMap.php
+        Jobs/
+          SyncCitiesJob.php
+          SyncPickupCitiesJob.php
+          PollTrackingJob.php
+          ProcessWebhookJob.php
+          PushStockUpdateJob.php
+        Events/
+          ShipmentCreated.php
+          ShipmentStatusUpdated.php
+          ShipmentInfoUpdated.php
+          WebhookReceived.php
+          WebhookFailed.php
+        Listeners/
+        Models/
+          OnesstaShipment.php
+          OnesstaTrackingEvent.php
+          OnesstaWebhookLog.php
+          OnesstaCityMap.php
+          OnesstaPickupCityMap.php
+        Database/
+          migrations/
+        Tests/
+          Unit/
+          Feature/
+```
+
+---
+
+## 4. Required dependency packages
+
+### Hard requirements
+
+* Laravel HTTP client, built into Laravel
+* `guzzlehttp/guzzle`
+* `illuminate/support`
+* `illuminate/http`
+* `illuminate/queue`
+* `illuminate/events`
+* `illuminate/cache`
+* `illuminate/database`
+
+### Recommended extras
+
+* `spatie/laravel-data` for DTOs, optional
+* `spatie/laravel-event-sourcing`, optional, only if you want audit depth
+* `spatie/laravel-settings`, optional
+* `laravel/pint`
+* `pestphp/pest` or PHPUnit
+* `mockery/mockery`
+
+No external SDK is needed.
+
+---
+
+## 5. Environment variables
+
+```env
+ONESSTA_ENABLED=true
+ONESSTA_MODE=live
+ONESSTA_BASE_URL=https://api.onessta.com/api/v1
+ONESSTA_TOKEN=
+ONESSTA_API_KEY=
+ONESSTA_CLIENT_ID=
+
+ONESSTA_TIMEOUT=30
+ONESSTA_CONNECT_TIMEOUT=10
+ONESSTA_RETRY_TIMES=3
+ONESSTA_RETRY_SLEEP_MS=500
+ONESSTA_QUEUE_CONNECTION=redis
+ONESSTA_QUEUE_NAME=onessta
+
+ONESSTA_CACHE_STORE=redis
+ONESSTA_CACHE_TTL_CITIES=86400
+ONESSTA_CACHE_TTL_PICKUP_CITIES=86400
+ONESSTA_CACHE_TTL_TRACKING=300
+
+ONESSTA_WEBHOOK_ENABLED=true
+ONESSTA_WEBHOOK_API_KEY=
+ONESSTA_WEBHOOK_SECRET=
+ONESSTA_WEBHOOK_ROUTE=/webhooks/onessta
+ONESSTA_WEBHOOK_QUEUE=true
+
+ONESSTA_POLLING_ENABLED=true
+ONESSTA_POLLING_INTERVAL_MINUTES=5
+
+ONESSTA_SUPPORT_QUOTES=false
+ONESSTA_SUPPORT_LABELS=false
+ONESSTA_SUPPORT_PRODUCTS=true
+ONESSTA_SUPPORT_STOCK=true
+
+ONESSTA_LOG_CHANNEL=stack
+ONESSTA_FAIL_ON_SIGNATURE_MISMATCH=true
+```
+
+### Important note
+
+Since no sandbox URL is documented, do not invent one. Keep:
+
+```env
+ONESSTA_MODE=sandbox
+ONESSTA_BASE_URL=
+```
+
+empty until ONESSTA provides it.
+
+---
+
+## 6. Config file
+
+`config/onessta.php`
+
+```php
+return [
+    'enabled' => env('ONESSTA_ENABLED', false),
+    'mode' => env('ONESSTA_MODE', 'live'),
+    'base_url' => env('ONESSTA_BASE_URL', 'https://api.onessta.com/api/v1'),
+
+    'auth' => [
+        'token' => env('ONESSTA_TOKEN'),
+        'api_key' => env('ONESSTA_API_KEY'),
+        'client_id' => env('ONESSTA_CLIENT_ID'),
+    ],
+
+    'http' => [
+        'timeout' => (int) env('ONESSTA_TIMEOUT', 30),
+        'connect_timeout' => (int) env('ONESSTA_CONNECT_TIMEOUT', 10),
+        'retry_times' => (int) env('ONESSTA_RETRY_TIMES', 3),
+        'retry_sleep_ms' => (int) env('ONESSTA_RETRY_SLEEP_MS', 500),
+    ],
+
+    'queue' => [
+        'connection' => env('ONESSTA_QUEUE_CONNECTION', 'redis'),
+        'name' => env('ONESSTA_QUEUE_NAME', 'onessta'),
+    ],
+
+    'cache' => [
+        'store' => env('ONESSTA_CACHE_STORE', 'redis'),
+        'ttl_cities' => (int) env('ONESSTA_CACHE_TTL_CITIES', 86400),
+        'ttl_pickup_cities' => (int) env('ONESSTA_CACHE_TTL_PICKUP_CITIES', 86400),
+        'ttl_tracking' => (int) env('ONESSTA_CACHE_TTL_TRACKING', 300),
+    ],
+
+    'webhook' => [
+        'enabled' => env('ONESSTA_WEBHOOK_ENABLED', true),
+        'api_key' => env('ONESSTA_WEBHOOK_API_KEY'),
+        'secret' => env('ONESSTA_WEBHOOK_SECRET'),
+        'route' => env('ONESSTA_WEBHOOK_ROUTE', '/webhooks/onessta'),
+        'queue' => (bool) env('ONESSTA_WEBHOOK_QUEUE', true),
+        'fail_on_signature_mismatch' => (bool) env('ONESSTA_FAIL_ON_SIGNATURE_MISMATCH', true),
+    ],
+
+    'capabilities' => [
+        'quotes' => (bool) env('ONESSTA_SUPPORT_QUOTES', false),
+        'labels' => (bool) env('ONESSTA_SUPPORT_LABELS', false),
+        'products' => (bool) env('ONESSTA_SUPPORT_PRODUCTS', true),
+        'stock' => (bool) env('ONESSTA_SUPPORT_STOCK', true),
+    ],
+];
+```
+
+---
+
+## 7. Database migrations
+
+### a. `onessta_shipments`
+
+```php
+id
+order_id nullable
+external_id nullable
+code unique
+receiver
+phone
+address
+city_id nullable
+city_name nullable
+pickup_city_id nullable
+pickup_city_name nullable
+price decimal(12,2)
+sku nullable
+note nullable
+product_nature nullable
+can_open boolean default false
+replace boolean default false
+status nullable
+status_second nullable
+situation nullable
+last_status_comment nullable
+reported_date nullable
+raw_request json nullable
+raw_response json nullable
+created_at_remote nullable
+updated_at_remote nullable
+synced_at nullable
+timestamps
+```
+
+### b. `onessta_tracking_events`
+
+```php
+id
+onessta_shipment_id
+status
+name nullable
+created_at_remote nullable
+new_date nullable
+raw_payload json nullable
+timestamps
+unique(onessta_shipment_id, status, created_at_remote)
+```
+
+### c. `onessta_webhook_logs`
+
+```php
+id
+event_type
+header_api_key nullable
+header_signature nullable
+header_event nullable
+payload longText
+signature_valid boolean nullable
+processed boolean default false
+error_message nullable
+onessta_shipment_id nullable
+timestamps
+```
+
+### d. `onessta_city_maps`
+
+```php
+id
+remote_city_id unique
+remote_city_name
+local_city_id nullable
+local_city_name nullable
+is_pickup boolean default false
+active boolean default true
+timestamps
+```
+
+No quote table and no label table yet, because neither is documented.
+
+---
+
+## 8. Service provider responsibilities
+
+`OnesstaShippingServiceProvider`
+
+It should:
+
+* merge config
+* publish config
+* load migrations
+* register routes for webhook
+* bind interfaces to services
+* register singleton for `OnesstaClient`
+* expose a unified provider contract into Mayush shipping layer
+
+Example bindings:
+
+```php
+$this->app->singleton(OnesstaClient::class);
+$this->app->bind(CarrierInterface::class, ShipmentService::class);
+```
+
+---
+
+## 9. Core reusable interfaces
+
+### Carrier interface
+
+```php
+interface CarrierInterface
+{
+    public function quote(array $payload): array;
+    public function createShipment(ShipmentRequestDto $dto): ShipmentResponseDto;
+    public function fetchShipmentByCode(string $code): ShipmentResponseDto;
+    public function track(string $code): TrackingResponseDto;
+    public function syncCities(): array;
+    public function syncPickupCities(): array;
+}
+```
+
+### Capability behavior
+
+* `quote()` throws `UnsupportedCapabilityException`
+* `getLabel()` should not exist until docs exist, or should throw the same exception
+* keep capability checks centralized
+
+---
+
+## 10. HTTP client design
+
+### Base headers
+
+```php
+[
+  'Content-Type' => 'application/json',
+  'Accept' => 'application/json',
+  'Authorization' => 'Bearer ' . config('onessta.auth.token'),
+  'API-Key' => config('onessta.auth.api_key'),
+  'Client-ID' => config('onessta.auth.client_id'),
+]
+```
+
+### Endpoints wrapper
+
+```php
+POST /p/parcels/add
+POST /p/parcels/get_by_code
+POST /p/parcels/tracking
+GET  /p/products
+POST /p/products/add
+POST /p/products/update_stock
+GET  /p/cities
+GET  /p/pickup_cities
+```
+
+Since the visible base URL already contains `/api/v1`, use:
+`config('onessta.base_url') . '/p/...'`
+
+### Retry strategy
+
+Use Laravel HTTP retry only for safe retriable failures:
+
+* network timeout
+* connection refused
+* 502
+* 503
+* 504
+
+Do not auto-retry validation failures or auth failures.
+
+---
+
+## 11. Exact implementation of requested features
+
+## 11.1 Unified quoting method
+
+This is not documented by ONESSTA.
+
+### Plugin behavior
+
+Implement a unified method in your provider contract, but return a deterministic capability failure:
+
+```php
+public function quote(array $payload): array
+{
+    throw new UnsupportedCapabilityException(
+        'ONESSTA documentation supplied does not include a quote/rating endpoint.'
+    );
+}
+```
+
+### Why
+
+This keeps the provider contract reusable across carriers without pretending ONESSTA supports quoting.
+
+Acceptance criterion:
+
+* quote method exists
+* clearly fails with a provider-capability error
+* no fake calculation is returned
+
+---
+
+## 11.2 Shipment creation
+
+### Request mapping
+
+Use the documented fields:
+
+* code
+* sku
+* receiver
+* phone
+* price
+* city
+* pickup_city
+* address
+* note
+* product_nature
+* can_open
+* replace
+
+### Example service flow
+
+1. Validate local DTO
+2. Resolve local city to remote `city_id`
+3. Resolve pickup city if applicable
+4. Call `/p/parcels/add`
+5. Persist shipment row
+6. Normalize status fields
+7. Dispatch `ShipmentCreated`
+
+### Label retrieval
+
+Not documented.
+
+### Plugin behavior
+
+* include `supportsLabels(): false`
+* include placeholder service `LabelService`
+* any call to retrieve label throws `UnsupportedCapabilityException`
+
+Do not fabricate a label URL.
+
+Acceptance criterion:
+
+* shipment can be created from documented payload
+* response stored
+* status and situation stored
+* label retrieval explicitly marked unsupported
+
+---
+
+## 11.3 Status tracking
+
+### Pull-based
+
+Use `/p/parcels/tracking` with `code`.
+
+Persist:
+
+* shipment current status
+* tracking history rows
+
+### Push-based
+
+Use documented webhooks.
+
+Webhook controller flow:
+
+1. capture raw headers and raw body
+2. verify `X-Api-Key` if configured
+3. verify HMAC with `X-Signature`
+4. log webhook row
+5. dispatch async `ProcessWebhookJob`
+6. return 200 quickly
+
+### Event handling
+
+Support:
+
+* `parcel.status_updated`
+* `parcel.status_second_updated`
+* `parcel.info_updated`
+
+Acceptance criterion:
+
+* both polling and webhook processing update the same shipment record consistently
+* duplicate webhook calls do not duplicate history rows
+
+---
+
+## 11.4 Error-handling and retry logic
+
+### API errors visible in docs
+
+Common visible messages:
+
+* `Unauthenticated.`
+* invalid API key secret
+* invalid client ID
+* required field errors
+* parcel or product not found
+* city not found
+* code already used
+* reference already exists
+
+### Error mapper
+
+Create a normalized error map:
+
+* 401-like remote not found or auth ambiguities -> `RemoteApiException`
+* field validation -> `ValidationException`
+* signature-related -> `AuthenticationException`
+* unsupported feature -> `UnsupportedCapabilityException`
+
+### Retry rules
+
+Retry:
+
+* timeouts
+* 502, 503, 504
+* transient connection exceptions
+
+Do not retry:
+
+* validation failures
+* duplicate code/reference
+* unauthenticated
+* signature errors
+
+Webhook retries are vendor-side, already documented as 10s, 30s, 60s.
+
+Acceptance criterion:
+
+* retriable failures use queue retry/backoff
+* non-retriable failures fail immediately with a meaningful exception
+
+---
+
+## 12. Cache strategy
+
+Use Redis.
+
+### Cacheable data
+
+* cities list, 24h
+* pickup cities list, 24h
+* tracking snapshots, 5 minutes max if polling is used
+* provider capability map, forever
+
+### Do not cache
+
+* shipment creation response
+* webhook payloads
+* auth credentials
+* signature validation results
+
+Suggested keys:
+
+```text
+onessta:cities
+onessta:pickup_cities
+onessta:tracking:{parcel_code}
+onessta:capabilities
+```
+
+---
+
+## 13. Queue strategy
+
+Use dedicated queue:
+
+* connection: `redis`
+* queue name: `onessta`
+
+### Queued jobs
+
+* `SyncCitiesJob`
+* `SyncPickupCitiesJob`
+* `PollTrackingJob`
+* `ProcessWebhookJob`
+* `PushStockUpdateJob`
+
+### Backoff suggestions
+
+* API polling jobs: `[30, 120, 300]`
+* webhook process jobs: `[10, 30, 60]`
+* stock push jobs: `[60, 300, 900]`
+
+---
+
+## 14. Events to expose inside Laravel app
+
+* `ShipmentCreated`
+* `ShipmentStatusUpdated`
+* `ShipmentInfoUpdated`
+* `WebhookReceived`
+* `WebhookFailed`
+
+These let Mayush update order timelines, notifications, admin dashboards, and seller UI.
+
+---
+
+## 15. Controller endpoints to build
+
+### Public webhook route
+
+```php
+POST /webhooks/onessta
+```
+
+### Optional internal admin/test endpoints
+
+Only in non-production or behind admin auth:
+
+* `POST /admin/shipping/onessta/sync-cities`
+* `POST /admin/shipping/onessta/sync-pickup-cities`
+* `POST /admin/shipping/onessta/poll-tracking/{code}`
+
+---
+
+## 16. PHPUnit and Feature coverage
+
+### Unit tests
+
+1. auth headers are built correctly
+2. shipment request mapper maps all documented fields
+3. tracking response mapper parses history
+4. webhook signature verifier accepts valid signature
+5. webhook signature verifier rejects invalid signature
+6. unsupported quote capability throws correct exception
+7. unsupported label capability throws correct exception
+8. error mapper converts remote validation error correctly
+
+### Feature tests
+
+1. create shipment success
+2. create shipment validation failure
+3. create shipment duplicate code failure
+4. fetch parcel by code success
+5. fetch parcel by code not found
+6. tracking success with multiple history rows
+7. tracking validation error
+8. sync cities success
+9. sync pickup cities success
+10. webhook `parcel.status_updated` success
+11. webhook `parcel.status_second_updated` success
+12. webhook `parcel.info_updated` success
+13. webhook invalid signature rejected
+14. webhook duplicate delivery remains idempotent
+15. transient API failure retries then succeeds
+16. permanent auth failure does not retry
+
+### Integration tests in app context
+
+1. service provider boots cleanly
+2. config publishes
+3. migrations run
+4. package routes load
+5. events are dispatched into current Laravel app
+6. queue jobs run on current queue connection
+
+---
+
+## 17. Milestone roadmap
+
+## Milestone 1. Foundation
+
+Scope:
+
+* package skeleton
+* service provider
+* config
+* migrations
+* models
+* HTTP client
+* auth headers
+
+Acceptance criteria:
+
+* package installs in current Laravel app
+* config publishes
+* migrations succeed
+* fake HTTP call proves headers are correct
+
+Rollback:
+
+* remove package registration
+* rollback package migrations
+* clear config cache and route cache
+
+## Milestone 2. Reference data
+
+Scope:
+
+* cities sync
+* pickup cities sync
+* cache layer
+* city mapping table
+
+Acceptance criteria:
+
+* both endpoints sync successfully
+* duplicates are not inserted
+* cache invalidates and refreshes cleanly
+
+Rollback:
+
+* disable scheduled sync
+* clear cache
+* keep tables for audit or roll back migration
+
+## Milestone 3. Shipment core
+
+Scope:
+
+* create shipment
+* fetch shipment by code
+* persist shipment state
+* internal events
+
+Acceptance criteria:
+
+* parcel create succeeds using documented payload
+* parcel can be fetched by code
+* DB record contains raw request/response and normalized fields
+
+Rollback:
+
+* stop plugin usage in shipping selector
+* preserve created rows for audit
+
+## Milestone 4. Tracking
+
+Scope:
+
+* poll tracking
+* persist history
+* status normalization
+
+Acceptance criteria:
+
+* history rows are stored exactly once
+* status updates sync into Mayush order state layer
+
+Rollback:
+
+* disable scheduled tracking poll
+* no impact on existing orders
+
+## Milestone 5. Webhooks
+
+Scope:
+
+* webhook controller
+* signature verification
+* async processing
+* idempotency
+
+Acceptance criteria:
+
+* all 3 documented event types are processed
+* valid signatures pass
+* invalid signatures fail according to config
+* endpoint returns 200 quickly
+
+Rollback:
+
+* disable webhook route
+* remove dashboard callback URL
+* continue with polling only
+
+## Milestone 6. Optional catalog sync
+
+Scope:
+
+* list products
+* add product
+* update stock
+
+Acceptance criteria:
+
+* endpoints callable
+* disabled by default behind capability flags
+
+Rollback:
+
+* turn feature flags off
+
+## Milestone 7. Publish readiness
+
+Scope:
+
+* docs
+* test matrix
+* live verification
+* operational runbook
+
+Acceptance criteria:
+
+* all documented features exercised in live mode
+* sandbox remains blocked unless vendor provides sandbox docs
+
+Rollback:
+
+* package version remains unreleased
+* feature flag off in current app
+
+---
+
+## 18. Rate-limit rule handling
+
+No rate-limit policy is shown in the supplied docs.
+
+So design conservatively:
+
+* max 1 immediate retry for synchronous admin actions
+* queue heavy work
+* stagger polling
+* never poll the same parcel more often than every 5 minutes because the webhook page itself says polling every 5 minutes is the legacy alternative
+
+Add a local throttle:
+
+* tracking poll per parcel: 1 request / 5 min
+* cities refresh: 1 request / day
+* pickup cities refresh: 1 request / day
+
+Document clearly:
+“Vendor rate limits not documented, local throttling applied.”
+
+---
+
+## 19. Sandbox and live mode policy
+
+### Live mode
+
+Documented and usable:
+
+* `https://api.onessta.com/api/v1`
+
+### Sandbox mode
+
+Not documented in the supplied materials.
+
+Plugin policy:
+
+* support `ONESSTA_MODE=sandbox`
+* require explicit sandbox base URL and credentials before enabling
+* block publish checklist completion for sandbox until vendor provides them
+
+---
+
+## 20. Checklist before publishing into current Laravel app
+
+## Core
+
+* [ ] package installs via Composer path repository or VCS
+* [ ] service provider auto-discovers or manual registration succeeds
+* [ ] config publishes
+* [ ] migrations run and rollback cleanly
+* [ ] queue connection configured
+* [ ] cache store configured
+
+## Authentication
+
+* [ ] bearer token works
+* [ ] API-Key works
+* [ ] Client-ID works
+* [ ] invalid credentials produce mapped exception
+* [ ] all headers sent exactly as documented
+
+## Reference data
+
+* [ ] cities endpoint exercised
+* [ ] pickup cities endpoint exercised
+* [ ] cache hit and refresh verified
+* [ ] city mapping table populated
+
+## Shipment flow
+
+* [ ] shipment create success exercised
+* [ ] duplicate code exercised
+* [ ] validation error exercised
+* [ ] city-not-found path exercised
+* [ ] shipment fetch by code exercised
+
+## Tracking
+
+* [ ] tracking fetch exercised
+* [ ] history rows persisted
+* [ ] duplicate tracking rows prevented
+* [ ] polling backoff verified
+
+## Webhooks
+
+* [ ] `parcel.status_updated` exercised
+* [ ] `parcel.status_second_updated` exercised
+* [ ] `parcel.info_updated` exercised
+* [ ] HMAC signature verified
+* [ ] invalid signature rejection exercised
+* [ ] duplicate webhook replay exercised
+* [ ] endpoint responds within target window
+
+## Optional catalog
+
+* [ ] products list exercised
+* [ ] product create exercised
+* [ ] stock update exercised
+* [ ] feature flags disable safely
+
+## Unsupported documented gaps
+
+* [ ] quote method clearly marked unsupported
+* [ ] label retrieval clearly marked unsupported
+* [ ] sandbox base URL marked pending vendor documentation
+* [ ] vendor rate-limit policy marked undocumented
+
+## Environment validation
+
+* [ ] live credentials tested in live mode
+* [ ] sandbox credentials and URL tested if and only if vendor provided them
+
+---
+
+## 21. Recommended release policy
+
+Do not publish as fully “feature complete shipping provider” yet.
+
+Publish as:
+
+* `v0.1.0-beta` if only live mode verified
+* mark capabilities:
+
+  * shipment create: supported
+  * tracking: supported
+  * webhook updates: supported
+  * cities sync: supported
+  * pickup cities sync: supported
+  * product sync: supported
+  * stock sync: supported
+  * quotes: unsupported
+  * labels: unsupported
+  * sandbox: pending vendor docs
+
+---
+
+## 22. Bottom-line recommendation
+
+You can build a solid ONESSTA Laravel plugin now for:
+
+* auth
+* parcel creation
+* parcel lookup
+* tracking
+* cities
+* pickup cities
+* webhook-driven updates
+* optional product and stock sync
+
+You should not claim support yet for:
+
+* quoting
+* label retrieval
+* sandbox certification
+* vendor rate-limit compliance beyond your own local throttle
+
+Because those items are not present in the supplied documentation.

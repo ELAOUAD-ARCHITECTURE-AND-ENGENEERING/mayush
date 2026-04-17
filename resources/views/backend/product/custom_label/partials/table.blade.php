@@ -36,7 +36,7 @@
                             </button>
                             <div class="dropdown-menu dropdown-menu-right dropdown-menu-xs">
                                 @can('custom_label_edit')
-                                    <a class="dropdown-item" href="{{route('custom_label.edit', ['id'=>$custom_label->id, 'lang'=>env('DEFAULT_LANGUAGE')])}}">
+                                    <a class="dropdown-item" href="{{route('custom_label.edit', ['custom_label'=>$custom_label->id, 'lang'=>env('DEFAULT_LANGUAGE')])}}">
                                         {{translate('Edit')}}
                                     </a>
                                 @endcan

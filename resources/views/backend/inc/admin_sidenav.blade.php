@@ -1673,7 +1673,7 @@
                 @endif
 
                 <!--OTP addon -->
-                @if (addon_is_activated('otp_system'))
+                @if (get_setting('otp_system') == 1)
                 @canany(['otp_configurations','sms_templates','sms_providers_configurations','send_bulk_sms'])
                 <li class="aiz-side-nav-item">
                     <a href="#" class="aiz-side-nav-link">
@@ -1708,14 +1708,13 @@
                                 </a>
                             </li>
                         @endcan
-                        @can('sms_templates')
+                        @can('send_bulk_sms')
                             <li class="aiz-side-nav-item">
-                                <a href="{{route('sms-templates.index')}}" class="aiz-side-nav-link">
-                                    <span class="aiz-side-nav-text">{{translate('SMS Templates')}}</span>
+                                <a href="{{ route('sms.index') }}" class="aiz-side-nav-link">
+                                    <span class="aiz-side-nav-text">{{translate('Bulk SMS')}}</span>
                                 </a>
                             </li>
                         @endcan
-                       
                     </ul>
                 </li>
                 @endcanany
@@ -2383,8 +2382,8 @@
 
                                 @can('select_shipping_methods')
                                         <li class="aiz-side-nav-item">
-                                            <a href="{{(Route::has('shipping_configuration.index') ? route('shipping_configuration.index') : '#')}}"
-                                                class="aiz-side-nav-link {{ areActiveRoutes(['shipping_configuration.index'])}}">
+                                            <a href="{{(Route::has('shipping_configuration.shipping_method') ? route('shipping_configuration.shipping_method') : '#')}}"
+                                                class="aiz-side-nav-link {{ areActiveRoutes(['shipping_configuration.shipping_method'])}}">
                                                 <span class="aiz-side-nav-text">{{translate('Select Shipping Method')}}</span>
                                             </a>
                                         </li>
@@ -2461,6 +2460,14 @@
                                         </a>
                                     </li>
                                     @endcan
+                                @endif
+                                @if (config('onessta.enabled'))
+                                    <li class="aiz-side-nav-item">
+                                        <a href="{{ route('onessta.index') }}"
+                                            class="aiz-side-nav-link {{ areActiveRoutes(['onessta.index','onessta.shipments'])}}">
+                                            <span class="aiz-side-nav-text">{{translate('ONESSTA 3PL')}}</span>
+                                        </a>
+                                    </li>
                                 @endif
                             </ul>
                         </li>

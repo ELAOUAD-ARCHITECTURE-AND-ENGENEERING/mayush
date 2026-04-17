@@ -48,5 +48,6 @@
         <server name="CACHE_DRIVER" value="array"/>
         <server name="SERVER_NAME" value="localhost"/>
         <env name="APP_KEY" value="base64:u8699vGscI/7Wps+x5xXAnQpS60n54v8H3x19yY56w4="/>
+        <env name="ONESSTA_ENABLED" value="false"/>
     </php>
 </phpunit>

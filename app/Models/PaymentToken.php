@@ -25,7 +25,9 @@ class PaymentToken extends Model
     protected $casts = [
         'is_default' => 'boolean',
         'is_active' => 'boolean',
-        'last_used_at' => 'datetime'
+        'last_used_at' => 'datetime',
+        'token' => 'encrypted',
+        'card_last_four' => 'encrypted'
     ];
 
     public function user()

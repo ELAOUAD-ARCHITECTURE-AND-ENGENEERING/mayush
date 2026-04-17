@@ -24,6 +24,12 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\ProductRestockedEvent::class => [
             \App\Listeners\SendStockAlertNotifications::class,
         ],
+        \Mayush\Shipping\Onessta\Events\ShipmentStatusUpdated::class => [
+            \Mayush\Shipping\Onessta\Listeners\UpdateOrderDeliveryStatus::class,
+        ],
+        \Mayush\Shipping\Onessta\Events\ShipmentCreationFailed::class => [
+            \Mayush\Shipping\Onessta\Listeners\NotifyAdminOnShipmentFailure::class,
+        ],
     ];
 
   /**

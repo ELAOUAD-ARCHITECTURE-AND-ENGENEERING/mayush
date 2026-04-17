@@ -50,6 +50,7 @@
                         type="radio"
                         name="shipping_type_{{ $owner_id }}"
                         value="home_delivery"
+                        class="delivery_shipping_cost"
                         onchange="show_pickup_point(this, {{ $owner_id }})"
                         data-target=".pickup_point_id_{{ $owner_id }}"
                         checked required>
@@ -67,7 +68,7 @@
                         type="radio"
                         name="shipping_type_{{ $owner_id }}"
                         value="carrier"
-                        class="shipping-type-radio"
+                        class="shipping-type-radio delivery_shipping_cost"
                         data-owner="{{ $owner_id }}"
                         onchange="show_pickup_point(this, {{ $owner_id }})"
                         data-target=".pickup_point_id_{{ $owner_id }}"
@@ -87,7 +88,7 @@
                         type="radio"
                         name="shipping_type_{{ $owner_id }}"
                         value="pickup_point"
-                        class="shipping-type-radio"
+                        class="shipping-type-radio delivery_shipping_cost"
                         data-owner="{{ $owner_id }}"
                         onchange="show_pickup_point(this, {{ $owner_id }})"
                         data-target=".pickup_point_id_{{ $owner_id }}"
@@ -105,7 +106,7 @@
         @if ($pickup_point_list)
         <div class="mt-3 pickup_point_id_{{ $owner_id }} d-none">
             <select
-                class="form-control aiz-selectpicker rounded-0"
+                class="form-control aiz-selectpicker rounded-0 pickup_point_id"
                 name="pickup_point_id_{{ $owner_id }}"
                 data-live-search="true"
                 onchange="updateDeliveryInfo('pickup_point', this.value, {{ $owner_id }})">
@@ -147,6 +148,7 @@
                         type="radio"
                         name="carrier_id_{{ $owner_id }}"
                         value="{{ $carrier->id }}"
+                        class="delivery_shipping_cost"
                         @if($carrier_key==0) checked @endif
                         onchange="updateDeliveryInfo('carrier', {{ $carrier->id }}, {{ $owner_id }})">
                     <span class="d-flex flex-wrap p-3 aiz-megabox-elem rounded-0">

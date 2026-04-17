@@ -25,34 +25,38 @@
                                             @endif
                                         </div>
 
-                                        @if (addon_is_activated('otp_system'))
-                                            <div class="form-group phone-form-group mb-1">
-                                                <input type="tel" id="phone-code" class="form-control{{ $errors->has('phone') ? ' is-invalid' : '' }}" value="{{ old('phone') }}" placeholder="" name="phone" autocomplete="off">
-                                            </div>
+                                        <div class="form-group mb-3">
+                                            <input type="email" class="form-control {{ $errors->has('email') ? ' is-invalid' : '' }}" value="{{ old('email') }}" placeholder="{{  translate('Email') }}" name="email" required autocomplete="off">
+                                            @if ($errors->has('email'))
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $errors->first('email') }}</strong>
+                                                </span>
+                                            @endif
+                                        </div>
 
+                                        @if (get_setting('otp_system') == 1)
+                                            <div class="form-group phone-form-group mb-3">
+                                                <input type="tel" id="phone-code" class="form-control{{ $errors->has('phone') ? ' is-invalid' : '' }}" value="{{ old('phone') }}" placeholder="" name="phone" required autocomplete="off">
+                                            </div>
                                             <input type="hidden" name="country_code" value="">
 
-                                            <div class="form-group email-form-group mb-1 d-none">
-                                                <input type="email" class="form-control {{ $errors->has('email') ? ' is-invalid' : '' }}" value="{{ old('email') }}" placeholder="{{  translate('Email') }}" name="email"  autocomplete="off">
-                                                @if ($errors->has('email'))
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $errors->first('email') }}</strong>
-                                                    </span>
-                                                @endif
-                                            </div>
-
-                                            <div class="form-group text-right">
-                                                <button class="btn btn-link p-0 opacity-50 text-reset" type="button" onclick="toggleEmailPhone(this)">{{ translate('Use Email Instead') }}</button>
+                                            <div class="form-group mb-3 border p-3 rounded">
+                                                <label class="d-block fw-600 mb-2">{{ translate('Choose Verification Method:') }}</label>
+                                                <div class="d-flex align-items-center">
+                                                    <label class="aiz-radio mr-4">
+                                                        <input type="radio" name="verification_method" value="email" checked>
+                                                        <span class="aiz-square-check"></span>
+                                                        {{ translate('Verify via Email Link') }}
+                                                    </label>
+                                                    <label class="aiz-radio">
+                                                        <input type="radio" name="verification_method" value="phone">
+                                                        <span class="aiz-square-check"></span>
+                                                        {{ translate('Verify via SMS OTP') }}
+                                                    </label>
+                                                </div>
                                             </div>
                                         @else
-                                            <div class="form-group">
-                                                <input type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" value="{{ old('email') }}" placeholder="{{  translate('Email') }}" name="email">
-                                                @if ($errors->has('email'))
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $errors->first('email') }}</strong>
-                                                    </span>
-                                                @endif
-                                            </div>
+                                            <input type="hidden" name="verification_method" value="email">
                                         @endif
 
                                         <div class="form-group postion-relative">
@@ -309,20 +313,7 @@
 
         });
 
-        function toggleEmailPhone(el){
-            if(isPhoneShown){
-                $('.phone-form-group').addClass('d-none');
-                $('.email-form-group').removeClass('d-none');
-                isPhoneShown = false;
-                $(el).html('{{ translate('Use Phone Instead') }}');
-            }
-            else{
-                $('.phone-form-group').removeClass('d-none');
-                $('.email-form-group').addClass('d-none');
-                isPhoneShown = true;
-                $(el).html('{{ translate('Use Email Instead') }}');
-            }
-        }
+        // Removed toggleEmailPhone logic since both fields are now collected
 
 
 $(document).ready(function() {

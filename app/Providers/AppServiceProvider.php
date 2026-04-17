@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Pagination\Paginator;
+use App\Models\Order;
+use Mayush\Shipping\Onessta\Observers\OrderObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,6 +30,11 @@ class AppServiceProvider extends ServiceProvider
       // \App\Models\Upload::observe(\App\Observers\UploadObserver::class);
       \App\Models\Product::observe(\App\Observers\ProductObserver::class);
       \App\Models\ProductStock::observe(\App\Observers\ProductStockObserver::class);
+
+      // ONESSTA 3PL Shipping Integration
+      if (config('onessta.enabled', false)) {
+          Order::observe(OrderObserver::class);
+      }
     }
 
   /**

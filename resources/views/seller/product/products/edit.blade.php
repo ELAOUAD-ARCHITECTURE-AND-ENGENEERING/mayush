@@ -79,6 +79,23 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label class="col-md-3 col-from-label">{{ translate('Dimensions (L x W x H)') }}
+                            <small>({{ translate('In Cm') }})</small></label>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control" name="length" value="{{ $product->length }}" step="0.01" placeholder="{{ translate('Length') }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control" name="width" value="{{ $product->width }}" step="0.01" placeholder="{{ translate('Width') }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control" name="height" value="{{ $product->height }}" step="0.01" placeholder="{{ translate('Height') }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label class="col-lg-3 col-from-label">{{translate('Minimum Purchase Qty')}}</label>
                         <div class="col-lg-8">
                             <input type="number" lang="en" class="form-control" name="min_qty"

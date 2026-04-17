@@ -40,59 +40,61 @@ class RouteServiceProvider extends ServiceProvider
    */
   public function map()
   {
-    $this->mapApiRoutes();
+      $this->mapApiRoutes();
 
-    $this->mapApiSellerRoutes();
+      $this->mapApiSellerRoutes();
 
-    $this->mapAdminRoutes();
+      $this->mapAdminRoutes();
 
-    $this->mapSellerRoutes();
+      $this->mapSellerRoutes();
 
-    $this->mapAffiliateRoutes();
+      $this->mapAffiliateRoutes();
 
-    $this->mapRefundRoutes();
+      $this->mapRefundRoutes();
 
-    $this->mapClubPointsRoutes();
+      $this->mapClubPointsRoutes();
 
-    $this->mapOtpRoutes();
+      $this->mapOtpRoutes();
 
-    $this->mapOfflinePaymentRoutes();
+      $this->mapOfflinePaymentRoutes();
 
-    $this->mapAfricanPaymentGatewayRoutes();
+      $this->mapAfricanPaymentGatewayRoutes();
 
-    $this->mapPaytmRoutes();
+      $this->mapPaytmRoutes();
 
-    $this->mapCmiRoutes();
+      $this->mapCmiRoutes();
 
-    $this->mapPosRoutes();
+      $this->mapPosRoutes();
 
-    $this->mapSellerPackageRoutes();
+      $this->mapSellerPackageRoutes();
 
-    $this->mapDeliveryBoyRoutes();
+      $this->mapDeliveryBoyRoutes();
 
-    $this->mapAuctionRoutes();
+      $this->mapAuctionRoutes();
 
-    $this->mapWholesaleRoutes();
+      $this->mapWholesaleRoutes();
 
-    $this->mapPreorderRoutes();
+      $this->mapPreorderRoutes();
 
-    $this->mapCybersourceRoutes();
+      $this->mapCybersourceRoutes();
 
-    $this->mapGstRoutes();
+      $this->mapGstRoutes();
 
-    $this->mapShiprocketRoutes();
+      $this->mapShiprocketRoutes();
 
-    $this->mapSteadfastRoutes();
+      $this->mapSteadfastRoutes();
 
-    $this->mapPathaoRoutes();
+      $this->mapPathaoRoutes();
 
-    $this->mapKnetRoutes();
+      $this->mapKnetRoutes();
 
-    $this->mapWebRoutes();
+      $this->mapOnesstaRoutes();
 
-    // $this->mapInstallRoutes();
+      $this->mapWebRoutes();
 
-    // $this->mapUpdateRoutes();
+      // $this->mapInstallRoutes();
+
+      // $this->mapUpdateRoutes();
   }
 
   /**
@@ -123,7 +125,7 @@ class RouteServiceProvider extends ServiceProvider
        ->group(base_path('routes/delivery_boy.php'));
   }
 
-    /**
+  /**
    * Define the "auction" routes for the application.
    *
    * These routes all receive session state, CSRF protection, etc.
@@ -178,7 +180,6 @@ class RouteServiceProvider extends ServiceProvider
        ->namespace($this->namespace)
        ->group(base_path('routes/offline_payment.php'));
   }
-
 
   /**
    * Define the "Asian payment" routes for the application.
@@ -348,19 +349,19 @@ class RouteServiceProvider extends ServiceProvider
        ->group(base_path('routes/seller.php'));
   }
 
-	 /**
-     * Define the "Pre Order" routes for the application.
-     *
-     * These routes all receive session state, CSRF protection, etc.
-     *
-     * @return void
-     */
-    protected function mapPreorderRoutes()
-    {
-        Route::middleware('web')
-            ->namespace($this->namespace)
-            ->group(base_path('routes/preorder.php'));
-    }
+  /**
+   * Define the "Pre Order" routes for the application.
+   *
+   * These routes all receive session state, CSRF protection, etc.
+   *
+   * @return void
+   */
+  protected function mapPreorderRoutes()
+  {
+    Route::middleware('web')
+       ->namespace($this->namespace)
+       ->group(base_path('routes/preorder.php'));
+  }
 
   /**
    * Define the "api" routes for the application.
@@ -392,7 +393,6 @@ class RouteServiceProvider extends ServiceProvider
        ->group(base_path('routes/api.php'));
   }
 
-
   /**
    * Define the "b2b" routes for the application.
    *
@@ -407,33 +407,33 @@ class RouteServiceProvider extends ServiceProvider
        ->group(base_path('routes/cybersource.php'));
   }
 
-    /**
-     * Configure the rate limiters for the application.
-     *
-     * @return void
-     */
-    protected function configureRateLimiting()
-    {
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
-        });
+  /**
+   * Configure the rate limiters for the application.
+   *
+   * @return void
+   */
+  protected function configureRateLimiting()
+  {
+    RateLimiter::for('api', function (Request $request) {
+      return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
+    });
 
-        RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(5)->by($request->ip());
-        });
+    RateLimiter::for('login', function (Request $request) {
+      return Limit::perMinute(5)->by($request->ip());
+    });
 
-        RateLimiter::for('otp', function (Request $request) {
-            return Limit::perMinute(3)->by($request->ip());
-        });
+    RateLimiter::for('otp', function (Request $request) {
+      return Limit::perMinute(3)->by($request->ip());
+    });
 
-        RateLimiter::for('payments', function (Request $request) {
-            return Limit::perMinute(10)->by(optional($request->user())->id ?: $request->ip());
-        });
-        
-        RateLimiter::for('uploads', function (Request $request) {
-            return Limit::perMinute(20)->by(optional($request->user())->id ?: $request->ip());
-        });
-    }
+    RateLimiter::for('payments', function (Request $request) {
+      return Limit::perMinute(10)->by(optional($request->user())->id ?: $request->ip());
+    });
+
+    RateLimiter::for('uploads', function (Request $request) {
+      return Limit::perMinute(20)->by(optional($request->user())->id ?: $request->ip());
+    });
+  }
 
   /**
    * Define the "GST System" routes for the application.
@@ -491,7 +491,7 @@ class RouteServiceProvider extends ServiceProvider
        ->group(base_path('routes/pathao.php'));
   }
 
-    /**
+  /**
    * Define the "Knet Payment Gateway" routes for the application.
    *
    * These routes all receive session state, CSRF protection, etc.
@@ -503,6 +503,20 @@ class RouteServiceProvider extends ServiceProvider
     Route::middleware('web')
        ->namespace($this->namespace)
        ->group(base_path('routes/knet.php'));
+  }
+
+  /**
+   * Define the "ONESSTA System" routes for the application.
+   *
+   * These routes all receive session state, CSRF protection, etc.
+   *
+   * @return void
+   */
+  protected function mapOnesstaRoutes()
+  {
+    Route::middleware('web')
+       ->namespace($this->namespace)
+       ->group(base_path('routes/onessta.php'));
   }
 
 

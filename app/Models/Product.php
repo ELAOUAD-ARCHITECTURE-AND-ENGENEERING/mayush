@@ -16,6 +16,16 @@ class Product extends Model
     protected $appends = ['flash_deal', 'is_in_flash_deal'];
 
     protected $guarded = ['choice_attributes'];
+    
+    protected $fillable = [
+        'name', 'added_by', 'user_id', 'category_id', 'brand_id', 'video_provider', 'video_link', 
+        'unit_price', 'purchase_price', 'tax', 'tax_type', 'discount', 'discount_type', 
+        'current_stock', 'unit', 'min_qty', 'low_stock_quantity', 'slug', 'colors', 
+        'choice_options', 'attributes', 'published', 'featured', 'todays_deal', 'weight', 
+        'length', 'width', 'height', 'shipping_type', 'shipping_cost', 'is_quantity_multiplied', 
+        'est_shipping_days', 'cash_on_delivery', 'meta_title', 'meta_description', 
+        'meta_img', 'pdf', 'digital', 'auction_product', 'wholesale_product', 'rating', 'num_of_sale'
+    ];
 
     protected $with = ['product_translations', 'taxes', 'thumbnail'];
 

@@ -15,6 +15,7 @@ use App\Utility\EmailUtility;
 use App\Utility\NotificationUtility;
 use Auth;
 use DB;
+use Illuminate\Support\Facades\Log;
 
 class ExpressBuyController extends Controller
 {
@@ -32,6 +33,9 @@ class ExpressBuyController extends Controller
 
         $address = Address::where('user_id', Auth::id())->where('set_default', 1)->first();
 
+        $fingerprint = hash('sha256', request()->ip() . request()->userAgent() . session()->getId());
+        session()->put('vault_session_fingerprint', $fingerprint);
+
         return response()->json([
             'eligible' => true,
             'preferred_payment' => PaymentVaultService::getPreferredPaymentMethod(),
@@ -39,7 +43,8 @@ class ExpressBuyController extends Controller
                 'name' => Auth::user()->name,
                 'address' => $address->address . ($address->area_id && $address->area ? ', ' . $address->area->name : ''),
                 'phone' => $address->phone
-            ]
+            ],
+            'v_token' => $fingerprint // Pass to frontend to be sent back on submit
         ]);
     }
 
@@ -51,6 +56,15 @@ class ExpressBuyController extends Controller
         if (!PaymentVaultService::isEligible()) {
             flash(translate('Please set a default address and payment method to use Express Buy.'))->warning();
             return redirect()->route('cart');
+        }
+
+        // Security Layer: session binding check
+        $expected = session()->get('vault_session_fingerprint');
+        $provided = $request->input('v_token');
+        if (!$expected || $provided !== $expected) {
+            Log::warning('Express Buy: Session binding failed.', ['user_id' => Auth::id(), 'ip' => $request->ip()]);
+            flash(translate('Security session expired. Please refresh the page and try again.'))->error();
+            return back();
         }
 
         $quantity = $request->input('quantity', 1);

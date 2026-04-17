@@ -144,7 +144,7 @@ class NotificationController extends Controller
                     return redirect()->route('products.seller.edit', ['id'=>$productId, 'lang'=>$lang]);
                 }
                 elseif($productType == 'digital'){
-                    return redirect()->route('digitalproducts.edit', ['id'=>$productId, 'lang'=>$lang]);
+                    return redirect()->route('digitalproducts.edit', ['digitalproduct'=>$productId, 'lang'=>$lang]);
                 }
             }
             if($userType == 'seller'){

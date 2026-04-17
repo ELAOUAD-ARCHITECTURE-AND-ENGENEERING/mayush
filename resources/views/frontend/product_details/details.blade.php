@@ -111,6 +111,17 @@
             </div>
         @endif
     </div>
+
+    <!-- Dimensions Start -->
+    <div id="product-dimensions" class="mt-3 {{ (!$detailedProduct->length && !$detailedProduct->width && !$detailedProduct->height) ? 'd-none' : '' }}">
+        <span class="fs-14 fw-400 text-gray">{{ translate('Dimensions (L x W x H)') }}:</span>
+        <span class="fs-14 fw-500 text-dark ml-2">
+            <span id="p-length">{{ $detailedProduct->length ?? '-' }}</span> x 
+            <span id="p-width">{{ $detailedProduct->width ?? '-' }}</span> x 
+            <span id="p-height">{{ $detailedProduct->height ?? '-' }}</span> cm
+        </span>
+    </div>
+    <!-- Dimensions End -->
     <!--Rating & SKU End-->
 
     <!--Watching Product Start-->
@@ -683,6 +694,14 @@
                                     if(data.eligible) {
                                         if(confirm('{{ translate("Confirm Express Buy with") }} ' + data.preferred_payment + '?')) {
                                             const form = $('#option-choice-form');
+                                            
+                                            // Add v_token for security session binding
+                                            if (form.find('input[name="v_token"]').length == 0) {
+                                                form.append('<input type="hidden" name="v_token" value="' + data.v_token + '">');
+                                            } else {
+                                                form.find('input[name="v_token"]').val(data.v_token);
+                                            }
+
                                             form.attr('action', '{{ url("express-buy") }}/' + id);
                                             form.attr('method', 'POST');
                                             form.submit();

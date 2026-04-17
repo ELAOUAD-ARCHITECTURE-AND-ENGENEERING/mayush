@@ -8,11 +8,11 @@ use Twilio\Rest\Client;
 
 class SendSMSUtility
 {
-    public static function sendSMS($to, $from, $text, $template_id)
+    public static function sendSMS($to, $from, $text, $template_id = null)
     {
-        if (OtpConfiguration::where('type', 'nexmo')->first()->value == 1) {
-            $api_key = env("NEXMO_KEY"); //put ssl provided api_token here
-            $api_secret = env("NEXMO_SECRET"); // put ssl provided sid here
+        if (OtpConfiguration::where('type', 'nexmo')->first() && OtpConfiguration::where('type', 'nexmo')->first()->value == 1) {
+            $api_key = env("NEXMO_KEY");
+            $api_secret = env("NEXMO_SECRET");
 
             $params = [
                 "api_key" => $api_key,
@@ -25,7 +25,7 @@ class SendSMSUtility
             $url = "https://rest.nexmo.com/sms/json";
             $params = json_encode($params);
 
-            $ch = curl_init(); // Initialize cURL
+            $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
@@ -41,24 +41,24 @@ class SendSMSUtility
             curl_close($ch);
 
             return $response;
-        } elseif (OtpConfiguration::where('type', 'twillo')->first()->value == 1) {
-            $sid = env("TWILIO_SID"); // Your Account SID from www.twilio.com/console
-            $token = env("TWILIO_AUTH_TOKEN"); // Your Auth Token from www.twilio.com/console
-            $type = env("TWILLO_TYPE"); // sms type
+        } elseif (OtpConfiguration::where('type', 'twilio')->first() && OtpConfiguration::where('type', 'twilio')->first()->value == 1) {
+            $sid = env("TWILIO_SID");
+            $token = env("TWILIO_AUTH_TOKEN");
+            $type = env("TWILIO_TYPE");
 
             $client = new Client($sid, $token);
             try {
                  $client->messages->create(
-                    $type == 1? $to : "whatsapp:".$to, // Text this number
+                    $type == 1? $to : "whatsapp:".$to,
                     array(
-                        'from' =>  $type == 1? env('VALID_TWILLO_NUMBER') : "whatsapp:".env('VALID_TWILLO_NUMBER'), // From a valid Twilio number
+                        'from' =>  $type == 1? env('VALID_TWILIO_NUMBER') : "whatsapp:".env('VALID_TWILIO_NUMBER'),
                         'body' => $text
                     )
                 );
             } catch (\Exception $e) {
             }
             
-        } elseif (OtpConfiguration::where('type', 'ssl_wireless')->first()->value == 1) {
+        } elseif (OtpConfiguration::where('type', 'ssl_wireless')->first() && OtpConfiguration::where('type', 'ssl_wireless')->first()->value == 1) {
             $token = env("SSL_SMS_API_TOKEN"); //put ssl provided api_token here
             $sid = env("SSL_SMS_SID"); // put ssl provided sid here
 

@@ -63,7 +63,7 @@
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
 
     <!-- Vite Assets -->
@@ -856,6 +856,17 @@
                         $('#option-choice-form #chosen_price_div #chosen_price').html(data.price);
                         $('#variant_sku_section #variant_sku').html(data.sku);
                         $('#option-choice-form #selected_variant').html(data.variation);
+
+                        // Dimensions update
+                        if (data.length || data.width || data.height) {
+                            $('#product-dimensions').removeClass('d-none');
+                            $('#p-length').html(data.length ? data.length : '-');
+                            $('#p-width').html(data.width ? data.width : '-');
+                            $('#p-height').html(data.height ? data.height : '-');
+                        } else {
+                            $('#product-dimensions').addClass('d-none');
+                        }
+
                         $('#available-quantity').html(data.quantity);
                         $('.input-number').prop('max', data.max_limit);
 
