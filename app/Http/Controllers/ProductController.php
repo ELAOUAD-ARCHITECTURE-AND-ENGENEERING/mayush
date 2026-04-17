@@ -273,6 +273,26 @@ class ProductController extends Controller
         echo json_encode($html);
     }
 
+    public function store_attribute_value_ajax(Request $request)
+    {
+        $attribute_id = $request->attribute_id;
+        $value = $request->value;
+
+        $attribute_value = AttributeValue::where('attribute_id', $attribute_id)->where('value', $value)->first();
+        if (!$attribute_value) {
+            $attribute_value = new AttributeValue;
+            $attribute_value->attribute_id = $attribute_id;
+            $attribute_value->value = $value;
+            $attribute_value->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'id' => $attribute_value->id,
+            'value' => $attribute_value->value
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -327,7 +347,10 @@ class ProductController extends Controller
             'unit_price',
             'sku',
             'current_stock',
-            'product_id'
+            'product_id',
+            'length',
+            'width',
+            'height'
         ]), $product);
 
         // Frequently Bought Products
@@ -433,7 +456,10 @@ class ProductController extends Controller
                 'unit_price',
                 'sku',
                 'current_stock',
-                'product_id'
+                'product_id',
+                'length',
+                'width',
+                'height'
             ]), $product);
 
 
@@ -624,7 +650,10 @@ class ProductController extends Controller
             'unit_price',
             'sku',
             'current_stock',
-            'product_id'
+            'product_id',
+            'length',
+            'width',
+            'height'
         ]), $product);
 
         //Flash Deal

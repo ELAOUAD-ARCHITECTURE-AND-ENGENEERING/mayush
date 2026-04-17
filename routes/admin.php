@@ -66,6 +66,7 @@ use App\Http\Controllers\ShippingSystemController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\TopBannerController;
 use App\Http\Controllers\PromotionalCategoryController;
+use App\Http\Controllers\PosController;
 
 /*
   |--------------------------------------------------------------------------
@@ -188,6 +189,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/products/sku_combination', 'sku_combination')->name('products.sku_combination');
         Route::post('/products/sku_combination_edit', 'sku_combination_edit')->name('products.sku_combination_edit');
         Route::post('/products/add-more-choice-option', 'add_more_choice_option')->name('products.add-more-choice-option');
+        Route::post('/products/store-attribute-value-ajax', 'store_attribute_value_ajax')->name('products.store-attribute-value-ajax');
         Route::post('/set_product_discount', 'setProductDiscount')->name('set_product_discount');
         Route::get('/products/smart-bar', 'smartBar')->name('smart.bar');
         
@@ -273,6 +275,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/withdraw_requests_all', 'index')->name('withdraw_requests_all');
         Route::post('/withdraw_request/payment_modal', 'payment_modal')->name('withdraw_request.payment_modal');
         Route::post('/withdraw_request/message_modal', 'message_modal')->name('withdraw_request.message_modal');
+        Route::post('/withdraw_request/pay', 'update')->name('withdraw_request.pay');
     });
 
     // Customer
@@ -345,6 +348,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
 
         //Shipping Configuration
         Route::get('/shipping_configuration', 'shipping_configuration')->name('shipping_configuration.index');
+        Route::get('/shipping_method', 'shipping_method')->name('shipping_configuration.shipping_method');
         Route::post('/shipping_configuration/update', 'shipping_configuration_update')->name('shipping_configuration.update');
 
         // Order Configuration
@@ -624,6 +628,29 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::controller(App\Http\Controllers\PromotionController::class)->group(function () {
         Route::get('/promotions', 'index')->name('promotions.index');
         Route::post('/promotions/update_status', 'update_status')->name('promotions.update_status');
+    });
+
+    // Affiliate
+    Route::controller(\App\Http\Controllers\AffiliateController::class)->group(function () {
+        Route::get('/affiliate-config', 'configuration')->name('affiliate.index');
+        Route::post('/affiliate-config/update', 'updateSettings')->name('affiliate.config.update');
+        Route::get('/affiliate-users', 'users')->name('affiliate.users');
+        Route::get('/affiliate-users/approve/{id}', 'approve')->name('affiliate.users.approve');
+    });
+
+    // POS
+    Route::controller(PosController::class)->group(function () {
+        Route::get('/pos', 'index')->name('poin-of-sales.index');
+        Route::get('/pos/search_product', 'search_product')->name('pos.search_product');
+        Route::post('/pos/add-to-cart', 'addToCart')->name('pos.addToCart');
+        Route::post('/pos/remove-from-cart', 'removeFromCart')->name('pos.removeFromCart');
+        Route::post('/pos/update-quantity', 'updateQuantity')->name('pos.updateQuantity');
+        Route::post('/pos/set-discount', 'setDiscount')->name('pos.setDiscount');
+        Route::post('/pos/set-shipping', 'setShipping')->name('pos.setShipping');
+        Route::post('/pos/get-shipping-address', 'getShippingAddress')->name('pos.getShippingAddress');
+        Route::post('/pos/set-shipping-address', 'setShippingAddress')->name('pos.set-shipping-address');
+        Route::post('/pos/get-order-summary', 'getOrderSummary')->name('pos.getOrderSummary');
+        Route::post('/pos/order-place', 'order_place')->name('pos.order_place');
     });
 
     // Countries

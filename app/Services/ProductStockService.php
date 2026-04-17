@@ -36,6 +36,17 @@ class ProductStockService
                 $product_stock->sku = request()['sku_' . str_replace('.', '_', $str)];
                 $product_stock->qty = request()['qty_' . str_replace('.', '_', $str)];
                 $product_stock->image = request()['img_' . str_replace('.', '_', $str)];
+
+                // Parse dimensions from variant string if applicable
+                foreach ($combination as $item) {
+                    if (preg_match('/(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*([a-zA-Z]+)/i', $item, $matches)) {
+                        $product_stock->length = $matches[1];
+                        $product_stock->width = $matches[2];
+                        $product_stock->height = $matches[3];
+                        $product_stock->dimension_unit = $matches[4];
+                    }
+                }
+
                 $product_stock->save();
 
                 // Log change (MA-105)
@@ -58,6 +69,14 @@ class ProductStockService
 
             $data = $collection->merge(compact('variant', 'qty', 'price'))->toArray();
             
+            // Add dimensions to base stock tracking if variant-less
+            $data['length'] = $collection['length'] ?? null;
+            $data['width'] = $collection['width'] ?? null;
+            $data['height'] = $collection['height'] ?? null;
+            $data['dimension_unit'] = $collection['dimension_unit'] ?? 'cm';
+            
+            unset($data['colors_active'], $data['choice_no'], $data['unit_price'], $data['sku'], $data['current_stock'], $data['colors']);
+
             $product_stock = ProductStock::create($data);
 
             // Log change (MA-105)
@@ -87,6 +106,10 @@ class ProductStockService
             $product_stock->price       = $stock->price;
             $product_stock->sku         = null;
             $product_stock->qty         = $stock->qty;
+            $product_stock->length      = $stock->length;
+            $product_stock->width       = $stock->width;
+            $product_stock->height      = $stock->height;
+            $product_stock->dimension_unit = $stock->dimension_unit;
             $product_stock->save();
         }
     }

@@ -987,6 +987,37 @@
             },
             success: function(data) {
                 var obj = JSON.parse(data);
+                var custom_ui = '';
+                if (name.toLowerCase() === 'dimension' || i == 35) {
+                    custom_ui = '\
+                    <div class="mt-2 p-3 border border-dashed rounded bg-light">\
+                        <div class="row align-items-end select_dimension_values">\
+                            <div class="col-md-3">\
+                                <label class="fs-12">{{translate('Length')}}</label>\
+                                <input type="number" step="0.01" class="form-control form-control-sm dimension_l" placeholder="0.00">\
+                            </div>\
+                            <div class="col-md-3">\
+                                <label class="fs-12">{{translate('Width')}}</label>\
+                                <input type="number" step="0.01" class="form-control form-control-sm dimension_w" placeholder="0.00">\
+                            </div>\
+                            <div class="col-md-3">\
+                                <label class="fs-12">{{translate('Height')}}</label>\
+                                <input type="number" step="0.01" class="form-control form-control-sm dimension_h" placeholder="0.00">\
+                            </div>\
+                            <div class="col-md-2">\
+                                <label class="fs-12">{{translate('Unit')}}</label>\
+                                <select class="form-control form-control-sm dimension_u">\
+                                    <option value="cm">cm</option>\
+                                    <option value="inch">inch</option>\
+                                </select>\
+                            </div>\
+                            <div class="col-md-1">\
+                                <button type="button" class="btn btn-sm btn-primary btn-block" onclick="add_dimension_value('+i+')"><i class="las la-plus"></i></button>\
+                            </div>\
+                        </div>\
+                    </div>';
+                }
+
                 $('#customer_choice_options').append('\
                 <div class="form-group row">\
                     <div class="col-md-3">\
@@ -994,16 +1025,40 @@
                         <input type="text" class="form-control" name="choice[]" value="'+name+'" placeholder="{{ translate('Choice Title') }}" readonly>\
                     </div>\
                     <div class="col-md-9">\
-                        <select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_'+ i +'[]" data-selected-text-format="count" multiple required>\
+                        <select class="form-control aiz-selectpicker attribute_choice" id="choice_options_'+i+'" data-live-search="true" name="choice_options_'+ i +'[]" data-selected-text-format="count" multiple required>\
                             '+obj+'\
                         </select>\
+                        '+custom_ui+'\
                     </div>\
                 </div>');
                 AIZ.plugins.bootstrapSelect('refresh');
            }
        });
+    }
 
+    function add_dimension_value(attribute_id) {
+        var l = $('.dimension_l').val();
+        var w = $('.dimension_w').val();
+        var h = $('.dimension_h').val();
+        var u = $('.dimension_u').val();
 
+        if (l && w && h) {
+            var value = l + 'x' + w + 'x' + h + ' ' + u;
+            $.post('{{ route('products.store-attribute-value-ajax') }}', {
+                _token: AIZ.data.csrf,
+                attribute_id: attribute_id,
+                value: value
+            }, function(data) {
+                if (data.success) {
+                    var option = new Option(data.value, data.value, true, true);
+                    $('#choice_options_' + attribute_id).append(option).trigger('change');
+                    AIZ.plugins.bootstrapSelect('refresh');
+                    $('.dimension_l, .dimension_w, .dimension_h').val('');
+                }
+            });
+        } else {
+            AIZ.plugins.notify('warning', '{{ translate('Please enter all dimension values') }}');
+        }
     }
 
     $('input[name="colors_active"]').on('change', function() {
