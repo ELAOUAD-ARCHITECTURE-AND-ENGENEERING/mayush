@@ -168,8 +168,8 @@
             </tr>
             <tr>
                 <td class="content">
-                    <p class="greeting">Hi {{ $user->name }},</p>
-                    <p style="font-size: 16px; color: #475569; line-height: 1.6; margin-bottom: 10px;">Good news! An item on your wishlist is finally back in our shelves. Grab it before it sells out again.</p>
+                    <p class="greeting">{{ translate('Hi') }} {{ (isset($user->name)) ? $user->name : translate('there') }},</p>
+                    <p style="font-size: 16px; color: #475569; line-height: 1.6; margin-bottom: 10px;">{{ translate('Good news! An item you were interested in is finally back in our shelves. Grab it before it sells out again.') }}</p>
                     
                     <div class="product-card">
                         <table width="100%" border="0" cellspacing="0" cellpadding="0">

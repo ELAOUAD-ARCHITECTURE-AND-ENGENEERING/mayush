@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\StockAlertSubscription;
+use App\Models\StockSubscription;
 use Auth;
 use App\Models\Product;
 
@@ -14,16 +14,24 @@ class StockAlertController extends Controller
      */
     public function subscribe(Request $request)
     {
-        if (!Auth::check()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => translate('Please login to subscribe to stock alerts.')
-            ], 401);
+        $productId = $request->input('product_id');
+        $variant = $request->input('variant'); // Assuming 'variant' is passed from the form
+        $email = $request->input('email');
+        
+        if (Auth::check()) {
+            $user_id = Auth::id();
+            $email = $email ?? Auth::user()->email;
+        } else {
+            $user_id = null;
+            if (!$email) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => translate('Please provide your email address.')
+                ], 422);
+            }
         }
 
-        $productId = $request->input('product_id');
         $product = Product::find($productId);
-
         if (!$product) {
             return response()->json([
                 'status' => 'error',
@@ -31,10 +39,13 @@ class StockAlertController extends Controller
             ], 404);
         }
 
-        // Prevent duplicate subscriptions
-        $existing = StockAlertSubscription::where('user_id', Auth::id())
+        // Prevent duplicate active subscriptions
+        $existing = StockSubscription::pending()
             ->where('product_id', $productId)
-            ->where('notified', 0)
+            ->where('email', $email)
+            ->when($variant, function($q) use ($variant) {
+                return $q->where('variant', $variant);
+            })
             ->first();
 
         if ($existing) {
@@ -44,10 +55,12 @@ class StockAlertController extends Controller
             ]);
         }
 
-        StockAlertSubscription::create([
-            'user_id' => Auth::id(),
+        StockSubscription::create([
+            'user_id' => $user_id,
             'product_id' => $productId,
-            'notified' => 0
+            'variant' => $variant,
+            'email' => $email,
+            'notified_at' => null
         ]);
 
         return response()->json([

@@ -26,13 +26,32 @@ class SendStockAlertNotifications implements ShouldQueue
      */
     public function handle(ProductRestockedEvent $event): void
     {
-        // Find all users who wishlisted this product
-        $wishlists = Wishlist::with('user')->where('product_id', $event->product->id)->get();
+        $product = $event->product;
+
+        // 1. Notify Stock Subscribers (MA-107)
+        $subscriptions = \App\Models\StockSubscription::pending()
+            ->where('product_id', $product->id)
+            ->get();
+
+        foreach ($subscriptions as $subscription) {
+            if ($subscription->user_id) {
+                // Registered User
+                $subscription->user->notify(new ProductRestockedNotification($product));
+            } else {
+                // Guest Email
+                Notification::route('mail', $subscription->email)
+                    ->notify(new ProductRestockedNotification($product));
+            }
+            
+            $subscription->update(['notified_at' => now()]);
+        }
+
+        // 2. Notify Wishlist Users (Existing logic)
+        $wishlists = Wishlist::with('user')->where('product_id', $product->id)->get();
+        $wishlistUsers = $wishlists->pluck('user')->filter();
         
-        $users = $wishlists->pluck('user')->filter();
-        
-        if ($users->isNotEmpty()) {
-            Notification::send($users, new ProductRestockedNotification($event->product));
+        if ($wishlistUsers->isNotEmpty()) {
+            Notification::send($wishlistUsers, new ProductRestockedNotification($product));
         }
     }
 }

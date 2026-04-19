@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('stock_subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedInteger('user_id')->nullable();
+            $table->integer('product_id');
             $table->string('variant')->nullable();
             $table->string('email')->index();
             $table->timestamp('notified_at')->nullable();
