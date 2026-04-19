@@ -114,25 +114,6 @@ class ExpressBuySecurityTest extends TestCase
     }
 
     /** @test */
-    public function it_rejects_express_buy_with_insufficient_wallet_balance()
-    {
-        // 1. Force preferred method to wallet, and drop balance to 0
-        $this->user->balance = 0;
-        $this->user->save();
-        
-        // Remove vault so wallet is preferred if we configure a fallback,
-        // Wait, preferred method logic falls back to COD if no vault. 
-        // We'll just mock the balance check logic flow or accept the COD fallback
-        // In ExpressBuyController, payment_type defaults to getPreferredPaymentMethod().
-        // To force wallet, we'd need to mock or manipulate. Let's just create a product
-        // that costs more than the current 0 balance, but since preferred is still vault (due to setup),
-        // we should delete the vault token first to test fallback, or directly test wallet payment.
-        
-        // Actually, the vault token is active, so preferred is cmi_vault.
-        // Let's test the vault token execution path instead.
-    }
-
-    /** @test */
     public function it_charges_via_cmi_vault_when_preferred()
     {
         $this->withoutExceptionHandling();

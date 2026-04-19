@@ -26,7 +26,7 @@ class CmiController extends Controller
     public function pay(Request $request)
     {
         // Debugging: Log entry
-        Log::info('CMI Payment Initiated', ['user_id' => Auth::id(), 'session_data' => Session::all()]);
+        Log::info('CMI Payment Initiated', ['user_id' => Auth::id(), 'payment_type' => Session::get('payment_type')]);
 
         if (!Session::has('combined_order_id')) {
             $paymentType = Session::get('payment_type');
@@ -70,6 +70,10 @@ class CmiController extends Controller
                 } elseif ($paymentType == 'wallet_payment') {
                     $amount = round($paymentData['amount'], 2);
                     $oid = 'W-' . Auth::id() . '-' . time();
+                    
+                    // Security: Cache the expected wallet amount for callback validation
+                    \Cache::put('cmi_wallet_amount_' . $oid, $amount, 3600); // 1 hour TTL
+                    
                     $shipping_info = [
                         'name' => $user->name ?? 'Guest',
                         'email' => $user->email ?? 'email@domain.com',
@@ -238,10 +242,15 @@ class CmiController extends Controller
                         $order = Order::find($id);
                         $db_amount = $order ? (float)$order->grand_total : 0;
                     } elseif ($type == 'W') {
-                         // Wallet amount check (Wallet uses the 'amount' from input as the source of truth usually, 
-                         // but for safety in callback we assume it's valid if user_id $id exists)
                          $order = User::find($id);
-                         $db_amount = $amount_received; 
+                         // Retrieve the expected wallet amount from cache to prevent arbitrary amount top-ups
+                         $cached_amount = \Cache::get('cmi_wallet_amount_' . $input['oid']);
+                         if ($cached_amount) {
+                             $db_amount = (float) $cached_amount;
+                         } else {
+                             Log::error('CMI Callback: Wallet amount cache expired or missing', ['oid' => $input['oid']]);
+                             return response('FAILURE')->header('Content-Type', 'text/plain');
+                         }
                     } elseif ($type == 'EA') {
                          $order = EliteSubscription::find($id);
                          $db_amount = $order ? (float) $order->amount_paid : 0;
@@ -252,7 +261,15 @@ class CmiController extends Controller
                         return response('FAILURE')->header('Content-Type', 'text/plain');
                     }
 
-                    // 2.5 Idempotency Check
+                    // 2.5 Global Idempotency Check (Exactly-Once Processing)
+                    // Check if this transaction has already been successfully processed
+                    $txnKey = 'cmi_txn_processed_' . ($input['TransId'] ?? $input['oid']);
+                    if (\Cache::has($txnKey)) {
+                        Log::info('CMI Callback: Idempotency - Transaction already processed', ['txn_key' => $txnKey]);
+                        return response('ACTION=POSTAUTH')->header('Content-Type', 'text/plain');
+                    }
+
+                    // Specific status idempotency checks
                     if ($type == 'CO' && $order instanceof CombinedOrder) {
                         $allPaid = true;
                         foreach ($order->orders as $subOrder) {
@@ -338,6 +355,16 @@ class CmiController extends Controller
                         }
 
                         Log::info('CMI Callback: Returning ACTION=POSTAUTH');
+                        
+                        // Mark this transaction as successfully processed to prevent replays (valid for 30 days)
+                        $txnKey = 'cmi_txn_processed_' . ($input['TransId'] ?? $input['oid']);
+                        \Cache::put($txnKey, true, now()->addDays(30));
+                        
+                        // Clean up expected wallet amount if applicable
+                        if ($type == 'W') {
+                            \Cache::forget('cmi_wallet_amount_' . $input['oid']);
+                        }
+
                         return response('ACTION=POSTAUTH')->header('Content-Type', 'text/plain');
                     } else {
                         // V2.0 Documentation: If ProcReturnCode <> 00, it's a failure.
@@ -393,7 +420,6 @@ class CmiController extends Controller
              Log::info('CMI Payment Success - Processing', [
                  'ProcReturnCode' => $input["ProcReturnCode"],
                  'oid' => $input['oid'] ?? 'unknown',
-                 'session_data' => Session::all(),
                  'has_payment_type' => Session::has('payment_type')
              ]);
              

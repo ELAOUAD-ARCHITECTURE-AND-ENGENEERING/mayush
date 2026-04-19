@@ -4,7 +4,7 @@
 > **MANDATORY SESSION RULE:** All team members (AI and Human) MUST review and update this tracking document at the beginning of EVERY work session to ensure alignment on current status and next priorities.
 
 ## 📊 Current High-Level Status
-- **Overall Completion:** 93%
+- **Overall Completion:** 95%
 - **Current Sprint:** Phase 1: Security & Compliance
 - **RAG Status:** 🟢 Green (On Track)
 
@@ -24,8 +24,9 @@
 | **2026-04-10** | **OPS-02** | Deploy Pipeline Stabilization | DevOps | Fixed Redis NOAUTH (6 root causes), CI-safe pre-flight via `redis-cli`, removed Tinker from CI, hardened cache-clear order, AI KB created. | ✅ Completed |
 | **2026-04-13** | **QA-SYNC** | Category Sync Deduplication | Logic | Finalized tests and deduplicated counting mechanism. | ✅ Completed |
 | **2026-04-17** | **MA-108** | Attribute-Based Dimensions | Logic/UI | Refactored Dimensions to dynamic Attribute Characteristic system. | ✅ Completed |
-| **2026-04-09** | **MA-099b** | CMI Tokenization & Vault | Security | Transition preference to Gateway Tokens. | 🔵 **Next — Rank 1** |
-| **2026-04-10** | **QA-01** | Local Test Suite (SQLite) | Security | Full feature test coverage for Checkout. | 🔵 **Next — Rank 1** |
+| **2026-04-18** | **MA-105** | Customer Loyalty Lounge | Engagement | Loyalty Hub UI, tier-based benefits, point-to-wallet, integration tests. | ✅ Completed |
+| **2026-04-09** | **MA-099b** | CMI Tokenization & Vault | Security | Token model, VaultService, Express Charge — needs hardening & tests. | 🟡 **In Progress (75%)** |
+| **2026-04-10** | **QA-01** | Local Test Suite (SQLite) | Security | Factories, schema hardening, 2 suites passing — needs CombinedOrder tests. | 🟡 **In Progress (40%)** |
 | **2026-04-12** | **MA-106** | Artisan Storytelling Profiles | Growth | `Shop` model extension, Story views. | ⚪ Pending |
 | **2026-04-15** | **MA-107** | Real-time Stock Alerts | Retention | Notification engine for wishlists. | ⚪ Pending |
 | **2026-04-20** | **REF-01** | HomeController Decomposition | Maintenance | Refactor monolithic 52KB controller. | ⚪ Pending |
@@ -35,13 +36,20 @@
 ## 🛠️ Detailed Task Breakdown Structure (TBS)
 
 ### 1. Security & Compliance (Rank 1)
-- **MA-099b: CMI Tokenization**
-    - [ ] Create `PaymentToken` model and migration.
-    - [ ] Update `ExpressBuyController` to use tokens instead of preferences.
-    - [ ] Implement secure handoff for CMI redirect with token capture.
+- **MA-099b: CMI Tokenization Hardening**
+    - [x] Create `PaymentToken` model and migration.
+    - [x] Update `ExpressBuyController` to use tokens instead of preferences.
+    - [x] Implement secure handoff for CMI redirect with token capture.
+    - [ ] Add token expiry detection and `PruneExpiredVaultTokens` command.
+    - [ ] Add rate-limiting (max 5 tokens per user).
+    - [ ] Write `VaultTokenFlowTest` integration test.
 - **QA-01: Coverage Expansion**
-    - [ ] Configure `phpunit.xml` for local SQLite.
+    - [x] Configure `phpunit.xml` for local SQLite.
+    - [x] Create `ShopFactory` and `CustomerPackageFactory`.
+    - [x] Harden DB schema (shops, users, warranties, product deps).
     - [ ] Write Integration tests for `CombinedOrder` splitting logic.
+    - [ ] Write `CheckoutFlowTest` end-to-end test.
+    - [ ] Create `OrderFactory` and `CombinedOrderFactory`.
 
 ### 2. Seller Empowerment (Rank 2)
 - **MA-106: Artisan Storytelling**
@@ -64,4 +72,4 @@
 
 ---
 
-*Last Updated by Antigravity AI — 2026-04-17T14:52:00Z*
+*Last Updated by Antigravity AI — 2026-04-19T10:43:00Z*

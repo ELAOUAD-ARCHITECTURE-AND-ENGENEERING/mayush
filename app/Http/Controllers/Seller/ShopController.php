@@ -46,6 +46,8 @@ class ShopController extends Controller
             $shop->story_title = $request->story_title;
             $shop->story_content = $request->story_content;
             $shop->hero_media_id = $request->hero_media_id;
+            $shop->artisan_quote = $request->artisan_quote;
+            $shop->gallery_json = $request->gallery_json;
         }
 
         if ($request->has('delivery_pickup_longitude') && $request->has('delivery_pickup_latitude'))

@@ -24,6 +24,7 @@ class Shop extends Model
       'business_info'      => \App\Casts\SafeEncrypted::class,
       'verification_info'  => \App\Casts\SafeEncrypted::class,
       'social_links'       => 'array',
+      'gallery_json'       => 'array',
   ];
 
   public function user()

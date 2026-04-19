@@ -31,6 +31,12 @@
                     @endif
                 </div>
 
+                @if($shop->artisan_quote)
+                <div class="artisan-quote-container my-4 text-center p-4">
+                    <p class="artisan-quote italic fs-20 text-dark mb-0">"{{ $shop->artisan_quote }}"</p>
+                </div>
+                @endif
+
                 @if($shop->brand_philosophy)
                 <div class="philosophy-card p-4 rounded-lg bg-soft-primary border-left-4 border-primary mb-4">
                     <h5 class="h6 fw-700 text-primary mb-2 italic-header"><i class="las la-quote-left mr-2"></i>{{ translate('Our Philosophy') }}</h5>
@@ -47,6 +53,26 @@
                 @endif
             </div>
         </div>
+
+        @if(!empty($shop->gallery_json) && is_array($shop->gallery_json))
+        <div class="row mt-5 pt-4">
+            <div class="col-12 text-center mb-4" data-aos="fade-up">
+                <h3 class="h4 fw-700">{{ translate('From the Workshop') }}</h3>
+                <div class="divider mx-auto" style="width: 50px; height: 3px; background: var(--primary);"></div>
+            </div>
+            <div class="col-12" data-aos="fade-up" data-aos-delay="100">
+                <div class="aiz-carousel gutters-10" data-items="4" data-lg-items="3" data-md-items="2" data-sm-items="1" data-arrows="true" data-infinite="true">
+                    @foreach($shop->gallery_json as $img_id)
+                        <div class="carousel-box">
+                            <div class="artisan-gallery-item rounded-lg overflow-hidden shadow-sm hov-shadow-md transition-all">
+                                <img src="{{ uploaded_asset($img_id) }}" class="img-fit h-250px lazyload" alt="{{ translate('Process image') }}">
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </section>
 
@@ -97,5 +123,17 @@
     }
     .italic {
         font-style: italic;
+    }
+    .artisan-quote {
+        font-family: 'Playfair Display', serif;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 15px;
+        display: inline-block;
+    }
+    .artisan-gallery-item:hover {
+        transform: translateY(-5px);
+    }
+    .h-250px {
+        height: 250px;
     }
 </style>

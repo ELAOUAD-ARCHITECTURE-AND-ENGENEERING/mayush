@@ -124,6 +124,31 @@
                         <textarea name="brand_philosophy" rows="3" class="form-control mb-3" placeholder="{{ translate('What values guide your process?') }}">{{ $shop->brand_philosophy }}</textarea>
                     </div>
                 </div>
+
+                <div class="row">
+                    <label class="col-md-2 col-form-label">{{ translate('Artisan Highlight Quote') }}</label>
+                    <div class="col-md-10">
+                        <textarea name="artisan_quote" rows="2" class="form-control mb-3" placeholder="{{ translate('e.g. Every piece tells a story of my ancestors...') }}">{{ $shop->artisan_quote }}</textarea>
+                        <small class="text-muted">{{ translate('A short, powerful sentence that will be highlighted on your profile.') }}</small>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">{{ translate('Craft Gallery') }}</label>
+                    <div class="col-md-10">
+                        <div class="input-group" data-toggle="aizuploader" data-type="image" data-multiple="true">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+                            </div>
+                            <div class="form-control file-amount">{{ translate('Choose Images') }}</div>
+                            <input type="hidden" name="gallery_json" value="{{ is_array($shop->gallery_json) ? implode(',', $shop->gallery_json) : $shop->gallery_json }}" class="selected-files">
+                        </div>
+                        <div class="file-preview box sm">
+                        </div>
+                        <small class="text-muted">{{ translate('Showcase your materials, tools, and work-in-progress.') }}</small>
+                    </div>
+                </div>
+
                 <div class="row">
                     <label class="col-md-2 col-form-label">{{ translate('Workshop Video URL (YouTube)') }}</label>
                     <div class="col-md-10">
