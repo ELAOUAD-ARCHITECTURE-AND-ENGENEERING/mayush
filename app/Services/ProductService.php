@@ -33,11 +33,13 @@ class ProductService
         $approved = 1;
         if (auth()->user()->user_type == 'seller') {
             $user_id = auth()->user()->id;
+            $added_by = 'seller';
             if (get_setting('product_approve_by_admin') == 1) {
                 $approved = 0;
             }
         } else {
             $user_id = User::where('user_type', 'admin')->first()->id;
+            $added_by = 'admin';
         }
                 $tags = array();
         if (isset($collection['tags'][0]) && $collection['tags'][0] != null) {
@@ -64,15 +66,15 @@ class ProductService
         }
         unset($collection['date_range']);
         
-        if ($collection['meta_title'] == null) {
+        if (!isset($collection['meta_title']) || $collection['meta_title'] == null) {
             $collection['meta_title'] = $collection['name'];
         }
-        if ($collection['meta_description'] == null) {
+        if (!isset($collection['meta_description']) || $collection['meta_description'] == null) {
             $collection['meta_description'] = strip_tags($collection['description']);
         }
 
-        if ($collection['meta_img'] == null) {
-            $collection['meta_img'] = $collection['thumbnail_img'];
+        if (!isset($collection['meta_img']) || $collection['meta_img'] == null) {
+            $collection['meta_img'] = $collection['thumbnail_img'] ?? null;
         }
 
 
@@ -166,6 +168,7 @@ class ProductService
             'choice_options',
             'attributes',
             'published',
+            'added_by',
         ))->toArray();
 
         return Product::create($data);

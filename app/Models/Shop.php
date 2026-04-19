@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\PreventDemoModeChanges;
 
 class Shop extends Model
 {
-  use PreventDemoModeChanges;
+  use HasFactory, PreventDemoModeChanges;
 
 
   protected $with = ['user'];

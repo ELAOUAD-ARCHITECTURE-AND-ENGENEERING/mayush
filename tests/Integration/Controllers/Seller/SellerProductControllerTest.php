@@ -21,6 +21,7 @@ class SellerProductControllerTest extends TestCase
         Language::factory()->create(['code' => 'en']);
         BusinessSetting::factory()->create(['type' => 'site_name', 'value' => 'Mayush']);
         
+        $this->admin = User::factory()->create(['user_type' => 'admin']);
         $this->seller = User::factory()->create(['user_type' => 'seller']);
         $this->shop = Shop::factory()->create(['user_id' => $this->seller->id]);
     }
@@ -36,6 +37,7 @@ class SellerProductControllerTest extends TestCase
     /** @test */
     public function seller_can_view_create_product_page()
     {
+        $this->withoutExceptionHandling();
         $response = $this->actingAs($this->seller)->get(route('seller.products.create'));
         $response->assertStatus(200);
     }
@@ -48,14 +50,18 @@ class SellerProductControllerTest extends TestCase
         $productData = [
             'name' => 'Seller Test Product',
             'category_ids' => [$category->id],
+            'category_id' => $category->id,
             'unit' => 'pcs',
             'min_qty' => 1,
             'tags' => [json_encode([['value' => 'seller-test']])],
             'unit_price' => 50,
             'current_stock' => 20,
-            'description' => 'Seller test description'
+            'description' => 'Seller test description',
+            'button' => 'publish',
+            'date_range' => now()->format('Y-m-d') . ' to ' . now()->addDays(7)->format('Y-m-d'),
         ];
 
+        $this->withoutExceptionHandling();
         $response = $this->actingAs($this->seller)->post(route('seller.products.store'), $productData);
 
         $response->assertRedirect(route('seller.products'));

@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\PreventDemoModeChanges;
 use App;
 
 class CustomerPackage extends Model
 {
-  use PreventDemoModeChanges;
+  use HasFactory, PreventDemoModeChanges;
 
     public function getTranslation($field = '', $lang = false){
       $lang = $lang == false ? App::getLocale() : $lang;
