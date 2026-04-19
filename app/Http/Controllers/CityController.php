@@ -171,6 +171,12 @@ class CityController extends Controller
         return response()->json($cities);
     }
 
+    /**
+     * Perform bulk deletion of cities.
+     * 
+     * @param \Illuminate\Http\Request $request Expected to contain an array 'id' of city IDs.
+     * @return int Returns 1 on success, 0 on failure.
+     */
     public function bulk_destroy(Request $request)
     {
         if ($request->id && count($request->id) > 0) {
@@ -184,6 +190,12 @@ class CityController extends Controller
         return 0;
     }
 
+    /**
+     * Perform bulk updates of city costs.
+     * 
+     * @param \Illuminate\Http\Request $request Expected to contain 'ids' array and corresponding 'costs' array.
+     * @return \Illuminate\Http\RedirectResponse Redirects back with flash message.
+     */
     public function bulk_update(Request $request)
     {
         if ($request->ids && count($request->ids) > 0) {
