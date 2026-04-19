@@ -18,8 +18,9 @@
                         <h1 class="mb-2 fs-28 fw-500 text-danger">{{ translate('Payment Failed!')}}</h1>
                         <p class="fs-16 text-soft-dark">{{ translate('We are sorry, but your payment could not be processed at this time.') }}</p>
                         @if(Session::has('payment_error'))
-                            <div class="alert alert-danger mx-4 mt-3">
-                                {{ Session::get('payment_error') }}
+                            <div class="alert alert-danger mx-4 mt-3 d-flex align-items-center justify-content-center mb-0 border-0 bg-soft-danger text-danger">
+                                <i class="las la-exclamation-triangle fs-24 mr-2"></i>
+                                <span class="fw-600 fs-14">{{ Session::get('payment_error') }}</span>
                             </div>
                         @endif
                         <p class="fs-13 text-secondary mt-3">

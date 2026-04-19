@@ -18,6 +18,24 @@
             <h5 class="mb-0 h6">{{ translate('Saved Cards') }}</h5>
         </div>
         <div class="card-body">
+            <!-- Skeleton Loader (UI Polish) -->
+            <div id="vault-skeleton" class="py-3">
+                <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                    <div class="skeleton-shimmer h-20px w-10 mx-2 rounded"></div>
+                    <div class="skeleton-shimmer h-20px w-25 mx-2 rounded"></div>
+                    <div class="skeleton-shimmer h-20px w-20 mx-2 rounded"></div>
+                    <div class="skeleton-shimmer h-20px w-15 mx-2 rounded"></div>
+                    <div class="skeleton-shimmer h-20px w-15 mx-2 rounded text-right"></div>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="skeleton-shimmer h-40px w-100 rounded mx-1"></div>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="skeleton-shimmer h-40px w-100 rounded mx-1"></div>
+                </div>
+            </div>
+
+            <div id="vault-content" class="d-none">
             @if(count($tokens) > 0)
                 <div class="table-responsive">
                     <table class="table aiz-table mb-0">
@@ -66,14 +84,29 @@
             @else
                 <div class="text-center py-5">
                     <img src="{{ static_asset('assets/img/nothing.svg') }}" height="90" class="mb-3" alt="{{ translate('No data found') }}">
-                    <h5 class="h6 text-muted">{{ translate('No saved payment methods found') }}</h5>
-                    <p class="text-sm mt-3">{{ translate('You can save your card securely during your next CMI checkout to enable 1-Click Express Buy.') }}</p>
+                    <h5 class="h6 text-muted">{{ translate('No saved cards available.') }}</h5>
+                    <p class="text-sm mt-3 text-secondary">{{ translate('To enable 1-Click Express Buy, please securely save your card during your next CMI checkout.') }}</p>
                 </div>
             @endif
+            </div>
         </div>
     </div>
 @endsection
 
 @section('modal')
     @include('modals.delete_modal')
+@endsection
+
+@section('script')
+<script>
+    $(document).ready(function() {
+        // UI Polish: Smooth loader transition for vault tokens
+        setTimeout(function() {
+            $('#vault-skeleton').fadeOut(200, function() {
+                $(this).addClass('d-none');
+                $('#vault-content').hide().removeClass('d-none').fadeIn(300);
+            });
+        }, 600);
+    });
+</script>
 @endsection

@@ -686,28 +686,40 @@
                     </div>
                     @if (($detailedProduct->digital == 1 || $total_qty > 0) && Auth::check())
                         <div class="mt-2 w-100">
-                            <button type="button" onclick="expressBuy({{ $detailedProduct->id }})" class="btn text-white fw-bold d-block w-100 py-15px rounded-1" style="background-color: #ff9900;">⚡ {{ translate('Express Buy (1-Click)') }}</button>
+                            <button type="button" onclick="expressBuy(this, {{ $detailedProduct->id }})" class="btn text-white fw-bold d-block w-100 py-15px rounded-1" style="background-color: #ff9900;">⚡ {{ translate('Express Buy (1-Click)') }}</button>
                         </div>
                         <script>
-                            function expressBuy(id) {
-                                $.get('{{ route("express.check") }}', function(data) {
-                                    if(data.eligible) {
-                                        if(confirm('{{ translate("Confirm Express Buy with") }} ' + data.preferred_payment + '?')) {
-                                            const form = $('#option-choice-form');
-                                            
-                                            // Add v_token for security session binding
-                                            if (form.find('input[name="v_token"]').length == 0) {
-                                                form.append('<input type="hidden" name="v_token" value="' + data.v_token + '">');
-                                            } else {
-                                                form.find('input[name="v_token"]').val(data.v_token);
-                                            }
+                            function expressBuy(btn, id) {
+                                let $btn = $(btn);
+                                let originalHtml = $btn.html();
+                                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ' + '{{ translate("Processing...") }}');
 
-                                            form.attr('action', '{{ url("express-buy") }}/' + id);
-                                            form.attr('method', 'POST');
-                                            form.submit();
+                                $.ajax({
+                                    url: '{{ route("express.check") }}',
+                                    type: 'GET',
+                                    success: function(data) {
+                                        if(data.eligible) {
+                                            if(confirm('{{ translate("Confirm Express Buy with") }} ' + data.preferred_payment + '?')) {
+                                                const form = $('#option-choice-form');
+                                                if (form.find('input[name="v_token"]').length == 0) {
+                                                    form.append('<input type="hidden" name="v_token" value="' + data.v_token + '">');
+                                                } else {
+                                                    form.find('input[name="v_token"]').val(data.v_token);
+                                                }
+                                                form.attr('action', '{{ url("express-buy") }}/' + id);
+                                                form.attr('method', 'POST');
+                                                form.submit();
+                                            } else {
+                                                $btn.prop('disabled', false).html(originalHtml);
+                                            }
+                                        } else {
+                                            AIZ.plugins.notify('warning', '{{ translate("Please set a default address and payment method to use Express Buy.") }}');
+                                            $btn.prop('disabled', false).html(originalHtml);
                                         }
-                                    } else {
-                                        alert('{{ translate("Please set a default address and payment method to use Express Buy.") }}');
+                                    },
+                                    error: function() {
+                                        AIZ.plugins.notify('danger', '{{ translate("Something went wrong validating your Express Buy profile.") }}');
+                                        $btn.prop('disabled', false).html(originalHtml);
                                     }
                                 });
                             }
