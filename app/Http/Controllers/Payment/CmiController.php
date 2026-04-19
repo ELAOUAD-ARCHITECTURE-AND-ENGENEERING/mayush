@@ -15,6 +15,7 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\CustomerPackageController;
 use App\Http\Controllers\SellerPackageController;
 use App\Http\Controllers\Seller\SellerEliteController;
+use App\Http\Requests\CmiCallbackRequest;
 use App\Models\BusinessSetting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -108,23 +109,10 @@ class CmiController extends Controller
                     $shipping_info = [];
                 }
     
-                // CMI Credentials & Config from Config File
+                // CMI Credentials & Config from Config File (Strictly from .env / config for security)
                 $clientId = config('cmi.merchant_id');
                 $storeKey = config('cmi.secret_key');
                 $storeType = config('cmi.store_type');
-                
-                // Database Settings Override (priority over config)
-                $dbClientId = BusinessSetting::where('type', 'cmi_client_id')->first();
-                if($dbClientId && $dbClientId->value) $clientId = $dbClientId->value;
-                
-                $dbMerchantId = BusinessSetting::where('type', 'cmi_merchant_id')->first();
-                if($dbMerchantId && $dbMerchantId->value) $clientId = $dbMerchantId->value;
-    
-                $dbStoreKey = BusinessSetting::where('type', 'cmi_store_key')->first();
-                if($dbStoreKey && $dbStoreKey->value) $storeKey = $dbStoreKey->value;
-    
-                $dbSecretKey = BusinessSetting::where('type', 'cmi_secret_key')->first();
-                if($dbSecretKey && $dbSecretKey->value) $storeKey = $dbSecretKey->value;
     
                 // Validate Credentials
                 if (empty($clientId) || empty($storeKey)) {
@@ -204,7 +192,7 @@ class CmiController extends Controller
         return redirect()->route('home');
     }
 
-    public function callback(Request $request)
+    public function callback(CmiCallbackRequest $request)
     {
         $input = $request->all();
         
@@ -217,14 +205,8 @@ class CmiController extends Controller
         ]);
         
         try {
-            // Config key
+            // Config key (Strictly from .env / config for security)
             $storeKey = config('cmi.secret_key');
-            
-            $dbStoreKey = BusinessSetting::where('type', 'cmi_store_key')->first();
-            if($dbStoreKey && $dbStoreKey->value) $storeKey = $dbStoreKey->value;
-
-            $dbSecretKey = BusinessSetting::where('type', 'cmi_secret_key')->first();
-            if($dbSecretKey && $dbSecretKey->value) $storeKey = $dbSecretKey->value;
 
             // 1. Verify Hash
             $actualHash = $this->generateHash($input, $storeKey);
@@ -268,6 +250,31 @@ class CmiController extends Controller
                     if (!$order) {
                         Log::error('CMI Callback: Order not found', ['oid' => $input['oid']]);
                         return response('FAILURE')->header('Content-Type', 'text/plain');
+                    }
+
+                    // 2.5 Idempotency Check
+                    if ($type == 'CO' && $order instanceof CombinedOrder) {
+                        $allPaid = true;
+                        foreach ($order->orders as $subOrder) {
+                            if ($subOrder->payment_status != 'paid') {
+                                $allPaid = false;
+                                break;
+                            }
+                        }
+                        if ($allPaid && count($order->orders) > 0) {
+                            Log::info('CMI Callback: Idempotency - CombinedOrder already paid', ['oid' => $input['oid']]);
+                            return response('ACTION=POSTAUTH')->header('Content-Type', 'text/plain');
+                        }
+                    } elseif ($type == 'OR' && $order instanceof Order) {
+                        if ($order->payment_status == 'paid') {
+                            Log::info('CMI Callback: Idempotency - Order already paid', ['oid' => $input['oid']]);
+                            return response('ACTION=POSTAUTH')->header('Content-Type', 'text/plain');
+                        }
+                    } elseif ($type == 'EA' && $order instanceof EliteSubscription) {
+                        if (isset($order->payment_status) && $order->payment_status == 'paid') {
+                            Log::info('CMI Callback: Idempotency - Elite Subscription already paid', ['oid' => $input['oid']]);
+                            return response('ACTION=POSTAUTH')->header('Content-Type', 'text/plain');
+                        }
                     }
 
                     // 3. Amount Validation (Merchant Control per V2.0 docs)
@@ -361,12 +368,6 @@ class CmiController extends Controller
     public function success(Request $request)
     {
         $storeKey = config('cmi.secret_key');
-        
-        $dbStoreKey = BusinessSetting::where('type', 'cmi_store_key')->first();
-        if($dbStoreKey && $dbStoreKey->value) $storeKey = $dbStoreKey->value;
-
-        $dbSecretKey = BusinessSetting::where('type', 'cmi_secret_key')->first();
-        if($dbSecretKey && $dbSecretKey->value) $storeKey = $dbSecretKey->value;
         
         $input = $request->all();
 
@@ -469,19 +470,30 @@ class CmiController extends Controller
     public function fail(Request $request)
     {
         $input = $request->all();
-        // Restore session if lost
-        if (isset($input['oid'])) {
-            $parts = explode('-', $input['oid']);
-            if (count($parts) >= 2) {
-                if ($parts[0] == 'CO') {
-                    Session::put('combined_order_id', $parts[1]);
-                    Session::put('payment_type', 'cart_payment');
-                } elseif ($parts[0] == 'OR') {
-                    Session::put('payment_type', 'order_re_payment');
-                    Session::put('payment_data', ['order_id' => $parts[1]]);
+        $storeKey = config('cmi.secret_key');
+        
+        // Verify Hash to prevent session manipulation
+        if (isset($input['HASH'])) {
+            $actualHash = $this->generateHash($input, $storeKey);
+            if ($input['HASH'] === $actualHash) {
+                // Restore session if lost and hash is valid
+                if (isset($input['oid'])) {
+                    $parts = explode('-', $input['oid']);
+                    if (count($parts) >= 2) {
+                        if ($parts[0] == 'CO') {
+                            Session::put('combined_order_id', $parts[1]);
+                            Session::put('payment_type', 'cart_payment');
+                        } elseif ($parts[0] == 'OR') {
+                            Session::put('payment_type', 'order_re_payment');
+                            Session::put('payment_data', ['order_id' => $parts[1]]);
+                        }
+                    }
                 }
+            } else {
+                Log::warning('CMI Fail Route: Invalid Hash Attempt', ['ip' => $request->ip()]);
             }
         }
+        
         $errorMsg = $input['ErrMsg'] ?? translate("Payment was cancelled or failed.");
         Session::put('payment_error', $errorMsg);
         return redirect()->route('payment.failed');
@@ -540,12 +552,6 @@ class CmiController extends Controller
             $storeKey = config('cmi.secret_key');
             $storeType = config('cmi.store_type');
             
-            $dbClientId = BusinessSetting::where('type', 'cmi_client_id')->first();
-            if($dbClientId && $dbClientId->value) $clientId = $dbClientId->value;
-            
-            $dbStoreKey = BusinessSetting::where('type', 'cmi_store_key')->first();
-            if($dbStoreKey && $dbStoreKey->value) $storeKey = $dbStoreKey->value;
-
             $data = [];
             $data['clientid'] = $clientId;
             $data['amount'] = $amount;

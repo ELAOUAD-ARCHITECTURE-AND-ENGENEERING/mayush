@@ -107,11 +107,7 @@ Route::controller(VerificationController::class)->group(function () {
     Route::get('/verification-confirmation/{code}', 'verification_confirmation')->name('email.verification.confirmation');
 });
 
-Route::controller(OTPVerificationController::class)->group(function () {
-    Route::get('/otp-verification', 'show_verification_form')->name('verification');
-    Route::post('/otp-verification', 'verify')->name('otp.verify');
-    Route::get('/otp-resend', 'resend')->name('otp.resend');
-});
+
 
 Route::controller(HomeController::class)->group(function () {
     Route::get('/email_change/callback', 'email_change_callback')->name('email_change.callback');
@@ -185,6 +181,11 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/privacy-policy', 'privacypolicy')->name('privacypolicy');
 
     Route::get('/privacy-policy', 'privacypolicy')->name('privacypolicy');
+});
+
+// Health check route for deploy script
+Route::get('/up', function () {
+    return response('OK', 200);
 });
 
 // Language Switch

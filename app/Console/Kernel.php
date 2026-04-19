@@ -38,6 +38,9 @@ class Kernel extends ConsoleKernel
         // Stock alerts for users
         $schedule->command('stock:send-alerts')->hourly();
 
+        // MA-099b: Vault token maintenance
+        $schedule->command('vault:prune-expired')->dailyAt('02:00');
+
         // ONESSTA 3PL Shipping Integration
         $schedule->job(\Mayush\Shipping\Onessta\Jobs\SyncCitiesJob::class)->dailyAt('00:00');
         $schedule->job(\Mayush\Shipping\Onessta\Jobs\SyncPickupCitiesJob::class)->dailyAt('01:00');

@@ -9,4 +9,7 @@ return [
     'callback_url' => env('CMI_CALLBACK_URL'),
     'store_type' => env('CMI_STORE_TYPE', '3D_PAY_HOSTING'),
     'demo_mode' => env('DEMO_MODE', 'Off'),
+    
+    // IP Whitelist for CMI callback (empty array means disabled, though recommended in production)
+    'allowed_ips' => explode(',', env('CMI_ALLOWED_IPS', '')),
 ];

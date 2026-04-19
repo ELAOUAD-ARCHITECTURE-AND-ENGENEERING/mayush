@@ -632,26 +632,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
 
     // Affiliate
     Route::controller(\App\Http\Controllers\AffiliateController::class)->group(function () {
-        Route::get('/affiliate-config', 'configuration')->name('affiliate.index');
+        Route::get('/affiliate-config', 'configuration')->name('admin.affiliate.configuration');
         Route::post('/affiliate-config/update', 'updateSettings')->name('affiliate.config.update');
-        Route::get('/affiliate-users', 'users')->name('affiliate.users');
-        Route::get('/affiliate-users/approve/{id}', 'approve')->name('affiliate.users.approve');
+        Route::get('/affiliate-users', 'users')->name('admin.affiliate.users');
+        Route::get('/affiliate-users/approve/{id}', 'approve')->name('admin.affiliate.users.approve');
     });
 
-    // POS
-    Route::controller(PosController::class)->group(function () {
-        Route::get('/pos', 'index')->name('poin-of-sales.index');
-        Route::get('/pos/search_product', 'search_product')->name('pos.search_product');
-        Route::post('/pos/add-to-cart', 'addToCart')->name('pos.addToCart');
-        Route::post('/pos/remove-from-cart', 'removeFromCart')->name('pos.removeFromCart');
-        Route::post('/pos/update-quantity', 'updateQuantity')->name('pos.updateQuantity');
-        Route::post('/pos/set-discount', 'setDiscount')->name('pos.setDiscount');
-        Route::post('/pos/set-shipping', 'setShipping')->name('pos.setShipping');
-        Route::post('/pos/get-shipping-address', 'getShippingAddress')->name('pos.getShippingAddress');
-        Route::post('/pos/set-shipping-address', 'setShippingAddress')->name('pos.set-shipping-address');
-        Route::post('/pos/get-order-summary', 'getOrderSummary')->name('pos.getOrderSummary');
-        Route::post('/pos/order-place', 'order_place')->name('pos.order_place');
-    });
+
 
     // Countries
     Route::resource('countries', CountryController::class);
@@ -678,8 +665,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         // Route::get('/cities/edit/{id}', 'edit')->name('cities.edit');
         // Route::get('/cities/destroy/{id}', 'destroy')->name('cities.destroy');
         Route::post('/cities/status', 'updateStatus')->name('cities.status');
-        Route::post('/bulk-city-delete', 'bulk_destroy')->name('bulk-city-delete');
-        Route::post('/bulk-city-update', 'bulk_update')->name('bulk-city-update');
     });
 
     Route::view('/system/update', 'backend.system.update')->name('system_update');

@@ -46,35 +46,40 @@ class PaymentVaultService
     }
 
     /**
-     * Check if the user has an active vaulted token.
+     * Check if the user has an active, non-expired vaulted token.
      */
     public static function hasVaultedToken($userId): bool
     {
         return \App\Models\PaymentToken::where('user_id', $userId)
             ->where('gateway', 'cmi')
             ->where('is_active', true)
+            ->nonExpired()
             ->exists();
     }
 
     /**
      * Get the active default token. If no default, get the latest.
+     * Filters out expired tokens automatically.
      */
     public static function getActiveToken($userId)
     {
         return \App\Models\PaymentToken::where('user_id', $userId)
             ->where('gateway', 'cmi')
             ->where('is_active', true)
+            ->nonExpired()
             ->where('is_default', true)
             ->first()
             ?? \App\Models\PaymentToken::where('user_id', $userId)
                 ->where('gateway', 'cmi')
                 ->where('is_active', true)
+                ->nonExpired()
                 ->latest()
                 ->first();
     }
 
     /**
      * Store a new token from the CMI callback.
+     * Enforces a per-user rate limit (max 5 active tokens).
      */
     public static function storeToken(int $userId, array $cmiCallbackData)
     {
@@ -82,6 +87,9 @@ class PaymentVaultService
         if (empty($cmiCallbackData['TransId'])) {
             return null;
         }
+
+        // Rate limit: enforce max tokens per user
+        self::enforceTokenLimit($userId);
 
         // Unset old defaults for this user
         \App\Models\PaymentToken::where('user_id', $userId)
@@ -104,10 +112,46 @@ class PaymentVaultService
             else $token->card_brand = 'Card';
         }
 
+        // Parse card expiry from CMI callback (ExpDate format: YYMM)
+        if (!empty($cmiCallbackData['ExpDate'])) {
+            $expDate = $cmiCallbackData['ExpDate'];
+            if (strlen($expDate) === 4) {
+                $token->card_expiry_year = 2000 + (int) substr($expDate, 0, 2);
+                $token->card_expiry_month = (int) substr($expDate, 2, 2);
+            }
+        }
+
         $token->is_default = true;
         $token->is_active = true;
+        $token->last_used_at = now();
         $token->save();
 
         return $token;
+    }
+
+    /**
+     * Enforce the maximum token limit per user per gateway.
+     * Deactivates the oldest tokens if the limit would be exceeded.
+     */
+    private static function enforceTokenLimit(int $userId): void
+    {
+        $maxTokens = \App\Models\PaymentToken::MAX_TOKENS_PER_USER;
+
+        $activeCount = \App\Models\PaymentToken::where('user_id', $userId)
+            ->where('gateway', 'cmi')
+            ->where('is_active', true)
+            ->count();
+
+        if ($activeCount >= $maxTokens) {
+            // Deactivate oldest tokens to make room for the new one
+            $tokensToDeactivate = $activeCount - $maxTokens + 1;
+            
+            \App\Models\PaymentToken::where('user_id', $userId)
+                ->where('gateway', 'cmi')
+                ->where('is_active', true)
+                ->orderBy('created_at', 'asc')
+                ->limit($tokensToDeactivate)
+                ->update(['is_active' => false]);
+        }
     }
 }

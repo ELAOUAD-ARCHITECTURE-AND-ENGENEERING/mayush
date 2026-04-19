@@ -1569,15 +1569,15 @@
                         @endcan
                         @can('affiliate_configurations')
                         <li class="aiz-side-nav-item">
-                            <a href="{{route('affiliate.index')}}" class="aiz-side-nav-link">
+                            <a href="{{route('admin.affiliate.configuration')}}" class="aiz-side-nav-link">
                                 <span class="aiz-side-nav-text">{{translate('Affiliate Configurations')}}</span>
                             </a>
                         </li>
                         @endcan
                         @can('view_affiliate_users')
                         <li class="aiz-side-nav-item">
-                            <a href="{{route('affiliate.users')}}"
-                                class="aiz-side-nav-link {{ areActiveRoutes(['affiliate.users', 'affiliate_users.show_verification_request', 'affiliate_user.payment_history'])}}">
+                            <a href="{{route('admin.affiliate.users')}}"
+                                class="aiz-side-nav-link {{ areActiveRoutes(['admin.affiliate.users', 'affiliate_users.show_verification_request', 'affiliate_user.payment_history'])}}">
                                 <span class="aiz-side-nav-text">{{translate('Affiliate Users')}}</span>
                             </a>
                         </li>
