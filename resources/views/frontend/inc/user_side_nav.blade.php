@@ -314,21 +314,7 @@
                     </li>
                 @endif
 
-                <!-- Earning Points -->
-                @if (addon_is_activated('club_point'))
-                    <li class="aiz-side-nav-item">
-                        <a href="{{ route('earnng_point_for_user') }}"
-                            class="aiz-side-nav-link {{ areActiveRoutes(['earnng_point_for_user']) }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                                <g id="Group_24762" data-name="Group 24762" transform="translate(-240.535 -537)">
-                                    <path id="Path_2961" data-name="Path 2961" d="M221.069,0a8,8,0,1,0,8,8,8,8,0,0,0-8-8m0,15a7,7,0,1,1,7-7,7,7,0,0,1-7,7" transform="translate(27.466 537)" fill="#b5b5bf"/>
-                                    <path id="Union_11" data-name="Union 11" d="M16425.393,420.226l-3.777-5.039a.42.42,0,0,1-.012-.482l1.662-2.515a.416.416,0,0,1,.313-.186l0,0h4.26a.41.41,0,0,1,.346.19l1.674,2.515a.414.414,0,0,1-.012.482l-3.777,5.039a.413.413,0,0,1-.338.169A.419.419,0,0,1,16425.393,420.226Zm-2.775-5.245,3.113,4.148,3.109-4.148-1.32-1.983h-3.592Z" transform="translate(-16177.195 129)" fill="#b5b5bf"/>
-                                </g>
-                            </svg>
-                            <span class="aiz-side-nav-text ml-3">{{ translate('Earning Points') }}</span>
-                        </a>
-                    </li>
-                @endif
+
 
                 <!-- Phase 4: Loyalty Lounge -->
                 <li class="aiz-side-nav-item">

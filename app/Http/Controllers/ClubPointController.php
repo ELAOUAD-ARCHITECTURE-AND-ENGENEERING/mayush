@@ -15,12 +15,30 @@ use Session;
 class ClubPointController extends Controller
 {
     /**
-     * Display a listing of club points.
+     * Display the Loyalty Lounge / Club Points dashboard.
      */
     public function index()
     {
-        $club_points = ClubPointDetail::where('user_id', Auth::user()->id)->latest()->paginate(15);
-        return view('frontend.user.club_points.index', compact('club_points'));
+        $user = Auth::user();
+        $loyaltyService = new LoyaltyService();
+
+        $pointBalance = $loyaltyService->getPointBalance($user);
+        $annualSpend  = $loyaltyService->getAnnualSpend($user);
+        $tierProgress = $loyaltyService->getTierProgress($user);
+        
+        $tierLevel = $tierProgress['current_tier'] ? $tierProgress['current_tier']->tier_level : 0;
+        $tierMeta  = LoyaltyService::getTierMeta($tierLevel);
+
+        $pointHistory = $loyaltyService->getPointHistory($user, 20);
+
+        return view('frontend.user.loyalty.hub', compact(
+            'pointBalance',
+            'annualSpend',
+            'tierProgress',
+            'tierLevel',
+            'tierMeta',
+            'pointHistory'
+        ));
     }
 
     /**

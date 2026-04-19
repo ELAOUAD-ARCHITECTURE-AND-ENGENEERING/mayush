@@ -283,19 +283,74 @@
                     $isActive    = $tierLevel == $t['level'];
                     $meta = \App\Services\LoyaltyService::getTierMeta($t['level']);
                 @endphp
-                <div class="tier-step">
+                <div class="tier-step" data-toggle="tooltip" title="{{ translate('Minimum Spend') }}: {{ single_price($t['level'] * 5000) }}">
                     <div class="tier-step-dot {{ $isCompleted ? 'completed' : '' }} {{ $isActive ? 'active' : '' }}"
                          style="color: {{ $meta['color'] }};">
                         @if($isCompleted)
                             <i class="las la-check fs-14" style="color:#fff;"></i>
+                        @else
+                           <span style="opacity: 0.5;">{{ $t['icon'] }}</span>
                         @endif
                     </div>
-                    <div class="tier-step-label {{ $isActive ? 'active-label' : '' }}">{{ $t['icon'] }} {{ translate($t['label']) }}</div>
+                    <div class="tier-step-label {{ $isActive ? 'active-label' : '' }}">{{ translate($t['label']) }}</div>
                 </div>
             @endforeach
         </div>
     </div>
 </div>
+
+{{-- ===== QUICK CONVERSION CARD ===== --}}
+<div class="card border-0 mb-4 overflow-hidden" style="border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+    <div class="row no-gutters">
+        <div class="col-md-5 bg-primary p-4 text-white d-flex flex-column justify-content-center border-right">
+            <h5 class="fw-700 mb-2">{{ translate('Convert to Cash') }}</h5>
+            <p class="fs-13 opacity-70 mb-4">{{ translate('Turn your loyalty points into wallet balance to spend on your next order.') }}</p>
+            <div class="d-flex align-items-center mb-0">
+                <div class="h3 fw-800 mb-0 mr-2">{{ (float)get_setting('club_point_convert_rate', 10) }}</div>
+                <div class="fs-12 opacity-80" style="line-height: 1.2;">{{ translate('Points') }}<br>{{ translate('= 1 MAD') }}</div>
+            </div>
+        </div>
+        <div class="col-md-7 p-4 bg-white">
+            <form action="{{ route('convert_point_into_wallet') }}" method="POST">
+                @csrf
+                <div class="form-group mb-3">
+                    <label class="fs-12 fw-700 text-uppercase text-muted">{{ translate('Points to Convert') }}</label>
+                    <div class="input-group input-group-lg">
+                        <input type="number" name="points" id="points-to-convert" class="form-control border-right-0" placeholder="0" min="{{ (float)get_setting('club_point_convert_rate', 10) }}" step="{{ (float)get_setting('club_point_convert_rate', 10) }}">
+                        <div class="input-group-append">
+                            <span class="input-group-text bg-white border-left-0 text-primary fw-700">PTS</span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <small class="text-secondary" id="conversion-preview">
+                            {{ translate('You will receive') }}: <span class="fw-700 text-primary">0.00 MAD</span>
+                        </small>
+                        <small class="text-primary pointer" onclick="document.getElementById('points-to-convert').value = {{ $pointBalance }}; updatePreview();">
+                            <u>{{ translate('Convert All') }}</u>
+                        </small>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block py-3 fw-700" style="border-radius: 12px; transition: all 0.3s;">
+                    <i class="las la-exchange-alt mr-2"></i> {{ translate('Redeem Points Now') }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('points-to-convert')?.addEventListener('input', updatePreview);
+    
+    function updatePreview() {
+        const points = document.getElementById('points-to-convert').value || 0;
+        const rate = {{ (float)get_setting('club_point_convert_rate', 10) }};
+        const amount = (points / rate).toFixed(2);
+        const preview = document.getElementById('conversion-preview');
+        if (preview) {
+            preview.innerHTML = `{{ translate('You will receive') }}: <span class="fw-700 text-primary">${amount} MAD</span>`;
+        }
+    }
+</script>
 
 <div class="row gutters-16">
     {{-- ===== TIER BENEFITS ===== --}}
@@ -387,9 +442,10 @@
 
             @if (addon_is_activated('club_point'))
                 <div class="text-center mt-3">
-                    <a href="{{ route('earnng_point_for_user') }}" class="btn btn-sm btn-outline-primary" style="border-radius:25px;">
-                        {{ translate('View All & Convert Points') }}
-                        <i class="las la-arrow-right ml-1"></i>
+                    <span class="text-muted fs-12">{{ translate('Earn more points by sharing your referral link!') }}</span>
+                    <br>
+                    <a href="{{ route('profile') }}#referral" class="btn btn-sm btn-link text-primary fw-700 p-0 mt-1">
+                        {{ translate('Go to Referrals') }} <i class="las la-external-link-alt ml-1"></i>
                     </a>
                 </div>
             @endif
