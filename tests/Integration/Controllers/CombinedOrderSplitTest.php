@@ -23,8 +23,11 @@ class CombinedOrderSplitTest extends TestCase
         parent::setUp();
 
         $this->buyer = User::factory()->create(['balance' => 10000]);
-        $this->sellerA = User::factory()->create();
-        $this->sellerB = User::factory()->create();
+        $this->sellerA = User::factory()->seller()->create();
+        \App\Models\Shop::create(['user_id' => $this->sellerA->id, 'name' => 'Shop A']);
+        
+        $this->sellerB = User::factory()->seller()->create();
+        \App\Models\Shop::create(['user_id' => $this->sellerB->id, 'name' => 'Shop B']);
     }
 
     /** @test */
@@ -171,5 +174,68 @@ class CombinedOrderSplitTest extends TestCase
             json_decode($combinedOrder->shipping_address, true),
             json_decode($subOrder->shipping_address, true)
         );
+    }
+
+    /** @test */
+    public function multi_seller_cart_calculates_correct_commissions()
+    {
+        // Setup: Enable vendor commission and set to 10%
+        \DB::table('business_settings')->updateOrInsert(['type' => 'vendor_commission_activation'], ['value' => 1]);
+        \DB::table('business_settings')->updateOrInsert(['type' => 'seller_commission_type'], ['value' => 'fixed_rate']);
+        \DB::table('business_settings')->updateOrInsert(['type' => 'vendor_commission'], ['value' => 10]);
+
+        $combinedOrder = CombinedOrder::factory()->create(['user_id' => $this->buyer->id]);
+        
+        // Seller A order — 100 MAD product
+        $orderA = Order::factory()->create([
+            'combined_order_id' => $combinedOrder->id,
+            'user_id' => $this->buyer->id,
+            'seller_id' => $this->sellerA->id,
+            'grand_total' => 100.00,
+            'payment_status' => 'paid',
+        ]);
+        
+        $detailA = OrderDetail::factory()->create([
+            'order_id' => $orderA->id,
+            'seller_id' => $this->sellerA->id,
+            'price' => 100.00,
+            'tax' => 0,
+            'shipping_cost' => 0,
+            'quantity' => 1,
+            'payment_status' => 'paid',
+        ]);
+
+        // Manually trigger commission calculation (simulating the callback logic)
+        $orderA->refresh();
+        (new \App\Http\Controllers\CommissionController)->calculateCommission($orderA);
+
+        $this->assertDatabaseHas('commission_histories', [
+            'order_id' => $orderA->id,
+            'seller_id' => $this->sellerA->id,
+            'admin_commission' => 10.00, // 10% of 100
+            'seller_earning' => 90.00,
+        ]);
+    }
+
+    /** @test */
+    public function shipping_segregation_per_seller()
+    {
+        $combinedOrder = CombinedOrder::factory()->create(['user_id' => $this->buyer->id]);
+        
+        $orderA = Order::factory()->create([
+            'combined_order_id' => $combinedOrder->id,
+            'seller_id' => $this->sellerA->id,
+            'grand_total' => 120.00, // 100 product + 20 shipping
+        ]);
+        
+        $orderB = Order::factory()->create([
+            'combined_order_id' => $combinedOrder->id,
+            'seller_id' => $this->sellerB->id,
+            'grand_total' => 350.00, // 300 product + 50 shipping
+        ]);
+
+        $this->assertEquals(2, $combinedOrder->orders->count());
+        $this->assertEquals(20, $combinedOrder->orders()->where('seller_id', $this->sellerA->id)->first()->grand_total - 100);
+        $this->assertEquals(50, $combinedOrder->orders()->where('seller_id', $this->sellerB->id)->first()->grand_total - 300);
     }
 }

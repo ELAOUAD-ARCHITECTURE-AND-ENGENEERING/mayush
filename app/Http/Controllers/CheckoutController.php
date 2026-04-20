@@ -192,6 +192,12 @@ class CheckoutController extends Controller
         $data['save_card'] = $request->input('save_card', 0);
         $request->session()->put('payment_data', $data);
         if ($request->session()->get('combined_order_id') != null) {
+            // Intercept insecure gateways and redirect to placeholder
+            $insecureGateways = ['sslcommerz', 'aamarpay', 'payfast'];
+            if (in_array($request->input('payment_option'), $insecureGateways)) {
+                return (new \App\Services\SecurePaymentPlaceholder)->pay($request);
+            }
+
             // If block for Online payment, wallet and cash on delivery. Else block for Offline payment
             $decorator = __NAMESPACE__ . '\\Payment\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $request->input('payment_option')))) . "Controller";
             if (class_exists($decorator)) {

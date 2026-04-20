@@ -43,6 +43,14 @@
     - [ ] Add token expiry detection and `PruneExpiredVaultTokens` command.
     - [ ] Add rate-limiting (max 5 tokens per user).
     - [ ] Write `VaultTokenFlowTest` integration test.
+- **SEC-01: Security Remediation & Hardening**
+    - [x] Remove critical backdoors (`SitemapAuthorization`, `CheckSitemapItem`) from `AdminController.php`.
+    - [x] Fix remaining SQL Injection in `top_category_products_section`.
+    - [x] Restore broken Analytics trend charts in `AnalyticsService.php`.
+    - [x] Operationalize Payment Gateway Deferral in `CheckoutController.php`.
+    - [x] Purge backdoors in `StripeController`, `IyzicoController`, and `NgeniusUtility`.
+    - [x] Neutralize "kill-switches" in `CategoryUtility` and `AddonController`.
+    - [x] Enforce CMI-Only Payment Policy (Rule 11 in `.cursorrules`).
 - **QA-01: Coverage Expansion**
     - [x] Configure `phpunit.xml` for local SQLite.
     - [x] Create `ShopFactory` and `CustomerPackageFactory`.
@@ -72,4 +80,4 @@
 
 ---
 
-*Last Updated by Antigravity AI — 2026-04-19T10:43:00Z*
+*Last Updated by Antigravity AI — 2026-04-19T16:27:00Z | Security Audit, Global Backdoor Purge, and CMI Policy Enforcement Complete.*

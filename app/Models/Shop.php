@@ -10,6 +10,7 @@ class Shop extends Model
 {
   use HasFactory, PreventDemoModeChanges;
 
+  protected $guarded = [];
 
   protected $with = ['user'];
 

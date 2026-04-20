@@ -40,41 +40,65 @@
                 <div class="table-responsive">
                     <table class="table aiz-table mb-0">
                         <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>{{ translate('Card') }}</th>
-                                <th>{{ translate('Card Brand') }}</th>
+                            <tr class="text-gray fs-12 uppercase">
+                                <th class="pl-0">#</th>
+                                <th>{{ translate('Card Information') }}</th>
+                                <th data-breakpoints="md">{{ translate('Brand') }}</th>
                                 <th>{{ translate('Status') }}</th>
-                                <th class="text-right">{{ translate('Options') }}</th>
+                                <th class="text-right pr-0">{{ translate('Options') }}</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="fs-14">
                             @foreach ($tokens as $key => $token)
                                 <tr>
-                                    <td>{{ $key+1 }}</td>
+                                    <td class="pl-0">{{ $key+1 }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <i class="las la-credit-card la-2x mr-2 text-primary"></i>
-                                            <span class="font-weight-600">{{ $token->maskedLabel() }}</span>
+                                            @php
+                                                $brand = strtolower($token->card_brand ?? 'card');
+                                                $iconClass = 'la-credit-card';
+                                                $iconColor = 'text-primary';
+                                                
+                                                if ($brand == 'visa') {
+                                                    $iconClass = 'la-cc-visa';
+                                                    $iconColor = 'text-blue';
+                                                } elseif ($brand == 'mastercard') {
+                                                    $iconClass = 'la-cc-mastercard';
+                                                    $iconColor = 'text-orange';
+                                                }
+                                            @endphp
+                                            <div class="size-40px d-flex align-items-center justify-content-center bg-soft-light rounded-1 mr-3">
+                                                <i class="lab {{ $iconClass }} la-2x {{ $iconColor }}"></i>
+                                            </div>
+                                            <div>
+                                                <span class="d-block text-dark fw-600">{{ $token->maskedLabel() }}</span>
+                                                <span class="d-block fs-11 text-gray">{{ translate('Last used') }}: {{ $token->last_used_at ? $token->last_used_at->diffForHumans() : translate('Never') }}</span>
+                                            </div>
                                         </div>
                                     </td>
-                                    <td>{{ $token->card_brand ?? 'N/A' }}</td>
+                                    <td>
+                                        <span class="badge badge-inline badge-soft-dark border-0">{{ $token->card_brand ?? translate('Generic') }}</span>
+                                    </td>
                                     <td>
                                         @if($token->is_default)
-                                            <span class="badge badge-inline badge-success">{{ translate('Default') }}</span>
+                                            <span class="badge badge-inline badge-soft-success border-0">
+                                                <i class="las la-star mr-1"></i>{{ translate('Default Method') }}
+                                            </span>
                                         @else
-                                            <span class="badge badge-inline badge-secondary">{{ translate('Saved') }}</span>
+                                            <span class="badge badge-inline badge-soft-secondary border-0 text-gray">{{ translate('Backup Method') }}</span>
                                         @endif
                                     </td>
-                                    <td class="text-right">
-                                        @if(!$token->is_default)
-                                            <a href="{{ route('payment.token.default', $token->id) }}" class="btn btn-soft-primary btn-icon btn-circle btn-sm" title="{{ translate('Set as Default') }}">
-                                                <i class="las la-check"></i>
+                                    <td class="text-right pr-0">
+                                        <div class="d-flex justify-content-end">
+                                            @if(!$token->is_default)
+                                                <a href="{{ route('payment.token.default', $token->id) }}" class="btn btn-soft-primary btn-icon btn-circle btn-sm hov-bg-primary hov-text-white mx-1" title="{{ translate('Make Preferred') }}">
+                                                    <i class="las la-anchor"></i>
+                                                </a>
+                                            @endif
+                                            <a href="javascript:void(0)" class="btn btn-soft-danger btn-icon btn-circle btn-sm hov-bg-danger hov-text-white mx-1 confirm-delete" data-href="{{ route('payment.token.remove', $token->id) }}" title="{{ translate('Remove Card') }}">
+                                                <i class="las la-trash-alt"></i>
                                             </a>
-                                        @endif
-                                        <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{ route('payment.token.remove', $token->id) }}" title="{{ translate('Remove') }}">
-                                            <i class="las la-trash"></i>
-                                        </a>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

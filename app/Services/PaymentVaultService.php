@@ -88,29 +88,37 @@ class PaymentVaultService
             return null;
         }
 
-        // Rate limit: enforce max tokens per user
-        self::enforceTokenLimit($userId);
-
-        // Unset old defaults for this user
-        \App\Models\PaymentToken::where('user_id', $userId)
-            ->where('gateway', 'cmi')
-            ->update(['is_default' => false]);
-
-        $token = new \App\Models\PaymentToken();
-        $token->user_id = $userId;
-        $token->gateway = 'cmi';
-        $token->token = $cmiCallbackData['TransId'];
-
+        // Deduplication: Check if this card (last 4 + brand) already exists for this user
+        $last4 = !empty($cmiCallbackData['MaskedPan']) ? substr($cmiCallbackData['MaskedPan'], -4) : null;
+        $brand = 'Card';
         if (!empty($cmiCallbackData['MaskedPan'])) {
-            // Usually format: 411111****1111 -> take last 4
-            $token->card_last_four = substr($cmiCallbackData['MaskedPan'], -4);
-            
-            // Derive brand simple logic (4=Visa, 5=Mastercard, etc)
             $firstChar = substr($cmiCallbackData['MaskedPan'], 0, 1);
-            if ($firstChar === '4') $token->card_brand = 'Visa';
-            elseif ($firstChar === '5') $token->card_brand = 'Mastercard';
-            else $token->card_brand = 'Card';
+            if ($firstChar === '4') $brand = 'Visa';
+            elseif ($firstChar === '5') $brand = 'Mastercard';
         }
+
+        $existingToken = \App\Models\PaymentToken::where('user_id', $userId)
+            ->where('gateway', 'cmi')
+            ->where('card_last_four', $last4)
+            ->where('card_brand', $brand)
+            ->where('is_active', true)
+            ->first();
+
+        if ($existingToken) {
+            $token = $existingToken;
+            Log::info('CMI Vault: Updating existing token', ['token_id' => $token->id, 'new_transId' => $cmiCallbackData['TransId']]);
+        } else {
+            // Rate limit: enforce max tokens per user (only for new tokens)
+            self::enforceTokenLimit($userId);
+            $token = new \App\Models\PaymentToken();
+            $token->user_id = $userId;
+            $token->gateway = 'cmi';
+            Log::info('CMI Vault: Creating new token', ['transId' => $cmiCallbackData['TransId']]);
+        }
+
+        $token->token = $cmiCallbackData['TransId'];
+        $token->card_last_four = $last4;
+        $token->card_brand = $brand;
 
         // Parse card expiry from CMI callback (ExpDate format: YYMM)
         if (!empty($cmiCallbackData['ExpDate'])) {
@@ -120,6 +128,11 @@ class PaymentVaultService
                 $token->card_expiry_month = (int) substr($expDate, 2, 2);
             }
         }
+
+        // Unset old defaults for this user
+        \App\Models\PaymentToken::where('user_id', $userId)
+            ->where('gateway', 'cmi')
+            ->update(['is_default' => false]);
 
         $token->is_default = true;
         $token->is_active = true;

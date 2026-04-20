@@ -339,7 +339,25 @@
                             <tr>
                                 <td class="text-main text-bold">{{ translate('Payment method') }}</td>
                                 <td class="text-right">
-                                    {{ translate(ucfirst(str_replace('_', ' ', $order->payment_type))) }}</td>
+                                    {{ translate(ucfirst(str_replace('_', ' ', $order->payment_type))) }}
+                                    @if($order->payment_type == 'cmi_vault' || $order->payment_type == 'cmi')
+                                        @php
+                                            $details = json_decode($order->payment_details, true);
+                                        @endphp
+                                        @if(isset($details['MaskedPan']))
+                                            <div class="small text-muted">
+                                                @php
+                                                    $firstChar = substr($details['MaskedPan'], 0, 1);
+                                                    $brand = 'Card';
+                                                    if ($firstChar === '4') $brand = 'Visa';
+                                                    elseif ($firstChar === '5') $brand = 'Mastercard';
+                                                    $last4 = substr($details['MaskedPan'], -4);
+                                                @endphp
+                                                {{ $brand }} •••• {{ $last4 }}
+                                            </div>
+                                        @endif
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
                                 <td class="text-main text-bold">{{ translate('Additional Info') }}</td>

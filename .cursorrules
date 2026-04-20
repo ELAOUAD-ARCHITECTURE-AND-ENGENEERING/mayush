@@ -75,3 +75,9 @@ A structured knowledge base for AI agents exists at: `additional-files/documenta
 - Update the `Last Updated` date in the KI file and `KNOWLEDGE_INDEX.md`
 
 **Why:** This knowledge base captures solved problems so future agents never repeat the same debugging cycles. Every deployment session that is spent solving a known issue is wasted time. The agents that check this system first are the ones that succeed on the first try.
+
+## 11. PAYMENT GATEWAY POLICY
+- The application **ONLY** uses **CMI** and **Cash on Delivery (COD)**.
+- **IGNORE** all other payment gateways (SSLCommerz, Bkash, Nagad, Stripe, Razorpay, etc.) during audits, updates, or hardening tasks.
+- Do not perform security hardening or bug fixes for these gateways unless explicitly requested.
+- Focus exclusively on maintaining the security and integrity of the CMI integration and COD logic.

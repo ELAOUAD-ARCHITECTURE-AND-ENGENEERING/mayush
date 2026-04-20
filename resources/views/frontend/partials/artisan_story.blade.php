@@ -25,7 +25,7 @@
                 
                 <div class="artisan-content mb-4 text-secondary lh-1-8 fs-16">
                     @if($shop->story_content)
-                        {!! $shop->story_content !!}
+                        {!! clean($shop->story_content) !!}
                     @else
                         <p>{{ $shop->artisan_story ?? translate('Welcome to our workshop. We pour our passion and history into every piece we create, preserving ancient techniques for the modern world.') }}</p>
                     @endif

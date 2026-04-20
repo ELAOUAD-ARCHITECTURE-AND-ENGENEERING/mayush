@@ -171,6 +171,7 @@ class CmiController extends Controller
                 // Security: Cache the save_card preference for the callback (OID-linked)
                 if (isset($paymentData['save_card']) && $paymentData['save_card']) {
                     \Cache::put('cmi_save_card_' . $oid, true, 3600); // 1 hour TTL
+                    $data['isRecurring'] = "true";
                 }
 
                 // Hash Calculation

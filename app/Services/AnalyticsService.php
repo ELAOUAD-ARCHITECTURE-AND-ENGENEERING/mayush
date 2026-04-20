@@ -141,8 +141,22 @@ class AnalyticsService
 
     private function getTrendData($startDate, $endDate, $expression)
     {
+        // Whitelist allowed expressions to prevent SQL injection
+        $allowedExpressions = [
+            'count(*)' => 'COUNT(*)',
+            'COUNT(*)' => 'COUNT(*)',
+            'AVG(bounce_rate)' => 'AVG(bounce_rate)',
+            'AVG(duration_sec)' => 'AVG(duration_sec)',
+            'SUM(total_revenue)' => 'SUM(total_revenue)',
+            'ROUND(SUM(CASE WHEN is_entry = 1 AND is_exit = 1 THEN 1 ELSE 0 END) / COUNT(*) * 100, 1)' => 'ROUND(SUM(CASE WHEN is_entry = 1 AND is_exit = 1 THEN 1 ELSE 0 END) / COUNT(*) * 100, 1)',
+            'ROUND(AVG(NULLIF(time_spent, 0)), 1)' => 'ROUND(AVG(NULLIF(time_spent, 0)), 1)'
+        ];
+
+        // Default to COUNT(*) if an invalid expression is passed
+        $safeExpression = $allowedExpressions[$expression] ?? 'COUNT(*)';
+
         return DB::table('visitor_metrics')
-            ->select(DB::raw("DATE(created_at) as date, $expression as value"))
+            ->select(DB::raw("DATE(created_at) as date, {$safeExpression} as value"))
             ->whereBetween('created_at', [$startDate, $endDate])
             ->groupBy('date')
             ->orderBy('date')
