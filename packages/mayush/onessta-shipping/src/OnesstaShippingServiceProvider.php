@@ -47,8 +47,6 @@ class OnesstaShippingServiceProvider extends ServiceProvider
         $this->app->singleton(RequestSigner::class);
         $this->app->singleton(WebhookSignatureVerifier::class);
 
-        $this->app->bind(CarrierInterface::class, ShipmentService::class);
-
         $this->app->singleton(AuthService::class);
         $this->app->singleton(ShipmentService::class);
         $this->app->singleton(TrackingService::class);
@@ -57,6 +55,11 @@ class OnesstaShippingServiceProvider extends ServiceProvider
         $this->app->singleton(CatalogService::class);
         $this->app->singleton(QuoteService::class);
         $this->app->singleton(LabelService::class);
+        $this->app->singleton(OnesstaCarrier::class);
+
+        // Bind the full CarrierInterface contract to the new adapter,
+        // which satisfies all 8 interface methods by delegating to focused services.
+        $this->app->bind(CarrierInterface::class, OnesstaCarrier::class);
     }
 
     public function boot(): void
@@ -104,6 +107,8 @@ class OnesstaShippingServiceProvider extends ServiceProvider
             CatalogService::class,
             QuoteService::class,
             LabelService::class,
+            OnesstaCarrier::class,
+            CarrierInterface::class,
         ];
     }
 }

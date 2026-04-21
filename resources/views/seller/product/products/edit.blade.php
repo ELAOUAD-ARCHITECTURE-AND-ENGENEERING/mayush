@@ -1277,11 +1277,11 @@
     function warrantySelection(){
         if($('input[name="has_warranty"]').is(':checked')) {
             $('.warranty_selection_div').removeClass('d-none');
-            $('#warranty_id').attr('required', true);
+            // $('#warranty_id').attr('required', true);
         }
         else {
             $('.warranty_selection_div').addClass('d-none');
-            $('#warranty_id').removeAttr('required');
+            // $('#warranty_id').removeAttr('required');
         }
     }
 

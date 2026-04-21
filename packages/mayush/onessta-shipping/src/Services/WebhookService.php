@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Mayush\Shipping\Onessta\Client\WebhookSignatureVerifier;
 use Mayush\Shipping\Onessta\DTOs\WebhookPayloadDto;
+use Mayush\Shipping\Onessta\Events\CodPaymentConfirmed;
 use Mayush\Shipping\Onessta\Events\ShipmentInfoUpdated;
 use Mayush\Shipping\Onessta\Events\ShipmentStatusUpdated;
 use Mayush\Shipping\Onessta\Jobs\ProcessWebhookJob;
@@ -157,22 +158,19 @@ class WebhookService
             $order = $shipment->order;
             if ($order && $order->payment_status !== 'paid') {
                 $order->update([
-                    'payment_status' => 'paid',
+                    'payment_status'  => 'paid',
                     'payment_details' => 'ONESSTA COD collected - Shipment: ' . $shipment->code,
                 ]);
 
                 Log::info('ONESSTA: COD payment confirmed via webhook', [
-                    'order_id' => $order->id,
+                    'order_id'      => $order->id,
                     'shipment_code' => $shipment->code,
                 ]);
 
-                if (function_exists('calculateCommissionAffilationClubPoint')) {
-                    calculateCommissionAffilationClubPoint($order);
-                }
-
-                if (function_exists('EmailUtility') && class_exists('EmailUtility')) {
-                    EmailUtility::order_email($order, 'paid');
-                }
+                // Fire a domain event so the host application can handle
+                // commission calculation, buyer notification emails, and
+                // loyalty credits without coupling this package to global helpers.
+                event(new CodPaymentConfirmed($shipment, $order));
             }
         }
     }

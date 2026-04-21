@@ -157,6 +157,11 @@ class ProductService
 
         $collection['has_warranty'] = isset($collection['has_warranty']) ? 1 : 0;
 
+        unset($collection['length']);
+        unset($collection['width']);
+        unset($collection['height']);
+        unset($collection['dimension_unit']);
+
         $data = $collection->merge(compact(
             'user_id',
             'approved',
@@ -328,6 +333,10 @@ class ProductService
         $collection['has_warranty'] = isset($collection['has_warranty']) ? 1 : 0;
         
         unset($collection['button']);
+        unset($collection['length']);
+        unset($collection['width']);
+        unset($collection['height']);
+        unset($collection['dimension_unit']);
         
         $data = $collection->merge(compact(
             'discount_start_date',
@@ -559,8 +568,17 @@ class ProductService
 
         $tags = array();
         if (isset($collection['tags'][0]) && $collection['tags'][0] != null) {
-            foreach (json_decode($collection['tags'][0]) as $key => $tag) {
-                array_push($tags, $tag->value);
+            $decoded_tags = json_decode($collection['tags'][0]);
+            if (is_array($decoded_tags)) {
+                foreach ($decoded_tags as $key => $tag) {
+                    if (isset($tag->value)) {
+                        array_push($tags, $tag->value);
+                    }
+                }
+            } else {
+                foreach ($collection['tags'] as $tag) {
+                    array_push($tags, $tag);
+                }
             }
         }
         $collection['tags'] = implode(',', $tags);
@@ -636,6 +654,10 @@ class ProductService
 
         
         unset($collection['button']);
+        unset($collection['length']);
+        unset($collection['width']);
+        unset($collection['height']);
+        unset($collection['dimension_unit']);
 
      
         $productData = $collection->merge(compact(

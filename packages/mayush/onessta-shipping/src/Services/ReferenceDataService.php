@@ -154,14 +154,23 @@ class ReferenceDataService
                 ['remote_city_id' => $city['id']],
                 [
                     'remote_city_name' => $city['name'],
-                    'active' => true,
+                    'active'           => true,
                 ]
             );
         }
 
-        OnesstaCityMap::where('is_pickup', true)->update(['is_pickup' => false]);
-        foreach ($cities as $city) {
-            OnesstaCityMap::where('remote_city_id', $city['id'])->update(['is_pickup' => true]);
+        // Reconcile is_pickup flag on onessta_city_maps using two bulk WHERE IN
+        // queries instead of a per-row loop to avoid performance issues at scale
+        // and eliminate the full-table-reset race condition window.
+        $syncedRemoteIds = array_column($cities, 'id');
+
+        OnesstaCityMap::whereNotIn('remote_city_id', $syncedRemoteIds)
+            ->where('is_pickup', true)
+            ->update(['is_pickup' => false]);
+
+        if (!empty($syncedRemoteIds)) {
+            OnesstaCityMap::whereIn('remote_city_id', $syncedRemoteIds)
+                ->update(['is_pickup' => true]);
         }
     }
 }

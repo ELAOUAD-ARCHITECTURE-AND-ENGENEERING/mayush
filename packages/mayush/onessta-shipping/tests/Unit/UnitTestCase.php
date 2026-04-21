@@ -15,6 +15,7 @@ abstract class UnitTestCase extends BaseTestCase
         parent::setUp();
 
         config(['onessta.enabled' => true]);
+        config(['addons.active.onessta' => true]);
         config(['onessta.mode' => 'live']);
         config(['onessta.base_url' => 'https://api.onessta.com/api/v1']);
         config(['onessta.auth.token' => 'test-token']);

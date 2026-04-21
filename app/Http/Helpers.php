@@ -1800,6 +1800,11 @@ if (!function_exists('calculateCommissionAffilationClubPoint')) {
 if (!function_exists('addon_is_activated')) {
     function addon_is_activated($identifier, $default = null)
     {
+        // Bypass for specific addons
+        if (in_array($identifier, ['affiliate_system', 'club_point'])) {
+            return true;
+        }
+
         $addons = Cache::remember('addons', 86400, function () {
             return Addon::all();
         });

@@ -47,8 +47,8 @@ class ShipmentCreationTest extends FeatureTestCase
             address: '123 Main St'
         );
 
-        $referenceDataService = $this->createMock(ReferenceDataService::class);
-        $referenceDataService->method('resolveCity')->willReturn(1);
+        $referenceDataService = \Mockery::mock(ReferenceDataService::class);
+        $referenceDataService->shouldReceive('resolveCity')->andReturn(1);
 
         $client = new \Mayush\Shipping\Onessta\Client\OnesstaClient(
             'https://api.onessta.com/api/v1',
@@ -85,8 +85,8 @@ class ShipmentCreationTest extends FeatureTestCase
             address: '123 Main St'
         );
 
-        $referenceDataService = $this->createMock(ReferenceDataService::class);
-        $referenceDataService->method('resolveCity')->willReturn(1);
+        $referenceDataService = \Mockery::mock(ReferenceDataService::class);
+        $referenceDataService->shouldReceive('resolveCity')->andReturn(1);
 
         $client = new \Mayush\Shipping\Onessta\Client\OnesstaClient(
             'https://api.onessta.com/api/v1',

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Mayush\Shipping\Onessta\DTOs\ShipmentRequestDto;
 use Mayush\Shipping\Onessta\Events\ShipmentCreated;
 use Mayush\Shipping\Onessta\Events\ShipmentCreationFailed;
+use Mayush\Shipping\Onessta\Exceptions\CityMappingException;
 use Mayush\Shipping\Onessta\Models\OnesstaShipment;
 use Mayush\Shipping\Onessta\Services\ReferenceDataService;
 use Mayush\Shipping\Onessta\Services\ShipmentService;
@@ -42,7 +43,19 @@ class CreateShipmentJob implements ShouldQueue
                 $remoteCityId = $referenceDataService->resolveCity($data['city_id']);
                 if ($remoteCityId) {
                     $data['city'] = $remoteCityId;
+                } else {
+                    throw new CityMappingException(
+                        "No ONESSTA city mapping found for local city ID {$data['city_id']} (order #{$this->orderId}). "
+                        . 'Run `php artisan onessta:sync-cities` and map the city in the admin panel.'
+                    );
                 }
+            }
+
+            if (empty($data['city']) || (int) $data['city'] <= 0) {
+                throw new CityMappingException(
+                    "Shipment for order #{$this->orderId} has no valid ONESSTA city ID. "
+                    . 'Ensure the shipping address contains a mapped city_id.'
+                );
             }
 
             $dto = new ShipmentRequestDto(
