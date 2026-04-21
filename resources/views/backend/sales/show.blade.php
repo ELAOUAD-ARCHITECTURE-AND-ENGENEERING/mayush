@@ -325,6 +325,14 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td class="text-main text-bold">{{ translate('Logistics') }}</td>
+                                <td class="text-right">
+                                    <a href="{{ route('orders.tracking.show', encrypt($order->id)) }}" class="btn btn-soft-primary btn-xs fw-600" target="_blank">
+                                        <i class="las la-map-marker"></i> {{ translate('Track Real-Time') }}
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td class="text-main text-bold">{{ translate('Order Date') }} </td>
                                 <td class="text-right">{{ date('d-m-Y h:i A', $order->date) }}</td>
                             </tr>

@@ -38,6 +38,10 @@ class OrderTrackingController extends Controller
         // Fetch histories ordered by creation
         $tracking_histories = $order->orderTrackingHistories()->orderBy('created_at', 'asc')->get();
 
+        if (in_array($user->user_type, ['admin', 'staff'])) {
+            return view('backend.sales.tracking', compact('order', 'tracking_histories'));
+        }
+
         return view('frontend.tracking.show', compact('order', 'tracking_histories'));
     }
 
