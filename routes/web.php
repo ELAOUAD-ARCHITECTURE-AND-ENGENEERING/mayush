@@ -109,7 +109,7 @@ Route::controller(VerificationController::class)->group(function () {
 
 
 
-Route::controller(HomeController::class)->group(function () {
+Route::controller(\App\Http\Controllers\Auth\CustomAuthController::class)->group(function () {
     Route::get('/email_change/callback', 'email_change_callback')->name('email_change.callback');
     Route::post('/password/reset/email/submit', 'reset_password_with_code')->name('password.update.email');
     Route::get('/users/login', 'login')->middleware(['throttle:login'])->name('user.login');
@@ -122,6 +122,9 @@ Route::controller(HomeController::class)->group(function () {
     Route::post('/customer-reg/verification-code-send', 'sendRegVerificationCode')->name('customer-reg.verification_code_send');
     Route::get('/customer-reg/verify-code/{id}', 'regVerifyCode')->name('customer-reg.verify_code');
     Route::post('/customer-reg/verify-code-confirmation', 'regVerifyCodeConfirmation')->name('customer-reg.verify_code_confirmation');
+});
+
+Route::controller(HomeController::class)->group(function () {
 
 
     // Visual Search
@@ -173,13 +176,14 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/inhouse', 'inhouse_products')->name('inhouse.all');
 
 
+});
+
+Route::controller(\App\Http\Controllers\Frontend\PolicyController::class)->group(function () {
     // Policies
     Route::get('/seller-policy', 'sellerpolicy')->name('sellerpolicy');
     Route::get('/return-policy', 'returnpolicy')->name('returnpolicy');
     Route::get('/support-policy', 'supportpolicy')->name('supportpolicy');
     Route::get('/terms', 'terms')->name('terms');
-    Route::get('/privacy-policy', 'privacypolicy')->name('privacypolicy');
-
     Route::get('/privacy-policy', 'privacypolicy')->name('privacypolicy');
 });
 
@@ -293,9 +297,12 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function() {
     Route::controller(HomeController::class)->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/profile', 'profile')->name('profile');
+        Route::post('/user/update-profile', 'userProfileUpdate')->name('user.profile.update');
+    });
+
+    Route::controller(\App\Http\Controllers\Auth\CustomAuthController::class)->group(function () {
         Route::post('/new-user-verification', 'new_verify')->name('user.new.verify');
         Route::post('/new-user-email', 'update_email')->name('user.change.email');
-        Route::post('/user/update-profile', 'userProfileUpdate')->name('user.profile.update');
     });
     
     Route::get('/all-notifications', [NotificationController::class, 'index'])->name('all-notifications');
@@ -424,6 +431,10 @@ Route::group(['middleware' => ['auth']], function() {
     // Phase 5: Affiliate
     Route::get('/affiliate', [\App\Http\Controllers\AffiliateController::class, 'index'])->name('affiliate.user.index');
     Route::post('/affiliate/apply', [\App\Http\Controllers\AffiliateController::class, 'apply'])->name('affiliate.apply');
+
+    // Advanced Live Tracking (RBAC Unified)
+    Route::get('/dashboard/tracking/{id}', [\App\Http\Controllers\OrderTrackingController::class, 'show'])->name('orders.tracking.show');
+    Route::get('/dashboard/tracking/{id}/sync', [\App\Http\Controllers\OrderTrackingController::class, 'syncTracking'])->name('orders.tracking.sync');
 
 });
 

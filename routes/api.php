@@ -97,6 +97,10 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
         Route::post('delivery-info', 'getDeliveryInfo');
         Route::post('shipping_cost', 'shipping_cost');
     });
+    Route::post('affiliate/config', [AffiliateController::class, 'config']);
+
+
+
     Route::post('carriers', [CarrierController::class, 'index']);
 
 
@@ -421,6 +425,7 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
 
 
     Route::withoutMiddleware([EnsureSystemKey::class])->group(function () {
+        Route::post('tracking/webhook', [\App\Http\Controllers\OrderTrackingController::class, 'webhookUpdate']);
         Route::controller(WholesaleProductController::class)->group(function () {
             Route::get('/wholesale/all-products', 'all_wholesale_products')->name('api.wholesale_products.all');
             Route::get('/wholesale/product-details/{id}', 'wholesale_product_details')->name('api.wholesale_products.show');

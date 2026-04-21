@@ -25,11 +25,11 @@
 | **2026-04-13** | **QA-SYNC** | Category Sync Deduplication | Logic | Finalized tests and deduplicated counting mechanism. | ✅ Completed |
 | **2026-04-17** | **MA-108** | Attribute-Based Dimensions | Logic/UI | Refactored Dimensions to dynamic Attribute Characteristic system. | ✅ Completed |
 | **2026-04-18** | **MA-105** | Customer Loyalty Lounge | Engagement | Loyalty Hub UI, tier-based benefits, point-to-wallet, integration tests. | ✅ Completed |
-| **2026-04-09** | **MA-099b** | CMI Tokenization & Vault | Security | Token model, VaultService, Express Charge — needs hardening & tests. | 🟡 **In Progress (75%)** |
-| **2026-04-10** | **QA-01** | Local Test Suite (SQLite) | Security | Factories, schema hardening, 2 suites passing — needs CombinedOrder tests. | 🟡 **In Progress (40%)** |
-| **2026-04-12** | **MA-106** | Artisan Storytelling Profiles | Growth | `Shop` model extension, Story views. | ⚪ Pending |
-| **2026-04-15** | **MA-107** | Real-time Stock Alerts | Retention | Notification engine for wishlists. | ⚪ Pending |
-| **2026-04-20** | **REF-01** | HomeController Decomposition | Maintenance | Refactor monolithic 52KB controller. | ⚪ Pending |
+| **2026-04-09** | **MA-099b** | CMI Tokenization & Vault | Security | Token model, VaultService, Express Charge, Hardening & Tests. | ✅ Completed |
+| **2026-04-10** | **QA-01** | Local Test Suite (SQLite) | Security | Factories, schema hardening, fully expanded CombinedOrder tests. | ✅ Completed |
+| **2026-04-12** | **MA-106** | Artisan Storytelling Profiles | Growth | `Shop` model extension, Story views. | ✅ Completed |
+| **2026-04-15** | **MA-107** | Real-time Stock Alerts | Retention | Notification engine for wishlists. | ✅ Completed |
+| **2026-04-20** | **REF-01** | HomeController Decomposition | Maintenance | Refactor monolithic 52KB controller. | ✅ Completed |
 
 ---
 
@@ -40,9 +40,9 @@
     - [x] Create `PaymentToken` model and migration.
     - [x] Update `ExpressBuyController` to use tokens instead of preferences.
     - [x] Implement secure handoff for CMI redirect with token capture.
-    - [ ] Add token expiry detection and `PruneExpiredVaultTokens` command.
-    - [ ] Add rate-limiting (max 5 tokens per user).
-    - [ ] Write `VaultTokenFlowTest` integration test.
+    - [x] Add token expiry detection and `PruneExpiredVaultTokens` command.
+    - [x] Add rate-limiting (max 5 tokens per user).
+    - [x] Write `VaultTokenFlowTest` integration test.
 - **SEC-01: Security Remediation & Hardening**
     - [x] Remove critical backdoors (`SitemapAuthorization`, `CheckSitemapItem`) from `AdminController.php`.
     - [x] Fix remaining SQL Injection in `top_category_products_section`.
@@ -55,9 +55,9 @@
     - [x] Configure `phpunit.xml` for local SQLite.
     - [x] Create `ShopFactory` and `CustomerPackageFactory`.
     - [x] Harden DB schema (shops, users, warranties, product deps).
-    - [ ] Write Integration tests for `CombinedOrder` splitting logic.
-    - [ ] Write `CheckoutFlowTest` end-to-end test.
-    - [ ] Create `OrderFactory` and `CombinedOrderFactory`.
+    - [x] Write Integration tests for `CombinedOrder` splitting logic.
+    - [x] Write `CheckoutFlowTest` end-to-end test.
+    - [x] Create `OrderFactory` and `CombinedOrderFactory`.
 
 ### 2. Seller Empowerment (Rank 2)
 - **MA-106: Artisan Storytelling**

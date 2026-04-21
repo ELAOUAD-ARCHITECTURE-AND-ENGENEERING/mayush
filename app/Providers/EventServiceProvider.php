@@ -51,5 +51,6 @@ class EventServiceProvider extends ServiceProvider
     parent::boot();
 
     \App\Models\Product::observe(\App\Observers\ProductObserver::class);
+    \App\Models\OrderTrackingHistory::observe(\App\Observers\OrderTrackingHistoryObserver::class);
   }
 }

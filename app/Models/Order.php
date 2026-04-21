@@ -19,6 +19,11 @@ class Order extends Model
         return $this->hasMany(OrderDetail::class);
     }
 
+    public function orderTrackingHistories()
+    {
+        return $this->hasMany(OrderTrackingHistory::class);
+    }
+
     public function refund_requests()
     {
         return $this->hasMany(RefundRequest::class);
