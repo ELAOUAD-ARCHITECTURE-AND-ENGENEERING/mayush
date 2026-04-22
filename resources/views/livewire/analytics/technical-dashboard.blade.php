@@ -1,5 +1,4 @@
 <div class="td-wrap" wire:loading.class="td-loading">
-    @livewireStyles
     @php $cs = $currency['symbol'] ?? '$'; @endphp
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -151,5 +150,4 @@
         setTimeout(initCharts, 500);
     };
     </script>
-    @livewireScripts
 </div>

@@ -12,15 +12,12 @@ try {
     echo "--- FIRST 100 CHARS ---\n";
     echo substr($html, 0, 100) . "\n";
     echo "--- DOM TEST ---\n";
-    $dom = new DOMDocument();
-    libxml_use_internal_errors(true);
-    $dom->loadHTML($html, LIBXML_HTML_NODEFDTD | LIBXML_HTML_NOIMPLIED);
-    $errors = libxml_get_errors();
-    foreach($errors as $err) echo "XML Error: " . $err->message . "\n";
-    if (!$dom->documentElement) {
-        echo "DOCUMENT ELEMENT IS NULL\n";
+    preg_match('/<script>(.*?)<\/script>/s', $html, $matches);
+    if (isset($matches[1])) {
+        file_put_contents('script_dump.js', $matches[1]);
+        echo "Saved script_dump.js\n";
     } else {
-        echo "ROOT NODE: " . $dom->documentElement->nodeName . "\n";
+        echo "No script found!\n";
     }
 } catch (\Throwable $e) {
     echo "Exception: " . $e->getMessage() . "\n" . $e->getTraceAsString();

@@ -146,21 +146,26 @@ class ProductController extends Controller
         ]));
 
         if (get_setting('product_approve_by_admin') == 1) {
-            $users = User::findMany(User::where('user_type', 'admin')->first()->id);
+            $users = User::where('user_type', 'admin')->get();
+            $notificationType = get_notification_type('seller_product_upload', 'type');
             
-            $data = array();
-            $data['product_type']   = 'physical';
-            $data['status']         = 'pending';
-            $data['product']        = $product;
-            $data['notification_type_id'] = get_notification_type('seller_product_upload', 'type')->id;
+            if ($users->isNotEmpty() && $notificationType) {
+                $data = array();
+                $data['product_type']   = 'physical';
+                $data['status']         = 'pending';
+                $data['product']        = $product;
+                $data['notification_type_id'] = $notificationType->id;
 
-            Notification::send($users, new ShopProductNotification($data));
+                Notification::send($users, new ShopProductNotification($data));
+            }
         }
 
         flash(translate('Product has been inserted successfully'))->success();
 
-        Artisan::call('view:clear');
-        Artisan::call('cache:clear');
+        try {
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+        } catch (\Exception $e) {}
 
         return redirect()->route('seller.products');
     }
@@ -234,8 +239,10 @@ class ProductController extends Controller
 
         flash(translate('Product has been updated successfully'))->success();
 
-        Artisan::call('view:clear');
-        Artisan::call('cache:clear');
+        try {
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+        } catch (\Exception $e) {}
 
         return back();
     }
@@ -340,8 +347,10 @@ class ProductController extends Controller
         $product = Product::findOrFail($request->id);
         $product->seller_featured = $request->status;
         if ($product->save()) {
-            Artisan::call('view:clear');
-            Artisan::call('cache:clear');
+            try {
+                Artisan::call('view:clear');
+                Artisan::call('cache:clear');
+            } catch (\Exception $e) {}
             return 1;
         }
         return 0;
@@ -415,8 +424,10 @@ class ProductController extends Controller
 
             flash(translate('Product has been deleted successfully'))->success();
 
-            Artisan::call('view:clear');
-            Artisan::call('cache:clear');
+            try {
+                Artisan::call('view:clear');
+                Artisan::call('cache:clear');
+            } catch (\Exception $e) {}
 
             return back();
         } else {

@@ -1,0 +1,791 @@
+{
+    "data": {
+        "dateRange": "30D",
+        "activeTab": "Overview",
+        "financeKpis": [
+            {
+                "gross_gmv": 0,
+                "gross_gmv_delta": "0%",
+                "net_revenue": 0,
+                "net_revenue_delta": "0%",
+                "commission": 0,
+                "commission_delta": "0%",
+                "refund_rate": 0,
+                "refund_delta": "0%",
+                "pending_payouts": 0,
+                "pending_vendors": 0
+            },
+            {
+                "s": "arr"
+            }
+        ],
+        "refundTrend": [
+            [
+                [
+                    {
+                        "date": "Oct",
+                        "value": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "date": "Nov",
+                        "value": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "date": "Dec",
+                        "value": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "date": "Jan",
+                        "value": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "date": "Feb",
+                        "value": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "date": "Mar",
+                        "value": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "date": "Apr",
+                        "value": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ]
+            ],
+            {
+                "s": "arr"
+            }
+        ],
+        "payouts": [
+            [
+                [
+                    {
+                        "vendor": "ELAOUAD",
+                        "amount": 2820,
+                        "status": "Paid",
+                        "date": "10 Dec 2025"
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ]
+            ],
+            {
+                "s": "arr"
+            }
+        ],
+        "revenueTrend": [
+            [],
+            {
+                "s": "arr"
+            }
+        ],
+        "financeChart": [
+            [],
+            {
+                "s": "arr"
+            }
+        ],
+        "taxCollection": [
+            [],
+            {
+                "s": "arr"
+            }
+        ],
+        "profitability": [
+            {
+                "aov": 0,
+                "items_per_order": 1.5
+            },
+            {
+                "s": "arr"
+            }
+        ],
+        "visitorStats": [
+            {
+                "total_visits": 200230,
+                "unique_visitors": 200076,
+                "bounce_rate": 25,
+                "avg_duration_sec": 162,
+                "total_visits_delta": "+31482%",
+                "avg_duration_delta": "-85.9%",
+                "bounce_rate_delta": "+100%"
+            },
+            {
+                "s": "arr"
+            }
+        ],
+        "trafficComposition": [
+            [
+                [
+                    {
+                        "source": "Referral",
+                        "count": 119916
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "source": "Google",
+                        "count": 40063
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "source": "Facebook",
+                        "count": 40042
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "source": "Direct",
+                        "count": 36
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "source": "ig",
+                        "count": 11
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "source": "fb",
+                        "count": 8
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ]
+            ],
+            {
+                "s": "arr"
+            }
+        ],
+        "hourlyTraffic": [
+            [
+                [
+                    {
+                        "h": "00",
+                        "v": 2
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "h": "04",
+                        "v": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "h": "08",
+                        "v": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "h": "12",
+                        "v": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "h": "16",
+                        "v": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "h": "20",
+                        "v": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ]
+            ],
+            {
+                "s": "arr"
+            }
+        ],
+        "funnelStats": [
+            {
+                "visits": 200230,
+                "product_views": 38,
+                "add_to_cart": 0,
+                "checkout": 0,
+                "purchased": 0
+            },
+            {
+                "s": "arr"
+            }
+        ],
+        "vendorDirectory": [
+            [
+                [
+                    {
+                        "seller_id": 170,
+                        "seller": [
+                            {
+                                "shop": [
+                                    {
+                                        "name": "rgg"
+                                    },
+                                    {
+                                        "s": "arr"
+                                    }
+                                ]
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        "total_revenue": 7182.16,
+                        "total_orders": 4,
+                        "avg_rating": null
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ]
+            ],
+            {
+                "s": "arr"
+            }
+        ],
+        "vendorKpis": [
+            {
+                "active": 13,
+                "new": 0,
+                "rating": null,
+                "gmv": 0,
+                "dispute_rate": 0
+            },
+            {
+                "s": "arr"
+            }
+        ],
+        "vendorGrowth": [
+            [
+                [
+                    {
+                        "month": "Oct",
+                        "active": 6,
+                        "new": 0,
+                        "churned": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "month": "Nov",
+                        "active": 6,
+                        "new": 0,
+                        "churned": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "month": "Dec",
+                        "active": 8,
+                        "new": 2,
+                        "churned": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "month": "Jan",
+                        "active": 8,
+                        "new": 0,
+                        "churned": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "month": "Feb",
+                        "active": 11,
+                        "new": 3,
+                        "churned": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "month": "Mar",
+                        "active": 13,
+                        "new": 2,
+                        "churned": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "month": "Apr",
+                        "active": 13,
+                        "new": 0,
+                        "churned": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ]
+            ],
+            {
+                "s": "arr"
+            }
+        ],
+        "categoryDistribution": [
+            [],
+            {
+                "s": "arr"
+            }
+        ],
+        "marketingMetrics": [
+            {
+                "campaign_visits": 0,
+                "coupon_revenue": 0,
+                "campaigns": [
+                    [
+                        [
+                            {
+                                "name": "Bureau de direction",
+                                "status": "Live",
+                                "channel": "Flash Sale"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "name": "Test flash",
+                                "status": "Ended",
+                                "channel": "Flash Sale"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "name": "Test flash",
+                                "status": "Ended",
+                                "channel": "Flash Sale"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "name": "Housse de coussin",
+                                "status": "Ended",
+                                "channel": "Flash Sale"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "name": "BLack Friday",
+                                "status": "Live",
+                                "channel": "Flash Sale"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ]
+                    ],
+                    {
+                        "s": "arr"
+                    }
+                ]
+            },
+            {
+                "s": "arr"
+            }
+        ],
+        "marketingKpis": [
+            {
+                "campaign_revenue": 0,
+                "revenue_delta": "0%",
+                "active_coupons": 0,
+                "customer_ltv": 5161.86
+            },
+            {
+                "s": "arr"
+            }
+        ],
+        "couponTracker": [
+            [],
+            {
+                "s": "arr"
+            }
+        ],
+        "securityMetrics": [
+            {
+                "failed_logins": 0,
+                "blocked_uploads": 0,
+                "avg_latency": 0,
+                "recent_events": [
+                    [
+                        [
+                            {
+                                "created_at": "2026-04-22 17:20:34",
+                                "admin": [
+                                    {
+                                        "name": "System"
+                                    },
+                                    {
+                                        "s": "arr"
+                                    }
+                                ],
+                                "action_type": "LOGIN",
+                                "description": "User logged in: heddoudi@gmail.com",
+                                "ip_address": "::1"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "created_at": "2026-04-22 17:20:07",
+                                "admin": [
+                                    {
+                                        "name": "System"
+                                    },
+                                    {
+                                        "s": "arr"
+                                    }
+                                ],
+                                "action_type": "LOGOUT",
+                                "description": "User logged out: najimsamir66@gmail.com",
+                                "ip_address": "::1"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "created_at": "2026-04-22 17:09:54",
+                                "admin": [
+                                    {
+                                        "name": "System"
+                                    },
+                                    {
+                                        "s": "arr"
+                                    }
+                                ],
+                                "action_type": "LOGIN",
+                                "description": "User logged in: najimsamir66@gmail.com",
+                                "ip_address": "::1"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "created_at": "2026-04-22 10:45:10",
+                                "admin": [
+                                    {
+                                        "name": "System"
+                                    },
+                                    {
+                                        "s": "arr"
+                                    }
+                                ],
+                                "action_type": "LOGIN",
+                                "description": "User logged in: heddoudi@gmail.com",
+                                "ip_address": "::1"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "created_at": "2026-04-22 10:24:26",
+                                "admin": [
+                                    {
+                                        "name": "System"
+                                    },
+                                    {
+                                        "s": "arr"
+                                    }
+                                ],
+                                "action_type": "LOGIN",
+                                "description": "User logged in: heddoudi@gmail.com",
+                                "ip_address": "::1"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "created_at": "2026-04-22 10:23:38",
+                                "admin": [
+                                    {
+                                        "name": "System"
+                                    },
+                                    {
+                                        "s": "arr"
+                                    }
+                                ],
+                                "action_type": "LOGOUT",
+                                "description": "User logged out: najimsamir66@gmail.com",
+                                "ip_address": "::1"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "created_at": "2026-04-22 09:45:03",
+                                "admin": [
+                                    {
+                                        "name": "System"
+                                    },
+                                    {
+                                        "s": "arr"
+                                    }
+                                ],
+                                "action_type": "LOGIN",
+                                "description": "User logged in: najimsamir66@gmail.com",
+                                "ip_address": "::1"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "created_at": "2026-04-22 09:45:02",
+                                "admin": [
+                                    {
+                                        "name": "System"
+                                    },
+                                    {
+                                        "s": "arr"
+                                    }
+                                ],
+                                "action_type": "LOGIN",
+                                "description": "User logged in: najimsamir66@gmail.com",
+                                "ip_address": "::1"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "created_at": "2026-04-21 22:19:57",
+                                "admin": [
+                                    {
+                                        "name": "System"
+                                    },
+                                    {
+                                        "s": "arr"
+                                    }
+                                ],
+                                "action_type": "LOGIN",
+                                "description": "User logged in: najimsamir66@gmail.com",
+                                "ip_address": "::1"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ],
+                        [
+                            {
+                                "created_at": "2026-04-21 15:01:54",
+                                "admin": [
+                                    {
+                                        "name": "System"
+                                    },
+                                    {
+                                        "s": "arr"
+                                    }
+                                ],
+                                "action_type": "LOGIN",
+                                "description": "User logged in: najimsamir66@gmail.com",
+                                "ip_address": "::1"
+                            },
+                            {
+                                "s": "arr"
+                            }
+                        ]
+                    ],
+                    {
+                        "s": "arr"
+                    }
+                ]
+            },
+            {
+                "s": "arr"
+            }
+        ],
+        "systemHealth": [
+            [
+                [
+                    {
+                        "name": "Core API",
+                        "source": "System",
+                        "rate": "100%",
+                        "status": "ok",
+                        "latency": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ],
+                [
+                    {
+                        "name": "Database",
+                        "source": "System",
+                        "rate": "100%",
+                        "status": "ok",
+                        "latency": 0
+                    },
+                    {
+                        "s": "arr"
+                    }
+                ]
+            ],
+            {
+                "s": "arr"
+            }
+        ],
+        "insights": [
+            [],
+            {
+                "s": "arr"
+            }
+        ],
+        "forecasting": [
+            {
+                "history": [
+                    [],
+                    {
+                        "s": "arr"
+                    }
+                ],
+                "forecast": [
+                    [],
+                    {
+                        "s": "arr"
+                    }
+                ],
+                "growth_rate": 0
+            },
+            {
+                "s": "arr"
+            }
+        ],
+        "currency": [
+            {
+                "symbol": "Dhs",
+                "code": "Dhs"
+            },
+            {
+                "s": "arr"
+            }
+        ]
+    },
+    "memo": {
+        "id": "4kAncJbLMt58knQIxwP4",
+        "name": "analytics.technical-dashboard",
+        "path": "\/",
+        "method": "GET",
+        "release": "a-a-a",
+        "children": [],
+        "scripts": [],
+        "assets": [],
+        "errors": [],
+        "locale": "fr",
+        "islands": []
+    },
+    "checksum": "5f8205b60b5a4231faf09f225678ff6242742b2bd235a9abe2bff219dd3ac225"
+}
