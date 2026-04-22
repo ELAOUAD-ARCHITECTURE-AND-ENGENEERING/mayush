@@ -5,8 +5,8 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use Livewire\Livewire;
 use App\Livewire\Analytics\TechnicalDashboard;
-use App\Services\Analytics\FinanceAnalyticsService;
-use App\Contracts\Analytics\FinanceAnalyticsRepositoryInterface;
+use App\Services\Analytics\TechnicalAnalyticsService;
+use App\Contracts\Analytics\TechnicalAnalyticsRepositoryInterface;
 use App\DTOs\Analytics\RevenueMetricsDTO;
 use Mockery;
 use Illuminate\Support\Collection;
@@ -37,7 +37,7 @@ class TechnicalDashboardTest extends TestCase
 
     private function mockService()
     {
-        $mockRepo = Mockery::mock(FinanceAnalyticsRepositoryInterface::class);
+        $mockRepo = Mockery::mock(TechnicalAnalyticsRepositoryInterface::class);
         $mockRepo->shouldReceive('getRevenueMetrics')->andReturn(new RevenueMetricsDTO([
             'gross_gmv' => 5000.00,
             'gross_gmv_delta' => '+5%',
@@ -53,6 +53,6 @@ class TechnicalDashboardTest extends TestCase
         $mockRepo->shouldReceive('getRefundTrends')->andReturn(new Collection([]));
         $mockRepo->shouldReceive('getPayouts')->andReturn(new Collection([]));
 
-        $this->app->instance(FinanceAnalyticsService::class, new FinanceAnalyticsService($mockRepo));
+        $this->app->instance(TechnicalAnalyticsService::class, new TechnicalAnalyticsService($mockRepo));
     }
 }

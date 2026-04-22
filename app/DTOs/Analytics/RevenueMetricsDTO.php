@@ -28,4 +28,23 @@ class RevenueMetricsDTO
         $this->pendingPayouts = $data['pending_payouts'] ?? 0.0;
         $this->pendingVendors = $data['pending_vendors'] ?? 0;
     }
+
+    /**
+     * Convert to array with snake_case keys matching the Blade template expectations.
+     */
+    public function toArray(): array
+    {
+        return [
+            'gross_gmv' => $this->grossGmv,
+            'gross_gmv_delta' => $this->grossGmvDelta,
+            'net_revenue' => $this->netRevenue,
+            'net_revenue_delta' => $this->netRevenueDelta,
+            'commission' => $this->commission,
+            'commission_delta' => $this->commissionDelta,
+            'refund_rate' => $this->refundRate,
+            'refund_delta' => $this->refundDelta,
+            'pending_payouts' => $this->pendingPayouts,
+            'pending_vendors' => $this->pendingVendors,
+        ];
+    }
 }

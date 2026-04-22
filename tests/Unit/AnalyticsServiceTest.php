@@ -3,8 +3,8 @@
 namespace Tests\Unit;
 
 use Tests\TestCase;
-use App\Services\Analytics\FinanceAnalyticsService;
-use App\Contracts\Analytics\FinanceAnalyticsRepositoryInterface;
+use App\Services\Analytics\TechnicalAnalyticsService;
+use App\Contracts\Analytics\TechnicalAnalyticsRepositoryInterface;
 use App\DTOs\Analytics\RevenueMetricsDTO;
 use Carbon\Carbon;
 use Mockery;
@@ -14,7 +14,7 @@ class AnalyticsServiceTest extends TestCase
 {
     public function test_get_dashboard_metrics_returns_expected_structure(): void
     {
-        $mockRepo = Mockery::mock(FinanceAnalyticsRepositoryInterface::class);
+        $mockRepo = Mockery::mock(TechnicalAnalyticsRepositoryInterface::class);
 
         $mockDto = new RevenueMetricsDTO([
             'gross_gmv' => 1000.00,
@@ -48,7 +48,7 @@ class AnalyticsServiceTest extends TestCase
             ->once()
             ->andReturn(new Collection([['vendor' => 'Test Vendor', 'amount' => 50.0, 'status' => 'Pending', 'date' => '2026-04-01']]));
 
-        $service = new FinanceAnalyticsService($mockRepo);
+        $service = new TechnicalAnalyticsService($mockRepo);
         $result = $service->getDashboardMetrics($start, $end);
 
         $this->assertArrayHasKey('kpis', $result);

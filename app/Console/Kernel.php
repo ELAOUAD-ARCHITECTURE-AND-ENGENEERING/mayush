@@ -45,6 +45,12 @@ class Kernel extends ConsoleKernel
         $schedule->job(\Mayush\Shipping\Onessta\Jobs\SyncCitiesJob::class)->dailyAt('00:00');
         $schedule->job(\Mayush\Shipping\Onessta\Jobs\SyncPickupCitiesJob::class)->dailyAt('01:00');
         $schedule->job(\Mayush\Shipping\Onessta\Jobs\PollTrackingJob::class)->everyFiveMinutes();
+
+        // Analytics Aggregation Jobs
+        $schedule->job(\App\Jobs\AggregateDailyAnalyticsJob::class)->dailyAt('00:05');
+        $schedule->job(\App\Jobs\AggregateVendorPerformanceJob::class)->dailyAt('00:10');
+        $schedule->job(\App\Jobs\AggregateMarketingMetricsJob::class)->dailyAt('00:15');
+        $schedule->job(\App\Jobs\AggregateSecurityMetricsJob::class)->dailyAt('00:20');
     }
 
     /**

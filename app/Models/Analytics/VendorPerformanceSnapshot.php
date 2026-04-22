@@ -3,6 +3,7 @@
 namespace App\Models\Analytics;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class VendorPerformanceSnapshot extends Model
 {
@@ -22,4 +23,12 @@ class VendorPerformanceSnapshot extends Model
         'avg_rating' => 'decimal:2',
         'snapshot_date' => 'date',
     ];
+
+    /**
+     * The vendor (seller) user associated with this snapshot.
+     */
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
 }

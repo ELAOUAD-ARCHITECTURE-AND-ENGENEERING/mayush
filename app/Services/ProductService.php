@@ -128,10 +128,11 @@ class ProductService
                 $str = 'choice_options_' . $no;
                 $item['attribute_id'] = $no;
                 $attribute_data = array();
-                // foreach (json_decode($request[$str][0]) as $key => $eachValue) {
-                foreach ($collection[$str] as $key => $eachValue) {
-                    // array_push($data, $eachValue->value);
-                    array_push($attribute_data, $eachValue);
+                
+                if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
+                    foreach ($collection[$str] as $key => $eachValue) {
+                        array_push($attribute_data, $eachValue);
+                    }
                 }
                 unset($collection[$str]);
 
@@ -304,10 +305,11 @@ class ProductService
                 $str = 'choice_options_' . $no;
                 $item['attribute_id'] = $no;
                 $attribute_data = array();
-                // foreach (json_decode($request[$str][0]) as $key => $eachValue) {
-                foreach ($collection[$str] as $key => $eachValue) {
-                    // array_push($data, $eachValue->value);
-                    array_push($attribute_data, $eachValue);
+                
+                if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
+                    foreach ($collection[$str] as $key => $eachValue) {
+                        array_push($attribute_data, $eachValue);
+                    }
                 }
                 unset($collection[$str]);
 
@@ -633,12 +635,12 @@ class ProductService
                 $item['attribute_id'] = $no;
                 $attribute_data = array();
                 
-                if (isset($collection[$str])) {
+                if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
                     foreach ($collection[$str] as $eachValue) {
                         array_push($attribute_data, $eachValue);
                     }
-                    unset($collection[$str]);
                 }
+                unset($collection[$str]);
 
                 $item['values'] = $attribute_data;
                 array_push($choice_options, $item);
