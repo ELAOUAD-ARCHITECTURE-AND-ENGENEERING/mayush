@@ -88,9 +88,9 @@ Route::controller(UpdateController::class)->group(function () {
 Route::get('/admin', [AdminController::class, 'admin_dashboard'])->name('admin.dashboard')->middleware(['auth', 'admin']);
 
 // Technical Analytics Dashboard
-Route::get('/admin/technical-analytics', \App\Livewire\Analytics\TechnicalDashboard::class)
-    ->name('admin.technical_analytics')
-    ->middleware(['auth', 'admin']);
+Route::get('/admin/technical-analytics', function() {
+    return view('backend.analytics.technical');
+})->name('admin.technical_analytics')->middleware(['auth', 'admin']);
 
 Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-back-history']], function() {
     

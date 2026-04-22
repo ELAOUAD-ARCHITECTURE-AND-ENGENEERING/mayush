@@ -3,14 +3,10 @@
 namespace App\Livewire\Analytics;
 
 use Livewire\Component;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Slot;
 use Carbon\Carbon;
 use App\Services\Analytics\TechnicalAnalyticsService;
 use Illuminate\Support\Facades\Log;
 
-#[Layout('backend.layouts.app')]
-#[Slot('content')]
 class TechnicalDashboard extends Component
 {
     public string $dateRange = '30D';
