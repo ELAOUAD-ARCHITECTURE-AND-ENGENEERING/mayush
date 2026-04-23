@@ -379,11 +379,11 @@
         </section>
     </div>
 
-    {{-- Top 10 categories and Brands --}}
-    @if (get_setting('top10_categories') != null || get_setting('top10_brands') != null)
+    {{-- Top 10 categories --}}
+    @if (get_setting('top10_categories') != null)
     @php
-        $col_section = (get_setting('top10_categories') != null && get_setting('top10_brands') != null) ? 'col-lg-6' : 'col-lg-12';
-        $col_block = (get_setting('top10_categories') != null && get_setting('top10_brands') != null) ? 'col-sm-6' : 'col-xl-3 col-lg-4 col-sm-6';
+        $col_section = 'col-lg-12';
+        $col_block = 'col-xl-3 col-lg-4 col-sm-6';
     @endphp
     <section class="mb-4">
         <div class="container">
@@ -415,45 +415,6 @@
                                                 </div>
                                                 <div class="col-7">
                                                     <div class="text-truncat-2 pl-3 fs-14 fw-600 text-left">{{ $category->getTranslation('name') }}</div>
-                                                </div>
-                                                <div class="col-2 text-center">
-                                                    <i class="la la-angle-right text-primary"></i>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                @endif
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-                @if (get_setting('top10_brands') != null)
-                    <div class="{{ $col_section }}">
-                        <div class="d-flex mb-3 align-items-baseline border-bottom">
-                            <h3 class="h5 fw-700 mb-0">
-                                <span class="border-bottom border-primary border-width-2 pb-3 d-inline-block">{{ translate('Top 10 Brands') }}</span>
-                            </h3>
-                            <a href="{{ route('brands.all') }}" class="ml-auto mr-0 btn btn-primary btn-sm shadow-md">{{ translate('View All Brands') }}</a>
-                        </div>
-                        <div class="row gutters-5 d-flex flex-wrap">
-                            @php $top10_brands = json_decode(get_setting('top10_brands')); @endphp
-                            @foreach ($top10_brands as $key => $value)
-                                @php $brand = \App\Models\Brand::find($value); @endphp
-                                @if ($brand != null)
-                                    <div class="{{ $col_block }}">
-                                        <a href="{{ route('products.brand', $brand->slug) }}" class="bg-white border d-block text-reset rounded p-2 hov-shadow-md mb-2">
-                                            <div class="row align-items-center no-gutters">
-                                                <div class="col-4 text-center">
-                                                    <img
-                                                        src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                                                        data-src="{{ uploaded_asset($brand->logo) }}"
-                                                        alt="{{ $brand->getTranslation('name') }}"
-                                                        class="img-fluid img lazyload h-60px"
-                                                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
-                                                    >
-                                                </div>
-                                                <div class="col-6">
-                                                    <div class="text-truncate-2 pl-3 fs-14 fw-600 text-left">{{ $brand->getTranslation('name') }}</div>
                                                 </div>
                                                 <div class="col-2 text-center">
                                                     <i class="la la-angle-right text-primary"></i>
