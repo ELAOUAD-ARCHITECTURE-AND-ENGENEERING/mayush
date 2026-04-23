@@ -114,7 +114,7 @@ class DigitalProductController extends Controller
         ]));
 
         // Product Translations
-        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?? (get_system_language()?->code ?? 'en')]);
+        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?? (get_system_language()?->code ?? 'fr')]);
         ProductTranslation::create($request->only([
             'lang', 'name', 'description', 'product_id'
         ]));
