@@ -18,9 +18,9 @@ use App\Http\Controllers\SmsTemplateController;
 
 //Verofocation phone
 Route::controller(OTPVerificationController::class)->middleware(['throttle:otp'])->group(function () {
-    Route::get('/verification', 'verification')->name('verification');
-    Route::post('/verification', 'verify_phone')->name('verification.submit');
-    Route::get('/verification/phone/code/resend', 'resend_verificcation_code')->name('verification.phone.resend');
+    Route::get('/verification', 'verification')->name('otp.verification');
+    Route::post('/verification', 'verify_phone')->name('otp.verification.submit');
+    Route::get('/verification/phone/code/resend', 'resend_verificcation_code')->name('otp.verification.phone.resend');
     
     //Forgot password phone
     Route::get('/password/phone/reset', 'show_reset_password_form')->name('password.phone.form');

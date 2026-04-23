@@ -502,4 +502,38 @@
             });
         });
     </script>
+
+    {{-- SEO FAQ Schema --}}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What can I find on Mayush Luxury Marketplace?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Mayush is Morocco's premier marketplace for luxury interior design products, offering a curated selection of premium furniture, high-end decor, and designer architectural materials."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does 'See Before Make It' help with product selection?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Our 'See Before Make It' concept allows you to visualize luxury furniture and products in your own space through advanced 3D visualization before you make a purchase."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Mayush deliver high-end furniture across Morocco?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, Mayush specializes in the safe delivery of premium furniture and delicate interior design products to luxury residences in Casablanca, Marrakesh, and nationwide."
+          }
+        }
+      ]
+    }
+    </script>
 @endsection

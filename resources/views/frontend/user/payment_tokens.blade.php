@@ -91,11 +91,14 @@
                                     <td class="text-right pr-0">
                                         <div class="d-flex justify-content-end">
                                             @if(!$token->is_default)
-                                                <a href="{{ route('payment.token.default', $token->id) }}" class="btn btn-soft-primary btn-icon btn-circle btn-sm hov-bg-primary hov-text-white mx-1" title="{{ translate('Make Preferred') }}">
-                                                    <i class="las la-anchor"></i>
-                                                </a>
+                                                <form action="{{ route('payment_tokens.set_default', $token->id) }}" method="POST" class="d-inline-block">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-soft-primary btn-icon btn-circle btn-sm hov-bg-primary hov-text-white mx-1" title="{{ translate('Make Preferred') }}">
+                                                        <i class="las la-anchor"></i>
+                                                    </button>
+                                                </form>
                                             @endif
-                                            <a href="javascript:void(0)" class="btn btn-soft-danger btn-icon btn-circle btn-sm hov-bg-danger hov-text-white mx-1 confirm-delete" data-href="{{ route('payment.token.remove', $token->id) }}" title="{{ translate('Remove Card') }}">
+                                            <a href="javascript:void(0)" class="btn btn-soft-danger btn-icon btn-circle btn-sm hov-bg-danger hov-text-white mx-1 confirm-delete" data-href="{{ route('payment_tokens.destroy', $token->id) }}" title="{{ translate('Remove Card') }}">
                                                 <i class="las la-trash-alt"></i>
                                             </a>
                                         </div>

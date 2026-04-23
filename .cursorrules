@@ -1,83 +1,36 @@
-# CRITICAL AI SYSTEM RULES FOR MAYUSHDESIGN WORKSPACE
+# Mayush Project Strict Isolation Policy
 
-**DO NOT IGNORE THESE RULES UNDER ANY CIRCUMSTANCES.**
-**THESE PRECAUTIONS MUST BE CHECKED BEFORE EXECUTING ANY SCRIPT OR COMMAND.**
+## 1. Absolute Project Isolation
+All SEO & GEO strategy implementations, code development, and configuration changes MUST be developed exclusively for the Mayush project. Referencing, copying, or reusing any components, code snippets, configurations, or strategic frameworks from other projects (e.g., Lykora, or any other external project) is strictly prohibited.
 
-## 1. NEVER DROP OR DELETE DATABASE TABLES
-- You are **STRICTLY FORBIDDEN** from executing `DROP TABLE`, `DROP VIEW`, `TRUNCATE TABLE`, or any equivalent command on this database.
-- You are **STRICTLY FORBIDDEN** from writing or executing scripts (PHP, Bash, SQL) that automatically delete database tables to "fix" migration errors.
-- **Why:** The database in this environment is populated from an external SQL dump (`amsadesign.sql`), meaning the physical tables exist even if the Laravel `migrations` table is completely empty or out of sync. Dropping tables deletes live data permanently.
+## 2. Mandatory Pre-Task Validation Checklist
+Before initiating ANY task, developers and AI agents MUST explicitly verify and check off the following:
+- [ ] Confirmed that all code sources, dependencies, and configurations to be used originate solely from the Mayush project repository.
+- [ ] Confirmed that no external API configurations, database schemas, or business logic are being improperly imported.
+- [ ] Confirmed that .cursorrules compliance has been checked and signed off.
+**Failure to complete this checklist completely BLOCKS task initiation.**
 
-## 2. HANDLING MIGRATION ERRORS CAREFULLY
-- If a migration fails with `1050 Table '...' already exists` or `1060 Duplicate column name`, **DO NOT DROP THE TABLE OR COLUMN**.
-- **The Correct Action:** Assume the data is correct. Manually sync the Laravel `migrations` table by inserting a record for that specific migration file using `artisan tinker` or a safe PHP script, so Laravel skips it in the future.
-- Use the principles found in `deploy_vps.sh` (`run_safe_migrate` function) which catches "already exists" errors and safely fakes the migration record without data loss.
+## 3. External Element Rejection Protocol
+- Any external project elements (code snippets, API configurations, database schemas, strategic frameworks) identified during development MUST be immediately rejected.
+- If an external element is proposed or generated, the developer/agent must halt, document the rejection, and remove the offending content.
+- Only assets explicitly found within the `mayush` repository or officially approved third-party packages are permitted.
 
-## 3. DATA PRESERVATION BEFORE DESTRUCTION
-- Never prioritize clean migration states over actual data retention.
-- If you are unsure if a table contains important data, assume it is **CRITICAL PRODUCTION DATA**.
-- Always query `SELECT COUNT(*) FROM table_name;` before making *any* structural assumptions if absolutely forced to interact with a table (e.g., altering schemas). 
+## 4. Automated Validation Scanning
+Before any major task execution or commit, the automated cross-project scanning script MUST be run to verify no cross-contamination has occurred:
+**Command:** `.\scripts\validate_isolation.ps1`
+If the script flags any potential cross-contamination (e.g., finding keywords related to known external projects), the task is blocked until the flagged code is removed or explicitly approved.
 
-## 4. DEPLOYMENT & VPS SAFEGUARDS
-- Always assume commands are running against a production-like environment. 
-- Do not execute destructive cleanup scripts.
+## 5. Third-Party Integration Approval
+Any new third-party integration requires documented approval prior to implementation.
+- The developer/agent must provide an explicit, documented justification explaining WHY the integration is necessary SPECIFICALLY for the Mayush project.
+- General "best practice" justifications without Mayush-specific context are invalid and will be rejected.
 
-## 5. NEVER DELETE OR CLEAR ROUTE FILES
-- You are **STRICTLY FORBIDDEN** from clearing, deleting, or making destructive edits to route files (e.g., `routes/admin.php`, `routes/web.php`, `routes/api.php`).
-- Accidental deletion or clearing of these files causes widespread application failure (`RouteNotFoundException`).
-- **The Correct Action:** Use granular edits (`replace_file_content` or `multi_replace_file_content`) to add or modify routes. Never overwrite an entire route file with a subset of routes unless you are certain you have the complete content.
-- Always verify that critical routes like `admin.dashboard` remain intact after any modification to routing files.
+## 6. Violation Consequences
+- Immediate rollback of any contaminated changes or commits.
+- Mandatory code review sessions for the affected modules.
+- Re-evaluation of the AI agent's context window to ensure external project data is purged.
 
-## 6. MANDATORY PROJECT TRACKER & SESSION ALIGNMENT
-- **MANDATORY SESSION START:** At the beginning of EVERY new work session, you MUST read the `PROJECT_TRACKER.md` to align on current status and priorities before taking any other action.
-- **MANDATORY UPDATES:** You are REQUIRED to update the `PROJECT_TRACKER.md` file after completing **EVERY** task or significant sub-task.
-- Updates must include concise summaries of progress, specific changes made (files modified, new features added), and any risks or stability issues addressed.
-- **Why:** This file serves as the system's "long-term memory" and provides the user with an accurate, real-time snapshot of the project's health and completion percentage.
-
-## 7. ADDITIONAL FILES POLICY
-- All supplementary files (documentation, scripts, experiments, backups) that are NOT part of the original Mayush codebase MUST be placed inside the `additional-files/` directory.
-- NEVER create loose supplementary files in the project root or inside existing app directories.
-- Categorize into: `documentation/`, `utilities/`, `experiments/`, `backups/`.
-- Use naming: `YYYY-MM-DD_purpose-description.ext`.
-
-## 8. MANDATORY GITHUB SYNCHRONIZATION (ALWAYS PUSH)
-- **CRITICAL:** You are REQUIRED to push every completed task or significant change to the remote GitHub repository immediately.
-- Never conclude a session or a major task without executing a successful `git push`.
-- Ensure commit messages strictly follow the project's descriptive standards (reference Task IDs).
-
-## 9. ALWAYS CLEAN PROJECT
-- Before concluding a task and notifying the user, you **MUST** delete any temporary diagnostic, test, or experimental files created during the process.
-- Never leave "scaffolding" or "scratch" code in the primary codebase.
-
-**By reading this file, you agree that protecting the user's existing data and application stability is your absolute #1 priority, overriding all other tasks, optimizations, or framework conventions.**
-
-## 10. MANDATORY AI KNOWLEDGE BASE CONSULTATION
-
-A structured knowledge base for AI agents exists at: `additional-files/documentation/ai-knowledge/`\
-
-> **This folder is in `.gitignore` -- NEVER commit or push it to GitHub.**
-> It is a local-only AI agent memory layer, not part of the deployable codebase.
-
-**MANDATORY:** Before executing ANY of the following tasks, you MUST read the relevant Knowledge Item (KI) files:
-
-| Task Type | Read Before Starting |
-|-----------|---------------------|
-| Any deployment or CI/CD change | `KNOWLEDGE_INDEX.md`, `KI-001`, `KI-002` |
-| Any Redis/cache/queue work | `KI-001-redis-deployment.md`, `KI-003-laravel-cache-poisoning.md` |
-| Any `.github/workflows/` edit | `KI-002-github-actions-deploy.md` |
-| Any Supervisor/Horizon work | `KI-005-supervisor-horizon.md` |
-| Any bash script reading `.env` | `KI-004-env-file-parsing.md` |
-| Any error you encounter | Search `ERRORS_REGISTRY.md` by error string FIRST |
-
-**MANDATORY AFTER COMPLETING A TASK:**
-- If you encountered a new error, add it to `ERRORS_REGISTRY.md`
-- If you discovered a new pattern or rule, update the relevant KI file
-- Update the `Last Updated` date in the KI file and `KNOWLEDGE_INDEX.md`
-
-**Why:** This knowledge base captures solved problems so future agents never repeat the same debugging cycles. Every deployment session that is spent solving a known issue is wasted time. The agents that check this system first are the ones that succeed on the first try.
-
-## 11. PAYMENT GATEWAY POLICY
-- The application **ONLY** uses **CMI** and **Cash on Delivery (COD)**.
-- **IGNORE** all other payment gateways (SSLCommerz, Bkash, Nagad, Stripe, Razorpay, etc.) during audits, updates, or hardening tasks.
-- Do not perform security hardening or bug fixes for these gateways unless explicitly requested.
-- Focus exclusively on maintaining the security and integrity of the CMI integration and COD logic.
+## 7. Verification Sign-off System
+Every new task session or major feature implementation must begin with the following explicit statement:
+> "I have reviewed the Mayush .cursorrules isolation policy and verified compliance. All work will be exclusively tailored to the Mayush repository. Checklist complete."
+Failure to provide this check blocks task initiation.

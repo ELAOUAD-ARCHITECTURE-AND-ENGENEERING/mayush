@@ -445,7 +445,6 @@
                                             </label>
                                         </div>
                                     @endif
-                                    <!-- CMI Payment -->
                                     @if (get_setting('cmi_payment') == 1)
                                         <div class="col-6 col-xl-3 col-md-4">
                                             <label class="aiz-megabox d-block mb-3">
@@ -470,6 +469,26 @@
                                                 </div>
                                             @endif
                                         </div>
+                                    @endif
+
+                                    @if(Auth::check() && count($tokens) > 0)
+                                        @foreach($tokens as $token)
+                                            <div class="col-6 col-xl-3 col-md-4">
+                                                <label class="aiz-megabox d-block mb-3">
+                                                    <input value="cmi_vault" class="online_payment" type="radio"
+                                                        name="payment_option" data-token="{{ $token->id }}">
+                                                    <input type="hidden" name="payment_token_id" value="{{ $token->id }}" disabled>
+                                                    <span class="d-block aiz-megabox-elem rounded-0 p-3">
+                                                        <img src="{{ static_asset('assets/img/cards/cmi.png') }}"
+                                                            class="img-fit mb-2">
+                                                        <span class="d-block text-center">
+                                                            <span class="d-block fw-600 fs-15">{{ translate('Saved Card') }}</span>
+                                                            <small class="d-block text-muted">**** **** **** {{ $token->card_last_four }}</small>
+                                                        </span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        @endforeach
                                     @endif
                                     <!-- Cash Payment -->
                                     @if (get_setting('cash_payment') == 1)
@@ -668,6 +687,12 @@
         $(document).ready(function() {
             $(".online_payment").click(function() {
                 $('#manual_payment_description').parent().addClass('d-none');
+                
+                // Handle payment tokens
+                $('input[name="payment_token_id"]').prop('disabled', true);
+                if ($(this).val() == 'cmi_vault') {
+                    $(this).closest('label').find('input[name="payment_token_id"]').prop('disabled', false);
+                }
             });
             toggleManualPaymentData($('input[name=payment_option]:checked').data('id'));
         });

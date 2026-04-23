@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
+use App\Models\PaymentToken;
 
 class CheckoutController extends Controller
 {
@@ -561,7 +562,15 @@ class CheckoutController extends Controller
             }
             $total = $subtotal + $tax + $shipping;
 
-            return View::make('frontend.payment_select', compact('carts', 'shipping_info', 'total'));
+            $tokens = [];
+            if (Auth::check()) {
+                $tokens = PaymentToken::where('user_id', Auth::id())
+                    ->where('is_active', true)
+                    ->latest()
+                    ->get();
+            }
+
+            return View::make('frontend.payment_select', compact('carts', 'shipping_info', 'total', 'tokens'));
         } else {
             Session::flash('warning', translate('Your Cart was empty'));
             return Redirect::route('home');

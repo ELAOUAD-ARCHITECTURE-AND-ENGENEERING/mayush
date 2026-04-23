@@ -11,6 +11,7 @@ use Mayush\Shipping\Onessta\Exceptions\CityMappingException;
 use Mayush\Shipping\Onessta\Exceptions\ShipmentCreationException;
 use Mayush\Shipping\Onessta\Models\OnesstaShipment;
 use Mayush\Shipping\Onessta\Models\OnesstaCityMap;
+use Mayush\Shipping\Onessta\Helpers\CityMappingHelper;
 
 class ShipmentService
 {
@@ -26,6 +27,16 @@ class ShipmentService
     public function createShipment(ShipmentRequestDto $dto, ?int $orderId = null, array $meta = []): OnesstaShipment
     {
         $rawRequest = $dto->toArray();
+
+        // Strict City Mapping Validation
+        try {
+            $remoteCityId = CityMappingHelper::getRemoteCityId($dto->city);
+            if ($dto->pickup_city) {
+                CityMappingHelper::getRemoteCityId($dto->pickup_city);
+            }
+        } catch (CityMappingException $e) {
+            throw new ShipmentCreationException($e->getMessage(), $orderId, $e);
+        }
 
         try {
             $response = $this->client->post('/p/parcels/add', $rawRequest);

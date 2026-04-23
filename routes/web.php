@@ -346,6 +346,13 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
     });
 
     // Wishlist
+    // Payment Tokens (Vault)
+    Route::controller(PaymentTokenController::class)->group(function () {
+        Route::get('/payment-methods', 'index')->name('payment_tokens.index');
+        Route::post('/payment-methods/{token}/default', 'setDefault')->name('payment_tokens.set_default');
+        Route::delete('/payment-methods/{token}', 'destroy')->name('payment_tokens.destroy');
+    });
+
     Route::resource('wishlists', WishlistController::class);
     Route::post('/wishlists/remove', [WishlistController::class, 'remove'])->name('wishlists.remove');
 
