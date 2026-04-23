@@ -176,19 +176,11 @@
     <!-- 15. Marketplace Banner -->
     @include('frontend.metro.partials.marketplace_banner')
 
-    <!-- 16. Top Sellers -->
-    @if (get_setting('vendor_system_activation') == 1)
-        <div id="section_best_sellers">
-            <section class="mb-4 text-center">
-                <div class="container">
-                    <div class="skeleton-shimmer h-150px w-100 rounded"></div>
-                </div>
-            </section>
-        </div>
-    @endif
+    <!-- 16. Top Sellers (Hidden by default, loaded via AJAX only if criteria met) -->
+    <div id="section_best_sellers"></div>
 
-    <!-- 17. Top Brands -->
-    @include('frontend.metro.partials.top_brands_section')
+    <!-- 17. Top Brands (Hidden as requested) -->
+    {{-- @include('frontend.metro.partials.top_brands_section') --}}
 
     <!-- 18. Classifieds -->
     @include('frontend.metro.partials.classifieds_section')

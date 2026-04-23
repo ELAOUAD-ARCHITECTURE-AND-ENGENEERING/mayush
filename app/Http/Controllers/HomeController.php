@@ -127,7 +127,26 @@ class HomeController extends Controller
 
     public function load_best_sellers_section()
     {
-        return view('frontend.' . get_setting('homepage_select') . '.partials.best_sellers_section');
+        $sellers = Shop::where('verification_status', 1)
+            ->whereHas('user', function ($query) {
+                $query->where('is_intern', 0);
+            })
+            ->whereIn('user_id', function ($query) {
+                $query->select('seller_id')
+                    ->from('order_details')
+                    ->where('created_at', '>=', Carbon::now()->subDays(3))
+                    ->groupBy('seller_id')
+                    ->havingRaw('COUNT(*) > 10');
+            })
+            ->orderBy('num_of_sale', 'desc')
+            ->take(20)
+            ->get();
+
+        if ($sellers->isEmpty()) {
+            return "";
+        }
+
+        return view('frontend.' . get_setting('homepage_select') . '.partials.best_sellers_section', compact('sellers'));
     }
 
     public function load_promoted_category_section()

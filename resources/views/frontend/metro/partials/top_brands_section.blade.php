@@ -1,4 +1,5 @@
 @php
+    return; // Hidden as requested
     $brands = get_all_brands();
 @endphp
 
