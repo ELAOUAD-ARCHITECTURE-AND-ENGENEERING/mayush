@@ -11,13 +11,13 @@ class ProductUtility
     {
         $options = array();
         if (
-            isset($collection['colors_active']) &&
-            $collection['colors_active'] &&
-            $collection['colors'] &&
-            count($collection['colors']) > 0
+            $collection->get('colors_active') &&
+            $collection->has('colors') &&
+            is_array($collection->get('colors')) &&
+            count($collection->get('colors')) > 0
         ) {
             $colors_active = 1;
-            array_push($options, $collection['colors']);
+            array_push($options, $collection->get('colors'));
         }
 
         if (isset($collection['choice_no']) && $collection['choice_no']) {
@@ -44,7 +44,7 @@ class ProductUtility
             if ($key > 0) {
                 $str .= '-' . str_replace(' ', '', $item);
             } else {
-                if (isset($collection['colors_active']) && $collection['colors_active'] && $collection['colors'] && count($collection['colors']) > 0) {
+                if ($collection->get('colors_active') && $collection->has('colors') && is_array($collection->get('colors')) && count($collection->get('colors')) > 0) {
                     $color_name = Color::where('code', $item)->first()->name;
                     $str .= $color_name;
                 } else {

@@ -22,8 +22,8 @@ class ProductService
     {
         $collection = collect($data);
         $collection['draft'] = 0;
-        $collection['discount']= $collection['discount'] ?? 0.00;
-        $collection['weight']= $collection['weight'] ?? 0.00;
+        $collection['discount']= $collection->get('discount', 0.00);
+        $collection['weight']= $collection->get('weight', 0.00);
 
         if(!isset($collection['gst_rate']) && addon_is_activated('gst_system')){
             $collection['tax'] = 0;
@@ -95,12 +95,12 @@ class ProductService
 
         $colors = json_encode(array());
         if (
-            isset($collection['colors_active']) &&
-            $collection['colors_active'] &&
-            $collection['colors'] &&
-            count($collection['colors']) > 0
+            $collection->get('colors_active') &&
+            $collection->has('colors') &&
+            is_array($collection->get('colors')) &&
+            count($collection->get('colors')) > 0
         ) {
-            $colors = json_encode($collection['colors']);
+            $colors = json_encode($collection->get('colors'));
         }
 
         $options = ProductUtility::get_attribute_options($collection);
@@ -151,7 +151,7 @@ class ProductService
         }
 
         $published = 1;
-        if ($collection['button'] == 'unpublish' || $collection['button'] == 'draft') {
+        if ($collection->get('button') == 'unpublish' || $collection->get('button') == 'draft') {
             $published = 0;
         }
         unset($collection['button']);
@@ -184,10 +184,10 @@ class ProductService
     {
         $collection = collect($data);
 
-        $slug = Str::slug($collection['name']);
-        $slug = Str::slug($collection['slug'] ?? $collection['name']);
-        $collection['discount']= $collection['discount'] ?? 0.00;
-        $collection['weight']= $collection['weight'] ?? 0.00;
+        $slug = Str::slug($collection->get('name'));
+        $slug = Str::slug($collection->get('slug') ?? $collection->get('name'));
+        $collection['discount']= $collection->get('discount', 0.00);
+        $collection['weight']= $collection->get('weight', 0.00);
         $same_slug_count = Product::where('slug', 'LIKE', $slug . '%')->count();
         $slug_suffix = $same_slug_count > 1 ? '-' . $same_slug_count + 1 : '';
         $slug .= $slug_suffix;
@@ -235,18 +235,18 @@ class ProductService
         $collection['tags'] = implode(',', array_unique($tags));
         $discount_start_date = null;
         $discount_end_date   = null;
-        if ($collection['date_range'] != null) {
-            $date_var               = explode(" to ", $collection['date_range']);
+        if ($collection->get('date_range') != null) {
+            $date_var               = explode(" to ", $collection->get('date_range'));
             $discount_start_date = strtotime($date_var[0]);
             $discount_end_date   = strtotime($date_var[1]);
         }
         unset($collection['date_range']);
         
-        if ($collection['meta_title'] == null) {
-            $collection['meta_title'] = $collection['name'];
+        if ($collection->get('meta_title') == null) {
+            $collection['meta_title'] = $collection->get('name');
         }
-        if ($collection['meta_description'] == null) {
-            $collection['meta_description'] = strip_tags($collection['description']);
+        if ($collection->get('meta_description') == null) {
+            $collection['meta_description'] = strip_tags($collection->get('description'));
         }
 
         if ($collection['meta_img'] == null) {
@@ -556,8 +556,8 @@ class ProductService
     public function storeOrUpdateDraft(array $data)
     {
         $collection = collect($data);
-        $collection['discount']= $collection['discount'] ?? 0.00;
-        $collection['weight']= $collection['weight'] ?? 0.00;
+        $collection['discount']= $collection->get('discount', 0.00);
+        $collection['weight']= $collection->get('weight', 0.00);
 
         $user_id= auth()->user()->user_type == 'seller' ? auth()->user()->id : User::where('user_type', 'admin')->first()->id;
         $approved = 1;
@@ -587,43 +587,43 @@ class ProductService
 
         $discount_start_date = null;
         $discount_end_date   = null;
-        if (isset($collection['date_range']) && $collection['date_range'] != null) {
-            $date_var = explode(" to ", $collection['date_range']);
+        if ($collection->get('date_range') != null) {
+            $date_var = explode(" to ", $collection->get('date_range'));
             $discount_start_date = strtotime($date_var[0]);
             $discount_end_date   = strtotime($date_var[1]);
         }
         unset($collection['date_range']);
 
-        if (!isset($collection['meta_title']) || $collection['meta_title'] == null) {
-            $collection['meta_title'] = $collection['name'] ?? 'Draft Product';
+        if ($collection->get('meta_title') == null) {
+            $collection['meta_title'] = $collection->get('name') ?? 'Draft Product';
         }
-        if (!isset($collection['meta_description']) || $collection['meta_description'] == null) {
-            $collection['meta_description'] = isset($collection['description']) ? strip_tags($collection['description']) : '';
+        if ($collection->get('meta_description') == null) {
+            $collection['meta_description'] = $collection->has('description') ? strip_tags($collection->get('description')) : '';
         }
-        if (!isset($collection['meta_img']) || $collection['meta_img'] == null) {
-            $collection['meta_img'] = $collection['thumbnail_img'] ?? null;
+        if ($collection->get('meta_img') == null) {
+            $collection['meta_img'] = $collection->get('thumbnail_img');
         }
 
         $shipping_cost = 0;
-        if (isset($collection['shipping_type'])) {
-            if ($collection['shipping_type'] == 'free') {
+        if ($collection->has('shipping_type')) {
+            if ($collection->get('shipping_type') == 'free') {
                 $shipping_cost = 0;
-            } elseif ($collection['shipping_type'] == 'flat_rate') {
-                $shipping_cost = $collection['flat_shipping_cost'] ?? 0;
+            } elseif ($collection->get('shipping_type') == 'flat_rate') {
+                $shipping_cost = $collection->get('flat_shipping_cost', 0);
             }
         }
         unset($collection['flat_shipping_cost']);
-        $slug = Str::slug($collection['name'] ?? 'draft-product');
+        $slug = Str::slug($collection->get('name') ?? 'draft-product');
         $same_slug_count = Product::where('slug', 'LIKE', $slug . '%')->count();
         $slug_suffix = $same_slug_count ? '-' . ($same_slug_count + 1) : '';
         $slug .= $slug_suffix;
 
         $colors = json_encode(array());
-        if (isset($collection['colors_active']) && 
-            $collection['colors_active'] && 
-            isset($collection['colors']) && 
-            count($collection['colors']) > 0) {
-            $colors = json_encode($collection['colors']);
+        if ($collection->get('colors_active') && 
+            $collection->has('colors') && 
+            is_array($collection->get('colors')) &&
+            count($collection->get('colors')) > 0) {
+            $colors = json_encode($collection->get('colors'));
         }
         unset($collection['colors_active']);
 
