@@ -628,9 +628,9 @@
                             <div class="text-left mb-2">
                                 <div class="row gutters-5 flex-wrap">
                                     <div class="col-lg col-10">
-                                        <h1 class="fs-20 fs-md-24 fw-700 text-dark">
+                                        <h2 class="fs-20 fs-md-24 fw-700 text-dark">
                                             {{ translate('All Products') }}
-                                        </h1>
+                                        </h2>
                                     </div>
                                     <div class="col-2 col-lg-auto d-xl-none mb-lg-3 text-right">
                                         <button type="button" class="btn btn-icon p-0" data-toggle="class-toggle" data-target=".aiz-filter-sidebar">
@@ -775,9 +775,9 @@
                             <div class="text-left mb-2">
                                 <div class="row gutters-5 flex-wrap">
                                     <div class="col-lg col-10">
-                                        <h1 class="fs-20 fs-md-24 fw-700 text-dark">
+                                        <h2 class="fs-20 fs-md-24 fw-700 text-dark">
                                             {{ translate('All Preorder Products') }}
-                                        </h1>
+                                        </h2>
                                     </div>
                                     <div class="col-2 col-lg-auto d-xl-none mb-lg-3 text-right">
                                         <button type="button" class="btn btn-icon p-0" data-toggle="class-toggle" data-target=".aiz-filter-sidebar">

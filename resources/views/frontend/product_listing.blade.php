@@ -42,6 +42,44 @@
     <!-- Open Graph data -->
     <meta property="og:title" content="{{ $meta_title }}" />
     <meta property="og:description" content="{{ $meta_description }}" />
+
+    <!-- BreadcrumbList Schema for SEO/GEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "{{ translate('Home') }}",
+          "item": "{{ route('home') }}"
+        }
+        @if(isset($category_id))
+        ,{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ $category->getTranslation('name') }}",
+          "item": "{{ route('products.category', $category->slug) }}"
+        }
+        @elseif(isset($brand_id))
+        ,{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ $brand_name }}",
+          "item": "{{ url()->current() }}"
+        }
+        @else
+        ,{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ translate('All Products') }}",
+          "item": "{{ url()->current() }}"
+        }
+        @endif
+      ]
+    }
+    </script>
 @endsection
 
 @section('content')
@@ -478,11 +516,13 @@
                                     <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
                                         <h1 class="fs-18 fs-md-20 fw-700 text-dark mb-0">
                                             @if (isset($category_id))
-                                                {{ translate('Showing results') }}
+                                                {{ $category_search->getTranslation('name') }} : {{ translate('Meubles et Décoration') }}
+                                            @elseif(isset($brand_id))
+                                                {{ $brand_name }} : {{ translate('Mobilier de marque') }}
                                             @elseif(isset($query))
                                                 {{ translate('Search result for ') }} "{{ $query }}"
                                             @else
-                                                {{ translate('Showing results') }}
+                                                {{ translate('Tous les produits de design') }}
                                             @endif
                                         </h1>
                                         

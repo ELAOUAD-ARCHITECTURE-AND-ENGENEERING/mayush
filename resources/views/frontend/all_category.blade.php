@@ -31,7 +31,7 @@
                     <!-- Category Name -->
                     <a href="{{ route('products.category', $category->slug) }}" class="text-dark p-4 d-flex align-items-center">
                         <div class="size-60px overflow-hidden p-1 border mr-3">
-                            <img src="{{ uploaded_asset($category->banner) }}" alt="" class="img-fit h-100">
+                            <img src="{{ uploaded_asset($category->banner) }}" alt="{{ $category->getTranslation('name') }}" class="img-fit h-100">
                         </div>
                         <div class="text-reset fs-16 fs-md-20 fw-700 hov-text-primary">
                             {{ $category->getTranslation('name') }}

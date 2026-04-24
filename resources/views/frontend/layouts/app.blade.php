@@ -21,6 +21,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
     <meta name="description" content="@yield('meta_description', get_setting('meta_description'))" />
     <meta name="keywords" content="@yield('meta_keywords', get_setting('meta_keywords'))">
 
@@ -51,6 +52,31 @@
         <meta property="og:description" content="{{ get_setting('meta_description') }}" />
         <meta property="og:site_name" content="{{ env('APP_NAME') }}" />
         <meta property="fb:app_id" content="{{ env('FACEBOOK_PIXEL_ID') }}">
+
+        <!-- JSON-LD for GEO/SEO -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "{{ get_setting('website_name') }}",
+          "url": "{{ route('home') }}",
+          "logo": "{{ uploaded_asset(get_setting('header_logo')) }}",
+          "description": "{{ get_setting('meta_description') }}"
+        }
+        </script>
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "{{ get_setting('website_name') }}",
+          "url": "{{ route('home') }}",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{!! route('home') !!}/search?keyword={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+        </script>
     @endif
 
     <!-- Favicon -->

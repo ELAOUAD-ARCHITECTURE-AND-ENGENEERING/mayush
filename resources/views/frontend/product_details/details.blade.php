@@ -636,15 +636,21 @@
                                 <form action="{{ route('stock.alert.subscribe') }}" method="POST" class="w-100 mt-2 stock-alert-form">
                                     @csrf
                                     <input type="hidden" name="product_id" value="{{ $detailedProduct->id }}">
-                                    @if(Auth::check())
-                                        <button type="submit" class="btn btn-outline-warning w-100 py-15px rounded-1 fs-14 fw-bold stock-alert-submit">
-                                            <i class="las la-bell" style="font-size: 1.2rem;"></i> {{ translate('Notify me when back in stock') }}
-                                        </button>
-                                    @else
-                                        <button type="button" onclick="showLoginModal()" class="btn btn-outline-warning w-100 py-15px rounded-1 fs-14 fw-bold">
-                                            <i class="las la-bell" style="font-size: 1.2rem;"></i> {{ translate('Notify me when back in stock') }}
-                                        </button>
-                                    @endif
+                                @if(Auth::check())
+                                    <button type="submit" class="btn btn-outline-warning w-100 py-15px rounded-1 fs-14 fw-bold stock-alert-submit">
+                                        <i class="las la-bell" style="font-size: 1.2rem;"></i> {{ translate('Notify me when back in stock') }}
+                                    </button>
+                                @else
+                                    <div class="input-group">
+                                        <input type="email" name="email" class="form-control rounded-left-1 border-warning fs-14" placeholder="{{ translate('Enter your email') }}" required>
+                                        <div class="input-group-append">
+                                            <button type="submit" class="btn btn-warning rounded-right-1 fs-14 fw-bold stock-alert-submit">
+                                                {{ translate('Notify Me') }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted mt-1 d-block">{{ translate('We\'ll email you as soon as this item returns.') }}</small>
+                                @endif
                                 </form>
                                 <script>
                                     $(document).on('submit', '.stock-alert-form', function(e) {

@@ -38,12 +38,40 @@
             <!-- Blog Details -->
             <div class="col-xxl-7 col-lg-8">
                 <div class="mb-4">
+                    <!-- JSON-LD Article Schema for GEO -->
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "Article",
+                      "headline": "{{ $blog->title }}",
+                      "image": "{{ uploaded_asset($blog->banner) }}",
+                      "datePublished": "{{ $blog->created_at->toIso8601String() }}",
+                      "dateModified": "{{ $blog->updated_at->toIso8601String() }}",
+                      "author": {
+                        "@type": "Organization",
+                        "name": "{{ get_setting('website_name') }}"
+                      },
+                      "publisher": {
+                        "@type": "Organization",
+                        "name": "{{ get_setting('website_name') }}",
+                        "logo": {
+                          "@type": "ImageObject",
+                          "url": "{{ uploaded_asset(get_setting('header_logo')) }}"
+                        }
+                      },
+                      "description": "{{ $blog->meta_description }}",
+                      "mainEntityOfPage": {
+                        "@type": "WebPage",
+                        "@id": "{{ route('blog.details', $blog->slug) }}"
+                      }
+                    }
+                    </script>
                     <!-- Title -->
-                    <h2 class="fs-20 fs-md-24 fw-700 mb-3">
-                        <a href="{{ url("blog").'/'. $blog->slug }}" class="text-reset hov-text-primary" title="{{ $blog->title }}">
+                    <h1 class="fs-20 fs-md-24 fw-700 mb-3">
+                        <a href="{{ url("blog").'/'.$blog->slug }}" class="text-reset hov-text-primary" title="{{ $blog->title }}">
                             {{ $blog->title }}
                         </a>
-                    </h2>
+                    </h1>
                     <div class="row">
                         <div class="col-4">
                             <!-- Date -->

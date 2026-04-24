@@ -104,7 +104,7 @@
 @if (get_setting('footer_title') != null || get_setting('footer_description') != null)
     <section class="bg-light border-top border-bottom mt-auto">
         <div class="container py-32px">
-            <h1 class="fs-18 fw-700 text-gray-dark mb-3">{{ get_setting('footer_title', null, $system_language->code) }}</h1>
+            <h2 class="fs-18 fw-700 text-gray-dark mb-3">{{ get_setting('footer_title', null, $system_language->code) }}</h2>
             @php
                 $fullDescription = nl2br(get_setting('footer_description', null, $system_language->code));
             @endphp
