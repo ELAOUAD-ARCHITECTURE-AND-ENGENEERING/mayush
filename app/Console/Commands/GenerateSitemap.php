@@ -34,7 +34,7 @@ class GenerateSitemap extends Command
         $sitemap = Sitemap::create();
 
         // 1. Homepage
-        $sitemap->add(Url::create('/')
+        $sitemap->add(Url::create(route('home'))
             ->setLastModificationDate(Carbon::now())
             ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
             ->setPriority(1.0));
@@ -42,7 +42,7 @@ class GenerateSitemap extends Command
         // 2. Categories
         Category::all()->each(function (Category $category) use ($sitemap) {
             if ($category->slug) {
-                $sitemap->add(Url::create("/category/{$category->slug}")
+                $sitemap->add(Url::create(route('products.category', $category->slug))
                     ->setLastModificationDate($category->updated_at)
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
                     ->setPriority(0.8));
@@ -52,7 +52,7 @@ class GenerateSitemap extends Command
         // 3. Brands
         Brand::all()->each(function (Brand $brand) use ($sitemap) {
             if ($brand->slug) {
-                $sitemap->add(Url::create("/brand/{$brand->slug}")
+                $sitemap->add(Url::create(route('products.brand', $brand->slug))
                     ->setLastModificationDate($brand->updated_at)
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
                     ->setPriority(0.6));
@@ -62,7 +62,7 @@ class GenerateSitemap extends Command
         // 4. Products
         Product::where('published', 1)->where('approved', 1)->each(function (Product $product) use ($sitemap) {
             if ($product->slug) {
-                $sitemap->add(Url::create("/product/{$product->slug}")
+                $sitemap->add(Url::create(route('product', $product->slug))
                     ->setLastModificationDate($product->updated_at)
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
                     ->setPriority(0.9));
