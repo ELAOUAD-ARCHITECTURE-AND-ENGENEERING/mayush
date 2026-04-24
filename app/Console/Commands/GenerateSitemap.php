@@ -31,46 +31,63 @@ class GenerateSitemap extends Command
      */
     public function handle()
     {
-        $sitemap = Sitemap::create();
+        try {
+            $this->info("Starting sitemap generation...");
+            
+            $sitemap = Sitemap::create();
 
-        // 1. Homepage
-        $sitemap->add(Url::create(route('home'))
-            ->setLastModificationDate(Carbon::now())
-            ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
-            ->setPriority(1.0));
+            $homeUrl = route('home');
+            $this->info("Adding Homepage: " . $homeUrl);
+            // 1. Homepage
+            $sitemap->add(Url::create($homeUrl)
+                ->setLastModificationDate(Carbon::now())
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
+                ->setPriority(1.0));
 
-        // 2. Categories
-        Category::all()->each(function (Category $category) use ($sitemap) {
-            if ($category->slug) {
-                $sitemap->add(Url::create(route('products.category', $category->slug))
-                    ->setLastModificationDate($category->updated_at)
-                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-                    ->setPriority(0.8));
-            }
-        });
+            $catCount = Category::count();
+            $this->info("Found {$catCount} Categories");
+            // 2. Categories
+            Category::all()->each(function (Category $category) use ($sitemap) {
+                if ($category->slug) {
+                    $sitemap->add(Url::create(route('products.category', $category->slug))
+                        ->setLastModificationDate($category->updated_at)
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                        ->setPriority(0.8));
+                }
+            });
 
-        // 3. Brands
-        Brand::all()->each(function (Brand $brand) use ($sitemap) {
-            if ($brand->slug) {
-                $sitemap->add(Url::create(route('products.brand', $brand->slug))
-                    ->setLastModificationDate($brand->updated_at)
-                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
-                    ->setPriority(0.6));
-            }
-        });
+            $brandCount = Brand::count();
+            $this->info("Found {$brandCount} Brands");
+            // 3. Brands
+            Brand::all()->each(function (Brand $brand) use ($sitemap) {
+                if ($brand->slug) {
+                    $sitemap->add(Url::create(route('products.brand', $brand->slug))
+                        ->setLastModificationDate($brand->updated_at)
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                        ->setPriority(0.6));
+                }
+            });
 
-        // 4. Products
-        Product::where('published', 1)->where('approved', 1)->each(function (Product $product) use ($sitemap) {
-            if ($product->slug) {
-                $sitemap->add(Url::create(route('product', $product->slug))
-                    ->setLastModificationDate($product->updated_at)
-                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
-                    ->setPriority(0.9));
-            }
-        });
+            $prodCount = Product::where('published', 1)->where('approved', 1)->count();
+            $this->info("Found {$prodCount} Published/Approved Products");
+            // 4. Products
+            Product::where('published', 1)->where('approved', 1)->each(function (Product $product) use ($sitemap) {
+                if ($product->slug) {
+                    $sitemap->add(Url::create(route('product', $product->slug))
+                        ->setLastModificationDate($product->updated_at)
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
+                        ->setPriority(0.9));
+                }
+            });
 
-        $sitemap->writeToFile(public_path('sitemap.xml'));
+            $this->info("Writing to file...");
+            $sitemap->writeToFile(public_path('sitemap.xml'));
 
-        $this->info('Sitemap generated successfully at ' . public_path('sitemap.xml'));
+            $this->info('Sitemap generated successfully at ' . public_path('sitemap.xml'));
+            
+        } catch (\Exception $e) {
+            $this->error("Error generating sitemap: " . $e->getMessage());
+            $this->error($e->getTraceAsString());
+        }
     }
 }
