@@ -1463,7 +1463,8 @@ if (!function_exists('getFileBaseURL')) {
     function getFileBaseURL()
     {
         if (env('FILESYSTEM_DRIVER') != 'local') {
-            return env(Str::upper(env('FILESYSTEM_DRIVER')) . '_URL') . '/';
+            $url = rtrim(Storage::disk(env('FILESYSTEM_DRIVER'))->url(''), '/');
+            return $url . '/';
         }
 
         return getBaseURL() . 'public/';
