@@ -358,7 +358,7 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
 
     // Wishlist
     // Payment Tokens (Vault)
-    Route::controller(PaymentTokenController::class)->group(function () {
+    Route::controller(\App\Http\Controllers\PaymentTokenController::class)->group(function () {
         Route::get('/payment-methods', 'index')->name('payment_tokens.index');
         Route::post('/payment-methods/{token}/default', 'setDefault')->name('payment_tokens.set_default');
         Route::delete('/payment-methods/{token}', 'destroy')->name('payment_tokens.destroy');
@@ -443,10 +443,6 @@ Route::group(['middleware' => ['auth']], function() {
 
     // Phase 4: Customer Loyalty Hub
     Route::get('/loyalty', [\App\Http\Controllers\LoyaltyController::class, 'hub'])->name('loyalty.hub');
-
-    // Phase 5: Affiliate
-    Route::get('/affiliate', [\App\Http\Controllers\AffiliateController::class, 'index'])->name('affiliate.user.index');
-    Route::post('/affiliate/apply', [\App\Http\Controllers\AffiliateController::class, 'apply'])->name('affiliate.apply');
 
     // Advanced Live Tracking (RBAC Unified)
     Route::get('/dashboard/tracking/{id}', [\App\Http\Controllers\OrderTrackingController::class, 'show'])->name('orders.tracking.show');

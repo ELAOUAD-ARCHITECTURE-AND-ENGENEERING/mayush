@@ -381,7 +381,7 @@
                         </li>
                         @if (addon_is_activated('affiliate_system'))
                             <li class="mb-2">
-                                <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('affiliate.apply') }}">
+                                <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('affiliate.user.index') }}">
                                     {{ translate('Be an affiliate partner')}}
                                 </a>
                             </li>
@@ -543,8 +543,8 @@
                             </a>
                         </li>
                         @if (addon_is_activated('affiliate_system'))
-                            <li class="mb-2 pb-2 {{ areActiveRoutes(['affiliate.apply'],' active')}}">
-                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('affiliate.apply') }}">
+                            <li class="mb-2 pb-2 {{ areActiveRoutes(['affiliate.user.index'],' active')}}">
+                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('affiliate.user.index') }}">
                                     {{ translate('Be an affiliate partner')}}
                                 </a>
                             </li>
