@@ -44,6 +44,18 @@ class AppServiceProvider extends ServiceProvider
    */
   public function register()
   {
-    //
+    if (!$this->app->environment('production')) {
+        if (class_exists('Barryvdh\\Debugbar\\ServiceProvider')) {
+            $this->app->register('Barryvdh\\Debugbar\\ServiceProvider');
+        }
+
+        if (class_exists('Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider')) {
+            $this->app->register('Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider');
+        }
+
+        if (class_exists('Spatie\\LaravelIgnition\\IgnitionServiceProvider')) {
+            $this->app->register('Spatie\\LaravelIgnition\\IgnitionServiceProvider');
+        }
+    }
   }
 }
