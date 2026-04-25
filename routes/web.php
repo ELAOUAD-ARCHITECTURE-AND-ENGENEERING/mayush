@@ -176,7 +176,10 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/inhouse', 'inhouse_products')->name('inhouse.all');
 
 
+    // Stock Alert (Public)
+    Route::post('/stock-alert/subscribe', [\App\Http\Controllers\StockAlertController::class, 'subscribe'])->name('stock.alert.subscribe');
 });
+
 
 Route::controller(\App\Http\Controllers\Frontend\PolicyController::class)->group(function () {
     // Policies
@@ -209,7 +212,15 @@ Route::controller(AddressController::class)->group(function () {
 
 
 Route::get('/sitemap.xml', function() {
-    return base_path('sitemap.xml');
+    $path = public_path('sitemap.xml');
+
+    if (!file_exists($path) || filesize($path) === 0) {
+        abort(404, 'Sitemap has not been generated yet.');
+    }
+
+    return response()->file($path, [
+        'Content-Type' => 'application/xml; charset=UTF-8',
+    ]);
 });
 
 // Classified Product
@@ -397,8 +408,6 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/express-buy/check', [ExpressBuyController::class, 'eligibility'])->name('express.check');
     Route::post('/express-buy/{product_id}', [ExpressBuyController::class, 'submit'])->middleware('throttle:5,1')->name('express.buy');
 
-    // Stock Alert
-    Route::post('/stock-alert/subscribe', [App\Http\Controllers\StockAlertController::class, 'subscribe'])->name('stock.alert.subscribe');
 
     // Reviews
     Route::resource('/reviews', ReviewController::class);

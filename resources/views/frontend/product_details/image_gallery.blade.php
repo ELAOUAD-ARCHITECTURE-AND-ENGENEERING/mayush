@@ -36,6 +36,7 @@
                                 count($short_video_thumb) == count($short_video) ? $short_video_thumb[$index] : $short_video_thumb[0],
                             )
                             : '' }}"
+                            alt="{{ $detailedProduct->getTranslation('name') }} - Mayush video thumbnail"
                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                         <span class="position-absolute z-2">
                             <i class="las la-play-circle fs-36 text-gray has-transition"></i>
@@ -55,6 +56,7 @@
                             class="swiper-slide position-relative rounded-corner-8px border  border-light-gray bg-light cursor-pointer overflow-hidden d-flex align-items-center justify-content-center" data-variation="youtube">
                             
                                 <img class="img-fluid object-fit-cover object-position-cent" src="{{ $youtube_thumb }}"
+                            alt="{{ $detailedProduct->getTranslation('name') }} - Mayush video preview"
                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                             <span class="position-absolute z-2">
                                 <i class="las la-play-circle fs-36 text-gray has-transition"></i>

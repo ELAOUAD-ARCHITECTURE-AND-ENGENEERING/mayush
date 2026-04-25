@@ -19,72 +19,59 @@
     })(window,document,'script','dataLayer','GTM-KSHLDCWK');</script>
     <!-- End Google Tag Manager -->
 
+    @php
+        $seo = \App\Services\SeoService::meta([
+            'title' => trim($__env->yieldContent('meta_title')),
+            'description' => trim($__env->yieldContent('meta_description')),
+            'keywords' => trim($__env->yieldContent('meta_keywords')),
+            'image' => trim($__env->yieldContent('meta_image')),
+            'type' => trim($__env->yieldContent('meta_type')) ?: 'website',
+            'canonical' => trim($__env->yieldContent('canonical_url')),
+        ]);
+    @endphp
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ url('/') }}">
     <meta name="file-base-url" content="{{ getFileBaseURL() }}">
 
-    <title>@yield('meta_title', get_setting('website_name') . ' | ' . get_setting('site_motto'))</title>
+    <title>{{ $seo['title'] }}</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="{{ url()->current() }}">
-    <meta name="description" content="@yield('meta_description', get_setting('meta_description'))" />
-    <meta name="keywords" content="@yield('meta_keywords', get_setting('meta_keywords'))">
+    <meta name="robots" content="{{ $seo['robots'] }}">
+    <link rel="canonical" href="{{ $seo['canonical'] }}">
+    <meta name="description" content="{{ $seo['description'] }}" />
+    @if($seo['keywords'] !== '')
+        <meta name="keywords" content="{{ $seo['keywords'] }}">
+    @endif
+
+    <meta itemprop="name" content="{{ $seo['title'] }}">
+    <meta itemprop="description" content="{{ $seo['description'] }}">
+    @if($seo['image'])
+        <meta itemprop="image" content="{{ $seo['image'] }}">
+    @endif
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seo['title'] }}">
+    <meta name="twitter:description" content="{{ $seo['description'] }}">
+    @if($seo['image'])
+        <meta name="twitter:image" content="{{ $seo['image'] }}">
+    @endif
+
+    <meta property="og:title" content="{{ $seo['title'] }}" />
+    <meta property="og:type" content="{{ $seo['type'] }}" />
+    <meta property="og:url" content="{{ $seo['canonical'] }}" />
+    <meta property="og:description" content="{{ $seo['description'] }}" />
+    <meta property="og:site_name" content="{{ $seo['site_name'] }}" />
+    @if($seo['image'])
+        <meta property="og:image" content="{{ $seo['image'] }}" />
+    @endif
+    <meta property="fb:app_id" content="{{ env('FACEBOOK_PIXEL_ID') }}">
+
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::organizationSchema($seo)) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::websiteSchema($seo)) !!}</script>
 
     @yield('meta')
-
-    @if (!isset($detailedProduct) && !isset($customer_product) && !isset($shop) && !isset($page) && !isset($blog))
-        @php
-            $meta_image = uploaded_asset(get_setting('meta_image'));
-        @endphp
-        <!-- Schema.org markup for Google+ -->
-        <meta itemprop="name" content="{{ get_setting('meta_title') }}">
-        <meta itemprop="description" content="{{ get_setting('meta_description') }}">
-        <meta itemprop="image" content="{{ $meta_image }}">
-
-        <!-- Twitter Card data -->
-        <meta name="twitter:card" content="product">
-        <meta name="twitter:site" content="@publisher_handle">
-        <meta name="twitter:title" content="{{ get_setting('meta_title') }}">
-        <meta name="twitter:description" content="{{ get_setting('meta_description') }}">
-        <meta name="twitter:creator" content="@author_handle">
-        <meta name="twitter:image" content="{{ $meta_image }}">
-
-        <!-- Open Graph data -->
-        <meta property="og:title" content="{{ get_setting('meta_title') }}" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="{{ route('home') }}" />
-        <meta property="og:image" content="{{ $meta_image }}" />
-        <meta property="og:description" content="{{ get_setting('meta_description') }}" />
-        <meta property="og:site_name" content="{{ env('APP_NAME') }}" />
-        <meta property="fb:app_id" content="{{ env('FACEBOOK_PIXEL_ID') }}">
-
-        <!-- JSON-LD for GEO/SEO -->
-        <script type="application/ld+json">
-        {
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          "name": "{{ get_setting('website_name') }}",
-          "url": "{{ route('home') }}",
-          "logo": "{{ uploaded_asset(get_setting('header_logo')) }}",
-          "description": "{{ get_setting('meta_description') }}"
-        }
-        </script>
-        <script type="application/ld+json">
-        {
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "name": "{{ get_setting('website_name') }}",
-          "url": "{{ route('home') }}",
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": "{!! route('home') !!}/search?keyword={search_term_string}",
-            "query-input": "required name=search_term_string"
-          }
-        }
-        </script>
-    @endif
 
     <!-- Favicon -->
     @php
@@ -423,7 +410,7 @@
                             </div>
                         </div>
                         <div class="pb-5 pt-4 px-3 px-md-2rem">
-                            <h1 class="fs-30 fw-700 text-dark">{{ $dynamic_popup->title }}</h1>
+                            <h2 class="fs-30 fw-700 text-dark">{{ $dynamic_popup->title }}</h2>
                             <p class="fs-14 fw-400 mt-3 mb-4">{{ $dynamic_popup->summary }}</p>
                             @if ($dynamic_popup->show_subscribe_form == 'on')
                                 <form class="" method="POST" action="{{ route('subscribers.store') }}">
@@ -455,7 +442,7 @@
                             </div>
                         </div>
                         <div class="pb-5 pt-4 px-3 px-md-2rem">
-                            <h1 class="fs-30 fw-700 text-dark">{{ $dynamic_popup->title }}</h1>
+                            <h2 class="fs-30 fw-700 text-dark">{{ $dynamic_popup->title }}</h2>
                             <p class="fs-14 fw-400 mt-3 mb-4">{{ $dynamic_popup->summary }}</p>
                             <a href="{{ $dynamic_popup->btn_link }}" class="btn btn-block mt-3 rounded-0 text-{{ $dynamic_popup->btn_text_color }} set-session" style="background: {{ $dynamic_popup->btn_background_color }};"data-key="website-popup-{{ $dynamic_popup->id }}" data-value="removed" data-parent=".website-popup">
                                 {{ $dynamic_popup->btn_text }}

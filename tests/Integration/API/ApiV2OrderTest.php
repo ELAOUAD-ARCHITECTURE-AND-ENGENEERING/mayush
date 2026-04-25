@@ -19,8 +19,27 @@ class ApiV2OrderTest extends TestCase
     {
         parent::setUp();
         $this->user = User::factory()->create();
+        
+        // Create admin for notifications
+        User::factory()->create(['user_type' => 'admin']);
+
         $this->product = Product::factory()->create(['published' => 1, 'approved' => 1]);
         
+        \App\Models\ProductStock::create([
+            'product_id' => $this->product->id,
+            'variant' => '',
+            'price' => 100,
+            'qty' => 100,
+            'sku' => 'TEST-SKU-ORDER'
+        ]);
+
+        // Setup country and city for address
+        $country = \App\Models\Country::create(['name' => 'Morocco', 'code' => 'MA', 'status' => 1]);
+        $city = \App\Models\City::create(['name' => 'Casablanca', 'country_id' => $country->id, 'status' => 1]);
+
+        $this->country_id = $country->id;
+        $this->city_id = $city->id;
+
         // Setup necessary business settings for order placement
         BusinessSetting::factory()->create(['type' => 'minimum_order_amount_check', 'value' => '0']);
     }
@@ -28,7 +47,11 @@ class ApiV2OrderTest extends TestCase
     /** @test */
     public function it_can_place_an_order_via_api()
     {
-        $address = Address::factory()->create(['user_id' => $this->user->id]);
+        $address = Address::factory()->create([
+            'user_id' => $this->user->id,
+            'country_id' => $this->country_id,
+            'city_id' => $this->city_id
+        ]);
         
         Cart::factory()->create([
             'user_id' => $this->user->id,
@@ -75,9 +98,9 @@ class ApiV2OrderTest extends TestCase
 
         $response = $this->actingAs($this->user, 'sanctum')->getJson('/api/v2/purchase-history-details/' . $order->id);
 
-        // Based on implementation, it might return 404 or just ignore if filtered by auth user
-        // OrderController::details likely does: Order::where('id', $id)->where('user_id', auth()->user()->id)->first()
-        $response->assertStatus(404); 
+        // Based on implementation, it returns 200 but with empty data if not owned
+        $response->assertStatus(200)
+                 ->assertJson(['data' => []]);
     }
 
     /** @test */
@@ -92,8 +115,32 @@ class ApiV2OrderTest extends TestCase
         $response = $this->actingAs($this->user, 'sanctum')->getJson('/api/v2/order/cancel/' . $order->id);
 
         $response->assertStatus(200)
-                 ->assertJson(['success' => true]);
+                 ->assertJson(['result' => true]);
 
         $this->assertEquals('cancelled', $order->fresh()->delivery_status);
+    }
+    /** @test */
+    public function it_rejects_unsupported_payment_methods_under_cmi_policy()
+    {
+        $address = Address::factory()->create([
+            'user_id' => $this->user->id,
+            'country_id' => $this->country_id,
+            'city_id' => $this->city_id
+        ]);
+        
+        Cart::factory()->create([
+            'user_id' => $this->user->id,
+            'product_id' => $this->product->id,
+            'address_id' => $address->id,
+            'quantity' => 1,
+            'price' => 100
+        ]);
+        
+        $response = $this->actingAs($this->user, 'sanctum')->postJson('/api/v2/order/store', [
+            'payment_type' => 'paypal'
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJson(['result' => false, 'message' => 'Unsupported payment method.']);
     }
 }

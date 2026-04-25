@@ -8,78 +8,46 @@
 @if (isset($category_id))
     @php
         $category_search = $category;
-        $meta_title = $category->meta_title;
-        $meta_description = $category->meta_description;
+        $meta_title = $category->meta_title ?: $category->getTranslation('name') . ' : ' . translate('Meubles et Decoration');
+        $meta_description = $category->meta_description ?: translate('Discover furniture, decor, lighting, and interior design products for this category on Mayush.');
         $meta_keywords = $category->meta_keywords;
+        $meta_image = uploaded_asset($category->banner ?: $category->cover_image);
     @endphp
 @elseif (isset($brand_id))
     @php
         $brand_name = get_single_brand($brand_id)->name;
-        $meta_title = get_single_brand($brand_id)->meta_title;
-        $meta_description = get_single_brand($brand_id)->meta_description;
+        $meta_title = get_single_brand($brand_id)->meta_title ?: $brand_name . ' : ' . translate('Mobilier de marque');
+        $meta_description = get_single_brand($brand_id)->meta_description ?: translate('Shop brand furniture, decor, and interior design products on Mayush.');
         $meta_keywords = get_single_brand($brand_id)->meta_keywords;
+        $meta_image = uploaded_asset(get_single_brand($brand_id)->logo);
     @endphp
 @else
     @php
-        $meta_title = get_setting('meta_title');
-        $meta_description = get_setting('meta_description');
+        $meta_title = translate('Furniture, Decor and Interior Design Products');
+        $meta_description = translate('Browse Mayush marketplace products for furniture, decor, lighting, materials, and premium home design in Morocco.');
+        $meta_image = uploaded_asset(get_setting('meta_image'));
     @endphp
 @endif
 
 @section('meta_title'){{ $meta_title }}@stop
 @section('meta_description'){{ $meta_description }}@stop
 @section('meta_keywords'){{ $meta_keywords ?? '' }}@stop
+@section('meta_image'){{ $meta_image }}@stop
+@section('canonical_url'){{ url()->current() }}@stop
 
 @section('meta')
-    <!-- Schema.org markup for Google+ -->
-    <meta itemprop="name" content="{{ $meta_title }}">
-    <meta itemprop="description" content="{{ $meta_description }}">
-
-    <!-- Twitter Card data -->
-    <meta name="twitter:title" content="{{ $meta_title }}">
-    <meta name="twitter:description" content="{{ $meta_description }}">
-
-    <!-- Open Graph data -->
-    <meta property="og:title" content="{{ $meta_title }}" />
-    <meta property="og:description" content="{{ $meta_description }}" />
-
-    <!-- BreadcrumbList Schema for SEO/GEO -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "{{ translate('Home') }}",
-          "item": "{{ route('home') }}"
-        }
-        @if(isset($category_id))
-        ,{
-          "@type": "ListItem",
-          "position": 2,
-          "name": "{{ $category->getTranslation('name') }}",
-          "item": "{{ route('products.category', $category->slug) }}"
-        }
-        @elseif(isset($brand_id))
-        ,{
-          "@type": "ListItem",
-          "position": 2,
-          "name": "{{ $brand_name }}",
-          "item": "{{ url()->current() }}"
-        }
-        @else
-        ,{
-          "@type": "ListItem",
-          "position": 2,
-          "name": "{{ translate('All Products') }}",
-          "item": "{{ url()->current() }}"
-        }
-        @endif
-      ]
-    }
-    </script>
+    @php
+        $breadcrumbName = isset($category_id)
+            ? $category->getTranslation('name')
+            : (isset($brand_id) ? $brand_name : translate('All Products'));
+        $breadcrumbUrl = isset($category_id)
+            ? route('products.category', $category->slug)
+            : url()->current();
+    @endphp
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
+        ['name' => 'Home', 'url' => route('home')],
+        ['name' => $breadcrumbName, 'url' => $breadcrumbUrl],
+    ])) !!}</script>
 @endsection
 
 @section('content')

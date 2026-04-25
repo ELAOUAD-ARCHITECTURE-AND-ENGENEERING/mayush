@@ -1,5 +1,26 @@
 @extends('frontend.layouts.app')
 
+@php
+    $blogListingTitle = translate('Interior Design Blog and Buying Guides');
+    $blogListingDescription = translate('Read Mayush guides for furniture, decor, lighting, home materials, and interior design in Morocco.');
+@endphp
+
+@section('meta_title'){{ $blogListingTitle }}@stop
+@section('meta_description'){{ $blogListingDescription }}@stop
+@section('canonical_url'){{ route('blog') }}@stop
+
+@section('meta')
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
+        'title' => $blogListingTitle,
+        'description' => $blogListingDescription,
+        'canonical' => route('blog'),
+    ])) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
+        ['name' => translate('Home'), 'url' => route('home')],
+        ['name' => translate('Blog'), 'url' => route('blog')],
+    ])) !!}</script>
+@endsection
+
 @section('content')
     <section class="pb-4 pt-5">
         <div class="container">
@@ -9,7 +30,7 @@
                     <!-- Breadcrumb -->
                     <div class="row gutters-16 mb-4">
                         <div class="col-5 col-xl-6">
-                            <h1 class="fw-700 fs-20 fs-md-24 text-dark mb-0">{{ translate('Blogs')}}</h1>
+                            <h1 class="fw-700 fs-20 fs-md-24 text-dark mb-0">{{ $blogListingTitle }}</h1>
                         </div>
                         <div class="col-5 col-xl-6">
                             <ul class="breadcrumb bg-transparent p-0 justify-content-end">

@@ -220,8 +220,10 @@ class CmiController extends Controller
             if ($retrievedHash !== $actualHash) {
                 Log::error('CMI Callback: Hash Mismatch', [
                     'oid' => $input['oid'] ?? 'unknown',
-                    'calculated' => $actualHash, 
-                    'received' => $retrievedHash
+                    'received_hash' => $retrievedHash,
+                    'calculated_hash' => $actualHash,
+                    'payload_keys' => array_keys($input),
+                    'client_ip' => $request->ip()
                 ]);
                 return response('FAILURE')->header('Content-Type', 'text/plain'); 
             }
@@ -549,6 +551,11 @@ class CmiController extends Controller
 
         $escapedStoreKey = str_replace("|", "\\|", str_replace("\\", "\\\\", $storeKey));
         $hashval = $hashval . $escapedStoreKey;
+
+        // Debug: Log the masked hash string for production troubleshooting
+        Log::debug('CMI Hash String (Masked)', [
+            'raw_masked' => preg_replace('/(?<=\|)[^|]{4,}/', '****', $hashval)
+        ]);
 
         $calculatedHashValue = hash('sha512', $hashval);
         return base64_encode(pack('H*', $calculatedHashValue));

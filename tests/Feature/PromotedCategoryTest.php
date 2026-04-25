@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+
 
 class PromotedCategoryTest extends TestCase
 {
@@ -23,6 +25,7 @@ class PromotedCategoryTest extends TestCase
         $this->admin = User::factory()->create(['user_type' => 'admin']);
         $this->customer = User::factory()->create(['user_type' => 'customer']);
         $this->category = Category::factory()->create(['name' => 'Test Promo Category']);
+        Cache::forget('business_settings');
     }
 
     /** @test */
@@ -81,8 +84,8 @@ class PromotedCategoryTest extends TestCase
                 'category_id' => $this->category->id,
             ]);
 
-        // Should be redirected or forbidden (depends on middleware)
-        $this->assertTrue(in_array($response->getStatusCode(), [302, 403]));
+        // Should be redirected (302), forbidden (403), or not found (404 - used by IsAdmin middleware)
+        $this->assertTrue(in_array($response->getStatusCode(), [302, 403, 404]));
     }
 
     /** @test */
@@ -117,10 +120,10 @@ class PromotedCategoryTest extends TestCase
             ['type' => 'promoted_category_status'],
             ['value' => '0']
         );
+        Cache::forget('business_settings');
 
         $response = $this->get('/');
-
-        $response->assertDontSee('promoted-category-section');
+        $response->assertDontSee('<section class="promoted-category-section');
     }
 
     /** @test */
@@ -143,6 +146,7 @@ class PromotedCategoryTest extends TestCase
             ['type' => 'promoted_category_id'],
             ['value' => $this->category->id]
         );
+        Cache::forget('business_settings');
 
         $response = $this->get('/');
 

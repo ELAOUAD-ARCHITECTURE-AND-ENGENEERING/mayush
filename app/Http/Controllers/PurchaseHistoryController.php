@@ -43,6 +43,11 @@ class PurchaseHistoryController extends Controller
     public function purchase_history_details($id)
     {
         $order = Order::findOrFail(decrypt($id));
+
+        if ($order->user_id != Auth::user()->id) {
+            abort(404);
+        }
+
         if (env('DEMO_MODE') != 'On') {
             $order->delivery_viewed = 1;
             $order->payment_status_viewed = 1;

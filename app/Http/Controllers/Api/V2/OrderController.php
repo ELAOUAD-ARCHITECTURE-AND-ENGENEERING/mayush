@@ -21,6 +21,14 @@ class OrderController extends Controller
 {
     public function store(Request $request, $set_paid = false)
     {
+        // Enforce CMI-Only Payment Policy (Rule 11)
+        $allowedPaymentTypes = ['cmi', 'cash_on_delivery', 'wallet'];
+        if (!in_array($request->payment_type, $allowedPaymentTypes) && strpos($request->payment_type, "manual_payment_") === false) {
+            return response()->json([
+                'result' => false,
+                'message' => translate('Unsupported payment method.')
+            ], 422);
+        }
         if (get_setting('minimum_order_amount_check') == 1) {
             $subtotal = 0;
             foreach (Cart::where('user_id', auth()->user()->id)->active()->get() as $key => $cartItem) {

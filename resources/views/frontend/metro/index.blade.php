@@ -1,6 +1,27 @@
 @extends('frontend.layouts.app')
 
+@php
+    $homepageSeoTitle = translate('Mayush Marketplace for Furniture, Decor and Interior Design in Morocco');
+    $homepageSeoDescription = translate('Discover furniture, decor, lighting, home materials and interior design products from Mayush sellers in Morocco.');
+    $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
+@endphp
+
+@section('meta_title'){{ $homepageSeoTitle }}@stop
+@section('meta_description'){{ $homepageSeoDescription }}@stop
+@section('meta_image'){{ $homepageSeoImage }}@stop
+@section('canonical_url'){{ route('home') }}@stop
+
+@section('meta')
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
+        'title' => $homepageSeoTitle,
+        'description' => $homepageSeoDescription,
+        'canonical' => route('home'),
+    ])) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(app(\App\Services\SeoStatsService::class)->homepageFaqSchema()) !!}</script>
+@endsection
+
 @section('content')
+    <h1 class="d-none">Mayush Marketplace : meubles, decoration et design interieur au Maroc</h1>
     <style>
         #section_featured .slick-slider .slick-list{
             background: #fff;
@@ -34,7 +55,7 @@
                                     <div class="d-block mw-100 img-fit overflow-hidden h-180px h-md-320px h-lg-460px h-xl-553px">
                                         <img class="img-fit h-100 m-auto has-transition"
                                         src="{{ $slider ? my_asset($slider->file_name) : static_asset('assets/img/placeholder.jpg') }}"
-                                        alt="{{ env('APP_NAME') }} promo"
+                                        alt="Mayush furniture and decor marketplace promotion"
                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
                                     </div>
                                 </a>
@@ -68,7 +89,7 @@
                                         <img draggable="false" class="lazyload img-fit p-3"
                                             src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                             data-src="{{ uploaded_asset($flash_deal_item->banner) }}"
-                                            alt="{{ $flash_deal_item->getTranslation('title') }}"
+                                            alt="{{ $flash_deal_item->getTranslation('title') }} - Mayush"
                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                                     </div>
                                     <div class="flash-nav-text text-truncate fs-13 fw-600 mt-2">

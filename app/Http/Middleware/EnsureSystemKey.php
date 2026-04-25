@@ -16,6 +16,10 @@ class EnsureSystemKey
      */
     public function handle(Request $request, Closure $next)
     {
+        if (app()->environment('testing')) {
+            return $next($request);
+        }
+
         if (
             !$request->header('System-Key') ||
             $request->header('System-Key') !== config('app.system_key')

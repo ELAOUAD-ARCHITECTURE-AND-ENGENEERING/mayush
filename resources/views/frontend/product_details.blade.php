@@ -1,14 +1,23 @@
 @extends('frontend.layouts.app')
 
-@section('meta_title'){{ $detailedProduct->meta_title }}@stop
+@php
+    $productSeoTitle = \App\Services\SeoService::cleanText($detailedProduct->meta_title ?: $detailedProduct->getTranslation('name'), $detailedProduct->getTranslation('name'), 70);
+    $productSeoDescription = \App\Services\SeoService::cleanText($detailedProduct->meta_description ?: $detailedProduct->description, $productSeoTitle, 170);
+    $productSeoImage = uploaded_asset($detailedProduct->meta_img ?: $detailedProduct->thumbnail_img);
+@endphp
 
-@section('meta_description'){{ $detailedProduct->meta_description }}@stop
+@section('meta_title'){{ $productSeoTitle }}@stop
+
+@section('meta_description'){{ $productSeoDescription }}@stop
 
 @section('meta_keywords'){{ $detailedProduct->tags }},{{ $detailedProduct->meta_keywords }}@stop
+@section('meta_image'){{ $productSeoImage }}@stop
+@section('meta_type')product@stop
+@section('canonical_url'){{ route('product', $detailedProduct->slug) }}@stop
 
 @section('meta')
     @php
-        $availability = "out of stock";
+        $availability = "OutOfStock";
         $qty = 0;
         if($detailedProduct->variant_product) {
             foreach ($detailedProduct->stocks as $key => $stock) {
@@ -19,50 +28,15 @@
             $qty = optional($detailedProduct->stocks->first())->qty;
         }
         if($qty > 0){
-            $availability = "in stock";
+            $availability = "InStock";
         }
+        $productSchema = \App\Services\SeoService::productSchema($detailedProduct, $availability);
     @endphp
-    <!-- Schema.org Product Markup -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org/",
-      "@type": "Product",
-      "name": "{{ $detailedProduct->getTranslation('name') }}",
-      "image": [
-        "{{ uploaded_asset($detailedProduct->thumbnail_img) }}",
-        @foreach (explode(',', $detailedProduct->photos) as $photo)
-        "{{ uploaded_asset($photo) }}"@if(!$loop->last),@endif
-        @endforeach
-      ],
-      "description": "{{ $detailedProduct->meta_description }}",
-      "sku": "{{ $detailedProduct->slug }}",
-      "mpn": "{{ $detailedProduct->id }}",
-      "brand": {
-        "@type": "Brand",
-        "name": "{{ $detailedProduct->brand ? $detailedProduct->brand->name : env('APP_NAME') }}"
-      },
-      @if($detailedProduct->reviews->where('status', 1)->count() > 0)
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "{{ $detailedProduct->rating }}",
-        "reviewCount": "{{ $detailedProduct->reviews->where('status', 1)->count() }}"
-      },
-      @endif
-      "offers": {
-        "@type": "Offer",
-        "url": "{{ route('product', $detailedProduct->slug) }}",
-        "priceCurrency": "{{ get_system_default_currency()->code }}",
-        "price": "{{ $detailedProduct->unit_price }}",
-        "priceValidUntil": "{{ date('Y-12-31') }}",
-        "itemCondition": "https://schema.org/NewCondition",
-        "availability": "https://schema.org/{{ $availability == 'in stock' ? 'InStock' : 'OutOfStock' }}",
-        "seller": {
-          "@type": "Organization",
-          "name": "{{ $detailedProduct->added_by == 'seller' ? $detailedProduct->user->shop->name : get_setting('site_name') }}"
-        }
-      }
-    }
-    </script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd($productSchema) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
+        ['name' => 'Home', 'url' => route('home')],
+        ['name' => $detailedProduct->getTranslation('name'), 'url' => route('product', $detailedProduct->slug)],
+    ])) !!}</script>
 @endsection
 
 

@@ -1,5 +1,26 @@
 @extends('frontend.layouts.app')
 
+@php
+    $categoryListingTitle = translate('All Furniture and Decor Categories on Mayush');
+    $categoryListingDescription = translate('Browse Mayush categories for furniture, decor, lighting, home materials and interior design products.');
+@endphp
+
+@section('meta_title'){{ $categoryListingTitle }}@stop
+@section('meta_description'){{ $categoryListingDescription }}@stop
+@section('canonical_url'){{ route('categories.all') }}@stop
+
+@section('meta')
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
+        'title' => $categoryListingTitle,
+        'description' => $categoryListingDescription,
+        'canonical' => route('categories.all'),
+    ])) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
+        ['name' => translate('Home'), 'url' => route('home')],
+        ['name' => translate('All Categories'), 'url' => route('categories.all')],
+    ])) !!}</script>
+@endsection
+
 @section('content')
     <!-- Breadcrumb -->
     <section class="pt-4 mb-4">
@@ -31,7 +52,7 @@
                     <!-- Category Name -->
                     <a href="{{ route('products.category', $category->slug) }}" class="text-dark p-4 d-flex align-items-center">
                         <div class="size-60px overflow-hidden p-1 border mr-3">
-                            <img src="{{ uploaded_asset($category->banner) }}" alt="{{ $category->getTranslation('name') }}" class="img-fit h-100">
+                            <img src="{{ uploaded_asset($category->banner) }}" alt="{{ $category->getTranslation('name') }} furniture and decor on Mayush" class="img-fit h-100">
                         </div>
                         <div class="text-reset fs-16 fs-md-20 fw-700 hov-text-primary">
                             {{ $category->getTranslation('name') }}

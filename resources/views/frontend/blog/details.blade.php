@@ -1,32 +1,25 @@
 @extends('frontend.layouts.app')
 
-@section('meta_title'){{ $blog->meta_title }}@stop
+@php
+    $blogSeoTitle = \App\Services\SeoService::cleanText($blog->meta_title ?: $blog->title, $blog->title, 70);
+    $blogSeoDescription = \App\Services\SeoService::cleanText($blog->meta_description ?: ($blog->short_description ?? $blog->description), $blog->title, 170);
+    $blogSeoImage = uploaded_asset($blog->meta_img ?: $blog->banner);
+@endphp
 
-@section('meta_description'){{ $blog->meta_description }}@stop
-
+@section('meta_title'){{ $blogSeoTitle }}@stop
+@section('meta_description'){{ $blogSeoDescription }}@stop
 @section('meta_keywords'){{ $blog->meta_keywords }}@stop
+@section('meta_image'){{ $blogSeoImage }}@stop
+@section('meta_type')article@stop
+@section('canonical_url'){{ route('blog.details', $blog->slug) }}@stop
 
 @section('meta')
-    <!-- Schema.org markup for Google+ -->
-    <meta itemprop="name" content="{{ $blog->meta_title }}">
-    <meta itemprop="description" content="{{ $blog->meta_description }}">
-    <meta itemprop="image" content="{{ uploaded_asset($blog->meta_img) }}">
-
-    <!-- Twitter Card data -->
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:site" content="@publisher_handle">
-    <meta name="twitter:title" content="{{ $blog->meta_title }}">
-    <meta name="twitter:description" content="{{ $blog->meta_description }}">
-    <meta name="twitter:creator" content="@author_handle">
-    <meta name="twitter:image" content="{{ uploaded_asset($blog->meta_img) }}">
-
-    <!-- Open Graph data -->
-    <meta property="og:title" content="{{ $blog->meta_title }}" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ route('blog.details', $blog->slug) }}" />
-    <meta property="og:image" content="{{ uploaded_asset($blog->meta_img) }}" />
-    <meta property="og:description" content="{{ $blog->meta_description }}" />
-    <meta property="og:site_name" content="{{ env('APP_NAME') }}" />
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::articleSchema($blog)) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
+        ['name' => translate('Home'), 'url' => route('home')],
+        ['name' => translate('Blog'), 'url' => route('blog')],
+        ['name' => $blog->title, 'url' => route('blog.details', $blog->slug)],
+    ])) !!}</script>
 @endsection
 
 @section('content')
@@ -38,34 +31,6 @@
             <!-- Blog Details -->
             <div class="col-xxl-7 col-lg-8">
                 <div class="mb-4">
-                    <!-- JSON-LD Article Schema for GEO -->
-                    <script type="application/ld+json">
-                    {
-                      "@context": "https://schema.org",
-                      "@type": "Article",
-                      "headline": "{{ $blog->title }}",
-                      "image": "{{ uploaded_asset($blog->banner) }}",
-                      "datePublished": "{{ $blog->created_at->toIso8601String() }}",
-                      "dateModified": "{{ $blog->updated_at->toIso8601String() }}",
-                      "author": {
-                        "@type": "Organization",
-                        "name": "{{ get_setting('website_name') }}"
-                      },
-                      "publisher": {
-                        "@type": "Organization",
-                        "name": "{{ get_setting('website_name') }}",
-                        "logo": {
-                          "@type": "ImageObject",
-                          "url": "{{ uploaded_asset(get_setting('header_logo')) }}"
-                        }
-                      },
-                      "description": "{{ $blog->meta_description }}",
-                      "mainEntityOfPage": {
-                        "@type": "WebPage",
-                        "@id": "{{ route('blog.details', $blog->slug) }}"
-                      }
-                    }
-                    </script>
                     <!-- Title -->
                     <h1 class="fs-20 fs-md-24 fw-700 mb-3">
                         <a href="{{ url("blog").'/'.$blog->slug }}" class="text-reset hov-text-primary" title="{{ $blog->title }}">

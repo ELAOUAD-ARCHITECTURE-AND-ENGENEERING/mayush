@@ -14,13 +14,13 @@
             <img
                 class="lazyload mx-auto img-fit has-transition product-main-image"
                 src="{{ get_image($product->thumbnail) }}"
-                alt="{{ $product->getTranslation('name') }}"
+                alt="{{ $product->getTranslation('name') }} - Mayush"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
             <img
                 class="lazyload mx-auto img-fit has-transition product-hover-image position-absolute"
                 src="{{ get_first_product_image($product->photos, $product->thumbnail) }}"
-                alt="{{ $product->getTranslation('name') }}"
+                alt="{{ $product->getTranslation('name') }} - Mayush"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
         </a>

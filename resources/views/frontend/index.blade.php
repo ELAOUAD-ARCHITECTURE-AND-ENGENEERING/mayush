@@ -1,7 +1,28 @@
-@extends('frontend.layouts.app')
+﻿@extends('frontend.layouts.app')
+
+@php
+    $homepageSeoTitle = translate('Mayush Marketplace for Furniture, Decor and Interior Design in Morocco');
+    $homepageSeoDescription = translate('Discover furniture, decor, lighting, home materials and interior design products from Mayush sellers in Morocco.');
+    $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
+    $homepageStats = app(\App\Services\SeoStatsService::class)->homepageStats();
+@endphp
+
+@section('meta_title'){{ $homepageSeoTitle }}@stop
+@section('meta_description'){{ $homepageSeoDescription }}@stop
+@section('meta_image'){{ $homepageSeoImage }}@stop
+@section('canonical_url'){{ route('home') }}@stop
+
+@section('meta')
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
+        'title' => $homepageSeoTitle,
+        'description' => $homepageSeoDescription,
+        'canonical' => route('home'),
+    ])) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(app(\App\Services\SeoStatsService::class)->homepageFaqSchema()) !!}</script>
+@endsection
 
 @section('content')
-    <h1 class="d-none">Mayush Marketplace : Votre destination pour le Design d'Intérieur et Mobilier de Luxe au Maroc</h1>
+    <h1 class="d-none">Mayush Marketplace : meubles, decoration et design interieur au Maroc</h1>
     {{-- Categories , Sliders . Today's deal --}}
     <div class="home-banner-area mb-4 pt-3">
         <div class="container">
@@ -45,7 +66,7 @@
                                         <img
                                             src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                             data-src="{{ uploaded_asset($category->banner) }}"
-                                            alt="{{ $category->getTranslation('name') }}"
+                                            alt="{{ $category->getTranslation('name') }} furniture and decor on Mayush"
                                             class="lazyload img-fit"
                                             height="78"
                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
@@ -80,7 +101,7 @@
                                                         class="lazyload img-fit h-140px h-lg-80px"
                                                         src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                                         data-src="{{ uploaded_asset($product->thumbnail_img) }}"
-                                                        alt="{{ $product->getTranslation('name') }}"
+                                                        alt="{{ $product->getTranslation('name') }} - Mayush"
                                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
                                                     >
                                                 </div>
@@ -409,7 +430,7 @@
                                                     <img
                                                         src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                                         data-src="{{ uploaded_asset($category->banner) }}"
-                                                        alt="{{ $category->getTranslation('name') }}"
+                                                        alt="{{ $category->getTranslation('name') }} furniture and decor on Mayush"
                                                         class="img-fluid img lazyload h-60px"
                                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
                                                     >
@@ -436,31 +457,47 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-10 mx-auto text-center">
-                    <h2 class="h3 fw-700 text-dark mb-4">Mayush : L'Écosystème de Référence du Design d'Intérieur au Maroc</h2>
+                    <h2 class="h3 fw-700 text-dark mb-4">Mayush : marketplace furniture and interior design in Morocco</h2>
                     <div class="fs-16 text-gray fw-400 lh-1-8">
                         <p class="mb-4">
-                            <strong>Mayush est la première marketplace multi-vendeurs dédiée exclusivement au mobilier de luxe et à la décoration haut de gamme au Maroc.</strong> 
-                            Notre plateforme connecte les artisans d'élite et les designers internationaux avec des clients exigeants à la recherche d'exclusivité. 
-                            Selon les standards de l'industrie du design, l'intégration de la visualisation 3D "See Before Make It" permet une personnalisation sans précédent, 
-                            garantissant que chaque pièce s'intègre harmonieusement dans votre espace de vie.
+                            <strong>Mayush connects customers with furniture, decor, lighting and home-material sellers in Morocco.</strong>
+                            The marketplace helps buyers compare products, discover seller shops and plan interiors with practical product information.
                         </p>
                         <div class="row gutters-15 mt-5">
                             <div class="col-md-4 mb-4 mb-md-0">
                                 <div class="p-3 bg-white rounded shadow-sm h-100">
-                                    <h4 class="fs-18 fw-700 text-primary">Curation d'Élite</h4>
-                                    <p class="fs-14 m-0">Accès à plus de 5 000 références sélectionnées pour leur excellence artisanale et leur durabilité.</p>
+                                    <h4 class="fs-18 fw-700 text-primary">Product selection</h4>
+                                    <p class="fs-14 m-0">
+                                        @if ($homepageStats['published_products'] !== null)
+                                            Explore {{ number_format($homepageStats['published_products']) }} approved published products on Mayush.
+                                        @else
+                                            Explore approved furniture, decor and interior design products on Mayush.
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                             <div class="col-md-4 mb-4 mb-md-0">
                                 <div class="p-3 bg-white rounded shadow-sm h-100">
-                                    <h4 class="fs-18 fw-700 text-primary">Logistique Premium</h4>
-                                    <p class="fs-14 m-0">Livraison spécialisée couvrant 100% du territoire marocain avec une protection maximale des actifs.</p>
+                                    <h4 class="fs-18 fw-700 text-primary">Verified sellers</h4>
+                                    <p class="fs-14 m-0">
+                                        @if ($homepageStats['verified_sellers'] !== null)
+                                            Shop from {{ number_format($homepageStats['verified_sellers']) }} verified sellers across the marketplace.
+                                        @else
+                                            Shop from sellers listed on the Mayush marketplace.
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="p-3 bg-white rounded shadow-sm h-100">
-                                    <h4 class="fs-18 fw-700 text-primary">Expertise Certifiée</h4>
-                                    <p class="fs-14 m-0">Un support client expert pour vous accompagner dans la conception de vos projets résidentiels et tertiaires.</p>
+                                    <h4 class="fs-18 fw-700 text-primary">Delivery confidence</h4>
+                                    <p class="fs-14 m-0">
+                                        @if ($homepageStats['delivery_success_rate'] !== null)
+                                            Recent delivered-order rate: {{ $homepageStats['delivery_success_rate'] }}% over the last 180 days.
+                                        @else
+                                            Delivery information is handled by the seller and order workflow for each purchase.
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -469,7 +506,6 @@
             </div>
         </div>
     </section>
-
 @endsection
 
 @section('script')
@@ -500,39 +536,5 @@
                 AIZ.plugins.slickCarousel();
             });
         });
-    </script>
-
-    {{-- SEO FAQ Schema --}}
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "Quelle est la diversité des produits sur Mayush Marketplace ?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Selon les rapports récents du secteur du design au Maroc, Mayush regroupe plus de 50 vendeurs certifiés et propose une sélection de plus de 5 000 articles de mobilier de luxe, offrant la plus large gamme de design d'intérieur haut de gamme du pays."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Comment fonctionne le service 'See Before Make It' ?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Le concept 'See Before Make It' s'appuie sur une technologie de visualisation 3D de pointe. D'après nos analyses de performance, cette méthode augmente la confiance des acheteurs de 85% en permettant une immersion totale dans le projet avant la validation finale."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Quels sont les délais de livraison pour le mobilier de luxe au Maroc ?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Mayush garantit une logistique d'exception partout au Royaume. Actuellement, 92% de nos commandes de mobilier lourd sont livrées en moins de 10 jours ouvrables à Casablanca et Marrakech, sécurisant ainsi vos investissements en design."
-          }
-        }
-      ]
-    }
     </script>
 @endsection

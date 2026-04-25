@@ -19,11 +19,10 @@ class IdorTest extends TestCase
         $order = Order::factory()->create(['user_id' => $user1->id]);
 
         // User 2 trying to view User 1's order
-        $response = $this->actingAs($user2)->get(route('purchase_history.details', $order->id));
+        $response = $this->actingAs($user2)->get(route('purchase_history.details', encrypt($order->id)));
 
         // Should return 403 Forbidden or 404 Not Found (to not leak existence)
-        // Adjust these assertions based on actual application behavior
-        $this->assertTrue(in_array($response->status(), [403, 404, 302]));
+        $this->assertTrue(in_array($response->status(), [403, 404]));
     }
 
     /** @test */
@@ -31,9 +30,9 @@ class IdorTest extends TestCase
     {
         $order = Order::factory()->create();
 
-        $response = $this->get(route('purchase_history.details', $order->id));
+        $response = $this->get(route('purchase_history.details', encrypt($order->id)));
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('user.login'));
     }
 
     /** @test */
@@ -43,7 +42,7 @@ class IdorTest extends TestCase
         $user2 = User::factory()->create();
 
         // User 2 trying to update User 1's profile
-        $response = $this->actingAs($user2)->post(route('customer.profile.update'), [
+        $response = $this->actingAs($user2)->post(route('user.profile.update'), [
             'id' => $user1->id,
             'name' => 'Hacker Name'
         ]);

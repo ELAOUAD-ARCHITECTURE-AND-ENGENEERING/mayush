@@ -1,30 +1,27 @@
 @extends('frontend.layouts.app')
 
-@section('meta_title'){{ $shop->meta_title }}@stop
+@php
+    $shopSeoTitle = \App\Services\SeoService::cleanText($shop->meta_title ?: $shop->name, $shop->name, 70);
+    $shopSeoDescription = \App\Services\SeoService::cleanText($shop->meta_description ?: ($shop->name . ' seller shop on Mayush'), $shop->name . ' seller shop on Mayush', 170);
+    $shopSeoImage = uploaded_asset($shop->meta_img ?: $shop->logo);
+@endphp
 
-@section('meta_description'){{ $shop->meta_description }}@stop
+@section('meta_title'){{ $shopSeoTitle }}@stop
+@section('meta_description'){{ $shopSeoDescription }}@stop
+@section('meta_image'){{ $shopSeoImage }}@stop
+@section('canonical_url'){{ route('shop.visit', $shop->slug) }}@stop
 
 @section('meta')
-    <!-- Schema.org markup for Google+ -->
-    <meta itemprop="name" content="{{ $shop->meta_title }}">
-    <meta itemprop="description" content="{{ $shop->meta_description }}">
-    <meta itemprop="image" content="{{ uploaded_asset($shop->logo) }}">
-
-    <!-- Twitter Card data -->
-    <meta name="twitter:card" content="website">
-    <meta name="twitter:site" content="@publisher_handle">
-    <meta name="twitter:title" content="{{ $shop->meta_title }}">
-    <meta name="twitter:description" content="{{ $shop->meta_description }}">
-    <meta name="twitter:creator" content="@author_handle">
-    <meta name="twitter:image" content="{{ uploaded_asset($shop->meta_img) }}">
-
-    <!-- Open Graph data -->
-    <meta property="og:title" content="{{ $shop->meta_title }}" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ route('shop.visit', $shop->slug) }}" />
-    <meta property="og:image" content="{{ uploaded_asset($shop->logo) }}" />
-    <meta property="og:description" content="{{ $shop->meta_description }}" />
-    <meta property="og:site_name" content="{{ $shop->name }}" />
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
+        'title' => $shopSeoTitle,
+        'description' => $shopSeoDescription,
+        'canonical' => route('shop.visit', $shop->slug),
+    ])) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
+        ['name' => translate('Home'), 'url' => route('home')],
+        ['name' => translate('Sellers'), 'url' => route('sellers')],
+        ['name' => $shop->name, 'url' => route('shop.visit', $shop->slug)],
+    ])) !!}</script>
 @endsection
 
 @section('content')
@@ -64,7 +61,7 @@
                 <a href="{{ $shop->top_banner_link }}">
                     <img class="d-block lazyload h-100 img-fit"
                         src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
-                        data-src="{{ uploaded_asset($shop->top_banner_image) }}" alt="{{ env('APP_NAME') }} offer">
+                        data-src="{{ uploaded_asset($shop->top_banner_image) }}" alt="{{ $shop->name }} seller shop banner on Mayush">
                 </a>
             </section>
         @endif
@@ -83,6 +80,7 @@
                                 <img class="lazyload h-64px  mx-auto"
                                     src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                     data-src="{{ uploaded_asset($shop->logo) }}"
+                                    alt="{{ $shop->name }} seller shop logo on Mayush"
                                     onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                             </a>
                             <div class="ml-3">
@@ -260,7 +258,7 @@
                                     <img class="d-block lazyload h-100 img-fit" 
                                         src="{{ $slider ? my_asset($slider->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
-                                        alt="{{ $key }} offer">
+                                        alt="{{ $shop->name }} seller shop promotion {{ $key + 1 }}">
                                 </a>
                             </div>
                         @endforeach
@@ -315,7 +313,7 @@
                             <img class="d-block lazyload h-100 img-fit"
                                 src="{{ $banner ? my_asset($banner->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
-                                alt="{{ env('APP_NAME') }} banner">
+                                alt="{{ $shop->name }} seller shop banner on Mayush">
                         </a>
                     </div>
                 </section>
@@ -337,7 +335,7 @@
                                 <img class="d-block lazyload h-100 img-fit"
                                     src="{{ $banner ? my_asset($banner->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                     onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
-                                    alt="{{ env('APP_NAME') }} banner">
+                                    alt="{{ $shop->name }} seller shop banner on Mayush">
                             </a>
                         </div>
                     </div>
@@ -411,7 +409,7 @@
                                 <img class="d-block lazyload h-100 img-fit"
                                     src="{{ $banner ? my_asset($banner->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                     onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
-                                    alt="{{ env('APP_NAME') }} banner">
+                                    alt="{{ $shop->name }} seller shop banner on Mayush">
                             </a>
                         </div>
                     @endforeach
@@ -605,7 +603,7 @@
                                                                 name="brand" @isset($brand_id) @if ($brand_id == $brand->id) checked @endif @endisset>
                                                             <span class="d-block aiz-megabox-elem rounded-0 p-3 border-transparent hov-border-primary">
                                                                 <img src="{{ uploaded_asset($brand->logo) }}"
-                                                                    class="img-fit mb-2" alt="{{ $brand->getTranslation('name') }}">
+                                                                    class="img-fit mb-2" alt="{{ $brand->getTranslation('name') }} brand on Mayush">
                                                                 <span class="d-block text-center">
                                                                     <span
                                                                         class="d-block fw-400 fs-14">{{ $brand->getTranslation('name') }}</span>

@@ -38,6 +38,9 @@ class Kernel extends ConsoleKernel
         // Stock alerts for users
         $schedule->command('stock:send-alerts')->hourly();
 
+        // SEO: keep the public sitemap fresh for crawlers and AI answer engines
+        $schedule->command('app:generate-sitemap')->dailyAt('02:30');
+
         // MA-099b: Vault token maintenance
         $schedule->command('vault:prune-expired')->dailyAt('02:00');
 
