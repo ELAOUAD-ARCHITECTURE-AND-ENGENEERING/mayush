@@ -85,8 +85,8 @@ Deferred to the next implementation slice:
 
 Acceptance checks:
 
-- `python -m py_compile SEO/audit.py` passes.
-- `python SEO/audit.py https://mayushdesign.com --timeout 20` reports all sections.
+- `python3 -m py_compile SEO/audit.py` passes on Linux production.
+- `python3 SEO/audit.py https://mayushdesign.com --timeout 20` reports all sections on Linux production.
 - CI live validation includes the new checks.
 
 ## Phase 3 - Link Headers And Minimal Discovery Surface
@@ -230,8 +230,8 @@ Excluded changes:
 
 ```bash
 php artisan test tests/Feature/SeoRemediationTest.php --stop-on-failure
-python -m py_compile SEO/audit.py
-python SEO/audit.py https://mayushdesign.com --timeout 20
+python3 -m py_compile SEO/audit.py
+python3 SEO/audit.py https://mayushdesign.com --timeout 20
 curl -sS -D - -o NUL https://mayushdesign.com/robots.txt
 curl -sS https://mayushdesign.com/robots.txt
 curl -sS -D - -o NUL -H "Accept: text/markdown" https://mayushdesign.com/

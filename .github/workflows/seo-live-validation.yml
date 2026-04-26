@@ -20,4 +20,4 @@ jobs:
           python-version: "3.12"
 
       - name: Run live SEO/GEO audit
-        run: python SEO/audit.py https://mayushdesign.com --timeout 20
+        run: python3 SEO/audit.py https://mayushdesign.com --timeout 20

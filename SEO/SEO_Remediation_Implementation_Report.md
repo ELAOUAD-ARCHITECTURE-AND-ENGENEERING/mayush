@@ -30,7 +30,7 @@ The old 98% readiness claim should not be used. After this implementation, local
 Command:
 
 ```bash
-python SEO/audit.py http://127.0.0.1:8030 --expected-sitemap-host mayushdesign.com --timeout 20
+python3 SEO/audit.py http://127.0.0.1:8030 --expected-sitemap-host mayushdesign.com --timeout 20
 ```
 
 Result:
@@ -46,7 +46,7 @@ Other checks:
 - `php artisan schedule:list` shows `app:generate-sitemap` at `02:30`.
 - `php artisan test --filter=SeoRemediationTest` passed: 4 tests, 9 assertions.
 - `php -l` passed for the new/changed PHP service, command, and test files.
-- `python -m py_compile SEO/audit.py` passed.
+- `python3 -m py_compile SEO/audit.py` passed.
 
 Full test suite:
 
@@ -57,7 +57,7 @@ Full test suite:
 Command:
 
 ```bash
-python SEO/audit.py https://mayushdesign.com --timeout 20
+python3 SEO/audit.py https://mayushdesign.com --timeout 20
 ```
 
 Result:
@@ -116,7 +116,7 @@ Sitemap: https://mayushdesign.com/sitemap.xml
 8. Re-run:
 
 ```bash
-python SEO/audit.py https://mayushdesign.com --timeout 20
+python3 SEO/audit.py https://mayushdesign.com --timeout 20
 ```
 
 Production should not be considered remediated until that live audit passes or any remaining failures are intentionally documented.

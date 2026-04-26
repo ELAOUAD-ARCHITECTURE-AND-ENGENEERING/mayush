@@ -3,7 +3,7 @@
 ## Target
 
 - Production URL: `https://mayushdesign.com`
-- Command: `python SEO/audit.py https://mayushdesign.com --timeout 20`
+- Command: `python3 SEO/audit.py https://mayushdesign.com --timeout 20`
 
 ## Result
 
@@ -52,7 +52,7 @@ The live sitemap is served as XML, but the response body still begins with white
 7. Run the new `Live SEO GEO Validation` GitHub workflow or run:
 
 ```bash
-python SEO/audit.py https://mayushdesign.com --timeout 20
+python3 SEO/audit.py https://mayushdesign.com --timeout 20
 ```
 
 Target: `0 failed`.

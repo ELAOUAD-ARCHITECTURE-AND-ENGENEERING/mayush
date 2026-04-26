@@ -78,7 +78,7 @@ php8.2 artisan app:generate-sitemap --base-url=https://mayushdesign.com
 3. Recheck:
 
 ```bash
-python SEO/audit.py https://mayushdesign.com --timeout 20
+python3 SEO/audit.py https://mayushdesign.com --timeout 20
 ```
 
 The target result is `0 failed`.
