@@ -8,7 +8,7 @@ $response = $kernel->handle($request);
 echo "Status: " . $response->getStatusCode() . "\n";
 $content = $response->getContent();
 
-if (preg_match('/analytics-tracker-[a-zA-Z0-9_-]+\.js/', $content, $matches)) {
+if (preg_match('/js\/analytics-tracker\.js/', $content, $matches)) {
     echo "Found tracker: " . $matches[0] . "\n";
 } else {
     echo "Tracker not found in output.\n";

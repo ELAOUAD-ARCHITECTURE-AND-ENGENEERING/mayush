@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    <!-- Laravel Livewire + AlpineJS Replacement for React App.jsx -->
+    <!-- Laravel Livewire technical dashboard -->
     <div id="tech-dashboard-root">
         @livewire('analytics.technical-dashboard')
     </div>

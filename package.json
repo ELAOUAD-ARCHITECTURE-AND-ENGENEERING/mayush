@@ -1,47 +1,6 @@
 {
     "private": true,
     "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "mix-dev": "npm run development",
-        "mix-production": "npm run production",
-        "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
-    },
-    "devDependencies": {
-        "@vitejs/plugin-react": "^4.7.0",
-        "@vitejs/plugin-vue2": "^2.3.4",
-        "autoprefixer": "^10.4.20",
-        "axios": "^0.18",
-        "bootstrap": "^4.0.0",
-        "jquery": "^3.2",
-        "laravel-vite-plugin": "^1.3.0",
-        "lodash": "^4.17.5",
-        "popper.js": "^1.12",
-        "postcss": "^8.4.49",
-        "react": "^19.2.4",
-        "react-dom": "^19.2.4",
-        "sass": "^1.97.3",
-        "tailwindcss": "^3.4.15",
-        "vite": "^6.4.1",
-        "vue": "^2.5.7",
-        "vue-template-compiler": "^2.7.16"
-    },
-    "dependencies": {
-        "alpinejs": "^3.15.8",
-        "d3-interpolate": "^3.0.1",
-        "d3-scale": "^4.0.2",
-        "react-is": "^19.2.4",
-        "react-simple-maps": "^3.0.0",
-        "recharts": "^3.8.0",
-        "topojson-client": "^3.1.0"
-    },
-    "overrides": {
-        "react-simple-maps": {
-            "d3-zoom": "^3.0.0"
-        },
-        "d3-zoom": {
-            "d3-transition": "^3.0.1"
-        }
+        "audit:prod": "npm audit --omit=dev --audit-level=high"
     }
 }
