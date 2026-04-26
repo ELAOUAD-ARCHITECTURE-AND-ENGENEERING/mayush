@@ -15,6 +15,8 @@
     RewriteRule ^ %1 [L,R=301]
 
     # Handle Front Controller...
+    RewriteRule ^(robots\.txt|sitemap\.xml)$ index.php [L]
+
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(build|assets|vendors|uploads)/(.*)$ public/$1/$2 [L,QSA]
