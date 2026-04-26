@@ -7,8 +7,8 @@
 
 ## Result
 
-- Passed: 19
-- Failed: 4
+- Passed: 33
+- Failed: 9
 
 ## Passing Checks
 
@@ -19,32 +19,37 @@
 - Homepage has exactly one meaningful H1.
 - Open Graph and Twitter card tags are present.
 - JSON-LD parses successfully.
-- Googlebot, Bingbot, GPTBot, ChatGPT-User, ClaudeBot, PerplexityBot, Google-Extended, and CCBot are not blocked by the currently returned live body.
+- `robots.txt` returns `200` with `text/plain; charset=UTF-8`.
+- Googlebot, Bingbot, GPTBot, ChatGPT-User, ClaudeBot, PerplexityBot, Google-Extended, and CCBot have explicit live rules and are not blocked.
+- OAI-SearchBot, Claude-Web, and anthropic-ai are not blocked by the wildcard rule, but explicit live rules are not deployed yet.
+- `robots.txt` includes `Sitemap: https://mayushdesign.com/sitemap.xml`.
 - `sitemap.xml` returns `200` with XML content type.
 
 ## Failing Checks
 
-- Canonical `https://mayushdesign.com/robots.txt` returns `404` HTML.
-- Because canonical `/robots.txt` is not serving the production robots file, crawlers do not receive the `Sitemap: https://mayushdesign.com/sitemap.xml` directive.
+- Live `robots.txt` is missing explicit `OAI-SearchBot`, `Claude-Web`, and `anthropic-ai` rules.
+- Live `robots.txt` is missing `Content-Signal: ai-train=yes, search=yes, ai-input=yes`.
+- Expanded audit checks fail `Content-Signal ai-train`, `Content-Signal search`, and `Content-Signal ai-input`.
 - Live `sitemap.xml` has whitespace before the XML declaration.
 - Strict sitemap XML parsing fails with `XML or text declaration not at start of entity`.
 
 ## Ground Truth
 
-The repository `public/robots.txt` is already AI-friendly and includes the sitemap directive. Live `https://mayushdesign.com/public/robots.txt` serves that correct file, but canonical `https://mayushdesign.com/robots.txt` currently returns Laravel HTML with `404`.
+Canonical `https://mayushdesign.com/robots.txt` is now fixed live and returns the production robots file.
 
-This means the current production issue is no longer only Cloudflare managed robots policy. The canonical robots endpoint is not serving the repository robots file. A Laravel `/robots.txt` route has been added so the canonical endpoint works even when the server document root or rewrite rules expose static assets through `/public`.
+The repository now expands `public/robots.txt` with `OAI-SearchBot`, `Claude-Web`, `anthropic-ai`, and `Content-Signal: ai-train=yes, search=yes, ai-input=yes`. These new entries are pending deployment and cache refresh.
 
-The live sitemap is served as XML, but the response body begins with whitespace before `<?xml`. The local sitemap file starts correctly, so the route now normalizes the served sitemap body by removing a UTF-8 BOM and leading whitespace before returning it.
+The live sitemap is served as XML, but the response body still begins with whitespace before `<?xml`. Local `public/sitemap.xml` starts correctly at byte 0, so production likely has a stale/static sitemap copy or webserver static-file precedence bypassing Laravel's normalized route response.
 
 ## Required Action
 
-1. Deploy the latest commit containing the canonical `/robots.txt` route and sitemap response normalization.
+1. Deploy the latest repository update containing expanded AI crawler rules and Content Signals.
 2. Clear Laravel route/config/view caches on production.
 3. Regenerate production sitemap with `APP_URL=https://mayushdesign.com`.
-4. Purge Cloudflare cache for `/robots.txt` and `/sitemap.xml`.
-5. Re-check Cloudflare managed robots/content-signal settings from `docs/seo/cloudflare-robots-geo-runbook.md`; keep GPTBot, ChatGPT-User, ClaudeBot, PerplexityBot, Google-Extended, CCBot, Googlebot, and Bingbot allowed.
-6. Run the new `Live SEO GEO Validation` GitHub workflow or run:
+4. Confirm the live sitemap body starts with `<?xml` at byte 0; if not, remove or overwrite the stale/static production sitemap copy that starts with a newline.
+5. Purge Cloudflare cache for `/robots.txt` and `/sitemap.xml`.
+6. Re-check Cloudflare managed robots/content-signal settings from `docs/seo/cloudflare-robots-geo-runbook.md`; keep GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-Web, anthropic-ai, PerplexityBot, Google-Extended, CCBot, Googlebot, and Bingbot allowed.
+7. Run the new `Live SEO GEO Validation` GitHub workflow or run:
 
 ```bash
 python SEO/audit.py https://mayushdesign.com --timeout 20

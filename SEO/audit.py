@@ -14,12 +14,21 @@ AI_AND_SEARCH_BOTS = [
     "Googlebot",
     "Bingbot",
     "GPTBot",
+    "OAI-SearchBot",
     "ChatGPT-User",
     "ClaudeBot",
+    "Claude-Web",
+    "anthropic-ai",
     "PerplexityBot",
     "Google-Extended",
     "CCBot",
 ]
+
+CONTENT_SIGNAL_EXPECTED = {
+    "ai-train": "yes",
+    "search": "yes",
+    "ai-input": "yes",
+}
 
 
 class PageParser(HTMLParser):
@@ -118,6 +127,29 @@ def canonical(parser):
     return ""
 
 
+def robots_user_agents(robots):
+    agents = []
+    for line in robots.splitlines():
+        match = re.match(r"\s*user-agent\s*:\s*([^\s#]+)", line, flags=re.IGNORECASE)
+        if match:
+            agents.append(match.group(1).lower())
+    return agents
+
+
+def content_signals(robots):
+    signals = {}
+    for line in robots.splitlines():
+        if not line.lower().lstrip().startswith("content-signal:"):
+            continue
+        value = line.split(":", 1)[1]
+        for item in value.split(","):
+            if "=" not in item:
+                continue
+            key, setting = item.split("=", 1)
+            signals[key.strip().lower()] = setting.strip().lower()
+    return signals
+
+
 def audit_page(base_url, timeout, results):
     page_url = urllib.parse.urljoin(base_url, "/")
     status, content_type, html = fetch(page_url, timeout)
@@ -157,14 +189,34 @@ def audit_robots(base_url, timeout, results):
     robots_url = urllib.parse.urljoin(base_url, "/robots.txt")
     status, content_type, robots = fetch(robots_url, timeout)
     result(results, status == 200, "robots.txt HTTP status", f"{status} {content_type}")
+    result(results, "text/plain" in content_type.lower(), "robots.txt content type", content_type or "missing")
 
     lowered = robots.lower()
+    agents = robots_user_agents(robots)
     for bot in AI_AND_SEARCH_BOTS:
+        explicit = bot.lower() in agents
+        result(results, explicit, f"robots explicit rule for {bot}", "present" if explicit else "missing")
         disallowed = re.search(rf"user-agent:\s*{re.escape(bot.lower())}\s*[\r\n]+disallow:\s*/", lowered)
         result(results, not disallowed, f"robots access for {bot}", "not blocked" if not disallowed else "blocked by Disallow: /")
 
     sitemap_lines = [line.strip() for line in robots.splitlines() if line.lower().startswith("sitemap:")]
     result(results, bool(sitemap_lines), "robots sitemap directive", ", ".join(sitemap_lines) or "missing")
+
+    signals = content_signals(robots)
+    result(
+        results,
+        bool(signals),
+        "robots content signals",
+        ", ".join(f"{key}={value}" for key, value in sorted(signals.items())) or "missing",
+    )
+    for key, expected in CONTENT_SIGNAL_EXPECTED.items():
+        actual = signals.get(key)
+        result(
+            results,
+            actual == expected,
+            f"Content-Signal {key}",
+            f"{actual or 'missing'} (expected {expected})",
+        )
 
     cloudflare_managed = "BEGIN Cloudflare Managed" in robots
     if cloudflare_managed:

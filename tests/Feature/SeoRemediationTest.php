@@ -53,6 +53,30 @@ class SeoRemediationTest extends TestCase
         }
     }
 
+    public function test_public_robots_declares_ai_crawlers_and_content_signals(): void
+    {
+        $robots = file_get_contents(public_path('robots.txt'));
+
+        foreach ([
+            'Googlebot',
+            'Bingbot',
+            'GPTBot',
+            'OAI-SearchBot',
+            'ChatGPT-User',
+            'ClaudeBot',
+            'Claude-Web',
+            'anthropic-ai',
+            'PerplexityBot',
+            'Google-Extended',
+            'CCBot',
+        ] as $bot) {
+            $this->assertStringContainsString("User-agent: {$bot}", $robots);
+        }
+
+        $this->assertStringContainsString('Content-Signal: ai-train=yes, search=yes, ai-input=yes', $robots);
+        $this->assertStringContainsString('Sitemap: https://mayushdesign.com/sitemap.xml', $robots);
+    }
+
     public function test_json_ld_helper_outputs_valid_json_for_html_content(): void
     {
         $json = SeoService::jsonLd([

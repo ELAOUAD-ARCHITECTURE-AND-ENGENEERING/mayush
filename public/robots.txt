@@ -1,8 +1,12 @@
 User-agent: *
 Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 
 # AI Search Engines & Bots (GEO Optimization)
 User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
 Allow: /
 
 User-agent: ChatGPT-User
@@ -15,6 +19,12 @@ User-agent: PerplexityBot
 Allow: /
 
 User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
 Allow: /
 
 User-agent: Bingbot
