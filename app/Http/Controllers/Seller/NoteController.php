@@ -11,12 +11,16 @@ use Validator;
 
 class NoteController extends Controller
 {
-    public function __construct() {
-        $this->note_rules = [
+    private function noteRules()
+    {
+        return [
             'description' => ['required','max:900'],
         ];
+    }
 
-        $this->note_messages = [
+    private function noteMessages()
+    {
+        return [
             'description.required' => translate('Note description is required'),
             'description.max'  => translate('Max 900 character'),
         ];
@@ -59,8 +63,8 @@ class NoteController extends Controller
      */
     public function store(Request $request)
     {
-        $rules      = $this->note_rules;
-        $messages   = $this->note_messages;
+        $rules      = $this->noteRules();
+        $messages   = $this->noteMessages();
         $validator  = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
@@ -106,8 +110,8 @@ class NoteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $rules      = $this->note_rules;
-        $messages   = $this->note_messages;
+        $rules      = $this->noteRules();
+        $messages   = $this->noteMessages();
         $validator  = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
