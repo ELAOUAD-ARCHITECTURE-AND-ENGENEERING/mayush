@@ -159,12 +159,29 @@ def audit_robots(base_url, timeout, results):
     sitemap_lines = [line.strip() for line in robots.splitlines() if line.lower().startswith("sitemap:")]
     result(results, bool(sitemap_lines), "robots sitemap directive", ", ".join(sitemap_lines) or "missing")
 
+    cloudflare_managed = "BEGIN Cloudflare Managed" in robots
+    if cloudflare_managed:
+        content_signal_lines = [line.strip() for line in robots.splitlines() if line.lower().startswith("content-signal:")]
+        ai_input_allowed = any("ai-input=yes" in line.lower().replace(" ", "") for line in content_signal_lines)
+        result(
+            results,
+            ai_input_allowed,
+            "Cloudflare AI input content signal",
+            "ai-input=yes present" if ai_input_allowed else "Cloudflare managed robots present without ai-input=yes",
+        )
+
 
 def audit_sitemap(base_url, timeout, results, expected_sitemap_host=None):
     sitemap_url = urllib.parse.urljoin(base_url, "/sitemap.xml")
     status, content_type, xml = fetch(sitemap_url, timeout)
     result(results, status == 200, "sitemap HTTP status", f"{status} {content_type}")
     result(results, "xml" in content_type.lower() or xml.lstrip().startswith("<?xml"), "sitemap XML content", content_type or "content sniff")
+    result(
+        results,
+        xml.startswith("<?xml"),
+        "sitemap XML declaration position",
+        "starts at byte 0" if xml.startswith("<?xml") else "whitespace or other bytes before XML declaration",
+    )
 
     try:
         root = ET.fromstring(xml)
