@@ -72,6 +72,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           request_pty: true
           script_stop: false
+          command_timeout: 30m
           envs: DEPLOY_DB_PASSWORD,DEPLOY_DB_USER,GITHUB_TOKEN,ONESSTA_ENABLED,ONESSTA_BASE_URL,ONESSTA_TOKEN,ONESSTA_API_KEY,ONESSTA_CLIENT_ID,ONESSTA_WEBHOOK_SECRET,ONESSTA_WEBHOOK_API_KEY,ONESSTA_WEBHOOK_CALLBACKURL
           script: |
             set -euo pipefail
@@ -224,9 +225,23 @@ jobs:
             
             echo "  ✔ Python environment ready: $(python3 --version 2>&1)"
             
-            if [[ ! -d "$AI_VENV" ]]; then
+            # ── Validate or rebuild the virtual environment ──
+            VENV_HEALTHY=false
+            if [[ -d "$AI_VENV" ]]; then
+              if "$AI_VENV/bin/pip" --version &>/dev/null; then
+                echo "  ✔ Virtual environment is healthy"
+                VENV_HEALTHY=true
+              else
+                echo "  ⚠ Virtual environment is corrupted (pip missing/broken) — rebuilding..."
+                rm -rf "$AI_VENV"
+              fi
+            fi
+            
+            if [[ "$VENV_HEALTHY" == "false" ]]; then
               echo "  📦 Creating Python virtual environment..."
               python3 -m venv "$AI_VENV"
+              chown -R mayushdesign:mayushdesign "$AI_VENV"
+              echo "  ✔ Virtual environment created"
             fi
             
             if [[ ! -f "$AI_DIR/requirements.txt" ]]; then
@@ -234,26 +249,38 @@ jobs:
               AI_STATUS="missing_requirements"
             else
               CURRENT_HASH=$(sha256sum "$AI_DIR/requirements.txt" | awk '{print $1}')
-              if [[ -f "$AI_HASH_FILE" ]] && [[ "$(cat "$AI_HASH_FILE")" == "$CURRENT_HASH" ]]; then
+              if [[ -f "$AI_HASH_FILE" ]] && [[ "$(cat "$AI_HASH_FILE")" == "$CURRENT_HASH" ]] && [[ "$VENV_HEALTHY" == "true" ]]; then
                 echo "  ✔ Dependencies unchanged — skipping pip install"
                 AI_STATUS="ready"
               else
                 echo "  📥 Installing Python dependencies (may take a moment)..."
+                PIP_TIMEOUT=600  # 10 minutes per attempt
                 INSTALL_OK=false
                 for attempt in 1 2 3; do
-                  if "$AI_VENV/bin/pip" install -r "$AI_DIR/requirements.txt" --quiet 2>>"$AI_LOG"; then
+                  echo "  ⏳ Attempt $attempt/3 (timeout: ${PIP_TIMEOUT}s)..."
+                  # Use Linux timeout command to kill pip if it hangs
+                  # Exit code 124 = timed out, 137 = SIGKILL after timeout
+                  if timeout --signal=TERM --kill-after=30 $PIP_TIMEOUT \
+                    "$AI_VENV/bin/pip" install -r "$AI_DIR/requirements.txt" --no-cache-dir 2>&1 | tee -a "$AI_LOG"; then
                     echo "$CURRENT_HASH" > "$AI_HASH_FILE"
                     echo "  ✔ Dependencies installed (attempt $attempt)"
                     INSTALL_OK=true
                     break
+                  else
+                    PIP_EXIT=$?
+                    if [[ $PIP_EXIT -eq 124 ]] || [[ $PIP_EXIT -eq 137 ]]; then
+                      echo "  ⏰ pip install timed out after ${PIP_TIMEOUT}s (attempt $attempt/3)"
+                    else
+                      echo "  ⚠ pip install failed with exit code $PIP_EXIT (attempt $attempt/3)"
+                    fi
                   fi
-                  echo "  ⚠ pip install failed (attempt $attempt/3) — retrying..."
+                  echo "  🔄 Retrying in 5 seconds..."
                   sleep 5
                 done
                 if [[ "$INSTALL_OK" == "true" ]]; then 
                   AI_STATUS="ready"
                 else 
-                  echo "  ❌ pip install failed"
+                  echo "  ❌ pip install failed — check $AI_LOG for details"
                   AI_STATUS="deps_failed"
                 fi
               fi
