@@ -7,8 +7,8 @@
 
 ## Result
 
-- Passed: 16
-- Failed: 8
+- Passed: 19
+- Failed: 4
 
 ## Passing Checks
 
@@ -19,31 +19,32 @@
 - Homepage has exactly one meaningful H1.
 - Open Graph and Twitter card tags are present.
 - JSON-LD parses successfully.
-- `robots.txt` returns `200`.
-- Googlebot, Bingbot, ChatGPT-User, and PerplexityBot are not blocked.
+- Googlebot, Bingbot, GPTBot, ChatGPT-User, ClaudeBot, PerplexityBot, Google-Extended, and CCBot are not blocked by the currently returned live body.
 - `sitemap.xml` returns `200` with XML content type.
 
 ## Failing Checks
 
-- `GPTBot` is blocked by live Cloudflare-managed robots rules.
-- `ClaudeBot` is blocked by live Cloudflare-managed robots rules.
-- `Google-Extended` is blocked by live Cloudflare-managed robots rules.
-- `CCBot` is blocked by live Cloudflare-managed robots rules.
-- Live `robots.txt` has no `Sitemap:` directive.
-- Live Cloudflare managed robots content signals do not explicitly include `ai-input=yes`.
-- Live `sitemap.xml` has whitespace before the XML declaration, causing strict XML parse failure.
+- Canonical `https://mayushdesign.com/robots.txt` returns `404` HTML.
+- Because canonical `/robots.txt` is not serving the production robots file, crawlers do not receive the `Sitemap: https://mayushdesign.com/sitemap.xml` directive.
+- Live `sitemap.xml` has whitespace before the XML declaration.
+- Strict sitemap XML parsing fails with `XML or text declaration not at start of entity`.
 
 ## Ground Truth
 
-The repository `public/robots.txt` is already AI-friendly and includes the sitemap directive. The live failures are therefore production configuration or cache issues, not missing local robots code.
+The repository `public/robots.txt` is already AI-friendly and includes the sitemap directive. Live `https://mayushdesign.com/public/robots.txt` serves that correct file, but canonical `https://mayushdesign.com/robots.txt` currently returns Laravel HTML with `404`.
+
+This means the current production issue is no longer only Cloudflare managed robots policy. The canonical robots endpoint is not serving the repository robots file. A Laravel `/robots.txt` route has been added so the canonical endpoint works even when the server document root or rewrite rules expose static assets through `/public`.
+
+The live sitemap is served as XML, but the response body begins with whitespace before `<?xml`. The local sitemap file starts correctly, so the route now normalizes the served sitemap body by removing a UTF-8 BOM and leading whitespace before returning it.
 
 ## Required Action
 
-1. Apply the Cloudflare changes in `docs/seo/cloudflare-robots-geo-runbook.md`.
-2. Deploy the latest commits.
+1. Deploy the latest commit containing the canonical `/robots.txt` route and sitemap response normalization.
+2. Clear Laravel route/config/view caches on production.
 3. Regenerate production sitemap with `APP_URL=https://mayushdesign.com`.
-4. Clear Laravel and Cloudflare caches.
-5. Run the new `Live SEO GEO Validation` GitHub workflow or run:
+4. Purge Cloudflare cache for `/robots.txt` and `/sitemap.xml`.
+5. Re-check Cloudflare managed robots/content-signal settings from `docs/seo/cloudflare-robots-geo-runbook.md`; keep GPTBot, ChatGPT-User, ClaudeBot, PerplexityBot, Google-Extended, CCBot, Googlebot, and Bingbot allowed.
+6. Run the new `Live SEO GEO Validation` GitHub workflow or run:
 
 ```bash
 python SEO/audit.py https://mayushdesign.com --timeout 20

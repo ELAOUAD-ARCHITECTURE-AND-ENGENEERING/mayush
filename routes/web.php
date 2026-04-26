@@ -211,6 +211,18 @@ Route::controller(AddressController::class)->group(function () {
 });
 
 
+Route::get('/robots.txt', function () {
+    $path = public_path('robots.txt');
+
+    if (!file_exists($path) || filesize($path) === 0) {
+        abort(404, 'Robots file is not available.');
+    }
+
+    return response(file_get_contents($path), 200, [
+        'Content-Type' => 'text/plain; charset=UTF-8',
+    ]);
+});
+
 Route::get('/sitemap.xml', function() {
     $path = public_path('sitemap.xml');
 
@@ -218,7 +230,11 @@ Route::get('/sitemap.xml', function() {
         abort(404, 'Sitemap has not been generated yet.');
     }
 
-    return response()->file($path, [
+    $contents = file_get_contents($path);
+    $contents = preg_replace('/^\xEF\xBB\xBF/', '', $contents);
+    $contents = ltrim($contents);
+
+    return response($contents, 200, [
         'Content-Type' => 'application/xml; charset=UTF-8',
     ]);
 });

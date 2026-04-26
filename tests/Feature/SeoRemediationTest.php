@@ -13,14 +13,37 @@ class SeoRemediationTest extends TestCase
         $path = public_path('sitemap.xml');
         $backup = file_exists($path) ? file_get_contents($path) : null;
 
-        file_put_contents($path, '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://mayushdesign.com/</loc></url></urlset>');
+        file_put_contents($path, "\n<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><url><loc>https://mayushdesign.com/</loc></url></urlset>");
 
         try {
             $response = $this->get('/sitemap.xml');
 
             $response->assertOk();
             $this->assertStringContainsString('application/xml', $response->headers->get('content-type'));
-            $this->assertStringContainsString('https://mayushdesign.com/', file_get_contents($response->baseResponse->getFile()->getPathname()));
+            $this->assertStringStartsWith('<?xml', $response->getContent());
+            $this->assertStringContainsString('https://mayushdesign.com/', $response->getContent());
+        } finally {
+            if ($backup === null) {
+                @unlink($path);
+            } else {
+                file_put_contents($path, $backup);
+            }
+        }
+    }
+
+    public function test_robots_route_serves_public_txt_file(): void
+    {
+        $path = public_path('robots.txt');
+        $backup = file_exists($path) ? file_get_contents($path) : null;
+
+        file_put_contents($path, "User-agent: *\nAllow: /\nSitemap: https://mayushdesign.com/sitemap.xml\n");
+
+        try {
+            $response = $this->get('/robots.txt');
+
+            $response->assertOk();
+            $this->assertStringContainsString('text/plain', $response->headers->get('content-type'));
+            $this->assertStringContainsString('Sitemap: https://mayushdesign.com/sitemap.xml', $response->getContent());
         } finally {
             if ($backup === null) {
                 @unlink($path);

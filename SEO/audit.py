@@ -4,6 +4,7 @@ import json
 import re
 import sys
 import urllib.parse
+import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
@@ -82,11 +83,17 @@ def normalize(value):
 
 def fetch(url, timeout):
     request = urllib.request.Request(url, headers={"User-Agent": "MayushSeoAudit/1.0"})
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        body = response.read()
-        content_type = response.headers.get("Content-Type", "")
-        charset = response.headers.get_content_charset() or "utf-8"
-        return response.status, content_type, body.decode(charset, errors="replace")
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            body = response.read()
+            content_type = response.headers.get("Content-Type", "")
+            charset = response.headers.get_content_charset() or "utf-8"
+            return response.status, content_type, body.decode(charset, errors="replace")
+    except urllib.error.HTTPError as exc:
+        body = exc.read()
+        content_type = exc.headers.get("Content-Type", "")
+        charset = exc.headers.get_content_charset() or "utf-8"
+        return exc.code, content_type, body.decode(charset, errors="replace")
 
 
 def result(results, ok, label, detail):
@@ -214,14 +221,19 @@ def main():
 
     results = []
     print(f"SEO/GEO audit target: {base_url}\n")
-    try:
-        audit_page(base_url, args.timeout, results)
-        print()
-        audit_robots(base_url, args.timeout, results)
-        print()
-        audit_sitemap(base_url, args.timeout, results, args.expected_sitemap_host)
-    except Exception as exc:
-        result(results, False, "audit runtime", str(exc))
+    sections = [
+        ("home page", lambda: audit_page(base_url, args.timeout, results)),
+        ("robots.txt", lambda: audit_robots(base_url, args.timeout, results)),
+        ("sitemap.xml", lambda: audit_sitemap(base_url, args.timeout, results, args.expected_sitemap_host)),
+    ]
+
+    for index, (label, audit) in enumerate(sections):
+        if index:
+            print()
+        try:
+            audit()
+        except Exception as exc:
+            result(results, False, f"{label} audit runtime", str(exc))
 
     passed = sum(1 for ok, _, _ in results if ok)
     failed = len(results) - passed
