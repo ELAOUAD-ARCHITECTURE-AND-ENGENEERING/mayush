@@ -11,13 +11,21 @@ The scanner is useful, but its findings are not all equal SEO/GEO blockers.
 
 Current live verification shows that the most important issue, canonical `/robots.txt`, is now fixed in production: it returns `200` with `Content-Type: text/plain; charset=UTF-8` and includes the sitemap directive. The scan result that said "robots.txt not found" was either taken before the latest deploy/cache refresh or was affected by a transient scanner abort.
 
-Remaining real gaps:
+Resolved live:
 
-- Live production does not yet include the new `Content-Signal` directive until the current repository update is deployed.
-- Live production does not yet include the new explicit `OAI-SearchBot`, `Claude-Web`, and `anthropic-ai` rules until the current repository update is deployed.
-- Live production does not yet negotiate `Accept: text/markdown` until the current repository update is deployed.
-- Live production does not yet expose useful agent discovery `Link` headers until the current repository update is deployed.
-- Live production does not yet expose the repository `/.well-known/api-catalog`, `/openapi.json`, or agent skills routes until the current repository update is deployed.
+- `robots.txt` includes Content Signals and explicit AI crawler rules.
+- Homepage exposes agent discovery `Link` headers.
+- `Accept: text/markdown` returns Markdown.
+- `/.well-known/api-catalog`, `/openapi.json`, and `/.well-known/agent-skills/index.json` return `200`.
+- Cloudflare Agent Readiness scan reports level `4` / `Agent-Integrated`.
+
+Remaining deferred items:
+
+- OAuth/OIDC discovery.
+- OAuth protected resource metadata.
+- MCP server card.
+- A2A agent card.
+- WebMCP browser tools.
 
 Items that should not be implemented blindly:
 
@@ -32,9 +40,9 @@ Live checks run against production:
 | `https://mayushdesign.com/robots.txt` | Pass | `200 OK`, `text/plain; charset=UTF-8` |
 | Robots sitemap directive | Pass | `Sitemap: https://mayushdesign.com/sitemap.xml` present |
 | Current robots AI entries | Partial pass | `GPTBot`, `ChatGPT-User`, `Google-Extended`, `PerplexityBot`, `ClaudeBot`, `Bingbot`, `Googlebot`, `CCBot` present |
-| `Accept: text/markdown` on homepage | Fail | Returns `Content-Type: text/html; charset=UTF-8` |
-| `/.well-known/api-catalog` | Fail | `404 Not Found` |
-| `/.well-known/agent-skills/index.json` | Fail | `404 Not Found` |
+| `Accept: text/markdown` on homepage | Pass | Returns `Content-Type: text/markdown; charset=UTF-8` |
+| `/.well-known/api-catalog` | Pass | `200 OK`, `application/linkset+json` |
+| `/.well-known/agent-skills/index.json` | Pass | `200 OK`, `application/json` |
 | `/.well-known/openid-configuration` | Not implemented | `404 Not Found` |
 | `/.well-known/oauth-authorization-server` | Not implemented | `404 Not Found` |
 | `/.well-known/oauth-protected-resource` | Not implemented | `404 Not Found` |
@@ -73,9 +81,9 @@ Recommended action:
 
 Scanner issue: Could not check Link headers; operation aborted.
 
-Ground truth: Homepage response currently does not expose agent discovery `Link` headers on live production. The repository now adds those headers for successful public HTML responses.
+Ground truth: Homepage response now exposes agent discovery `Link` headers on live production.
 
-Status: Repository fix added, pending deploy/live validation.
+Status: Passed live.
 
 Recommended action:
 
@@ -90,9 +98,9 @@ Recommended action:
 
 Scanner issue: Site does not support Markdown for Agents.
 
-Ground truth: Requests with `Accept: text/markdown` still receive HTML on live production. The repository now adds a scoped Laravel fallback that returns Markdown for successful public HTML responses.
+Ground truth: Requests with `Accept: text/markdown` now receive Markdown on live production.
 
-Status: Repository fix added, pending deploy/live validation.
+Status: Passed live.
 
 SEO/GEO impact: Medium. It can help agents extract public page content, but traditional SEO is not blocked.
 
@@ -141,9 +149,9 @@ Content-Signal: ai-train=yes, search=yes, ai-input=yes
 
 Scanner issue: API Catalog not found.
 
-Ground truth: Missing on live production. The repository now publishes a Laravel-routed API catalog and `/openapi.json`.
+Ground truth: Live production now publishes a Laravel-routed API catalog and `/openapi.json`.
 
-Status: Repository fix added, pending deploy/live validation.
+Status: Passed live.
 
 Recommended action:
 
@@ -195,9 +203,9 @@ Recommended action:
 
 Scanner issue: Agent Skills index not found.
 
-Ground truth: Missing on live production. The repository now publishes a read-only skills index and individual skill documents through Laravel routes.
+Ground truth: Live production now publishes a read-only skills index and individual skill documents through Laravel routes.
 
-Status: Repository fix added, pending deploy/live validation.
+Status: Passed live.
 
 Recommended action:
 

@@ -2,7 +2,7 @@
 
 Parent workstream: Full SEO/GEO Remediation Plan For Mayush  
 Date: 2026-04-26  
-Status: In progress. Phases 1 through 6 are implemented in the repository for the safe read-only discovery surface. Live production validation is pending deployment and cache purge. OAuth/OIDC, MCP, WebMCP, and payment protocol discovery remain deferred.
+Status: Complete for the safe read-only discovery surface. Phases 1 through 6 are implemented, deployed, and validated live. OAuth/OIDC, MCP, WebMCP, A2A, and payment protocol discovery remain deferred by design.
 
 ## Objective
 
@@ -61,6 +61,8 @@ Acceptance checks:
 - All required AI/search user agents are explicitly covered.
 - Content-Signal exists and matches the documented policy.
 
+Live status: passed.
+
 ## Phase 2 - Audit Tool Expansion
 
 Priority: P1  
@@ -91,6 +93,8 @@ Acceptance checks:
 - `python3 SEO/audit.py https://mayushdesign.com --timeout 20` reports all sections on Linux production.
 - CI live validation includes the new checks.
 
+Live status: passed.
+
 ## Phase 3 - Link Headers And Minimal Discovery Surface
 
 Priority: P2  
@@ -116,6 +120,8 @@ Acceptance checks:
 - Headers do not point to missing or blocked URLs.
 - Browser HTML behavior is unchanged.
 
+Live status: passed.
+
 ## Phase 4 - API Catalog And OpenAPI Publication
 
 Priority: P2  
@@ -135,6 +141,8 @@ Acceptance checks:
 - The catalog links resolve with `200`.
 - OpenAPI validates.
 - No unsupported or sensitive endpoints are advertised.
+
+Live status: passed.
 
 ## Phase 5 - Markdown For Agents
 
@@ -157,6 +165,8 @@ Acceptance checks:
 - `curl -H "Accept: text/markdown" https://mayushdesign.com/` returns Markdown.
 - Default browser request still returns HTML.
 - Markdown output contains title, H1, canonical URL, summary, and important links.
+
+Live status: passed.
 
 ## Phase 6 - Agent Skills Index
 
@@ -182,6 +192,8 @@ Acceptance checks:
 - Every skill URL returns `200`.
 - Every digest matches the published skill document.
 - No skill executes sensitive account, checkout, payment, or seller actions.
+
+Live status: passed.
 
 ## Phase 7 - Deferred Architecture Decisions
 

@@ -8,9 +8,10 @@
 
 ## Result
 
-- Passed: 41
-- Failed: 16
+- Passed: 61
+- Failed: 0
 - Cloudflare Agent Readiness level: `2` / `Bot-Aware`
+- Cloudflare Agent Readiness final level: `4` / `Agent-Integrated`
 
 ## Passing Checks
 
@@ -26,16 +27,31 @@
 - `robots.txt` includes `Sitemap: https://mayushdesign.com/sitemap.xml`.
 - `robots.txt` includes `Content-Signal: ai-train=yes, search=yes, ai-input=yes`.
 - `sitemap.xml` returns `200` with XML content type.
+- `sitemap.xml` starts with `<?xml` at byte 0 and parses successfully.
+- Markdown negotiation returns `text/markdown`.
+- `/.well-known/api-catalog`, `/openapi.json`, and `/.well-known/agent-skills/index.json` return `200`.
 
 ## Failing Checks
 
-- Live homepage does not yet include agent discovery `Link` headers.
-- Live `sitemap.xml` has whitespace before the XML declaration.
-- Strict sitemap XML parsing fails with `XML or text declaration not at start of entity`.
-- Live homepage does not yet return Markdown for `Accept: text/markdown`.
-- Live `/.well-known/api-catalog` returns `404`.
-- Live `/openapi.json` returns `403`, currently blocked before Laravel can serve it.
-- Live `/.well-known/agent-skills/index.json` returns `404`.
+- None in the project SEO/GEO audit.
+
+## Deferred Cloudflare Scanner Items
+
+The Cloudflare scanner still marks these as missing, but they are intentionally deferred because Mayush does not currently expose safe backing services for them:
+
+- OAuth/OIDC discovery.
+- OAuth protected resource metadata.
+- MCP server card.
+- A2A agent card.
+- WebMCP browser tools.
+
+Commerce checks are neutral rather than blockers:
+
+- x402.
+- MPP.
+- UCP.
+- ACP.
+- AP2.
 
 ## Ground Truth
 
@@ -43,22 +59,19 @@ Canonical `https://mayushdesign.com/robots.txt` is now fixed live and returns th
 
 The expanded `public/robots.txt` entries for `OAI-SearchBot`, `Claude-Web`, `anthropic-ai`, and `Content-Signal: ai-train=yes, search=yes, ai-input=yes` are now live.
 
-The repository now adds Laravel-routed agent discovery for `/.well-known/api-catalog`, `/openapi.json`, `/docs/api`, and `/.well-known/agent-skills/*`, plus public HTML `Link` headers and scoped Markdown-for-Agents negotiation. These entries are pending deployment and cache refresh.
+The repository now adds Laravel-routed agent discovery for `/.well-known/api-catalog`, `/openapi.json`, `/docs/api`, and `/.well-known/agent-skills/*`, plus public HTML `Link` headers and scoped Markdown-for-Agents negotiation. These entries are deployed and live.
 
-The live sitemap is served as XML, but the response body still begins with whitespace before `<?xml`. Local `public/sitemap.xml` starts correctly at byte 0, so production likely has a stale/static sitemap copy or webserver static-file precedence bypassing Laravel's normalized route response.
+The live sitemap is served as XML and starts with `<?xml` at byte 0 after removing leading output from `index.php` and routing canonical sitemap requests through Laravel.
 
 ## Required Action
 
-1. Deploy the latest repository update containing agent discovery routes, Link headers, Markdown negotiation, and `.htaccess` exceptions for the explicit discovery JSON URLs.
-2. Clear Laravel route/config/view caches on production.
-3. Regenerate production sitemap with `APP_URL=https://mayushdesign.com`.
-4. Confirm the live sitemap body starts with `<?xml` at byte 0; if not, remove or overwrite the stale/static production sitemap copy that starts with a newline.
-5. Purge Cloudflare cache for `/robots.txt` and `/sitemap.xml`.
-6. Re-check Cloudflare managed robots/content-signal settings from `docs/seo/cloudflare-robots-geo-runbook.md`; keep GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-Web, anthropic-ai, PerplexityBot, Google-Extended, CCBot, Googlebot, and Bingbot allowed.
-7. Run the new `Live SEO GEO Validation` GitHub workflow or run:
+1. Keep the `Live SEO GEO Validation` GitHub workflow enabled.
+2. Keep Cloudflare managed robots/content-signal settings aligned with the repository robots policy.
+3. Do not add OAuth, MCP, A2A, WebMCP, or payment protocol discovery until real backing services and security controls exist.
+4. Re-run when deploying future SEO/GEO changes:
 
 ```bash
 python3 SEO/audit.py https://mayushdesign.com --timeout 20
 ```
 
-Target: `0 failed`.
+Target: `0 failed`. Current result: `0 failed`.
