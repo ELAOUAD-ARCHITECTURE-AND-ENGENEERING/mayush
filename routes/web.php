@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\AgentDiscoveryController;
 use App\Http\Controllers\AizUploadController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\VerificationController;
@@ -237,6 +238,15 @@ Route::get('/sitemap.xml', function() {
     return response($contents, 200, [
         'Content-Type' => 'application/xml; charset=UTF-8',
     ]);
+});
+
+Route::controller(AgentDiscoveryController::class)->group(function () {
+    Route::get('/.well-known/api-catalog', 'apiCatalog');
+    Route::get('/openapi.json', 'openApi');
+    Route::get('/docs/api', 'apiDocs');
+    Route::get('/.well-known/agent-skills/index.json', 'agentSkillsIndex');
+    Route::get('/.well-known/agent-skills/{slug}.json', 'agentSkill')
+        ->where('slug', '[A-Za-z0-9_-]+');
 });
 
 // Classified Product

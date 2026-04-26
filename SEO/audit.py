@@ -90,19 +90,27 @@ def normalize(value):
     return re.sub(r"\s+", " ", value or "").strip()
 
 
-def fetch(url, timeout):
-    request = urllib.request.Request(url, headers={"User-Agent": "MayushSeoAudit/1.0"})
+def fetch_response(url, timeout, headers=None):
+    request_headers = {"User-Agent": "MayushSeoAudit/1.0"}
+    if headers:
+        request_headers.update(headers)
+    request = urllib.request.Request(url, headers=request_headers)
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             body = response.read()
             content_type = response.headers.get("Content-Type", "")
             charset = response.headers.get_content_charset() or "utf-8"
-            return response.status, content_type, body.decode(charset, errors="replace")
+            return response.status, content_type, body.decode(charset, errors="replace"), response.headers
     except urllib.error.HTTPError as exc:
         body = exc.read()
         content_type = exc.headers.get("Content-Type", "")
         charset = exc.headers.get_content_charset() or "utf-8"
-        return exc.code, content_type, body.decode(charset, errors="replace")
+        return exc.code, content_type, body.decode(charset, errors="replace"), exc.headers
+
+
+def fetch(url, timeout):
+    status, content_type, body, _headers = fetch_response(url, timeout)
+    return status, content_type, body
 
 
 def result(results, ok, label, detail):
@@ -152,7 +160,7 @@ def content_signals(robots):
 
 def audit_page(base_url, timeout, results):
     page_url = urllib.parse.urljoin(base_url, "/")
-    status, content_type, html = fetch(page_url, timeout)
+    status, content_type, html, headers = fetch_response(page_url, timeout)
     parser = PageParser()
     parser.feed(html)
 
@@ -171,6 +179,11 @@ def audit_page(base_url, timeout, results):
     result(results, not newsletter_h1, "Homepage H1 meaning", parser.h1s[0] if parser.h1s else "missing")
     result(results, og_count >= 4, "Open Graph tags", f"{og_count} found")
     result(results, twitter_count >= 4, "Twitter card tags", f"{twitter_count} found")
+    link_headers = headers.get_all("Link", []) if hasattr(headers, "get_all") else []
+    link_header = ", ".join(link_headers)
+    result(results, "api-catalog" in link_header, "Agent API catalog Link header", link_header or "missing")
+    result(results, "openapi.json" in link_header, "Agent OpenAPI Link header", link_header or "missing")
+    result(results, "agent-skills" in link_header, "Agent skills Link header", link_header or "missing")
 
     valid_ld = 0
     invalid_ld = []
@@ -183,6 +196,47 @@ def audit_page(base_url, timeout, results):
     result(results, bool(parser.json_ld) and not invalid_ld, "JSON-LD parses", f"{valid_ld} valid, {len(invalid_ld)} invalid")
     for error in invalid_ld:
         print(f"       {error}")
+
+
+def audit_agent_discovery(base_url, timeout, results):
+    markdown_status, markdown_type, markdown, _headers = fetch_response(
+        urllib.parse.urljoin(base_url, "/"),
+        timeout,
+        headers={"Accept": "text/markdown"},
+    )
+    result(results, markdown_status == 200, "Markdown negotiation HTTP status", f"{markdown_status} {markdown_type}")
+    result(results, "text/markdown" in markdown_type.lower(), "Markdown negotiation content type", markdown_type or "missing")
+    result(results, markdown.lstrip().startswith("#"), "Markdown negotiation body", markdown[:80].replace("\n", "\\n") or "empty")
+
+    catalog_status, catalog_type, catalog_body = fetch(urllib.parse.urljoin(base_url, "/.well-known/api-catalog"), timeout)
+    result(results, catalog_status == 200, "API catalog HTTP status", f"{catalog_status} {catalog_type}")
+    result(results, "application/linkset+json" in catalog_type.lower(), "API catalog content type", catalog_type or "missing")
+    try:
+        catalog = json.loads(catalog_body)
+        catalog_has_openapi = "openapi.json" in json.dumps(catalog)
+        result(results, catalog_has_openapi, "API catalog OpenAPI link", "present" if catalog_has_openapi else "missing")
+    except json.JSONDecodeError as exc:
+        result(results, False, "API catalog JSON parses", str(exc))
+
+    openapi_status, openapi_type, openapi_body = fetch(urllib.parse.urljoin(base_url, "/openapi.json"), timeout)
+    result(results, openapi_status == 200, "OpenAPI HTTP status", f"{openapi_status} {openapi_type}")
+    result(results, "json" in openapi_type.lower(), "OpenAPI content type", openapi_type or "missing")
+    try:
+        openapi = json.loads(openapi_body)
+        result(results, openapi.get("openapi", "").startswith("3."), "OpenAPI version", openapi.get("openapi", "missing"))
+        security = openapi.get("components", {}).get("securitySchemes", {})
+        result(results, "systemKey" in security, "OpenAPI System-Key security", "present" if "systemKey" in security else "missing")
+    except json.JSONDecodeError as exc:
+        result(results, False, "OpenAPI JSON parses", str(exc))
+
+    skills_status, skills_type, skills_body = fetch(urllib.parse.urljoin(base_url, "/.well-known/agent-skills/index.json"), timeout)
+    result(results, skills_status == 200, "Agent skills index HTTP status", f"{skills_status} {skills_type}")
+    result(results, "json" in skills_type.lower(), "Agent skills index content type", skills_type or "missing")
+    try:
+        skills = json.loads(skills_body).get("skills", [])
+        result(results, len(skills) > 0, "Agent skills index entries", f"{len(skills)} skills")
+    except json.JSONDecodeError as exc:
+        result(results, False, "Agent skills index JSON parses", str(exc))
 
 
 def audit_robots(base_url, timeout, results):
@@ -277,6 +331,7 @@ def main():
         ("home page", lambda: audit_page(base_url, args.timeout, results)),
         ("robots.txt", lambda: audit_robots(base_url, args.timeout, results)),
         ("sitemap.xml", lambda: audit_sitemap(base_url, args.timeout, results, args.expected_sitemap_host)),
+        ("agent discovery", lambda: audit_agent_discovery(base_url, args.timeout, results)),
     ]
 
     for index, (label, audit) in enumerate(sections):

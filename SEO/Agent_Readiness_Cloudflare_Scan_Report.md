@@ -15,9 +15,9 @@ Remaining real gaps:
 
 - Live production does not yet include the new `Content-Signal` directive until the current repository update is deployed.
 - Live production does not yet include the new explicit `OAI-SearchBot`, `Claude-Web`, and `anthropic-ai` rules until the current repository update is deployed.
-- Homepage does not negotiate `Accept: text/markdown`; it still returns HTML.
-- Homepage response does not expose useful agent discovery `Link` headers.
-- API catalog and agent skills discovery documents are absent.
+- Live production does not yet negotiate `Accept: text/markdown` until the current repository update is deployed.
+- Live production does not yet expose useful agent discovery `Link` headers until the current repository update is deployed.
+- Live production does not yet expose the repository `/.well-known/api-catalog`, `/openapi.json`, or agent skills routes until the current repository update is deployed.
 
 Items that should not be implemented blindly:
 
@@ -48,8 +48,10 @@ Repository evidence:
 - Public robots file exists at `public/robots.txt`.
 - Repository remediation now adds `Content-Signal: ai-train=yes, search=yes, ai-input=yes`.
 - Repository remediation now adds explicit `OAI-SearchBot`, `Claude-Web`, and `anthropic-ai` rules.
-- Only one OpenAPI-style document was found: `docs/api/v2/promotions.yaml`.
-- No existing `.well-known` discovery routes were found for API catalog, OAuth, MCP, ACP, or agent skills.
+- Repository remediation now adds `/.well-known/api-catalog`, `/openapi.json`, `/docs/api`, and `/.well-known/agent-skills/*` Laravel routes.
+- Repository remediation now adds public HTML `Link` headers and scoped Markdown-for-Agents negotiation.
+- The OpenAPI document intentionally covers only the documented promotions API surface and declares both `System-Key` and bearer-token requirements.
+- No OAuth, MCP, ACP, x402, UCP, MPP, or payment discovery metadata is published because no safe backing service exists yet.
 
 ## Finding-by-Finding Analysis
 
@@ -71,9 +73,9 @@ Recommended action:
 
 Scanner issue: Could not check Link headers; operation aborted.
 
-Ground truth: Homepage response currently does not expose agent discovery `Link` headers. This is a real gap if Mayush wants machine-readable discovery.
+Ground truth: Homepage response currently does not expose agent discovery `Link` headers on live production. The repository now adds those headers for successful public HTML responses.
 
-Status: Missing.
+Status: Repository fix added, pending deploy/live validation.
 
 Recommended action:
 
@@ -88,9 +90,9 @@ Recommended action:
 
 Scanner issue: Site does not support Markdown for Agents.
 
-Ground truth: Requests with `Accept: text/markdown` still receive HTML.
+Ground truth: Requests with `Accept: text/markdown` still receive HTML on live production. The repository now adds a scoped Laravel fallback that returns Markdown for successful public HTML responses.
 
-Status: Missing.
+Status: Repository fix added, pending deploy/live validation.
 
 SEO/GEO impact: Medium. It can help agents extract public page content, but traditional SEO is not blocked.
 
@@ -139,15 +141,15 @@ Content-Signal: ai-train=yes, search=yes, ai-input=yes
 
 Scanner issue: API Catalog not found.
 
-Ground truth: Missing. Repository contains only `docs/api/v2/promotions.yaml`, not a public catalog.
+Ground truth: Missing on live production. The repository now publishes a Laravel-routed API catalog and `/openapi.json`.
 
-Status: Missing, but useful only if Mayush wants agents to discover APIs.
+Status: Repository fix added, pending deploy/live validation.
 
 Recommended action:
 
-- Publish a minimal `/.well-known/api-catalog` only for APIs intentionally exposed to automated clients.
-- Start with the promotions API only if it is meant to be public to authenticated sellers/agents.
-- Add a stable `/openapi.json` or `/openapi.yaml` endpoint before advertising it.
+- Keep the catalog minimal and only advertise the documented promotions API.
+- Keep `System-Key` and bearer-token requirements explicit in `/openapi.json`.
+- Do not advertise admin, payment callback, or private operational routes.
 
 ### 7. OAuth/OIDC Discovery Metadata
 
@@ -193,9 +195,9 @@ Recommended action:
 
 Scanner issue: Agent Skills index not found.
 
-Ground truth: Missing.
+Ground truth: Missing on live production. The repository now publishes a read-only skills index and individual skill documents through Laravel routes.
 
-Status: Optional, potentially useful.
+Status: Repository fix added, pending deploy/live validation.
 
 Recommended action:
 

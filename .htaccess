@@ -28,9 +28,11 @@
 Options -Indexes
 
 # Hide a specific file
+SetEnvIf Request_URI "^/(openapi\.json|\.well-known/agent-skills/[^/]+\.json)$" allow_agent_discovery_json=1
 <Files ~ "\.(env|json|config.js|md|gitignore|gitattributes|lock)$">
-    Order allow,deny
+    Order deny,allow
     Deny from all
+    Allow from env=allow_agent_discovery_json
 </Files>
 
 ## EXPIRES CACHING ##

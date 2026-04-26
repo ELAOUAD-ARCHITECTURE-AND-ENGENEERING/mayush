@@ -2,7 +2,7 @@
 
 Parent workstream: Full SEO/GEO Remediation Plan For Mayush  
 Date: 2026-04-26  
-Status: In progress. Phase 1 is implemented in the repository; Phase 2 crawler-policy audit checks are implemented. Link headers, Markdown negotiation, API catalog, and agent skills remain planned work.
+Status: In progress. Phases 1 through 6 are implemented in the repository for the safe read-only discovery surface. Live production validation is pending deployment and cache purge. OAuth/OIDC, MCP, WebMCP, and payment protocol discovery remain deferred.
 
 ## Objective
 
@@ -77,11 +77,13 @@ Tasks:
 3. Keep failures explicit instead of aborting after the first failed section.
 4. Add test coverage for the new robots/content-signal checks.
 
-Deferred to the next implementation slice:
+Also implemented:
 
-   - homepage `Link` headers
+   - homepage/public HTML `Link` headers
    - `Accept: text/markdown` negotiation
    - `/.well-known/api-catalog` status and content type
+   - `/openapi.json` status and System-Key security declaration
+   - `/.well-known/agent-skills/index.json` status and entries
 
 Acceptance checks:
 
@@ -96,7 +98,7 @@ Owner: repository
 
 Tasks:
 
-1. Create a small config-backed discovery map.
+1. Create a small deterministic discovery controller for real resources.
 2. Add response `Link` headers only for resources that exist.
 3. Start with conservative links:
 
@@ -105,7 +107,7 @@ Link: </.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+j
 Link: </openapi.json>; rel="service-desc"; type="application/openapi+json"
 ```
 
-4. Add headers only on public `GET` HTML responses, beginning with the homepage.
+4. Add headers only on successful public `GET` HTML responses, excluding admin/account/cart/checkout/API surfaces.
 5. Do not advertise OAuth, MCP, ACP, x402, UCP, or MPP endpoints yet.
 
 Acceptance checks:
@@ -121,12 +123,11 @@ Owner: repository + API owner review
 
 Tasks:
 
-1. Decide whether Mayush wants public automated API discovery.
-2. If yes, publish a truthful `/.well-known/api-catalog`.
-3. Convert or expose the existing `docs/api/v2/promotions.yaml` through a stable public route only if it is safe to advertise.
-4. Create `/openapi.json` or `/openapi.yaml` that covers only supported, documented APIs.
-5. Mark protected endpoints clearly with bearer-token requirements.
-6. Do not include private admin, payment callback, or internal operational routes.
+1. Publish a truthful `/.well-known/api-catalog`.
+2. Expose a stable `/openapi.json` route for the documented promotions API surface.
+3. Mark protected endpoints clearly with `System-Key` and bearer-token requirements.
+4. Keep private admin, payment callback, and internal operational routes out of the document.
+5. Keep `.htaccess` protections for sensitive files while allowing the explicit discovery JSON URLs to reach Laravel.
 
 Acceptance checks:
 
@@ -143,12 +144,12 @@ Owner: Cloudflare first, repository fallback
 Tasks:
 
 1. Prefer enabling Cloudflare Markdown for Agents at the zone level if available.
-2. If Cloudflare support is not available, design a Laravel fallback for public pages:
+2. Add a Laravel fallback for public pages:
    - only `GET` requests
    - only indexable public pages
    - only when `Accept: text/markdown` is present
    - return `Content-Type: text/markdown; charset=UTF-8`
-3. Start with homepage, category listing, product detail, blog listing, blog detail, seller shop, and policy pages.
+3. Start with public successful HTML responses while excluding admin/account/cart/checkout/API surfaces.
 4. Keep browser default as HTML.
 
 Acceptance checks:
@@ -171,8 +172,8 @@ Tasks:
    - seller-shop lookup
    - policy lookup
    - order tracking guidance without exposing order data
-3. Create skill documents under `public/.well-known/agent-skills/`.
-4. Generate SHA-256 digests.
+3. Serve skill documents through Laravel `/.well-known/agent-skills/{slug}.json` routes so Apache JSON blocking does not hide them.
+4. Generate SHA-256 digests from the exact served JSON body.
 5. Publish `/.well-known/agent-skills/index.json`.
 
 Acceptance checks:
@@ -208,13 +209,15 @@ Decision criteria before implementation:
 
 ## Suggested First Pull Request
 
-Title: `seo: expand agent robots policy and audit checks`
+Title: `seo: add agent discovery surface`
 
 Included changes:
 
-- Update `public/robots.txt`.
-- Add Content-Signal according to approved policy.
-- Extend `SEO/audit.py`.
+- Add safe `.well-known` agent discovery routes.
+- Add truthful `/openapi.json` with System-Key and bearer-token auth requirements.
+- Add public HTML Link response headers.
+- Add scoped Markdown-for-Agents negotiation.
+- Extend `SEO/audit.py` for discovery checks.
 - Add/extend focused tests.
 - Update `SEO/Agent_Readiness_Cloudflare_Scan_Report.md` with post-change results.
 

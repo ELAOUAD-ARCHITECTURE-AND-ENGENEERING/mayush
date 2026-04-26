@@ -77,6 +77,49 @@ class SeoRemediationTest extends TestCase
         $this->assertStringContainsString('Sitemap: https://mayushdesign.com/sitemap.xml', $robots);
     }
 
+    public function test_agent_discovery_endpoints_are_truthful_and_reachable(): void
+    {
+        $catalog = $this->get('/.well-known/api-catalog');
+        $catalog->assertOk();
+        $this->assertStringContainsString('application/linkset+json', $catalog->headers->get('content-type'));
+        $catalog->assertJsonPath('linkset.0.service-desc.0.href', url('/openapi.json'));
+
+        $openApi = $this->get('/openapi.json');
+        $openApi->assertOk();
+        $this->assertStringContainsString('application/openapi+json', $openApi->headers->get('content-type'));
+        $openApi->assertJsonPath('openapi', '3.0.0');
+        $openApi->assertJsonPath('components.securitySchemes.systemKey.name', 'System-Key');
+        $openApi->assertJsonPath('paths./promotions.get.security.0.systemKey', []);
+
+        $skills = $this->get('/.well-known/agent-skills/index.json');
+        $skills->assertOk();
+        $skills->assertJsonStructure(['$schema', 'skills']);
+        $this->assertNotEmpty($skills->json('skills'));
+    }
+
+    public function test_public_html_responses_include_agent_discovery_link_headers(): void
+    {
+        $response = $this->get('/docs/api');
+
+        $response->assertOk();
+        $link = $response->headers->get('Link');
+
+        $this->assertStringContainsString('</.well-known/api-catalog>; rel="api-catalog"', $link);
+        $this->assertStringContainsString('</openapi.json>; rel="service-desc"', $link);
+        $this->assertStringContainsString('</.well-known/agent-skills/index.json>', $link);
+    }
+
+    public function test_markdown_for_agents_negotiates_public_html_pages(): void
+    {
+        $response = $this->get('/docs/api', ['Accept' => 'text/markdown']);
+
+        $response->assertOk();
+        $this->assertStringContainsString('text/markdown', $response->headers->get('content-type'));
+        $this->assertTrue((int) $response->headers->get('X-Markdown-Tokens') > 0);
+        $this->assertStringContainsString('# Mayush API Documentation', $response->getContent());
+        $this->assertStringContainsString('Canonical:', $response->getContent());
+    }
+
     public function test_json_ld_helper_outputs_valid_json_for_html_content(): void
     {
         $json = SeoService::jsonLd([
