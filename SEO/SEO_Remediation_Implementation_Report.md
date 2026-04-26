@@ -1,12 +1,18 @@
 # Mayush SEO/GEO Remediation Implementation Report
 
-Date: 2026-04-25
+Date: 2026-04-26
 
 ## Executive Truth
 
-The repository SEO/GEO readiness has been materially improved, but production is not fixed until the code is deployed, `APP_URL` is set to `https://mayushdesign.com`, caches are cleared, the sitemap is regenerated on the server, and Cloudflare robots/content-signal rules are corrected.
+The repository and live production SEO/GEO readiness have been materially improved and validated. The old 98% readiness claim should not be used as evidence; the current evidence is the measured live audit result.
 
-The old 98% readiness claim should not be used. After this implementation, local verification passes the core audit checks, while the live site still fails multiple checks because it is serving the old production state.
+Current live result:
+
+- `python3 SEO/audit.py https://mayushdesign.com --expected-sitemap-host mayushdesign.com --timeout 20`
+- `61 passed, 0 failed`
+- Cloudflare Agent Readiness scan: level `4` / `Agent-Integrated`
+
+The remaining Cloudflare scanner failures are intentionally deferred because they require real backing services and security architecture: OAuth/OIDC discovery, OAuth protected resource metadata, MCP server card, A2A agent card, and WebMCP.
 
 ## Implemented In Repository
 
@@ -18,73 +24,67 @@ The old 98% readiness claim should not be used. After this implementation, local
 - Removed newsletter/popup H1 usage from the global layout.
 - Replaced hardcoded homepage GEO claims with database-backed counts or non-numeric fallback copy.
 - Improved high-impact image alt text for product cards, product gallery videos, homepage category/product cards, seller shop banners/logos, brand cards, and category cards.
-- Fixed `/sitemap.xml` route to serve `public/sitemap.xml` as XML and fail if the file is missing or empty.
+- Fixed `/sitemap.xml` and `/robots.txt` to route through canonical Laravel handlers.
 - Removed the empty root-level `sitemap.xml`.
+- Removed leading output before Laravel responses by fixing root `index.php`.
 - Updated `app:generate-sitemap` with `--base-url`, production localhost protection, HTTPS canonical generation, and sitemap coverage for categories, brands, approved/published products, blogs, seller shops, policy/static pages, and listing pages.
 - Scheduled `app:generate-sitemap` daily at `02:30`.
+- Added expanded AI crawler rules and `Content-Signal: ai-train=yes, search=yes, ai-input=yes`.
+- Added Laravel-routed `/.well-known/api-catalog`, `/openapi.json`, `/docs/api`, and `/.well-known/agent-skills/*`.
+- Added public HTML agent discovery `Link` headers.
+- Added scoped Markdown-for-Agents negotiation for successful public HTML responses.
 - Upgraded `SEO/audit.py` into a real pass/fail verifier.
 - Added focused SEO tests in `tests/Feature/SeoRemediationTest.php`.
 
-## Local Verification Results
+## Verification Results
 
-Command:
+Focused checks:
+
+- `php artisan test tests/Feature/SeoRemediationTest.php --stop-on-failure` passed: 9 tests, 47 assertions.
+- `python3 -m py_compile SEO/audit.py` passed on Linux production syntax expectations.
+- `php artisan route:cache` passed during implementation, then local route cache was cleared.
+
+Live audit:
 
 ```bash
-python3 SEO/audit.py http://127.0.0.1:8030 --expected-sitemap-host mayushdesign.com --timeout 20
+python3 SEO/audit.py https://mayushdesign.com --expected-sitemap-host mayushdesign.com --timeout 20
 ```
 
 Result:
 
-- 25 passed, 0 failed.
-- Homepage status, title, description, canonical, H1, OG/Twitter tags, and JSON-LD passed.
-- Local robots.txt passed for Googlebot, Bingbot, GPTBot, ChatGPT-User, ClaudeBot, PerplexityBot, Google-Extended, and CCBot.
-- Sitemap passed with 1,118 URLs, no localhost URLs, no non-HTTPS URL locations, and host consistency for `mayushdesign.com`.
+- 61 passed, 0 failed.
 
-Other checks:
+Confirmed live:
 
-- `php artisan app:generate-sitemap --base-url=https://mayushdesign.com` succeeded.
-- `php artisan schedule:list` shows `app:generate-sitemap` at `02:30`.
-- `php artisan test --filter=SeoRemediationTest` passed: 4 tests, 9 assertions.
-- `php -l` passed for the new/changed PHP service, command, and test files.
-- `python3 -m py_compile SEO/audit.py` passed.
+- Homepage status, title, meta description, canonical, one H1, OG/Twitter tags, and JSON-LD pass.
+- `robots.txt` returns `200`, `text/plain`, sitemap directive, explicit AI/search crawler rules, and Content Signals.
+- `sitemap.xml` returns XML, starts with `<?xml` at byte 0, parses, has 1,118 URLs, uses HTTPS, and contains no localhost URLs.
+- Homepage response includes agent discovery `Link` headers.
+- `Accept: text/markdown` returns Markdown.
+- `/.well-known/api-catalog`, `/openapi.json`, and `/.well-known/agent-skills/index.json` return valid machine-readable responses.
+
+Cloudflare Agent Readiness:
+
+- Level: `4`
+- Name: `Agent-Integrated`
+- Passing: robots, sitemap, Link headers, Markdown negotiation, AI bot rules, Content Signals, API catalog, agent skills.
+- Deferred failures: OAuth/OIDC, OAuth protected resource metadata, MCP server card, A2A agent card, WebMCP.
+- Neutral commerce checks: x402, MPP, UCP, ACP, AP2.
 
 Full test suite:
 
-- `php artisan test` was attempted and timed out after 304 seconds. Treat full-suite status as inconclusive until run in CI or with a longer local timeout.
+- `php artisan test` was attempted earlier and timed out after 304 seconds.
+- Broader unrelated suites previously exposed existing analytics, OTP SMS mock, and CMI vault token test failures. These are not part of the SEO/GEO remediation.
 
-## Live Verification Results Before Deployment
+## Production Maintenance Requirements
 
-Command:
-
-```bash
-python3 SEO/audit.py https://mayushdesign.com --timeout 20
-```
-
-Result:
-
-- 13 passed, 9 failed.
-
-Live failures still present:
-
-- Homepage meta description is 1,246 characters.
-- Homepage H1 is still newsletter text: `Abonnez-vous à notre newsletter`.
-- One live JSON-LD block is invalid.
-- Live robots blocks GPTBot, ClaudeBot, Google-Extended, and CCBot.
-- Live robots has no sitemap directive.
-- Live sitemap response is empty or unparsable XML.
-
-These live failures are expected before deployment and Cloudflare correction.
-
-## Production Deployment Requirements
-
-1. Deploy the repository changes.
-2. Set production `.env`:
+1. Keep production `.env`:
 
 ```env
 APP_URL=https://mayushdesign.com
 ```
 
-3. Clear and rebuild Laravel caches:
+2. After deployments, clear/rebuild Laravel caches as needed:
 
 ```bash
 php artisan config:clear
@@ -93,30 +93,16 @@ php artisan view:clear
 php artisan route:clear
 ```
 
-4. Regenerate sitemap on production:
+3. Regenerate sitemap on production after catalog/content changes:
 
 ```bash
 php artisan app:generate-sitemap --base-url=https://mayushdesign.com
 ```
 
-5. Confirm `public/sitemap.xml` is non-empty and contains only `https://mayushdesign.com` URL locations.
-6. In Cloudflare, disable or override managed robots/content-signal rules that disallow:
-
-- GPTBot
-- ClaudeBot
-- Google-Extended
-- CCBot
-
-7. Confirm live `https://mayushdesign.com/robots.txt` includes:
-
-```txt
-Sitemap: https://mayushdesign.com/sitemap.xml
-```
-
-8. Re-run:
+4. Re-run:
 
 ```bash
-python3 SEO/audit.py https://mayushdesign.com --timeout 20
+python3 SEO/audit.py https://mayushdesign.com --expected-sitemap-host mayushdesign.com --timeout 20
 ```
 
-Production should not be considered remediated until that live audit passes or any remaining failures are intentionally documented.
+Production should remain at `0 failed`. Any future Cloudflare scanner failures for OAuth, MCP, A2A, WebMCP, or payment protocols should remain deferred unless Mayush intentionally builds real backing services for them.
