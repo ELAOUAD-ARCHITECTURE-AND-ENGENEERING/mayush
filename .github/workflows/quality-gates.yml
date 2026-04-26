@@ -64,7 +64,9 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Run Composer security audit
-        run: composer audit --locked
+        run: |
+          composer audit --locked --format=json > composer-audit.json || true
+          php scripts/ci/check-composer-audit.php composer-audit.json
 
   npm-audit:
     name: NPM production audit
