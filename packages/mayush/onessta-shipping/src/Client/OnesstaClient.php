@@ -68,7 +68,9 @@ class OnesstaClient
                     : $request->get($url);
 
                 if ($response->status() === 401) {
-                    throw new AuthenticationException('Invalid ONESSTA credentials. Check your API token, key, and client ID.');
+                    $body = $response->json();
+                    $message = $body['message'] ?? 'Invalid ONESSTA credentials. Check your API token, key, and client ID.';
+                    throw new AuthenticationException($message);
                 }
 
                 if ($response->status() === 422) {
@@ -130,6 +132,7 @@ class OnesstaClient
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
             ]);
+
 
 
         return $request->withQueryParameters($query);

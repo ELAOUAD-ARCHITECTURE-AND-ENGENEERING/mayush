@@ -75,7 +75,7 @@ class OrderObserver
             'city_id' => $addressData['city_id'] ?? $order->city_id ?? null,
             'city' => $addressData['city'] ?? 0,
             'address' => $addressData['address'] ?? 'No address provided',
-            'sku' => $order->orderDetails?->pluck('sku')?->join(';') ?? null,
+            'sku' => $order->orderDetails?->pluck('sku')->filter()->join(';') ?: null,
             'note' => 'Order #' . $order->code,
             'product_nature' => 'general',
             'is_cod' => $this->isCOD($order),
