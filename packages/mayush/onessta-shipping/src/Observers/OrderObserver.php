@@ -9,7 +9,7 @@ class OrderObserver
 {
     public function created($order): void
     {
-        Log::info('ONESSTA: Order created event received', ['order_id' => $order->id, 'shipping_type' => $order->shipping_type]);
+
         if (!config('onessta.enabled', false)) {
             return;
         }
@@ -37,7 +37,7 @@ class OrderObserver
 
     public function updated($order): void
     {
-        Log::info('ONESSTA: Order updated event received', ['order_id' => $order->id, 'shipping_type' => $order->shipping_type]);
+
         $this->created($order);
     }
 
@@ -81,7 +81,7 @@ class OrderObserver
             'is_cod' => $this->isCOD($order),
         ];
 
-        Log::info('ONESSTA: Shipment Data', $shipmentData);
+
         try {
             CreateShipmentJob::dispatch($order->id, $shipmentData);
 

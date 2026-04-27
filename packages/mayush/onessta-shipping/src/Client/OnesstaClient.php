@@ -131,9 +131,6 @@ class OnesstaClient
                 'Accept' => 'application/json',
             ]);
 
-        if (config('app.debug')) {
-            Log::debug('ONESSTA API Request Headers', $request->getOptions()['headers'] ?? []);
-        }
 
         return $request->withQueryParameters($query);
     }
