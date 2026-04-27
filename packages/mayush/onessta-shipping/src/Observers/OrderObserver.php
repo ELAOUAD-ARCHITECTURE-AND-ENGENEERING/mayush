@@ -19,7 +19,8 @@ class OrderObserver
 
         $shippingMethod = $this->getShippingMethod($order);
 
-        if ($shippingMethod !== 'onessta') {
+        $allowedMethods = ['onessta', 'home_delivery'];
+        if (!in_array($shippingMethod, $allowedMethods) && !in_array($order->shipping_type, $allowedMethods)) {
             return;
         }
 
@@ -65,7 +66,7 @@ class OrderObserver
             'phone' => $addressData['phone'] ?? $order->user?->phone ?? '0000000000',
             'price' => (float) $order->grand_total,
             'city_id' => $addressData['city_id'] ?? $order->city_id ?? null,
-            'city' => 0,
+            'city' => $addressData['city'] ?? 0,
             'address' => $addressData['address'] ?? 'No address provided',
             'sku' => $order->orderDetails?->pluck('sku')?->join(';') ?? null,
             'note' => 'Order #' . $order->code,

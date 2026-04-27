@@ -51,11 +51,22 @@ class CreateShipmentJob implements ShouldQueue
                 }
             }
 
-            if (empty($data['city']) || (int) $data['city'] <= 0) {
+            if (empty($data['city'])) {
                 throw new CityMappingException(
-                    "Shipment for order #{$this->orderId} has no valid ONESSTA city ID. "
-                    . 'Ensure the shipping address contains a mapped city_id.'
+                    "Shipment for order #{$this->orderId} has no valid ONESSTA city ID or name. "
+                    . 'Ensure the shipping address contains a mapped city_id or valid city name.'
                 );
+            }
+
+            if (!is_numeric($data['city'])) {
+                try {
+                    $data['city'] = \Mayush\Shipping\Onessta\Helpers\CityMappingHelper::getRemoteCityId($data['city']);
+                } catch (CityMappingException $e) {
+                    throw new CityMappingException(
+                        "No ONESSTA city mapping found for city name '{$data['city']}' (order #{$this->orderId}). "
+                        . 'Run `php artisan onessta:sync-cities` and map the city in the admin panel.'
+                    );
+                }
             }
 
             $dto = new ShipmentRequestDto(
