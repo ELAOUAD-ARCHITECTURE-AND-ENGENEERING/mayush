@@ -1,11 +1,21 @@
 <!doctype html>
-@if (\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
+@php $layoutLanguage = get_system_language(); @endphp
+@if (($layoutLanguage->rtl ?? 0) == 1)
     <html dir="rtl" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 @else
     <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 @endif
 
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-D5PZ73508T"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-D5PZ73508T');
+    </script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ getBaseURL() }}">
     <meta name="file-base-url" content="{{ getFileBaseURL() }}">
@@ -31,7 +41,7 @@
 
     <!-- aiz core css -->
     <link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
-    @if (\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
+    @if (($layoutLanguage->rtl ?? 0) == 1)
         <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
     @endif
     <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css?v=') }}{{ rand(1000,9999) }}">
