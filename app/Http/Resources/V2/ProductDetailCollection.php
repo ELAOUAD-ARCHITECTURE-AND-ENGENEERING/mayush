@@ -73,8 +73,10 @@ class ProductDetailCollection extends ResourceCollection
                 }
 
                 $whole_sale = [];
-                if (addon_is_activated('wholesale')) {
-                    $whole_sale =  ProductWholesaleResource::collection($data->stocks->first()->wholesalePrices);
+                $firstStock = $data->stocks->first();
+
+                if (addon_is_activated('wholesale') && $firstStock) {
+                    $whole_sale =  ProductWholesaleResource::collection($firstStock->wholesalePrices);
                 }
                 return [
                     'id' => (int)$data->id,
@@ -97,7 +99,7 @@ class ProductDetailCollection extends ResourceCollection
                     'main_price' => home_discounted_base_price($data),
                     'calculable_price' => $calculable_price,
                     'currency_symbol' => currency_symbol(),
-                    'current_stock' => (int)$data->stocks->first()->qty,
+                    'current_stock' => (int)($firstStock->qty ?? 0),
                     'unit' => $data->unit ?? "",
                     'rating' => (float)$data->rating,
                     'rating_count' => (int)Review::where(['product_id' => $data->id])->count(),

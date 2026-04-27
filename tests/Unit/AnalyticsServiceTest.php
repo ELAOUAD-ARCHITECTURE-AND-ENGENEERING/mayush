@@ -48,12 +48,44 @@ class AnalyticsServiceTest extends TestCase
             ->once()
             ->andReturn(new Collection([['vendor' => 'Test Vendor', 'amount' => 50.0, 'status' => 'Pending', 'date' => '2026-04-01']]));
 
+        foreach ([
+            'getFinanceChart',
+            'getTaxCollection',
+            'getProfitabilityPulse',
+            'getVisitorStats',
+            'getHourlyTraffic',
+            'getFunnelStats',
+            'getVendorKpis',
+            'getVendorGrowthChart',
+            'getCategoryDistribution',
+            'getMarketingMetrics',
+            'getMarketingKpis',
+            'getCouponTracker',
+            'getSecurityMetrics',
+            'getSystemHealth',
+            'getAutomatedInsights',
+            'getForecastingData',
+            'getCurrencyConfig',
+        ] as $method) {
+            $mockRepo->shouldReceive($method)->once()->andReturn([]);
+        }
+
+        foreach ([
+            'getGrossGmvTrends',
+            'getTrafficComposition',
+            'getTopVendorsSnapshot',
+        ] as $method) {
+            $mockRepo->shouldReceive($method)->once()->andReturn(new Collection());
+        }
+
         $service = new TechnicalAnalyticsService($mockRepo);
         $result = $service->getDashboardMetrics($start, $end);
 
         $this->assertArrayHasKey('kpis', $result);
         $this->assertArrayHasKey('refund_trend', $result);
         $this->assertArrayHasKey('payouts', $result);
+        $this->assertArrayHasKey('revenue_trend', $result);
+        $this->assertArrayHasKey('system_health', $result);
 
         $this->assertInstanceOf(RevenueMetricsDTO::class, $result['kpis']);
         $this->assertEquals(1000.00, $result['kpis']->grossGmv);

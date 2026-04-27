@@ -38,3 +38,7 @@ Homestead.yaml
 
 ### AI Agent Knowledge Base & Supplementary Files (never push to GitHub) ###
 /additional-files/
+
+### Local Trello sync artifacts ###
+.trello-synced
+/scripts/trello/

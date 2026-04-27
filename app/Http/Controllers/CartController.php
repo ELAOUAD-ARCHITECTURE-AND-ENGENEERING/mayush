@@ -130,6 +130,15 @@ class CartController extends Controller
             $str = $product_stock->variant;
         }
 
+        if (!$product_stock || $product_stock->qty < $request['quantity']) {
+            return array(
+                'status' => 0,
+                'cart_count' => count($carts),
+                'modal_view' => view('frontend.partials.outOfStockCart')->render(),
+                'nav_cart_view' => view('frontend.partials.cart.cart')->render(),
+            );
+        }
+
         if($authUser != null) {
             $user_id = $authUser->id;
             $cart = Cart::firstOrNew([

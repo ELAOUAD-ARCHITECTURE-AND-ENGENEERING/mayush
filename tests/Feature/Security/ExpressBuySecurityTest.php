@@ -130,7 +130,6 @@ class ExpressBuySecurityTest extends TestCase
         ]);
 
         // Should create an order and redirect appropriately
-        $response->dumpSession();
         $response->assertStatus(302);
         
         $this->assertDatabaseHas('orders', [

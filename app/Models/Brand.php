@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\PreventDemoModeChanges;
 
 use App;
 
 class Brand extends Model
 {
-    use PreventDemoModeChanges;
+    use HasFactory, PreventDemoModeChanges;
 
     protected $with = ['brand_translations'];
     protected $fillable = ['name', 'logo', 'slug', 'meta_title', 'meta_description'];

@@ -20,7 +20,6 @@ class AdminOrderControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(TestDatabaseSeeder::class);
 
         // Ensure permissions exist
         Permission::firstOrCreate(['name' => 'view_all_orders']);

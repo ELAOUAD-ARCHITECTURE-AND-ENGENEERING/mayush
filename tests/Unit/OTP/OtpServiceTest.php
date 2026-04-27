@@ -5,6 +5,7 @@ namespace Tests\Unit\OTP;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Addon;
+use App\Models\BusinessSetting;
 use App\Services\OtpService;
 use App\Utility\SendSMSUtility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -40,6 +41,14 @@ class OtpServiceTest extends TestCase
             'purchase_code' => '123',
             'version' => '1.0'
         ]);
+        BusinessSetting::updateOrCreate(
+            ['type' => 'otp_system'],
+            ['value' => 1]
+        );
+        BusinessSetting::updateOrCreate(
+            ['type' => 'site_name'],
+            ['value' => 'Mayush']
+        );
 
         // Mock SendSMSUtility
         $smsMock = Mockery::mock('alias:App\Utility\SendSMSUtility');
@@ -75,6 +84,10 @@ class OtpServiceTest extends TestCase
             'purchase_code' => '123',
             'version' => '1.0'
         ]);
+        BusinessSetting::updateOrCreate(
+            ['type' => 'otp_system'],
+            ['value' => 0]
+        );
 
         // Act
         (new OtpService())->send_code($user);
@@ -103,6 +116,10 @@ class OtpServiceTest extends TestCase
             'purchase_code' => '123',
             'version' => '1.0'
         ]);
+        BusinessSetting::updateOrCreate(
+            ['type' => 'otp_system'],
+            ['value' => 1]
+        );
 
         // Act
         (new OtpService())->send_code($user);

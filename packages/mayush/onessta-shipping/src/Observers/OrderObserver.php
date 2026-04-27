@@ -9,6 +9,7 @@ class OrderObserver
 {
     public function created($order): void
     {
+        Log::info('ONESSTA: Order created event received', ['order_id' => $order->id, 'shipping_type' => $order->shipping_type]);
         if (!config('onessta.enabled', false)) {
             return;
         }
@@ -32,6 +33,12 @@ class OrderObserver
         }
 
         $this->dispatchShipmentJob($order);
+    }
+
+    public function updated($order): void
+    {
+        Log::info('ONESSTA: Order updated event received', ['order_id' => $order->id, 'shipping_type' => $order->shipping_type]);
+        $this->created($order);
     }
 
     private function getShippingMethod($order): ?string
@@ -74,13 +81,21 @@ class OrderObserver
             'is_cod' => $this->isCOD($order),
         ];
 
-        CreateShipmentJob::dispatch($order->id, $shipmentData);
+        Log::info('ONESSTA: Shipment Data', $shipmentData);
+        try {
+            CreateShipmentJob::dispatch($order->id, $shipmentData);
 
-        Log::info('ONESSTA: CreateShipmentJob dispatched', [
-            'order_id' => $order->id,
-            'code' => $shipmentData['code'],
-            'is_cod' => $shipmentData['is_cod'],
-        ]);
+            Log::info('ONESSTA: CreateShipmentJob dispatched', [
+                'order_id' => $order->id,
+                'code' => $shipmentData['code'],
+                'is_cod' => $shipmentData['is_cod'],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('ONESSTA: Failed to dispatch shipment job', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     private function isCOD($order): bool

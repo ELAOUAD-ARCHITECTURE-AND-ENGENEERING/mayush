@@ -5,6 +5,10 @@
     $homepageSeoDescription = translate('Discover furniture, decor, lighting, home materials and interior design products from Mayush sellers in Morocco.');
     $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
     $homepageStats = app(\App\Services\SeoStatsService::class)->homepageStats();
+    $featured_categories = $featured_categories ?? collect();
+    $hot_categories = $hot_categories ?? collect();
+    $todays_deal_products = $todays_deal_products ?? collect();
+    $newest_products = $newest_products ?? collect();
 @endphp
 
 @section('meta_title'){{ $homepageSeoTitle }}@stop
@@ -217,6 +221,8 @@
             </section>   
         @endif
     </div>
+
+    @include('frontend.partials.promoted_category_section')
 
     {{-- Featured Section --}}
 
@@ -452,6 +458,8 @@
             </div>
         </div>
     </section>
+    @endif
+
     {{-- SEO Authority Section --}}
     <section class="mb-5 py-5 bg-light border-top border-bottom">
         <div class="container">

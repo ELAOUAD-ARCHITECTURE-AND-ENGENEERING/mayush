@@ -8,6 +8,7 @@ use App\Livewire\Analytics\TechnicalDashboard;
 use App\Services\Analytics\TechnicalAnalyticsService;
 use App\Contracts\Analytics\TechnicalAnalyticsRepositoryInterface;
 use App\DTOs\Analytics\RevenueMetricsDTO;
+use Illuminate\Support\Facades\Cache;
 use Mockery;
 use Illuminate\Support\Collection;
 
@@ -20,9 +21,9 @@ class TechnicalDashboardTest extends TestCase
         Livewire::test(TechnicalDashboard::class)
             ->assertStatus(200)
             ->assertViewIs('livewire.analytics.technical-dashboard')
-            ->assertSee('Operations Dashboard', false)
-            ->assertSee('Gross GMV')
-            ->assertSee('Net Revenue');
+            ->assertSee('MarketOps Dashboard', false)
+            ->assertSee('Revenue Analytics & Forecast', false)
+            ->assertSee('System Health');
     }
 
     public function test_it_updates_metrics_when_date_range_changes()
@@ -37,6 +38,8 @@ class TechnicalDashboardTest extends TestCase
 
     private function mockService()
     {
+        Cache::flush();
+
         $mockRepo = Mockery::mock(TechnicalAnalyticsRepositoryInterface::class);
         $mockRepo->shouldReceive('getRevenueMetrics')->andReturn(new RevenueMetricsDTO([
             'gross_gmv' => 5000.00,
@@ -52,6 +55,26 @@ class TechnicalDashboardTest extends TestCase
         ]));
         $mockRepo->shouldReceive('getRefundTrends')->andReturn(new Collection([]));
         $mockRepo->shouldReceive('getPayouts')->andReturn(new Collection([]));
+        $mockRepo->shouldReceive('getGrossGmvTrends')->andReturn(new Collection([]));
+        $mockRepo->shouldReceive('getFinanceChart')->andReturn([]);
+        $mockRepo->shouldReceive('getTaxCollection')->andReturn([]);
+        $mockRepo->shouldReceive('getProfitabilityPulse')->andReturn([]);
+        $mockRepo->shouldReceive('getVisitorStats')->andReturn([]);
+        $mockRepo->shouldReceive('getTrafficComposition')->andReturn(new Collection([]));
+        $mockRepo->shouldReceive('getHourlyTraffic')->andReturn([]);
+        $mockRepo->shouldReceive('getFunnelStats')->andReturn([]);
+        $mockRepo->shouldReceive('getTopVendorsSnapshot')->andReturn(new Collection([]));
+        $mockRepo->shouldReceive('getVendorKpis')->andReturn([]);
+        $mockRepo->shouldReceive('getVendorGrowthChart')->andReturn([]);
+        $mockRepo->shouldReceive('getCategoryDistribution')->andReturn([]);
+        $mockRepo->shouldReceive('getMarketingMetrics')->andReturn([]);
+        $mockRepo->shouldReceive('getMarketingKpis')->andReturn([]);
+        $mockRepo->shouldReceive('getCouponTracker')->andReturn([]);
+        $mockRepo->shouldReceive('getSecurityMetrics')->andReturn([]);
+        $mockRepo->shouldReceive('getSystemHealth')->andReturn([]);
+        $mockRepo->shouldReceive('getAutomatedInsights')->andReturn([]);
+        $mockRepo->shouldReceive('getForecastingData')->andReturn([]);
+        $mockRepo->shouldReceive('getCurrencyConfig')->andReturn(['symbol' => '$', 'code' => 'USD']);
 
         $this->app->instance(TechnicalAnalyticsService::class, new TechnicalAnalyticsService($mockRepo));
     }

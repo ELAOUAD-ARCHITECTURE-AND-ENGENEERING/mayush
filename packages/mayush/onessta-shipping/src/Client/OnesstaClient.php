@@ -62,7 +62,10 @@ class OnesstaClient
 
         while ($attempt <= $this->retryTimes) {
             try {
-                $response = $this->buildRequest($method, $url, $data, $query)->send($method, $url);
+                $request = $this->buildRequest($method, $url, $data, $query);
+                $response = ($method === 'POST') 
+                    ? $request->post($url, $data)
+                    : $request->get($url);
 
                 if ($response->status() === 401) {
                     throw new AuthenticationException('Invalid ONESSTA credentials. Check your API token, key, and client ID.');
@@ -128,8 +131,8 @@ class OnesstaClient
                 'Accept' => 'application/json',
             ]);
 
-        if ($method === 'POST') {
-            return $request->withQueryParameters($query)->withBody(json_encode($data), 'application/json');
+        if (config('app.debug')) {
+            Log::debug('ONESSTA API Request Headers', $request->getOptions()['headers'] ?? []);
         }
 
         return $request->withQueryParameters($query);

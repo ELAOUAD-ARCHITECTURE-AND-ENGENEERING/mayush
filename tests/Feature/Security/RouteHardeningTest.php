@@ -66,7 +66,13 @@ class RouteHardeningTest extends TestCase
             'user_id' => $user->id
         ]);
 
-        // Scenario 2: With Opt-in Cache
+        // Scenario 2: With Opt-in Cache. Use a fresh transaction because
+        // approved callbacks are idempotency-guarded by transaction id.
+        $oid = 'CO-' . $order->id . '-67890';
+        $callbackData['oid'] = $oid;
+        $callbackData['TransId'] = 'VAULT_TOKEN_TEST_OPT_IN';
+        unset($callbackData['HASH']);
+        $callbackData['HASH'] = $this->generateTestHash($callbackData, 'TEST_SECRET');
         Cache::put('cmi_save_card_' . $oid, true, 3600);
         
         $this->post(route('cmi.callback'), $callbackData);

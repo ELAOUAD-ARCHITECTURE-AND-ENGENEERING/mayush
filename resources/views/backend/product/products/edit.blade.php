@@ -576,7 +576,7 @@
                                         <input type="text" class="form-control" value="{{translate('Colors')}}" disabled>
                                     </div>
                                     <div class="col-md-8">
-                                        <select class="form-control aiz-selectpicker" data-live-search="true" data-selected-text-format="count" name="colors[]" id="colors" multiple <?php if (count(json_decode($product->colors)) < 1) echo "disabled"; ?>>
+                                        <select class="form-control aiz-selectpicker" data-live-search="true" data-selected-text-format="count" name="colors[]" id="colors" multiple <?php if (count(json_decode($product->colors) ?: []) < 1) echo "disabled"; ?>>
                                             @foreach (\App\Models\Color::orderBy('name', 'asc')->get() as $key => $color)
                                             <option
                                                 value="{{ $color->code }}"
@@ -588,7 +588,7 @@
                                     </div>
                                     <div class="col-md-1">
                                         <label class="aiz-switch aiz-switch-success mb-0">
-                                            <input value="1" type="checkbox" name="colors_active" <?php if (count(json_decode($product->colors)) > 0) echo "checked"; ?> >
+                                            <input value="1" type="checkbox" name="colors_active" <?php if (count(json_decode($product->colors) ?: []) > 0) echo "checked"; ?> >
                                             <span></span>
                                         </label>
                                     </div>
@@ -613,7 +613,7 @@
 
                                 <!-- choice options -->
                                 <div class="customer_choice_options" id="customer_choice_options">
-                                    @foreach (json_decode($product->choice_options) as $key => $choice_option)
+                                    @foreach ((json_decode($product->choice_options) ?: []) as $key => $choice_option)
                                     <div class="form-group row">
                                         <div class="col-lg-3">
                                             <input type="hidden" name="choice_no[]" value="{{ $choice_option->attribute_id }}">

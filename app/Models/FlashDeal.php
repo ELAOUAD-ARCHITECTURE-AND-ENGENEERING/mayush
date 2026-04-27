@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\PreventDemoModeChanges;
 use App;
 use Carbon\Carbon;
 
 class FlashDeal extends Model
 {
-    use PreventDemoModeChanges;
+    use HasFactory, PreventDemoModeChanges;
 
     protected $with = ['flash_deal_translations'];
 

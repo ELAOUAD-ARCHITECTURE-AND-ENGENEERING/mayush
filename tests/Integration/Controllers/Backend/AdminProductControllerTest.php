@@ -10,6 +10,7 @@ use App\Models\Brand;
 use App\Models\Language;
 use App\Models\BusinessSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 
 class AdminProductControllerTest extends TestCase
 {
@@ -22,8 +23,17 @@ class AdminProductControllerTest extends TestCase
         BusinessSetting::factory()->create(['type' => 'site_name', 'value' => 'Mayush']);
         // Seed admin user
         $this->admin = User::factory()->create(['user_type' => 'admin']);
-        // Assign necessary permissions if applicable
-        // $this->admin->givePermissionTo('add_new_product', 'show_all_products', ...);
+        Permission::findOrCreate('add_new_product', 'web');
+        Permission::findOrCreate('show_in_house_products', 'web');
+        Permission::findOrCreate('product_edit', 'web');
+        Permission::findOrCreate('product_delete', 'web');
+
+        $this->admin->givePermissionTo([
+            'add_new_product',
+            'show_in_house_products',
+            'product_edit',
+            'product_delete',
+        ]);
     }
 
     /** @test */
@@ -50,6 +60,7 @@ class AdminProductControllerTest extends TestCase
         $productData = [
             'name' => 'Admin Test Product',
             'category_ids' => [$category->id],
+            'category_id' => $category->id,
             'brand_id' => $brand->id,
             'unit' => 'pcs',
             'min_qty' => 1,

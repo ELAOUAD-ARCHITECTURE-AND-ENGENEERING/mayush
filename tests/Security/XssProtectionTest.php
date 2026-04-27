@@ -11,6 +11,24 @@ class XssProtectionTest extends TestCase
 {
     use RefreshDatabase;
 
+    private int $baseOutputBufferLevel;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->baseOutputBufferLevel = ob_get_level();
+    }
+
+    protected function tearDown(): void
+    {
+        while (ob_get_level() > $this->baseOutputBufferLevel) {
+            ob_end_clean();
+        }
+
+        parent::tearDown();
+    }
+
     /** @test */
     public function product_names_are_escaped_in_views()
     {

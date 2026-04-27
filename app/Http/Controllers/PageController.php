@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Page;
 use App\Models\PageTranslation;
 use App\Models\SellerPackage;
+use Illuminate\Support\Facades\Schema;
 
 class PageController extends Controller
 {
@@ -193,6 +194,9 @@ class PageController extends Controller
         if (!$slug) {
             abort(404);
         }
+        if (!Schema::hasTable('pages')) {
+            abort(404);
+        }
         $page = Page::where('slug', $slug)->first();
         $lang = get_system_language() ? get_system_language()->code : null;
         if($page != null){
@@ -222,6 +226,9 @@ class PageController extends Controller
         abort(404);
     }
     public function mobile_custom_page($slug){
+        if (!Schema::hasTable('pages')) {
+            abort(404);
+        }
         $page = Page::where('slug', $slug)->first();
         if($page != null){
             return view('frontend.m_custom_page', compact('page'));

@@ -12,7 +12,7 @@
 
 @section('meta_keywords'){{ $detailedProduct->tags }},{{ $detailedProduct->meta_keywords }}@stop
 @section('meta_image'){{ $productSeoImage }}@stop
-@section('meta_type')product@stop
+
 @section('canonical_url'){{ route('product', $detailedProduct->slug) }}@stop
 
 @section('meta')

@@ -34,3 +34,23 @@ Any new third-party integration requires documented approval prior to implementa
 Every new task session or major feature implementation must begin with the following explicit statement:
 > "I have reviewed the Mayush .cursorrules isolation policy and verified compliance. All work will be exclusively tailored to the Mayush repository. Checklist complete."
 Failure to provide this check blocks task initiation.
+
+## 8. Deployment & Cleanup Protocol (Strict)
+
+### 8.1. Identification of Prohibited Non-Essential Files
+The following file types and patterns are strictly prohibited from being committed or deployed:
+- **Temporary Scripts**: Root or `public/` files like `test_*.php`, `check_*.php`, `debug_*.php`, `fix_*.php`, `trigger_*.php`, `final_*.php`.
+- **Logs & Dumps**: Any `.log` files (unless in `storage/logs/`), `error*.txt`, or debug dumps (e.g., `routes_*.txt`, `script_dump.js`).
+- **Development Artifacts**: `.phpunit.result.cache`, `snapshot.json`, and any temporary `tmp/` or `temp/` directories not part of the core app.
+- **Redundant Backups**: Files ending in `.bak`, `.old`, or `*_backup.*`.
+
+### 8.2. Mandatory Cleanup Procedure
+Before initiating ANY commit or push, developers/agents MUST:
+1. Run the official cleanup script:
+   **Command:** `.\scripts\cleanup_artifacts.ps1`
+2. Verify that no prohibited files remain in `git status`.
+
+### 8.3. Pre-Deployment Validation & Enforcement
+- **Pre-Commit Check**: Explicitly verify that NO temporary testing scripts are staged.
+- **Pre-Push Validation**: A full scan of the project root for prohibited patterns must precede any push to `origin/main`.
+- **Enforcement Mechanism**: If prohibited files are detected, the AI agent MUST immediately halt the push, run the cleanup script, and notify the user. Deployments are BLOCKED until the environment is confirmed "Production-Clean".

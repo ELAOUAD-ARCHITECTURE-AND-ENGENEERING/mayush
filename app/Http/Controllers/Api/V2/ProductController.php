@@ -23,9 +23,22 @@ class ProductController extends Controller
     {
         return new ProductMiniCollection(Product::latest()->paginate(10));
     }
-    public function show()
+    public function show($id)
     {
-        return new ProductMiniCollection(Product::latest()->paginate(10));
+        $product = Product::where('id', $id)
+            ->where('published', 1)
+            ->where('approved', 1)
+            ->get();
+
+        if ($product->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'status' => 404,
+                'message' => translate('Product not found'),
+            ], 404);
+        }
+
+        return new ProductDetailCollection($product);
     }
 
     public function product_details($slug, $user_id)

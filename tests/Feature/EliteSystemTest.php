@@ -89,7 +89,7 @@ class EliteSystemTest extends TestCase
         BusinessSetting::updateOrCreate(['type' => 'elite_system_active'], ['value' => '0']);
 
         // Clear cache if needed (if settings are cached)
-        \Cache::forget('elite_system_active');
+        \Cache::forget('business_settings');
 
         // Now should be false
         $this->assertFalse($shop->isElite());

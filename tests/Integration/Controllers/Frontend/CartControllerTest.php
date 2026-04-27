@@ -40,6 +40,7 @@ class CartControllerTest extends TestCase
     public function user_can_add_product_to_cart()
     {
         $product = Product::factory()->create(['current_stock' => 10]);
+        $product->stocks()->create(['variant' => '', 'price' => $product->unit_price, 'qty' => 10]);
         
         $response = $this->post(route('cart.addToCart'), [
             'id' => $product->id,
@@ -75,6 +76,7 @@ class CartControllerTest extends TestCase
     public function user_cannot_add_more_than_stock_to_cart()
     {
         $product = Product::factory()->create(['current_stock' => 5]);
+        $product->stocks()->create(['variant' => '', 'price' => $product->unit_price, 'qty' => 5]);
         
         $response = $this->post(route('cart.addToCart'), [
             'id' => $product->id,

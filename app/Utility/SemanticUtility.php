@@ -14,6 +14,10 @@ class SemanticUtility
     {
         $apiKey = config('services.gemini.key');
         if (empty($apiKey)) {
+            if (app()->environment('testing')) {
+                return self::testingFallbackEmbedding($text);
+            }
+
             Log::error("Gemini API Key missing in configuration.");
             return [];
         }
@@ -44,6 +48,19 @@ class SemanticUtility
         }
 
         return [];
+    }
+
+    private static function testingFallbackEmbedding($text): array
+    {
+        $seed = crc32((string) $text);
+        $values = [];
+
+        for ($i = 0; $i < 32; $i++) {
+            $hash = crc32($seed . ':' . $i);
+            $values[] = round(($hash / 0xffffffff) * 2 - 1, 6);
+        }
+
+        return $values;
     }
 
     /**

@@ -59,8 +59,8 @@ class ProductService
         $collection['tags'] = implode(',', array_unique($tags));
         $discount_start_date = null;
         $discount_end_date   = null;
-        if ($collection['date_range'] != null) {
-            $date_var               = explode(" to ", $collection['date_range']);
+        if ($collection->get('date_range') != null) {
+            $date_var               = explode(" to ", $collection->get('date_range'));
             $discount_start_date = strtotime($date_var[0]);
             $discount_end_date   = strtotime($date_var[1]);
         }
