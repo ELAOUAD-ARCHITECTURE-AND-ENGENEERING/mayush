@@ -1,6 +1,7 @@
 # Mayush SEO/GEO Remediation Implementation Report
 
 Date: 2026-04-26
+Latest verification update: 2026-04-28
 
 ## Executive Truth
 
@@ -41,8 +42,12 @@ The remaining Cloudflare scanner failures are intentionally deferred because the
 Focused checks:
 
 - `php artisan test tests/Feature/SeoRemediationTest.php --stop-on-failure` passed: 9 tests, 47 assertions.
-- `python3 -m py_compile SEO/audit.py` passed on Linux production syntax expectations.
-- `php artisan route:cache` passed during implementation, then local route cache was cleared.
+- `python SEO/audit.py https://mayushdesign.com --expected-sitemap-host mayushdesign.com --timeout 20` passed locally against production: 61 passed, 0 failed.
+- `php artisan route:list` passed locally after the quality-gate fix.
+- `php artisan route:cache && php artisan route:clear` passed locally.
+- `composer validate --no-check-publish` passed with non-fatal warnings about unbound package constraints.
+- `php scripts/ci/check-composer-audit.php composer-audit.json` passed: no security vulnerability advisories, abandoned packages noted for migration planning.
+- `npm audit --omit=dev --audit-level=high` passed: 0 vulnerabilities.
 
 Live audit:
 
@@ -73,8 +78,10 @@ Cloudflare Agent Readiness:
 
 Full test suite:
 
-- `php artisan test` was attempted earlier and timed out after 304 seconds.
-- Broader unrelated suites previously exposed existing analytics, OTP SMS mock, and CMI vault token test failures. These are not part of the SEO/GEO remediation.
+- `php artisan test` now completes locally instead of timing out.
+- Latest result on 2026-04-28: 327 passed, 6 skipped, 17 failed, 703 assertions.
+- The remaining failures are not SEO/GEO remediation failures. They are broader application test-suite debt in integration coverage for homepage text assertions, review submission/admin permissions, CSRF and role middleware route expectations, and payment gateway callback expectations.
+- The GitHub quality-gate workflow intentionally runs the focused SEO remediation tests, route registration, route cache, Composer audit wrapper, and npm production audit rather than the full legacy suite.
 
 ## Production Maintenance Requirements
 
