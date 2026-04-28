@@ -264,12 +264,26 @@
                         </button>
                         <script>
                             function expressBuy(id) {
+                                $('#expressBuyModal').modal('show');
+                                $('#expressBuyLoading').removeClass('d-none');
+                                $('#expressBuyEligible').addClass('d-none');
+                                $('#expressBuyNotEligible').addClass('d-none');
+
                                 $.get('{{ route("express.check") }}', function(data) {
+                                    $('#expressBuyLoading').addClass('d-none');
+                                    
                                     if(data.eligible) {
-                                        if(confirm('{{ translate("Confirm Express Buy with") }} ' + data.preferred_payment + '?')) {
+                                        $('#expressBuyEligible').removeClass('d-none');
+                                        $('#eb_preferred_payment').text(data.preferred_payment);
+                                        if (data.default_address) {
+                                            $('#eb_address_name').text(data.default_address.name);
+                                            $('#eb_address_text').text(data.default_address.address);
+                                            $('#eb_address_phone').text(data.default_address.phone);
+                                        }
+                                        
+                                        $('#btnConfirmExpressBuy').off('click').on('click', function() {
                                             const form = $('#option-choice-form');
                                             
-                                            // Add v_token for security session binding
                                             if (form.find('input[name="v_token"]').length == 0) {
                                                 form.append('<input type="hidden" name="v_token" value="' + data.v_token + '">');
                                             } else {
@@ -279,10 +293,15 @@
                                             form.attr('action', '{{ url("express-buy") }}/' + id);
                                             form.attr('method', 'POST');
                                             form.submit();
-                                        }
+                                            
+                                            $(this).prop('disabled', true).html('<i class="las la-spinner la-spin"></i> {{ translate("Processing...") }}');
+                                        });
                                     } else {
-                                        alert('{{ translate("Please set a default address and payment method to use Express Buy.") }}');
+                                        $('#expressBuyNotEligible').removeClass('d-none');
                                     }
+                                }).fail(function() {
+                                    $('#expressBuyModal').modal('hide');
+                                    AIZ.plugins.notify('danger', '{{ translate("Failed to check eligibility.") }}');
                                 });
                             }
                         </script>
