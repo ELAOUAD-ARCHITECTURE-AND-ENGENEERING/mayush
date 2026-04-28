@@ -74,7 +74,7 @@ class UserService
 
         RegistrationVerificationCode::updateOrCreate(
             ['email' => $email, 'phone' => $fullPhone],
-            ['code' => $verificationCode]
+            ['code' => $verificationCode, 'is_verified' => 0]
         );
 
         if ($email) {

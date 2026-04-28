@@ -103,6 +103,9 @@
                 $('.phone-form-group').addClass('d-none');
                 $('.email-form-group').removeClass('d-none');
                 $('input[name=phone]').val(null);
+                $('#verification_method').val('email');
+                $('#verified_registration_code').val('');
+                $('#verification_code').val('').prop('readonly', false);
                 isPhoneShown = false;
                 $(el).html('*{{ translate('Use Phone Number Instead') }}');
 
@@ -112,6 +115,9 @@
                 $('.phone-form-group').removeClass('d-none');
                 $('.email-form-group').addClass('d-none');
                 $('input[name=email]').val(null);
+                $('#verification_method').val('phone');
+                $('#verified_registration_code').val('');
+                $('#verification_code').val('').prop('readonly', false);
                 isPhoneShown = true;
                 $(el).html('<i>*{{ translate('Use Email Instead') }}</i>');
 

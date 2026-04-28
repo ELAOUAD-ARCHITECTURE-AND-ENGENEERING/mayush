@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\User;
 use App\Rules\Recaptcha;
 use App\Rules\Turnstile;
+use App\Models\RegistrationVerificationCode;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\BusinessSetting;
@@ -58,12 +59,37 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
+        $verificationMethod = $this->registrationVerificationMethod($data);
+
+        $validator = Validator::make($data, [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'phone' => 'required|string|max:20|unique:users',
+            'email' => [
+                Rule::requiredIf($verificationMethod === 'email'),
+                'nullable',
+                'string',
+                'email',
+                'max:255',
+                'unique:users,email',
+            ],
+            'phone' => [
+                Rule::requiredIf($verificationMethod === 'phone'),
+                'nullable',
+                'string',
+                'max:20',
+            ],
+            'country_code' => [
+                Rule::requiredIf($verificationMethod === 'phone'),
+                'nullable',
+                'string',
+                'max:10',
+            ],
             'password' => 'required|string|min:6|confirmed',
-            'verification_method' => 'required|in:email,phone',
+            'verification_method' => 'nullable|in:email,phone',
+            'code' => [
+                Rule::requiredIf(get_setting('customer_registration_verify') == '1'),
+                'nullable',
+                'digits:6',
+            ],
             'g-recaptcha-response' => [
                 Rule::when(get_setting('google_recaptcha') == 1 && get_setting('recaptcha_customer_register') == 1 , ['required', new Recaptcha()], ['sometimes'])
             ],
@@ -75,6 +101,37 @@ class RegisterController extends Controller
                 )
             ],
         ]);
+
+        $validator->after(function ($validator) use ($data, $verificationMethod) {
+            if ($verificationMethod === 'phone' && !empty($data['phone'])) {
+                $phone = $this->formatRegistrationPhone($data['phone'], $data['country_code'] ?? null);
+                if ($phone && User::where('phone', $phone)->exists()) {
+                    $validator->errors()->add('phone', translate('The phone has already been taken.'));
+                }
+            }
+
+            if (get_setting('customer_registration_verify') != '1') {
+                return;
+            }
+
+            $code = $data['code'] ?? $data['verified_registration_code'] ?? null;
+            if (!$code) {
+                return;
+            }
+
+            $query = RegistrationVerificationCode::where('code', $code)->where('is_verified', 1);
+            if ($verificationMethod === 'email') {
+                $query->where('email', $data['email'] ?? null);
+            } else {
+                $query->where('phone', $this->formatRegistrationPhone($data['phone'] ?? null, $data['country_code'] ?? null));
+            }
+
+            if (!$query->exists()) {
+                $validator->errors()->add('code', translate('Please verify your email or phone before creating the account.'));
+            }
+        });
+
+        return $validator;
     }
 
     /**
@@ -89,12 +146,11 @@ class RegisterController extends Controller
             $data['verification_status'] = 0;
         }
 
-        $cleanPhone = preg_replace('/\D+/', '', $data['phone']);
-        $phone = '+'.$data['country_code'].$cleanPhone;
+        $phone = $this->formatRegistrationPhone($data['phone'] ?? null, $data['country_code'] ?? null);
 
         $user = User::create([
             'name' => $data['name'] . (isset($data['l_name']) && $data['l_name'] !== '' ? ' ' . $data['l_name'] : ''),
-            'email' => $data['email'],
+            'email' => $data['email'] ?? null,
             'phone' => $phone,
             'password' => Hash::make($data['password']),
             'verification_code' => rand(100000, 999999),
@@ -133,6 +189,14 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
+        if (!$request->filled('code') && $request->filled('verified_registration_code')) {
+            $request->merge(['code' => $request->verified_registration_code]);
+        }
+
+        $request->merge([
+            'verification_method' => $this->registrationVerificationMethod($request->all()),
+        ]);
+
         $this->validator($request->all())->validate();
 
         $user = $this->create($request->all());
@@ -206,5 +270,30 @@ class RegisterController extends Controller
             }
             return redirect()->route('home');
         }
+    }
+
+    private function registrationVerificationMethod(array $data): string
+    {
+        if (!empty($data['verification_method']) && in_array($data['verification_method'], ['email', 'phone'])) {
+            return $data['verification_method'];
+        }
+
+        if (!empty($data['email'])) {
+            return 'email';
+        }
+
+        return 'phone';
+    }
+
+    private function formatRegistrationPhone(?string $phone, ?string $countryCode): ?string
+    {
+        $cleanPhone = preg_replace('/\D+/', '', $phone ?? '');
+        $cleanCountryCode = preg_replace('/\D+/', '', $countryCode ?? '');
+
+        if ($cleanPhone === '') {
+            return null;
+        }
+
+        return '+' . $cleanCountryCode . $cleanPhone;
     }
 }
