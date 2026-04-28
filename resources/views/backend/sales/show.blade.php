@@ -258,19 +258,17 @@
             <div class="row mt-3 mb-3">
                 <div class="col-12">
                     <div id="order_confirmation_card" class="border rounded p-3 {{ $order->is_confirmed ? 'border-success bg-soft-success' : 'border-warning bg-soft-warning' }}">
-                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between">
-                            <div class="pr-md-3 mb-3 mb-md-0">
-                                <div class="d-flex align-items-center flex-wrap mb-1">
-                                    <h6 class="mb-0 mr-2 fw-700">{{ translate('Order Confirmation') }}</h6>
-                                    <span class="badge badge-{{ $order->is_confirmed ? 'success' : 'warning' }}" id="confirmation_badge">
-                                        {{ $order->is_confirmed ? translate('Confirmed') : translate('Pending Confirmation') }}
-                                    </span>
-                                </div>
+                        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
+                            <div class="pr-lg-4 mb-3 mb-lg-0 flex-grow-1">
+                                <h6 class="mb-2 fw-700 d-block">{{ translate('Order Confirmation') }}</h6>
+                                <span class="badge badge-inline badge-{{ $order->is_confirmed ? 'success' : 'warning' }} d-inline-block mb-2" id="confirmation_badge">
+                                    {{ $order->is_confirmed ? translate('Confirmed') : translate('Pending Confirmation') }}
+                                </span>
                                 <p class="text-muted fs-12 mb-0" id="confirmation_label">
                                     {{ $order->is_confirmed ? translate('Confirmed - Shipping dispatched to ONESSTA') : translate('Confirm this order after verifying with the customer by phone. Shipping will be triggered automatically.') }}
                                 </p>
                             </div>
-                            <div class="d-flex align-items-center flex-shrink-0">
+                            <div class="d-flex align-items-center justify-content-lg-end flex-shrink-0 pt-2 pt-lg-0">
                                 <span class="fs-12 fw-600 text-muted mr-2" id="confirmation_toggle_text">
                                     {{ $order->is_confirmed ? translate('Confirmed') : translate('Confirm order') }}
                                 </span>
@@ -847,14 +845,14 @@
                     if (checkbox.checked) {
                         label.textContent = '{{ translate("Confirmed - Shipping dispatched to ONESSTA") }}';
                         badge.textContent = '{{ translate("Confirmed") }}';
-                        badge.className = 'badge badge-success';
+                        badge.className = 'badge badge-inline badge-success d-inline-block mb-2';
                         toggleText.textContent = '{{ translate("Confirmed") }}';
                         wrapper.className = wrapper.className.replace('border-warning', 'border-success').replace('bg-soft-warning', 'bg-soft-success');
                         AIZ.plugins.notify('success', '{{ translate("Order confirmed. Shipping request sent to ONESSTA.") }}');
                     } else {
                         label.textContent = '{{ translate("Confirm this order after verifying with the customer by phone. Shipping will be triggered automatically.") }}';
                         badge.textContent = '{{ translate("Pending Confirmation") }}';
-                        badge.className = 'badge badge-warning';
+                        badge.className = 'badge badge-inline badge-warning d-inline-block mb-2';
                         toggleText.textContent = '{{ translate("Confirm order") }}';
                         wrapper.className = wrapper.className.replace('border-success', 'border-warning').replace('bg-soft-success', 'bg-soft-warning');
                         AIZ.plugins.notify('success', '{{ translate("Confirmation removed.") }}');
