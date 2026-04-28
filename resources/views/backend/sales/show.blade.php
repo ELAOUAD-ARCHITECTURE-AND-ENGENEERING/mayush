@@ -832,6 +832,54 @@
 @section('script')
     <script type="text/javascript">
         function updateOrderConfirmation(checkbox, orderId) {
+            function shipmentNotification(response) {
+                var shipment = response.shipment || {};
+
+                if (!response.is_confirmed) {
+                    return {
+                        type: 'success',
+                        message: '{{ translate("Confirmation removed.") }}'
+                    };
+                }
+
+                if (shipment.status === 'created') {
+                    return {
+                        type: 'success',
+                        message: shipment.shipment_code
+                            ? '{{ translate("ONESSTA shipment created") }}: ' + shipment.shipment_code
+                            : '{{ translate("ONESSTA shipment created.") }}'
+                    };
+                }
+
+                if (shipment.status === 'exists') {
+                    return {
+                        type: 'info',
+                        message: shipment.shipment_code
+                            ? '{{ translate("ONESSTA shipment already exists") }}: ' + shipment.shipment_code
+                            : '{{ translate("ONESSTA shipment already exists.") }}'
+                    };
+                }
+
+                if (shipment.status === 'queued') {
+                    return {
+                        type: 'success',
+                        message: '{{ translate("ONESSTA shipment creation queued.") }}'
+                    };
+                }
+
+                if (shipment.status === 'failed') {
+                    return {
+                        type: 'danger',
+                        message: shipment.message || '{{ translate("ONESSTA shipment creation failed.") }}'
+                    };
+                }
+
+                return {
+                    type: 'warning',
+                    message: shipment.message || '{{ translate("Order confirmed, but ONESSTA shipment was not created.") }}'
+                };
+            }
+
             $.post('{{ route("orders.confirm") }}', {
                 _token: '{{ csrf_token() }}',
                 order_id: orderId,
@@ -848,15 +896,16 @@
                         badge.className = 'badge badge-inline badge-success d-inline-block mb-2';
                         toggleText.textContent = '{{ translate("Confirmed") }}';
                         wrapper.className = wrapper.className.replace('border-warning', 'border-success').replace('bg-soft-warning', 'bg-soft-success');
-                        AIZ.plugins.notify('success', '{{ translate("Order confirmed. Shipping request sent to ONESSTA.") }}');
                     } else {
                         label.textContent = '{{ translate("Confirm this order after verifying with the customer by phone. Shipping will be triggered automatically.") }}';
                         badge.textContent = '{{ translate("Pending Confirmation") }}';
                         badge.className = 'badge badge-inline badge-warning d-inline-block mb-2';
                         toggleText.textContent = '{{ translate("Confirm order") }}';
                         wrapper.className = wrapper.className.replace('border-success', 'border-warning').replace('bg-soft-success', 'bg-soft-warning');
-                        AIZ.plugins.notify('success', '{{ translate("Confirmation removed.") }}');
                     }
+
+                    var notification = shipmentNotification(response);
+                    AIZ.plugins.notify(notification.type, notification.message);
                 }
             }).fail(function() {
                 checkbox.checked = !checkbox.checked;

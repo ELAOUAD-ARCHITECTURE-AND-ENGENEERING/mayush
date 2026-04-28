@@ -23,6 +23,7 @@ use CoreComponentRepository;
 use App\Utility\SmsUtility;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
+use Mayush\Shipping\Onessta\Services\OrderShipmentDispatchService;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\OrderNotification;
 use App\Utility\EmailUtility;
@@ -675,11 +676,21 @@ class OrderController extends Controller
 
         $order = Order::findOrFail($validated['order_id']);
         $order->is_confirmed = $request->boolean('is_confirmed');
-        $order->save();
+        Order::withoutEvents(function () use ($order) {
+            $order->save();
+        });
+
+        $shipmentResult = $order->is_confirmed
+            ? app(OrderShipmentDispatchService::class)->ensureForOrder($order->fresh())
+            : [
+                'status' => 'not_confirmed',
+                'message' => 'Order confirmation removed.',
+            ];
 
         return response()->json([
             'success' => true,
             'is_confirmed' => $order->is_confirmed,
+            'shipment' => $shipmentResult,
         ]);
     }
 

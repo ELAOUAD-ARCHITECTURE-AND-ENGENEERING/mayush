@@ -400,6 +400,54 @@
             }
         }
 
+        function orderConfirmationShipmentNotification(response) {
+            var shipment = response.shipment || {};
+
+            if (!response.is_confirmed) {
+                return {
+                    type: 'success',
+                    message: '{{ translate('Confirmation removed.') }}'
+                };
+            }
+
+            if (shipment.status === 'created') {
+                return {
+                    type: 'success',
+                    message: shipment.shipment_code
+                        ? '{{ translate('ONESSTA shipment created') }}: ' + shipment.shipment_code
+                        : '{{ translate('ONESSTA shipment created.') }}'
+                };
+            }
+
+            if (shipment.status === 'exists') {
+                return {
+                    type: 'info',
+                    message: shipment.shipment_code
+                        ? '{{ translate('ONESSTA shipment already exists') }}: ' + shipment.shipment_code
+                        : '{{ translate('ONESSTA shipment already exists.') }}'
+                };
+            }
+
+            if (shipment.status === 'queued') {
+                return {
+                    type: 'success',
+                    message: '{{ translate('ONESSTA shipment creation queued.') }}'
+                };
+            }
+
+            if (shipment.status === 'failed') {
+                return {
+                    type: 'danger',
+                    message: shipment.message || '{{ translate('ONESSTA shipment creation failed.') }}'
+                };
+            }
+
+            return {
+                type: 'warning',
+                message: shipment.message || '{{ translate('Order confirmed, but ONESSTA shipment was not created.') }}'
+            };
+        }
+
         $(document).on('change', '.js-order-confirmation-toggle', function() {
             var checkbox = $(this);
             var isConfirmed = checkbox.is(':checked');
@@ -412,12 +460,8 @@
             }, function(response) {
                 if (response.success) {
                     updateOrderConfirmationListState(container, response.is_confirmed);
-                    AIZ.plugins.notify(
-                        'success',
-                        response.is_confirmed
-                            ? '{{ translate('Order confirmed. Shipping request sent to ONESSTA.') }}'
-                            : '{{ translate('Confirmation removed.') }}'
-                    );
+                    var notification = orderConfirmationShipmentNotification(response);
+                    AIZ.plugins.notify(notification.type, notification.message);
                 }
             }).fail(function() {
                 checkbox.prop('checked', !isConfirmed);

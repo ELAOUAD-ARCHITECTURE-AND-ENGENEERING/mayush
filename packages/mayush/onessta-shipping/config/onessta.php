@@ -22,7 +22,8 @@ return [
     ],
 
     'queue' => [
-        'connection' => env('ONESSTA_QUEUE_CONNECTION', 'redis'),
+        'connection' => env('ONESSTA_QUEUE_CONNECTION', env('QUEUE_CONNECTION', 'sync')),
+        'create_shipment_connection' => env('ONESSTA_CREATE_SHIPMENT_QUEUE_CONNECTION', 'sync'),
         'name' => env('ONESSTA_QUEUE_NAME', 'onessta'),
         'create_shipment_retry' => [60, 300, 900],
         'poll_tracking_retry' => [30, 120, 300],

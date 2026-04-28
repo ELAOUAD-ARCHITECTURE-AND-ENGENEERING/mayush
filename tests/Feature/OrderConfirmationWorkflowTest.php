@@ -21,7 +21,11 @@ class OrderConfirmationWorkflowTest extends TestCase
     {
         parent::setUp();
 
-        config(['onessta.enabled' => true]);
+        config([
+            'onessta.enabled' => true,
+            'onessta.queue.create_shipment_connection' => 'database',
+            'onessta.queue.name' => 'onessta',
+        ]);
         Cache::forget('addons');
 
         Addon::query()->updateOrCreate(
@@ -110,6 +114,9 @@ class OrderConfirmationWorkflowTest extends TestCase
             ->assertJson([
                 'success' => true,
                 'is_confirmed' => true,
+                'shipment' => [
+                    'status' => 'queued',
+                ],
             ]);
 
         $this->assertTrue($order->fresh()->is_confirmed);
@@ -122,6 +129,33 @@ class OrderConfirmationWorkflowTest extends TestCase
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('is_confirmed');
+    }
+
+    public function test_confirmation_endpoint_retries_shipment_when_order_is_already_confirmed_without_shipment(): void
+    {
+        Queue::fake();
+
+        $admin = User::factory()->admin()->create();
+        $order = Order::factory()->create([
+            'shipping_type' => 'home_delivery',
+            'is_confirmed' => true,
+        ]);
+
+        $this->actingAs($admin)
+            ->postJson(route('orders.confirm'), [
+                'order_id' => $order->id,
+                'is_confirmed' => 1,
+            ])
+            ->assertOk()
+            ->assertJson([
+                'success' => true,
+                'is_confirmed' => true,
+                'shipment' => [
+                    'status' => 'queued',
+                ],
+            ]);
+
+        Queue::assertPushed(CreateShipmentJob::class, 1);
     }
 
     public function test_non_admin_cannot_confirm_orders(): void
