@@ -115,6 +115,7 @@
                             <th data-breakpoints="md">{{ translate('Delivery Status') }}</th>
                             <th data-breakpoints="md">{{ translate('Payment method') }}</th>
                             <th data-breakpoints="md">{{ translate('Payment Status') }}</th>
+                            <th data-breakpoints="md">{{ translate('Order Confirmation') }}</th>
                             @if (addon_is_activated('refund_request'))
                                 <th>{{ translate('Refund') }}</th>
                             @endif
@@ -198,6 +199,22 @@
                                     @else
                                         <span class="badge badge-inline badge-danger">{{ translate('Unpaid') }}</span>
                                     @endif
+                                </td>
+                                <td>
+                                    <div class="order-confirmation-list-control" data-order-confirmation-row="{{ $order->id }}">
+                                        <span class="badge badge-inline badge-{{ $order->is_confirmed ? 'success' : 'warning' }} mb-2" data-confirmation-badge>
+                                            {{ $order->is_confirmed ? translate('Confirmed') : translate('Pending Confirmation') }}
+                                        </span>
+                                        <label class="aiz-switch aiz-switch-success mb-0 d-block">
+                                            <input
+                                                type="checkbox"
+                                                class="js-order-confirmation-toggle"
+                                                data-order-id="{{ $order->id }}"
+                                                {{ $order->is_confirmed ? 'checked' : '' }}
+                                            >
+                                            <span></span>
+                                        </label>
+                                    </div>
                                 </td>
                                 @if (addon_is_activated('refund_request'))
                                     <td>
@@ -366,5 +383,46 @@
                 AIZ.plugins.notify('danger', '{{ translate('Please Select Order first.') }}');
             }
         }
+
+        function updateOrderConfirmationListState(container, isConfirmed) {
+            var badge = container.find('[data-confirmation-badge]');
+
+            if (isConfirmed) {
+                badge
+                    .removeClass('badge-warning')
+                    .addClass('badge-success')
+                    .text('{{ translate('Confirmed') }}');
+            } else {
+                badge
+                    .removeClass('badge-success')
+                    .addClass('badge-warning')
+                    .text('{{ translate('Pending Confirmation') }}');
+            }
+        }
+
+        $(document).on('change', '.js-order-confirmation-toggle', function() {
+            var checkbox = $(this);
+            var isConfirmed = checkbox.is(':checked');
+            var container = checkbox.closest('.order-confirmation-list-control');
+
+            $.post('{{ route('orders.confirm') }}', {
+                _token: '{{ csrf_token() }}',
+                order_id: checkbox.data('order-id'),
+                is_confirmed: isConfirmed ? 1 : 0
+            }, function(response) {
+                if (response.success) {
+                    updateOrderConfirmationListState(container, response.is_confirmed);
+                    AIZ.plugins.notify(
+                        'success',
+                        response.is_confirmed
+                            ? '{{ translate('Order confirmed. Shipping request sent to ONESSTA.') }}'
+                            : '{{ translate('Confirmation removed.') }}'
+                    );
+                }
+            }).fail(function() {
+                checkbox.prop('checked', !isConfirmed);
+                AIZ.plugins.notify('danger', '{{ translate('Failed to update confirmation status.') }}');
+            });
+        });
     </script>
 @endsection
