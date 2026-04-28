@@ -1,6 +1,7 @@
 # Agent Readiness Cloudflare Scan Ground Truth Report
 
 Date: 2026-04-26  
+Latest re-verification: 2026-04-28
 Project: Mayush  
 Production URL: https://mayushdesign.com  
 Source input: Cloudflare/isitagentready scan findings supplied by the project owner
@@ -11,7 +12,7 @@ The scanner is useful, but its findings are not all equal SEO/GEO blockers.
 
 Current live verification shows that the most important issue, canonical `/robots.txt`, is now fixed in production: it returns `200` with `Content-Type: text/plain; charset=UTF-8` and includes the sitemap directive. The scan result that said "robots.txt not found" was either taken before the latest deploy/cache refresh or was affected by a transient scanner abort.
 
-Resolved live:
+Resolved live and re-confirmed on 2026-04-28:
 
 - `robots.txt` includes Content Signals and explicit AI crawler rules.
 - Homepage exposes agent discovery `Link` headers.
@@ -33,22 +34,36 @@ Items that should not be implemented blindly:
 
 ## Evidence Collected
 
-Live checks run against production:
+Live checks run against production on 2026-04-28:
 
 | Check | Result | Evidence |
 | --- | --- | --- |
 | `https://mayushdesign.com/robots.txt` | Pass | `200 OK`, `text/plain; charset=UTF-8` |
 | Robots sitemap directive | Pass | `Sitemap: https://mayushdesign.com/sitemap.xml` present |
-| Current robots AI entries | Partial pass | `GPTBot`, `ChatGPT-User`, `Google-Extended`, `PerplexityBot`, `ClaudeBot`, `Bingbot`, `Googlebot`, `CCBot` present |
+| Current robots AI entries | Pass | `GPTBot`, `OAI-SearchBot`, `ChatGPT-User`, `Google-Extended`, `PerplexityBot`, `ClaudeBot`, `Claude-Web`, `anthropic-ai`, `Bingbot`, `Googlebot`, `CCBot` present |
+| Content Signals | Pass | `Content-Signal: ai-train=yes, search=yes, ai-input=yes` present |
+| `https://mayushdesign.com/sitemap.xml` | Pass | `200 OK`, XML, 1,118 HTTPS URLs on `mayushdesign.com`, no localhost URLs |
 | `Accept: text/markdown` on homepage | Pass | Returns `Content-Type: text/markdown; charset=UTF-8` |
 | `/.well-known/api-catalog` | Pass | `200 OK`, `application/linkset+json` |
+| `/openapi.json` | Pass | `200 OK`, `application/openapi+json`, OpenAPI `3.0.0`, `System-Key` security declared |
 | `/.well-known/agent-skills/index.json` | Pass | `200 OK`, `application/json` |
 | `/.well-known/openid-configuration` | Not implemented | `404 Not Found` |
 | `/.well-known/oauth-authorization-server` | Not implemented | `404 Not Found` |
 | `/.well-known/oauth-protected-resource` | Not implemented | `404 Not Found` |
-| `/.well-known/mcp/server-card.json` | Not implemented | `404 Not Found` |
+| `/.well-known/mcp.json` / MCP server card | Deferred | Scanner sees `403` for legacy MCP discovery; no real MCP service exists |
+| `/.well-known/agent-card.json` / A2A agent card | Deferred | Scanner sees `403`; no real A2A agent service exists |
 | `/.well-known/acp.json` | Blocked/not implemented | `403 Forbidden` |
-| `/openapi.json` | Blocked/not implemented | `403 Forbidden` |
+| WebMCP | Deferred | Scanner reports no page-load tools; no approved browser-exposed agent tools exist |
+
+Cloudflare scan result on 2026-04-28:
+
+| Category | Passing checks | Deferred/failing checks | Neutral checks |
+| --- | --- | --- | --- |
+| Discoverability | robots.txt, sitemap, Link headers | None | None |
+| Content accessibility | Markdown negotiation | None | None |
+| Bot access control | AI bot rules, Content Signals | None | Web Bot Auth |
+| Protocol discovery | API Catalog, Agent Skills | OAuth discovery, OAuth Protected Resource, MCP Server Card, A2A Agent Card, WebMCP | None |
+| Commerce | None | None | x402, MPP, UCP, ACP, AP2 |
 
 Repository evidence:
 
@@ -116,7 +131,7 @@ Scanner issue: Cannot check AI rules without robots.txt.
 
 Ground truth: The crawler rules are now checkable. Live entries are good but were incomplete relative to the scanner examples at the time of the scan.
 
-Status: Repository fix added, pending deploy/live validation.
+Status: Passed live.
 
 Recommended action:
 
@@ -133,7 +148,7 @@ Scanner issue: Cannot check Content Signals without robots.txt.
 
 Ground truth: Robots is now available. Live production did not include a `Content-Signal` directive at scan time; the repository now includes one for the next deployment.
 
-Status: Repository fix added, pending deploy/live validation.
+Status: Passed live.
 
 Recommended action:
 
@@ -149,7 +164,7 @@ Content-Signal: ai-train=yes, search=yes, ai-input=yes
 
 Scanner issue: API Catalog not found.
 
-Ground truth: Live production now publishes a Laravel-routed API catalog and `/openapi.json`.
+Ground truth: Live production publishes a Laravel-routed API catalog and `/openapi.json`.
 
 Status: Passed live.
 
@@ -186,17 +201,18 @@ Recommended action:
 - Defer until OAuth/OIDC is real.
 - If implemented later, define resources, issuer, authorization servers, and scopes first.
 
-### 9. MCP Server Card
+### 9. MCP Server Card And A2A Agent Card
 
-Scanner issue: MCP discovery returned `403` or no card.
+Scanner issue: MCP discovery returned `403` or no card. The latest scan also reports A2A agent-card discovery as `403`.
 
-Ground truth: No MCP server was found in the repo or route surface.
+Ground truth: No MCP or A2A agent service was found in the repo or route surface.
 
 Status: Correctly absent for now.
 
 Recommended action:
 
 - Do not publish an MCP card unless Mayush operates an MCP server.
+- Do not publish an A2A agent card unless Mayush operates a real A2A-compatible agent endpoint.
 - If added later, the server card must point to a real transport endpoint and real capabilities.
 
 ### 10. Agent Skills Discovery Index
@@ -291,7 +307,7 @@ Recommended action:
 
 ## Conclusion
 
-The Cloudflare scan correctly points toward modern agent-readiness work, but the only urgent SEO/GEO-class issue was `/robots.txt`, and production now returns it successfully. The next practical work should be: expand robots AI directives, add Content Signals with a documented policy, add audit checks, and then decide whether Mayush truly wants public agent API discovery before publishing API catalog or auth metadata.
+The Cloudflare scan correctly points toward modern agent-readiness work, but the urgent SEO/GEO-class issues are now resolved in production. Mayush is currently level `4` / `Agent-Integrated` in the scanner, with the local live audit reporting `61 passed, 0 failed`. The next score-improving work would be OAuth protected resource metadata, MCP server card, and A2A agent card, but those should remain deferred until real backing services and a security design exist.
 
 ## References
 
