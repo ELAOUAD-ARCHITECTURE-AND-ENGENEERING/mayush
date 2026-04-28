@@ -474,6 +474,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/orders/update_delivery_status', 'update_delivery_status')->name('orders.update_delivery_status');
         Route::post('/orders/update_payment_status', 'update_payment_status')->name('orders.update_payment_status');
         Route::post('/orders/update_tracking_code', 'update_tracking_code')->name('orders.update_tracking_code');
+        Route::post('/orders/confirm', 'confirm_order')->name('orders.confirm');
 
         //Delivery Boy Assign
         Route::post('/orders/delivery-boy-assign', 'assign_delivery_boy')->name('orders.delivery-boy-assign');

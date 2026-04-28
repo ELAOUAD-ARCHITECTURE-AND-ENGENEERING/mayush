@@ -253,6 +253,35 @@
                 </div>
 
             </div>
+
+            {{-- Admin Order Confirmation --}}
+            <div class="row mt-3 mb-3">
+                <div class="col-12">
+                    <div class="border rounded p-3 d-flex align-items-center justify-content-between {{ $order->is_confirmed ? 'border-success bg-soft-success' : 'border-warning bg-soft-warning' }}">
+                        <div>
+                            <h6 class="mb-1 fw-700">
+                                {{ translate('Order Confirmation') }}
+                                <span class="badge badge-{{ $order->is_confirmed ? 'success' : 'warning' }} ml-2" id="confirmation_badge">
+                                    {{ $order->is_confirmed ? translate('Confirmed') : translate('Pending Confirmation') }}
+                                </span>
+                            </h6>
+                            <p class="text-muted fs-12 mb-0" id="confirmation_label">
+                                {{ $order->is_confirmed ? translate('Confirmed — Shipping dispatched to ONESSTA') : translate('Confirm this order after verifying with the customer by phone. Shipping will be triggered automatically.') }}
+                            </p>
+                        </div>
+                        <label class="aiz-switch aiz-switch-success mb-0">
+                            <input
+                                type="checkbox"
+                                id="order_confirmation_toggle"
+                                {{ $order->is_confirmed ? 'checked' : '' }}
+                                onchange="updateOrderConfirmation(this, {{ $order->id }})"
+                            >
+                            <span></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div class="mb-3 mt-3">
                 @php
                     $removedXML = '<' . '?xml version="1.0" encoding="UTF-8"?>';
@@ -797,6 +826,36 @@
 
 @section('script')
     <script type="text/javascript">
+        function updateOrderConfirmation(checkbox, orderId) {
+            $.post('{{ route("orders.confirm") }}', {
+                _token: '{{ csrf_token() }}',
+                order_id: orderId,
+                is_confirmed: checkbox.checked ? 1 : 0
+            }, function(response) {
+                if (response.success) {
+                    var label = document.getElementById('confirmation_label');
+                    var badge = document.getElementById('confirmation_badge');
+                    var wrapper = checkbox.closest('.border');
+                    if (checkbox.checked) {
+                        label.textContent = '{{ translate("Confirmed — Shipping dispatched to ONESSTA") }}';
+                        badge.textContent = '{{ translate("Confirmed") }}';
+                        badge.className = 'badge badge-success ml-2';
+                        wrapper.className = wrapper.className.replace('border-warning', 'border-success').replace('bg-soft-warning', 'bg-soft-success');
+                        AIZ.plugins.notify('success', '{{ translate("Order confirmed. Shipping request sent to ONESSTA.") }}');
+                    } else {
+                        label.textContent = '{{ translate("Confirm this order after verifying with the customer by phone. Shipping will be triggered automatically.") }}';
+                        badge.textContent = '{{ translate("Pending Confirmation") }}';
+                        badge.className = 'badge badge-warning ml-2';
+                        wrapper.className = wrapper.className.replace('border-success', 'border-warning').replace('bg-soft-success', 'bg-soft-warning');
+                        AIZ.plugins.notify('success', '{{ translate("Confirmation removed.") }}');
+                    }
+                }
+            }).fail(function() {
+                checkbox.checked = !checkbox.checked;
+                AIZ.plugins.notify('danger', '{{ translate("Failed to update confirmation status.") }}');
+            });
+        }
+
         $('#assign_deliver_boy').on('change', function() {
             var order_id = {{ $order->id }};
             var delivery_boy = $('#assign_deliver_boy').val();

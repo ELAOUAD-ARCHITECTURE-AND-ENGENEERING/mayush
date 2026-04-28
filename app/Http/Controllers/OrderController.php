@@ -666,6 +666,15 @@ class OrderController extends Controller
         return 1;
     }
 
+    public function confirm_order(Request $request)
+    {
+        $order = Order::findOrFail($request->order_id);
+        $order->is_confirmed = (bool) $request->is_confirmed;
+        $order->save();
+
+        return response()->json(['success' => true]);
+    }
+
     public function assign_delivery_boy(Request $request)
     {
         if (addon_is_activated('delivery_boy')) {

@@ -12,7 +12,11 @@ class Order extends Model
 
     protected $fillable = [
         'combined_order_id', 'user_id', 'seller_id', 'shipping_address', 'billing_address',
-        'payment_type', 'payment_status', 'grand_total', 'code', 'date'
+        'payment_type', 'payment_status', 'grand_total', 'code', 'date', 'is_confirmed'
+    ];
+
+    protected $casts = [
+        'is_confirmed' => 'boolean',
     ];
     public function orderDetails()
     {
