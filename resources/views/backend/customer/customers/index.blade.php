@@ -97,6 +97,7 @@
                                         @endif 
                                         {{$user->name}}
                                     </p>
+                                </td>
                                 <td>{{$user->email}}</td>
                                 <td>{{$user->phone}}</td>
                                 <td>
@@ -108,9 +109,16 @@
                                     @php
                                         $tierLvl = ($user->customer_package && isset($user->customer_package->tier_level)) ? $user->customer_package->tier_level : 0;
                                         $tierMeta = \App\Services\LoyaltyService::getTierMeta($tierLvl);
+                                        $tierIcon = [
+                                            'basic' => 'la-star',
+                                            'silver' => 'la-medal',
+                                            'gold' => 'la-award',
+                                            'platinum' => 'la-gem',
+                                        ][$tierMeta['key'] ?? 'basic'] ?? 'la-star';
                                     @endphp
-                                    <span class="badge" style="background:{{ $tierMeta['color'] }}20; color:{{ $tierMeta['color'] }}; border: 1px solid {{ $tierMeta['color'] }}40; padding: 4px 10px; border-radius: 20px; font-weight: 600;">
-                                        {{ $tierMeta['icon'] }} {{ $tierMeta['label'] }}
+                                    <span class="d-inline-flex align-items-center" style="background:{{ $tierMeta['color'] }}20; color:{{ $tierMeta['color'] }}; border: 1px solid {{ $tierMeta['color'] }}40; min-height: 24px; max-width: 120px; padding: 3px 9px; border-radius: 12px; font-size: 12px; font-weight: 600; line-height: 1; white-space: nowrap;">
+                                        <i class="las {{ $tierIcon }} mr-1" style="font-size: 13px; line-height: 1; flex: 0 0 auto;" aria-hidden="true"></i>
+                                        <span class="text-truncate" style="min-width: 0;">{{ $tierMeta['label'] }}</span>
                                     </span>
                                 </td>
                                 <td>{{single_price($user->balance)}}</td>
