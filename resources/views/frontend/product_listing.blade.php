@@ -8,16 +8,21 @@
 @if (isset($category_id))
     @php
         $category_search = $category;
-        $meta_title = $category->meta_title ?: $category->getTranslation('name') . ' : ' . translate('Meubles et Decoration');
-        $meta_description = $category->meta_description ?: translate('Discover furniture, decor, lighting, and interior design products for this category on Mayush.');
+        $categoryName = $category->getTranslation('name');
+        $categoryTitleFallback = $categoryName . ' : ' . translate('Furniture, decor and interior design on Mayush');
+        $categoryDescriptionFallback = translate('Discover furniture, decor, lighting, and interior design products for this category on Mayush.');
+        $meta_title = \App\Services\SeoService::meaningfulText($category->meta_title, $categoryTitleFallback, 70, 30);
+        $meta_description = \App\Services\SeoService::meaningfulText($category->meta_description, $categoryDescriptionFallback, 170, 80);
         $meta_keywords = $category->meta_keywords;
         $meta_image = uploaded_asset($category->banner ?: $category->cover_image);
     @endphp
 @elseif (isset($brand_id))
     @php
         $brand_name = get_single_brand($brand_id)->name;
-        $meta_title = get_single_brand($brand_id)->meta_title ?: $brand_name . ' : ' . translate('Mobilier de marque');
-        $meta_description = get_single_brand($brand_id)->meta_description ?: translate('Shop brand furniture, decor, and interior design products on Mayush.');
+        $brandTitleFallback = $brand_name . ' : ' . translate('Brand furniture and decor on Mayush');
+        $brandDescriptionFallback = translate('Shop brand furniture, decor, and interior design products on Mayush.');
+        $meta_title = \App\Services\SeoService::meaningfulText(get_single_brand($brand_id)->meta_title, $brandTitleFallback, 70, 30);
+        $meta_description = \App\Services\SeoService::meaningfulText(get_single_brand($brand_id)->meta_description, $brandDescriptionFallback, 170, 80);
         $meta_keywords = get_single_brand($brand_id)->meta_keywords;
         $meta_image = uploaded_asset(get_single_brand($brand_id)->logo);
     @endphp

@@ -1,8 +1,10 @@
 @extends('frontend.layouts.app')
 
 @php
-    $blogSeoTitle = \App\Services\SeoService::cleanText($blog->meta_title ?: $blog->title, $blog->title, 70);
-    $blogSeoDescription = \App\Services\SeoService::cleanText($blog->meta_description ?: ($blog->short_description ?? $blog->description), $blog->title, 170);
+    $blogTitleFallback = $blog->title . ' - ' . translate('Mayush Interior Design Blog');
+    $blogDescriptionFallback = $blog->short_description ?: $blog->description ?: ($blog->title . ' buying guide from Mayush for furniture, decor and interior design in Morocco.');
+    $blogSeoTitle = \App\Services\SeoService::meaningfulText($blog->meta_title ?: $blog->title, $blogTitleFallback, 70, 30);
+    $blogSeoDescription = \App\Services\SeoService::meaningfulText($blog->meta_description ?: $blogDescriptionFallback, $blogDescriptionFallback, 170, 80);
     $blogSeoImage = uploaded_asset($blog->meta_img ?: $blog->banner);
 @endphp
 

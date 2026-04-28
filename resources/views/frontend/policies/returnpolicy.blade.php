@@ -61,7 +61,7 @@
     <div class="container">
         <div class="p-4 bg-white rounded shadow-sm overflow-hidden mw-100 text-left">
             @php
-                echo $page->getTranslation('content');
+                echo \App\Services\SeoService::demoteH1ToH2($page->getTranslation('content'));
             @endphp
         </div>
     </div>

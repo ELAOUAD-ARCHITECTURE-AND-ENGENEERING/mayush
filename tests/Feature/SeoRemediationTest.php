@@ -134,6 +134,10 @@ class SeoRemediationTest extends TestCase
         $this->assertIsArray($decoded);
         $this->assertSame('WebPage', $decoded['@type']);
         $this->assertSame('Furniture & decor with "quoted" content.', $decoded['description']);
+        $this->assertLessThanOrEqual(170, strlen(SeoService::cleanText(str_repeat('Long description ', 40), '', 170)));
+        $this->assertSame('Useful fallback for SEO pages', SeoService::meaningfulText('meta', 'Useful fallback for SEO pages', 70, 10));
+        $this->assertStringNotContainsString('<h1', SeoService::demoteH1ToH2('<h1 class="x">Heading</h1>'));
+        $this->assertStringContainsString('<h2 class="x">Heading</h2>', SeoService::demoteH1ToH2('<h1 class="x">Heading</h1>'));
     }
 
     public function test_sitemap_command_is_registered_on_the_schedule(): void

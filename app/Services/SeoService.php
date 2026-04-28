@@ -19,10 +19,32 @@ class SeoService
         }
 
         if ($limit > 0 && Str::length($text) > $limit) {
-            $text = rtrim(Str::limit($text, $limit, ''), " \t\n\r\0\x0B.,;:-") . '.';
+            $text = rtrim(Str::limit($text, max(1, $limit - 1), ''), " \t\n\r\0\x0B.,;:-") . '.';
         }
 
         return $text;
+    }
+
+    public static function meaningfulText($value, string $fallback, int $limit = 170, int $minimumLength = 1): string
+    {
+        $text = self::cleanText($value, '', $limit);
+
+        if (Str::length($text) < $minimumLength) {
+            return self::cleanText($fallback, $fallback, $limit);
+        }
+
+        return $text;
+    }
+
+    public static function demoteH1ToH2($html): string
+    {
+        return preg_replace_callback('/<\\/?h1(\\s[^>]*)?>/i', function ($matches) {
+            if (Str::startsWith(Str::lower($matches[0]), '</')) {
+                return '</h2>';
+            }
+
+            return '<h2' . ($matches[1] ?? '') . '>';
+        }, (string) $html);
     }
 
     public static function absoluteUrl(?string $url): ?string

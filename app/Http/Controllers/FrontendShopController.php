@@ -19,7 +19,7 @@ class FrontendShopController extends Controller
         }
         $shop  = Shop::where('slug', $slug)->first();
         if ($shop != null) {
-            if ($shop->user->banned == 1) {
+            if (!$shop->user || $shop->user->banned == 1) {
                 abort(404);
             }
             if ($shop->verification_status != 0) {
@@ -38,7 +38,7 @@ class FrontendShopController extends Controller
         }
         $shop  = Shop::where('slug', $slug)->first();
         if ($shop != null && $type != null) {
-            if ($shop->user->banned == 1) {
+            if (!$shop->user || $shop->user->banned == 1) {
                 abort(404);
             }
             if ($type == 'all-products') {

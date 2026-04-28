@@ -117,9 +117,14 @@ class GenerateSitemap extends Command
                     ->setPriority(0.7));
             });
 
-            $shopCount = Shop::whereNotNull('slug')->count();
+            $shopQuery = Shop::whereNotNull('slug')
+                ->whereHas('user', function ($query) {
+                    $query->where('banned', 0);
+                });
+
+            $shopCount = (clone $shopQuery)->count();
             $this->info("Found {$shopCount} Seller Shops");
-            Shop::whereNotNull('slug')->each(function (Shop $shop) use ($sitemap) {
+            $shopQuery->each(function (Shop $shop) use ($sitemap) {
                 $sitemap->add(Url::create(route('shop.visit', $shop->slug))
                     ->setLastModificationDate($shop->updated_at ?: Carbon::now())
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
