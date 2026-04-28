@@ -668,11 +668,19 @@ class OrderController extends Controller
 
     public function confirm_order(Request $request)
     {
-        $order = Order::findOrFail($request->order_id);
-        $order->is_confirmed = (bool) $request->is_confirmed;
+        $validated = $request->validate([
+            'order_id' => ['required', 'integer', 'exists:orders,id'],
+            'is_confirmed' => ['required', 'boolean'],
+        ]);
+
+        $order = Order::findOrFail($validated['order_id']);
+        $order->is_confirmed = $request->boolean('is_confirmed');
         $order->save();
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'is_confirmed' => $order->is_confirmed,
+        ]);
     }
 
     public function assign_delivery_boy(Request $request)
