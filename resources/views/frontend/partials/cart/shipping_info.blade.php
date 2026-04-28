@@ -35,11 +35,13 @@
         <!--Shipping Address-->
         <div class="tab-pane fade show active" id="shipping-address" role="tabpanel"
             aria-labelledby="shipping-address-tab">
+            @if(count(Auth::user()->addresses) > 0)
             <div class="d-flex justify-content-end choose-address">
                 <button type="button" class="px-0 py-1 border-0 bg-white fs-12 fw-bold text-blue" data-toggle="modal"
                     data-target="#choose-address-modal">{{ translate('Choose Another
                     Address') }}</button>
             </div>
+            @endif
             <!-- Single Start -->
             <div class="mb-2 mt-2 mt-md-3">
                 @php
@@ -124,10 +126,12 @@
         @if (get_setting('billing_address_required'))
         <!--Billing Address Start-->
         <div class="tab-pane fade" id="billing-address" role="tabpanel" aria-labelledby="billing-address-tab">
+            @if(count(Auth::user()->addresses) > 0)
              <div class="d-flex justify-content-end choose-address">
                 <button type="button" class="px-0 py-1 border-0 bg-white fs-12 fw-bold text-blue" data-toggle="modal"
                     data-target="#choose-billing-address-modal">{{ translate('Choose Another Billing Address') }}</button>
             </div>
+            @endif
             <div class="mb-2 mt-2 mt-md-3">
                 @php
                 $address = Auth::user()->addresses()->where('set_billing', 1)->first();
