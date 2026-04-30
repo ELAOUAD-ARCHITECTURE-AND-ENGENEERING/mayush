@@ -168,14 +168,14 @@ class ReviewController extends Controller
 
                         $clubPoint = ClubPoint::create([
                             'user_id' => Auth::id(),
-                            'points' => $reviewPoint,
-                            'order_id' => $request->order_id
+                            'points' => $reviewPoint
                         ]);
                 
                         ClubPointDetail::create([
                             'club_point_id' => $clubPoint->id,
+                            'order_id'      => $request->order_id,
                             'product_id'    => $request->product_id,
-                            'point'         => $reviewPoint,
+                            'points'        => $reviewPoint,
                         ]);
                        
                     }
@@ -188,7 +188,7 @@ class ReviewController extends Controller
             return back();
         }
         else {
-            return redirect()->route('detail-reviews', $product->id.'?review_type=custom');
+            return redirect()->route('admin.reviews.index');
         }
     }
 

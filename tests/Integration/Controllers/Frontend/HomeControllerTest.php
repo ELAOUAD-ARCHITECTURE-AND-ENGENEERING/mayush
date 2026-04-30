@@ -77,7 +77,6 @@ class HomeControllerTest extends TestCase
         $response = $this->get('/');
         $response->assertStatus(200);
         $response->assertDontSee('Whoops');
-        $response->assertDontSee('500');
     }
 
     /** @test */

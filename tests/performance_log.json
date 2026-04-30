@@ -481,5 +481,61 @@
         "duration_ms": 12.75,
         "memory_mb": 2.03,
         "timestamp": "2026-04-27 10:51:27"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_create_category",
+        "operation": "Create Category",
+        "duration_ms": 7.86,
+        "memory_mb": 0.2,
+        "timestamp": "2026-04-29 10:28:57"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_read_category_list",
+        "operation": "Read Category List",
+        "duration_ms": 17.39,
+        "memory_mb": 4.37,
+        "timestamp": "2026-04-29 10:28:59"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_update_category",
+        "operation": "Update Category",
+        "duration_ms": 6.21,
+        "memory_mb": 4.22,
+        "timestamp": "2026-04-29 10:29:00"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_delete_category",
+        "operation": "Delete Category",
+        "duration_ms": 6.89,
+        "memory_mb": 4.1,
+        "timestamp": "2026-04-29 10:29:01"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_create_category",
+        "operation": "Create Category",
+        "duration_ms": 13.25,
+        "memory_mb": 0.2,
+        "timestamp": "2026-04-30 10:34:46"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_read_category_list",
+        "operation": "Read Category List",
+        "duration_ms": 37.77,
+        "memory_mb": 4.37,
+        "timestamp": "2026-04-30 10:34:49"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_update_category",
+        "operation": "Update Category",
+        "duration_ms": 11.23,
+        "memory_mb": 4.22,
+        "timestamp": "2026-04-30 10:34:51"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_delete_category",
+        "operation": "Delete Category",
+        "duration_ms": 13.68,
+        "memory_mb": 4.1,
+        "timestamp": "2026-04-30 10:34:53"
     }
 ]
