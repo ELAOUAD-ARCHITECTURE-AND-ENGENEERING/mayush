@@ -21,35 +21,6 @@ class HomeControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        Language::updateOrCreate(
-            ['code' => 'en'],
-            ['name' => 'English', 'app_lang_code' => 'en', 'rtl' => 0]
-        );
-
-        // Seed the minimum business settings required by the layout
-        $settings = [
-            'site_name'           => 'MayushTest',
-            'language'            => 'en',
-            'home_slider_images'  => null,
-            'home_banner1_images' => null,
-            'home_banner2_images' => null,
-            'home_banner3_images' => null,
-            'top10_categories'    => null,
-            'top10_brands'        => null,
-            'classified_product'  => '0',
-            'google_login'        => '0',
-            'facebook_login'      => '0',
-            'twitter_login'       => '0',
-            'apple_login'         => '0',
-            'google_recaptcha'    => '0',
-            'color_scheme'        => 'default',
-            'frontend_logo'       => null,
-        ];
-
-        foreach ($settings as $key => $value) {
-            BusinessSetting::updateOrCreate(['type' => $key], ['value' => $value]);
-        }
     }
 
     /** @test */
