@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Language;
 use App\Models\BusinessSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\SeedsAppConfigs;
 
 /**
  * HomeControllerTest
@@ -16,11 +17,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
  */
 class HomeControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsAppConfigs;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seedConfigs();
     }
 
     /** @test */
@@ -65,5 +67,22 @@ class HomeControllerTest extends TestCase
         $response = $this->get('/');
         $response->assertStatus(200);
         $response->assertDontSee('Flash Sale');
+    }
+
+    /** @test */
+    public function homepage_renders_correctly_with_empty_state(): void
+    {
+        // Ensure the database is clean (trait RefreshDatabase handles this, 
+        // but we verify no products/categories were seeded)
+        $this->assertEquals(0, \App\Models\Product::count());
+        $this->assertEquals(0, \App\Models\Category::count());
+
+        $response = $this->get('/');
+        
+        $response->assertStatus(200);
+        
+        // Assert that the page still contains core structural elements 
+        // even without dynamic content
+        $response->assertSee('MayushTest'); // From BusinessSetting
     }
 }

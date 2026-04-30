@@ -8,11 +8,11 @@ use App\Models\Product;
 use App\Models\Review;
 use App\Models\Order;
 use App\Models\OrderDetail;
-use App\Models\Language;
 use App\Models\BusinessSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Tests\Traits\SeedsAppConfigs;
 
 /**
  * ReviewControllerTest
@@ -25,30 +25,26 @@ use Spatie\Permission\Models\Permission;
  */
 class ReviewControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsAppConfigs;
 
     protected function setUp(): void
     {
         parent::setUp();
         app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
-        
-        Language::updateOrCreate(
-            ['code' => 'en'],
-            ['name' => 'English', 'app_lang_code' => 'en', 'rtl' => 0]
-        );
+        $this->seedConfigs();
 
-        $settings = [
-            'site_name' => 'MayushTest',
-            'language' => 'en',
-            'set_point_for_product_review' => 10,
-        ];
-        foreach ($settings as $key => $value) {
-            BusinessSetting::updateOrCreate(['type' => $key], ['value' => $value]);
-        }
+        // Seed domain-specific settings
+        BusinessSetting::updateOrCreate(
+            ['type' => 'set_point_for_product_review'],
+            ['value' => 10]
+        );
     }
 
     /**
-     * Helper to create an admin with specific Spatie permissions.
+     * Helper to create an admin aligned with production authorization gates.
+     * Assigning the 'Super Admin' role ensures the user passes the Gate::before 
+     * check defined in AuthServiceProvider, reflecting the production-privileged 
+     * access level required for review moderation.
      */
     protected function createAdminWithPermission(string $permissionName): User
     {

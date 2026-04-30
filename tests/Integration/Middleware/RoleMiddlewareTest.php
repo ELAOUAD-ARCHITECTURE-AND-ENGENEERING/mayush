@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Language;
 use App\Models\BusinessSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\SeedsAppConfigs;
 
 /**
  * RoleMiddlewareTest
@@ -21,15 +22,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
  */
 class RoleMiddlewareTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsAppConfigs;
 
     protected function setUp(): void
     {
         parent::setUp();
-        Language::updateOrCreate(
-            ['code' => 'en'],
-            ['name' => 'English', 'app_lang_code' => 'en', 'rtl' => 0]
-        );
+        $this->seedConfigs();
     }
 
     // ─── Admin Routes ────────────────────────────────────────────────────────
@@ -41,7 +39,7 @@ class RoleMiddlewareTest extends TestCase
     public function guest_cannot_access_admin_dashboard(): void
     {
         // auth middleware intercepts first → redirect to login
-        $response = $this->get('/admin');
+        $response = $this->get(route('admin.dashboard'));
         $response->assertRedirect();
     }
 
@@ -50,7 +48,7 @@ class RoleMiddlewareTest extends TestCase
     {
         $customer = User::factory()->customer()->create();
         // auth passes, IsAdmin sees user_type != admin → abort(404)
-        $response = $this->actingAs($customer)->get('/admin');
+        $response = $this->actingAs($customer)->get(route('admin.dashboard'));
         $response->assertStatus(404);
     }
 
@@ -58,7 +56,7 @@ class RoleMiddlewareTest extends TestCase
     public function admin_can_access_admin_dashboard(): void
     {
         $admin = User::factory()->admin()->create();
-        $response = $this->actingAs($admin)->get('/admin');
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
         // IsAdmin passes — controller runs (200 or 500 from missing view data)
         // Key assertion: NOT blocked by middleware (not 404, not redirect to login)
         $this->assertNotEquals(404, $response->status(), 'Admin should not be blocked by IsAdmin middleware');
@@ -72,7 +70,7 @@ class RoleMiddlewareTest extends TestCase
     public function guest_cannot_access_seller_dashboard(): void
     {
         // IsSeller: Auth::check() false → abort(404)
-        $response = $this->get('/seller/dashboard');
+        $response = $this->get(route('seller.dashboard'));
         $response->assertStatus(404);
     }
 
@@ -81,7 +79,7 @@ class RoleMiddlewareTest extends TestCase
     {
         $customer = User::factory()->customer()->create();
         // IsSeller: user_type != seller → abort(404)
-        $response = $this->actingAs($customer)->get('/seller/dashboard');
+        $response = $this->actingAs($customer)->get(route('seller.dashboard'));
         $response->assertStatus(404);
     }
 
@@ -93,7 +91,7 @@ class RoleMiddlewareTest extends TestCase
     public function guest_cannot_access_purchase_history(): void
     {
         // IsCustomer: Auth::check() false → redirect to user.login
-        $response = $this->get('/purchase_history');
+        $response = $this->get(route('purchase_history.index'));
         $response->assertRedirect();
     }
 
@@ -101,7 +99,7 @@ class RoleMiddlewareTest extends TestCase
     public function customer_can_access_purchase_history(): void
     {
         $customer = User::factory()->customer()->create();
-        $response = $this->actingAs($customer)->get('/purchase_history');
+        $response = $this->actingAs($customer)->get(route('purchase_history.index'));
         // Customer middleware passes. Controller runs (200, 302 within app, or 500 from view).
         // Key assertion: NOT redirected to login
         $locationHeader = $response->headers->get('Location', '');

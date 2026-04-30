@@ -18,6 +18,10 @@
             <exclude>./tests/Integration/PaymentGateways</exclude>
         </testsuite>
 
+        <testsuite name="PaymentGateways">
+            <directory suffix="Test.php">./tests/Integration/PaymentGateways</directory>
+        </testsuite>
+
         <testsuite name="Feature">
             <directory suffix="Test.php">./tests/Feature</directory>
         </testsuite>
