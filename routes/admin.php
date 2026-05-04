@@ -506,6 +506,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::resource('blog', BlogController::class);
     Route::controller(BlogController::class)->group(function () {
         // Route::get('/blog/destroy/{id}', 'destroy')->name('blog.destroy');
+        Route::get('/blog-conversion/settings', 'conversion_settings')->name('blog.conversion-settings');
+        Route::post('/blog-conversion/settings', 'update_conversion_settings')->name('blog.conversion-settings.update');
+        Route::get('/blog-conversion/subscribers', 'conversion_subscribers')->name('blog.conversion-subscribers');
+        Route::get('/blog-conversion/subscribers/export', 'export_conversion_subscribers')->name('blog.conversion-subscribers.export');
         Route::post('/blog/change-status', 'change_status')->name('blog.change-status');
         Route::post('/blog/generate-slug', 'generateSlug')->name('generate.slug');
     });

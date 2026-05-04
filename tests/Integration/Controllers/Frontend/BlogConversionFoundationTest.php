@@ -7,6 +7,7 @@ use App\Models\BlogCategory;
 use App\Models\BlogSubscriberLog;
 use App\Models\BusinessSetting;
 use App\Models\Product;
+use App\Models\User;
 use App\Services\Blog\BlogContentSanitizerService;
 use App\Services\Blog\BlogProductMatcherService;
 use App\Services\Blog\BlogSettingsService;
@@ -14,6 +15,7 @@ use App\Services\Blog\BlogTocService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 use Tests\Traits\SeedsAppConfigs;
 
@@ -21,10 +23,22 @@ class BlogConversionFoundationTest extends TestCase
 {
     use RefreshDatabase, SeedsAppConfigs;
 
+    private int $baseOutputBufferLevel = 0;
+
     protected function setUp(): void
     {
         parent::setUp();
+        $this->baseOutputBufferLevel = ob_get_level();
         $this->seedConfigs();
+    }
+
+    protected function tearDown(): void
+    {
+        while (ob_get_level() > $this->baseOutputBufferLevel) {
+            ob_end_clean();
+        }
+
+        parent::tearDown();
     }
 
     /** @test */
@@ -348,12 +362,82 @@ class BlogConversionFoundationTest extends TestCase
         $response->assertSee(route('product', $product->slug));
     }
 
+    /** @test */
+    public function admin_can_update_blog_conversion_settings(): void
+    {
+        $admin = $this->adminWithBlogPermissions();
+
+        $response = $this->actingAs($admin)->post(route('blog.conversion-settings.update'), [
+            'blog_enable_product_embeds' => '1',
+            'blog_products_per_embed' => '6',
+            'blog_product_embed_cache_minutes' => '30',
+            'blog_enable_product_schema' => '1',
+            'blog_enable_table_of_contents' => '0',
+            'blog_email_enable_listing_inline' => '1',
+            'blog_email_enable_sidebar' => '0',
+            'blog_email_enable_post_read' => '1',
+            'blog_email_provider' => 'local',
+            'blog_email_success_message' => 'Welcome to Mayush design notes.',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('business_settings', [
+            'type' => 'blog_products_per_embed',
+            'value' => '6',
+        ]);
+        $this->assertDatabaseHas('business_settings', [
+            'type' => 'blog_enable_table_of_contents',
+            'value' => '0',
+        ]);
+        $this->assertDatabaseHas('business_settings', [
+            'type' => 'blog_email_success_message',
+            'value' => 'Welcome to Mayush design notes.',
+        ]);
+    }
+
+    /** @test */
+    public function admin_can_filter_and_export_blog_subscriber_logs(): void
+    {
+        $admin = $this->adminWithBlogPermissions();
+        BlogSubscriberLog::create([
+            'email' => 'reader@example.test',
+            'placement' => 'post_read',
+            'blog_title' => 'Lighting Guide',
+            'provider' => 'local',
+            'provider_status' => 'logged',
+            'subscribed_at' => now(),
+        ]);
+        BlogSubscriberLog::create([
+            'email' => 'other@example.test',
+            'placement' => 'sidebar',
+            'blog_title' => 'Sofa Guide',
+            'provider' => 'local',
+            'provider_status' => 'logged',
+            'subscribed_at' => now(),
+        ]);
+
+        $index = $this->actingAs($admin)->get(route('blog.conversion-subscribers', ['email' => 'reader']));
+        $index->assertStatus(200);
+        $index->assertSee('reader@example.test');
+        $index->assertDontSee('other@example.test');
+
+        $export = $this->actingAs($admin)->get(route('blog.conversion-subscribers.export', ['email' => 'reader']));
+        $export->assertStatus(200);
+        $export->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $this->assertStringContainsString('reader@example.test', $export->getContent());
+        $this->assertStringNotContainsString('other@example.test', $export->getContent());
+    }
+
     private function createPublishedBlog(string $slug = 'conversion-guide'): Blog
     {
-        $category = BlogCategory::firstOrCreate(
-            ['slug' => 'lighting'],
-            ['category_name' => 'Lighting', 'status' => 1]
-        );
+        $category = BlogCategory::where('slug', 'lighting')->first();
+        if (!$category) {
+            $category = new BlogCategory();
+            $category->slug = 'lighting';
+            $category->category_name = 'Lighting';
+            $category->status = 1;
+            $category->save();
+        }
 
         return Blog::create([
             'category_id' => $category->id,
@@ -364,5 +448,17 @@ class BlogConversionFoundationTest extends TestCase
             'status' => 1,
             'published_at' => now(),
         ]);
+    }
+
+    private function adminWithBlogPermissions(): User
+    {
+        $admin = User::factory()->create(['user_type' => 'admin']);
+
+        foreach (['view_blogs', 'edit_blog'] as $permission) {
+            Permission::findOrCreate($permission, 'web');
+            $admin->givePermissionTo($permission);
+        }
+
+        return $admin;
     }
 }

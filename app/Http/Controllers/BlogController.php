@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BlogCategory;
 use App\Models\Blog;
+use App\Models\BlogSubscriberLog;
+use App\Models\BusinessSetting;
 use App\Http\Requests\BlogSubscribeRequest;
 use App\Services\Blog\BlogContentSanitizerService;
 use App\Services\Blog\BlogEmailService;
@@ -13,6 +15,7 @@ use App\Services\Blog\BlogProductMatcherService;
 use App\Services\Blog\BlogSchemaService;
 use App\Services\Blog\BlogSettingsService;
 use App\Services\Blog\BlogTocService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
@@ -26,6 +29,8 @@ class BlogController extends Controller
         $this->middleware(['permission:edit_blog'])->only('edit');
         $this->middleware(['permission:delete_blog'])->only('destroy');
         $this->middleware(['permission:publish_blog'])->only('change_status');
+        $this->middleware(['permission:view_blogs'])->only('conversion_settings', 'conversion_subscribers', 'export_conversion_subscribers');
+        $this->middleware(['permission:edit_blog'])->only('update_conversion_settings');
     }
 
     /**
@@ -170,6 +175,74 @@ class BlogController extends Controller
         return back();
     }
 
+    public function conversion_settings()
+    {
+        return view('backend.blog_system.conversion.settings');
+    }
+
+    public function update_conversion_settings(Request $request)
+    {
+        $validated = $request->validate([
+            'blog_enable_product_embeds' => ['nullable', 'boolean'],
+            'blog_products_per_embed' => ['required', 'integer', 'min:1', 'max:12'],
+            'blog_product_embed_cache_minutes' => ['required', 'integer', 'min:1', 'max:1440'],
+            'blog_enable_product_schema' => ['nullable', 'boolean'],
+            'blog_enable_table_of_contents' => ['nullable', 'boolean'],
+            'blog_email_enable_listing_inline' => ['nullable', 'boolean'],
+            'blog_email_enable_sidebar' => ['nullable', 'boolean'],
+            'blog_email_enable_post_read' => ['nullable', 'boolean'],
+            'blog_email_provider' => ['required', 'in:local,mailchimp,klaviyo,webhook'],
+            'blog_email_success_message' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        foreach ($this->blogConversionSettingKeys() as $key => $default) {
+            BusinessSetting::updateOrCreate(
+                ['type' => $key],
+                ['value' => (string) ($validated[$key] ?? $default)]
+            );
+        }
+
+        Cache::forget('business_settings');
+
+        flash(translate('Blog conversion settings updated successfully'))->success();
+        return back();
+    }
+
+    public function conversion_subscribers(Request $request)
+    {
+        $logs = $this->filteredSubscriberLogs($request)->paginate(20);
+
+        return view('backend.blog_system.conversion.subscribers', compact('logs'));
+    }
+
+    public function export_conversion_subscribers(Request $request)
+    {
+        $rows = $this->filteredSubscriberLogs($request)->limit(5000)->get();
+        $csv = fopen('php://temp', 'r+');
+        fputcsv($csv, ['email', 'placement', 'blog_title', 'provider', 'provider_status', 'subscribed_at', 'ip_address']);
+
+        foreach ($rows as $row) {
+            fputcsv($csv, [
+                $row->email,
+                $row->placement,
+                $row->blog_title,
+                $row->provider,
+                $row->provider_status,
+                optional($row->subscribed_at)->toDateTimeString(),
+                $row->ip_address,
+            ]);
+        }
+
+        rewind($csv);
+        $content = stream_get_contents($csv);
+        fclose($csv);
+
+        return response($content, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="blog-subscriber-logs.csv"',
+        ]);
+    }
+
 
     public function all_blog(Request $request, BlogSettingsService $settingsService)
     {
@@ -280,5 +353,31 @@ class BlogController extends Controller
         $slug = Str::slug($translated);
 
         return response()->json(['slug' => $slug]);
+    }
+
+    private function filteredSubscriberLogs(Request $request)
+    {
+        return BlogSubscriberLog::query()
+            ->when($request->filled('email'), fn ($query) => $query->where('email', 'like', '%' . $request->email . '%'))
+            ->when($request->filled('placement'), fn ($query) => $query->where('placement', $request->placement))
+            ->when($request->filled('provider'), fn ($query) => $query->where('provider', $request->provider))
+            ->orderBy('subscribed_at', 'desc')
+            ->orderBy('created_at', 'desc');
+    }
+
+    private function blogConversionSettingKeys(): array
+    {
+        return [
+            'blog_enable_product_embeds' => 0,
+            'blog_products_per_embed' => 4,
+            'blog_product_embed_cache_minutes' => 15,
+            'blog_enable_product_schema' => 0,
+            'blog_enable_table_of_contents' => 0,
+            'blog_email_enable_listing_inline' => 0,
+            'blog_email_enable_sidebar' => 0,
+            'blog_email_enable_post_read' => 0,
+            'blog_email_provider' => 'local',
+            'blog_email_success_message' => translate("You're in! Check your inbox."),
+        ];
     }
 }
