@@ -215,10 +215,9 @@ if (!function_exists('get_system_default_currency')) {
         return Cache::remember('system_default_currency', 86400, function () {
             $currency_id = get_setting('system_default_currency');
             $currency = $currency_id ? Currency::find($currency_id) : null;
-            if (!$currency && app()->runningUnitTests()) {
-                return (object)['code' => 'USD', 'symbol' => '$', 'exchange_rate' => 1];
-            }
-            return $currency ?: Currency::findOrFail($currency_id);
+            return $currency
+                ?: Currency::where('status', 1)->first()
+                ?: (object)['code' => 'MAD', 'symbol' => 'MAD', 'exchange_rate' => 1];
         });
     }
 }

@@ -176,7 +176,32 @@ jobs:
             echo "▶ [5/5] Deploying Application..."
             php8.2 artisan optimize:clear
             php8.2 artisan view:clear
+
+            echo "Creating pre-migration database backup..."
+            DB_HOST=$(grep '^DB_HOST=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
+            DB_PORT=$(grep '^DB_PORT=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
+            DB_DATABASE=$(grep '^DB_DATABASE=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
+            DB_USERNAME=$(grep '^DB_USERNAME=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
+            DB_PASSWORD=$(grep '^DB_PASSWORD=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
+            BACKUP_DIR="/home/mayushdesign/db-backups"
+            if [ -z "$DB_DATABASE" ] || [ -z "$DB_USERNAME" ]; then
+              echo "DB_BACKUP_FAIL: DB_DATABASE and DB_USERNAME must be set in .env"
+              exit 1
+            fi
+            if ! command -v mysqldump >/dev/null 2>&1; then
+              echo "DB_BACKUP_FAIL: mysqldump is not installed on the production server"
+              exit 1
+            fi
+            mkdir -p "$BACKUP_DIR"
+            BACKUP_FILE="$BACKUP_DIR/${DB_DATABASE}-before-deploy-$(date -u +'%Y%m%d-%H%M%S').sql"
+            MYSQL_PWD="$DB_PASSWORD" mysqldump --single-transaction --quick --routines --triggers -h "${DB_HOST:-127.0.0.1}" -P "${DB_PORT:-3306}" -u "$DB_USERNAME" "$DB_DATABASE" > "$BACKUP_FILE"
+            test -s "$BACKUP_FILE"
+            echo "Database backup created: $BACKUP_FILE"
+
+            php8.2 artisan app:preflight-restore --require-redis --allow-pending-migrations --no-ansi
             php8.2 artisan migrate --force
+            php8.2 artisan db:seed --class=BlogNavigationSeeder --force
+            php8.2 artisan app:preflight-restore --require-redis --require-blog-navigation --no-ansi
             php8.2 artisan queue:restart
             php8.2 artisan horizon:terminate
             
