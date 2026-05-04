@@ -564,6 +564,7 @@ Route::middleware(['throttle:payments'])->group(function () {
 //Blog Section
 Route::controller(BlogController::class)->group(function () {
     Route::get('/blog', 'all_blog')->name('blog');
+    Route::post('/blog/subscribe', 'subscribe')->middleware('throttle:10,1')->name('blog.subscribe');
     Route::get('/blog/{slug}', 'blog_details')->name('blog.details');
 });
 

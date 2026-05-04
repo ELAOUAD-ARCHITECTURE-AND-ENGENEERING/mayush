@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BlogCategory;
 use App\Models\Blog;
+use App\Http\Requests\BlogSubscribeRequest;
 use App\Services\Blog\BlogContentSanitizerService;
+use App\Services\Blog\BlogEmailService;
 use App\Services\Blog\BlogProductMatcherService;
 use Illuminate\Support\Str;
 use Stichoza\GoogleTranslate\GoogleTranslate;
@@ -234,6 +236,20 @@ class BlogController extends Controller
         $articleProducts = $productMatcher->productsFor($blog, 'manual', 4);
 
         return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs', 'sanitizedBlogDescription', 'articleProducts'));
+    }
+
+    public function subscribe(BlogSubscribeRequest $request, BlogEmailService $emailService)
+    {
+        $result = $emailService->subscribe($request->validated(), $request);
+
+        if ($request->expectsJson()) {
+            return response()->json($result, $result['success'] ? 200 : 422);
+        }
+
+        return back()->with(
+            $result['success'] ? 'blog_subscribe_success' : 'blog_subscribe_error',
+            $result['message']
+        );
     }
 
     public function generateSlug(Request $request)

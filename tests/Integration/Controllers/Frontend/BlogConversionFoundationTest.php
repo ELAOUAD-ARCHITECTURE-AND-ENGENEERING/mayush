@@ -142,9 +142,50 @@ class BlogConversionFoundationTest extends TestCase
         $response->assertDontSee('steal()', false);
         $response->assertDontSee('maliciousArticlePayload', false);
         $response->assertSee('Shop this guide');
+        $response->assertSee(route('blog.subscribe'));
         $response->assertSee('Warm Table Lamp');
         $response->assertSee(route('product', $safeProduct->slug));
         $response->assertDontSee('Hidden Table Lamp');
+    }
+
+    /** @test */
+    public function blog_subscription_logs_locally_with_safe_metadata(): void
+    {
+        $blog = $this->createPublishedBlog('subscribe-guide');
+
+        $response = $this->post(route('blog.subscribe'), [
+            'email' => 'READER@example.test',
+            'placement' => 'post_read',
+            'blog_id' => $blog->id,
+            'website' => '',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('blog_subscribe_success');
+        $this->assertDatabaseHas('blog_subscriber_logs', [
+            'email' => 'reader@example.test',
+            'placement' => 'post_read',
+            'blog_id' => $blog->id,
+            'blog_title' => $blog->title,
+            'provider' => 'local',
+            'provider_status' => 'logged',
+        ]);
+    }
+
+    /** @test */
+    public function blog_subscription_honeypot_blocks_spam_without_logging(): void
+    {
+        $response = $this->from(route('blog'))->post(route('blog.subscribe'), [
+            'email' => 'spam@example.test',
+            'placement' => 'listing_inline',
+            'website' => 'filled-by-bot',
+        ]);
+
+        $response->assertRedirect(route('blog'));
+        $response->assertSessionHasErrors('website');
+        $this->assertDatabaseMissing('blog_subscriber_logs', [
+            'email' => 'spam@example.test',
+        ]);
     }
 
     private function createPublishedBlog(string $slug = 'conversion-guide'): Blog
