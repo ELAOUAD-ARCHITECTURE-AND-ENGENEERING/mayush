@@ -10,6 +10,7 @@ use App\Http\Requests\BlogSubscribeRequest;
 use App\Services\Blog\BlogContentSanitizerService;
 use App\Services\Blog\BlogEmailService;
 use App\Services\Blog\BlogProductMatcherService;
+use App\Services\Blog\BlogSettingsService;
 use App\Services\Blog\BlogTocService;
 use Illuminate\Support\Str;
 use Stichoza\GoogleTranslate\GoogleTranslate;
@@ -174,7 +175,7 @@ class BlogController extends Controller
     }
 
 
-    public function all_blog(Request $request)
+    public function all_blog(Request $request, BlogSettingsService $settingsService)
     {
         $selected_categories = array();
         $search = null;
@@ -210,13 +211,16 @@ class BlogController extends Controller
 
         $recent_blogs = Blog::published()->with(['category', 'translations'])->orderBy('published_at', 'desc')->orderBy('created_at', 'desc')->limit(9)->get();
 
-        return view("frontend.blog.listing", compact('blogs', 'selected_categories', 'search', 'recent_blogs'));
+        $blogSettings = $settingsService->all();
+
+        return view("frontend.blog.listing", compact('blogs', 'selected_categories', 'search', 'recent_blogs', 'blogSettings'));
     }
 
     public function blog_details(
         $slug,
         BlogContentSanitizerService $sanitizer,
         BlogProductMatcherService $productMatcher,
+        BlogSettingsService $settingsService,
         BlogTocService $tocService
     )
     {
@@ -239,12 +243,18 @@ class BlogController extends Controller
             ->limit(3)
             ->get();
 
-        $tocResult = $tocService->parse($sanitizer->sanitize($blog->getTranslation('description')));
+        $blogSettings = $settingsService->all();
+        $sanitizedDescription = $sanitizer->sanitize($blog->getTranslation('description'));
+        $tocResult = $blogSettings['table_of_contents_enabled']
+            ? $tocService->parse($sanitizedDescription)
+            : ['content' => $sanitizedDescription, 'toc' => []];
         $sanitizedBlogDescription = $tocResult['content'];
         $blogToc = $tocResult['toc'];
-        $articleProducts = $productMatcher->productsFor($blog, 'manual', 4);
+        $articleProducts = $blogSettings['product_embeds_enabled']
+            ? $productMatcher->productsFor($blog, 'manual', $blogSettings['products_per_embed'])
+            : collect();
 
-        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs', 'sanitizedBlogDescription', 'blogToc', 'articleProducts'));
+        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs', 'sanitizedBlogDescription', 'blogToc', 'articleProducts', 'blogSettings'));
     }
 
     public function subscribe(BlogSubscribeRequest $request, BlogEmailService $emailService)

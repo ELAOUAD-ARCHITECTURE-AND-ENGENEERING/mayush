@@ -89,7 +89,7 @@
                                     </div>
                                 </div>
                             </div>
-                            @if($loop->iteration % 3 === 0)
+                            @if(($blogSettings['email_listing_inline_enabled'] ?? true) && $loop->iteration % 3 === 0)
                                 @include('frontend.blog.partials.email-card', [
                                     'placement' => 'listing_inline',
                                     'headline' => translate('Plan a better Moroccan home'),

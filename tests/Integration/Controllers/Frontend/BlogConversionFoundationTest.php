@@ -5,11 +5,14 @@ namespace Tests\Integration\Controllers\Frontend;
 use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\BlogSubscriberLog;
+use App\Models\BusinessSetting;
 use App\Models\Product;
 use App\Services\Blog\BlogContentSanitizerService;
 use App\Services\Blog\BlogProductMatcherService;
+use App\Services\Blog\BlogSettingsService;
 use App\Services\Blog\BlogTocService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 use Tests\Traits\SeedsAppConfigs;
@@ -216,6 +219,56 @@ class BlogConversionFoundationTest extends TestCase
         $response->assertSee('href="#lighting-plan"', false);
         $response->assertSee('id="lighting-plan"', false);
         $response->assertSee('Ambient Light');
+    }
+
+    /** @test */
+    public function blog_conversion_settings_can_disable_optional_article_features(): void
+    {
+        foreach ([
+            'blog_enable_product_embeds',
+            'blog_email_enable_sidebar',
+            'blog_email_enable_post_read',
+            'blog_enable_table_of_contents',
+        ] as $type) {
+            BusinessSetting::updateOrCreate(['type' => $type], ['value' => '0']);
+        }
+        Cache::forget('business_settings');
+
+        $blog = $this->createPublishedBlog('settings-guide');
+        $blog->description = '<h2>Lighting Plan</h2><p>Start here.</p>';
+        $blog->save();
+
+        $product = Product::factory()->create([
+            'name' => 'Muted Floor Lamp',
+            'slug' => 'muted-floor-lamp',
+            'current_stock' => 5,
+            'min_qty' => 1,
+        ]);
+        $blog->products()->attach($product->id, ['placement' => 'manual', 'sort_order' => 1]);
+
+        $response = $this->get(route('blog.details', $blog->slug));
+
+        $response->assertStatus(200);
+        $response->assertSee('Lighting Plan');
+        $response->assertDontSee('Shop this guide');
+        $response->assertDontSee('Muted Floor Lamp');
+        $response->assertDontSee(route('blog.subscribe'));
+        $response->assertDontSee('On this page');
+    }
+
+    /** @test */
+    public function blog_settings_service_returns_safe_defaults(): void
+    {
+        Cache::forget('business_settings');
+
+        $settings = app(BlogSettingsService::class)->all();
+
+        $this->assertTrue($settings['product_embeds_enabled']);
+        $this->assertTrue($settings['email_listing_inline_enabled']);
+        $this->assertTrue($settings['email_sidebar_enabled']);
+        $this->assertTrue($settings['email_post_read_enabled']);
+        $this->assertTrue($settings['table_of_contents_enabled']);
+        $this->assertSame(4, $settings['products_per_embed']);
     }
 
     private function createPublishedBlog(string $slug = 'conversion-guide'): Blog
