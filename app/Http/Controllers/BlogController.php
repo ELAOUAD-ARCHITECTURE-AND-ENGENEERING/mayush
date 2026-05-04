@@ -8,6 +8,8 @@ use App\Models\BlogCategory;
 use App\Models\Blog;
 use App\Models\BlogSubscriberLog;
 use App\Models\BusinessSetting;
+use App\Models\Product;
+use App\Models\Shop;
 use App\Http\Requests\BlogSubscribeRequest;
 use App\Services\Blog\BlogContentSanitizerService;
 use App\Services\Blog\BlogEmailService;
@@ -61,7 +63,10 @@ class BlogController extends Controller
     public function create()
     {
         $blog_categories = BlogCategory::all();
-        return view('backend.blog_system.blog.create', compact('blog_categories'));
+        $assignable_products = $this->blogAssignableProducts();
+        $shops = Shop::orderBy('name')->limit(300)->get();
+
+        return view('backend.blog_system.blog.create', compact('blog_categories', 'assignable_products', 'shops'));
     }
 
     /**
@@ -91,8 +96,10 @@ class BlogController extends Controller
         $blog->meta_img = $request->meta_img;
         $blog->meta_description = $request->meta_description;
         $blog->meta_keywords = $request->meta_keywords;
+        $this->fillBlogConversionFields($blog, $request);
 
         $blog->save();
+        $this->syncBlogProducts($blog, $request);
 
         flash(translate('Blog post has been created successfully'))->success();
         return redirect()->route('blog.index');
@@ -114,10 +121,12 @@ class BlogController extends Controller
      */
     public function edit($id)
     {
-        $blog = Blog::find($id);
+        $blog = Blog::with('products')->find($id);
         $blog_categories = BlogCategory::all();
+        $assignable_products = $this->blogAssignableProducts();
+        $shops = Shop::orderBy('name')->limit(300)->get();
 
-        return view('backend.blog_system.blog.edit', compact('blog', 'blog_categories'));
+        return view('backend.blog_system.blog.edit', compact('blog', 'blog_categories', 'assignable_products', 'shops'));
     }
 
     /**
@@ -147,8 +156,10 @@ class BlogController extends Controller
         $blog->meta_img = $request->meta_img;
         $blog->meta_description = $request->meta_description;
         $blog->meta_keywords = $request->meta_keywords;
+        $this->fillBlogConversionFields($blog, $request);
 
         $blog->save();
+        $this->syncBlogProducts($blog, $request);
 
         flash(translate('Blog post has been updated successfully'))->success();
         return redirect()->route('blog.index');
@@ -379,5 +390,52 @@ class BlogController extends Controller
             'blog_email_provider' => 'local',
             'blog_email_success_message' => translate("You're in! Check your inbox."),
         ];
+    }
+
+    private function blogAssignableProducts()
+    {
+        return Product::query()
+            ->with(['thumbnail', 'user.shop'])
+            ->isApprovedPublished()
+            ->where('digital', 0)
+            ->orderBy('name')
+            ->limit(300)
+            ->get();
+    }
+
+    private function fillBlogConversionFields(Blog $blog, Request $request): void
+    {
+        $blog->hero_image = $request->hero_image;
+        $blog->badge_type = $request->badge_type ?: null;
+        $blog->custom_badge_text = $request->custom_badge_text;
+        $blog->is_featured = $request->has('is_featured') ? 1 : 0;
+        $blog->canonical_url = $request->canonical_url;
+        $blog->schema_enabled = $request->has('schema_enabled') ? 1 : 0;
+        $blog->shop_id = $request->shop_id ?: null;
+        $blog->vendor_quote = $request->vendor_quote;
+    }
+
+    private function syncBlogProducts(Blog $blog, Request $request): void
+    {
+        $productIds = collect($request->input('product_ids', []))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $safeProductIds = Product::query()
+            ->isApprovedPublished()
+            ->whereIn('id', $productIds)
+            ->pluck('id')
+            ->all();
+
+        $sync = [];
+        foreach ($safeProductIds as $index => $productId) {
+            $sync[$productId] = [
+                'placement' => 'manual',
+                'sort_order' => $index + 1,
+            ];
+        }
+
+        $blog->products()->sync($sync);
     }
 }

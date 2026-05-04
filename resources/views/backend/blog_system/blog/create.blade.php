@@ -127,6 +127,12 @@
                             <input type="text" class="form-control" id="meta_keywords" name="meta_keywords" placeholder="{{translate('Meta Keywords')}}">
                         </div>
                     </div>
+
+                    @include('backend.blog_system.blog.conversion_fields', [
+                        'blog' => null,
+                        'assignable_products' => $assignable_products ?? collect(),
+                        'shops' => $shops ?? collect(),
+                    ])
                     
                     <div class="form-group mb-0 text-right">
                         <button type="submit" class="btn btn-primary">

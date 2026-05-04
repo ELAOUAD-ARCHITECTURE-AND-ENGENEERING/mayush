@@ -428,16 +428,80 @@ class BlogConversionFoundationTest extends TestCase
         $this->assertStringNotContainsString('other@example.test', $export->getContent());
     }
 
+    /** @test */
+    public function admin_can_store_blog_conversion_fields_and_manual_products(): void
+    {
+        $admin = $this->adminWithBlogPermissions();
+        $category = $this->createBlogCategory();
+        $safeProduct = Product::factory()->create([
+            'name' => 'Admin Safe Lamp',
+            'slug' => 'admin-safe-lamp',
+            'current_stock' => 5,
+            'min_qty' => 1,
+        ]);
+        $hiddenProduct = Product::factory()->unpublished()->create([
+            'name' => 'Admin Hidden Lamp',
+            'slug' => 'admin-hidden-lamp',
+            'current_stock' => 5,
+            'min_qty' => 1,
+        ]);
+
+        $response = $this->actingAs($admin)->post(route('blog.store'), [
+            'category_id' => $category->id,
+            'title' => 'Admin Conversion Guide',
+            'slug' => 'admin-conversion-guide',
+            'short_description' => 'A guide for admin managed content.',
+            'description' => '<h2>Guide</h2>',
+            'badge_type' => 'buying_guide',
+            'is_featured' => '1',
+            'schema_enabled' => '1',
+            'canonical_url' => 'https://example.test/blog/admin-conversion-guide',
+            'product_ids' => [$safeProduct->id, $hiddenProduct->id],
+        ]);
+
+        $response->assertRedirect(route('blog.index'));
+        $blog = Blog::where('slug', 'admin-conversion-guide')->firstOrFail();
+        $this->assertSame('buying_guide', $blog->badge_type);
+        $this->assertSame(1, (int) $blog->is_featured);
+        $this->assertSame('https://example.test/blog/admin-conversion-guide', $blog->canonical_url);
+        $this->assertTrue($blog->products()->where('products.id', $safeProduct->id)->exists());
+        $this->assertFalse($blog->products()->where('products.id', $hiddenProduct->id)->exists());
+    }
+
+    /** @test */
+    public function admin_can_update_blog_conversion_fields_and_manual_products(): void
+    {
+        $admin = $this->adminWithBlogPermissions();
+        $blog = $this->createPublishedBlog('admin-update-guide');
+        $product = Product::factory()->create([
+            'name' => 'Updated Admin Lamp',
+            'slug' => 'updated-admin-lamp',
+            'current_stock' => 5,
+            'min_qty' => 1,
+        ]);
+
+        $response = $this->actingAs($admin)->patch(route('blog.update', $blog->id), [
+            'category_id' => $blog->category_id,
+            'title' => 'Updated Admin Conversion Guide',
+            'slug' => 'admin-update-guide',
+            'short_description' => 'Updated short description.',
+            'description' => '<h2>Updated Guide</h2>',
+            'badge_type' => 'expert_pick',
+            'custom_badge_text' => null,
+            'schema_enabled' => '1',
+            'product_ids' => [$product->id],
+        ]);
+
+        $response->assertRedirect(route('blog.index'));
+        $blog->refresh();
+        $this->assertSame('expert_pick', $blog->badge_type);
+        $this->assertSame('Updated Admin Conversion Guide', $blog->title);
+        $this->assertTrue($blog->products()->where('products.id', $product->id)->exists());
+    }
+
     private function createPublishedBlog(string $slug = 'conversion-guide'): Blog
     {
-        $category = BlogCategory::where('slug', 'lighting')->first();
-        if (!$category) {
-            $category = new BlogCategory();
-            $category->slug = 'lighting';
-            $category->category_name = 'Lighting';
-            $category->status = 1;
-            $category->save();
-        }
+        $category = $this->createBlogCategory();
 
         return Blog::create([
             'category_id' => $category->id,
@@ -450,11 +514,25 @@ class BlogConversionFoundationTest extends TestCase
         ]);
     }
 
+    private function createBlogCategory(): BlogCategory
+    {
+        $category = BlogCategory::where('slug', 'lighting')->first();
+        if (!$category) {
+            $category = new BlogCategory();
+            $category->slug = 'lighting';
+            $category->category_name = 'Lighting';
+            $category->status = 1;
+            $category->save();
+        }
+
+        return $category;
+    }
+
     private function adminWithBlogPermissions(): User
     {
         $admin = User::factory()->create(['user_type' => 'admin']);
 
-        foreach (['view_blogs', 'edit_blog'] as $permission) {
+        foreach (['view_blogs', 'add_blog', 'edit_blog'] as $permission) {
             Permission::findOrCreate($permission, 'web');
             $admin->givePermissionTo($permission);
         }
