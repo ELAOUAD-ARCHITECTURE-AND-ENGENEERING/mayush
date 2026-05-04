@@ -83,6 +83,12 @@
                         'subtitle' => translate('Discover Mayush products selected for this article.'),
                         'placement' => 'article',
                     ])
+                    @include('frontend.blog.partials.email-card', [
+                        'placement' => 'post_read',
+                        'blog' => $blog,
+                        'headline' => translate('Want more room-by-room ideas?'),
+                        'text' => translate('Get Moroccan interior design guides and curated Mayush product picks by email.'),
+                    ])
                     @if(($related_blogs ?? collect())->isNotEmpty())
                         <div class="border-top pt-4 mt-4">
                             <h2 class="fs-18 fw-700 mb-3">{{ translate('Related Posts') }}</h2>
@@ -114,6 +120,13 @@
             
             <!-- recent posts -->
             <div class="col-xxl-3 col-lg-4">
+                @include('frontend.blog.partials.email-card', [
+                    'placement' => 'sidebar',
+                    'blog' => $blog,
+                    'headline' => translate('Design notes from Mayush'),
+                    'text' => translate('Short buying guides, decor inspiration, and marketplace picks for Moroccan homes.'),
+                    'button' => translate('Join'),
+                ])
                 <div class="p-3 border">
                     <h3 class="fs-16 fw-700 text-dark mb-3">{{ translate('Recent Posts') }}</h3>
                     <div class="row">

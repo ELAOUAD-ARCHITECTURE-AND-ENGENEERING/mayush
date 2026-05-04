@@ -89,6 +89,13 @@
                                     </div>
                                 </div>
                             </div>
+                            @if($loop->iteration % 3 === 0)
+                                @include('frontend.blog.partials.email-card', [
+                                    'placement' => 'listing_inline',
+                                    'headline' => translate('Plan a better Moroccan home'),
+                                    'text' => translate('Get Mayush interior design guides and curated marketplace finds in your inbox.'),
+                                ])
+                            @endif
                         @endforeach
                         
                     </div>
