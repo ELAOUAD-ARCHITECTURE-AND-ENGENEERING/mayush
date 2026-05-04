@@ -34,7 +34,7 @@ class CustomAuthController extends Controller
 
         $email = null;
         $phone = null;
-        return view('auth.' . get_setting('authentication_layout_select') . '.user_registration', compact('email','phone'));
+        return view('auth.' . safe_auth_layout_select() . '.user_registration', compact('email','phone'));
     }
 
     public function cart_login(Request $request)
@@ -145,12 +145,12 @@ class CustomAuthController extends Controller
             } else {
                 flash(translate("Password and confirm password didn't match"))->warning();
                 $email = $user->email;
-                return view('auth.'.get_setting('authentication_layout_select').'.reset_password', compact('email'));
+                return view('auth.'.safe_auth_layout_select().'.reset_password', compact('email'));
             }
         } else {
             flash(translate("Verification code mismatch"))->error();
             $email = $request->email;
-            return view('auth.'.get_setting('authentication_layout_select').'.reset_password', compact('email'));
+            return view('auth.'.safe_auth_layout_select().'.reset_password', compact('email'));
         }
     }
 
@@ -186,7 +186,7 @@ class CustomAuthController extends Controller
     public function regVerifyCode($id)
     {
         $customerVerification = RegistrationVerificationCode::whereId(decrypt($id))->first();
-        return view('auth.' . get_setting('authentication_layout_select') . '.customer_verify_confirmation', compact('customerVerification'));
+        return view('auth.' . safe_auth_layout_select() . '.customer_verify_confirmation', compact('customerVerification'));
     }
 
     public function regVerifyCodeConfirmation(Request $request, \App\Services\UserService $userService)

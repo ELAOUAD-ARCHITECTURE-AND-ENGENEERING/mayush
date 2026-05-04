@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -42,6 +44,18 @@ jobs:
 
       - name: Validate preflight command boots
         run: php artisan app:preflight-restore --skip-db --no-ansi
+
+      - name: Configure guardrail diff base
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "GUARDRAIL_BASE=origin/${{ github.base_ref }}" >> "$GITHUB_ENV"
+          else
+            echo "GUARDRAIL_BASE=${{ github.event.before }}" >> "$GITHUB_ENV"
+          fi
+          echo "GUARDRAIL_HEAD=HEAD" >> "$GITHUB_ENV"
+
+      - name: Run automated operational guardrails
+        run: php scripts/ci/check-operational-guardrails.php
 
       - name: Check for unsafe dynamic view selectors
         run: |

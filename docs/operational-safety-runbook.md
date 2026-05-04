@@ -1,36 +1,62 @@
-# Mayush Operational Safety Runbook
+# Mayush Automated Operational Safety Runbook
 
-This runbook prevents the code/schema/config drift that caused the 2026-04-30 outage.
+This runbook documents the automated controls that prevent the code/schema/config drift that caused the 2026-04-30 outage.
 
-## Non-Negotiable Rules
+Manual GitHub UI setup is intentionally separated in `docs/github-branch-ruleset-manual.md`.
 
-1. Do not commit directly to `main`.
-2. Do not run migrations without a fresh database backup.
-3. Do not deploy code and database changes separately unless a rollback plan is written first.
-4. Do not merge changes that leave `php artisan app:preflight-restore` failing.
-5. Do not commit unrelated mass deletions, especially `sqlupdates/`, without explicit review.
+## Enforced Rules
 
-## Before Risky Local Work
+| Rule | Automatic control |
+| --- | --- |
+| Do not deploy without a fresh database backup | `.github/workflows/deploy.yml` creates a timestamped `mysqldump` before `php artisan migrate --force` |
+| Do not deploy with broken runtime settings | `php artisan app:preflight-restore` runs before and after migrations |
+| Keep public Blog access available | Deploy runs `BlogNavigationSeeder`, then validates `--require-blog-navigation` |
+| Keep dynamic view selectors safe | CI blocks known unsafe selector patterns and the app uses safe helpers |
+| Keep code clean before merge | Quality gates validate Composer, routes, audits, and focused tests |
+| Protect against destructive deletions | `scripts/ci/check-operational-guardrails.php` fails CI for protected file/path deletions and mass deletion bursts |
+| Keep guardrail automation present | CI verifies the guardrail workflow, deploy backup/preflight tokens, scripts, and docs exist |
 
-```powershell
-git switch main
-git pull origin main
-git switch -c feature/descriptive-name
-powershell -ExecutionPolicy Bypass -File scripts/maintenance/backup-database.ps1
-php artisan app:preflight-restore --allow-pending-migrations
+## Automatic CI Guardrails
+
+GitHub Actions runs:
+
+- `.github/workflows/quality-gates.yml`
+- `.github/workflows/restoration-guardrails.yml`
+
+The restoration workflow runs:
+
+```bash
+php artisan app:preflight-restore --skip-db --no-ansi
+php scripts/ci/check-operational-guardrails.php
 ```
 
-## Before Running Migrations
+Run the same guard locally with:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/maintenance/backup-database.ps1
-php artisan app:preflight-restore --allow-pending-migrations
-php artisan migrate
-php artisan db:seed --class=BlogNavigationSeeder --force
-php artisan app:preflight-restore --require-blog-navigation
-php artisan optimize:clear
-powershell -ExecutionPolicy Bypass -File scripts/maintenance/smoke-check.ps1
+composer guardrails
 ```
+
+To compare a branch against a base commit locally:
+
+```powershell
+$env:GUARDRAIL_BASE = "origin/main"
+$env:GUARDRAIL_HEAD = "HEAD"
+composer guardrails
+```
+
+Do not set `ALLOW_DESTRUCTIVE_CHANGES=true` unless an emergency deletion has been explicitly approved and reviewed.
+
+## Automatic Deployment Guardrails
+
+Production deploy automatically performs:
+
+1. Clears runtime/view caches.
+2. Creates a pre-migration MySQL backup with `mysqldump --single-transaction --quick --routines --triggers`.
+3. Runs `php artisan app:preflight-restore --require-redis --allow-pending-migrations`.
+4. Runs `php artisan migrate --force`.
+5. Runs `php artisan db:seed --class=BlogNavigationSeeder --force`.
+6. Runs `php artisan app:preflight-restore --require-redis --require-blog-navigation`.
+7. Restarts queues and Horizon.
 
 ## Required Runtime Settings
 
@@ -45,9 +71,7 @@ The application must have these `business_settings` records:
 - `header_menu_labels`
 - `header_menu_links`
 
-The app now has safe fallbacks for the critical dynamic views, but missing settings should still be treated as a deployment failure.
-
-Run `php artisan db:seed --class=BlogNavigationSeeder --force` after blog releases to ensure public users can reach `/blog` without hardcoded localhost URLs. Then run `php artisan app:preflight-restore --require-blog-navigation` to verify the header menu contract.
+The app has safe fallbacks for the critical dynamic views, but missing settings are still treated as deployment failures by preflight.
 
 ## Redis and Horizon Policy
 
@@ -57,7 +81,9 @@ If any of these are set to `redis`, Redis must be reachable before deployment:
 - `CACHE_DRIVER`
 - `SESSION_DRIVER`
 
-Use:
+Preflight automatically checks Redis when queue/cache/session are Redis-backed or when deploy passes `--require-redis`.
+
+Manual diagnostic command:
 
 ```powershell
 php artisan app:preflight-restore --require-redis
@@ -94,37 +120,6 @@ Database rollback:
 
 Do not roll back only code or only database when migrations changed schema contracts.
 
-## GitHub Repository Protection
+## Manual Controls
 
-Configure this from GitHub: `Settings` -> `Rules` -> `Rulesets` -> `New branch ruleset`.
-
-Use these values:
-
-| Field | Value |
-| --- | --- |
-| Ruleset name | `MainProtector` |
-| Enforcement status | `Active` |
-| Bypass list | Empty unless an emergency-only admin bypass is approved |
-| Target branches | Include default branch, or add pattern `main` |
-| Restrict deletions | Enabled |
-| Require a pull request before merging | Enabled |
-| Required approvals | `1` minimum |
-| Dismiss stale pull request approvals | Recommended |
-| Require approval of the most recent reviewable push | Recommended |
-| Require status checks to pass | Enabled |
-| Require branches to be up to date before merging | Enabled |
-| Block force pushes | Enabled |
-
-Add these required status checks after they have run at least once on a pull request:
-
-- `Mayush Quality Gates / App health`
-- `Mayush Quality Gates / Composer audit`
-- `Mayush Quality Gates / NPM production audit`
-- `Mayush Restoration Guardrails / Static and Laravel guardrails`
-
-The screenshot layout is correct, but the ruleset is not protective until these are fixed:
-
-- `Enforcement status` must be `Active`, not `Disabled`.
-- Target branches must include `main`.
-- Required status checks must be added; leaving "No checks have been added" does not enforce CI.
-- If GitHub shows that rulesets are not enforced for this private repository without GitHub Team, configure the same requirements under classic `Settings` -> `Branches` -> `Branch protection rules` or upgrade the organization plan.
+The only remaining manual control is GitHub repository branch/ruleset protection because it lives in GitHub account settings, outside the repository code. Configure it once using `docs/github-branch-ruleset-manual.md`.

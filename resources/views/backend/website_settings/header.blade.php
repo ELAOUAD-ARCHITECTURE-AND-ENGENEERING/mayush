@@ -10,7 +10,7 @@
 		</div>
 	</div>
 
-	@include('header.' .get_element_type_by_id(get_setting('header_element')))
+	@include(safe_header_view())
 	<br>
 
 	<div class="row">

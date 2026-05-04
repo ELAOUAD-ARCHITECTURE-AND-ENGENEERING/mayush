@@ -109,6 +109,9 @@
         ],
         "preflight": [
             "@php artisan app:preflight-restore"
+        ],
+        "guardrails": [
+            "@php scripts/ci/check-operational-guardrails.php"
         ]
     },
     "config": {
