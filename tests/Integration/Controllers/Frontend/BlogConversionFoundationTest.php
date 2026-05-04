@@ -8,6 +8,7 @@ use App\Models\BlogSubscriberLog;
 use App\Models\Product;
 use App\Services\Blog\BlogContentSanitizerService;
 use App\Services\Blog\BlogProductMatcherService;
+use App\Services\Blog\BlogTocService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
@@ -186,6 +187,35 @@ class BlogConversionFoundationTest extends TestCase
         $this->assertDatabaseMissing('blog_subscriber_logs', [
             'email' => 'spam@example.test',
         ]);
+    }
+
+    /** @test */
+    public function blog_toc_service_injects_stable_heading_ids(): void
+    {
+        $result = app(BlogTocService::class)->parse('<h2>Lighting Plan</h2><p>Intro</p><h3>Lighting Plan</h3>');
+
+        $this->assertStringContainsString('id="lighting-plan"', $result['content']);
+        $this->assertStringContainsString('id="lighting-plan-2"', $result['content']);
+        $this->assertSame([
+            ['id' => 'lighting-plan', 'text' => 'Lighting Plan', 'level' => 2],
+            ['id' => 'lighting-plan-2', 'text' => 'Lighting Plan', 'level' => 3],
+        ], $result['toc']);
+    }
+
+    /** @test */
+    public function blog_detail_renders_table_of_contents_from_sanitized_headings(): void
+    {
+        $blog = $this->createPublishedBlog('toc-guide');
+        $blog->description = '<h2>Lighting Plan</h2><p>Start here.</p><h3>Ambient Light</h3>';
+        $blog->save();
+
+        $response = $this->get(route('blog.details', $blog->slug));
+
+        $response->assertStatus(200);
+        $response->assertSee('On this page');
+        $response->assertSee('href="#lighting-plan"', false);
+        $response->assertSee('id="lighting-plan"', false);
+        $response->assertSee('Ambient Light');
     }
 
     private function createPublishedBlog(string $slug = 'conversion-guide'): Blog

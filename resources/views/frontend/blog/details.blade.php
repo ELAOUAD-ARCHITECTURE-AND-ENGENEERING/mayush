@@ -122,6 +122,7 @@
                     'text' => translate('Short buying guides, decor inspiration, and marketplace picks for Moroccan homes.'),
                     'button' => translate('Join'),
                 ])
+                @include('frontend.blog.partials.toc', ['toc' => $blogToc ?? []])
                 <div class="p-3 border">
                     <h3 class="fs-16 fw-700 text-dark mb-3">{{ translate('Recent Posts') }}</h3>
                     <div class="row">
