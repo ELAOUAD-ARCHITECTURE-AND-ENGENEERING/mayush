@@ -306,7 +306,7 @@ class BlogController extends Controller
         BlogTocService $tocService
     )
     {
-        $blog = Blog::published()->with(['category', 'author', 'tags', 'translations', 'products'])->where('slug', $slug)->firstOrFail();
+        $blog = Blog::published()->with(['category', 'author', 'shop', 'tags', 'translations', 'products'])->where('slug', $slug)->firstOrFail();
         $recent_blogs = Blog::published()->with(['category', 'translations'])->where('id', '!=', $blog->id)->orderBy('published_at', 'desc')->orderBy('created_at', 'desc')->limit(9)->get();
         $related_blogs = Blog::published()
             ->with(['category', 'translations'])

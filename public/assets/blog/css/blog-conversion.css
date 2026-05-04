@@ -27,6 +27,7 @@
 .mb-blog .card,
 .mb-blog-product-card,
 .mb-blog-email-card,
+.mb-blog-vendor-spotlight,
 .mb-blog-toc {
     border-color: var(--mb-border) !important;
     border-radius: var(--mb-radius-sm);

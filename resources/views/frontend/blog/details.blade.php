@@ -95,6 +95,7 @@
                             'text' => translate('Get Moroccan interior design guides and curated Mayush product picks by email.'),
                         ])
                     @endif
+                    @include('frontend.blog.partials.vendor-spotlight', ['blog' => $blog])
                     @if(($related_blogs ?? collect())->isNotEmpty())
                         <div class="border-top pt-4 mt-4">
                             <h2 class="fs-18 fw-700 mb-3">{{ translate('Related Posts') }}</h2>

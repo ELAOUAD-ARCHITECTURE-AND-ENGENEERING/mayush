@@ -7,6 +7,7 @@ use App\Models\BlogCategory;
 use App\Models\BlogSubscriberLog;
 use App\Models\BusinessSetting;
 use App\Models\Product;
+use App\Models\Shop;
 use App\Models\User;
 use App\Services\Blog\BlogContentSanitizerService;
 use App\Services\Blog\BlogProductMatcherService;
@@ -375,6 +376,27 @@ class BlogConversionFoundationTest extends TestCase
         $response->assertSee('"@type": "Product"', false);
         $response->assertSee('Schema Floor Lamp');
         $response->assertSee(route('product', $product->slug));
+    }
+
+    /** @test */
+    public function blog_detail_renders_vendor_spotlight_when_configured(): void
+    {
+        $blog = $this->createPublishedBlog('vendor-spotlight-guide');
+        $shop = Shop::factory()->create([
+            'name' => 'Atlas Atelier',
+            'slug' => 'atlas-atelier',
+        ]);
+        $blog->shop_id = $shop->id;
+        $blog->vendor_quote = 'Handmade lighting changes the entire room.';
+        $blog->save();
+
+        $response = $this->get(route('blog.details', $blog->slug));
+
+        $response->assertStatus(200);
+        $response->assertSee('Vendor spotlight');
+        $response->assertSee('Atlas Atelier');
+        $response->assertSee('Handmade lighting changes the entire room.');
+        $response->assertSee(route('shop.visit', $shop->slug));
     }
 
     /** @test */
