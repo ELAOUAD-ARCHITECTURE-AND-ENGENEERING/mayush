@@ -96,19 +96,35 @@ Do not roll back only code or only database when migrations changed schema contr
 
 ## GitHub Repository Protection
 
-Configure this in GitHub branch settings for `main`:
+Configure this from GitHub: `Settings` -> `Rules` -> `Rulesets` -> `New branch ruleset`.
 
-- Require pull request before merging.
-- Require at least one approval.
-- Require status checks to pass.
-- Require branches to be up to date before merging.
-- Block force pushes.
-- Block deletions.
-- Restrict who can push to `main`.
+Use these values:
 
-Required checks should include:
+| Field | Value |
+| --- | --- |
+| Ruleset name | `MainProtector` |
+| Enforcement status | `Active` |
+| Bypass list | Empty unless an emergency-only admin bypass is approved |
+| Target branches | Include default branch, or add pattern `main` |
+| Restrict deletions | Enabled |
+| Require a pull request before merging | Enabled |
+| Required approvals | `1` minimum |
+| Dismiss stale pull request approvals | Recommended |
+| Require approval of the most recent reviewable push | Recommended |
+| Require status checks to pass | Enabled |
+| Require branches to be up to date before merging | Enabled |
+| Block force pushes | Enabled |
+
+Add these required status checks after they have run at least once on a pull request:
 
 - `Mayush Quality Gates / App health`
 - `Mayush Quality Gates / Composer audit`
 - `Mayush Quality Gates / NPM production audit`
 - `Mayush Restoration Guardrails / Static and Laravel guardrails`
+
+The screenshot layout is correct, but the ruleset is not protective until these are fixed:
+
+- `Enforcement status` must be `Active`, not `Disabled`.
+- Target branches must include `main`.
+- Required status checks must be added; leaving "No checks have been added" does not enforce CI.
+- If GitHub shows that rulesets are not enforced for this private repository without GitHub Team, configure the same requirements under classic `Settings` -> `Branches` -> `Branch protection rules` or upgrade the organization plan.
