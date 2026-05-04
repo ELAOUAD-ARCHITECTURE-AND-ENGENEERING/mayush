@@ -65,6 +65,10 @@
                         </select>
                         <small class="text-muted">{{ translate('External providers are logged locally until provider credentials are configured in a later phase.') }}</small>
                     </div>
+                    <div class="form-group">
+                        <label>{{ translate('Custom webhook URL') }}</label>
+                        <input type="url" class="form-control" name="blog_webhook_url" value="{{ get_setting('blog_webhook_url') }}">
+                    </div>
                     <div class="form-group mb-0">
                         <label>{{ translate('Success message') }}</label>
                         <input type="text" class="form-control" name="blog_email_success_message" value="{{ get_setting('blog_email_success_message', translate("You're in! Check your inbox.")) }}">

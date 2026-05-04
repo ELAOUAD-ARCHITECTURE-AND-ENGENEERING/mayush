@@ -14,6 +14,7 @@ use App\Services\Blog\BlogSettingsService;
 use App\Services\Blog\BlogTocService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
@@ -406,6 +407,32 @@ class BlogConversionFoundationTest extends TestCase
         $this->assertDatabaseHas('business_settings', [
             'type' => 'blog_email_success_message',
             'value' => 'Welcome to Mayush design notes.',
+        ]);
+    }
+
+    /** @test */
+    public function blog_subscription_can_deliver_to_configured_webhook_with_local_log(): void
+    {
+        Http::fake([
+            'https://hooks.example.test/blog' => Http::response(['ok' => true], 200),
+        ]);
+        BusinessSetting::updateOrCreate(['type' => 'blog_email_provider'], ['value' => 'webhook']);
+        BusinessSetting::updateOrCreate(['type' => 'blog_webhook_url'], ['value' => 'https://hooks.example.test/blog']);
+        Cache::flush();
+
+        $response = $this->post(route('blog.subscribe'), [
+            'email' => 'webhook-reader@example.test',
+            'placement' => 'listing_inline',
+            'website' => '',
+        ]);
+
+        $response->assertRedirect();
+        Http::assertSent(fn ($request) => $request->url() === 'https://hooks.example.test/blog'
+            && $request['email'] === 'webhook-reader@example.test');
+        $this->assertDatabaseHas('blog_subscriber_logs', [
+            'email' => 'webhook-reader@example.test',
+            'provider' => 'webhook',
+            'provider_status' => 'delivered',
         ]);
     }
 

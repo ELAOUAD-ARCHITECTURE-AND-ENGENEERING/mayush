@@ -11,6 +11,7 @@ class BlogSettingsService
         'blog_email_enable_sidebar' => true,
         'blog_email_enable_post_read' => true,
         'blog_email_provider' => 'local',
+        'blog_webhook_url' => '',
         'blog_email_success_message' => "You're in! Check your inbox.",
         'blog_enable_table_of_contents' => true,
         'blog_product_embed_cache_minutes' => 15,

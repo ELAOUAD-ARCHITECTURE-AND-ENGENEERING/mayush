@@ -203,6 +203,7 @@ class BlogController extends Controller
             'blog_email_enable_sidebar' => ['nullable', 'boolean'],
             'blog_email_enable_post_read' => ['nullable', 'boolean'],
             'blog_email_provider' => ['required', 'in:local,mailchimp,klaviyo,webhook'],
+            'blog_webhook_url' => ['nullable', 'url', 'max:500'],
             'blog_email_success_message' => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -388,6 +389,7 @@ class BlogController extends Controller
             'blog_email_enable_sidebar' => 0,
             'blog_email_enable_post_read' => 0,
             'blog_email_provider' => 'local',
+            'blog_webhook_url' => '',
             'blog_email_success_message' => translate("You're in! Check your inbox."),
         ];
     }
