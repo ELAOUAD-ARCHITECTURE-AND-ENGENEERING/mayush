@@ -28,6 +28,9 @@
         ['name' => translate('Blog'), 'url' => route('blog')],
         ['name' => $blogTitle, 'url' => route('blog.details', $blog->slug)],
     ])) !!}</script>
+    @foreach(($blogProductSchemas ?? []) as $blogProductSchema)
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd($blogProductSchema) !!}</script>
+    @endforeach
 @endsection
 
 @section('content')

@@ -268,6 +268,7 @@ class BlogConversionFoundationTest extends TestCase
         $this->assertTrue($settings['email_sidebar_enabled']);
         $this->assertTrue($settings['email_post_read_enabled']);
         $this->assertTrue($settings['table_of_contents_enabled']);
+        $this->assertTrue($settings['product_schema_enabled']);
         $this->assertSame(4, $settings['products_per_embed']);
     }
 
@@ -324,6 +325,27 @@ class BlogConversionFoundationTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonCount(0, 'data');
+    }
+
+    /** @test */
+    public function blog_detail_outputs_product_schema_for_embedded_products(): void
+    {
+        Cache::flush();
+        $blog = $this->createPublishedBlog('schema-products-guide');
+        $product = Product::factory()->create([
+            'name' => 'Schema Floor Lamp',
+            'slug' => 'schema-floor-lamp',
+            'current_stock' => 5,
+            'min_qty' => 1,
+        ]);
+        $blog->products()->attach($product->id, ['placement' => 'manual', 'sort_order' => 1]);
+
+        $response = $this->get(route('blog.details', $blog->slug));
+
+        $response->assertStatus(200);
+        $response->assertSee('"@type": "Product"', false);
+        $response->assertSee('Schema Floor Lamp');
+        $response->assertSee(route('product', $product->slug));
     }
 
     private function createPublishedBlog(string $slug = 'conversion-guide'): Blog
