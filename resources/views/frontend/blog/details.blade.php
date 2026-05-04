@@ -75,6 +75,9 @@
                         data-src="{{ uploaded_asset($blog->banner) }}"
                         alt="{{ $blogTitle }}"
                         class="img-fluid lazyload w-100 mt-3 mb-4">
+                    @if(($blogSettings['share_bar_enabled'] ?? true))
+                        @include('frontend.blog.partials.share-bar', ['blog' => $blog])
+                    @endif
                     <!-- Description -->
                     <div class="mb-4 overflow-hidden">
                         {!! $blogDescription !!}

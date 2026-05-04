@@ -93,4 +93,25 @@
             }
         });
     }
+
+    document.querySelectorAll('[data-blog-copy-link]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var wrapper = button.closest('[data-share-url]');
+            var url = wrapper ? wrapper.getAttribute('data-share-url') : window.location.href;
+            var success = wrapper ? wrapper.querySelector('[data-blog-copy-success]') : null;
+
+            if (!navigator.clipboard) {
+                return;
+            }
+
+            navigator.clipboard.writeText(url).then(function () {
+                if (success) {
+                    success.classList.remove('d-none');
+                    window.setTimeout(function () {
+                        success.classList.add('d-none');
+                    }, 1800);
+                }
+            });
+        });
+    });
 })();

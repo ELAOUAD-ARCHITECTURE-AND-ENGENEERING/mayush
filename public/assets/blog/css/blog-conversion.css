@@ -72,6 +72,10 @@
     border-color: var(--mb-border) !important;
 }
 
+.mb-blog-share-bar {
+    gap: .25rem;
+}
+
 .mb-blog .blog.card-columns {
     column-gap: 1rem;
 }

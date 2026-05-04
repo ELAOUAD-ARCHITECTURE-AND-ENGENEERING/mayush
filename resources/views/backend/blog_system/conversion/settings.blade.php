@@ -43,6 +43,7 @@
                 </div>
                 <div class="card-body">
                     @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_table_of_contents', 'label' => translate('Enable table of contents')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_share_bar', 'label' => translate('Enable share bar')])
                 </div>
             </div>
         </div>

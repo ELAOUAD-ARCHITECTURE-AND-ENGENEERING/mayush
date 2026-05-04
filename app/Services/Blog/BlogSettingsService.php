@@ -16,6 +16,7 @@ class BlogSettingsService
         'blog_enable_table_of_contents' => true,
         'blog_product_embed_cache_minutes' => 15,
         'blog_enable_product_schema' => true,
+        'blog_enable_share_bar' => true,
     ];
 
     public function boolean(string $key): bool
@@ -62,6 +63,7 @@ class BlogSettingsService
             'email_post_read_enabled' => $this->boolean('blog_email_enable_post_read'),
             'table_of_contents_enabled' => $this->boolean('blog_enable_table_of_contents'),
             'product_schema_enabled' => $this->boolean('blog_enable_product_schema'),
+            'share_bar_enabled' => $this->boolean('blog_enable_share_bar'),
         ];
     }
 

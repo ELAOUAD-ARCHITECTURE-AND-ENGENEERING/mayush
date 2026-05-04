@@ -299,6 +299,7 @@ class BlogConversionFoundationTest extends TestCase
         $this->assertTrue($settings['email_post_read_enabled']);
         $this->assertTrue($settings['table_of_contents_enabled']);
         $this->assertTrue($settings['product_schema_enabled']);
+        $this->assertTrue($settings['share_bar_enabled']);
         $this->assertSame(4, $settings['products_per_embed']);
     }
 
@@ -397,6 +398,19 @@ class BlogConversionFoundationTest extends TestCase
         $response->assertSee('Atlas Atelier');
         $response->assertSee('Handmade lighting changes the entire room.');
         $response->assertSee(route('shop.visit', $shop->slug));
+    }
+
+    /** @test */
+    public function blog_detail_renders_share_bar_by_default(): void
+    {
+        $blog = $this->createPublishedBlog('share-bar-guide');
+
+        $response = $this->get(route('blog.details', $blog->slug));
+
+        $response->assertStatus(200);
+        $response->assertSee('WhatsApp');
+        $response->assertSee('data-blog-copy-link', false);
+        $response->assertSee(rawurlencode(route('blog.details', $blog->slug)));
     }
 
     /** @test */
