@@ -9,6 +9,10 @@
 @section('meta_description'){{ $blogListingDescription }}@stop
 @section('canonical_url'){{ route('blog') }}@stop
 
+@section('styles')
+    <link rel="stylesheet" href="{{ static_asset('assets/blog/css/blog-conversion.css') }}">
+@endsection
+
 @section('meta')
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
         'title' => $blogListingTitle,
@@ -22,7 +26,7 @@
 @endsection
 
 @section('content')
-    <section class="pb-4 pt-5">
+    <section class="pb-4 pt-5 mb-blog">
         <div class="container">
             <div class="row gutters-16">
                 <!-- Contents -->
@@ -192,6 +196,7 @@
 @endsection
 
 @section('script')
+    <script defer src="{{ static_asset('assets/blog/js/blog-conversion.js') }}"></script>
     <script type="text/javascript">
         function filter(){
             $('#search-form').submit();

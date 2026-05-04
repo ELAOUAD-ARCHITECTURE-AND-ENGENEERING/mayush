@@ -160,10 +160,24 @@ class BlogConversionFoundationTest extends TestCase
         $response->assertDontSee('steal()', false);
         $response->assertDontSee('maliciousArticlePayload', false);
         $response->assertSee('Shop this guide');
+        $response->assertSee('assets/blog/css/blog-conversion.css');
+        $response->assertSee('assets/blog/js/blog-conversion.js');
         $response->assertSee(route('blog.subscribe'));
         $response->assertSee('Warm Table Lamp');
         $response->assertSee(route('product', $safeProduct->slug));
         $response->assertDontSee('Hidden Table Lamp');
+    }
+
+    /** @test */
+    public function blog_listing_loads_conversion_assets(): void
+    {
+        $this->createPublishedBlog('listing-assets-guide');
+
+        $response = $this->get(route('blog'));
+
+        $response->assertStatus(200);
+        $response->assertSee('assets/blog/css/blog-conversion.css');
+        $response->assertSee('assets/blog/js/blog-conversion.js');
     }
 
     /** @test */

@@ -21,6 +21,10 @@
 @section('meta_type')article@stop
 @section('canonical_url'){{ route('blog.details', $blog->slug) }}@stop
 
+@section('styles')
+    <link rel="stylesheet" href="{{ static_asset('assets/blog/css/blog-conversion.css') }}">
+@endsection
+
 @section('meta')
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::articleSchema($blog)) !!}</script>
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
@@ -35,7 +39,7 @@
 
 @section('content')
 
-<section class="py-4">
+<section class="py-4 mb-blog">
     <div class="container">
         <div class="row gutters-16 justify-content-center">
 
@@ -179,6 +183,7 @@
 
 
 @section('script')
+    <script defer src="{{ static_asset('assets/blog/js/blog-conversion.js') }}"></script>
     @if (get_setting('facebook_comment') == 1)
         <div id="fb-root"></div>
         <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v9.0&appId={{ env('FACEBOOK_APP_ID') }}&autoLogAppEvents=1" nonce="ji6tXwgZ"></script>
