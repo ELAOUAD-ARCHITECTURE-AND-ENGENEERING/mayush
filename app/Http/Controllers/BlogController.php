@@ -10,6 +10,7 @@ use App\Http\Requests\BlogSubscribeRequest;
 use App\Services\Blog\BlogContentSanitizerService;
 use App\Services\Blog\BlogEmailService;
 use App\Services\Blog\BlogProductMatcherService;
+use App\Services\Blog\BlogTocService;
 use Illuminate\Support\Str;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
@@ -215,7 +216,8 @@ class BlogController extends Controller
     public function blog_details(
         $slug,
         BlogContentSanitizerService $sanitizer,
-        BlogProductMatcherService $productMatcher
+        BlogProductMatcherService $productMatcher,
+        BlogTocService $tocService
     )
     {
         $blog = Blog::published()->with(['category', 'author', 'tags', 'translations', 'products'])->where('slug', $slug)->firstOrFail();
@@ -237,10 +239,12 @@ class BlogController extends Controller
             ->limit(3)
             ->get();
 
-        $sanitizedBlogDescription = $sanitizer->sanitize($blog->getTranslation('description'));
+        $tocResult = $tocService->parse($sanitizer->sanitize($blog->getTranslation('description')));
+        $sanitizedBlogDescription = $tocResult['content'];
+        $blogToc = $tocResult['toc'];
         $articleProducts = $productMatcher->productsFor($blog, 'manual', 4);
 
-        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs', 'sanitizedBlogDescription', 'articleProducts'));
+        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs', 'sanitizedBlogDescription', 'blogToc', 'articleProducts'));
     }
 
     public function subscribe(BlogSubscribeRequest $request, BlogEmailService $emailService)
