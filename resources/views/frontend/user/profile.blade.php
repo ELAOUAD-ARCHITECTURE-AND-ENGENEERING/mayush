@@ -24,11 +24,11 @@
                     <input type="text" class="form-control rounded-0" placeholder="{{ translate('Your Name') }}" name="name" value="{{ Auth::user()->name }}">
                 </div>
             </div>
-            <!-- Phone-->
+            <!-- Phone/Email (Visually Email per client request) -->
             <div class="form-group row">
-                <label class="col-md-2 col-form-label fs-14">{{ translate('Your Phone') }}</label>
+                <label class="col-md-2 col-form-label fs-14">{{ translate('Your Email') }}</label>
                 <div class="col-md-10">
-                    <input type="text" class="form-control rounded-0" placeholder="{{ translate('Your Phone')}}" name="phone" value="{{ Auth::user()->phone }}">
+                    <input type="text" class="form-control rounded-0" placeholder="{{ translate('Your Email')}}" name="phone" value="{{ Auth::user()->phone }}">
                 </div>
             </div>
             <!-- Photo-->
@@ -60,6 +60,32 @@
                     <input type="password" class="form-control rounded-0" placeholder="{{ translate('Confirm Password') }}" name="confirm_password">
                 </div>
             </div>
+            <!-- Referral Link -->
+            @if (addon_is_activated('club_point'))
+            <div class="form-group row" id="referral">
+                <label class="col-md-2 col-form-label fs-14">{{ translate('Referral Link') }}</label>
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <input type="text" class="form-control rounded-0" readonly value="{{ route('home', ['referral_code' => Auth::user()->referral_code]) }}">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyReferralLink(this)">
+                                <i class="las la-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ translate('Share this link to earn points when your friends register!') }}</small>
+                </div>
+            </div>
+            <script>
+                function copyReferralLink(btn) {
+                    var input = btn.parentElement.previousElementSibling;
+                    input.select();
+                    input.setSelectionRange(0, 99999);
+                    document.execCommand("copy");
+                    AIZ.plugins.notify('success', '{{ translate('Referral link copied!') }}');
+                }
+            </script>
+            @endif
             <!-- Submit Button-->
             <div class="form-group mb-0 text-right">
                 <button type="submit" class="btn btn-primary rounded-0 w-150px mt-3">{{translate('Update Profile')}}</button>

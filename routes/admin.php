@@ -681,7 +681,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/all-file', 'all_file');
     });
     
-    Route::get('/all-notification', [NotificationController::class, 'index'])->name('admin.all-notification');
+    Route::get('/all-notification', [NotificationController::class, 'adminIndex'])->name('admin.all-notification');
     Route::get('/all-notifications', [NotificationController::class, 'adminIndex'])->name('admin.all-notifications');
     Route::get('/notification-settings', [NotificationController::class, 'notificationSettings'])->name('notification.settings');
     Route::get('/custom-notification', [NotificationController::class, 'customNotification'])->name('custom_notification');

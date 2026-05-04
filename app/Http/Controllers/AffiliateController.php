@@ -134,4 +134,16 @@ class AffiliateController extends Controller
         flash(translate('Affiliate user has been approved successfully'))->success();
         return back();
     }
+
+    public function user_payment_history()
+    {
+        $affiliate_logs = AffiliateLog::where('user_id', Auth::user()->id)->latest()->paginate(10);
+        return View::make('frontend.user.affiliate.payment_history', compact('affiliate_logs'));
+    }
+
+    public function user_withdraw_request_history()
+    {
+        $withdraw_requests = \App\Models\AffiliateWithdrawRequest::where('user_id', Auth::user()->id)->latest()->paginate(10);
+        return View::make('frontend.user.affiliate.withdraw_request_history', compact('withdraw_requests'));
+    }
 }

@@ -135,6 +135,7 @@ class CustomAuthController extends Controller
                 $user->save();
                 event(new PasswordReset($user));
                 auth()->login($user, true);
+                \Auth::logoutOtherDevices($request->password);
 
                 flash(translate('Password updated successfully'))->success();
 

@@ -342,7 +342,7 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function() {
         Route::post('/new-user-email', 'update_email')->name('user.change.email');
     });
     
-    Route::get('/all-notifications', [NotificationController::class, 'index'])->name('all-notifications');
+    Route::get('/all-notifications', [NotificationController::class, 'customerIndex'])->name('all-notifications');
 
 });
 
@@ -359,9 +359,9 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
             Route::get('/order-confirmed', 'order_confirmed')->name('order_confirmed');
             Route::get('/order-confirmed/{combined_order_id}', 'order_confirmed')->name('order_confirmed_with_id');
             Route::post('/payment', 'checkout')->name('payment.checkout');
-            Route::get('/deliveryinfo', 'get_delivery_info')->name('checkout.get_delivery_info');
-            Route::post('/get_pick_up_points', 'get_pick_up_points')->name('shipping_info.get_pick_up_points');
-            Route::get('/payment-select', 'get_payment_info')->name('checkout.payment_info');
+            Route::get('/deliveryinfo', 'get_shipping_info')->name('checkout.get_delivery_info');
+            Route::post('/get_pick_up_points', 'get_shipping_info')->name('shipping_info.get_pick_up_points');
+            Route::get('/payment-select', 'get_shipping_info')->name('checkout.payment_info');
             Route::post('/apply_coupon_code', 'apply_coupon_code')->name('checkout.apply_coupon_code');
             Route::post('/remove_coupon_code', 'remove_coupon_code')->name('checkout.remove_coupon_code');
             //Club point
@@ -374,10 +374,10 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
     });
 
     // Purchase History
-    Route::resource('purchase_history', PurchaseHistoryController::class);
+    Route::get('/purchase_history', [PurchaseHistoryController::class, 'index'])->name('purchase_history.index');
     Route::controller(PurchaseHistoryController::class)->group(function () {
         Route::get('/purchase_history/details/{id}', 'purchase_history_details')->name('purchase_history.details');
-        // Route::get('/purchase_history/destroy/{id}', 'order_cancel')->name('purchase_history.destroy');
+        Route::get('/purchase_history/destroy/{id}', 'order_cancel')->name('purchase_history.destroy');
         Route::get('digital-purchase-history', 'digital_index')->name('digital_purchase_history.index');
         Route::get('/digital-products/download/{id}', 'download')->name('digital-products.download');
     });
@@ -446,7 +446,7 @@ Route::group(['middleware' => ['auth']], function() {
     });
     
     // Product Query
-    Route::resource('product-queries', ProductQueryController::class);
+    Route::resource('product-queries', ProductQueryController::class)->only(['index', 'show', 'store']);
 
     Route::resource('messages', MessageController::class);
 
