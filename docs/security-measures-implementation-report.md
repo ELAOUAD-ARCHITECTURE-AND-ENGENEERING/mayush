@@ -203,9 +203,16 @@ Results:
 
 Most operational safety checks are now automated by CI, deployment guardrails, and `scripts/ci/check-operational-guardrails.php`.
 
-The only remaining manual action is GitHub branch/ruleset protection because it lives in GitHub repository settings, outside the codebase. Configure it once using:
+The only remaining manual action is GitHub branch protection because it lives in GitHub repository settings, outside the codebase. Rulesets require GitHub Team or Enterprise for private repositories, so configure classic branch protection if available using:
 
 - `docs/github-branch-ruleset-manual.md`
+
+If the current GitHub plan prevents enforcement, use the automated fallback commands before each merge/deploy:
+
+```bash
+composer guardrails
+php artisan app:preflight-restore --require-blog-navigation
+```
 
 ## Operational Standard Going Forward
 

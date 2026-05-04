@@ -2,7 +2,7 @@
 
 This runbook documents the automated controls that prevent the code/schema/config drift that caused the 2026-04-30 outage.
 
-Manual GitHub UI setup is intentionally separated in `docs/github-branch-ruleset-manual.md`.
+Manual GitHub UI setup is intentionally separated in `docs/github-branch-ruleset-manual.md`. Rulesets require GitHub Team or Enterprise for private repositories, so use classic branch protection when available.
 
 ## Enforced Rules
 
@@ -122,4 +122,11 @@ Do not roll back only code or only database when migrations changed schema contr
 
 ## Manual Controls
 
-The only remaining manual control is GitHub repository branch/ruleset protection because it lives in GitHub account settings, outside the repository code. Configure it once using `docs/github-branch-ruleset-manual.md`.
+The only remaining manual control is GitHub repository branch protection because it lives in GitHub account settings, outside the repository code. Configure classic branch protection if available using `docs/github-branch-ruleset-manual.md`.
+
+If GitHub plan limits prevent branch protection enforcement, run these before every merge/deploy:
+
+```powershell
+composer guardrails
+php artisan app:preflight-restore --require-blog-navigation
+```
