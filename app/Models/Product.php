@@ -116,6 +116,13 @@ class Product extends Model
         return $this->hasMany(AuctionProductBid::class);
     }
 
+    public function blogs()
+    {
+        return $this->belongsToMany(Blog::class, 'blog_product')
+            ->withPivot(['placement', 'sort_order'])
+            ->withTimestamps();
+    }
+
     public function thumbnail()
     {
         return $this->belongsTo(Upload::class, 'thumbnail_img');
