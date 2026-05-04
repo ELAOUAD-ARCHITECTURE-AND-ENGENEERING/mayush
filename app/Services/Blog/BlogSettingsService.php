@@ -13,6 +13,7 @@ class BlogSettingsService
         'blog_email_provider' => 'local',
         'blog_email_success_message' => "You're in! Check your inbox.",
         'blog_enable_table_of_contents' => true,
+        'blog_product_embed_cache_minutes' => 15,
     ];
 
     public function boolean(string $key): bool
