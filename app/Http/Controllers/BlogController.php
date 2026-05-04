@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BlogCategory;
 use App\Models\Blog;
+use App\Services\Blog\BlogContentSanitizerService;
+use App\Services\Blog\BlogProductMatcherService;
 use Illuminate\Support\Str;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
@@ -203,11 +205,35 @@ class BlogController extends Controller
         return view("frontend.blog.listing", compact('blogs', 'selected_categories', 'search', 'recent_blogs'));
     }
 
-    public function blog_details($slug)
+    public function blog_details(
+        $slug,
+        BlogContentSanitizerService $sanitizer,
+        BlogProductMatcherService $productMatcher
+    )
     {
-        $blog = Blog::where('slug', $slug)->first();
-        $recent_blogs = Blog::where('status', 1)->orderBy('created_at', 'desc')->limit(9)->get();
-        return view("frontend.blog.details", compact('blog', 'recent_blogs'));
+        $blog = Blog::published()->with(['category', 'author', 'tags', 'translations', 'products'])->where('slug', $slug)->firstOrFail();
+        $recent_blogs = Blog::published()->with(['category', 'translations'])->where('id', '!=', $blog->id)->orderBy('published_at', 'desc')->orderBy('created_at', 'desc')->limit(9)->get();
+        $related_blogs = Blog::published()
+            ->with(['category', 'translations'])
+            ->where('id', '!=', $blog->id)
+            ->where(function ($query) use ($blog) {
+                $query->where('category_id', $blog->category_id);
+
+                if ($blog->tags->isNotEmpty()) {
+                    $query->orWhereHas('tags', function ($tagQuery) use ($blog) {
+                        $tagQuery->whereIn('tags.id', $blog->tags->pluck('id'));
+                    });
+                }
+            })
+            ->orderBy('published_at', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get();
+
+        $sanitizedBlogDescription = $sanitizer->sanitize($blog->getTranslation('description'));
+        $articleProducts = $productMatcher->productsFor($blog, 'manual', 4);
+
+        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs', 'sanitizedBlogDescription', 'articleProducts'));
     }
 
     public function generateSlug(Request $request)

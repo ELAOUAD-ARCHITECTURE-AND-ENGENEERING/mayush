@@ -111,6 +111,42 @@ class BlogConversionFoundationTest extends TestCase
         $this->assertNull($withoutBlog->blog);
     }
 
+    /** @test */
+    public function blog_detail_renders_sanitized_content_and_safe_product_embed(): void
+    {
+        $blog = $this->createPublishedBlog('safe-product-guide');
+        $blog->description = '<h2 onclick="steal()">Lighting Ideas</h2><p>Use warm lamps.</p><script>maliciousArticlePayload()</script>';
+        $blog->save();
+
+        $safeProduct = Product::factory()->create([
+            'name' => 'Warm Table Lamp',
+            'slug' => 'warm-table-lamp',
+            'current_stock' => 5,
+            'min_qty' => 1,
+        ]);
+        $unsafeProduct = Product::factory()->unpublished()->create([
+            'name' => 'Hidden Table Lamp',
+            'slug' => 'hidden-table-lamp',
+            'current_stock' => 5,
+            'min_qty' => 1,
+        ]);
+
+        $blog->products()->attach($safeProduct->id, ['placement' => 'manual', 'sort_order' => 1]);
+        $blog->products()->attach($unsafeProduct->id, ['placement' => 'manual', 'sort_order' => 2]);
+
+        $response = $this->get(route('blog.details', $blog->slug));
+
+        $response->assertStatus(200);
+        $response->assertSee('Lighting Ideas');
+        $response->assertSee('Use warm lamps.');
+        $response->assertDontSee('steal()', false);
+        $response->assertDontSee('maliciousArticlePayload', false);
+        $response->assertSee('Shop this guide');
+        $response->assertSee('Warm Table Lamp');
+        $response->assertSee(route('product', $safeProduct->slug));
+        $response->assertDontSee('Hidden Table Lamp');
+    }
+
     private function createPublishedBlog(string $slug = 'conversion-guide'): Blog
     {
         $category = BlogCategory::firstOrCreate(
