@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\ReportController;
 use App\Http\Middleware\EnsureSystemKey;
 use Illuminate\Support\Facades\Route;
 
+Route::get('blog/products', [\App\Http\Controllers\Api\BlogApiController::class, 'products'])->middleware('throttle:60,1');
+
 
 
 Route::group(['prefix' => 'v2/auth', 'middleware' => ['app_language']], function () {

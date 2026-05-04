@@ -271,6 +271,61 @@ class BlogConversionFoundationTest extends TestCase
         $this->assertSame(4, $settings['products_per_embed']);
     }
 
+    /** @test */
+    public function blog_products_api_returns_only_safe_serialized_products(): void
+    {
+        Cache::flush();
+        $blog = $this->createPublishedBlog('api-products-guide');
+        $safeProduct = Product::factory()->create([
+            'name' => 'API Safe Lamp',
+            'slug' => 'api-safe-lamp',
+            'current_stock' => 5,
+            'min_qty' => 1,
+        ]);
+        $hiddenProduct = Product::factory()->unpublished()->create([
+            'name' => 'API Hidden Lamp',
+            'slug' => 'api-hidden-lamp',
+            'current_stock' => 5,
+            'min_qty' => 1,
+        ]);
+
+        $blog->products()->attach($safeProduct->id, ['placement' => 'manual', 'sort_order' => 1]);
+        $blog->products()->attach($hiddenProduct->id, ['placement' => 'manual', 'sort_order' => 2]);
+
+        $response = $this->getJson('/api/blog/products?blog_id=' . $blog->id . '&placement=manual&count=4');
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $safeProduct->id)
+            ->assertJsonPath('data.0.name', 'API Safe Lamp')
+            ->assertJsonPath('data.0.url', route('product', $safeProduct->slug))
+            ->assertJsonPath('data.0.badge', 'Available on Mayush');
+
+        $this->assertStringNotContainsString('API Hidden Lamp', $response->getContent());
+    }
+
+    /** @test */
+    public function blog_products_api_respects_product_embed_setting(): void
+    {
+        BusinessSetting::updateOrCreate(['type' => 'blog_enable_product_embeds'], ['value' => '0']);
+        Cache::flush();
+        $blog = $this->createPublishedBlog('api-disabled-guide');
+        $product = Product::factory()->create([
+            'name' => 'Disabled API Lamp',
+            'slug' => 'disabled-api-lamp',
+            'current_stock' => 5,
+            'min_qty' => 1,
+        ]);
+        $blog->products()->attach($product->id, ['placement' => 'manual', 'sort_order' => 1]);
+
+        $response = $this->getJson('/api/blog/products?blog_id=' . $blog->id);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonCount(0, 'data');
+    }
+
     private function createPublishedBlog(string $slug = 'conversion-guide'): Blog
     {
         $category = BlogCategory::firstOrCreate(
