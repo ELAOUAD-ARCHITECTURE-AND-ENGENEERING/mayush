@@ -69,6 +69,7 @@ class BlogController extends Controller
         $blog = new Blog;
 
         $blog->category_id = $request->category_id;
+        $blog->user_id = auth()->id();
         $blog->title = $request->title;
         $blog->banner = $request->banner;
         $blog->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
@@ -79,6 +80,7 @@ class BlogController extends Controller
         $blog->meta_img = $request->meta_img;
         $blog->meta_description = $request->meta_description;
         $blog->meta_keywords = $request->meta_keywords;
+        $blog->published_at = now();
 
         $blog->save();
 
@@ -146,6 +148,9 @@ class BlogController extends Controller
     {
         $blog = Blog::find($request->id);
         $blog->{$request->field} = $request->status;
+        if ($request->field === 'status' && (int) $request->status === 1 && $blog->published_at === null) {
+            $blog->published_at = now();
+        }
 
         $blog->save();
         return 1;
@@ -168,7 +173,7 @@ class BlogController extends Controller
     {
         $selected_categories = array();
         $search = null;
-        $blogs = Blog::query();
+        $blogs = Blog::query()->with(['category', 'translations']);
 
         if ($request->has('search')) {
             $search = $request->search;;
@@ -183,10 +188,10 @@ class BlogController extends Controller
             $case2 = '%' . $search . '%';
 
             $blogs->orderByRaw("CASE 
-                WHEN title LIKE '$case1' THEN 1 
-                WHEN title LIKE '$case2' THEN 2 
+                WHEN title LIKE ? THEN 1
+                WHEN title LIKE ? THEN 2
                 ELSE 3 
-                END");
+                END", [$case1, $case2]);
         }
 
         if ($request->has('selected_categories')) {
@@ -196,18 +201,35 @@ class BlogController extends Controller
             $blogs->whereIn('category_id', $blog_categories);
         }
 
-        $blogs = $blogs->where('status', 1)->orderBy('created_at', 'desc')->paginate(12);
+        $blogs = $blogs->published()->orderBy('published_at', 'desc')->orderBy('created_at', 'desc')->paginate(12);
 
-        $recent_blogs = Blog::where('status', 1)->orderBy('created_at', 'desc')->limit(9)->get();
+        $recent_blogs = Blog::published()->with(['category', 'translations'])->orderBy('published_at', 'desc')->orderBy('created_at', 'desc')->limit(9)->get();
 
         return view("frontend.blog.listing", compact('blogs', 'selected_categories', 'search', 'recent_blogs'));
     }
 
     public function blog_details($slug)
     {
-        $blog = Blog::where('slug', $slug)->first();
-        $recent_blogs = Blog::where('status', 1)->orderBy('created_at', 'desc')->limit(9)->get();
-        return view("frontend.blog.details", compact('blog', 'recent_blogs'));
+        $blog = Blog::published()->with(['category', 'author', 'tags', 'translations'])->where('slug', $slug)->firstOrFail();
+        $recent_blogs = Blog::published()->with(['category', 'translations'])->where('id', '!=', $blog->id)->orderBy('published_at', 'desc')->orderBy('created_at', 'desc')->limit(9)->get();
+        $related_blogs = Blog::published()
+            ->with(['category', 'translations'])
+            ->where('id', '!=', $blog->id)
+            ->where(function ($query) use ($blog) {
+                $query->where('category_id', $blog->category_id);
+
+                if ($blog->tags->isNotEmpty()) {
+                    $query->orWhereHas('tags', function ($tagQuery) use ($blog) {
+                        $tagQuery->whereIn('tags.id', $blog->tags->pluck('id'));
+                    });
+                }
+            })
+            ->orderBy('published_at', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get();
+
+        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs'));
     }
 
     public function generateSlug(Request $request)

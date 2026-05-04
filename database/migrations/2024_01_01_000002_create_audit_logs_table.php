@@ -11,7 +11,7 @@ class CreateAuditLogsTable extends Migration
         Schema::create('audit_logs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('admin_user_id')->nullable(); // admin who acted
-            $table->unsignedBigInteger('target_user_id');            // user affected
+            $table->unsignedBigInteger('target_user_id')->nullable(); // user affected when known
             $table->string('action_type', 100);                      // e.g. 'manual_verification_request'
             $table->text('description')->nullable();
             $table->string('ip_address', 45)->nullable();

@@ -124,9 +124,11 @@ class EliteSystemTest extends TestCase
         // Mock session and auth
         $this->actingAs($user);
         
-        // Mock basic business settings for CMI
-        BusinessSetting::updateOrCreate(['type' => 'cmi_merchant_id'], ['value' => 'TEST_MERCHANT']);
-        BusinessSetting::updateOrCreate(['type' => 'cmi_store_key'], ['value' => 'TEST_KEY']);
+        // CMI credentials are read through config/cmi.php, not BusinessSetting rows.
+        config([
+            'cmi.merchant_id' => 'TEST_MERCHANT',
+            'cmi.secret_key' => 'TEST_KEY',
+        ]);
 
         // 1. Initiate processPayment to set session
         $response = $this->post(route('seller.elite.process_payment'), [

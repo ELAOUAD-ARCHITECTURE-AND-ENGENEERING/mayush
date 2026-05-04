@@ -1,18 +1,24 @@
 @extends('frontend.layouts.app')
 
 @php
-    $blogTitleFallback = $blog->title . ' - ' . translate('Mayush Interior Design Blog');
-    $blogDescriptionFallback = $blog->short_description ?: $blog->description ?: ($blog->title . ' buying guide from Mayush for furniture, decor and interior design in Morocco.');
-    $blogSeoTitle = \App\Services\SeoService::meaningfulText($blog->meta_title ?: $blog->title, $blogTitleFallback, 70, 30);
-    $blogSeoDescription = \App\Services\SeoService::meaningfulText($blog->meta_description ?: $blogDescriptionFallback, $blogDescriptionFallback, 170, 80);
+    $blogTitle = $blog->getTranslation('title');
+    $blogShortDescription = $blog->getTranslation('short_description');
+    $blogDescription = $blog->getTranslation('description');
+    $blogMetaTitle = $blog->getTranslation('meta_title');
+    $blogMetaDescription = $blog->getTranslation('meta_description');
+    $blogMetaKeywords = $blog->getTranslation('meta_keywords');
+    $blogTitleFallback = $blogTitle . ' - ' . translate('Mayush Interior Design Blog');
+    $blogDescriptionFallback = $blogShortDescription ?: strip_tags($blogDescription) ?: ($blogTitle . ' buying guide from Mayush for furniture, decor and interior design in Morocco.');
+    $blogSeoTitle = \App\Services\SeoService::meaningfulText($blogMetaTitle ?: $blogTitle, $blogTitleFallback, 70, 30);
+    $blogSeoDescription = \App\Services\SeoService::meaningfulText($blogMetaDescription ?: $blogDescriptionFallback, $blogDescriptionFallback, 170, 80);
     $blogSeoImage = uploaded_asset($blog->meta_img ?: $blog->banner);
 @endphp
 
 @section('meta_title'){{ $blogSeoTitle }}@stop
 @section('meta_description'){{ $blogSeoDescription }}@stop
-@section('meta_keywords'){{ $blog->meta_keywords }}@stop
+@section('meta_keywords'){{ $blogMetaKeywords }}@stop
 @section('meta_image'){{ $blogSeoImage }}@stop
-@section('meta_type')article@stop
+@section('meta_type', 'article')
 @section('canonical_url'){{ route('blog.details', $blog->slug) }}@stop
 
 @section('meta')
@@ -20,7 +26,7 @@
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
         ['name' => translate('Home'), 'url' => route('home')],
         ['name' => translate('Blog'), 'url' => route('blog')],
-        ['name' => $blog->title, 'url' => route('blog.details', $blog->slug)],
+        ['name' => $blogTitle, 'url' => route('blog.details', $blog->slug)],
     ])) !!}</script>
 @endsection
 
@@ -35,8 +41,8 @@
                 <div class="mb-4">
                     <!-- Title -->
                     <h1 class="fs-20 fs-md-24 fw-700 mb-3">
-                        <a href="{{ url("blog").'/'.$blog->slug }}" class="text-reset hov-text-primary" title="{{ $blog->title }}">
-                            {{ $blog->title }}
+                        <a href="{{ route('blog.details', $blog->slug) }}" class="text-reset hov-text-primary" title="{{ $blogTitle }}">
+                            {{ $blogTitle }}
                         </a>
                     </h1>
                     <div class="row">
@@ -51,6 +57,11 @@
                                     <small class="fs-12 fw-400 text-blue">{{ $blog->category->category_name }}</small>
                                 </div>
                             @endif
+                            @if($blog->author != null)
+                                <div>
+                                    <small class="fs-12 fw-400 opacity-60">{{ translate('By') }} {{ $blog->author->name }}</small>
+                                </div>
+                            @endif
                         </div>
                         <!-- Share -->
                         <div class="col-8 text-right">
@@ -60,12 +71,31 @@
                     <!-- Image -->
                     <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
                         data-src="{{ uploaded_asset($blog->banner) }}"
-                        alt="{{ $blog->title }}"
+                        alt="{{ $blogTitle }}"
                         class="img-fluid lazyload w-100 mt-3 mb-4">
                     <!-- Description -->
                     <div class="mb-4 overflow-hidden">
-                        {!! $blog->description !!}
+                        {!! $blogDescription !!}
                     </div>
+                    @if(($related_blogs ?? collect())->isNotEmpty())
+                        <div class="border-top pt-4 mt-4">
+                            <h2 class="fs-18 fw-700 mb-3">{{ translate('Related Posts') }}</h2>
+                            <div class="row gutters-10">
+                                @foreach($related_blogs as $related_blog)
+                                    @php $relatedTitle = $related_blog->getTranslation('title'); @endphp
+                                    <div class="col-md-4 mb-3">
+                                        <a href="{{ route('blog.details', $related_blog->slug) }}" class="text-reset d-block">
+                                            <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
+                                                data-src="{{ uploaded_asset($related_blog->banner) }}"
+                                                alt="{{ $relatedTitle }}"
+                                                class="img-fit lazyload h-120px w-100 mb-2">
+                                            <span class="fs-14 fw-700 text-truncate-2 d-block">{{ $relatedTitle }}</span>
+                                        </a>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                     <!-- Facebook Comment -->
                     @if (get_setting('facebook_comment') == 1)
                     <div class="mb-4">
@@ -85,17 +115,18 @@
                         <div class="col-lg-12 col-sm-6 mb-4 hov-scale-img">
                             <div class="d-flex">
                                 <div class="">
-                                    <a href="{{ url("blog").'/'. $recent_blog->slug }}" class="text-reset d-block overflow-hidden size-80px size-xl-90px mr-2">
+                                    @php $recentTitle = $recent_blog->getTranslation('title'); @endphp
+                                    <a href="{{ route('blog.details', $recent_blog->slug) }}" class="text-reset d-block overflow-hidden size-80px size-xl-90px mr-2">
                                         <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
                                             data-src="{{ uploaded_asset($recent_blog->banner) }}"
-                                            alt="{{ $recent_blog->title }}"
+                                            alt="{{ $recentTitle }}"
                                             class="img-fit lazyload h-100 has-transition">
                                     </a>
                                 </div>
                                 <div class="">
                                     <h2 class="fs-14 fw-700 mb-2 mb-xl-3 h-35px text-truncate-2">
-                                        <a href="{{ url("blog").'/'. $recent_blog->slug }}" class="text-reset hov-text-primary" title="{{ $recent_blog->title }}">
-                                            {{ $recent_blog->title }}
+                                        <a href="{{ route('blog.details', $recent_blog->slug) }}" class="text-reset hov-text-primary" title="{{ $recentTitle }}">
+                                            {{ $recentTitle }}
                                         </a>
                                     </h2>
                                     <div>

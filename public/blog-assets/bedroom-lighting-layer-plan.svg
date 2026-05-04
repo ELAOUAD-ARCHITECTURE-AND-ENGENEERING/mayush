@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Bedroom lighting ideas layered lighting plan</title>
+  <desc id="desc">A bedroom lighting plan showing ambient ceiling light, bedside task lights, accent wall glow, dimmer control, and blackout window treatment.</desc>
+  <rect width="1200" height="675" fill="#f5f1e9"/>
+  <text x="70" y="72" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#26343f">Bedroom Lighting Layer Plan</text>
+  <rect x="170" y="210" width="520" height="290" rx="24" fill="#496b7a"/>
+  <rect x="230" y="265" width="400" height="160" rx="20" fill="#f0d9b8"/>
+  <text x="337" y="355" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#26343f">Bed zone</text>
+  <circle cx="430" cy="155" r="58" fill="#f2b84b" opacity=".85"/>
+  <path d="M430 213v70" stroke="#f2b84b" stroke-width="18" stroke-linecap="round" opacity=".55"/>
+  <text x="335" y="120" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#26343f">Ambient</text>
+  <circle cx="150" cy="380" r="38" fill="#c76f5d"/>
+  <circle cx="710" cy="380" r="38" fill="#c76f5d"/>
+  <text x="62" y="455" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#26343f">Bedside task light</text>
+  <text x="705" y="455" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#26343f">Bedside task light</text>
+  <rect x="820" y="190" width="230" height="240" rx="20" fill="#2f3a35"/>
+  <path d="M850 235h170M850 285h170M850 335h170" stroke="#f5f1e9" stroke-width="10" stroke-linecap="round"/>
+  <text x="835" y="470" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#26343f">Blackout + dimmer control</text>
+  <path d="M205 205c125-70 325-70 450 0" fill="none" stroke="#b4a269" stroke-width="15" stroke-linecap="round" opacity=".7"/>
+  <text x="245" y="570" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#26343f">Warm light in the evening, darkness for sleep</text>
+</svg>
