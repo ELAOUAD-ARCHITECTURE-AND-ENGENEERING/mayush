@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BlogCategory;
 use App\Models\Blog;
+use App\Services\Blog\BlogContentSanitizerService;
+use App\Services\Blog\BlogProductMatcherService;
 use Illuminate\Support\Str;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
@@ -208,9 +210,13 @@ class BlogController extends Controller
         return view("frontend.blog.listing", compact('blogs', 'selected_categories', 'search', 'recent_blogs'));
     }
 
-    public function blog_details($slug)
+    public function blog_details(
+        $slug,
+        BlogContentSanitizerService $sanitizer,
+        BlogProductMatcherService $productMatcher
+    )
     {
-        $blog = Blog::published()->with(['category', 'author', 'tags', 'translations'])->where('slug', $slug)->firstOrFail();
+        $blog = Blog::published()->with(['category', 'author', 'tags', 'translations', 'products'])->where('slug', $slug)->firstOrFail();
         $recent_blogs = Blog::published()->with(['category', 'translations'])->where('id', '!=', $blog->id)->orderBy('published_at', 'desc')->orderBy('created_at', 'desc')->limit(9)->get();
         $related_blogs = Blog::published()
             ->with(['category', 'translations'])
@@ -229,7 +235,10 @@ class BlogController extends Controller
             ->limit(3)
             ->get();
 
-        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs'));
+        $sanitizedBlogDescription = $sanitizer->sanitize($blog->getTranslation('description'));
+        $articleProducts = $productMatcher->productsFor($blog, 'manual', 4);
+
+        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs', 'sanitizedBlogDescription', 'articleProducts'));
     }
 
     public function generateSlug(Request $request)

@@ -3,7 +3,7 @@
 @php
     $blogTitle = $blog->getTranslation('title');
     $blogShortDescription = $blog->getTranslation('short_description');
-    $blogDescription = $blog->getTranslation('description');
+    $blogDescription = $sanitizedBlogDescription ?? $blog->getTranslation('description');
     $blogMetaTitle = $blog->getTranslation('meta_title');
     $blogMetaDescription = $blog->getTranslation('meta_description');
     $blogMetaKeywords = $blog->getTranslation('meta_keywords');
@@ -77,6 +77,12 @@
                     <div class="mb-4 overflow-hidden">
                         {!! $blogDescription !!}
                     </div>
+                    @include('frontend.blog.partials.product-embed', [
+                        'products' => $articleProducts ?? collect(),
+                        'title' => translate('Shop this guide'),
+                        'subtitle' => translate('Discover Mayush products selected for this article.'),
+                        'placement' => 'article',
+                    ])
                     @if(($related_blogs ?? collect())->isNotEmpty())
                         <div class="border-top pt-4 mt-4">
                             <h2 class="fs-18 fw-700 mb-3">{{ translate('Related Posts') }}</h2>
