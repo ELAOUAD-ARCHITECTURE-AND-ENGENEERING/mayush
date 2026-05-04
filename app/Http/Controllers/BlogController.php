@@ -10,6 +10,7 @@ use App\Http\Requests\BlogSubscribeRequest;
 use App\Services\Blog\BlogContentSanitizerService;
 use App\Services\Blog\BlogEmailService;
 use App\Services\Blog\BlogProductMatcherService;
+use App\Services\Blog\BlogSchemaService;
 use App\Services\Blog\BlogSettingsService;
 use App\Services\Blog\BlogTocService;
 use Illuminate\Support\Str;
@@ -220,6 +221,7 @@ class BlogController extends Controller
         $slug,
         BlogContentSanitizerService $sanitizer,
         BlogProductMatcherService $productMatcher,
+        BlogSchemaService $schemaService,
         BlogSettingsService $settingsService,
         BlogTocService $tocService
     )
@@ -253,8 +255,11 @@ class BlogController extends Controller
         $articleProducts = $blogSettings['product_embeds_enabled']
             ? $productMatcher->productsFor($blog, 'manual', $blogSettings['products_per_embed'])
             : collect();
+        $blogProductSchemas = $blogSettings['product_embeds_enabled'] && $blogSettings['product_schema_enabled']
+            ? $schemaService->productSchemas($articleProducts)
+            : [];
 
-        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs', 'sanitizedBlogDescription', 'blogToc', 'articleProducts', 'blogSettings'));
+        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs', 'sanitizedBlogDescription', 'blogToc', 'articleProducts', 'blogProductSchemas', 'blogSettings'));
     }
 
     public function subscribe(BlogSubscribeRequest $request, BlogEmailService $emailService)

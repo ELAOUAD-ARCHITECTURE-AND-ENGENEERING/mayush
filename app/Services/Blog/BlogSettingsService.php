@@ -14,6 +14,7 @@ class BlogSettingsService
         'blog_email_success_message' => "You're in! Check your inbox.",
         'blog_enable_table_of_contents' => true,
         'blog_product_embed_cache_minutes' => 15,
+        'blog_enable_product_schema' => true,
     ];
 
     public function boolean(string $key): bool
@@ -59,6 +60,7 @@ class BlogSettingsService
             'email_sidebar_enabled' => $this->boolean('blog_email_enable_sidebar'),
             'email_post_read_enabled' => $this->boolean('blog_email_enable_post_read'),
             'table_of_contents_enabled' => $this->boolean('blog_enable_table_of_contents'),
+            'product_schema_enabled' => $this->boolean('blog_enable_product_schema'),
         ];
     }
 
