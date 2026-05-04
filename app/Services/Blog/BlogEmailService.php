@@ -10,6 +10,10 @@ use Illuminate\Support\Str;
 
 class BlogEmailService
 {
+    public function __construct(private BlogSettingsService $settings)
+    {
+    }
+
     public function subscribe(array $data, Request $request): array
     {
         $provider = $this->provider();
@@ -32,14 +36,14 @@ class BlogEmailService
 
         return [
             'success' => true,
-            'message' => get_setting('blog_email_success_message')
+            'message' => $this->settings->string('blog_email_success_message')
                 ?: translate("You're in! Check your inbox."),
         ];
     }
 
     private function provider(): string
     {
-        $provider = get_setting('blog_email_provider') ?: 'local';
+        $provider = $this->settings->string('blog_email_provider') ?: 'local';
 
         return in_array($provider, ['local', 'mailchimp', 'klaviyo', 'webhook'], true)
             ? $provider
