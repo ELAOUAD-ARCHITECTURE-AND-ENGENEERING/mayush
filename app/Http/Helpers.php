@@ -215,10 +215,9 @@ if (!function_exists('get_system_default_currency')) {
         return Cache::remember('system_default_currency', 86400, function () {
             $currency_id = get_setting('system_default_currency');
             $currency = $currency_id ? Currency::find($currency_id) : null;
-            if (!$currency && app()->runningUnitTests()) {
-                return (object)['code' => 'USD', 'symbol' => '$', 'exchange_rate' => 1];
-            }
-            return $currency ?: Currency::findOrFail($currency_id);
+            return $currency
+                ?: Currency::where('status', 1)->first()
+                ?: (object)['code' => 'MAD', 'symbol' => 'MAD', 'exchange_rate' => 1];
         });
     }
 }
@@ -3410,10 +3409,32 @@ if (!function_exists('get_element_type_by_id')) {
     function get_element_type_by_id($id)
     {
         $elementType = ElementType::find($id);
-        if (!$elementType && app()->runningUnitTests()) {
-            return 'header1';
-        }
-        return $elementType ? strtolower(str_replace(' ', '', $elementType->name)) : null;
+        return $elementType ? strtolower(str_replace(' ', '', $elementType->name)) : 'header1';
+    }
+}
+
+if (!function_exists('safe_homepage_select')) {
+    function safe_homepage_select()
+    {
+        $homepage = get_setting('homepage_select') ?: 'classic';
+        return view()->exists("frontend.{$homepage}.index") ? $homepage : 'classic';
+    }
+}
+
+if (!function_exists('safe_auth_layout_select')) {
+    function safe_auth_layout_select()
+    {
+        $layout = get_setting('authentication_layout_select') ?: 'boxed';
+        return view()->exists("auth.{$layout}.admin_login") ? $layout : 'boxed';
+    }
+}
+
+if (!function_exists('safe_header_view')) {
+    function safe_header_view()
+    {
+        $header = get_element_type_by_id(get_setting('header_element'));
+        $view = 'header.'.$header;
+        return view()->exists($view) ? $view : 'header.header1';
     }
 }
 

@@ -65,7 +65,7 @@ class ShopController extends Controller
             }
         } else {
             
-            return view('auth.'.get_setting('authentication_layout_select').'.seller_registration', compact('email','phone'));
+            return view('auth.'.safe_auth_layout_select().'.seller_registration', compact('email','phone'));
         }
     }
 
@@ -183,7 +183,7 @@ class ShopController extends Controller
                 return back();
             }
         } else {
-            return view('auth.'.get_setting('authentication_layout_select').'.reg_verification', compact('type'));
+            return view('auth.'.safe_auth_layout_select().'.reg_verification', compact('type'));
         }
     }
 
@@ -240,7 +240,7 @@ class ShopController extends Controller
     public function regVerifyCode($id){
         // $sellerVerification = $id;
         $sellerVerification = RegistrationVerificationCode::whereId(decrypt($id))->first();
-        return view('auth.'.get_setting('authentication_layout_select').'.seller_verify_confirmation', compact('sellerVerification'));
+        return view('auth.'.safe_auth_layout_select().'.seller_verify_confirmation', compact('sellerVerification'));
     }
 
     public function regVerifyCodeConfirmation(Request $request){
@@ -259,7 +259,7 @@ class ShopController extends Controller
         else {
             $sellerVerification->is_verified = 1;
             $sellerVerification->save();
-                return view('auth.'.get_setting('authentication_layout_select').'.seller_registration', compact('sellerVerification','email','phone'));
+                return view('auth.'.safe_auth_layout_select().'.seller_registration', compact('sellerVerification','email','phone'));
         }
     }
 }

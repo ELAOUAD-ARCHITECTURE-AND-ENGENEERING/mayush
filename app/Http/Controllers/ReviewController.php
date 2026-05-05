@@ -114,7 +114,7 @@ class ReviewController extends Controller
         }
         $review->rating     = $request->rating;
         $review->comment    = $request->comment;
-        $review->photos     = implode(',', $request->photos);
+        $review->photos     = implode(',', $request->photos ?? []);
         $review->viewed     = '0';
         if(($request->review_date_type == "custom") && $request->custom_date != null){
             $review->created_at = $request->custom_date;
@@ -169,13 +169,13 @@ class ReviewController extends Controller
                         $clubPoint = ClubPoint::create([
                             'user_id' => Auth::id(),
                             'points' => $reviewPoint,
-                            'order_id' => $request->order_id
                         ]);
                 
                         ClubPointDetail::create([
                             'club_point_id' => $clubPoint->id,
+                            'order_id'      => $request->order_id,
                             'product_id'    => $request->product_id,
-                            'point'         => $reviewPoint,
+                            'points'        => $reviewPoint,
                         ]);
                        
                     }
@@ -188,7 +188,7 @@ class ReviewController extends Controller
             return back();
         }
         else {
-            return redirect()->route('detail-reviews', $product->id.'?review_type=custom');
+            return redirect()->route('admin.reviews.index');
         }
     }
 
@@ -204,7 +204,7 @@ class ReviewController extends Controller
         
         $review->rating     = $request->rating;
         $review->comment    = $request->comment;
-        $review->photos     = implode(',', $request->photos);
+        $review->photos     = implode(',', $request->photos ?? []);
         if(isset($request->custom_date) && $request->custom_date != null){
             $review->created_at = $request->custom_date;
             $review->created_at_is_custom = 1;

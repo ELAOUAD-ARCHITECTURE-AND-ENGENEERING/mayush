@@ -147,6 +147,7 @@
             something_went_wrong: '{{translate('Something went wrong!')}}',
             error_occured_while_processing: '{{translate('An error occurred while processing')}}',
             saving_as_draft: '{{translate('Saving As Draft')}}',
+            upload_failed: '{{translate('Upload failed')}}',
         }
     </script>
 

@@ -64,6 +64,15 @@ class Handler extends ExceptionHandler
             return redirect()->back();
         }
 
+        // Handle CSRF token mismatch (expired session / stale form)
+        if ($e instanceof \Illuminate\Session\TokenMismatchException) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Your session has expired. Please refresh the page and try again.'], 419);
+            }
+            flash(translate('Your session has expired. Please try again.'))->warning();
+            return redirect()->back()->withInput();
+        }
+
         if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException && $e->getStatusCode() === 403) {
             try {
                 \App\Models\AuditLog::create([

@@ -13,6 +13,7 @@
 /storage/*.key
 /storage/debugbar/
 /.phpunit.result.cache
+/.phpunit.cache/
 /temp/
 updates/
 *.zip

@@ -73,6 +73,14 @@ class HomeController extends Controller
         $hot_categories = Cache::rememberForever('hot_categories', function () {
             return Category::with('bannerImage')->where('hot_category', '1')->get();
         });
+        $latest_blogs = Cache::remember('home_latest_blogs', 900, function () {
+            return Blog::published()
+                ->with(['category', 'translations'])
+                ->orderBy('published_at', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->take(3)
+                ->get();
+        });
 
         $authUser = Auth::user();
         if (get_setting('portfolio_landing')) {
@@ -86,29 +94,29 @@ class HomeController extends Controller
             }
         }
 
-        return view('frontend.' . get_setting('homepage_select') . '.index', compact('featured_categories','hot_categories', 'lang'));
+        return view('frontend.' . safe_homepage_select() . '.index', compact('featured_categories','hot_categories', 'latest_blogs', 'lang'));
     }
 
     public function load_todays_deal_section(HomeLayoutService $layoutService)
     {
         $todays_deal_products = $layoutService->getTodaysDealProducts();
-        return view('frontend.' . get_setting('homepage_select') . '.partials.todays_deal', compact('todays_deal_products'));
+        return view('frontend.' . safe_homepage_select() . '.partials.todays_deal', compact('todays_deal_products'));
     }
 
     public function load_newest_product_section(Request $request, HomeLayoutService $layoutService)
     {
         $newest_products = $layoutService->getNewestProducts(12, $request->page);
-        return view('frontend.' . get_setting('homepage_select') . '.partials.newest_products_section', compact('newest_products'));
+        return view('frontend.' . safe_homepage_select() . '.partials.newest_products_section', compact('newest_products'));
     }
 
     public function load_featured_section()
     {
-        return view('frontend.' . get_setting('homepage_select') . '.partials.featured_products_section');
+        return view('frontend.' . safe_homepage_select() . '.partials.featured_products_section');
     }
 
     public function load_best_selling_section()
     {
-        return view('frontend.' . get_setting('homepage_select') . '.partials.best_selling_section');
+        return view('frontend.' . safe_homepage_select() . '.partials.best_selling_section');
     }
 
     public function load_auction_products_section()
@@ -117,12 +125,12 @@ class HomeController extends Controller
             return;
         }
         $lang = get_system_language() ? get_system_language()->code : null;
-        return view('auction.frontend.' . get_setting('homepage_select') . '.auction_products_section', compact('lang'));
+        return view('auction.frontend.' . safe_homepage_select() . '.auction_products_section', compact('lang'));
     }
 
     public function load_home_categories_section()
     {
-        return view('frontend.' . get_setting('homepage_select') . '.partials.home_categories_section');
+        return view('frontend.' . safe_homepage_select() . '.partials.home_categories_section');
     }
 
     public function load_best_sellers_section()
@@ -146,7 +154,7 @@ class HomeController extends Controller
             return "";
         }
 
-        return view('frontend.' . get_setting('homepage_select') . '.partials.best_sellers_section', compact('sellers'));
+        return view('frontend.' . safe_homepage_select() . '.partials.best_sellers_section', compact('sellers'));
     }
 
     public function load_promoted_category_section()
@@ -156,7 +164,7 @@ class HomeController extends Controller
     public function load_preorder_featured_products_section(HomeLayoutService $layoutService)
     {
         $preorder_products = $layoutService->getPreorderFeaturedProducts();
-        return view('frontend.' . get_setting('homepage_select') . '.partials.preorder_products_section', compact('preorder_products'));
+        return view('frontend.' . safe_homepage_select() . '.partials.preorder_products_section', compact('preorder_products'));
     }
 
     public function load_elite_artisans_section(HomeLayoutService $layoutService)

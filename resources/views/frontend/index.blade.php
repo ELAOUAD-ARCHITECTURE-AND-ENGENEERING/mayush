@@ -224,6 +224,8 @@
 
     @include('frontend.partials.promoted_category_section')
 
+    @include('frontend.partials.home_blog_section')
+
     {{-- Featured Section --}}
 
 

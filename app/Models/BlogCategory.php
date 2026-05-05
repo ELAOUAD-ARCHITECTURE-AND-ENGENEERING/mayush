@@ -11,9 +11,11 @@ class BlogCategory extends Model
     use PreventDemoModeChanges;
 
     use SoftDeletes;
+
+    protected $guarded = [];
     
     public function posts()
     {
-        return $this->hasMany(Blog::class);
+        return $this->hasMany(Blog::class, 'category_id');
     }
 }

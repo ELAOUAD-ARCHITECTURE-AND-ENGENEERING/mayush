@@ -57,21 +57,25 @@
                     <!-- Blogs -->
                     <div class="blog card-columns">
                         @foreach($blogs as $blog)
+                            @php
+                                $blogTitle = $blog->getTranslation('title');
+                                $blogSummary = $blog->getTranslation('short_description');
+                            @endphp
                             <div class="card mb-4 overflow-hidden shadow-none border rounded-0 hov-scale-img p-3">
-                                <a href="{{ url("blog").'/'. $blog->slug }}" class="text-reset d-block overflow-hidden h-180px">
+                                <a href="{{ route('blog.details', $blog->slug) }}" class="text-reset d-block overflow-hidden h-180px">
                                     <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
                                         data-src="{{ uploaded_asset($blog->banner) }}"
-                                        alt="{{ $blog->title }}"
+                                        alt="{{ $blogTitle }}"
                                         class="img-fit lazyload h-100 has-transition">
                                 </a>
                                 <div class="py-3">
                                     <h2 class="fs-16 fw-700 mb-3 h-35px text-truncate-2">
-                                        <a href="{{ url("blog").'/'. $blog->slug }}" class="text-reset hov-text-primary" title="{{ $blog->title }}">
-                                            {{ $blog->title }}
+                                        <a href="{{ route('blog.details', $blog->slug) }}" class="text-reset hov-text-primary" title="{{ $blogTitle }}">
+                                            {{ $blogTitle }}
                                         </a>
                                     </h2>
-                                    <p class="opacity-70 mb-3 h-60px text-truncate-3" title="{{ $blog->short_description }}">
-                                        {{ $blog->short_description }}
+                                    <p class="opacity-70 mb-3 h-60px text-truncate-3" title="{{ $blogSummary }}">
+                                        {{ $blogSummary }}
                                     </p>
                                     <div>
                                         <small class="fs-12 fw-400 opacity-60">{{ date('M d, Y',strtotime($blog->created_at)) }}</small>
@@ -82,7 +86,7 @@
                                         </div>
                                     @endif
                                     <div class="mt-3 text-primary">
-                                        <a href="{{ url("blog").'/'. $blog->slug }}" class="fs-14 fw-700 text-primary has-transition d-flex align-items-center hov-column-gap-1">
+                                        <a href="{{ route('blog.details', $blog->slug) }}" class="fs-14 fw-700 text-primary has-transition d-flex align-items-center hov-column-gap-1">
                                             {{ translate('Read Full Blog') }}
                                             <i class="las las-2x la-arrow-right fs-24 ml-1"></i>
                                         </a>
@@ -157,20 +161,21 @@
                         <h3 class="fs-16 fw-700 text-dark mb-3">{{ translate('Recent Posts') }}</h3>
                         <div class="row">
                             @foreach($recent_blogs as $recent_blog)
+                            @php $recentTitle = $recent_blog->getTranslation('title'); @endphp
                             <div class="col-xl-12 col-lg-4 col-sm-6 mb-4 hov-scale-img">
                                 <div class="d-flex">
                                     <div class="">
-                                        <a href="{{ url("blog").'/'. $recent_blog->slug }}" class="text-reset d-block overflow-hidden size-80px size-xl-90px mr-2">
+                                        <a href="{{ route('blog.details', $recent_blog->slug) }}" class="text-reset d-block overflow-hidden size-80px size-xl-90px mr-2">
                                             <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
                                                 data-src="{{ uploaded_asset($recent_blog->banner) }}"
-                                                alt="{{ $recent_blog->title }}"
+                                                alt="{{ $recentTitle }}"
                                                 class="img-fit lazyload h-100 has-transition">
                                         </a>
                                     </div>
                                     <div class="">
                                         <h2 class="fs-14 fw-700 mb-2 mb-xl-3 h-35px text-truncate-2">
-                                            <a href="{{ url("blog").'/'. $recent_blog->slug }}" class="text-reset hov-text-primary" title="{{ $recent_blog->title }}">
-                                                {{ $recent_blog->title }}
+                                            <a href="{{ route('blog.details', $recent_blog->slug) }}" class="text-reset hov-text-primary" title="{{ $recentTitle }}">
+                                                {{ $recentTitle }}
                                             </a>
                                         </h2>
                                         <div>

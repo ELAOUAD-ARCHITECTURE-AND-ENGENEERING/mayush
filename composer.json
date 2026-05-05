@@ -93,6 +93,9 @@
         }
     },
     "scripts": {
+        "test-prepare": [
+            "@php artisan optimize:clear"
+        ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
@@ -103,6 +106,12 @@
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi",
             "@php artisan app:patch-vendor --ansi"
+        ],
+        "preflight": [
+            "@php artisan app:preflight-restore"
+        ],
+        "guardrails": [
+            "@php scripts/ci/check-operational-guardrails.php"
         ]
     },
     "config": {

@@ -33,6 +33,9 @@ class WalletController extends Controller
         $decorator = __NAMESPACE__ . '\\Payment\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $request->payment_option))) . "Controller";
         if (class_exists($decorator)) {
             return (new $decorator)->pay($request);
+        } else {
+            flash(translate('Selected payment method is unavailable.'))->error();
+            return back();
         }
     }
 

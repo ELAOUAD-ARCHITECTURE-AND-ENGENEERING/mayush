@@ -57,7 +57,7 @@ class VerificationController extends Controller
         if ($request->user()->email != null) {
             return $request->user()->hasVerifiedEmail()
                             ? redirect($this->redirectPath())
-                            : view('auth.'.get_setting('authentication_layout_select').'.verify_email');
+                            : view('auth.'.safe_auth_layout_select().'.verify_email');
         }
         else {
             $otpController = new OTPVerificationController;
@@ -109,7 +109,7 @@ class VerificationController extends Controller
             return redirect($this->redirectPath());
         }
         
-        return view('auth.'.get_setting('authentication_layout_select').'.verification_waiting');
+        return view('auth.'.safe_auth_layout_select().'.verification_waiting');
     }
 
     public function check_status(Request $request)

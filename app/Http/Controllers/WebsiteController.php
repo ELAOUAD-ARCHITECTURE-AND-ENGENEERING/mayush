@@ -85,14 +85,17 @@ class WebsiteController extends Controller
 
     public function getFileName(Request $request)
     {
-        $id = $request->id;
+        $validated = $request->validate([
+            'id' => ['required', 'integer'],
+        ]);
 
-        $upload = Upload::find($id);
+        $upload = Upload::find($validated['id']);
 
         if ($upload) {
             return response()->json([
                 'success' => true,
                 'file_name' => $upload->file_name,
+                'url' => uploaded_asset($upload->id),
             ]);
         } else {
             return response()->json([

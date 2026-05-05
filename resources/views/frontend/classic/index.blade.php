@@ -14,7 +14,7 @@
     <div class="container">
         <div class="d-flex flex-wrap position-relative">
             <div class="position-static d-none d-xl-block">
-                @include('frontend.' . get_setting('homepage_select') . '.partials.category_menu')
+                @include('frontend.' . safe_homepage_select() . '.partials.category_menu')
             </div>
 
             <!-- Sliders -->
@@ -495,6 +495,8 @@ $flash_deal = get_featured_flash_deal();
 @include('preorder.frontend.home_page.newest_preorder')
 @endif
 
+@include('frontend.partials.promoted_category_section')
+
 <!-- Classified Product -->
 @if (get_setting('classified_product') == 1)
 @php
@@ -809,6 +811,10 @@ $best_selers = get_best_sellers(10);
         </div>
     </div>
 </section>
+@endif
+
+@include('frontend.partials.home_blog_section')
+
     <!-- Elite Artisans Section -->
     <div id="elite_artisans_section" class="mb-2 mb-md-3 mt-2 mt-md-3"></div>
 

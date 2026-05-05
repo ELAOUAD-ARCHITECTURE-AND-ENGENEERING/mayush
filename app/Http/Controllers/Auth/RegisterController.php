@@ -83,7 +83,7 @@ class RegisterController extends Controller
                 'string',
                 'max:10',
             ],
-            'password' => 'required|string|min:6|confirmed',
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
             'verification_method' => 'nullable|in:email,phone',
             'code' => [
                 Rule::requiredIf(get_setting('customer_registration_verify') == '1'),
