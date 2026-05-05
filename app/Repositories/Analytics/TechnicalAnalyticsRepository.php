@@ -227,8 +227,8 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
     public function getVendorKpis(Carbon $start, Carbon $end): array
     {
         try {
-            $total = \App\Models\Shop::count();
-            $new = \App\Models\Shop::where('created_at','>=',now()->startOfMonth())->count();
+            $total = \App\Models\Shop::where('verification_status', 1)->count();
+            $new = \App\Models\Shop::where('verification_status', 1)->where('created_at','>=',now()->startOfMonth())->count();
             $avgRating = DB::table('reviews')->avg('rating'); $avgRating=$avgRating?round((float)$avgRating,1):null;
             $gmv = \App\Models\Order::where('payment_status','paid')->whereBetween('created_at',[$start,$end])->sum('grand_total');
             $disputes = \App\Models\RefundRequest::whereBetween('created_at',[$start,$end])->count();
@@ -307,10 +307,10 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
         $result = ['failed_logins'=>0,'blocked_uploads'=>0,'avg_latency'=>0,'recent_events'=>[]];
         try {
             if (!Schema::hasTable('audit_logs')) return $result;
-            $since = Carbon::now()->subDay();
-            $result['failed_logins'] = DB::table('audit_logs')->where('action_type','FAILED_LOGIN')->where('created_at','>=',$since)->count();
-            $result['blocked_uploads'] = DB::table('audit_logs')->where('action_type','MALWARE_BLOCKED')->where('created_at','>=',$since)->count();
+            $result['failed_logins'] = DB::table('audit_logs')->where('action_type','FAILED_LOGIN')->whereBetween('created_at',[$start,$end])->count();
+            $result['blocked_uploads'] = DB::table('audit_logs')->where('action_type','MALWARE_BLOCKED')->whereBetween('created_at',[$start,$end])->count();
             $result['recent_events'] = DB::table('audit_logs')->whereIn('action_type',['LOGIN','LOGOUT','FAILED_LOGIN','MALWARE_BLOCKED','UNAUTHORIZED_ACCESS'])
+                ->whereBetween('created_at',[$start,$end])
                 ->orderByDesc('created_at')->limit(10)->get()->map(function($e) {
                     $admin = null; try { $admin = \App\Models\User::find($e->admin_id ?? $e->user_id); } catch(\Exception $ex){}
                     return ['created_at'=>$e->created_at,'admin'=>['name'=>$admin?$admin->name:'System'],'action_type'=>$e->action_type??'','description'=>$e->description??'','ip_address'=>$e->ip_address??''];

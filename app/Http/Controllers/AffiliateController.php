@@ -85,9 +85,17 @@ class AffiliateController extends Controller
         foreach ($request->types as $key => $type) {
             set_setting($type, $request[$type]);
         }
-        
+
         flash(translate('Affiliate settings updated successfully'))->success();
         return back();
+    }
+
+    /**
+     * Store affiliate configuration options (alias for updateSettings)
+     */
+    public function affiliate_option_store(Request $request)
+    {
+        return $this->updateSettings($request);
     }
 
     /**
