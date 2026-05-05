@@ -453,7 +453,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     });
     
     // Order
-    Route::resource('orders', OrderController::class)->except('destroy');
+    Route::resource('orders', OrderController::class)->only(['create', 'store', 'show', 'edit', 'update']);
     Route::controller(OrderController::class)->group(function () {
         // All Orders
         Route::get('/all_orders', 'all_orders')->name('all_orders.index');
@@ -543,13 +543,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::resource('pick_up_points', PickupPointController::class);
     
     //Pickup Address
-    Route::resource('pickup_address', PickupController::class);
+    Route::resource('pickup_address', PickupController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::post('/pickup_addresses/status', [PickupController::class, 'updateStatus'])->name('pickup_addresses.status');
     Route::post('/pickup_addresses/filter', [PickupController::class, 'filter'])->name('pickup_addresses.filter');
     Route::post('/pickup_addresses/bulk-delete', [PickupController::class, 'bulkDelete'])->name('bulk-pickup-addresses-delete');
 
     //Shipping Box Size
-    Route::resource('shipping_box_size', ShippingBoxSizeController::class);
+    Route::resource('shipping_box_size', ShippingBoxSizeController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::post('/shipping_box_sizes/filter', [ShippingBoxSizeController::class, 'filter'])->name('shipping_box_sizes.filter');
     Route::post('/shipping_box_sizes/bulk-delete', [ShippingBoxSizeController::class, 'bulkDelete'])->name('bulk-shipping-box-sizes-delete');
 
@@ -591,7 +591,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     });
 
     // Addon
-    Route::resource('addons', AddonController::class);
+    Route::resource('addons', AddonController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
     Route::post('/addons/activation', [AddonController::class, 'activation'])->name('addons.activation');
 
     //Customer Package
@@ -655,7 +655,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
 	Route::post('/states/status', [StateController::class, 'updateStatus'])->name('states.status');
 
     // Carriers
-    Route::resource('carriers', CarrierController::class);
+    Route::resource('carriers', CarrierController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::controller(CarrierController::class)->group(function () {
         // Route::get('/carriers/destroy/{id}', 'destroy')->name('carriers.destroy');
         Route::post('/carriers/update_status', 'updateStatus')->name('carriers.update_status');
@@ -663,10 +663,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
 
 
     // Zones
-    Route::resource('zones', ZoneController::class);
+    Route::resource('zones', ZoneController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     // Route::get('/zones/destroy/{id}', [ZoneController::class, 'destroy'])->name('zones.destroy');
 
-    Route::resource('cities', CityController::class);
+    Route::resource('cities', CityController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::controller(CityController::class)->group(function () {
         // Route::get('/cities/edit/{id}', 'edit')->name('cities.edit');
         // Route::get('/cities/destroy/{id}', 'destroy')->name('cities.destroy');
@@ -677,7 +677,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::view('/system/server-status', 'backend.system.server_status')->name('system_server');
 
     // uploaded files
-    Route::resource('/uploaded-files', AizUploadController::class);
+    Route::resource('/uploaded-files', AizUploadController::class)->only(['index', 'create', 'destroy']);
     Route::controller(AizUploadController::class)->group(function () {
         Route::any('/uploaded-files/file-info', 'file_info')->name('uploaded-files.info');
         Route::post('/bulk-uploaded-files-delete', 'bulk_uploaded_files_delete')->name('bulk-uploaded-files-delete');
@@ -694,7 +694,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::get('/earning-payout-report', [EarningReportController::class, 'index'])->name('earning_payout_report.index');
 
     Route::resource('size-charts', SizeChartController::class);
-    Route::resource('measurement-points', MeasurementPointsController::class);
+    Route::resource('measurement-points', MeasurementPointsController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
     Route::resource('warranties', WarrantyController::class);
     Route::resource('dynamic-popups', DynamicPopupController::class);
     Route::controller(DynamicPopupController::class)->group(function () {
@@ -702,7 +702,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/dynamic-popups/bulk-delete', 'bulk_dynamic_popup_delete')->name('bulk-dynamic-popup-delete');
     });
 
-    Route::resource('top_banner', TopBannerController::class);
+    Route::resource('top_banner', TopBannerController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::controller(TopBannerController::class)->group(function () {
         Route::get('/top-banner/setting', 'setting')->name('top_banner.setting');
         Route::get('/top-banner/delete/{id}', 'destroy')->name('top_banner.delete');
@@ -718,7 +718,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/note/get-notes', 'get_notes')->name('get_notes');
     });
 
-    Route::resource('contacts', ContactController::class);
+    Route::resource('contacts', ContactController::class)->only(['index']);
     Route::controller(ContactController::class)->group(function () {
         Route::get('/contact', 'index')->name('contact');
         Route::get('/contact/query-modal', 'query_modal')->name('contact.query_modal');
@@ -740,16 +740,16 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/custom-sale-alert/edit', 'sale_alert_edit')->name('custom-sale-alert.edit');
     });
 
-    Route::resource('custom-sale-alerts', CustomSaleAlertController::class);
+    Route::resource('custom-sale-alerts', CustomSaleAlertController::class)->only(['index']);
     Route::controller(App\Http\Controllers\CustomSaleAlertController::class)->group(function () {
         Route::get('/custom-sale-alerts/products', 'products')->name('custom_sale_alerts.products');
         Route::post('/custom-sale-alerts/product-update', 'product_update')->name('custom-sale-alerts.product_update');
     });
 
-    Route::resource('areas', AreaController::class);
+    Route::resource('areas', AreaController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::resource('elements', ElementController::class);
     
-    Route::resource('custom_label', CustomLabelController::class);
+    Route::resource('custom_label', CustomLabelController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::controller(CustomLabelController::class)->group(function () {
         Route::get('/custom-label/products', 'custom_label_products')->name('custom_label.products');
         Route::post('/custom-label/update-status', 'update_status')->name('custom-label.update-status');
