@@ -2,6 +2,8 @@
 
 namespace App\Services\Blog;
 
+use Illuminate\Support\Facades\Crypt;
+
 class BlogSettingsService
 {
     private const DEFAULTS = [
@@ -12,6 +14,11 @@ class BlogSettingsService
         'blog_email_enable_post_read' => true,
         'blog_email_provider' => 'local',
         'blog_webhook_url' => '',
+        'blog_mailchimp_api_key' => '',
+        'blog_mailchimp_list_id' => '',
+        'blog_klaviyo_api_key' => '',
+        'blog_klaviyo_list_id' => '',
+        'blog_klaviyo_revision' => '2026-04-15',
         'blog_email_success_message' => "You're in! Check your inbox.",
         'blog_enable_table_of_contents' => true,
         'blog_product_embed_cache_minutes' => 15,
@@ -38,6 +45,31 @@ class BlogSettingsService
     public function string(string $key): string
     {
         return (string) $this->get($key);
+    }
+
+    public function secret(string $key): string
+    {
+        $value = $this->string($key);
+
+        if (!str_starts_with($value, 'encrypted:')) {
+            return $value;
+        }
+
+        try {
+            return Crypt::decryptString(substr($value, strlen('encrypted:')));
+        } catch (\Throwable) {
+            return '';
+        }
+    }
+
+    public function secretIsConfigured(string $key): bool
+    {
+        return $this->secret($key) !== '';
+    }
+
+    public static function encryptSecret(string $value): string
+    {
+        return 'encrypted:' . Crypt::encryptString($value);
     }
 
     public function array(string $key): array

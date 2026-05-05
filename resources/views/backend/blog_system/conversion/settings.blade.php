@@ -1,6 +1,7 @@
 @extends('backend.layouts.app')
 
 @section('content')
+@php($blogSettingsService = app(\App\Services\Blog\BlogSettingsService::class))
 <div class="aiz-titlebar text-left mt-2 mb-3">
     <div class="row align-items-center">
         <div class="col">
@@ -64,7 +65,33 @@
                                 <option value="{{ $value }}" @selected(get_setting('blog_email_provider', 'local') === $value)>{{ translate($label) }}</option>
                             @endforeach
                         </select>
-                        <small class="text-muted">{{ translate('External providers are logged locally until provider credentials are configured in a later phase.') }}</small>
+                        <small class="text-muted">{{ translate('Provider failures are safely logged and visitors only see the configured success or error message.') }}</small>
+                    </div>
+                    <div class="border rounded p-3 mb-3">
+                        <h6 class="fs-13 fw-600 mb-3">{{ translate('Mailchimp') }}</h6>
+                        <div class="form-group">
+                            <label>{{ translate('Mailchimp API key') }}</label>
+                            <input type="password" class="form-control" name="blog_mailchimp_api_key" autocomplete="new-password" placeholder="{{ $blogSettingsService->secretIsConfigured('blog_mailchimp_api_key') ? translate('Configured - leave blank to keep current key') : translate('Enter API key') }}">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label>{{ translate('Mailchimp list ID') }}</label>
+                            <input type="text" class="form-control" name="blog_mailchimp_list_id" value="{{ get_setting('blog_mailchimp_list_id') }}">
+                        </div>
+                    </div>
+                    <div class="border rounded p-3 mb-3">
+                        <h6 class="fs-13 fw-600 mb-3">{{ translate('Klaviyo') }}</h6>
+                        <div class="form-group">
+                            <label>{{ translate('Klaviyo private API key') }}</label>
+                            <input type="password" class="form-control" name="blog_klaviyo_api_key" autocomplete="new-password" placeholder="{{ $blogSettingsService->secretIsConfigured('blog_klaviyo_api_key') ? translate('Configured - leave blank to keep current key') : translate('Enter API key') }}">
+                        </div>
+                        <div class="form-group">
+                            <label>{{ translate('Klaviyo list ID') }}</label>
+                            <input type="text" class="form-control" name="blog_klaviyo_list_id" value="{{ get_setting('blog_klaviyo_list_id') }}">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label>{{ translate('Klaviyo API revision') }}</label>
+                            <input type="text" class="form-control" name="blog_klaviyo_revision" value="{{ get_setting('blog_klaviyo_revision', '2026-04-15') }}">
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>{{ translate('Custom webhook URL') }}</label>

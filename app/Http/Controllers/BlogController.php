@@ -205,10 +205,26 @@ class BlogController extends Controller
             'blog_email_enable_post_read' => ['nullable', 'boolean'],
             'blog_email_provider' => ['required', 'in:local,mailchimp,klaviyo,webhook'],
             'blog_webhook_url' => ['nullable', 'url', 'max:500'],
+            'blog_mailchimp_api_key' => ['nullable', 'string', 'max:255'],
+            'blog_mailchimp_list_id' => ['nullable', 'string', 'max:255'],
+            'blog_klaviyo_api_key' => ['nullable', 'string', 'max:255'],
+            'blog_klaviyo_list_id' => ['nullable', 'string', 'max:255'],
+            'blog_klaviyo_revision' => ['nullable', 'date_format:Y-m-d'],
             'blog_email_success_message' => ['nullable', 'string', 'max:255'],
         ]);
 
         foreach ($this->blogConversionSettingKeys() as $key => $default) {
+            if (in_array($key, $this->blogConversionSecretKeys(), true)) {
+                if ($request->filled($key)) {
+                    BusinessSetting::updateOrCreate(
+                        ['type' => $key],
+                        ['value' => BlogSettingsService::encryptSecret($request->input($key))]
+                    );
+                }
+
+                continue;
+            }
+
             BusinessSetting::updateOrCreate(
                 ['type' => $key],
                 ['value' => (string) ($validated[$key] ?? $default)]
@@ -392,7 +408,20 @@ class BlogController extends Controller
             'blog_email_enable_post_read' => 0,
             'blog_email_provider' => 'local',
             'blog_webhook_url' => '',
+            'blog_mailchimp_api_key' => '',
+            'blog_mailchimp_list_id' => '',
+            'blog_klaviyo_api_key' => '',
+            'blog_klaviyo_list_id' => '',
+            'blog_klaviyo_revision' => '2026-04-15',
             'blog_email_success_message' => translate("You're in! Check your inbox."),
+        ];
+    }
+
+    private function blogConversionSecretKeys(): array
+    {
+        return [
+            'blog_mailchimp_api_key',
+            'blog_klaviyo_api_key',
         ];
     }
 

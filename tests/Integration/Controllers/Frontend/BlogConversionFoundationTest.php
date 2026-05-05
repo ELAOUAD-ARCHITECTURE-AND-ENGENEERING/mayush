@@ -428,6 +428,11 @@ class BlogConversionFoundationTest extends TestCase
             'blog_email_enable_sidebar' => '0',
             'blog_email_enable_post_read' => '1',
             'blog_email_provider' => 'local',
+            'blog_mailchimp_api_key' => 'mailchimp-secret-us21',
+            'blog_mailchimp_list_id' => 'mailchimp-list',
+            'blog_klaviyo_api_key' => 'klaviyo-secret',
+            'blog_klaviyo_list_id' => 'klaviyo-list',
+            'blog_klaviyo_revision' => '2026-04-15',
             'blog_email_success_message' => 'Welcome to Mayush design notes.',
         ]);
 
@@ -443,6 +448,16 @@ class BlogConversionFoundationTest extends TestCase
         $this->assertDatabaseHas('business_settings', [
             'type' => 'blog_email_success_message',
             'value' => 'Welcome to Mayush design notes.',
+        ]);
+        $this->assertDatabaseHas('business_settings', [
+            'type' => 'blog_mailchimp_list_id',
+            'value' => 'mailchimp-list',
+        ]);
+        $this->assertSame('mailchimp-secret-us21', app(BlogSettingsService::class)->secret('blog_mailchimp_api_key'));
+        $this->assertSame('klaviyo-secret', app(BlogSettingsService::class)->secret('blog_klaviyo_api_key'));
+        $this->assertDatabaseMissing('business_settings', [
+            'type' => 'blog_mailchimp_api_key',
+            'value' => 'mailchimp-secret-us21',
         ]);
     }
 
@@ -468,6 +483,66 @@ class BlogConversionFoundationTest extends TestCase
         $this->assertDatabaseHas('blog_subscriber_logs', [
             'email' => 'webhook-reader@example.test',
             'provider' => 'webhook',
+            'provider_status' => 'delivered',
+        ]);
+    }
+
+    /** @test */
+    public function blog_subscription_can_deliver_to_mailchimp_with_encrypted_credentials(): void
+    {
+        Http::fake([
+            'https://us21.api.mailchimp.com/3.0/lists/audience-123/members/*' => Http::response(['id' => 'member-1'], 200),
+        ]);
+        BusinessSetting::updateOrCreate(['type' => 'blog_email_provider'], ['value' => 'mailchimp']);
+        BusinessSetting::updateOrCreate(['type' => 'blog_mailchimp_api_key'], ['value' => BlogSettingsService::encryptSecret('secret-key-us21')]);
+        BusinessSetting::updateOrCreate(['type' => 'blog_mailchimp_list_id'], ['value' => 'audience-123']);
+        Cache::flush();
+
+        $response = $this->post(route('blog.subscribe'), [
+            'email' => 'MAILCHIMP-READER@example.test',
+            'placement' => 'sidebar',
+            'website' => '',
+        ]);
+
+        $response->assertRedirect();
+        Http::assertSent(fn ($request) => $request->method() === 'PUT'
+            && str_contains($request->url(), 'us21.api.mailchimp.com/3.0/lists/audience-123/members/')
+            && $request['email_address'] === 'mailchimp-reader@example.test'
+            && $request['status_if_new'] === 'subscribed');
+        $this->assertDatabaseHas('blog_subscriber_logs', [
+            'email' => 'mailchimp-reader@example.test',
+            'provider' => 'mailchimp',
+            'provider_status' => 'delivered',
+        ]);
+    }
+
+    /** @test */
+    public function blog_subscription_can_deliver_to_klaviyo_with_encrypted_credentials(): void
+    {
+        Http::fake([
+            'https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs' => Http::response(null, 202),
+        ]);
+        BusinessSetting::updateOrCreate(['type' => 'blog_email_provider'], ['value' => 'klaviyo']);
+        BusinessSetting::updateOrCreate(['type' => 'blog_klaviyo_api_key'], ['value' => BlogSettingsService::encryptSecret('kl-private-key')]);
+        BusinessSetting::updateOrCreate(['type' => 'blog_klaviyo_list_id'], ['value' => 'list-abc']);
+        BusinessSetting::updateOrCreate(['type' => 'blog_klaviyo_revision'], ['value' => '2026-04-15']);
+        Cache::flush();
+
+        $response = $this->post(route('blog.subscribe'), [
+            'email' => 'klaviyo-reader@example.test',
+            'placement' => 'post_read',
+            'website' => '',
+        ]);
+
+        $response->assertRedirect();
+        Http::assertSent(fn ($request) => $request->url() === 'https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs'
+            && $request->hasHeader('Authorization', 'Klaviyo-API-Key kl-private-key')
+            && $request->hasHeader('revision', '2026-04-15')
+            && $request['data']['relationships']['list']['data']['id'] === 'list-abc'
+            && $request['data']['attributes']['profiles']['data'][0]['attributes']['email'] === 'klaviyo-reader@example.test');
+        $this->assertDatabaseHas('blog_subscriber_logs', [
+            'email' => 'klaviyo-reader@example.test',
+            'provider' => 'klaviyo',
             'provider_status' => 'delivered',
         ]);
     }
