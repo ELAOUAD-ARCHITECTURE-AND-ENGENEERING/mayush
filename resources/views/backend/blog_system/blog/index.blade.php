@@ -9,6 +9,20 @@
         </div>
         @can('add_blog')
             <div class="col text-right">
+                @can('view_blogs')
+                    <a href="{{ route('blog.conversion-settings') }}" class="btn btn-soft-primary mr-2">
+                        <i class="las la-sliders-h mr-1"></i>
+                        <span>{{ translate('Conversion Setup') }}</span>
+                    </a>
+                    <a href="{{ route('blog.conversion-subscribers') }}" class="btn btn-soft-success mr-2">
+                        <i class="las la-envelope-open-text mr-1"></i>
+                        <span>{{ translate('Subscriber Logs') }}</span>
+                    </a>
+                @endcan
+                <a href="{{ route('blog') }}" target="_blank" class="btn btn-soft-dark mr-2">
+                    <i class="las la-external-link-alt mr-1"></i>
+                    <span>{{ translate('Preview Blog') }}</span>
+                </a>
                 <a href="{{ route('blog.create') }}" class="btn btn-circle btn-info">
                     <span>{{translate('Add New Post')}}</span>
                 </a>
@@ -17,6 +31,28 @@
     </div>
 </div>
 <br>
+
+<div class="card mb-4 border-primary">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center">
+                    <div class="size-48px rounded bg-soft-primary text-primary d-flex align-items-center justify-content-center mr-3">
+                        <i class="las la-bullhorn fs-28"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">{{ translate('Editorial-Commerce Blog Tools') }}</h5>
+                        <p class="mb-0 text-muted">{{ translate('Use conversion settings to control hero articles, product embeds, email capture, schema, sidebar products, vendor spotlight, and subscriber exports.') }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-right mt-3 mt-lg-0">
+                <a href="{{ route('blog.conversion-settings') }}" class="btn btn-primary btn-sm mr-2">{{ translate('Setup Blog') }}</a>
+                <a href="{{ route('blog.create') }}" class="btn btn-soft-primary btn-sm">{{ translate('Create Article') }}</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="card">
     <form class="" id="sort_blogs" action="" method="GET">

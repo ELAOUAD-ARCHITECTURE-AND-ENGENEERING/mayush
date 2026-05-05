@@ -1219,7 +1219,7 @@
                 <!--Blog System-->
                 @canany(['view_blogs','view_blog_categories'])
                 <li class="aiz-side-nav-item">
-                    <a href="#" class="aiz-side-nav-link">
+                    <a href="#" class="aiz-side-nav-link {{ areActiveRoutes(['blog.index', 'blog.create', 'blog.edit', 'blog-category.index', 'blog-category.create', 'blog-category.edit', 'blog.conversion-settings', 'blog.conversion-subscribers']) }}">
                         <div class="aiz-side-nav-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
                                 <path id="Path_40771" data-name="Path 40771"
@@ -1234,16 +1234,46 @@
                         @can('view_blogs')
                         <li class="aiz-side-nav-item">
                             <a href="{{ route('blog.index') }}"
-                                class="aiz-side-nav-link {{ areActiveRoutes(['blog.create', 'blog.edit'])}}">
+                                class="aiz-side-nav-link {{ areActiveRoutes(['blog.index', 'blog.create', 'blog.edit'])}}">
                                 <span class="aiz-side-nav-text">{{ translate('All Posts') }}</span>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('add_blog')
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('blog.create') }}"
+                                class="aiz-side-nav-link {{ areActiveRoutes(['blog.create'])}}">
+                                <span class="aiz-side-nav-text">{{ translate('Add New Article') }}</span>
+                                <span class="badge badge-inline badge-success">{{ translate('SEO') }}</span>
                             </a>
                         </li>
                         @endcan
                         @can('view_blog_categories')
                         <li class="aiz-side-nav-item">
                             <a href="{{ route('blog-category.index') }}"
-                                class="aiz-side-nav-link {{ areActiveRoutes(['blog-category.create', 'blog-category.edit'])}}">
+                                class="aiz-side-nav-link {{ areActiveRoutes(['blog-category.index', 'blog-category.create', 'blog-category.edit'])}}">
                                 <span class="aiz-side-nav-text">{{ translate('Categories') }}</span>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('view_blogs')
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('blog.conversion-settings') }}"
+                                class="aiz-side-nav-link {{ areActiveRoutes(['blog.conversion-settings'])}}">
+                                <span class="aiz-side-nav-text">{{ translate('Conversion Setup') }}</span>
+                                <span class="badge badge-inline badge-info">{{ translate('New') }}</span>
+                            </a>
+                        </li>
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('blog.conversion-subscribers') }}"
+                                class="aiz-side-nav-link {{ areActiveRoutes(['blog.conversion-subscribers'])}}">
+                                <span class="aiz-side-nav-text">{{ translate('Subscriber Logs') }}</span>
+                            </a>
+                        </li>
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('blog') }}" target="_blank" class="aiz-side-nav-link">
+                                <span class="aiz-side-nav-text">{{ translate('View Public Blog') }}</span>
+                                <i class="las la-external-link-alt fs-12 ml-1"></i>
                             </a>
                         </li>
                         @endcan

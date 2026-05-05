@@ -652,6 +652,21 @@ class BlogConversionFoundationTest extends TestCase
         $this->assertTrue($blog->products()->where('products.id', $product->id)->exists());
     }
 
+    /** @test */
+    public function admin_dashboard_surfaces_blog_conversion_entry_points(): void
+    {
+        $admin = $this->adminWithBlogPermissions();
+
+        $response = $this->actingAs($admin)->get(route('admin.task_dashboard'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Blog Editorial Commerce');
+        $response->assertSee('Setup Blog');
+        $response->assertSee(route('blog.conversion-settings'));
+        $response->assertSee(route('blog.create'));
+        $response->assertSee(route('blog.conversion-subscribers'));
+    }
+
     private function createPublishedBlog(string $slug = 'conversion-guide'): Blog
     {
         $category = $this->createBlogCategory();
@@ -685,7 +700,7 @@ class BlogConversionFoundationTest extends TestCase
     {
         $admin = User::factory()->create(['user_type' => 'admin']);
 
-        foreach (['view_blogs', 'add_blog', 'edit_blog'] as $permission) {
+        foreach (['admin_dashboard', 'view_blogs', 'add_blog', 'edit_blog'] as $permission) {
             Permission::findOrCreate($permission, 'web');
             $admin->givePermissionTo($permission);
         }
