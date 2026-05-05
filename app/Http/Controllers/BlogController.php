@@ -18,6 +18,7 @@ use App\Services\Blog\BlogSchemaService;
 use App\Services\Blog\BlogSettingsService;
 use App\Services\Blog\BlogTocService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
@@ -298,7 +299,11 @@ class BlogController extends Controller
         $selected_categories = array();
         $search = null;
         $blogs = Blog::published()->with(['category', 'translations', 'products']);
-        $blogCategories = BlogCategory::query()->where('status', 1)->orderBy('category_name')->get();
+        $blogCategoriesQuery = BlogCategory::query()->orderBy('category_name');
+        if (Schema::hasColumn('blog_categories', 'status')) {
+            $blogCategoriesQuery->where('status', 1);
+        }
+        $blogCategories = $blogCategoriesQuery->get();
 
         if ($request->has('search')) {
             $search = $request->search;;
