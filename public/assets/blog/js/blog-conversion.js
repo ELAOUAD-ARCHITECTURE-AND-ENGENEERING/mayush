@@ -114,4 +114,85 @@
             });
         });
     });
+
+    function escapeHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, function (character) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[character];
+        });
+    }
+
+    function productCard(product) {
+        return '' +
+            '<div class="col-md-6 mb-3">' +
+                '<article class="mb-blog-product-card border rounded bg-white h-100 overflow-hidden">' +
+                    '<a href="' + escapeHtml(product.url) + '" class="d-block text-reset">' +
+                        '<div class="h-160px overflow-hidden bg-light">' +
+                            '<img src="' + escapeHtml(product.thumbnail) + '" alt="' + escapeHtml(product.name) + '" class="img-fit h-100 w-100 has-transition" loading="lazy">' +
+                        '</div>' +
+                        '<div class="p-3">' +
+                            '<span class="badge badge-soft-primary fs-11 fw-600 mb-2">' + escapeHtml(product.badge || 'Available on Mayush') + '</span>' +
+                            '<h3 class="fs-14 fw-700 text-truncate-2 mb-2">' + escapeHtml(product.name) + '</h3>' +
+                            (product.vendor_name ? '<div class="fs-12 opacity-70 mb-2">' + escapeHtml(product.vendor_name) + '</div>' : '') +
+                            '<div class="d-flex align-items-center justify-content-between">' +
+                                '<span class="fw-700 text-primary">' + escapeHtml(product.price) + '</span>' +
+                                '<span class="fs-12 fw-700 text-primary">Shop on Mayush</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</a>' +
+                '</article>' +
+            '</div>';
+    }
+
+    document.querySelectorAll('[data-blog-products-lazy]').forEach(function (block) {
+        var target = block.querySelector('[data-blog-products-target]');
+        var url = block.getAttribute('data-blog-products-url');
+        var params = new URLSearchParams({
+            blog_id: block.getAttribute('data-blog-id') || '',
+            placement: block.getAttribute('data-blog-placement') || 'manual',
+            count: block.getAttribute('data-blog-count') || '4'
+        });
+
+        if (!target || !url) {
+            return;
+        }
+
+        fetch(url + '?' + params.toString(), {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(function (response) {
+            return response.json();
+        }).then(function (payload) {
+            var products = payload && payload.success ? payload.data : [];
+            if (!products.length) {
+                block.remove();
+                return;
+            }
+
+            target.innerHTML = products.map(productCard).join('');
+        }).catch(function () {
+            block.remove();
+        });
+    });
+
+    var progress = document.querySelector('[data-blog-scroll-progress]');
+    if (progress) {
+        var updateProgress = function () {
+            var scrollTop = window.scrollY || document.documentElement.scrollTop;
+            var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+            var width = scrollable > 0 ? Math.min(100, Math.max(0, (scrollTop / scrollable) * 100)) : 0;
+            progress.style.width = width + '%';
+        };
+
+        updateProgress();
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        window.addEventListener('resize', updateProgress);
+    }
 })();

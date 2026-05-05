@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Blog;
+use App\Models\BlogCategory;
 use App\Services\Blog\BlogProductMatcherService;
 use App\Services\Blog\BlogSettingsService;
 use Illuminate\Http\Request;
@@ -22,12 +23,17 @@ class BlogApiController extends Controller
 
         $validated = $request->validate([
             'blog_id' => ['nullable', 'integer', 'exists:blogs,id'],
+            'category' => ['nullable', 'string', 'max:150'],
             'count' => ['nullable', 'integer', 'min:1', 'max:12'],
             'placement' => ['nullable', 'string', 'max:30'],
         ]);
 
         $blog = Blog::published()->with(['products'])->find($validated['blog_id'] ?? null);
-        if (!$blog) {
+        $category = empty($validated['category'])
+            ? null
+            : BlogCategory::where('slug', $validated['category'])->first();
+
+        if (!$blog && !$category) {
             return response()->json(['success' => true, 'data' => []]);
         }
 
@@ -35,10 +41,14 @@ class BlogApiController extends Controller
         $count = min(12, max(1, $count));
         $placement = $validated['placement'] ?? 'manual';
         $cacheMinutes = max(1, $settings->integer('blog_product_embed_cache_minutes') ?: 15);
-        $cacheKey = 'blog_api_products:' . implode(':', [$blog->id, $placement, $count]);
+        $cacheKey = 'blog_api_products:' . implode(':', [optional($blog)->id ?: 'category-' . optional($category)->id, $placement, $count]);
 
-        $data = Cache::remember($cacheKey, now()->addMinutes($cacheMinutes), function () use ($productMatcher, $blog, $placement, $count) {
-            return $productMatcher->productsFor($blog, $placement, $count)
+        $data = Cache::remember($cacheKey, now()->addMinutes($cacheMinutes), function () use ($productMatcher, $blog, $category, $placement, $count) {
+            $products = $blog
+                ? $productMatcher->productsFor($blog, $placement, $count)
+                : $productMatcher->productsForCategory($category->id, $count);
+
+            return $products
                 ->map(fn ($product) => $this->serializeProduct($product))
                 ->values()
                 ->all();

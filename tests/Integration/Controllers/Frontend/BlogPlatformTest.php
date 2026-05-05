@@ -15,11 +15,23 @@ class BlogPlatformTest extends TestCase
 {
     use RefreshDatabase, SeedsAppConfigs;
 
+    private int $baseOutputBufferLevel = 0;
+
     protected function setUp(): void
     {
         parent::setUp();
+        $this->baseOutputBufferLevel = ob_get_level();
         App::setLocale('en');
         $this->seedConfigs();
+    }
+
+    protected function tearDown(): void
+    {
+        while (ob_get_level() > $this->baseOutputBufferLevel) {
+            ob_end_clean();
+        }
+
+        parent::tearDown();
     }
 
     /** @test */

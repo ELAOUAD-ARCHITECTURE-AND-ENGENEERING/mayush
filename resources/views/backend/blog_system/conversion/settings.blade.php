@@ -21,14 +21,51 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
+                    <h5 class="mb-0 h6">{{ translate('General') }}</h5>
+                </div>
+                <div class="card-body">
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_hero', 'label' => translate('Enable featured hero')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_category_tabs', 'label' => translate('Enable category tabs')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_read_time', 'label' => translate('Enable read time')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_product_count_badge', 'label' => translate('Enable product count badge')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_scroll_progress', 'label' => translate('Enable article scroll progress')])
+                    <div class="form-group">
+                        <label>{{ translate('Featured article ID') }}</label>
+                        <input type="number" min="1" class="form-control" name="blog_featured_article_id" value="{{ get_setting('blog_featured_article_id') }}">
+                        <small class="text-muted">{{ translate('Leave empty to use the newest featured article.') }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label>{{ translate('Hero CTA text') }}</label>
+                        <input type="text" class="form-control" name="blog_hero_cta_text" value="{{ get_setting('blog_hero_cta_text', translate('Read guide')) }}">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label>{{ translate('Articles per page') }}</label>
+                        <input type="number" min="3" max="48" class="form-control" name="blog_articles_per_page" value="{{ get_setting('blog_articles_per_page', 12) }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
                     <h5 class="mb-0 h6">{{ translate('Product Embeds') }}</h5>
                 </div>
                 <div class="card-body">
                     @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_product_embeds', 'label' => translate('Enable product embeds')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_lazy_product_loading', 'label' => translate('Enable lazy product loading')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_sidebar_products', 'label' => translate('Enable sidebar products')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_post_read_products', 'label' => translate('Enable post-read products')])
                     @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_product_schema', 'label' => translate('Enable product schema')])
                     <div class="form-group">
                         <label>{{ translate('Products per embed') }}</label>
                         <input type="number" min="1" max="12" class="form-control" name="blog_products_per_embed" value="{{ get_setting('blog_products_per_embed', 4) }}">
+                    </div>
+                    <div class="form-group">
+                        <label>{{ translate('Sidebar products count') }}</label>
+                        <input type="number" min="1" max="8" class="form-control" name="blog_sidebar_products_count" value="{{ get_setting('blog_sidebar_products_count', 3) }}">
+                    </div>
+                    <div class="form-group">
+                        <label>{{ translate('Post-read products count') }}</label>
+                        <input type="number" min="1" max="12" class="form-control" name="blog_post_read_products_count" value="{{ get_setting('blog_post_read_products_count', 4) }}">
                     </div>
                     <div class="form-group mb-0">
                         <label>{{ translate('Product cache duration') }}</label>
@@ -45,6 +82,13 @@
                 <div class="card-body">
                     @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_table_of_contents', 'label' => translate('Enable table of contents')])
                     @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_share_bar', 'label' => translate('Enable share bar')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_vendor_cta', 'label' => translate('Enable vendor spotlight/CTA')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_related_articles', 'label' => translate('Enable related articles')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_enable_article_schema', 'label' => translate('Enable article schema')])
+                    <div class="form-group mb-0">
+                        <label>{{ translate('Related articles count') }}</label>
+                        <input type="number" min="1" max="12" class="form-control" name="blog_related_articles_count" value="{{ get_setting('blog_related_articles_count', 3) }}">
+                    </div>
                 </div>
             </div>
         </div>
@@ -56,8 +100,13 @@
                 </div>
                 <div class="card-body">
                     @include('backend.blog_system.conversion.toggle', ['name' => 'blog_email_enable_listing_inline', 'label' => translate('Listing inline capture')])
+                    @include('backend.blog_system.conversion.toggle', ['name' => 'blog_email_enable_mid_article', 'label' => translate('Mid-article capture')])
                     @include('backend.blog_system.conversion.toggle', ['name' => 'blog_email_enable_sidebar', 'label' => translate('Sidebar capture')])
                     @include('backend.blog_system.conversion.toggle', ['name' => 'blog_email_enable_post_read', 'label' => translate('Post-read capture')])
+                    <div class="form-group">
+                        <label>{{ translate('Listing email card interval') }}</label>
+                        <input type="number" min="1" max="12" class="form-control" name="blog_email_listing_interval" value="{{ get_setting('blog_email_listing_interval', 3) }}">
+                    </div>
                     <div class="form-group">
                         <label>{{ translate('Email provider') }}</label>
                         <select class="form-control aiz-selectpicker" name="blog_email_provider">

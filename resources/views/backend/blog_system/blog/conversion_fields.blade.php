@@ -91,12 +91,20 @@
         <div class="col-md-9">
             <select class="form-control aiz-selectpicker" name="product_ids[]" multiple data-live-search="true" data-selected-text-format="count">
                 @foreach(($assignable_products ?? collect()) as $product)
-                    <option value="{{ $product->id }}" @selected(in_array($product->id, $selectedProductIds))>
+                    @php
+                        $productLabel = $product->getTranslation('name') . ' - ' . $product->slug;
+                        $productImage = uploaded_asset($product->thumbnail_img);
+                        $productPrice = strip_tags((string) home_discounted_base_price($product));
+                    @endphp
+                    <option
+                        value="{{ $product->id }}"
+                        data-content="<div class='d-flex align-items-center'><img src='{{ $productImage }}' class='size-40px img-fit mr-2' alt=''><div><div class='fw-600'>{{ e($product->getTranslation('name')) }}</div><small class='text-muted'>{{ e($productPrice) }} · {{ e($product->slug) }}</small></div></div>"
+                        @selected(in_array($product->id, $selectedProductIds))>
                         {{ $product->getTranslation('name') }} - {{ $product->slug }}
                     </option>
                 @endforeach
             </select>
-            <small class="text-muted">{{ translate('Only approved and published products are available for assignment.') }}</small>
+            <small class="text-muted d-block mt-2">{{ translate('Only approved and published products are available for assignment. Use the search box to find products by name or slug; selected order is saved as product priority.') }}</small>
         </div>
     </div>
 </div>

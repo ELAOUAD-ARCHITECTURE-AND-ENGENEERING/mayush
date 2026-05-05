@@ -56,6 +56,20 @@ class BlogProductMatcherService
             });
     }
 
+    public function productsForCategory(int $categoryId, int $count = 4): Collection
+    {
+        return $this->safeProductQuery()
+            ->where(function (Builder $query) use ($categoryId) {
+                $query->where('category_id', $categoryId)
+                    ->orWhereHas('categories', function (Builder $categoryQuery) use ($categoryId) {
+                        $categoryQuery->where('categories.id', $categoryId);
+                    });
+            })
+            ->orderBy('created_at', 'desc')
+            ->limit(max(1, $count))
+            ->get();
+    }
+
     private function safeManualProducts(Blog $blog, string $placement, int $count): Collection
     {
         if (!$blog->exists) {

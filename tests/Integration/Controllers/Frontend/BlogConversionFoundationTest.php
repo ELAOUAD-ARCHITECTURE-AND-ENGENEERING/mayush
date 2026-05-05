@@ -257,6 +257,7 @@ class BlogConversionFoundationTest extends TestCase
         foreach ([
             'blog_enable_product_embeds',
             'blog_email_enable_sidebar',
+            'blog_email_enable_mid_article',
             'blog_email_enable_post_read',
             'blog_enable_table_of_contents',
         ] as $type) {

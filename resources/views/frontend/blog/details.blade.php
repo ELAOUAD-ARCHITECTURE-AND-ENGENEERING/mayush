@@ -26,7 +26,9 @@
 @endsection
 
 @section('meta')
-    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::articleSchema($blog)) !!}</script>
+    @if(($blog->schema_enabled ?? true) && ($blogSettings['article_schema_enabled'] ?? true))
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::articleSchema($blog)) !!}</script>
+    @endif
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
         ['name' => translate('Home'), 'url' => route('home')],
         ['name' => translate('Blog'), 'url' => route('blog')],
@@ -39,55 +41,79 @@
 
 @section('content')
 
-<section class="py-4 mb-blog">
+<section class="py-4 mb-blog mb-blog-detail">
+    @if(($blogSettings['scroll_progress_enabled'] ?? true))
+        <div class="mb-blog-progress" data-blog-scroll-progress></div>
+    @endif
     <div class="container">
+        <ul class="breadcrumb bg-transparent p-0 mb-3">
+            <li class="breadcrumb-item has-transition opacity-60 hov-opacity-100">
+                <a class="text-reset" href="{{ route('home') }}">{{ translate('Home') }}</a>
+            </li>
+            <li class="breadcrumb-item has-transition opacity-60 hov-opacity-100">
+                <a class="text-reset" href="{{ route('blog') }}">{{ translate('Blog') }}</a>
+            </li>
+            <li class="breadcrumb-item fw-600 text-dark">{{ $blogTitle }}</li>
+        </ul>
         <div class="row gutters-16 justify-content-center">
 
             <!-- Blog Details -->
             <div class="col-xxl-7 col-lg-8">
                 <div class="mb-4">
-                    <!-- Title -->
-                    <h1 class="fs-20 fs-md-24 fw-700 mb-3">
-                        <a href="{{ route('blog.details', $blog->slug) }}" class="text-reset hov-text-primary" title="{{ $blogTitle }}">
-                            {{ $blogTitle }}
-                        </a>
-                    </h1>
-                    <div class="row">
-                        <div class="col-4">
-                            <!-- Date -->
-                            <div>
-                                <small class="fs-12 fw-400 opacity-60">{{ date('M d, Y',strtotime($blog->created_at)) }}</small>
-                            </div>
-                            <!-- Caregory -->
+                    <header class="mb-blog-article-head">
+                        <div class="mb-blog-eyebrow">
                             @if($blog->category != null)
-                                <div>
-                                    <small class="fs-12 fw-400 text-blue">{{ $blog->category->category_name }}</small>
-                                </div>
+                                <span>{{ $blog->category->category_name }}</span>
+                            @endif
+                            @if($blog->badge_label)
+                                <span>{{ $blog->badge_label }}</span>
                             @endif
                         </div>
-                        <!-- Share -->
-                        <div class="col-8 text-right">
-                            <div class="aiz-share"></div>
+                        <h1>{{ $blogTitle }}</h1>
+                        @if($blogShortDescription)
+                            <p>{{ $blogShortDescription }}</p>
+                        @endif
+                        <div class="mb-blog-article-head__meta">
+                            <span>{{ date('M d, Y', strtotime($blog->published_at ?: $blog->created_at)) }}</span>
+                            @if(($blogSettings['read_time_enabled'] ?? true))
+                                <span>{{ $blog->read_time_minutes }} {{ translate('min read') }}</span>
+                            @endif
+                            @if(($blogSettings['product_count_badge_enabled'] ?? true) && $blog->product_count > 0)
+                                <span>{{ $blog->product_count }} {{ translate('Mayush picks') }}</span>
+                            @endif
+                            @if($blog->author)
+                                <span>{{ $blog->author->name }}</span>
+                            @endif
                         </div>
-                    </div>
-                    <!-- Image -->
+                    </header>
                     <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
-                        data-src="{{ uploaded_asset($blog->banner) }}"
+                        data-src="{{ $blog->hero_image_url ?: uploaded_asset($blog->banner) }}"
                         alt="{{ $blogTitle }}"
-                        class="img-fluid lazyload w-100 mt-3 mb-4">
+                        class="mb-blog-article-image lazyload w-100 mt-3 mb-4"
+                        loading="lazy">
                     @if(($blogSettings['share_bar_enabled'] ?? true))
                         @include('frontend.blog.partials.share-bar', ['blog' => $blog])
                     @endif
-                    <!-- Description -->
-                    <div class="mb-4 overflow-hidden">
+                    <div class="mb-blog-article-body mb-4 overflow-hidden">
                         {!! $blogDescription !!}
                     </div>
                     @if(($blogSettings['product_embeds_enabled'] ?? true))
                         @include('frontend.blog.partials.product-embed', [
-                            'products' => $articleProducts ?? collect(),
+                            'products' => ($blogSettings['lazy_product_loading_enabled'] ?? false) ? collect() : ($articleProducts ?? collect()),
                             'title' => translate('Shop this guide'),
                             'subtitle' => translate('Discover Mayush products selected for this article.'),
-                            'placement' => 'article',
+                            'placement' => 'manual',
+                            'blog' => $blog,
+                            'count' => $blogSettings['products_per_embed'] ?? 4,
+                            'lazy' => $blogSettings['lazy_product_loading_enabled'] ?? false,
+                        ])
+                    @endif
+                    @if(($blogSettings['email_mid_article_enabled'] ?? true))
+                        @include('frontend.blog.partials.email-card', [
+                            'placement' => 'mid_article',
+                            'blog' => $blog,
+                            'headline' => translate('Save this inspiration for later'),
+                            'text' => translate('Get practical design ideas and curated Mayush product picks in your inbox.'),
                         ])
                     @endif
                     @if(($blogSettings['email_post_read_enabled'] ?? true))
@@ -98,8 +124,21 @@
                             'text' => translate('Get Moroccan interior design guides and curated Mayush product picks by email.'),
                         ])
                     @endif
-                    @include('frontend.blog.partials.vendor-spotlight', ['blog' => $blog])
-                    @if(($related_blogs ?? collect())->isNotEmpty())
+                    @if(($blogSettings['vendor_cta_enabled'] ?? true))
+                        @include('frontend.blog.partials.vendor-spotlight', ['blog' => $blog])
+                    @endif
+                    @if(($blogSettings['product_embeds_enabled'] ?? true) && ($blogSettings['post_read_products_enabled'] ?? true))
+                        @include('frontend.blog.partials.product-embed', [
+                            'products' => ($blogSettings['lazy_product_loading_enabled'] ?? false) ? collect() : ($postReadProducts ?? collect()),
+                            'title' => translate('More products for this look'),
+                            'subtitle' => translate('Continue shopping the mood from this guide.'),
+                            'placement' => 'post_read',
+                            'blog' => $blog,
+                            'count' => $blogSettings['post_read_products_count'] ?? 4,
+                            'lazy' => $blogSettings['lazy_product_loading_enabled'] ?? false,
+                        ])
+                    @endif
+                    @if(($blogSettings['related_articles_enabled'] ?? true) && ($related_blogs ?? collect())->isNotEmpty())
                         <div class="border-top pt-4 mt-4">
                             <h2 class="fs-18 fw-700 mb-3">{{ translate('Related Posts') }}</h2>
                             <div class="row gutters-10">
@@ -121,7 +160,7 @@
                     <!-- Facebook Comment -->
                     @if (get_setting('facebook_comment') == 1)
                     <div class="mb-4">
-                        <div class="fb-comments" data-href="{{ route("blog",$blog->slug) }}" data-width="" data-numposts="5"></div>
+                        <div class="fb-comments" data-href="{{ route('blog.details', $blog->slug) }}" data-width="" data-numposts="5"></div>
                     </div>
                     @endif
                 </div>
@@ -141,6 +180,17 @@
                 @endif
                 @if(($blogSettings['table_of_contents_enabled'] ?? true))
                     @include('frontend.blog.partials.toc', ['toc' => $blogToc ?? []])
+                @endif
+                @if(($blogSettings['product_embeds_enabled'] ?? true) && ($blogSettings['sidebar_products_enabled'] ?? true))
+                    @include('frontend.blog.partials.product-embed', [
+                        'products' => ($blogSettings['lazy_product_loading_enabled'] ?? false) ? collect() : ($sidebarProducts ?? collect()),
+                        'title' => translate('Products in this article'),
+                        'subtitle' => null,
+                        'placement' => 'sidebar',
+                        'blog' => $blog,
+                        'count' => $blogSettings['sidebar_products_count'] ?? 3,
+                        'lazy' => $blogSettings['lazy_product_loading_enabled'] ?? false,
+                    ])
                 @endif
                 <div class="p-3 border">
                     <h3 class="fs-16 fw-700 text-dark mb-3">{{ translate('Recent Posts') }}</h3>

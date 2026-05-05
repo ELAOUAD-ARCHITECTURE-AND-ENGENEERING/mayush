@@ -196,11 +196,27 @@ class BlogController extends Controller
         $validated = $request->validate([
             'blog_enable_product_embeds' => ['nullable', 'boolean'],
             'blog_products_per_embed' => ['required', 'integer', 'min:1', 'max:12'],
+            'blog_enable_hero' => ['nullable', 'boolean'],
+            'blog_featured_article_id' => ['nullable', 'integer', 'exists:blogs,id'],
+            'blog_hero_cta_text' => ['nullable', 'string', 'max:80'],
+            'blog_articles_per_page' => ['nullable', 'integer', 'min:3', 'max:48'],
+            'blog_enable_category_tabs' => ['nullable', 'boolean'],
+            'blog_enable_read_time' => ['nullable', 'boolean'],
+            'blog_enable_product_count_badge' => ['nullable', 'boolean'],
+            'blog_enable_scroll_progress' => ['nullable', 'boolean'],
             'blog_product_embed_cache_minutes' => ['required', 'integer', 'min:1', 'max:1440'],
+            'blog_enable_article_schema' => ['nullable', 'boolean'],
             'blog_enable_product_schema' => ['nullable', 'boolean'],
+            'blog_enable_sidebar_products' => ['nullable', 'boolean'],
+            'blog_sidebar_products_count' => ['nullable', 'integer', 'min:1', 'max:8'],
+            'blog_enable_post_read_products' => ['nullable', 'boolean'],
+            'blog_post_read_products_count' => ['nullable', 'integer', 'min:1', 'max:12'],
+            'blog_enable_lazy_product_loading' => ['nullable', 'boolean'],
             'blog_enable_share_bar' => ['nullable', 'boolean'],
             'blog_enable_table_of_contents' => ['nullable', 'boolean'],
             'blog_email_enable_listing_inline' => ['nullable', 'boolean'],
+            'blog_email_listing_interval' => ['nullable', 'integer', 'min:1', 'max:12'],
+            'blog_email_enable_mid_article' => ['nullable', 'boolean'],
             'blog_email_enable_sidebar' => ['nullable', 'boolean'],
             'blog_email_enable_post_read' => ['nullable', 'boolean'],
             'blog_email_provider' => ['required', 'in:local,mailchimp,klaviyo,webhook'],
@@ -211,6 +227,9 @@ class BlogController extends Controller
             'blog_klaviyo_list_id' => ['nullable', 'string', 'max:255'],
             'blog_klaviyo_revision' => ['nullable', 'date_format:Y-m-d'],
             'blog_email_success_message' => ['nullable', 'string', 'max:255'],
+            'blog_enable_vendor_cta' => ['nullable', 'boolean'],
+            'blog_enable_related_articles' => ['nullable', 'boolean'],
+            'blog_related_articles_count' => ['nullable', 'integer', 'min:1', 'max:12'],
         ]);
 
         foreach ($this->blogConversionSettingKeys() as $key => $default) {
@@ -275,9 +294,11 @@ class BlogController extends Controller
 
     public function all_blog(Request $request, BlogSettingsService $settingsService)
     {
+        $blogSettings = $settingsService->all();
         $selected_categories = array();
         $search = null;
-        $blogs = Blog::query();
+        $blogs = Blog::published()->with(['category', 'translations', 'products']);
+        $blogCategories = BlogCategory::query()->where('status', 1)->orderBy('category_name')->get();
 
         if ($request->has('search')) {
             $search = $request->search;;
@@ -298,6 +319,11 @@ class BlogController extends Controller
                 END");
         }
 
+        if ($request->filled('category')) {
+            $selected_categories = [$request->category];
+            $blogs->byCategory($request->category);
+        }
+
         if ($request->has('selected_categories')) {
             $selected_categories = $request->selected_categories;
             $blog_categories = BlogCategory::whereIn('slug', $selected_categories)->pluck('id')->toArray();
@@ -305,13 +331,31 @@ class BlogController extends Controller
             $blogs->whereIn('category_id', $blog_categories);
         }
 
-        $blogs = $blogs->where('status', 1)->orderBy('created_at', 'desc')->paginate(12);
+        $featuredBlog = null;
+        if ($blogSettings['hero_enabled']) {
+            $featuredBlogQuery = Blog::published()->with(['category', 'translations', 'products']);
 
-        $recent_blogs = Blog::where('status', 1)->orderBy('created_at', 'desc')->limit(9)->get();
+            if ($blogSettings['featured_article_id'] > 0) {
+                $featuredBlogQuery->where('id', $blogSettings['featured_article_id']);
+            } else {
+                $featuredBlogQuery->featured();
+            }
 
-        $blogSettings = $settingsService->all();
+            $featuredBlog = $featuredBlogQuery
+                ->orderBy('published_at', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
 
-        return view("frontend.blog.listing", compact('blogs', 'selected_categories', 'search', 'recent_blogs', 'blogSettings'));
+        $blogs = $blogs
+            ->orderBy('published_at', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate($blogSettings['articles_per_page'])
+            ->withQueryString();
+
+        $recent_blogs = Blog::published()->with(['category', 'translations'])->orderBy('published_at', 'desc')->orderBy('created_at', 'desc')->limit(9)->get();
+
+        return view("frontend.blog.listing", compact('blogs', 'selected_categories', 'search', 'recent_blogs', 'blogSettings', 'blogCategories', 'featuredBlog'));
     }
 
     public function blog_details(
@@ -352,11 +396,17 @@ class BlogController extends Controller
         $articleProducts = $blogSettings['product_embeds_enabled']
             ? $productMatcher->productsFor($blog, 'manual', $blogSettings['products_per_embed'])
             : collect();
+        $sidebarProducts = $blogSettings['product_embeds_enabled'] && $blogSettings['sidebar_products_enabled']
+            ? $productMatcher->productsFor($blog, 'sidebar', $blogSettings['sidebar_products_count'])
+            : collect();
+        $postReadProducts = $blogSettings['product_embeds_enabled'] && $blogSettings['post_read_products_enabled']
+            ? $productMatcher->productsFor($blog, 'post_read', $blogSettings['post_read_products_count'])
+            : collect();
         $blogProductSchemas = $blogSettings['product_embeds_enabled'] && $blogSettings['product_schema_enabled']
-            ? $schemaService->productSchemas($articleProducts)
+            ? $schemaService->productSchemas($articleProducts->merge($sidebarProducts)->merge($postReadProducts)->unique('id'))
             : [];
 
-        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs', 'sanitizedBlogDescription', 'blogToc', 'articleProducts', 'blogProductSchemas', 'blogSettings'));
+        return view("frontend.blog.details", compact('blog', 'recent_blogs', 'related_blogs', 'sanitizedBlogDescription', 'blogToc', 'articleProducts', 'sidebarProducts', 'postReadProducts', 'blogProductSchemas', 'blogSettings'));
     }
 
     public function subscribe(BlogSubscribeRequest $request, BlogEmailService $emailService)
@@ -399,11 +449,27 @@ class BlogController extends Controller
         return [
             'blog_enable_product_embeds' => 0,
             'blog_products_per_embed' => 4,
+            'blog_enable_hero' => 0,
+            'blog_featured_article_id' => '',
+            'blog_hero_cta_text' => translate('Read guide'),
+            'blog_articles_per_page' => 12,
+            'blog_enable_category_tabs' => 0,
+            'blog_enable_read_time' => 0,
+            'blog_enable_product_count_badge' => 0,
+            'blog_enable_scroll_progress' => 0,
             'blog_product_embed_cache_minutes' => 15,
+            'blog_enable_article_schema' => 0,
             'blog_enable_product_schema' => 0,
+            'blog_enable_sidebar_products' => 0,
+            'blog_sidebar_products_count' => 3,
+            'blog_enable_post_read_products' => 0,
+            'blog_post_read_products_count' => 4,
+            'blog_enable_lazy_product_loading' => 0,
             'blog_enable_share_bar' => 0,
             'blog_enable_table_of_contents' => 0,
             'blog_email_enable_listing_inline' => 0,
+            'blog_email_listing_interval' => 3,
+            'blog_email_enable_mid_article' => 0,
             'blog_email_enable_sidebar' => 0,
             'blog_email_enable_post_read' => 0,
             'blog_email_provider' => 'local',
@@ -414,6 +480,9 @@ class BlogController extends Controller
             'blog_klaviyo_list_id' => '',
             'blog_klaviyo_revision' => '2026-04-15',
             'blog_email_success_message' => translate("You're in! Check your inbox."),
+            'blog_enable_vendor_cta' => 0,
+            'blog_enable_related_articles' => 0,
+            'blog_related_articles_count' => 3,
         ];
     }
 
