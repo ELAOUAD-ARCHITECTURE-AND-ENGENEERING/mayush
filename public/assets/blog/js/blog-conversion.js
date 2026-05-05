@@ -127,9 +127,11 @@
         });
     }
 
-    function productCard(product) {
+    function productCard(product, isSidebar) {
+        var columnClass = isSidebar ? 'col-12' : 'col-md-6';
+
         return '' +
-            '<div class="col-md-6 mb-3">' +
+            '<div class="' + columnClass + ' mb-3">' +
                 '<article class="mb-blog-product-card border rounded bg-white h-100 overflow-hidden">' +
                     '<a href="' + escapeHtml(product.url) + '" class="d-block text-reset">' +
                         '<div class="h-160px overflow-hidden bg-light">' +
@@ -152,6 +154,7 @@
     document.querySelectorAll('[data-blog-products-lazy]').forEach(function (block) {
         var target = block.querySelector('[data-blog-products-target]');
         var url = block.getAttribute('data-blog-products-url');
+        var isSidebar = block.getAttribute('data-blog-placement') === 'sidebar';
         var params = new URLSearchParams({
             blog_id: block.getAttribute('data-blog-id') || '',
             placement: block.getAttribute('data-blog-placement') || 'manual',
@@ -176,7 +179,9 @@
                 return;
             }
 
-            target.innerHTML = products.map(productCard).join('');
+            target.innerHTML = products.map(function (product) {
+                return productCard(product, isSidebar);
+            }).join('');
         }).catch(function () {
             block.remove();
         });

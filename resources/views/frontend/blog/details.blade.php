@@ -169,64 +169,66 @@
             
             <!-- recent posts -->
             <div class="col-xxl-3 col-lg-4">
-                @if(($blogSettings['email_sidebar_enabled'] ?? true))
-                    @include('frontend.blog.partials.email-card', [
-                        'placement' => 'sidebar',
-                        'blog' => $blog,
-                        'headline' => translate('Design notes from Mayush'),
-                        'text' => translate('Short buying guides, decor inspiration, and marketplace picks for Moroccan homes.'),
-                        'button' => translate('Join'),
-                    ])
-                @endif
-                @if(($blogSettings['table_of_contents_enabled'] ?? true))
-                    @include('frontend.blog.partials.toc', ['toc' => $blogToc ?? []])
-                @endif
-                @if(($blogSettings['product_embeds_enabled'] ?? true) && ($blogSettings['sidebar_products_enabled'] ?? true))
-                    @include('frontend.blog.partials.product-embed', [
-                        'products' => ($blogSettings['lazy_product_loading_enabled'] ?? false) ? collect() : ($sidebarProducts ?? collect()),
-                        'title' => translate('Products in this article'),
-                        'subtitle' => null,
-                        'placement' => 'sidebar',
-                        'blog' => $blog,
-                        'count' => $blogSettings['sidebar_products_count'] ?? 3,
-                        'lazy' => $blogSettings['lazy_product_loading_enabled'] ?? false,
-                    ])
-                @endif
-                <div class="p-3 border">
-                    <h3 class="fs-16 fw-700 text-dark mb-3">{{ translate('Recent Posts') }}</h3>
-                    <div class="row">
-                        @foreach($recent_blogs as $recent_blog)
-                        <div class="col-lg-12 col-sm-6 mb-4 hov-scale-img">
-                            <div class="d-flex">
-                                <div class="">
-                                    @php $recentTitle = $recent_blog->getTranslation('title'); @endphp
-                                    <a href="{{ route('blog.details', $recent_blog->slug) }}" class="text-reset d-block overflow-hidden size-80px size-xl-90px mr-2">
-                                        <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
-                                            data-src="{{ uploaded_asset($recent_blog->banner) }}"
-                                            alt="{{ $recentTitle }}"
-                                            class="img-fit lazyload h-100 has-transition">
-                                    </a>
-                                </div>
-                                <div class="">
-                                    <h2 class="fs-14 fw-700 mb-2 mb-xl-3 h-35px text-truncate-2">
-                                        <a href="{{ route('blog.details', $recent_blog->slug) }}" class="text-reset hov-text-primary" title="{{ $recentTitle }}">
-                                            {{ $recentTitle }}
+                <aside class="mb-blog-sidebar" aria-label="{{ translate('Article sidebar') }}">
+                    @if(($blogSettings['email_sidebar_enabled'] ?? true))
+                        @include('frontend.blog.partials.email-card', [
+                            'placement' => 'sidebar',
+                            'blog' => $blog,
+                            'headline' => translate('Design notes from Mayush'),
+                            'text' => translate('Short buying guides, decor inspiration, and marketplace picks for Moroccan homes.'),
+                            'button' => translate('Join'),
+                        ])
+                    @endif
+                    @if(($blogSettings['table_of_contents_enabled'] ?? true))
+                        @include('frontend.blog.partials.toc', ['toc' => $blogToc ?? []])
+                    @endif
+                    @if(($blogSettings['product_embeds_enabled'] ?? true) && ($blogSettings['sidebar_products_enabled'] ?? true))
+                        @include('frontend.blog.partials.product-embed', [
+                            'products' => ($blogSettings['lazy_product_loading_enabled'] ?? false) ? collect() : ($sidebarProducts ?? collect()),
+                            'title' => translate('Products in this article'),
+                            'subtitle' => null,
+                            'placement' => 'sidebar',
+                            'blog' => $blog,
+                            'count' => $blogSettings['sidebar_products_count'] ?? 3,
+                            'lazy' => $blogSettings['lazy_product_loading_enabled'] ?? false,
+                        ])
+                    @endif
+                    <div class="p-3 border mb-blog-sidebar-block">
+                        <h3 class="fs-16 fw-700 text-dark mb-3">{{ translate('Recent Posts') }}</h3>
+                        <div class="row">
+                            @foreach($recent_blogs as $recent_blog)
+                            <div class="col-lg-12 col-sm-6 mb-4 hov-scale-img">
+                                <div class="d-flex">
+                                    <div class="">
+                                        @php $recentTitle = $recent_blog->getTranslation('title'); @endphp
+                                        <a href="{{ route('blog.details', $recent_blog->slug) }}" class="text-reset d-block overflow-hidden size-80px size-xl-90px mr-2">
+                                            <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
+                                                data-src="{{ uploaded_asset($recent_blog->banner) }}"
+                                                alt="{{ $recentTitle }}"
+                                                class="img-fit lazyload h-100 has-transition">
                                         </a>
-                                    </h2>
-                                    <div>
-                                        <small class="fs-12 fw-400 opacity-60">{{ date('M d, Y',strtotime($recent_blog->created_at)) }}</small>
                                     </div>
-                                    @if($recent_blog->category != null)
+                                    <div class="">
+                                        <h2 class="fs-14 fw-700 mb-2 mb-xl-3 h-35px text-truncate-2">
+                                            <a href="{{ route('blog.details', $recent_blog->slug) }}" class="text-reset hov-text-primary" title="{{ $recentTitle }}">
+                                                {{ $recentTitle }}
+                                            </a>
+                                        </h2>
                                         <div>
-                                            <small class="fs-12 fw-400 text-blue">{{ $recent_blog->category->category_name }}</small>
+                                            <small class="fs-12 fw-400 opacity-60">{{ date('M d, Y',strtotime($recent_blog->created_at)) }}</small>
                                         </div>
-                                    @endif
+                                        @if($recent_blog->category != null)
+                                            <div>
+                                                <small class="fs-12 fw-400 text-blue">{{ $recent_blog->category->category_name }}</small>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
+                            @endforeach
                         </div>
-                        @endforeach
                     </div>
-                </div>
+                </aside>
             </div>
 
         </div>
