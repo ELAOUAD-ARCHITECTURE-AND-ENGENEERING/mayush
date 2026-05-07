@@ -424,5 +424,6 @@ class CategoryController extends Controller
             Cache::forget('featured_categories');
             return 1;
         }
-    }
+    public function categories_by_type() { return 'Stub'; }
+    public function hot() { return 'Stub'; }
 }

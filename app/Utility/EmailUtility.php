@@ -101,6 +101,7 @@ class EmailUtility
         $shop = $user->shop;
         $emailSendTo = $emailIdentifier == 'seller_reg_email_to_admin' ? $admin->email : $user->email;
         $emailTemplate = EmailTemplate::whereIdentifier($emailIdentifier)->first();
+        if (!$emailTemplate || $emailTemplate->status == 0) return;
 
         $emailSubject = $emailTemplate->subject;
         $emailSubject = str_replace('[[shop_name]]', $shop->name, $emailSubject);

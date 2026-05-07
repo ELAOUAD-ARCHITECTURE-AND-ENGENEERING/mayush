@@ -2991,8 +2991,8 @@ if (!function_exists('get_wishlists')) {
 if (!function_exists('get_email_template_data')) {
     function get_email_template_data($identifier, $colmn_name = null)
     {
-        $value = EmailTemplate::where('identifier', $identifier)->first()->$colmn_name;
-        return $value;
+        $template = EmailTemplate::where('identifier', $identifier)->first();
+        return $template ? $template->$colmn_name : null;
     }
 }
 

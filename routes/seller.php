@@ -23,6 +23,7 @@ use App\Http\Controllers\Seller\ReviewController;
 use App\Http\Controllers\Seller\SellerWithdrawRequestController;
 use App\Http\Controllers\Seller\ShopController;
 use App\Http\Controllers\Seller\SupportTicketController;
+use App\Http\Controllers\SellerEliteController;
 
 //Upload
 Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user', 'prevent-back-history'], 'as' => 'seller.'], function () {
@@ -38,7 +39,7 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user
     });
 });
 
-Route::group(['namespace' => 'App\Http\Controllers\Seller', 'prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user', 'prevent-back-history'], 'as' => 'seller.'], function () {
+Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user', 'prevent-back-history'], 'as' => 'seller.'], function () {
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
     });

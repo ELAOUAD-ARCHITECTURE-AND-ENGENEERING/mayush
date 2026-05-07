@@ -299,10 +299,9 @@ Route::middleware(['throttle:payments'])->group(function () {
         Route::any('/mercadopago/payment/cancel', 'callback')->name('mercadopago.cancel');
     });
     //Mercadopago 
-
     // SSLCOMMERZ Start
     Route::controller(SslcommerzController::class)->group(function () {
-        Route::get('/sslcommerz/pay', 'index');
+        Route::get('/sslcommerz/pay', 'pay');
         Route::POST('/sslcommerz/success', 'success');
         Route::POST('/sslcommerz/fail', 'fail');
         Route::POST('/sslcommerz/cancel', 'cancel');
@@ -310,11 +309,11 @@ Route::middleware(['throttle:payments'])->group(function () {
     });
     //SSLCOMMERZ END
 
-    //Stipe Start
+    //Stripe Start
     Route::controller(StripeController::class)->group(function () {
-        Route::get('stripe', 'stripe');
+        Route::get('stripe', 'pay');
         Route::post('/stripe/create-checkout-session', 'create_checkout_session')->name('stripe.get_token');
-        Route::any('/stripe/payment/callback', 'callback')->name('stripe.callback');
+        Route::any('/stripe/payment/callback', 'success')->name('stripe.callback');
         Route::get('/stripe/success', 'success')->name('stripe.success');
         Route::get('/stripe/cancel', 'cancel')->name('stripe.cancel');
     });

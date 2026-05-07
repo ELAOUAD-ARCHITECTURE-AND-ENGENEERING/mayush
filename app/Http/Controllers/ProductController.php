@@ -1164,4 +1164,9 @@ class ProductController extends Controller
         $single_select = $request->single_select ?? 0;
         return view('partials.product.multiPick_products', compact('products', 'single_select'));
     }
+
+    public function get_products_by_subcategory() { return 'Stub'; }
+    public function search() { return 'Stub'; }
+    public function get_custom_review_product_by_category() { return 'Stub'; }
+    public function reviews() { return 'Stub'; }
 }

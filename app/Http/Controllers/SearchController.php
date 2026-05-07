@@ -23,7 +23,7 @@ class SearchController extends Controller
 {
     public function index(Request $request, $category_id = null, $brand_id = null)
     {
-        $query = $request->keyword;
+        $query = $request->keyword ?? $request->q;
         $sort_by = $request->sort_by;
         $product_type = $request->product_type ?? 'general_product';
         $min_price = $request->min_price;
@@ -874,20 +874,23 @@ class SearchController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function store(Request $request)
     {
-        $search = Search::where('query', $request->keyword)->first();
+        $keyword = $request->keyword ?? $request->q;
+        if (empty($keyword)) {
+            return;
+        }
+        
+        $search = Search::where('query', $keyword)->first();
         if ($search != null) {
             $search->count = $search->count + 1;
             $search->save();
         } else {
             $search = new Search;
-            $search->query = $request->keyword;
+            $search->query = $keyword;
             $search->save();
         }
     }
