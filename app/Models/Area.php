@@ -17,10 +17,6 @@ class Area extends Model
             return $area_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $area_translation != null ? $area_translation->$field : $this->$field;
     }
 

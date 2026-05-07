@@ -19,10 +19,6 @@ class Role extends Model
             return $role_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $role_translation != null ? $role_translation->$field : $this->$field;
     }
 

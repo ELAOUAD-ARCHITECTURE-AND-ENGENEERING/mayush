@@ -18,10 +18,6 @@ class CustomerPackage extends Model
           return $customer_package_translation->$field;
       }
 
-      if (in_array($field, ['name', 'title'])) {
-          return translate($this->$field, $lang);
-      }
-
       return $customer_package_translation != null ? $customer_package_translation->$field : $this->$field;
     }
 

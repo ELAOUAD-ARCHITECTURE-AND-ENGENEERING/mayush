@@ -19,10 +19,6 @@ class Attribute extends Model
           return $attribute_translation->$field;
       }
 
-      if (in_array($field, ['name', 'title'])) {
-          return translate($this->$field, $lang);
-      }
-
       return $attribute_translation != null ? $attribute_translation->$field : $this->$field;
     }
 

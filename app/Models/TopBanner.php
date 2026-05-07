@@ -20,10 +20,6 @@ class TopBanner extends Model
             return $top_banner_translation->$field;
         }
 
-        if (in_array($field, ['title', 'name'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $top_banner_translation != null ? $top_banner_translation->$field : $this->$field;
     }
     

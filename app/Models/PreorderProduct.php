@@ -22,10 +22,6 @@ class PreorderProduct extends Model
             return $preorder_product_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $preorder_product_translation != null ? $preorder_product_translation->$field : $this->$field;
     }
 

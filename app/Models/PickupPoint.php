@@ -19,10 +19,6 @@ class PickupPoint extends Model
             return $pickup_point_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $pickup_point_translation != null ? $pickup_point_translation->$field : $this->$field;
     }
 

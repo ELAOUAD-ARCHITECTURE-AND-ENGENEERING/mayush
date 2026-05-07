@@ -24,10 +24,6 @@ class Category extends Model
             return $category_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $category_translation != null ? $category_translation->$field : $this->$field;
     }
 

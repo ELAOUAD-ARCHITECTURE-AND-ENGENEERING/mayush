@@ -17,10 +17,6 @@ class Page extends Model
           return $page_translation->$field;
       }
 
-      if (in_array($field, ['title', 'name'])) {
-          return translate($this->$field, $lang);
-      }
-
       return $page_translation != null ? $page_translation->$field : $this->$field;
   }
 

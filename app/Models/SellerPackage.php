@@ -19,10 +19,6 @@ class SellerPackage extends Model
             return $seller_package_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $seller_package_translation != null ? $seller_package_translation->$field : $this->$field;
     }
 

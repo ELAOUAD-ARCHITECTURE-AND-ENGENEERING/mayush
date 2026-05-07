@@ -26,10 +26,6 @@ class CustomLabel extends Model
             return $custom_label_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $custom_label_translation != null ? $custom_label_translation->$field : $this->$field;
     }
 

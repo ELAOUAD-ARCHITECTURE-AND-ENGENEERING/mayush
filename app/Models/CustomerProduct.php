@@ -20,10 +20,6 @@ class CustomerProduct extends Model
             return $customer_product_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $customer_product_translation != null ? $customer_product_translation->$field : $this->$field;
     }
 

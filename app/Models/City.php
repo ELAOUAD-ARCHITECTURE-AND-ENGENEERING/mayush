@@ -19,10 +19,6 @@ class City extends Model
             return $city_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $city_translation != null ? $city_translation->$field : $this->$field;
     }
 

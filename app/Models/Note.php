@@ -19,10 +19,6 @@ class Note extends Model
             return $note_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $note_translation != null ? $note_translation->$field : $this->$field;
     }
     

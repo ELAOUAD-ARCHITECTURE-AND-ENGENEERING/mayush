@@ -62,19 +62,13 @@ class Blog extends Model
     public function getTranslation($field = '', $lang = false)
     {
         $lang = $lang ?: App::getLocale();
-        $translation = $this->translations->where('lang', $lang)->first();
+        $blog_translation = $this->translations->where('lang', $lang)->first();
 
-        $value = $translation && $translation->{$field} !== null ? $translation->{$field} : $this->{$field};
-
-        if ($translation != null && $translation->{$field} !== null && $translation->{$field} !== $this->{$field}) {
-            return $translation->{$field};
+        if ($blog_translation != null && $blog_translation->{$field} !== null && $blog_translation->{$field} !== $this->{$field}) {
+            return $blog_translation->{$field};
         }
 
-        if (in_array($field, ['title', 'name'])) {
-            return translate($this->{$field}, $lang);
-        }
-
-        return $value;
+        return $blog_translation != null ? $blog_translation->{$field} : $this->{$field};
     }
 
     public function scopePublished($query)

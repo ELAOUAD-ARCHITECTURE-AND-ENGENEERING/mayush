@@ -17,10 +17,6 @@ class NotificationType extends Model
             return $notification_type_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $notification_type_translation != null ? $notification_type_translation->$field : $this->$field;
     }
 

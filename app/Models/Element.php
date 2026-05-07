@@ -20,10 +20,6 @@ class Element extends Model
             return $element_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $element_translation != null ? $element_translation->$field : $this->$field;
     }
 

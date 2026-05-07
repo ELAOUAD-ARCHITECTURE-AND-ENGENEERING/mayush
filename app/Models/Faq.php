@@ -19,10 +19,6 @@ class Faq extends Model
             return $faq_translation->$field;
         }
 
-        if (in_array($field, ['question', 'name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $faq_translation != null ? $faq_translation->$field : $this->$field;
     }
 

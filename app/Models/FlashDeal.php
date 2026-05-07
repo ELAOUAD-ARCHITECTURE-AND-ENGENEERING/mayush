@@ -21,10 +21,6 @@ class FlashDeal extends Model
             return $flash_deal_translation->$field;
         }
 
-        if (in_array($field, ['title', 'name'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $flash_deal_translation != null ? $flash_deal_translation->$field : $this->$field;
     }
 

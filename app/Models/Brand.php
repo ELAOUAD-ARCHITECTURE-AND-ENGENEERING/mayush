@@ -23,10 +23,6 @@ class Brand extends Model
             return $brand_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $brand_translation != null ? $brand_translation->$field : $this->$field;
     }
 

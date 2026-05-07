@@ -19,10 +19,6 @@ class Warranty extends Model
             return $warranty_translation->$field;
         }
 
-        if (in_array($field, ['name', 'title'])) {
-            return translate($this->$field, $lang);
-        }
-
         return $warranty_translation != null ? $warranty_translation->$field : $this->$field;
     }
 
