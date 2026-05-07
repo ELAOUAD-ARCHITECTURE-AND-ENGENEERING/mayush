@@ -234,7 +234,7 @@ class PromotionAccessControlTest extends TestCase
 
         $this->withoutExceptionHandling();
         try {
-            $this->actingAs($this->sellerA)->get(route('customer_products.destroy', $product->id));
+            $this->actingAs($this->sellerA)->delete(route('customer_products.destroy', $product->id));
             $this->fail('Expected a 403 Forbidden exception but none was thrown.');
         } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
             $this->assertEquals(403, $e->getStatusCode());

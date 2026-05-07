@@ -56,7 +56,7 @@ class SearchController extends Controller
         // Attach counts from cached data (no extra queries)
         foreach ($attributes as $attribute) {
             $attribute->product_count = $attributeCounts->filter(fn($a) =>
-                str_contains($a, '"' . $attribute->id . '"')
+                $a && str_contains($a, '"' . $attribute->id . '"')
             )->count();
             foreach ($attribute->attribute_values as $value) {
                 $value->product_count = 0; // lightweight placeholder; full count only when filtered

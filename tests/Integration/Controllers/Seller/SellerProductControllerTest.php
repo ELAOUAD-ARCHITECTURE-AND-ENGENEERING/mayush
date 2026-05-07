@@ -23,7 +23,10 @@ class SellerProductControllerTest extends TestCase
         
         $this->admin = User::factory()->create(['user_type' => 'admin']);
         $this->seller = User::factory()->create(['user_type' => 'seller']);
-        $this->shop = Shop::factory()->create(['user_id' => $this->seller->id]);
+        $this->shop = Shop::factory()->create([
+            'user_id' => $this->seller->id,
+            'approval_status' => 'approved'
+        ]);
     }
 
     /** @test */
@@ -80,15 +83,16 @@ class SellerProductControllerTest extends TestCase
 
         $response = $this->actingAs($this->seller)->get(route('seller.products.edit', $product->id));
 
-        $response->assertStatus(302); // Redirect back with warning
+        $response->assertStatus(403);
     }
 
     /** @test */
     public function seller_can_delete_their_own_product()
     {
+        $this->withoutExceptionHandling();
         $product = Product::factory()->create(['user_id' => $this->seller->id]);
 
-        $response = $this->actingAs($this->seller)->get(route('seller.products.destroy', $product->id));
+        $response = $this->actingAs($this->seller)->delete(route('seller.products.destroy', $product->id));
 
         $this->assertDatabaseMissing('products', ['id' => $product->id]);
     }

@@ -1788,6 +1788,7 @@ if (!function_exists('calculateCommissionAffilationClubPoint')) {
         }
 
         $order->commission_calculated = 1;
+        \Log::info("Final save for order id {$order->id} with payment_status: {$order->payment_status}");
         $order->save();
     }
 }
@@ -1863,8 +1864,7 @@ if (!function_exists('get_url_params')) {
 if (!function_exists('get_admin')) {
     function get_admin()
     {
-        $admin_query = User::query();
-        return $admin_query->where('user_type', 'admin')->first();
+        return \App\Models\User::where('user_type', 'admin')->first();
     }
 }
 

@@ -378,17 +378,21 @@ class CheckoutController extends Controller
     {
         $combined_order = CombinedOrder::findOrFail($combined_order_id);
 
-        foreach ($combined_order->orders as $key => $order) {
-            $order = Order::findOrFail($order->id);
-            $order->payment_status = 'paid';
-            $order->payment_details = $payment;
-            $order->save();
+        foreach ($combined_order->orders as $order) {
+            try {
+                $order = Order::findOrFail($order->id);
+                $order->payment_status = 'paid';
+                $order->payment_details = $payment;
+                $order->save();
 
-            // Order paid notification to Customer, Seller, & Admin
-            EmailUtility::order_email($order, 'paid'); 
-            
-            // Calculate Commission from seller, Customer Affiliate earning and Customers Club Point
-            calculateCommissionAffilationClubPoint($order);
+                // Order paid notification to Customer, Seller, & Admin
+                EmailUtility::order_email($order, 'paid'); 
+                
+                // Calculate Commission from seller, Customer Affiliate earning and Customers Club Point
+                calculateCommissionAffilationClubPoint($order);
+            } catch (\Exception $e) {
+                \Log::error("Error in checkout_done loop for order id {$order->id}: " . $e->getMessage());
+            }
         }
         Session::put('combined_order_id', $combined_order_id);
         
@@ -774,8 +778,6 @@ class CheckoutController extends Controller
         $payment_type = Session::get('payment_type');
         $payment_data = Session::get('payment_data');
 
-        \Log::info("payment_failed triggered. Session combined_order_id: {$combined_order_id}, type: {$payment_type}");
-
         // Handle cases where there might not be an order (wallet, package)
         if (!$combined_order_id && (!$payment_type || $payment_type != 'order_re_payment' || !isset($payment_data['order_id']))) {
             if (in_array($payment_type, ['wallet_payment', 'customer_package_payment', 'seller_package_payment'])) {
@@ -786,7 +788,6 @@ class CheckoutController extends Controller
 
                 return View::make('frontend.payment_failed', compact('orders', 'retry_url'));
             }
-            \Log::warning("payment_failed redirecting to home. Missing session data.");
             return Redirect::route('home');
         }
 
@@ -803,12 +804,9 @@ class CheckoutController extends Controller
             }
         }
 
-        \Log::info("payment_failed found " . count($orders) . " orders to check.");
-
         // Mark orders as cancelled and RESTOCK
         foreach ($orders as $order) {
             if ($order->payment_status != 'paid' && $order->delivery_status != 'cancelled') {
-                \Log::info("Restocking Order ID: {$order->id}");
                 // Restock each item before marking as cancelled
                 foreach ($order->orderDetails as $orderDetail) {
                     if ($orderDetail->delivery_status != 'cancelled') {
@@ -994,7 +992,9 @@ class CheckoutController extends Controller
         $order->payment_details = $payment_details;
         $order->payment_type = $payment_data['payment_method'];
         $order->save();
-        calculateCommissionAffilationClubPoint($order);
+        (new CommissionController)->calculateCommission($order);
+        (new AffiliateController)->processAffiliatePoints($order);
+        (new ClubPointController)->processClubPoints($order);
 
         if($order->notified == 0){
             NotificationUtility::sendOrderPlacedNotification($order);

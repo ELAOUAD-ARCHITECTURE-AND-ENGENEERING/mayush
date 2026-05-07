@@ -642,7 +642,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/affiliate-config', 'configuration')->name('admin.affiliate.configuration');
         Route::post('/affiliate-config/update', 'updateSettings')->name('affiliate.config.update');
         Route::get('/affiliate-users', 'users')->name('admin.affiliate.users');
-        Route::get('/affiliate-users/approve/{id}', 'approve')->name('admin.affiliate.users.approve');
+        Route::post('/affiliate-users/approve/{id}', 'approve')->name('admin.affiliate.users.approve');
     });
 
 

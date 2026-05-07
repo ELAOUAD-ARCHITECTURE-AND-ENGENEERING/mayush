@@ -234,14 +234,14 @@ class CustomerProductController extends Controller
             abort(403, 'Access Denied. Customers cannot update classified products.');
         }
 
-        $request->validate($this->productRules(false));
-
         $customer_product = CustomerProduct::findOrFail($id);
 
         // Ownership Check: Sellers can only update their own products
         if ($customer_product->user_id !== Auth::id()) {
             abort(403, 'Access Denied. You can only update your own products.');
         }
+
+        $request->validate($this->productRules(false));
 
         if($request->lang == env("DEFAULT_LANGUAGE")){
             $customer_product->name             = $request->name;
