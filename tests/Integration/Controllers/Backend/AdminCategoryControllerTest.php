@@ -109,7 +109,7 @@ class AdminCategoryControllerTest extends TestCase
     {
         $category = Category::factory()->create();
         
-        $response = $this->actingAs($this->admin)->get(route('categories.destroy', $category->id));
+        $response = $this->actingAs($this->admin)->delete(route('categories.destroy', $category->id));
         
         $response->assertStatus(200);
         $this->assertDatabaseMissing('categories', ['id' => $category->id]);
