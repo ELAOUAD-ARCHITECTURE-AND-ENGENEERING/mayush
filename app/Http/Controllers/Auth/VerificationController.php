@@ -62,7 +62,7 @@ class VerificationController extends Controller
         else {
             $otpController = new OTPVerificationController;
             $otpController->send_code($request->user());
-            return redirect()->route('verification');
+            return redirect()->route('otp.verification');
         }
     }
 

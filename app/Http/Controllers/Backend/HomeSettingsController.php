@@ -37,6 +37,6 @@ class HomeSettingsController extends Controller
         }
 
         flash(translate('Top 10 categories and brands have been updated successfully'))->success();
-        return redirect()->route('home_settings.index');
+        return redirect()->route('website.select-homepage');
     }
 }

@@ -76,6 +76,7 @@ class ProductStockService
             unset($collection['current_stock']);
 
             $data = $collection->merge(compact('variant', 'qty', 'price'))->toArray();
+            $data['product_id'] = $product->id;
             
             // Add dimensions to base stock tracking if variant-less
             $data['length'] = $collection['length'] ?? null;
@@ -83,7 +84,7 @@ class ProductStockService
             $data['height'] = $collection['height'] ?? null;
             $data['dimension_unit'] = $collection['dimension_unit'] ?? 'cm';
             
-            unset($data['colors_active'], $data['choice_no'], $data['unit_price'], $data['sku'], $data['current_stock'], $data['colors']);
+            unset($data['colors_active'], $data['choice_no'], $data['unit_price'], $data['current_stock'], $data['colors']);
 
             $product_stock = ProductStock::create($data);
 

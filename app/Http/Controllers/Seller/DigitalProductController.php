@@ -219,6 +219,12 @@ class DigitalProductController  extends Controller
      */
     public function destroy($id)
     {
+        $product = Product::findOrFail($id);
+
+        if ((int) $product->user_id !== (int) Auth::id()) {
+            abort(403);
+        }
+
         (new ProductService)->destroy($id);
 
         flash(translate('Product has been deleted successfully'))->success();

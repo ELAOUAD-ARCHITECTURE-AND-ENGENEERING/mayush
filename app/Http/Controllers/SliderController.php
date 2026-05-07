@@ -45,7 +45,7 @@ class SliderController extends Controller
             }
             flash(translate('Slider has been inserted successfully'))->success();
         }
-        return redirect()->route('home_settings.index');
+        return redirect()->route('website.select-homepage');
     }
 
     /**
@@ -104,6 +104,6 @@ class SliderController extends Controller
         } else {
             flash(translate('Something went wrong'))->error();
         }
-        return redirect()->route('home_settings.index');
+        return redirect()->route('website.select-homepage');
     }
 }

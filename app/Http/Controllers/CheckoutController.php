@@ -202,9 +202,15 @@ class CheckoutController extends Controller
             // If block for Online payment, wallet and cash on delivery. Else block for Offline payment
             $decorator = __NAMESPACE__ . '\\Payment\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $request->input('payment_option')))) . "Controller";
             if (class_exists($decorator)) {
+                $payment_controller = new $decorator;
+                if (!method_exists($payment_controller, 'pay')) {
+                    \Illuminate\Support\Facades\Log::error("Payment controller 'pay' method missing for method: " . $request->input('payment_option'));
+                    Session::flash('error', translate('Selected payment method is currently unavailable.'));
+                    return Redirect::route('checkout.shipping_info');
+                }
+
                 if ($request->ajax()) {
                     // Start the payment flow but we need the redirect URL or the form HTML
-                    $payment_controller = new $decorator;
                     $response = $payment_controller->pay($request);
                     
                     if ($response instanceof \Illuminate\Http\RedirectResponse) {
@@ -214,7 +220,7 @@ class CheckoutController extends Controller
                     }
                     return $response;
                 }
-                return (new $decorator)->pay($request);
+                return $payment_controller->pay($request);
             }
             else {
                 $combined_order = CombinedOrder::query()->findOrFail($request->session()->get('combined_order_id'));
@@ -774,7 +780,11 @@ class CheckoutController extends Controller
         if (!$combined_order_id && (!$payment_type || $payment_type != 'order_re_payment' || !isset($payment_data['order_id']))) {
             if (in_array($payment_type, ['wallet_payment', 'customer_package_payment', 'seller_package_payment'])) {
                 $orders = collect([]);
-                return View::make('frontend.payment_failed', compact('orders'));
+                $retry_url = $payment_type == 'wallet_payment'
+                    ? route('wallet.index')
+                    : route('customer_packages_list_show');
+
+                return View::make('frontend.payment_failed', compact('orders', 'retry_url'));
             }
             \Log::warning("payment_failed redirecting to home. Missing session data.");
             return Redirect::route('home');

@@ -24,7 +24,8 @@ class Product extends Model
         'choice_options', 'attributes', 'published', 'featured', 'todays_deal', 'weight', 
         'length', 'width', 'height', 'shipping_type', 'shipping_cost', 'is_quantity_multiplied', 
         'est_shipping_days', 'cash_on_delivery', 'meta_title', 'meta_description', 
-        'meta_img', 'pdf', 'digital', 'auction_product', 'wholesale_product', 'rating', 'num_of_sale'
+        'meta_img', 'pdf', 'digital', 'auction_product', 'wholesale_product', 'rating', 'num_of_sale',
+        'photos', 'thumbnail_img', 'description', 'tags'
     ];
 
     protected $with = ['product_translations', 'taxes', 'thumbnail'];
@@ -36,9 +37,17 @@ class Product extends Model
 
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
-        $product_translations = $this->product_translations->where('lang', $lang)->first();
-        return $product_translations != null ? $product_translations->$field : $this->$field;
+        $lang = $lang ?: App::getLocale();
+        $product_translation = $this->product_translations->where('lang', $lang)->first();
+        if ($product_translation != null && $product_translation->$field !== null && $product_translation->$field !== $this->$field) {
+            return $product_translation->$field;
+        }
+
+        if (in_array($field, ['name', 'title'])) {
+            return translate($this->$field, $lang);
+        }
+
+        return $product_translation != null ? $product_translation->$field : $this->$field;
     }
 
     public function product_translations()

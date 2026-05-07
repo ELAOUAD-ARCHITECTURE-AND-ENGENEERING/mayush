@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use Mayush\Shipping\Onessta\Services\WebhookService;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class WebhookController extends Controller
 {
@@ -28,6 +29,17 @@ class WebhookController extends Controller
                 'status' => 'ok',
                 'log_id' => $log->id,
             ], 200);
+
+        } catch (HttpExceptionInterface $e) {
+            Log::warning('ONESSTA: Webhook rejected', [
+                'status' => $e->getStatusCode(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], $e->getStatusCode());
 
         } catch (\Throwable $e) {
             Log::error('ONESSTA: Webhook handler threw exception', [

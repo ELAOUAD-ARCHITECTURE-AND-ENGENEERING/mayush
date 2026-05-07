@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\StockSubscription;
 use Auth;
 use App\Models\Product;
+use Illuminate\Validation\Rule;
 
 class StockAlertController extends Controller
 {
@@ -14,9 +15,15 @@ class StockAlertController extends Controller
      */
     public function subscribe(Request $request)
     {
-        $productId = $request->input('product_id');
-        $variant = $request->input('variant'); // Assuming 'variant' is passed from the form
-        $email = $request->input('email');
+        $validated = $request->validate([
+            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'variant' => ['nullable', 'string', 'max:255'],
+            'email' => [Rule::requiredIf(!Auth::check()), 'nullable', 'email', 'max:255'],
+        ]);
+
+        $productId = $validated['product_id'];
+        $variant = $validated['variant'] ?? null;
+        $email = $validated['email'] ?? null;
         
         if (Auth::check()) {
             $user_id = Auth::id();
@@ -31,20 +38,16 @@ class StockAlertController extends Controller
             }
         }
 
-        $product = Product::find($productId);
-        if (!$product) {
-            return response()->json([
-                'status' => 'error',
-                'message' => translate('Product not found.')
-            ], 404);
-        }
+        $product = Product::findOrFail($productId);
 
         // Prevent duplicate active subscriptions
         $existing = StockSubscription::pending()
             ->where('product_id', $productId)
             ->where('email', $email)
-            ->when($variant, function($q) use ($variant) {
+            ->when($variant, function ($q) use ($variant) {
                 return $q->where('variant', $variant);
+            }, function ($q) {
+                return $q->whereNull('variant');
             })
             ->first();
 

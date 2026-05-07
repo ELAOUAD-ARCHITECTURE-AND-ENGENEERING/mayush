@@ -75,7 +75,6 @@ class PurchaseHistoryController extends Controller
         //     ->where('digital', 1)
         //     ->paginate(15);
 
-        // dd($order_detail_products);
 
         return PurchasedResource::collection($order_detail_products);
     }

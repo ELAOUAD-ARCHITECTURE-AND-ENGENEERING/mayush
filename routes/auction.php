@@ -28,14 +28,14 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
         Route::post('/auction-product/store', 'store')->name('auction_product_store.admin');
         Route::get('/auction_products/edit/{id}', 'index')->name('auction_product_edit.admin');
         Route::post('/auction_products/update/{id}', 'update')->name('auction_product_update.admin');
-        Route::get('/auction_products/destroy/{id}', 'destroy')->name('auction_product_destroy.admin');
+        Route::delete('/auction_products/destroy/{id}', 'destroy')->name('auction_product_destroy.admin');
 
         // Sales
         Route::get('/auction_products-orders', 'index')->name('auction_products_orders');
     });
     Route::controller(AuctionProductBidController::class)->group(function () {
         Route::get('/product-bids/{id}', 'product_bids_admin')->name('product_bids.admin');
-        Route::get('/product-bids/destroy/{id}', 'bid_destroy_admin')->name('product_bids_destroy.admin');
+        Route::delete('/product-bids/destroy/{id}', 'bid_destroy_admin')->name('product_bids_destroy.admin');
     });
 });
 
@@ -47,13 +47,13 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user
         Route::post('/auction-product/store', 'store')->name('auction_product_store.seller');
         Route::get('/auction_products/edit/{id}', 'index')->name('auction_product_edit.seller');
         Route::post('/auction_products/update/{id}', 'update')->name('auction_product_update.seller');
-        Route::get('/auction_products/destroy/{id}', 'destroy')->name('auction_product_destroy.seller');
+        Route::delete('/auction_products/destroy/{id}', 'destroy')->name('auction_product_destroy.seller');
 
         Route::get('/auction_products-orders', 'index')->name('auction_products_orders.seller');
     });
     Route::controller(AuctionProductBidController::class)->group(function () {
         Route::get('/product-bids/{id}', 'product_bids_seller')->name('product_bids.seller');
-        Route::get('/product-bids/destroy/{id}', 'bid_destroy_seller')->name('product_bids_destroy.seller');
+        Route::delete('/product-bids/destroy/{id}', 'bid_destroy_seller')->name('product_bids_destroy.seller');
     });
 });
 

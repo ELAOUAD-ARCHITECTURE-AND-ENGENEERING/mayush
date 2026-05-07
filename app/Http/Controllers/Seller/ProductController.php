@@ -175,8 +175,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         if (Auth::user()->id != $product->user_id) {
-            flash(translate('This product is not yours.'))->warning();
-            return back();
+            abort(403);
         }
 
         $lang = $request->lang;
@@ -361,8 +360,7 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         if (Auth::user()->id != $product->user_id) {
-            flash(translate('This product is not yours.'))->warning();
-            return back();
+            abort(403);
         }
 
         if (addon_is_activated('seller_subscription')) {
@@ -406,8 +404,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         if (Auth::user()->id != $product->user_id) {
-            flash(translate('This product is not yours.'))->warning();
-            return back();
+            abort(403);
         }
 
         $product->product_translations()->delete();

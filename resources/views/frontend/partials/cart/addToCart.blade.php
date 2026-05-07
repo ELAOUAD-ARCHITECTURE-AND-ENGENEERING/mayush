@@ -258,6 +258,7 @@
                                 <span class="d-none d-md-inline-block">{{ translate('Add to cart')}}</span>
                             </button>
                         @endif
+                    @endif
                     @if (($product->digital == 1 || $qty > 0) && Auth::check() && $product->external_link == null)
                         <button type="button" class="btn text-white fw-bold express-buy-btn rounded-0" onclick="expressBuy({{ $product->id }})" style="background-color: #ff9900;">
                             ⚡ <span class="d-none d-md-inline-block">{{ translate('Express Buy')}}</span>

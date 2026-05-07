@@ -227,8 +227,8 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
     public function getVendorKpis(Carbon $start, Carbon $end): array
     {
         try {
-            $total = \App\Models\Shop::where('verification_status', 1)->count();
-            $new = \App\Models\Shop::where('verification_status', 1)->where('created_at','>=',now()->startOfMonth())->count();
+            $total = $this->approvedVendorQuery()->count();
+            $new = $this->approvedVendorQuery()->whereBetween('created_at', [$start, $end])->count();
             $avgRating = DB::table('reviews')->avg('rating'); $avgRating=$avgRating?round((float)$avgRating,1):null;
             $gmv = \App\Models\Order::where('payment_status','paid')->whereBetween('created_at',[$start,$end])->sum('grand_total');
             $disputes = \App\Models\RefundRequest::whereBetween('created_at',[$start,$end])->count();
@@ -242,7 +242,15 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
     {
         try {
             $growth=[];
-            for($i=6;$i>=0;$i--) { $m=now()->subMonths($i); $growth[]=['month'=>$m->format('M'),'active'=>\App\Models\Shop::where('created_at','<=',$m->copy()->endOfMonth())->count(),'new'=>\App\Models\Shop::whereMonth('created_at',$m->month)->whereYear('created_at',$m->year)->count(),'churned'=>0]; }
+            for($i=6;$i>=0;$i--) {
+                $m=now()->subMonths($i);
+                $growth[]=[
+                    'month'=>$m->format('M'),
+                    'active'=>$this->approvedVendorQuery()->where('created_at','<=',$m->copy()->endOfMonth())->count(),
+                    'new'=>$this->approvedVendorQuery()->whereMonth('created_at',$m->month)->whereYear('created_at',$m->year)->count(),
+                    'churned'=>0,
+                ];
+            }
             return $growth;
         } catch (\Exception $e) { return []; }
     }
@@ -370,5 +378,20 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
             if ($id) { $c=\App\Models\Currency::find($id); if($c) return ['symbol'=>$c->symbol,'code'=>$c->code]; }
         } catch (\Exception $e) {}
         return ['symbol'=>'$','code'=>'USD'];
+    }
+
+    private function approvedVendorQuery()
+    {
+        $query = \App\Models\Shop::query()->where('verification_status', 1);
+
+        if (Schema::hasColumn('shops', 'approval_status')) {
+            return $query->where('approval_status', 'approved');
+        }
+
+        if (Schema::hasColumn('shops', 'registration_approval')) {
+            return $query->where('registration_approval', 1);
+        }
+
+        return $query;
     }
 }

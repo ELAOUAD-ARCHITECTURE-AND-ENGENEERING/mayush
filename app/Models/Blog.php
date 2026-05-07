@@ -64,7 +64,17 @@ class Blog extends Model
         $lang = $lang ?: App::getLocale();
         $translation = $this->translations->where('lang', $lang)->first();
 
-        return $translation && $translation->{$field} !== null ? $translation->{$field} : $this->{$field};
+        $value = $translation && $translation->{$field} !== null ? $translation->{$field} : $this->{$field};
+
+        if ($translation != null && $translation->{$field} !== null && $translation->{$field} !== $this->{$field}) {
+            return $translation->{$field};
+        }
+
+        if (in_array($field, ['title', 'name'])) {
+            return translate($this->{$field}, $lang);
+        }
+
+        return $value;
     }
 
     public function scopePublished($query)

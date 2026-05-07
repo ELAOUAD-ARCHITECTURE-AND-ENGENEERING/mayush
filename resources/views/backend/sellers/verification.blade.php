@@ -7,8 +7,15 @@
       <h5 class="mb-0 h6">{{ translate('Seller Verification') }}</h5>
       @if ($shop->verification_status != 1 && $shop->verification_info != null)
         <div class="pull-right clearfix">
-            <a href="{{ route('sellers.reject', $shop->id) }}" class="btn btn-circle btn-danger d-innline-block">{{translate('Reject')}}</a></li>
-            <a href="{{ route('sellers.approve', $shop->id) }}" class="btn btn-circle btn-success d-innline-block">{{translate('Accept')}}</a>
+            <form action="{{ route('sellers.reject', $shop->id) }}" method="POST" class="d-inline-block">
+                @csrf
+                <input type="hidden" name="rejection_reason" value="{{ translate('Rejected from verification review.') }}">
+                <button type="submit" class="btn btn-circle btn-danger d-innline-block">{{translate('Reject')}}</button>
+            </form>
+            <form action="{{ route('sellers.approve', $shop->id) }}" method="POST" class="d-inline-block">
+                @csrf
+                <button type="submit" class="btn btn-circle btn-success d-innline-block">{{translate('Accept')}}</button>
+            </form>
         </div>
       @endif
   </div>
@@ -69,8 +76,15 @@
         @endif
         @if ($shop->verification_status != 1 && $shop->verification_info != null)
           <div class="text-center">
-              <a href="{{ route('sellers.reject', $shop->id) }}" class="btn btn-sm btn-danger d-innline-block">{{translate('Reject')}}</a></li>
-              <a href="{{ route('sellers.approve', $shop->id) }}" class="btn btn-sm btn-success d-innline-block">{{translate('Accept')}}</a>
+              <form action="{{ route('sellers.reject', $shop->id) }}" method="POST" class="d-inline-block">
+                  @csrf
+                  <input type="hidden" name="rejection_reason" value="{{ translate('Rejected from verification review.') }}">
+                  <button type="submit" class="btn btn-sm btn-danger d-innline-block">{{translate('Reject')}}</button>
+              </form>
+              <form action="{{ route('sellers.approve', $shop->id) }}" method="POST" class="d-inline-block">
+                  @csrf
+                  <button type="submit" class="btn btn-sm btn-success d-innline-block">{{translate('Accept')}}</button>
+              </form>
           </div>
         @endif
       </div>

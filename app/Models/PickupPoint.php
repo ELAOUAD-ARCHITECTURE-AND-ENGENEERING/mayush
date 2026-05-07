@@ -13,8 +13,16 @@ class PickupPoint extends Model
     protected $with = ['pickup_point_translations'];
 
     public function getTranslation($field = '', $lang = false){
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $pickup_point_translation = $this->pickup_point_translations->where('lang', $lang)->first();
+        if ($pickup_point_translation != null && $pickup_point_translation->$field !== null && $pickup_point_translation->$field !== $this->$field) {
+            return $pickup_point_translation->$field;
+        }
+
+        if (in_array($field, ['name', 'title'])) {
+            return translate($this->$field, $lang);
+        }
+
         return $pickup_point_translation != null ? $pickup_point_translation->$field : $this->$field;
     }
 

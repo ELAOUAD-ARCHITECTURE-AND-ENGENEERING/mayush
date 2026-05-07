@@ -64,37 +64,24 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, HomeLayoutService $layoutService)
     {
-        $lang = get_system_language() ? get_system_language()->code : null;
-        $featured_categories = Cache::rememberForever('featured_categories', function () {
-            return Category::with('bannerImage')->where('featured', 1)->get();
-        });
-        $hot_categories = Cache::rememberForever('hot_categories', function () {
-            return Category::with('bannerImage')->where('hot_category', '1')->get();
-        });
-        $latest_blogs = Cache::remember('home_latest_blogs', 900, function () {
-            return Blog::published()
-                ->with(['category', 'translations'])
-                ->orderBy('published_at', 'desc')
-                ->orderBy('created_at', 'desc')
-                ->take(3)
-                ->get();
-        });
+        $this->authService->processRegistrationReferral($request);
+
+        $homepageData = $layoutService->getHomepageData();
 
         $authUser = Auth::user();
         if (get_setting('portfolio_landing')) {
-            $goingons = Blog::where('status', 1)->where('going_on', 1)->latest()->get();
+            $goingons = $layoutService->getPortfolioGoingOns();
             if (!auth()->check()) {
-                return view('frontend.portfolio.index', compact('lang','goingons'));
+                return view('frontend.portfolio.index', $homepageData + compact('goingons'));
             }
-            //dd($authUser->shop);
             if (($authUser->verification_status == 0) ||( $authUser->shop && $authUser->shop->verification_status == 0)) {
-                return view('frontend.portfolio.index', compact('lang','goingons'));
+                return view('frontend.portfolio.index', $homepageData + compact('goingons'));
             }
         }
 
-        return view('frontend.' . safe_homepage_select() . '.index', compact('featured_categories','hot_categories', 'latest_blogs', 'lang'));
+        return view('frontend.' . safe_homepage_select() . '.index', $homepageData);
     }
 
     public function load_todays_deal_section(HomeLayoutService $layoutService)
@@ -174,7 +161,6 @@ class HomeController extends Controller
     }
 
 
-
     /**
      * Show the customer/seller dashboard.
      *
@@ -249,7 +235,6 @@ class HomeController extends Controller
     {
         $categories = Category::with('childrenCategories')->where('parent_id', 0)->orderBy('order_level', 'desc')->get();
 
-        // dd($categories);
         return view('frontend.all_category', compact('categories'));
     }
 

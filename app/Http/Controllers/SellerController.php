@@ -346,6 +346,98 @@ class SellerController extends Controller
         return back();
     }
 
+    // ─── NEW ONBOARDING WORKFLOW METHODS ────────────────────────────────────
+
+    public function showDocuments($id)
+    {
+        $shop = Shop::findOrFail($id);
+        return response()->json([
+            'html' => view('backend.sellers.documents_modal', compact('shop'))->render()
+        ]);
+    }
+
+    public function approveApplication(Request $request, $id)
+    {
+        $shop = Shop::findOrFail($id);
+        $shop->approval_status = 'approved';
+        $shop->registration_approval = 1; // Backward compatibility
+        $shop->rejection_reason = null;
+        $shop->reviewed_at = now();
+        $shop->reviewed_by = auth()->id();
+        $shop->save();
+
+        \App\Models\AuditLog::create([
+            'admin_user_id'  => auth()->id(),
+            'target_user_id' => $shop->user_id,
+            'action_type'    => 'seller_application_approved',
+            'description'    => 'Admin approved the seller onboarding application.',
+            'ip_address'     => request()->ip(),
+        ]);
+
+        try {
+            \App\Utility\EmailUtility::seller_application_status_email($shop, 'approved');
+            
+            // In-app notification
+            $notificationType = \App\Models\NotificationType::where('type', 'shop_verify_request_approved')->first();
+            if ($notificationType) {
+                $data = [
+                    'shop' => $shop,
+                    'status' => 'approved',
+                    'notification_type_id' => $notificationType->id
+                ];
+                \Illuminate\Support\Facades\Notification::send([$shop->user], new \App\Notifications\ShopVerificationNotification($data));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify seller of approval: ' . $e->getMessage());
+        }
+
+        flash(translate('Seller application approved successfully.'))->success();
+        return back();
+    }
+
+    public function rejectApplication(Request $request, $id)
+    {
+        $request->validate([
+            'rejection_reason' => 'required|string|max:1000'
+        ]);
+
+        $shop = Shop::findOrFail($id);
+        $shop->approval_status = 'rejected';
+        $shop->registration_approval = 0; // Backward compatibility
+        $shop->rejection_reason = $request->rejection_reason;
+        $shop->reviewed_at = now();
+        $shop->reviewed_by = auth()->id();
+        $shop->save();
+
+        \App\Models\AuditLog::create([
+            'admin_user_id'  => auth()->id(),
+            'target_user_id' => $shop->user_id,
+            'action_type'    => 'seller_application_rejected',
+            'description'    => 'Admin rejected the seller onboarding application. Reason: ' . $request->rejection_reason,
+            'ip_address'     => request()->ip(),
+        ]);
+
+        try {
+            \App\Utility\EmailUtility::seller_application_status_email($shop, 'rejected', $request->rejection_reason);
+            
+            // In-app notification
+            $notificationType = \App\Models\NotificationType::where('type', 'shop_verify_request_rejected')->first();
+            if ($notificationType) {
+                $data = [
+                    'shop' => $shop,
+                    'status' => 'rejected',
+                    'notification_type_id' => $notificationType->id
+                ];
+                \Illuminate\Support\Facades\Notification::send([$shop->user], new \App\Notifications\ShopVerificationNotification($data));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify seller of rejection: ' . $e->getMessage());
+        }
+
+        flash(translate('Seller application rejected successfully.'))->success();
+        return back();
+    }
+
 
     public function payment_modal(Request $request)
     {
@@ -521,6 +613,7 @@ class SellerController extends Controller
     {
         $shop = Shop::findOrFail($request->id);
         $shop->registration_approval = $request->registration_approval;
+        $shop->approval_status = $request->registration_approval ? 'approved' : 'pending';
         $request->has('verification_status') ? $shop->verification_status = $request->verification_status : 0;
         if ($shop->save()) {
             try {

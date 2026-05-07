@@ -11,9 +11,17 @@ class NotificationType extends Model
 
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
-        $notificationTypeTtranslation = $this->notificationTypeTranslations->where('lang', $lang)->first();
-        return $notificationTypeTtranslation != null ? $notificationTypeTtranslation->$field : $this->$field;
+        $lang = $lang ?: App::getLocale();
+        $notification_type_translation = $this->notificationTypeTranslations->where('lang', $lang)->first();
+        if ($notification_type_translation != null && $notification_type_translation->$field !== null && $notification_type_translation->$field !== $this->$field) {
+            return $notification_type_translation->$field;
+        }
+
+        if (in_array($field, ['name', 'title'])) {
+            return translate($this->$field, $lang);
+        }
+
+        return $notification_type_translation != null ? $notification_type_translation->$field : $this->$field;
     }
 
     public function notificationTypeTranslations()

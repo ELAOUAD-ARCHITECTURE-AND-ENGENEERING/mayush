@@ -14,8 +14,16 @@ class Element extends Model
 
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $element_translation = $this->element_translations->where('lang', $lang)->first();
+        if ($element_translation != null && $element_translation->$field !== null && $element_translation->$field !== $this->$field) {
+            return $element_translation->$field;
+        }
+
+        if (in_array($field, ['name', 'title'])) {
+            return translate($this->$field, $lang);
+        }
+
         return $element_translation != null ? $element_translation->$field : $this->$field;
     }
 

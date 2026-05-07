@@ -49,6 +49,11 @@ class ForgotPasswordController extends Controller
      */
     public function sendResetLinkEmail(Request $request)
     {
+        $request->validate([
+            'email' => ['nullable', 'email', 'required_without:phone'],
+            'phone' => ['nullable', 'required_without:email'],
+            'country_code' => ['nullable', 'required_with:phone'],
+        ]);
 
         // validate recaptcha
         $request->validate([
@@ -76,10 +81,11 @@ class ForgotPasswordController extends Controller
                 $user->save();
                 
                 $emailTemplate = EmailTemplate::whereIdentifier('password_reset_email_to_all')->first();
-                $emailSubject = $emailTemplate->subject;
+                $emailSubject = $emailTemplate?->subject ?: '[[store_name]] password reset code';
                 $emailSubject = str_replace('[[store_name]]', get_setting('site_name'), $emailSubject);
 
-                $email_body = $emailTemplate->default_text;
+                $email_body = ($emailTemplate?->default_text ?? $emailTemplate?->content)
+                    ?: 'Your [[store_name]] password reset code is [[code]] for [[user_email]].';
                 $email_body = str_replace('[[user_email]]', $user->email, $email_body);
                 $email_body = str_replace('[[code]]', $user->verification_code, $email_body);
                 $email_body = str_replace('[[store_name]]', get_setting('site_name'), $email_body);

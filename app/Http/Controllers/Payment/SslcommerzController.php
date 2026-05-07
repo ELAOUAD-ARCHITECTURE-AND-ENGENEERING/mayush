@@ -74,7 +74,6 @@ class SslcommerzController extends Controller
         $post_data['success_url'] = $server_name . "sslcommerz/success";
         $post_data['fail_url'] = $server_name . "sslcommerz/fail";
         $post_data['cancel_url'] = $server_name . "sslcommerz/cancel";
-        //dd($post_data);
         # SHIPMENT INFORMATION
         // $post_data['ship_name'] = 'ship_name';
         // $post_data['ship_add1 '] = 'Ship_add1';

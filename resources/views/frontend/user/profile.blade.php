@@ -154,12 +154,22 @@
                             {{ translate('Edit') }}
                         </a>
                         @if (!$address->set_default)
-                        <a class="dropdown-item" href="{{ route('addresses.set_default', $address->id) }}">{{ translate('Make This Default Shipping') }}</a>
+                        <form action="{{ route('addresses.set_default', $address->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item">{{ translate('Make This Default Shipping') }}</button>
+                        </form>
                         @endif
                          @if (!$address->set_billing)
-                        <a class="dropdown-item" href="{{ route('addresses.set_billing', $address->id) }}">{{ translate('Make This Default Billing') }}</a>
+                        <form action="{{ route('addresses.set_billing', $address->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item">{{ translate('Make This Default Billing') }}</button>
+                        </form>
                         @endif
-                        <a class="dropdown-item" href="{{ route('addresses.destroy', $address->id) }}">{{ translate('Delete') }}</a>
+                        <form action="{{ route('addresses.destroy', $address->id) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="dropdown-item">{{ translate('Delete') }}</button>
+                        </form>
                     </div>
                 </div>
             </div>

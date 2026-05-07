@@ -23,7 +23,11 @@ jobs:
           coverage: none
 
       - name: Validate Composer manifest
-        run: composer validate --no-check-publish
+        run: composer validate --no-check-publish --strict
+
+      - name: Block production debug artifacts
+        run: |
+          ! grep -RInE '(^|[^A-Za-z0-9_])(dd|dump|ray|var_dump)[[:space:]]*\(' app routes resources --include='*.php'
 
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
@@ -37,13 +41,18 @@ jobs:
       - name: Validate route registration
         run: php artisan route:list
 
+      - name: Validate config cache
+        run: |
+          php artisan config:cache
+          php artisan config:clear
+
       - name: Validate route cache
         run: |
           php artisan route:cache
           php artisan route:clear
 
-      - name: Run focused SEO remediation tests
-        run: php artisan test tests/Feature/SeoRemediationTest.php --stop-on-failure
+      - name: Run application tests
+        run: php artisan test --stop-on-failure
 
   composer-audit:
     name: Composer audit

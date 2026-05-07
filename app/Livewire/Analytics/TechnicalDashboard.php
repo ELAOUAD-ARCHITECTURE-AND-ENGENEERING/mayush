@@ -52,10 +52,10 @@ class TechnicalDashboard extends Component
         $this->loadData($analyticsService);
     }
 
-    public function setDateRange($range, TechnicalAnalyticsService $analyticsService)
+    public function setDateRange($range)
     {
         $this->dateRange = $range;
-        $this->loadData($analyticsService);
+        $this->loadData(app(TechnicalAnalyticsService::class));
     }
 
     public function setActiveTab($tab)

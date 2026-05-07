@@ -11,7 +11,7 @@
                         <span>{{ translate('Add New Note') }}</span>
                     </a>
                 </div>
-            @endcan
+            @endif
         </div>
     </div>
     <div class="card">
@@ -47,7 +47,7 @@
                             <td>{{ translate($note->note_type) }}</td>
                             <td><p class="text-truncate-2">{{ $note->getTranslation('description') }}</p></td>
                             <td class="text-right">
-                                <a href="javascript:void(0);" onclick="noteView('{{ route('get-single-note', $note->id )}}')" class="btn btn-soft-success btn-icon btn-circle btn-sm" title="{{ translate('Note Description') }}">
+                                <a href="javascript:void(0);" onclick="noteView('{{ route('seller.note.show', $note->id) }}')" class="btn btn-soft-success btn-icon btn-circle btn-sm" title="{{ translate('Note Description') }}">
                                     <i class="las la-eye"></i>
                                 </a>
                                 @if($note->user_id == auth()->id())
@@ -56,10 +56,13 @@
                                         title="{{ translate('Edit') }}">
                                         <i class="las la-edit"></i>
                                     </a>
-                                    <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
-                                        data-href="{{ route('seller.note.delete', $note->id) }}" title="{{ translate('Delete') }}">
-                                        <i class="las la-trash"></i>
-                                    </a>
+                                    <form action="{{ route('seller.note.destroy', $note->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+                                            <i class="las la-trash"></i>
+                                        </button>
+                                    </form>
                                 @endif
                             </td>
                         </tr>
@@ -103,8 +106,8 @@
         }
 
         function noteView(url){
-            $.get(url, function(data){
-                $('.note-view').html(data);
+            $.getJSON(url, function(data){
+                $('.note-view').html(data.html);
                 $('.note-view-modal').modal('show');
             });
         }

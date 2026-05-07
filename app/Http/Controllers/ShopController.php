@@ -131,6 +131,11 @@ class ShopController extends Controller
                 } catch (\Exception $e) {}
             }
 
+            // Queue onboarding documents request email
+            try {
+                EmailUtility::seller_onboarding_request_email($shop);
+            } catch (\Exception $e) {}
+
             if(get_setting('portfolio_landing')){
                 auth()->login($user, true);
                 return redirect()->route('dashboard');

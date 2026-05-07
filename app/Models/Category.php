@@ -17,8 +17,17 @@ class Category extends Model
 
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $category_translation = $this->category_translations->where('lang', $lang)->first();
+
+        if ($category_translation != null && $category_translation->$field !== null && $category_translation->$field !== $this->$field) {
+            return $category_translation->$field;
+        }
+
+        if (in_array($field, ['name', 'title'])) {
+            return translate($this->$field, $lang);
+        }
+
         return $category_translation != null ? $category_translation->$field : $this->$field;
     }
 

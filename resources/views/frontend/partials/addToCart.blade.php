@@ -296,6 +296,20 @@
                     <button type="button" class="btn btn-secondary out-of-stock fw-600 d-none" disabled>
                         <i class="la la-cart-arrow-down"></i>{{ translate('Out of Stock')}}
                     </button>
+                    @if ($product->digital != 1 && $qty <= 0)
+                        <div class="stock-alert-box mt-3">
+                            <form id="stock-alert-form" class="form-inline" method="POST" action="{{ route('stock.alert.subscribe') }}">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                @guest
+                                    <input type="email" name="email" class="form-control rounded-0 mr-2 mb-2" placeholder="{{ translate('Enter your email') }}" required>
+                                @endguest
+                                <button type="submit" class="btn btn-outline-primary fw-600 mb-2">
+                                    {{ translate('Notify me when available') }}
+                                </button>
+                            </form>
+                        </div>
+                    @endif
                 </div>
 
             </div>
@@ -306,5 +320,21 @@
 <script type="text/javascript">
     $('#option-choice-form input').on('change', function () {
         getVariantPrice();
+    });
+
+    $('#stock-alert-form').on('submit', function (event) {
+        event.preventDefault();
+        var form = $(this);
+
+        $.post(form.attr('action'), form.serialize())
+            .done(function (data) {
+                AIZ.plugins.notify(data.status === 'success' ? 'success' : 'info', data.message);
+            })
+            .fail(function (xhr) {
+                var message = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : '{{ translate('Something went wrong.') }}';
+                AIZ.plugins.notify('danger', message);
+            });
     });
 </script>

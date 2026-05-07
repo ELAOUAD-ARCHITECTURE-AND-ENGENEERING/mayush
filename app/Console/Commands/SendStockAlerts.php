@@ -2,7 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\StockAlertMail;
+use App\Models\StockSubscription;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class SendStockAlerts extends Command
 {
@@ -25,30 +30,56 @@ class SendStockAlerts extends Command
      */
     public function handle()
     {
-        $subscriptions = \App\Models\StockAlertSubscription::where('notified', false)->with('product.stocks', 'user')->get();
+        $sent = 0;
+
+        $subscriptions = StockSubscription::pending()
+            ->with('product.stocks', 'user')
+            ->get();
 
         foreach ($subscriptions as $subscription) {
             $product = $subscription->product;
-            if (!$product) continue;
 
-            $qty = 0;
-            if ($product->variant_product) {
-                foreach ($product->stocks as $stock) {
-                    $qty += $stock->qty;
-                }
-            } else {
-                $qty = optional($product->stocks->first())->qty;
+            if (!$product || $this->availableQuantity($subscription) <= 0) {
+                continue;
             }
 
-            if ($qty > 0) {
-                if ($subscription->user) {
-                    \Illuminate\Support\Facades\Mail::to($subscription->user->email)->queue(new \App\Mail\StockAlertMail($product, $subscription->user));
-                }
-                $subscription->notified = true;
-                $subscription->save();
+            try {
+                Mail::to($subscription->email)->queue(new StockAlertMail($product, $subscription->user));
+                $subscription->forceFill(['notified_at' => now()])->save();
+                $sent++;
+            } catch (Throwable $exception) {
+                Log::error('Failed to queue stock alert notification.', [
+                    'subscription_id' => $subscription->id,
+                    'product_id' => $subscription->product_id,
+                    'email' => $subscription->email,
+                    'error' => $exception->getMessage(),
+                ]);
             }
         }
         
-        $this->info('Stock alerts processed successfully.');
+        $this->info("Stock alerts processed successfully. {$sent} notification(s) queued.");
+
+        return self::SUCCESS;
+    }
+
+    private function availableQuantity(StockSubscription $subscription): int
+    {
+        $product = $subscription->product;
+
+        if (!$product) {
+            return 0;
+        }
+
+        if ($subscription->variant) {
+            return (int) optional($product->stocks->firstWhere('variant', $subscription->variant))->qty;
+        }
+
+        if ($product->variant_product) {
+            return (int) $product->stocks->sum('qty');
+        }
+
+        $stock = $product->stocks->first();
+
+        return $stock ? (int) $stock->qty : (int) $product->current_stock;
     }
 }

@@ -139,6 +139,7 @@ class OrderController extends Controller
                 $order_detail->order_id = $order->id;
                 $order_detail->seller_id = $product->user_id;
                 $order_detail->product_id = $product->id;
+                $order_detail->product_name = $product->getTranslation('name');
                 $order_detail->variation = $product_variation;
                 $order_detail->price = cart_product_price($cartItem, $product, false, false) * $cartItem['quantity'];
                 $order_detail->tax = cart_product_tax($cartItem, $product, false) * $cartItem['quantity'];

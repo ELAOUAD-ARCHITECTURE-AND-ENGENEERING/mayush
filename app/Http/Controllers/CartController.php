@@ -331,24 +331,15 @@ class CartController extends Controller
     public function buyNow(Request $request)
     {
         $authUser = auth()->user();
-        if ($authUser != null) {
-            $user_id = $authUser->id;
-            // Clear existing cart for a clean Buy Now experience
-            Cart::where('user_id', $user_id)->delete();
-        } else {
-            if ($request->session()->get('temp_user_id')) {
-                $temp_user_id = $request->session()->get('temp_user_id');
-                Cart::where('temp_user_id', $temp_user_id)->delete();
-            } else {
-                $temp_user_id = bin2hex(random_bytes(10));
-                $request->session()->put('temp_user_id', $temp_user_id);
-            }
-        }
 
-        // Reuse addToCart logic but without returning array
+        $request->validate([
+            'id' => ['required', 'integer', 'exists:products,id'],
+            'quantity' => ['nullable', 'integer', 'min:1'],
+        ]);
+
         $product = Product::findOrFail($request->id);
         
-        $quantity = $request->quantity ?? $product->min_qty;
+        $quantity = (int) ($request->quantity ?? $product->min_qty);
         if ($quantity < $product->min_qty) {
             $quantity = $product->min_qty;
         }
@@ -359,6 +350,23 @@ class CartController extends Controller
         if (!$product_stock && $product->stocks->count() > 0) {
             $product_stock = $product->stocks->first();
             $str = $product_stock->variant;
+        }
+
+        if (!$product_stock || ($product->digital != 1 && $product_stock->qty < $quantity)) {
+            flash(translate('The requested quantity is not available for ') . $product->getTranslation('name'))->warning();
+            return back();
+        }
+
+        if ($authUser != null) {
+            Cart::where('user_id', $authUser->id)->delete();
+        } else {
+            if ($request->session()->get('temp_user_id')) {
+                $temp_user_id = $request->session()->get('temp_user_id');
+                Cart::where('temp_user_id', $temp_user_id)->delete();
+            } else {
+                $temp_user_id = bin2hex(random_bytes(10));
+                $request->session()->put('temp_user_id', $temp_user_id);
+            }
         }
 
         $cart = new Cart();

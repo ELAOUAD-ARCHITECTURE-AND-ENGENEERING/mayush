@@ -138,7 +138,6 @@ class AizUploadController extends Controller
                         clearstatcache();
                         $size = $img->filesize();
                     } catch (\Exception $e) {
-                        //dd($e);
                     }
                 }
 
@@ -245,7 +244,6 @@ class AizUploadController extends Controller
             }
             $new_file_array[] = $file;
         }
-        // dd($new_file_array);
         return $new_file_array;
         // return $files;
     }

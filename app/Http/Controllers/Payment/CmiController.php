@@ -237,6 +237,12 @@ class CmiController extends Controller
                     $amount_received = (float)($input['amount'] ?? 0);
                     $order = null;
                     $db_amount = 0;
+                    $txnKey = 'cmi_txn_processed_' . ($input['TransId'] ?? $input['oid']);
+
+                    if (\Cache::has($txnKey)) {
+                        Log::info('CMI Callback: Idempotency - Transaction already processed', ['txn_key' => $txnKey]);
+                        return response('ACTION=POSTAUTH')->header('Content-Type', 'text/plain');
+                    }
 
                     if ($type == 'CO') {
                         $order = CombinedOrder::find($id);
@@ -266,12 +272,6 @@ class CmiController extends Controller
 
                     // 2.5 Global Idempotency Check (Exactly-Once Processing)
                     // Check if this transaction has already been successfully processed
-                    $txnKey = 'cmi_txn_processed_' . ($input['TransId'] ?? $input['oid']);
-                    if (\Cache::has($txnKey)) {
-                        Log::info('CMI Callback: Idempotency - Transaction already processed', ['txn_key' => $txnKey]);
-                        return response('ACTION=POSTAUTH')->header('Content-Type', 'text/plain');
-                    }
-
                     // Specific status idempotency checks
                     if ($type == 'CO' && $order instanceof CombinedOrder) {
                         $allPaid = true;
@@ -341,15 +341,7 @@ class CmiController extends Controller
                             $order->save();
                         } elseif ($type == 'W' && $order instanceof User) {
                             $user = $order;
-                            $user->balance += $amount_received;
-                            $user->save();
-
-                            $wallet = new \App\Models\Wallet;
-                            $wallet->user_id = $user->id;
-                            $wallet->amount = $amount_received;
-                            $wallet->payment_method = 'cmi';
-                            $wallet->payment_details = $payment_details;
-                            $wallet->save();
+                            app(\App\Services\WalletService::class)->credit($user, $amount_received, 'cmi', $payment_details);
                         } elseif ($type == 'EA' && $order instanceof EliteSubscription) {
                             // Activate Elite subscription via dedicated handler
                             $txnId = $input['TransId'] ?? $input['oid'] ?? null;

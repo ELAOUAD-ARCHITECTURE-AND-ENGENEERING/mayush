@@ -1659,15 +1659,11 @@ if (!function_exists('wallet_payment_done')) {
     function wallet_payment_done($user_id, $amount, $payment_method, $payment_details)
     {
         $user = \App\Models\User::find($user_id);
-        $user->balance = $user->balance + $amount;
-        $user->save();
+        if (!$user) {
+            return null;
+        }
 
-        $wallet = new Wallet;
-        $wallet->user_id = $user->id;
-        $wallet->amount = $amount;
-        $wallet->payment_method = $payment_method;
-        $wallet->payment_details = $payment_details;
-        $wallet->save();
+        return app(\App\Services\WalletService::class)->credit($user, $amount, $payment_method, $payment_details);
     }
 }
 
@@ -3751,7 +3747,6 @@ if (!function_exists('same_state_shipping_pos')) {
         if(Auth::user()->user_type=='seller'){
             $auth_user= Auth::user();
            if (empty($auth_user->shop) || empty($auth_user->shop->business_info)) {
-            dd("sdc");
                 return false;
             }
 

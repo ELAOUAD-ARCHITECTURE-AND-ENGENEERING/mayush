@@ -11,8 +11,16 @@ class Area extends Model
     use PreventDemoModeChanges;
 
     public function getTranslation($field = '', $lang = false){
-        $lang = $lang == false ? App::getLocale() : $lang;
-        $area_translation = $this->hasMany(AreaTranslation::class)->where('lang', $lang)->first();
+        $lang = $lang ?: App::getLocale();
+        $area_translation = $this->area_translations->where('lang', $lang)->first();
+        if ($area_translation != null && $area_translation->$field !== null && $area_translation->$field !== $this->$field) {
+            return $area_translation->$field;
+        }
+
+        if (in_array($field, ['name', 'title'])) {
+            return translate($this->$field, $lang);
+        }
+
         return $area_translation != null ? $area_translation->$field : $this->$field;
     }
 

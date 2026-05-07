@@ -21,7 +21,11 @@ jobs:
           coverage: none
 
       - name: "Validate Composer Manifest"
-        run: composer validate --no-check-publish
+        run: composer validate --no-check-publish --strict
+
+      - name: "Block Production Debug Artifacts"
+        run: |
+          ! grep -RInE '(^|[^A-Za-z0-9_])(dd|dump|ray|var_dump)[[:space:]]*\(' app routes resources --include='*.php'
 
       - name: "Install Dependencies"
         run: composer install --prefer-dist --no-interaction --no-progress
@@ -35,13 +39,18 @@ jobs:
       - name: "Validate Routes"
         run: php artisan route:list
 
+      - name: "Validate Config Cache"
+        run: |
+          php artisan config:cache
+          php artisan config:clear
+
       - name: "Validate Route Cache"
         run: |
           php artisan route:cache
           php artisan route:clear
 
-      - name: "Run SEO Remediation Tests"
-        run: php artisan test tests/Feature/SeoRemediationTest.php --stop-on-failure
+      - name: "Run Application Tests"
+        run: php artisan test --stop-on-failure
 
   deploy:
     name: "🚀 Deploy to Production"

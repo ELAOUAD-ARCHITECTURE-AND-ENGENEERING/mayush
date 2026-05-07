@@ -96,7 +96,7 @@ class AdminProductControllerTest extends TestCase
     {
         $product = Product::factory()->create();
         
-        $response = $this->actingAs($this->admin)->get(route('products.destroy', $product->id));
+        $response = $this->actingAs($this->admin)->delete(route('products.destroy', $product->id));
         
         $this->assertDatabaseMissing('products', ['id' => $product->id]);
     }

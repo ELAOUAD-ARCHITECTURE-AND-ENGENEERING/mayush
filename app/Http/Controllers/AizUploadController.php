@@ -317,7 +317,6 @@ class AizUploadController extends Controller
                         clearstatcache();
                         $size = $img->filesize();
                     } catch (\Exception $e) {
-                        //dd($e);
                     }
                 } else {
                     $path = $request->file('aiz_file')->store('uploads/all', 'local');
@@ -387,8 +386,7 @@ class AizUploadController extends Controller
         $upload = Upload::findOrFail($id);
 
         if (auth()->user()->user_type == 'seller' && $upload->user_id != auth()->user()->id) {
-            flash(translate("You don't have permission for deleting this!"))->error();
-            return back();
+            abort(403);
         }
         try {
             if (env('FILESYSTEM_DRIVER') != 'local') {
@@ -425,6 +423,107 @@ class AizUploadController extends Controller
             ]);
         }
         return back();
+    }
+
+    public function trash(Request $request)
+    {
+        $all_uploads = Upload::onlyTrashed();
+        $search = $request->search;
+        $sort_by = $request->sort;
+
+        if (auth()->user()->user_type == 'seller') {
+            $all_uploads->where('user_id', auth()->user()->id);
+        }
+
+        if ($search != null) {
+            $all_uploads->where('file_original_name', 'like', '%' . $search . '%');
+        }
+
+        switch ($sort_by) {
+            case 'oldest':
+                $all_uploads->orderBy('deleted_at', 'asc');
+                break;
+            case 'smallest':
+                $all_uploads->orderBy('file_size', 'asc');
+                break;
+            case 'largest':
+                $all_uploads->orderBy('file_size', 'desc');
+                break;
+            default:
+                $sort_by = $sort_by ?: 'newest';
+                $all_uploads->orderBy('deleted_at', 'desc');
+                break;
+        }
+
+        $all_uploads = $all_uploads->paginate(60)->appends(request()->query());
+
+        return auth()->user()->user_type == 'seller'
+            ? view('seller.uploads.trash', compact('all_uploads', 'search', 'sort_by'))
+            : view('backend.uploaded_files.trash', compact('all_uploads', 'search', 'sort_by'));
+    }
+
+    public function restore(Request $request)
+    {
+        $ids = (array) $request->id;
+
+        if (empty($ids)) {
+            return 0;
+        }
+
+        $uploads = Upload::onlyTrashed()->whereIn('id', $ids);
+
+        if (auth()->user()->user_type == 'seller') {
+            $uploads->where('user_id', auth()->user()->id);
+        }
+
+        foreach ($uploads->get() as $upload) {
+            $upload->restore();
+        }
+
+        return 1;
+    }
+
+    public function bulk_force_delete(Request $request)
+    {
+        $ids = (array) $request->id;
+
+        if (empty($ids)) {
+            return 0;
+        }
+
+        $uploads = Upload::onlyTrashed()->whereIn('id', $ids);
+
+        if (auth()->user()->user_type == 'seller') {
+            $uploads->where('user_id', auth()->user()->id);
+        }
+
+        foreach ($uploads->get() as $upload) {
+            $this->deletePhysicalUploadFile($upload);
+            $upload->forceDelete();
+        }
+
+        return 1;
+    }
+
+    private function deletePhysicalUploadFile(Upload $upload)
+    {
+        if (!$upload->file_name) {
+            return;
+        }
+
+        if (env('FILESYSTEM_DRIVER') != 'local') {
+            Storage::disk(env('FILESYSTEM_DRIVER'))->delete($upload->file_name);
+            $local_path = public_path() . '/' . $upload->file_name;
+            if (file_exists($local_path)) {
+                unlink($local_path);
+            }
+            return;
+        }
+
+        $file_path = public_path() . '/' . $upload->file_name;
+        if (file_exists($file_path)) {
+            unlink($file_path);
+        }
     }
 
 
@@ -500,7 +599,6 @@ class AizUploadController extends Controller
             }
             $new_file_array[] = $file;
         }
-        // dd($new_file_array);
         return $new_file_array;
         // return $files;
     }

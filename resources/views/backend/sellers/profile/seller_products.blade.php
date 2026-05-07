@@ -102,10 +102,13 @@
                                                </a>
                                                @endcan
                                                @can('product_delete')
-                                               <a href="javascript:void();" class="dropdown-item confirm-delete fs-13"
-                                                   data-href="{{ route('products.destroy', $product->id) }}">
-                                                   {{ translate('Delete') }}
-                                               </a>
+                                               <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="m-0">
+                                                   @csrf
+                                                   @method('DELETE')
+                                                   <button type="submit" class="dropdown-item fs-13">
+                                                       {{ translate('Delete') }}
+                                                   </button>
+                                               </form>
                                                @endcan
                                            </div>
                                        </div>

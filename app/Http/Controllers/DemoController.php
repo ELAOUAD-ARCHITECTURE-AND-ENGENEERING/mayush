@@ -565,7 +565,6 @@ class DemoController extends Controller
     public function update_seller_id_in_order($order)
     {
         if($order->seller_id == 0){
-            //dd($order->orderDetails[0]->seller_id);
             $order->seller_id = $order->orderDetails[0]->seller_id;
             $order->save();
         }

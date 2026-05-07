@@ -218,6 +218,7 @@ class PosController extends Controller
             $order_detail->order_id = $order->id;
             $order_detail->seller_id = Auth::user()->id;
             $order_detail->product_id = $item['product_id'];
+            $order_detail->product_name = Product::find($item['product_id'])?->getTranslation('name');
             $order_detail->variation = $item['variant'];
             $order_detail->price = $item['price'];
             $order_detail->tax = $item['tax'];

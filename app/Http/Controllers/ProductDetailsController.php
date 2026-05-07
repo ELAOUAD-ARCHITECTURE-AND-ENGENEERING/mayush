@@ -93,8 +93,10 @@ class ProductDetailsController extends Controller
 
                 $referred_by_user = User::where('referral_code', $request->product_referral_code)->first();
 
-                $affiliateController = new AffiliateController;
-                $affiliateController->processAffiliateStats($referred_by_user->id, 1, 0, 0, 0);
+                if ($referred_by_user) {
+                    $affiliateController = new AffiliateController;
+                    $affiliateController->processAffiliateStats($referred_by_user->id, 1, 0, 0, 0);
+                }
             }
 
             if(get_setting('last_viewed_product_activation') == 1 && Auth::check() && auth()->user()->user_type == 'customer'){

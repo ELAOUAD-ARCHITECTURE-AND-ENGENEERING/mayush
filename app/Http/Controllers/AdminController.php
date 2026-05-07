@@ -20,7 +20,6 @@ use Session;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Sitemap\SitemapGenerator;
 
 class AdminController extends Controller
 {
@@ -346,5 +345,102 @@ class AdminController extends Controller
         Artisan::call('optimize:clear');
         flash(translate('Cache cleared successfully'))->success();
         return back();
+    }
+
+    public function SitemapGenerator()
+    {
+        $file_info = collect(glob(public_path('sitemap*.xml')) ?: [])->map(function ($path) {
+            return [
+                'file_name' => basename($path),
+                'file_size' => $this->formatFileSize(filesize($path)),
+                'last_modified' => date('Y-m-d H:i:s', filemtime($path)),
+                'mime_type' => mime_content_type($path) ?: 'application/xml',
+                'url' => url('/' . basename($path)),
+            ];
+        })->values()->all();
+
+        return view('backend.system.sitemap_generator', [
+            'file_info' => empty($file_info) ? null : $file_info,
+        ]);
+    }
+
+    public function DoSitemapGenerate(Request $request)
+    {
+        $arguments = [];
+
+        if ($request->filled('base_url')) {
+            $request->validate([
+                'base_url' => ['url', 'starts_with:https://'],
+            ]);
+
+            $arguments['--base-url'] = rtrim($request->base_url, '/');
+        }
+
+        $exitCode = Artisan::call('app:generate-sitemap', $arguments);
+
+        if ($exitCode === 0) {
+            flash(translate('Sitemap generated successfully.'))->success();
+        } else {
+            flash(translate('Sitemap generation failed. Check the application logs for details.'))->error();
+        }
+
+        return redirect()->route('sitemap_generator');
+    }
+
+    public function DeleteSitemapFile(Request $request)
+    {
+        $request->validate([
+            'file_name' => ['required', 'string'],
+        ]);
+
+        $path = $this->safeSitemapPath($request->file_name);
+
+        if ($path && file_exists($path)) {
+            unlink($path);
+            flash(translate('Sitemap file deleted successfully.'))->success();
+        } else {
+            flash(translate('Sitemap file was not found.'))->warning();
+        }
+
+        return back();
+    }
+
+    public function DownloadSingleSitemapFile(Request $request)
+    {
+        $request->validate([
+            'file_name' => ['required', 'string'],
+        ]);
+
+        $path = $this->safeSitemapPath($request->file_name);
+
+        abort_if(!$path || !file_exists($path), 404);
+
+        return response()->download($path, basename($path), [
+            'Content-Type' => 'application/xml; charset=UTF-8',
+        ]);
+    }
+
+    private function safeSitemapPath(string $fileName): ?string
+    {
+        $basename = basename($fileName);
+
+        if (!preg_match('/^sitemap[a-zA-Z0-9._-]*\.xml$/', $basename)) {
+            return null;
+        }
+
+        return public_path($basename);
+    }
+
+    private function formatFileSize(int $bytes): string
+    {
+        if ($bytes < 1024) {
+            return $bytes . ' B';
+        }
+
+        if ($bytes < 1048576) {
+            return round($bytes / 1024, 2) . ' KB';
+        }
+
+        return round($bytes / 1048576, 2) . ' MB';
     }
 }

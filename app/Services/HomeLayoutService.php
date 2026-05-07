@@ -2,13 +2,50 @@
 
 namespace App\Services;
 
+use App\Models\Blog;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\PreorderProduct;
 use App\Models\Shop;
 use Cache;
+use Carbon\Carbon;
 
 class HomeLayoutService
 {
+    /**
+     * Assemble data required by the homepage shell.
+     */
+    public function getHomepageData(): array
+    {
+        $lang = get_system_language() ? get_system_language()->code : null;
+
+        return [
+            'featured_categories' => Cache::rememberForever('featured_categories', function () {
+                return Category::with('bannerImage')->where('featured', 1)->get();
+            }),
+            'hot_categories' => Cache::rememberForever('hot_categories', function () {
+                return Category::with('bannerImage')->where('hot_category', '1')->get();
+            }),
+            'latest_blogs' => Cache::remember('home_latest_blogs', 900, function () {
+                return Blog::published()
+                    ->with(['category', 'translations'])
+                    ->orderBy('published_at', 'desc')
+                    ->orderBy('created_at', 'desc')
+                    ->take(3)
+                    ->get();
+            }),
+            'lang' => $lang,
+        ];
+    }
+
+    /**
+     * Get active portfolio posts for the portfolio landing fallback.
+     */
+    public function getPortfolioGoingOns()
+    {
+        return Blog::where('status', 1)->where('going_on', 1)->latest()->get();
+    }
+
     /**
      * Get Today's Deal products with optimized querying.
      */

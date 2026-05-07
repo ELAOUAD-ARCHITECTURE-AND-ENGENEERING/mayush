@@ -48,9 +48,13 @@
                             <td>{{ $template->min_threshold ?? 'None' }}</td>
                             <td>{{ $template->max_threshold ?? 'None' }}</td>
                             <td class="text-right">
-                                <a href="javascript:void(0);" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('admin.loyalty.points.templates.destroy', $template->id)}}" title="{{ translate('Delete') }}">
-                                    <i class="las la-trash"></i>
-                                </a>
+                                <form action="{{ route('admin.loyalty.points.templates.destroy', $template->id) }}" method="POST" class="d-inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+                                        <i class="las la-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         @endforeach

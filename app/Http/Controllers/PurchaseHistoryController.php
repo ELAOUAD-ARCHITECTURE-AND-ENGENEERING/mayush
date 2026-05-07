@@ -23,7 +23,13 @@ class PurchaseHistoryController extends Controller
      */
     public function index(Request $request)
     {
-     return view('frontend.user.purchase_history');
+        $orders = Order::with(['orderDetails.product'])
+            ->where('user_id', Auth::id())
+            ->orderBy('code', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+            
+        return view('frontend.user.purchase_history', compact('orders'));
     }
 
     public function digital_index()
@@ -90,8 +96,9 @@ class PurchaseHistoryController extends Controller
      */
     public function order_cancel($id)
     {
-        $order = Order::where('id', $id)->where('user_id', auth()->user()->id)->first();
-        if ($order && ($order->delivery_status == 'pending' && $order->payment_status == 'unpaid')) {
+        $order = Order::where('id', $id)->where('user_id', auth()->user()->id)->firstOrFail();
+
+        if ($order->delivery_status == 'pending' && $order->payment_status == 'unpaid') {
             $order->delivery_status = 'cancelled';
             $order->save();
 
@@ -198,7 +205,7 @@ class PurchaseHistoryController extends Controller
     public function filterOrders(Request $request)
     {
         $tab = $request->tab;
-        $query = Order::with('orderDetails')
+        $query = Order::with(['orderDetails.product'])
             ->where('user_id', Auth::id())
             ->orderBy('code', 'desc');
 

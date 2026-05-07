@@ -9,6 +9,7 @@ use App\Rules\Recaptcha;
 use App\Rules\Turnstile;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Mail;
 
 class ContactController extends Controller
@@ -65,6 +66,13 @@ class ContactController extends Controller
 
     public function contact(Request $request)
     {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'content' => ['required', 'string', 'max:5000'],
+        ]);
+
         // validate recaptcha
         $request->validate([
             'g-recaptcha-response' => [
@@ -83,6 +91,11 @@ class ContactController extends Controller
             ],
         ]);
         $admin = get_admin();
+        if (!$admin || !$admin->email) {
+            Log::warning('Contact form submission could not be delivered because no admin email is configured.');
+            flash(translate('Something Went wrong'))->error();
+            return back()->withInput();
+        }
 
         $array['name'] = $request->name;
         $array['email'] = $request->email;
@@ -100,8 +113,11 @@ class ContactController extends Controller
                 'content' => $request->content,
             ]);
         } catch (\Exception $e) {
-			dd($e);
-            flash(translate('Something Went wrong '.$e))->error();
+            Log::error('Contact form submission failed.', [
+                'exception' => $e->getMessage(),
+                'email' => $request->email,
+            ]);
+            flash(translate('Something Went wrong'))->error();
             return back();
         }
         flash(translate('Query has been sent successfully'))->success();

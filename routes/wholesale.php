@@ -25,7 +25,7 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
         Route::post('/wholesale-product/store', 'store')->name('wholesale_product_store.admin');
         Route::get('/wholesale-product/{id}/edit', 'index')->name('wholesale_product_edit.admin');
         Route::post('/wholesale-product/update/{id}', 'update')->name('wholesale_product_update.admin');
-        Route::get('/wholesale-product/destroy/{id}', 'destroy')->name('wholesale_product_destroy.admin');
+        Route::delete('/wholesale-product/destroy/{id}', 'destroy')->name('wholesale_product_destroy.admin');
     });
 });
 
@@ -37,6 +37,6 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user
         Route::post('/wholesale-product/store', 'store')->name('wholesale_product_store.seller');
         Route::get('/wholesale-products/{id}/edit', 'index')->name('wholesale_product_edit.seller');
         Route::post('/wholesale-product/update/{id}', 'update')->name('wholesale_product_update.seller');
-        Route::get('/wholesale-product/destroy/{id}', 'destroy')->name('wholesale_product_destroy.seller');
+        Route::delete('/wholesale-product/destroy/{id}', 'destroy')->name('wholesale_product_destroy.seller');
     });
 });

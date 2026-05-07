@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\Product;
 use App\Traits\PreventDemoModeChanges;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
@@ -15,7 +14,7 @@ class ProductsExport implements FromCollection, WithMapping, WithHeadings
 
     public function collection()
     {
-        return Product::all();
+        return Product::with(['stocks', 'product_categories'])->get();
     }
 
     public function headings(): array
@@ -23,18 +22,27 @@ class ProductsExport implements FromCollection, WithMapping, WithHeadings
         return [
             'name',
             'description',
-            'added_by',
-            'user_id',
             'category_id',
+            'multi_categories',
             'brand_id',
             'video_provider',
             'video_link',
+            'tags',
             'unit_price',
             'unit',
+            'slug',
             'current_stock',
             'est_shipping_days',
+            'sku',
             'meta_title',
             'meta_description',
+            'thumbnail_img',
+            'photos',
+            'discount',
+            'discount_type',
+            'published',
+            'approved',
+            'variations',
         ];
     }
 
@@ -43,25 +51,34 @@ class ProductsExport implements FromCollection, WithMapping, WithHeadings
     */
     public function map($product): array
     {
-        $qty = 0;
-        foreach ($product->stocks as $key => $stock) {
-            $qty += $stock->qty;
-        }
+        $stocks = $product->stocks;
+        $qty = $stocks->sum('qty');
+        $sku = $stocks->pluck('sku')->filter()->implode(',');
+
         return [
             $product->name,
             $product->description,
-            $product->added_by,
-            $product->user_id,
             $product->category_id,
+            $product->product_categories->pluck('category_id')->unique()->implode(','),
             $product->brand_id,
             $product->video_provider,
             $product->video_link,
+            $product->tags,
             $product->unit_price,
             $product->unit,
+            $product->slug,
             $qty,
             $product->est_shipping_days,
+            $sku,
             $product->meta_title,
             $product->meta_description,
+            $product->thumbnail_img,
+            $product->photos,
+            $product->discount,
+            $product->discount_type,
+            $product->published,
+            $product->approved,
+            $product->variations,
         ];
     }
 }

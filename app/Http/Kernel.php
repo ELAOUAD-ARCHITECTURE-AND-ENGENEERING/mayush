@@ -93,6 +93,7 @@ class Kernel extends HttpKernel
         'prevent-back-history' => \App\Http\Middleware\PreventBackHistory::class,
         'handle-demo-login' => \App\Http\Middleware\HandleDemoLogin::class,
         'portfolio-view' => \App\Http\Middleware\PortfolioView::class,
+        'seller.approved' => \App\Http\Middleware\SellerApproved::class,
     ];
 
     /**

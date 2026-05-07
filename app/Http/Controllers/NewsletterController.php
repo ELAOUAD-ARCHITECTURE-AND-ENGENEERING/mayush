@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Subscriber;
 use Mail;
 use App\Mail\EmailManager;
+use Illuminate\Support\Facades\Log;
 
 class NewsletterController extends Controller
 {
@@ -36,7 +37,10 @@ class NewsletterController extends Controller
                     try {
                         Mail::to($email)->queue(new EmailManager($array));
                     } catch (\Exception $e) {
-                        //dd($e);
+                        Log::warning('Newsletter email failed for selected user.', [
+                            'email' => $email,
+                            'exception' => $e->getMessage(),
+                        ]);
                     }
             	}
             }
@@ -52,7 +56,10 @@ class NewsletterController extends Controller
                     try {
                         Mail::to($email)->queue(new EmailManager($array));
                     } catch (\Exception $e) {
-                        //dd($e);
+                        Log::warning('Newsletter email failed for subscriber.', [
+                            'email' => $email,
+                            'exception' => $e->getMessage(),
+                        ]);
                     }
             	}
             }
@@ -75,7 +82,12 @@ class NewsletterController extends Controller
         try {
             Mail::to($request->email)->queue(new EmailManager($array));
         } catch (\Exception $e) {
-            dd($e);
+            Log::error('SMTP test email failed.', [
+                'email' => $request->email,
+                'exception' => $e->getMessage(),
+            ]);
+            flash(translate('Unable to send test email.'))->error();
+            return back();
         }
 
         flash(translate('An email has been sent.'))->success();

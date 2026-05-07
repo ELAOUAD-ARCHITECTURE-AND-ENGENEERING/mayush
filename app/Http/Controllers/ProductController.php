@@ -1111,7 +1111,6 @@ class ProductController extends Controller
 
     public function updateBusinessSettings(Request $request)
     {
-        // dd($request->all());
         $business_settings = BusinessSetting::where('type', $request->type)->first();
         if ($business_settings != null) {
             $business_settings->value = $request->value;

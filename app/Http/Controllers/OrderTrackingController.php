@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderTrackingHistory;
 use App\Services\Logistics\CarrierTrackingManager;
 use Auth;
+use Throwable;
 
 class OrderTrackingController extends Controller
 {
@@ -16,24 +17,7 @@ class OrderTrackingController extends Controller
     public function show($id)
     {
         $order = Order::findOrFail(decrypt($id));
-
-        // RBAC: Reject unauthorized access
-        $user = Auth::user();
-
-        if ($user->user_type == 'customer') {
-            if ($order->user_id != $user->id) {
-                abort(403);
-            }
-        } elseif ($user->user_type == 'seller') {
-            // Can only view if order contains their products
-            if ($order->seller_id != $user->id) {
-                abort(403);
-            }
-        } elseif (in_array($user->user_type, ['admin', 'staff'])) {
-            // Admins can view all orders
-        } else {
-            abort(403);
-        }
+        $user = $this->authorizeOrderTrackingAccess($order);
 
         // Fetch histories ordered by creation
         $tracking_histories = $order->orderTrackingHistories()->orderBy('created_at', 'asc')->get();
@@ -60,7 +44,13 @@ class OrderTrackingController extends Controller
 
         // Delegate parsing to a tracking manager or directly create a new entry
         $manager = new CarrierTrackingManager();
-        $carrier = $manager->resolveCarrier($order->carrier_id);
+        try {
+            $carrier = $manager->resolveCarrier($order->carrier_id);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => translate('Tracking carrier is not configured.'),
+            ], 503);
+        }
 
         // Fetch fresh info based on standard integration mapping
         $info = $carrier->fetchTrackingInfo($tracking_code);
@@ -84,10 +74,7 @@ class OrderTrackingController extends Controller
     public function syncTracking($id)
     {
         $order = Order::findOrFail(decrypt($id));
-        $user = Auth::user();
-
-        if ($user->user_type == 'customer' && $order->user_id != $user->id) abort(403);
-        if ($user->user_type == 'seller' && $order->seller_id != $user->id) abort(403);
+        $this->authorizeOrderTrackingAccess($order);
 
         if (!$order->tracking_code) {
              flash(translate('No active tracking code found for this order.'))->warning();
@@ -95,7 +82,12 @@ class OrderTrackingController extends Controller
         }
 
         $manager = new CarrierTrackingManager();
-        $carrier = $manager->resolveCarrier($order->carrier_id);
+        try {
+            $carrier = $manager->resolveCarrier($order->carrier_id);
+        } catch (Throwable $e) {
+            flash(translate('Tracking carrier is not configured.'))->warning();
+            return back();
+        }
         $info = $carrier->fetchTrackingInfo($order->tracking_code);
 
         OrderTrackingHistory::create([
@@ -110,5 +102,28 @@ class OrderTrackingController extends Controller
 
         flash(translate('Tracking data synced successfully.'))->success();
         return back();
+    }
+
+    private function authorizeOrderTrackingAccess(Order $order)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403);
+        }
+
+        if ($user->user_type == 'customer' && $order->user_id == $user->id) {
+            return $user;
+        }
+
+        if ($user->user_type == 'seller' && $order->seller_id == $user->id) {
+            return $user;
+        }
+
+        if (in_array($user->user_type, ['admin', 'staff'])) {
+            return $user;
+        }
+
+        abort(403);
     }
 }

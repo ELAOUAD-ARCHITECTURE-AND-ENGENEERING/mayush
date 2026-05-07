@@ -44,7 +44,7 @@ class AddressController extends Controller
      */
     public function edit($id)
     {
-        $data['address_data'] = Address::findOrFail($id);
+        $data['address_data'] = $this->authorizedAddress($id);
         $data['states'] = State::where('status', 1)->where('country_id', $data['address_data']->country_id)->get();
         $data['cities'] = City::where('status', 1)->where('state_id', $data['address_data']->state_id)->get();
         $data['areas'] = Area::where('status', 1)->where('city_id', $data['address_data']->city_id)->get();
@@ -62,7 +62,7 @@ class AddressController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $address = Address::findOrFail($id);
+        $address = $this->authorizedAddress($id);
         
         $address->address       = $request->address;
         $address->country_id    = $request->country_id;
@@ -92,7 +92,7 @@ class AddressController extends Controller
      */
     public function destroy($id)
     {
-        $address = Address::findOrFail($id);
+        $address = $this->authorizedAddress($id);
         if(!$address->set_default){
             $address->delete();
             return back();
@@ -124,14 +124,26 @@ class AddressController extends Controller
     }
 
     public function set_default($id){
+        $targetAddress = $this->authorizedAddress($id);
+
         foreach (Auth::user()->addresses as $key => $address) {
             $address->set_default = 0;
             $address->save();
         }
-        $address = Address::findOrFail($id);
-        $address->set_default = 1;
-        $address->save();
+        $targetAddress->set_default = 1;
+        $targetAddress->save();
 
         return back();
+    }
+
+    private function authorizedAddress($id): Address
+    {
+        $address = Address::findOrFail($id);
+
+        if ((int) $address->user_id !== (int) Auth::id()) {
+            abort(403);
+        }
+
+        return $address;
     }
 }

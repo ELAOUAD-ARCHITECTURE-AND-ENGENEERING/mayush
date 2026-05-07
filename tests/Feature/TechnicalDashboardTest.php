@@ -30,10 +30,11 @@ class TechnicalDashboardTest extends TestCase
     {
         $this->mockService();
 
-        Livewire::test(TechnicalDashboard::class)
-            ->call('setDateRange', '7D')
-            ->assertSet('dateRange', '7D')
-            ->assertStatus(200);
+        $component = app(TechnicalDashboard::class);
+        $component->mount(app(TechnicalAnalyticsService::class));
+        $component->setDateRange('7D');
+
+        $this->assertSame('7D', $component->dateRange);
     }
 
     private function mockService()

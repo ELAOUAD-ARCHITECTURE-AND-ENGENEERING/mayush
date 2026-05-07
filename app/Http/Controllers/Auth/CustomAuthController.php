@@ -128,31 +128,39 @@ class CustomAuthController extends Controller
 
     public function reset_password_with_code(Request $request)
     {
-        if (($user = User::where('email', $request->email)->where('verification_code', $request->code)->first()) != null) {
-            if ($request->password == $request->password_confirmation) {
-                $user->password = Hash::make($request->password);
-                $user->email_verified_at = date('Y-m-d h:m:s');
-                $user->save();
-                event(new PasswordReset($user));
-                auth()->login($user, true);
-                \Auth::logoutOtherDevices($request->password);
+        $request->validate([
+            'email' => ['required', 'email'],
+            'code' => ['required', 'digits:6'],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
+        ]);
 
-                flash(translate('Password updated successfully'))->success();
+        $user = User::where('email', $request->email)
+            ->where('verification_code', $request->code)
+            ->first();
 
-                if (auth()->user()->user_type == 'admin' || auth()->user()->user_type == 'staff') {
-                    return redirect()->route('admin.dashboard');
-                }
-                return redirect()->route('home');
-            } else {
-                flash(translate("Password and confirm password didn't match"))->warning();
-                $email = $user->email;
-                return view('auth.'.safe_auth_layout_select().'.reset_password', compact('email'));
-            }
-        } else {
+        $expiryMinutes = (int) config('auth.passwords.users.expire', 60);
+
+        if ($user === null || $user->updated_at?->lt(now()->subMinutes($expiryMinutes))) {
             flash(translate("Verification code mismatch"))->error();
             $email = $request->email;
             return view('auth.'.safe_auth_layout_select().'.reset_password', compact('email'));
         }
+
+        $user->password = Hash::make($request->password);
+        $user->email_verified_at = now();
+        $user->verification_code = null;
+        $user->save();
+        event(new PasswordReset($user));
+        auth()->login($user, true);
+        \Auth::logoutOtherDevices($request->password);
+
+        flash(translate('Password updated successfully'))->success();
+
+        if (auth()->user()->user_type == 'admin' || auth()->user()->user_type == 'staff') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return redirect()->route('home');
     }
 
     public function sendRegVerificationCode(Request $request, \App\Services\UserService $userService)

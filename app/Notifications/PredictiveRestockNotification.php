@@ -62,7 +62,7 @@ class PredictiveRestockNotification extends Notification implements ShouldQueue
                     ->line('**Product:** ' . $product_name)
                     ->line('**Current Stock:** ' . $stock)
                     ->line('**Predicted Stock-out in:** ' . $days . ' days')
-                    ->action('Manage Stock', route('seller.products.index'))
+                    ->action('Manage Stock', route('seller.products'))
                     ->line('We recommend replenishing your stock soon to avoid lost sales.')
                     ->line('Thank you for using Mayush!');
     }

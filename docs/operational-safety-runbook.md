@@ -75,6 +75,8 @@ The app has safe fallbacks for the critical dynamic views, but missing settings 
 
 ## Redis and Horizon Policy
 
+Scheduler and queue worker details are maintained in `docs/scheduler-queue-readiness.md`.
+
 If any of these are set to `redis`, Redis must be reachable before deployment:
 
 - `QUEUE_CONNECTION`

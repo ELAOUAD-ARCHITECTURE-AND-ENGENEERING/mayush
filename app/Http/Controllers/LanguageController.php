@@ -10,6 +10,7 @@ use App\Models\User;
 use Cache;
 use Storage;
 use Session;
+use Illuminate\Support\Facades\Log;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class LanguageController extends Controller
@@ -236,7 +237,6 @@ class LanguageController extends Controller
     {
         $language = Language::findOrFail($id);
         $values = Translation::where('lang', $language->code)->get();
-        //dd( $values->count());
         foreach ($values as $key => $value) {
             AppTranslation::updateOrCreate(
                 ['lang' => $language->app_lang_code, 'lang_key' => $value->lang_key . '_ucf'],
@@ -300,7 +300,11 @@ class LanguageController extends Controller
                 echo $contents;
             }, $filename);
         } catch (\Exception $e) {
-            dd($e);
+            Log::error('Language ARB export failed.', [
+                'language_id' => $id,
+                'exception' => $e->getMessage(),
+            ]);
+            abort(500, translate('Unable to export language file.'));
         }
     }
 

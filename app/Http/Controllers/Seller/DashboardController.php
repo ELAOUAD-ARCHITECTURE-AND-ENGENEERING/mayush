@@ -104,6 +104,8 @@ class DashboardController extends Controller
             return $v->days_remaining <= 7; // Show anything running out within a week
         })->sortBy('days_remaining');
 
+        $data['shop'] = Auth::user()->shop;
+
         return view('seller.dashboard', $data);
     }
 }

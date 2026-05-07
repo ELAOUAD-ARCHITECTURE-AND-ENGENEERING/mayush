@@ -195,8 +195,8 @@
 
                 <!-- Saved Cards (Payment Vault) -->
                 <li class="aiz-side-nav-item">
-                    <a href="{{ route('payment.tokens') }}"
-                        class="aiz-side-nav-link {{ areActiveRoutes(['payment.tokens']) }}">
+                    <a href="{{ route('payment_tokens.index') }}"
+                        class="aiz-side-nav-link {{ areActiveRoutes(['payment_tokens.index']) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
                             <g fill="#b5b5bf">
                                 <path d="M14,2H2A2,2,0,0,0,0,4v8a2,2,0,0,0,2,2H14a2,2,0,0,0,2-2V4A2,2,0,0,0,14,2M1,6H15v2H1ZM2,3H14a1,1,0,0,1,1,1V5H1V4A1,1,0,0,1,2,3m12,10H2a1,1,0,0,1-1-1V9H15v3A1,1,0,0,1,14,13"/>

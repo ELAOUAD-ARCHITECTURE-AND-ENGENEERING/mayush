@@ -91,8 +91,8 @@ class CustomerRegistrationWorkflowTest extends TestCase
             'country_code' => null,
             'verification_method' => 'email',
             'code' => '123456',
-            'password' => 'secret123',
-            'password_confirmation' => 'secret123',
+            'password' => 'Secret123',
+            'password_confirmation' => 'Secret123',
             'checkbox_example_1' => 'on',
         ])->assertRedirect('/');
 
@@ -117,8 +117,8 @@ class CustomerRegistrationWorkflowTest extends TestCase
                 'email' => 'blocked@example.test',
                 'verification_method' => 'email',
                 'code' => '654321',
-                'password' => 'secret123',
-                'password_confirmation' => 'secret123',
+                'password' => 'Secret123',
+                'password_confirmation' => 'Secret123',
                 'checkbox_example_1' => 'on',
             ])
             ->assertRedirect('/register')

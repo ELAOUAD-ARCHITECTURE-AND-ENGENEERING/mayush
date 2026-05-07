@@ -60,6 +60,7 @@
 			$shipping = json_decode($order->shipping_address);
 			$billing = json_decode($order->billing_address) ?? $shipping;
 			$first_order = $order->orderDetails->first();
+			$seller_shop = $order->shop;
 		@endphp
 
 
@@ -136,6 +137,15 @@
 							</span>
 						</td>
 					</tr>
+					@if($seller_shop != null)
+					<tr>
+						<td class="gry-color small"></td>
+						<td class="text-right small">
+							<span class="gry-color small">{{ translate('Seller') }}:</span>
+							<span class="strong">{{ $seller_shop->name }}</span>
+						</td>
+					</tr>
+					@endif
 				</table>
 			</div>
 		</div>
@@ -150,7 +160,7 @@
 							<!-- LEFT COLUMN -->
 							<td width="50%" valign="top">
 								<table width="100%">
-									<tr><td class="strong small gry-color">{{ translate('Bill to') }}:</td></tr>
+									<tr><td class="strong small gry-color">{{ translate('Client / Billing address') }}:</td></tr>
 									<tr><td class="strong">{{ $billing->name }}</td></tr>
 									<tr>
 										<td class="gry-color small">
@@ -169,7 +179,7 @@
 							<!-- RIGHT COLUMN -->
 							<td width="50%" valign="top">
 								<table width="100%">
-									<tr><td class="strong small gry-color">{{ translate('Ship to') }}:</td></tr>
+									<tr><td class="strong small gry-color">{{ translate('Shipping address') }}:</td></tr>
 									<tr><td class="strong">{{ $shipping->name }}</td></tr>
 									<tr>
 										<td class="gry-color small">
@@ -224,12 +234,8 @@
 							@foreach ($order->orderDetails as $key => $orderDetail)
 								<tr class="">
 									<td>
-										@if($orderDetail->product != null)
-											{{ $orderDetail->product->getTranslation('name') }}
-											@if($orderDetail->variation != null) ({{ $orderDetail->variation }}) @endif
-										@else
-											{{ translate('Product') }} #{{ $orderDetail->product_id ?? $orderDetail->id }}
-										@endif
+										{{ $orderDetail->invoice_product_name }}
+										@if($orderDetail->variation != null) ({{ $orderDetail->variation }}) @endif
 										<br>
 										<small>
 											@php

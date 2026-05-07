@@ -36,8 +36,79 @@ class Shop extends Model
   public function seller_package(){
     return $this->belongsTo(SellerPackage::class);
   }
+
   public function followers(){
     return $this->hasMany(FollowSeller::class);
+  }
+
+  /**
+   * Documents uploaded during the seller onboarding process.
+   */
+  public function documents()
+  {
+    return $this->hasMany(SellerDocument::class);
+  }
+
+  /**
+   * Admin user who last reviewed this shop's application.
+   */
+  public function reviewer()
+  {
+    return $this->belongsTo(User::class, 'reviewed_by');
+  }
+
+  // ─── Approval Status Scopes ───────────────────────────────────────────────
+
+  public function scopePendingApproval($query)
+  {
+    return $query->where('approval_status', 'pending');
+  }
+
+  public function scopeUnderReview($query)
+  {
+    return $query->where('approval_status', 'under_review');
+  }
+
+  public function scopeApproved($query)
+  {
+    return $query->where('approval_status', 'approved');
+  }
+
+  public function scopeRejected($query)
+  {
+    return $query->where('approval_status', 'rejected');
+  }
+
+  // ─── Approval Helpers ─────────────────────────────────────────────────────
+
+  /**
+   * Whether the seller is fully approved and can manage products.
+   */
+  public function isApproved(): bool
+  {
+    return $this->approval_status === 'approved';
+  }
+
+  /**
+   * Whether the seller can resubmit documents (max 10 attempts).
+   */
+  public function canResubmit(): bool
+  {
+    return $this->approval_status === 'rejected' && $this->resubmission_count < 10;
+  }
+
+  /**
+   * Human-readable label for the current approval status.
+   */
+  public function approvalStatusLabel(): string
+  {
+    return match ($this->approval_status) {
+      'pending'      => translate('Pending Approval'),
+      'under_review' => translate('Under Review'),
+      'approved'     => translate('Approved'),
+      'rejected'     => translate('Rejected'),
+      default        => translate('Unknown'),
+    };
   }
 
   /**

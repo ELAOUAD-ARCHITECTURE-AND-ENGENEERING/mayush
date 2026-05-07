@@ -2,112 +2,77 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\Product;
 use App\Models\SemanticEmbedding;
 use App\Utility\SemanticUtility;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Artisan;
+use Tests\TestCase;
 
-/**
- * Comprehensive test suite for the Gemini AI Semantic Search pipeline.
- * Covers: API key config, embedding generation, cosine similarity, DB persistence,
- * search endpoint integration, and the reindexing command.
- */
 class SemanticSearchTest extends TestCase
 {
-    // ─────────────────────────────────────────────────────────
-    //  1. CONFIGURATION TESTS
-    // ─────────────────────────────────────────────────────────
+    use RefreshDatabase;
 
-    /** @test */
-    public function test_gemini_api_key_is_configured()
+    public function test_services_config_has_gemini_block(): void
     {
-        $key = config('services.gemini.key');
-        if (empty($key) && app()->environment('testing')) {
-            $this->markTestSkipped('GEMINI_API_KEY not configured for the testing process.');
-        }
-
-        $this->assertNotEmpty($key, 'GEMINI_API_KEY must be set in .env and referenced via config/services.php');
-    }
-
-    /** @test */
-    public function test_services_config_has_gemini_block()
-    {
-        $this->assertNotNull(config('services.gemini'), 'config/services.php must contain a "gemini" block');
+        $this->assertIsArray(config('services.gemini'));
         $this->assertArrayHasKey('key', config('services.gemini'));
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  2. EMBEDDING GENERATION TESTS
-    // ─────────────────────────────────────────────────────────
-
-    /** @test */
-    public function test_generate_embedding_returns_768_dimensions_with_real_key()
+    public function test_generate_embedding_returns_768_dimensions_with_mocked_api(): void
     {
-        $key = config('services.gemini.key');
-        if (empty($key)) {
-            $this->markTestSkipped('GEMINI_API_KEY not configured — skipping live API test.');
-        }
+        Config::set('services.gemini.key', 'TEST_KEY');
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response([
+                'embedding' => ['values' => array_fill(0, 768, 0.1)],
+            ], 200),
+        ]);
 
         $vector = SemanticUtility::generateEmbedding('handmade ceramic mug with floral pattern');
 
         $this->assertIsArray($vector);
-        $this->assertCount(768, $vector, 'Gemini gemini-embedding-001 should return exactly 768 dimensions when outputDimensionality is set');
-        $this->assertIsFloat($vector[0], 'Each dimension should be a float');
+        $this->assertCount(768, $vector);
+        $this->assertIsFloat($vector[0]);
     }
 
-    /** @test */
-    public function test_fallback_returns_32_dim_mock_when_no_key()
+    public function test_fallback_returns_32_dim_mock_when_no_key(): void
     {
-        // Temporarily remove the API key to test fallback
         Config::set('services.gemini.key', '');
 
         $vector = SemanticUtility::generateEmbedding('test product description');
 
         $this->assertIsArray($vector);
-        $this->assertCount(32, $vector, 'Fallback mock should return exactly 32 dimensions');
-
-        // Restore key
-        Config::set('services.gemini.key', env('GEMINI_API_KEY'));
+        $this->assertCount(32, $vector);
     }
 
-    /** @test */
-    public function test_generate_embedding_returns_empty_on_invalid_key()
+    public function test_generate_embedding_returns_empty_on_invalid_key(): void
     {
         Config::set('services.gemini.key', 'INVALID_KEY_12345');
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response([
+                'error' => ['message' => 'API key invalid'],
+            ], 403),
+        ]);
 
         $vector = SemanticUtility::generateEmbedding('test product');
 
-        // API should reject invalid key — returns empty array (not mock)
         $this->assertIsArray($vector);
-        $this->assertEmpty($vector, 'Invalid API key should yield an empty array from the error handler');
-
-        Config::set('services.gemini.key', env('GEMINI_API_KEY'));
+        $this->assertEmpty($vector);
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  3. TEXT EXTRACTION TESTS
-    // ─────────────────────────────────────────────────────────
-
-    /** @test */
-    public function test_extract_text_truncates_at_2000_chars()
+    public function test_extract_text_truncates_at_2000_chars(): void
     {
         $product = new Product();
         $product->name = str_repeat('A', 3000);
         $product->description = 'Some description';
         $product->tags = 'tag1,tag2';
 
-        $text = SemanticUtility::extractText($product);
-
-        $this->assertLessThanOrEqual(2000, strlen($text), 'extractText must truncate at 2000 characters');
+        $this->assertLessThanOrEqual(2000, strlen(SemanticUtility::extractText($product)));
     }
 
-    /** @test */
-    public function test_extract_text_strips_html_tags()
+    public function test_extract_text_strips_html_tags(): void
     {
         $product = new Product();
         $product->name = 'Test Product';
@@ -121,229 +86,112 @@ class SemanticSearchTest extends TestCase
         $this->assertStringContainsString('bold', $text);
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  4. COSINE SIMILARITY TESTS
-    // ─────────────────────────────────────────────────────────
-
-    /** @test */
-    public function test_cosine_similarity_identical_vectors()
+    public function test_cosine_similarity_identical_vectors(): void
     {
         $vec = [0.5, 0.3, 0.8, 0.1];
-        $score = SemanticUtility::calculateSimilarity($vec, $vec);
 
-        $this->assertEqualsWithDelta(1.0, $score, 0.001, 'Identical vectors should have cosine similarity of 1.0');
+        $this->assertEqualsWithDelta(1.0, SemanticUtility::calculateSimilarity($vec, $vec), 0.001);
     }
 
-    /** @test */
-    public function test_cosine_similarity_orthogonal_vectors()
+    public function test_cosine_similarity_orthogonal_vectors(): void
     {
-        $vecA = [1.0, 0.0, 0.0, 0.0];
-        $vecB = [0.0, 1.0, 0.0, 0.0];
-        $score = SemanticUtility::calculateSimilarity($vecA, $vecB);
-
-        $this->assertEqualsWithDelta(0.0, $score, 0.001, 'Orthogonal vectors should have cosine similarity of 0.0');
+        $this->assertEqualsWithDelta(0.0, SemanticUtility::calculateSimilarity([1.0, 0.0], [0.0, 1.0]), 0.001);
     }
 
-    /** @test */
-    public function test_cosine_similarity_opposite_vectors()
+    public function test_cosine_similarity_opposite_vectors(): void
     {
-        $vecA = [1.0, 0.0];
-        $vecB = [-1.0, 0.0];
-        $score = SemanticUtility::calculateSimilarity($vecA, $vecB);
-
-        $this->assertEqualsWithDelta(-1.0, $score, 0.001, 'Opposite vectors should have cosine similarity of -1.0');
+        $this->assertEqualsWithDelta(-1.0, SemanticUtility::calculateSimilarity([1.0, 0.0], [-1.0, 0.0]), 0.001);
     }
 
-    /** @test */
-    public function test_cosine_similarity_zero_vector_returns_zero()
+    public function test_cosine_similarity_zero_vector_returns_zero(): void
     {
-        $vecA = [1.0, 2.0, 3.0];
-        $vecB = [0.0, 0.0, 0.0];
-        $score = SemanticUtility::calculateSimilarity($vecA, $vecB);
-
-        $this->assertEquals(0, $score, 'Zero vector should yield 0 similarity');
+        $this->assertEquals(0, SemanticUtility::calculateSimilarity([1.0, 2.0, 3.0], [0.0, 0.0, 0.0]));
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  5. DATABASE PERSISTENCE TESTS
-    // ─────────────────────────────────────────────────────────
-
-    /** @test */
-    public function test_sync_embedding_creates_db_record()
+    public function test_sync_embedding_creates_db_record(): void
     {
-        try {
-            $product = Product::first();
-        } catch (QueryException $e) {
-            $this->markTestSkipped('Products table not available in test DB (SQLite). Run against MySQL.');
-        }
-        if (!$product) {
-            $this->markTestSkipped('No products in database.');
-        }
+        Config::set('services.gemini.key', '');
+        $product = Product::factory()->create();
 
-        try {
-            $result = SemanticUtility::syncEmbedding($product);
-        } catch (QueryException $e) {
-            $this->markTestSkipped('Semantic embeddings table not available in test DB.');
-        }
-
-        $this->assertTrue($result, 'syncEmbedding should return true on success');
+        $this->assertTrue(SemanticUtility::syncEmbedding($product));
 
         $embedding = SemanticEmbedding::where('embeddable_type', Product::class)
             ->where('embeddable_id', $product->id)
             ->first();
 
-        $this->assertNotNull($embedding, 'Embedding record should exist in semantic_embeddings table');
-        $this->assertNotEmpty($embedding->vector, 'Vector column should be populated');
-        $this->assertNotEmpty($embedding->content, 'Content column should be populated');
-
-        // Verify vector is valid JSON array
-        $vector = json_decode($embedding->vector, true);
-        $this->assertIsArray($vector, 'Vector should decode to a valid array');
-        $this->assertNotEmpty($vector, 'Vector array should not be empty');
+        $this->assertNotNull($embedding);
+        $this->assertNotEmpty($embedding->vector);
+        $this->assertNotEmpty($embedding->content);
+        $this->assertIsArray(json_decode($embedding->vector, true));
     }
 
-    /** @test */
-    public function test_sync_embedding_updates_existing_record()
+    public function test_sync_embedding_updates_existing_record(): void
     {
-        try {
-            $product = Product::first();
-        } catch (QueryException $e) {
-            $this->markTestSkipped('Products table not available in test DB (SQLite). Run against MySQL.');
-        }
-        if (!$product) {
-            $this->markTestSkipped('No products in database.');
-        }
+        Config::set('services.gemini.key', '');
+        $product = Product::factory()->create();
 
-        try {
-            // First sync
-            SemanticUtility::syncEmbedding($product);
-            $countBefore = SemanticEmbedding::where('embeddable_type', Product::class)
-                ->where('embeddable_id', $product->id)
-                ->count();
+        SemanticUtility::syncEmbedding($product);
+        SemanticUtility::syncEmbedding($product);
 
-            // Second sync — should update, not duplicate
-            SemanticUtility::syncEmbedding($product);
-            $countAfter = SemanticEmbedding::where('embeddable_type', Product::class)
-                ->where('embeddable_id', $product->id)
-                ->count();
-        } catch (QueryException $e) {
-            $this->markTestSkipped('Semantic embeddings table not available in test DB.');
-        }
-
-        $this->assertEquals($countBefore, $countAfter, 'syncEmbedding should update existing record, not create duplicates');
+        $this->assertSame(1, SemanticEmbedding::where('embeddable_type', Product::class)
+            ->where('embeddable_id', $product->id)
+            ->count());
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  6. SEARCH LOGIC TESTS
-    // ─────────────────────────────────────────────────────────
-
-    /** @test */
-    public function test_similarity_threshold_filters_low_scores()
+    public function test_similarity_threshold_filters_low_scores(): void
     {
-        try {
-            $product = Product::first();
-        } catch (QueryException $e) {
-            $this->markTestSkipped('Products table not available in test DB (SQLite). Run against MySQL.');
-        }
-        if (!$product) {
-            $this->markTestSkipped('No products in database.');
-        }
+        Config::set('services.gemini.key', '');
+        $product = Product::factory()->create();
+        SemanticUtility::syncEmbedding($product);
 
-        try {
-            // Ensure at least one embedding exists
-            SemanticUtility::syncEmbedding($product);
+        $results = SemanticUtility::search('completely unrelated gibberish xyzzy', 10);
 
-            // Perform a search. Results should only include score > 0.65
-            $results = SemanticUtility::search('completely unrelated gibberish xyzzy', 10);
-        } catch (QueryException $e) {
-            $this->markTestSkipped('Semantic embeddings table not available in test DB.');
-        }
-
+        $this->assertIsArray($results);
         foreach ($results as $result) {
-            $this->assertGreaterThan(0.65, $result['score'],
-                'All returned results should have a similarity score above the 0.65 threshold');
+            $this->assertGreaterThan(0.68, $result['score']);
         }
     }
 
-    /** @test */
-    public function test_search_returns_model_in_results()
+    public function test_search_returns_model_in_results(): void
     {
-        try {
-            $product = Product::first();
-        } catch (QueryException $e) {
-            $this->markTestSkipped('Products table not available in test DB (SQLite). Run against MySQL.');
-        }
-        if (!$product) {
-            $this->markTestSkipped('No products in database.');
-        }
+        Config::set('services.gemini.key', '');
+        $product = Product::factory()->create(['name' => 'Handmade Ceramic Mug']);
+        $vector = SemanticUtility::generateEmbedding($product->name);
 
-        try {
-            SemanticUtility::syncEmbedding($product);
-            // Search for the product's own name — should be high relevance
-            $results = SemanticUtility::search($product->name, 5);
-        } catch (QueryException $e) {
-            $this->markTestSkipped('Semantic embeddings table not available in test DB.');
-        }
+        SemanticEmbedding::create([
+            'embeddable_type' => Product::class,
+            'embeddable_id' => $product->id,
+            'vector' => json_encode($vector),
+            'content' => $product->name,
+            'content_hash' => hash('sha256', $product->name),
+            'metadata' => json_encode([]),
+        ]);
 
-        if (count($results) > 0) {
-            $this->assertArrayHasKey('score', $results[0]);
-            $this->assertArrayHasKey('model', $results[0]);
-            $this->assertNotNull($results[0]['model'], 'Result model should not be null (morphTo relationship)');
-        }
+        $results = SemanticUtility::search($product->name, 5);
+
+        $this->assertNotEmpty($results);
+        $this->assertArrayHasKey('score', $results[0]);
+        $this->assertArrayHasKey('model', $results[0]);
+        $this->assertTrue($results[0]['model']->is($product));
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  7. REINDEX COMMAND TEST
-    // ─────────────────────────────────────────────────────────
-
-    /** @test */
-    public function test_reindex_command_runs_without_error()
+    public function test_reindex_command_runs_without_error(): void
     {
-        try {
-            $productCount = Product::count();
-        } catch (QueryException $e) {
-            $this->markTestSkipped('Products table not available in test DB (SQLite). Run against MySQL.');
-        }
-        if ($productCount > 10) {
-            $this->markTestSkipped("Skipping full reindex — {$productCount} products would take too long. Run manually with: php artisan search:reindex");
-        }
+        Config::set('services.gemini.key', '');
+        Product::factory()->create();
 
-        try {
-            $exitCode = Artisan::call('search:reindex');
-        } catch (QueryException $e) {
-            $this->markTestSkipped('Semantic embeddings table not available in test DB.');
-        }
-        $this->assertEquals(0, $exitCode, 'search:reindex command should complete with exit code 0');
+        $this->assertSame(0, Artisan::call('search:reindex'));
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  8. VECTOR DIMENSION VERIFICATION (POST-REINDEX)
-    // ─────────────────────────────────────────────────────────
-
-    /** @test */
-    public function test_stored_embeddings_have_correct_dimensions()
+    public function test_stored_embeddings_have_correct_dimensions(): void
     {
-        try {
-            $embedding = SemanticEmbedding::first();
-        } catch (QueryException $e) {
-            $this->markTestSkipped('Semantic embeddings table not available in test DB (SQLite). Run against MySQL.');
-        }
-        if (!$embedding) {
-            $this->markTestSkipped('No embeddings in database. Run php artisan search:reindex first.');
-        }
+        Config::set('services.gemini.key', '');
+        $product = Product::factory()->create();
+        SemanticUtility::syncEmbedding($product);
 
-        $vector = json_decode($embedding->vector, true);
+        $vector = json_decode(SemanticEmbedding::firstOrFail()->vector, true);
+
         $this->assertIsArray($vector);
-
-        $key = config('services.gemini.key');
-        if (!empty($key)) {
-            // With a real key, vectors should be 768 dimensions
-            $this->assertCount(768, $vector,
-                'With GEMINI_API_KEY configured, embeddings should have 768 dimensions (gemini-embedding-001). ' .
-                'If this shows 32, run php artisan search:reindex to regenerate embeddings.');
-        } else {
-            // Without key, fallback produces 32-dim mock vectors
-            $this->assertCount(32, $vector, 'Without API key, fallback mock produces 32 dimensions');
-        }
+        $this->assertCount(32, $vector);
     }
 }

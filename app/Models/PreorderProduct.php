@@ -16,8 +16,16 @@ class PreorderProduct extends Model
 
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $preorder_product_translation = $this->preorder_product_translations->where('lang', $lang)->first();
+        if ($preorder_product_translation != null && $preorder_product_translation->$field !== null && $preorder_product_translation->$field !== $this->$field) {
+            return $preorder_product_translation->$field;
+        }
+
+        if (in_array($field, ['name', 'title'])) {
+            return translate($this->$field, $lang);
+        }
+
         return $preorder_product_translation != null ? $preorder_product_translation->$field : $this->$field;
     }
 

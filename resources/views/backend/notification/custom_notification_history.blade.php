@@ -74,10 +74,13 @@
                                             <i class="las la-users"></i>
                                         </a>
                                         @can('delete_custom_notification_history')
-                                            <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
-                                                data-href="{{ route('custom-notifications.delete', $customNotification->notification_type_id . '_' . $customNotification->created_at) }}">
-                                                <i class="las la-trash"></i>
-                                            </a>
+                                            <form action="{{ route('custom-notifications.delete', $customNotification->notification_type_id . '_' . $customNotification->created_at) }}" method="POST" class="d-inline-block">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm">
+                                                    <i class="las la-trash"></i>
+                                                </button>
+                                            </form>
                                         @endcan
                                     </td>
                                 </tr>

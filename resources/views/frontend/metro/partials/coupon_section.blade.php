@@ -59,7 +59,7 @@
                         <div class="coupon-bar-content">
                             <h3 class="text-white">{{ translate('Save Up to 50% with Our Coupons') }}</h3>
                             <p class="mb-0 text-white opacity-70">{{ translate('Get huge discounts by using active Coupons during checkout!') }}</p>
-                            <a href="{{ route('pages.coupons') }}" class="btn btn-warning rounded-pill px-4 mt-3 fw-700 hov-shadow-lg has-transition">
+                            <a href="{{ url('/coupons') }}" class="btn btn-warning rounded-pill px-4 mt-3 fw-700 hov-shadow-lg has-transition">
                                 {{ translate('View All Coupons') }} <i class="las la-arrow-right ml-2"></i>
                             </a>
                         </div>

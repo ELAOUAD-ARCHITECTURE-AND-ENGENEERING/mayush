@@ -13,8 +13,16 @@ class Warranty extends Model
     
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $warranty_translation = $this->warranty_translations->where('lang', $lang)->first();
+        if ($warranty_translation != null && $warranty_translation->$field !== null && $warranty_translation->$field !== $this->$field) {
+            return $warranty_translation->$field;
+        }
+
+        if (in_array($field, ['name', 'title'])) {
+            return translate($this->$field, $lang);
+        }
+
         return $warranty_translation != null ? $warranty_translation->$field : $this->$field;
     }
 

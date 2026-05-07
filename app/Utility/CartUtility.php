@@ -92,6 +92,7 @@ class CartUtility
         $cart->price = $price;
         $cart->tax = $tax;
         $cart->product_referral_code = null;
+        $cart->status = 1;
 
         if (Cookie::has('referred_product_id') && Cookie::get('referred_product_id') == $product->id) {
             $cart->product_referral_code = Cookie::get('product_referral_code');

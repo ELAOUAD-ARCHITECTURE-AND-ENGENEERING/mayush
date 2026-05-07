@@ -44,7 +44,26 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-8">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 rounded-lg mb-4">
+                    <div class="card-header border-light py-3">
+                        <h5 class="mb-0 h6 fw-600">{{ translate('Request Withdrawal') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('affiliate.withdraw_request.store') }}" method="POST">
+                            @csrf
+                            <div class="form-group mb-3">
+                                <input type="number" name="amount" min="1" max="{{ $affiliate_user->balance }}" step="0.01" class="form-control" placeholder="{{ translate('Amount') }}" required>
+                                @error('amount')
+                                    <span class="invalid-feedback d-block">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">{{ translate('Submit Request') }}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
                 <div class="card shadow-sm border-0 rounded-lg mb-4">
                     <div class="card-header border-light py-3">
                         <h5 class="mb-0 h6 fw-600">{{ translate('Your Referral Link') }}</h5>

@@ -15,8 +15,16 @@ class FlashDeal extends Model
     protected $with = ['flash_deal_translations'];
 
     public function getTranslation($field = '', $lang = false){
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $flash_deal_translation = $this->flash_deal_translations->where('lang', $lang)->first();
+        if ($flash_deal_translation != null && $flash_deal_translation->$field !== null && $flash_deal_translation->$field !== $this->$field) {
+            return $flash_deal_translation->$field;
+        }
+
+        if (in_array($field, ['title', 'name'])) {
+            return translate($this->$field, $lang);
+        }
+
         return $flash_deal_translation != null ? $flash_deal_translation->$field : $this->$field;
     }
 

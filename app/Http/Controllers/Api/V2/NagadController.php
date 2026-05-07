@@ -123,7 +123,6 @@ class NagadController
 
                     $OrderSubmitUrl = $this->nagadHost . "api/dfs/check-out/complete/" . $paymentReferenceId;
                     $Result_Data_Order = NagadUtility::HttpPostMethod($OrderSubmitUrl, $PostDataOrder);
-                    //dd($Result_Data_Order);
                     if ($Result_Data_Order['status'] == "Success") {
                         return response()->json([
                             'data' => $Result_Data_Order,

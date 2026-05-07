@@ -84,10 +84,15 @@ class GenerateSitemap extends Command
                 }
             });
 
-            $brandCount = Brand::count();
+            $brandQuery = Brand::query();
+            if (Schema::hasColumn('brands', 'status')) {
+                $brandQuery->where('status', 1);
+            }
+
+            $brandCount = (clone $brandQuery)->count();
             $this->info("Found {$brandCount} Brands");
             // 3. Brands
-            Brand::all()->each(function (Brand $brand) use ($sitemap) {
+            $brandQuery->each(function (Brand $brand) use ($sitemap) {
                 if ($brand->slug) {
                     $sitemap->add(Url::create(route('products.brand', $brand->slug))
                         ->setLastModificationDate($brand->updated_at)
@@ -118,6 +123,7 @@ class GenerateSitemap extends Command
             });
 
             $shopQuery = Shop::whereNotNull('slug')
+                ->where('verification_status', 1)
                 ->whereHas('user', function ($query) {
                     $query->where('banned', 0);
                 });

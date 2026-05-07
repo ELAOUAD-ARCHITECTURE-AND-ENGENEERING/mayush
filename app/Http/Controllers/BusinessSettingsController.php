@@ -462,7 +462,6 @@ class BusinessSettingsController extends Controller
 
     public function update(Request $request)
     {
-       // dd($request->all());
         $types = $request->types ?? [];
         $resetRefundData = in_array('refund_type', $types);
 

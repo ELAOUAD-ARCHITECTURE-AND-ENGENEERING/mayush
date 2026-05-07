@@ -101,7 +101,7 @@
 				@php
 					$shipping_address = json_decode($order->shipping_address);
 				@endphp
-				<tr><td class="strong small gry-color">{{ translate('Bill to') }}:</td></tr>
+				<tr><td class="strong small gry-color">{{ translate('Client / Billing address') }}:</td></tr>
 				<tr><td class="strong">{{ $shipping_address->name }}</td></tr>
 				<tr><td class="gry-color small">{{ $shipping_address->address }}, {{ $shipping_address->city }}, {{ $shipping_address->country }}</td></tr>
 				<tr><td class="gry-color small">{{ translate('Email') }}: {{ $shipping_address->email }}</td></tr>
@@ -123,24 +123,22 @@
 				</thead>
 				<tbody class="strong">
 	                @foreach ($order->orderDetails as $key => $orderDetail)
-		                @if ($orderDetail->product != null)
-							<tr class="">
-								<td>{{ $orderDetail->product->getTranslation('name') }} @if($orderDetail->variation != null) ({{ $orderDetail->variation }}) @endif</td>
-								<td>
-									@if ($order->shipping_type != null && $order->shipping_type == 'home_delivery')
-										{{ translate('Home Delivery') }}
-									@elseif ($order->shipping_type == 'pickup_point')
-										@if ($order->pickup_point != null)
-											{{ $order->pickup_point->getTranslation('name') }} ({{ translate('Pickip Point') }})
-										@endif
+						<tr class="">
+							<td>{{ $orderDetail->invoice_product_name }} @if($orderDetail->variation != null) ({{ $orderDetail->variation }}) @endif</td>
+							<td>
+								@if ($order->shipping_type != null && $order->shipping_type == 'home_delivery')
+									{{ translate('Home Delivery') }}
+								@elseif ($order->shipping_type == 'pickup_point')
+									@if ($order->pickup_point != null)
+										{{ $order->pickup_point->getTranslation('name') }} ({{ translate('Pickip Point') }})
 									@endif
-								</td>
-								<td class="gry-color">{{ $orderDetail->quantity }}</td>
-								<td class="gry-color currency">{{ single_price($orderDetail->price/$orderDetail->quantity) }}</td>
-								<td class="gry-color currency">{{ single_price($orderDetail->tax/$orderDetail->quantity) }}</td>
-			                    <td class="text-right currency">{{ single_price($orderDetail->price+$orderDetail->tax) }}</td>
-							</tr>
-		                @endif
+								@endif
+							</td>
+							<td class="gry-color">{{ $orderDetail->quantity }}</td>
+							<td class="gry-color currency">{{ single_price($orderDetail->price/$orderDetail->quantity) }}</td>
+							<td class="gry-color currency">{{ single_price($orderDetail->tax/$orderDetail->quantity) }}</td>
+		                    <td class="text-right currency">{{ single_price($orderDetail->price+$orderDetail->tax) }}</td>
+						</tr>
 					@endforeach
 	            </tbody>
 			</table>

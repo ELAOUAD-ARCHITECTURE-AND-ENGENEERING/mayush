@@ -194,6 +194,14 @@ class AttributeController extends Controller
             AttributeValue::whereIn('id', $ids_to_delete)->delete();
         }
     }
+
+    public function destroy_attribute_value($id)
+    {
+        AttributeValue::findOrFail($id)->delete();
+
+        flash(translate('Attribute value has been deleted successfully'))->success();
+        return back();
+    }
     
     public function colors(Request $request) {
         $sort_search = null;

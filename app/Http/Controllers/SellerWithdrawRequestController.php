@@ -114,7 +114,7 @@ class SellerWithdrawRequestController extends Controller
         $seller_withdraw_request->save();
 
         flash(translate('Withdrawal request has been updated.'))->success();
-        return redirect()->route('seller_withdraw_requests.index');
+        return redirect()->route('withdraw_requests.index');
     }
 
     /**

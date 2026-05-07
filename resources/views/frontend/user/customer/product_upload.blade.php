@@ -1,4 +1,4 @@
-@extends('frontend.layouts.user_panel')
+@extends(Auth::user()->user_type == 'seller' ? 'seller.layouts.app' : 'frontend.layouts.user_panel')
 
 @section('panel_content')
     <div class="aiz-titlebar mb-4">

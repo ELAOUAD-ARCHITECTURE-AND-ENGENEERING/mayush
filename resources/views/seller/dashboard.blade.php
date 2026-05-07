@@ -2,7 +2,30 @@
 
 @section('panel_content')
     <div class="aiz-titlebar mt-2 mb-4">
-        <div class="row align-items-center">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+            <h1 class="h3">{{ translate('Dashboard') }}</h1>
+        </div>
+      </div>
+    </div>
+
+    @if(!$shop->isApproved())
+        <div class="alert alert-warning d-flex align-items-center p-3 mb-4">
+            <i class="las la-exclamation-triangle fs-24 mr-3"></i>
+            <div>
+                <h4 class="alert-heading h6 font-weight-bold mb-1">{{ translate('Account Verification Required') }}</h4>
+                <p class="mb-0 fs-13">
+                    {{ translate('Your account is currently') }} <strong>{{ $shop->approvalStatusLabel() }}</strong>. 
+                    {{ translate('You must complete the onboarding process to unlock product management features.') }}
+                </p>
+            </div>
+            <div class="ml-auto">
+                <a href="{{ route('seller.onboarding.index') }}" class="btn btn-warning btn-sm font-weight-bold">{{ translate('Complete Onboarding') }}</a>
+            </div>
+        </div>
+    @endif
+
+    <div class="row gutters-10 align-items-center">
             @if(addon_is_activated('gst_system') && !auth()->user()->shop->gst_verification)
                 <div class="col-md-12 alert alert-info text-center ">
                     <p class="font-weight-bold text-danger m-0">{{ translate('GST is being enabled on our platform. Please upload and complete the required documents from ') }} <a class="text-info" href="{{ route('seller.shop.index') }}">{{ translate('here') }}</a>.  {{translate('Products will not be published unless the form is completed and HSN codes and GST values are properly assigned.')}}</p>

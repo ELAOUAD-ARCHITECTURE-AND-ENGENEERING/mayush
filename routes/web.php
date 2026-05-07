@@ -13,6 +13,7 @@ use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\CustomerPackageController;
 use App\Http\Controllers\CustomerProductController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\DigitalProductController;
 use App\Http\Controllers\HomeController;
@@ -43,6 +44,7 @@ use App\Http\Controllers\Payment\PayhereController;
 use App\Http\Controllers\Payment\PaypalController;
 use App\Http\Controllers\Payment\PaystackController;
 use App\Http\Controllers\Payment\SslcommerzController;
+use App\Http\Controllers\Payment\TapController;
 use App\Http\Controllers\Payment\RazorpayController;
 use App\Http\Controllers\Payment\StripeController;
 use App\Http\Controllers\Payment\VoguepayController;
@@ -94,11 +96,12 @@ Route::middleware(['throttle:login'])->group(function () {
 // Login
 Route::controller(LoginController::class)->group(function () {
     Route::get('/logout', 'logout');
+    Route::get('/handle-demo-login', 'handle_demo_login')->name('handleDemoLogin');
     Route::get('/social-login/redirect/{provider}', 'redirectToProvider')->name('social.login');
     Route::get('/social-login/{provider}/callback', 'handleProviderCallback')->name('social.callback');
     //Apple Callback
     Route::post('/apple-callback', 'handleAppleCallback');
-    Route::get('/account-deletion', 'account_deletion')->name('account_delete');
+    Route::delete('/account-deletion', 'account_deletion')->name('account_delete');
 });
 
 Route::controller(VerificationController::class)->group(function () {
@@ -107,6 +110,8 @@ Route::controller(VerificationController::class)->group(function () {
     Route::get('/email/check-verification', 'check_status')->name('verification.check');
     Route::get('/verification-confirmation/{code}', 'verification_confirmation')->name('email.verification.confirmation');
 });
+
+Route::post('/contact', [ContactController::class, 'contact'])->name('contact.store');
 
 
 
@@ -134,15 +139,16 @@ Route::controller(HomeController::class)->group(function () {
     //Home Page
     Route::get('/', 'index')->name('home');
 
-    Route::get('/home/section/featured', 'load_featured_section')->name('home.section.featured');
-    Route::get('/home/section/best_selling', 'load_best_selling_section')->name('home.section.best_selling');
-    Route::get('/home/section/home_categories', 'load_home_categories_section')->name('home.section.home_categories');
-    Route::get('/home/section/best_sellers', 'load_best_sellers_section')->name('home.section.best_sellers');
+    Route::match(['get', 'post'], '/home/section/featured', 'load_featured_section')->name('home.section.featured');
+    Route::match(['get', 'post'], '/home/section/best_selling', 'load_best_selling_section')->name('home.section.best_selling');
+    Route::match(['get', 'post'], '/home/section/home_categories', 'load_home_categories_section')->name('home.section.home_categories');
+    Route::match(['get', 'post'], '/home/section/best_sellers', 'load_best_sellers_section')->name('home.section.best_sellers');
+    Route::match(['get', 'post'], '/home/section/auction_products', 'load_auction_products_section')->name('home.section.auction_products');
     Route::get('/home/section/todays_deal', 'load_todays_deal_section')->name('home.section.todays_deal');
     Route::get('/home/section/newest_products', 'load_newest_product_section')->name('home.section.newest_products');
     Route::get('/home/section/promoted_category', 'load_promoted_category_section')->name('home.section.promoted_category');
     Route::get('/home/section/preorder_products', 'load_preorder_featured_products_section')->name('home.section.preorder_products');
-    Route::get('/home/section/load-elite-artisans-section', 'load_elite_artisans_section')->name('load-elite-artisans-section');
+    Route::match(['get', 'post'], '/home/section/load-elite-artisans-section', 'load_elite_artisans_section')->name('load-elite-artisans-section');
 
     //category dropdown menu ajax call
     Route::post('/category/nav-element-list', 'get_category_items')->name('category.elements');
@@ -318,7 +324,8 @@ Route::middleware(['throttle:payments'])->group(function () {
 // Compare
 Route::controller(CompareController::class)->group(function () {
     Route::get('/compare', 'index')->name('compare');
-    Route::get('/compare/reset', 'reset')->name('compare.reset');
+    Route::delete('/compare/reset', 'reset')->name('compare.reset');
+    Route::delete('/compare/remove', 'removeFromCompare')->name('compare.remove');
     Route::post('/compare/addToCompare', 'addToCompare')->name('compare.addToCompare');
 });
 
@@ -343,8 +350,20 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function() {
     });
     
     Route::get('/all-notifications', [NotificationController::class, 'customerIndex'])->name('all-notifications');
+    Route::post('/notifications/bulk-delete', [NotificationController::class, 'bulkDeleteCustomer'])->name('notifications.bulk_delete');
 
 });
+
+Route::middleware(['auth', 'verified', 'unbanned', 'user'])
+    ->controller(CustomerProductController::class)
+    ->group(function () {
+        Route::get('/customer_products/create', 'create')->name('customer_products.create');
+        Route::post('/customer_products', 'store')->name('customer_products.store');
+        Route::get('/customer_products/{id}/edit', 'edit')->name('customer_products.edit');
+        Route::post('/customer_products/update/{id}', 'update')->name('customer_products.update');
+        Route::delete('/customer_products/destroy/{id}', 'destroy')->name('customer_products.destroy');
+        Route::post('/customer_products/promote', 'store_promotion')->name('customer_products.promote');
+    });
 
 Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() {
 
@@ -376,8 +395,10 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
     // Purchase History
     Route::get('/purchase_history', [PurchaseHistoryController::class, 'index'])->name('purchase_history.index');
     Route::controller(PurchaseHistoryController::class)->group(function () {
+        Route::get('/purchase_history/filter', 'filterOrders')->name('purchase_history.filter');
         Route::get('/purchase_history/details/{id}', 'purchase_history_details')->name('purchase_history.details');
-        Route::get('/purchase_history/destroy/{id}', 'order_cancel')->name('purchase_history.destroy');
+        Route::post('/purchase_history/destroy/{id}', 'order_cancel')->name('purchase_history.destroy');
+        Route::get('/purchase_history/re-order/{id}', 're_order')->name('re_order');
         Route::get('digital-purchase-history', 'digital_index')->name('digital_purchase_history.index');
         Route::get('/digital-products/download/{id}', 'download')->name('digital-products.download');
     });
@@ -407,15 +428,10 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
     Route::post('/customer_packages/purchase',[CustomerPackageController::class, 'purchase_package'])->name('customer_packages.purchase');
 
     // Customer Product
-    Route::resource('customer_products', CustomerProductController::class)->except(['store', 'edit', 'update', 'destroy']);
+    Route::resource('customer_products', CustomerProductController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
     Route::controller(CustomerProductController::class)->group(function () {
-        Route::post('/customer_products', 'store')->name('customer_products.store')->withoutMiddleware(['customer']);
-        Route::get('/customer_products/{id}/edit', 'edit')->name('customer_products.edit')->withoutMiddleware(['customer'])->middleware(['user']);
-        Route::post('/customer_products/update/{id}', 'update')->name('customer_products.update')->withoutMiddleware(['customer'])->middleware(['user']);
-        Route::get('/customer_products/destroy/{id}', 'destroy')->name('customer_products.destroy')->withoutMiddleware(['customer'])->middleware(['user']);
         Route::post('/customer_products/published', 'updatePublished')->name('customer_products.published');
         Route::post('/customer_products/status', 'updateStatus')->name('customer_products.update.status');
-        Route::post('/customer_products/promote', 'store_promotion')->name('customer_products.promote')->withoutMiddleware(['customer']);
     });
 
     // Product Review
@@ -423,7 +439,7 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
     Route::controller(FollowSellerController::class)->group(function () {
         Route::get('/followed-seller', 'index')->name('followed_seller');
         Route::post('/followed-seller-store', 'store')->name('followed_seller.store');
-        Route::get('/followed-seller-remove', 'remove')->name('followed_seller.remove');
+        Route::post('/followed-seller-remove', 'remove')->name('followed_seller.remove');
     });
 });
 
@@ -456,15 +472,8 @@ Route::group(['middleware' => ['auth']], function() {
         // Helper routes moved to public section
         // Route::post('/addresses/update/{id}', 'update')->name('addresses.update');
         // Route::get('/addresses/destroy/{id}', 'destroy')->name('addresses.destroy');
-        Route::get('/addresses/set_default/{id}', 'set_default')->name('addresses.set_default');
-        Route::get('/addresses/set_billing/{id}', 'set_billing')->name('addresses.set_billing');
-    });
-
-    // Payment Tokens (Vault)
-    Route::controller(\App\Http\Controllers\PaymentTokenController::class)->group(function () {
-        Route::get('/payment-methods', 'index')->name('payment.tokens');
-        Route::get('/payment-methods/{token}/default', 'setDefault')->name('payment.token.default');
-        Route::get('/payment-methods/{token}/remove', 'destroy')->name('payment.token.remove');
+        Route::post('/addresses/set_default/{id}', 'set_default')->name('addresses.set_default');
+        Route::post('/addresses/set_billing/{id}', 'set_billing')->name('addresses.set_billing');
     });
 
     // Phase 4: Customer Loyalty Hub
@@ -530,6 +539,7 @@ Route::middleware(['throttle:payments'])->group(function () {
     //N-genius
     Route::controller(NgeniusController::class)->group(function () {
         Route::any('ngenius/cart_payment_callback', 'cart_payment_callback')->name('ngenius.cart_payment_callback');
+        Route::any('ngenius/order_re_payment_callback', 'order_re_payment_callback')->name('ngenius.order_re_payment_callback');
         Route::any('ngenius/wallet_payment_callback', 'wallet_payment_callback')->name('ngenius.wallet_payment_callback');
         Route::any('ngenius/customer_package_payment_callback', 'customer_package_payment_callback')->name('ngenius.customer_package_payment_callback');
         Route::any('ngenius/seller_package_payment_callback', 'seller_package_payment_callback')->name('ngenius.seller_package_payment_callback');
@@ -537,10 +547,14 @@ Route::middleware(['throttle:payments'])->group(function () {
 
     //bKash
     Route::controller(BkashController::class)->group(function () {
+        Route::get('/bkash/create-payment', 'create_payment')->name('bkash.create_payment');
+        Route::any('/bkash/callback', 'callback')->name('bkash.callback');
         Route::post('/bkash/createpayment', 'checkout')->name('bkash.checkout');
         Route::post('/bkash/executepayment', 'excecute')->name('bkash.excecute');
         Route::get('/bkash/success', 'success')->name('bkash.success');
     });
+
+    Route::any('/tap/callback', [TapController::class, 'callback'])->name('tap.callback');
 
     Route::get('/checkout-payment-detail', [StripeController::class, 'checkout_payment_detail']);
 

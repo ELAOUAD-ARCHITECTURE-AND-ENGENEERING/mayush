@@ -11,7 +11,6 @@ class SliderCollection extends ResourceCollection
 
         return [
             'data' => $this->collection->map(function ($data) {
-                //dd($data);
                 return [
                     'photo' => uploaded_asset($data['image']),
                     'url' => ($data['link']),

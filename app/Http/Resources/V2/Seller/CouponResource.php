@@ -23,7 +23,6 @@ class CouponResource extends JsonResource
             
         }
 
-       // dd(json_encode(new ProductCollection($products)));
         return [
             'id' =>(int) $this->id,
             'type' => $this->type,
