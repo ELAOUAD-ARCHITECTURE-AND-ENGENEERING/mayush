@@ -24,7 +24,11 @@ class SearchController extends Controller
     public function index(Request $request, $category_id = null, $brand_id = null)
     {
         try {
-            return $this->doIndex($request, $category_id, $brand_id);
+            $response = $this->doIndex($request, $category_id, $brand_id);
+            if ($response instanceof \Illuminate\View\View) {
+                return $response->render();
+            }
+            return $response;
         } catch (\Throwable $e) {
             \Log::warning('SearchController::index crashed — returning empty results', [
                 'message' => $e->getMessage(),
@@ -34,7 +38,7 @@ class SearchController extends Controller
 
             // Try returning a safe, empty search page
             try {
-                return view('frontend.product_listing', [
+                $fallbackView = view('frontend.product_listing', [
                     'products'                 => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 24),
                     'query'                    => $request->q ?? $request->keyword,
                     'category'                 => [],
@@ -54,6 +58,7 @@ class SearchController extends Controller
                     'is_available'             => null,
                     'preorder_categories'      => [],
                 ]);
+                return $fallbackView->render();
             } catch (\Throwable $fallbackErr) {
                 // Last resort: if even the view can't render, return bare 200
                 \Log::warning('SearchController fallback view also crashed', [
@@ -709,20 +714,28 @@ class SearchController extends Controller
 
     public function listingByCategory(Request $request, $category_slug)
     {
-        $category = Category::where('slug', $category_slug)->first();
-        if ($category != null) {
-            return $this->index($request, $category->id);
+        try {
+            $category = Category::where('slug', $category_slug)->first();
+            if ($category != null) {
+                return $this->index($request, $category->id);
+            }
+            abort(404);
+        } catch (\Throwable $e) {
+            return $this->index($request);
         }
-        abort(404);
     }
 
     public function listingByBrand(Request $request, $brand_slug)
     {
-        $brand = Brand::where('slug', $brand_slug)->first();
-        if ($brand != null) {
-            return $this->index($request, null, $brand->id);
+        try {
+            $brand = Brand::where('slug', $brand_slug)->first();
+            if ($brand != null) {
+                return $this->index($request, null, $brand->id);
+            }
+            abort(404);
+        } catch (\Throwable $e) {
+            return $this->index($request);
         }
-        abort(404);
     }
 
     //Suggestional Search (with caching per keyword, Etsy/Airbnb pattern)

@@ -924,7 +924,7 @@
         });
     </script>
     <!-- Treeview js -->
-    <script src="{{ static_asset('assets/js/hummingbird-treeview2.js') }}?v={{ filemtime(public_path('assets/js/hummingbird-treeview2.js')) }}"></script>
+    <script src="{{ static_asset('assets/js/hummingbird-treeview2.js') }}?v={{ file_exists(public_path('assets/js/hummingbird-treeview2.js')) ? filemtime(public_path('assets/js/hummingbird-treeview2.js')) : time() }}"></script>
 
     <script>
         $(document).ready(function() {

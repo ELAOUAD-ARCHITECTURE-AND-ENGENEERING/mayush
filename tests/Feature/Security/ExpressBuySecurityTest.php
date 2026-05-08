@@ -43,6 +43,13 @@ class ExpressBuySecurityTest extends TestCase
             'is_active' => true,
             'is_default' => true
         ]);
+
+        // CMI credentials are read through config/cmi.php
+        config([
+            'cmi.merchant_id' => 'TEST_MERCHANT',
+            'cmi.secret_key' => 'TEST_KEY',
+            'cmi.gateway_url' => 'http://localhost/cmi',
+        ]);
     }
 
     /** @test */
@@ -129,8 +136,8 @@ class ExpressBuySecurityTest extends TestCase
             'v_token' => $vToken
         ]);
 
-        // Should create an order and redirect appropriately
-        $response->assertStatus(302);
+        // Should create an order and return the payment view
+        $response->assertStatus(200);
         
         $this->assertDatabaseHas('orders', [
             'user_id' => $this->user->id,

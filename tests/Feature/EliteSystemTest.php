@@ -128,6 +128,7 @@ class EliteSystemTest extends TestCase
         config([
             'cmi.merchant_id' => 'TEST_MERCHANT',
             'cmi.secret_key' => 'TEST_KEY',
+            'cmi.gateway_url' => 'http://localhost/cmi',
         ]);
 
         // 1. Initiate processPayment to set session

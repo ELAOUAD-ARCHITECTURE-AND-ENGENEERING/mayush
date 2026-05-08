@@ -230,8 +230,12 @@ class ExpressBuyController extends Controller
             DB::commit();
 
             // 5. Send Notifications
-            EmailUtility::order_email($order, $order->delivery_status);
-            NotificationUtility::sendNotification($order, $order->delivery_status);
+            try {
+                EmailUtility::order_email($order, $order->delivery_status);
+                NotificationUtility::sendNotification($order, $order->delivery_status);
+            } catch (\Exception $mailErr) {
+                Log::warning('Express Buy: Notification failed.', ['error' => $mailErr->getMessage()]);
+            }
 
             $request->session()->put('combined_order_id', $combined_order->id);
 
