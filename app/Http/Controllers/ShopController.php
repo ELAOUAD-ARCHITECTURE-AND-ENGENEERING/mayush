@@ -267,4 +267,13 @@ class ShopController extends Controller
                 return view('auth.'.safe_auth_layout_select().'.seller_registration', compact('sellerVerification','email','phone'));
         }
     }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id)
+    {
+        $shop = Shop::findOrFail($id);
+        return view('seller.shop', compact('shop'));
+    }
 }

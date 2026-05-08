@@ -11,10 +11,11 @@ use App\Models\User;
 use DOMDocument;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\SeedsAppConfigs;
 
 class SitemapSeoTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsAppConfigs;
 
     private string $sitemapPath;
     private ?string $originalSitemap = null;
@@ -22,6 +23,7 @@ class SitemapSeoTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seedConfigs();
 
         $this->sitemapPath = public_path('sitemap.xml');
         $this->originalSitemap = file_exists($this->sitemapPath) ? file_get_contents($this->sitemapPath) : null;

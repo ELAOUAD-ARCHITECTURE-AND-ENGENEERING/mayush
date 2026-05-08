@@ -154,4 +154,12 @@ class CouponController extends Controller
         return 0;
     }
 
+    /**
+     * Alias for updateStatus (route expects snake_case).
+     */
+    public function update_status(Request $request)
+    {
+        return $this->updateStatus($request);
+    }
+
 }

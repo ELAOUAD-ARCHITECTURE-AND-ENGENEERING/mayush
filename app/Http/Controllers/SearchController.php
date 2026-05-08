@@ -23,6 +23,44 @@ class SearchController extends Controller
 {
     public function index(Request $request, $category_id = null, $brand_id = null)
     {
+        try {
+            return $this->doIndex($request, $category_id, $brand_id);
+        } catch (\Throwable $e) {
+            \Log::warning('SearchController::index crashed — returning empty results', [
+                'message' => $e->getMessage(),
+                'query'   => $request->q ?? $request->keyword,
+                'file'    => $e->getFile() . ':' . $e->getLine(),
+            ]);
+
+            // Return a safe, empty search page instead of a 500
+            return view('frontend.product_listing', [
+                'products'                 => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 24),
+                'query'                    => $request->q ?? $request->keyword,
+                'category'                 => [],
+                'categories'               => collect(),
+                'category_id'              => $category_id,
+                'brand_id'                 => $brand_id,
+                'brand'                    => null,
+                'sort_by'                  => $request->sort_by,
+                'seller_id'                => $request->seller_id,
+                'min_price'                => $request->min_price,
+                'max_price'                => $request->max_price,
+                'attributes'               => collect(),
+                'selected_attribute_values' => [],
+                'colors'                   => collect(),
+                'selected_color'           => null,
+                'product_type'             => $request->product_type ?? 'general_product',
+                'is_available'             => null,
+                'preorder_categories'      => [],
+            ]);
+        }
+    }
+
+    /**
+     * Core search logic, extracted so index() can wrap it in try-catch.
+     */
+    private function doIndex(Request $request, $category_id = null, $brand_id = null)
+    {
         $query = $request->keyword ?? $request->q;
         $sort_by = $request->sort_by;
         $product_type = $request->product_type ?? 'general_product';

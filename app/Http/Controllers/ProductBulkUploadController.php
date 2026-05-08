@@ -123,4 +123,26 @@ class ProductBulkUploadController extends Controller
             flash((count($failures) - $shown) . ' ' . translate('more import validation errors were hidden. Fix the first rows and upload again.'))->warning();
         }
     }
+
+    /**
+     * Download a CSV template for product import.
+     */
+    public function import_product($type)
+    {
+        $filePath = base_path('resources/csv/' . $type . '.csv');
+        if (file_exists($filePath)) {
+            return response()->download($filePath);
+        }
+        flash(translate('CSV template not found.'))->error();
+        return back();
+    }
+
+    /**
+     * Download CSV template for a specific vendor's products.
+     */
+    public function import_vendor_product($id)
+    {
+        flash(translate('Vendor product CSV download is not yet available.'))->info();
+        return back();
+    }
 }

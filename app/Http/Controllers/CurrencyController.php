@@ -94,4 +94,12 @@ class CurrencyController extends Controller
         $currency->save();
         return 1;
     }
+
+    /**
+     * Update currency via admin route (currency.update).
+     */
+    public function updateCurrency(Request $request)
+    {
+        return $this->updateYourCurrency($request);
+    }
 }

@@ -182,11 +182,19 @@ class NoteController extends Controller
         return $note;
     }
 
-
     public function updateSelelrAccess(Request $request) {
         $note = Note::findOrFail($request->id);
         $note->seller_access = $request->status;
         $note->save();
         return 1;
     }
+
+    /** Alias: route expects snake_case get_notes */
+    public function get_notes(Request $request) { return $this->getNotes($request); }
+
+    /** Alias: route expects snake_case get_single_note */
+    public function get_single_note(Request $request) { return $this->getSingleNote($request->id); }
+
+    /** Alias: route expects snake_case update_seller_access */
+    public function update_seller_access(Request $request) { return $this->updateSelelrAccess($request); }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Traits;
 
 use App\Models\BusinessSetting;
+use App\Models\Currency;
 use App\Models\Language;
 
 trait SeedsAppConfigs
@@ -17,6 +18,26 @@ trait SeedsAppConfigs
         foreach ($this->defaultBusinessSettings() as $type => $value) {
             BusinessSetting::updateOrCreate(['type' => $type], ['value' => $value]);
         }
+
+        // Ensure a default currency exists so price formatting helpers don't crash
+        Currency::unguard();
+        Currency::updateOrCreate(
+            ['code' => 'MAD'],
+            [
+                'name'          => 'Moroccan Dirham',
+                'symbol'        => 'MAD',
+                'exchange_rate'  => 1,
+                'status'        => 1,
+            ]
+        );
+        Currency::reguard();
+
+        // Point system_default_currency to it
+        $currency = Currency::where('code', 'MAD')->first();
+        BusinessSetting::updateOrCreate(
+            ['type' => 'system_default_currency'],
+            ['value' => $currency->id]
+        );
     }
 
     protected function defaultBusinessSettings(): array
@@ -47,6 +68,12 @@ trait SeedsAppConfigs
             'frontend_logo' => null,
             'meta_image' => null,
             'header_logo' => null,
+            // Search & product helpers
+            'vendor_system_activation' => '1',
+            'no_of_decimals' => '2',
+            'symbol_format' => '3',
+            'decimal_separator' => '1',
+            'product_approve_by_admin' => '0',
         ];
     }
 }

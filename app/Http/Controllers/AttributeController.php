@@ -99,8 +99,6 @@ class AttributeController extends Controller
         $data['attribute'] = Attribute::findOrFail($id);
         $data['all_attribute_values'] = AttributeValue::with('attribute')->where('attribute_id', $id)->get();
 
-        // echo '<pre>';print_r($data['all_attribute_values']);die;
-
         return view("backend.product.attribute.attribute_value.index", $data);
     }
 
@@ -163,7 +161,6 @@ class AttributeController extends Controller
         AttributeValue::where('attribute_id', $id)->delete();
         flash(translate('Attribute has been deleted successfully'))->success();
         return redirect()->route('attributes.index');
-
     }
 
     private function updateAttributeValues($attribute_id, $values, $ids)
@@ -202,7 +199,7 @@ class AttributeController extends Controller
         flash(translate('Attribute value has been deleted successfully'))->success();
         return back();
     }
-    
+
     public function colors(Request $request) {
         $sort_search = null;
         $colors = Color::orderBy('created_at', 'desc');
@@ -219,13 +216,12 @@ class AttributeController extends Controller
     public function colors_create() {
         return view('backend.product.color.create');
     }
-    
+
     public function store_color(ColorRequest $request) {
-        
         $color = new Color;
         $color->name = Str::replace(' ', '', $request->name);
         $color->code = $request->code;
-        
+
         $color->save();
         return response()->json([
                 'success' => true,
@@ -233,7 +229,7 @@ class AttributeController extends Controller
                 'redirect' => route('colors')
             ]);
     }
-    
+
     public function edit_color(Request $request, $id)
     {
         $color = Color::findOrFail($id);
@@ -252,7 +248,7 @@ class AttributeController extends Controller
         $color = Color::findOrFail($id);
         $color->name = Str::replace(' ', '', $request->name);
         $color->code = $request->code;
-        
+
         $color->save();
         return response()->json([
                 'success' => true,
@@ -260,14 +256,52 @@ class AttributeController extends Controller
                 'redirect' => route('colors')
             ]);
     }
-    
+
     public function destroy_color($id)
     {
         Color::destroy($id);
-        
+
         flash(translate('Color has been deleted successfully'))->success();
         return redirect()->route('colors');
-
     }
-    
+
+    /**
+     * Store a new attribute value (AJAX).
+     */
+    public function store_attribute_value(Request $request)
+    {
+        $attribute_value = new AttributeValue;
+        $attribute_value->attribute_id = $request->attribute_id;
+        $attribute_value->value = ucfirst($request->value);
+        $attribute_value->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => translate('Attribute value added successfully'),
+        ]);
+    }
+
+    /**
+     * Show edit form for a single attribute value (AJAX).
+     */
+    public function edit_attribute_value($id)
+    {
+        $attribute_value = AttributeValue::findOrFail($id);
+        return response()->json($attribute_value);
+    }
+
+    /**
+     * Update a single attribute value.
+     */
+    public function update_attribute_value(Request $request, $id)
+    {
+        $attribute_value = AttributeValue::findOrFail($id);
+        $attribute_value->value = ucfirst($request->value);
+        $attribute_value->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => translate('Attribute value updated successfully'),
+        ]);
+    }
 }

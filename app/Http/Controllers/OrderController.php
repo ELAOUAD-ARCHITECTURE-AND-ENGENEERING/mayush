@@ -773,4 +773,21 @@ class OrderController extends Controller
         }
         return back();
     }
+
+    /**
+     * Bulk update order statuses.
+     */
+    public function bulk_order_status(Request $request)
+    {
+        if ($request->id) {
+            foreach ($request->id as $order_id) {
+                $order = Order::find($order_id);
+                if ($order) {
+                    $order->delivery_status = $request->status ?? $order->delivery_status;
+                    $order->save();
+                }
+            }
+        }
+        return 1;
+    }
 }

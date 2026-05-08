@@ -62,4 +62,7 @@ class CustomSaleAlertController extends Controller
         return redirect()->route('custom-sale-alerts.index');
 
     }
+
+    /** Alias: route expects product_update */
+    public function product_update(Request $request) { return $this->products_update($request); }
 }

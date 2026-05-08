@@ -140,4 +140,12 @@ class ShippingBoxSizeController extends Controller
         )->render();
         return response()->json(['html' => $view]);
     }
+
+    /**
+     * Alias for bulk_delete (route expects camelCase).
+     */
+    public function bulkDelete(Request $request)
+    {
+        return $this->bulk_delete($request);
+    }
 }

@@ -862,4 +862,70 @@ class BusinessSettingsController extends Controller
 
         return back();
     }
+
+    /**
+     * Show Facebook Chat settings page.
+     */
+    public function facebook_chat(Request $request)
+    {
+        return view('backend.setup_configurations.facebook_configuration.facebook_chat');
+    }
+
+    /**
+     * Update Facebook Chat settings.
+     */
+    public function facebook_chat_update(Request $request)
+    {
+        $business_settings = BusinessSetting::where('type', 'facebook_chat')->first();
+        if (!$business_settings) {
+            $business_settings = new BusinessSetting;
+            $business_settings->type = 'facebook_chat';
+        }
+        $business_settings->value = $request->has('facebook_chat') ? 1 : 0;
+        $business_settings->save();
+
+        Artisan::call('cache:clear');
+        flash(translate("Settings updated successfully"))->success();
+        return back();
+    }
+
+    /**
+     * Toggle smart bar status (AJAX).
+     */
+    public function smart_bar_status(Request $request)
+    {
+        $business_settings = BusinessSetting::where('type', 'smart_bar')->first();
+        if (!$business_settings) {
+            $business_settings = new BusinessSetting;
+            $business_settings->type = 'smart_bar';
+        }
+        $business_settings->value = $request->value ?? 0;
+        $business_settings->save();
+
+        Artisan::call('cache:clear');
+        return 1;
+    }
+
+    /**
+     * Update vendor commission settings.
+     */
+    public function vendor_commission_update(Request $request)
+    {
+        foreach ($request->types as $key => $type) {
+            $setting = BusinessSetting::where('type', $type)->first();
+            if ($setting) {
+                $setting->value = $request[$type];
+                $setting->save();
+            } else {
+                $setting = new BusinessSetting;
+                $setting->type = $type;
+                $setting->value = $request[$type];
+                $setting->save();
+            }
+        }
+
+        Artisan::call('cache:clear');
+        flash(translate("Commission settings updated successfully"))->success();
+        return back();
+    }
 }

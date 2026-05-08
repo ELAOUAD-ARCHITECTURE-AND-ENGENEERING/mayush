@@ -739,4 +739,13 @@ class SellerController extends Controller
         }
         return back();
     }
+
+    /**
+     * Show seller profile info modal (AJAX).
+     */
+    public function profile_modal(Request $request)
+    {
+        $shop = Shop::findOrFail($request->id);
+        return view('backend.sellers.profile_modal', compact('shop'));
+    }
 }

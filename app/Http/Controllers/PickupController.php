@@ -149,4 +149,12 @@ class PickupController extends Controller
         $pickup_address->save();
         return 1;
     }
+
+    /**
+     * Alias for bulk_delete (route expects camelCase).
+     */
+    public function bulkDelete(Request $request)
+    {
+        return $this->bulk_delete($request);
+    }
 }
