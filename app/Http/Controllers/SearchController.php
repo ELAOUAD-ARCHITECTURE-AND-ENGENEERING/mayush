@@ -32,27 +32,35 @@ class SearchController extends Controller
                 'file'    => $e->getFile() . ':' . $e->getLine(),
             ]);
 
-            // Return a safe, empty search page instead of a 500
-            return view('frontend.product_listing', [
-                'products'                 => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 24),
-                'query'                    => $request->q ?? $request->keyword,
-                'category'                 => [],
-                'categories'               => collect(),
-                'category_id'              => $category_id,
-                'brand_id'                 => $brand_id,
-                'brand'                    => null,
-                'sort_by'                  => $request->sort_by,
-                'seller_id'                => $request->seller_id,
-                'min_price'                => $request->min_price,
-                'max_price'                => $request->max_price,
-                'attributes'               => collect(),
-                'selected_attribute_values' => [],
-                'colors'                   => collect(),
-                'selected_color'           => null,
-                'product_type'             => $request->product_type ?? 'general_product',
-                'is_available'             => null,
-                'preorder_categories'      => [],
-            ]);
+            // Try returning a safe, empty search page
+            try {
+                return view('frontend.product_listing', [
+                    'products'                 => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 24),
+                    'query'                    => $request->q ?? $request->keyword,
+                    'category'                 => [],
+                    'categories'               => collect(),
+                    'category_id'              => $category_id,
+                    'brand_id'                 => $brand_id,
+                    'brand'                    => null,
+                    'sort_by'                  => $request->sort_by,
+                    'seller_id'                => $request->seller_id,
+                    'min_price'                => $request->min_price,
+                    'max_price'                => $request->max_price,
+                    'attributes'               => collect(),
+                    'selected_attribute_values' => [],
+                    'colors'                   => collect(),
+                    'selected_color'           => null,
+                    'product_type'             => $request->product_type ?? 'general_product',
+                    'is_available'             => null,
+                    'preorder_categories'      => [],
+                ]);
+            } catch (\Throwable $fallbackErr) {
+                // Last resort: if even the view can't render, return bare 200
+                \Log::warning('SearchController fallback view also crashed', [
+                    'message' => $fallbackErr->getMessage(),
+                ]);
+                return response('No results found.', 200);
+            }
         }
     }
 
