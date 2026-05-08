@@ -15,11 +15,19 @@ return new class extends Migration
             return;
         }
 
+        // 1. Ensure 'id' column exists. In some environments, this pivot table 
+        // might have been created without an auto-incrementing ID.
+        if (!Schema::hasColumn('product_categories', 'id')) {
+            Schema::table('product_categories', function (Blueprint $table) {
+                $table->bigIncrements('id')->first();
+            });
+        }
+
+        // 2. Deduplicate using the ID column
         DB::table('product_categories')
             ->select('product_id', 'category_id', DB::raw('MIN(id) as keep_id'))
             ->groupBy('product_id', 'category_id')
             ->havingRaw('COUNT(*) > 1')
-            ->orderBy('keep_id')
             ->get()
             ->each(function ($duplicate) {
                 DB::table('product_categories')
