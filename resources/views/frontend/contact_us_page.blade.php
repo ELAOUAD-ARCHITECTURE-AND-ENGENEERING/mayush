@@ -50,6 +50,14 @@
     @php
         $lang = str_replace('_', '-', app()->getLocale());
         $content = json_decode($page->getTranslation('content', $lang));
+        if (!is_object($content)) {
+            $content = (object) [
+                'description' => $page->getTranslation('content', $lang) ?: '',
+                'address' => get_setting('contact_address') ?: '',
+                'phone' => get_setting('contact_phone') ?: '',
+                'email' => get_setting('contact_email') ?: '',
+            ];
+        }
     @endphp
     <div class="container">
         <div class="" style="background-color: {{ hex2rgba(get_setting('base_color', '#d43533'), 0.02) }}">
@@ -57,7 +65,7 @@
                 <div class="col-lg-6 text-center text-lg-left">
                     <div class="p-3 p-md-4 p-xl-5">
                         <h1 class="fs-36 fw-700 mb-4">{{ $page->getTranslation('title') }}</h1>
-                        <p class="fs-16 fw-400 mb-5">{{ $content->description }}</p>
+                        <p class="fs-16 fw-400 mb-5">{{ $content->description ?? '' }}</p>
                         <div class="d-flex mb-5">
                             <span class="size-48px d-flex align-items-center justify-content-center border border-gray-500 rounded-content">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="19.201" height="24" viewBox="0 0 19.201 24">
@@ -66,7 +74,7 @@
                             </span>
                             <span class="ml-3">
                                 <span class="fs-19 fw-700">{{ translate('Address') }}</span><br>
-                                <span class="fs-14 text-secondary">{!! str_replace("\n", "<br>", $content->address) !!}</span>
+                                <span class="fs-14 text-secondary">{!! str_replace("\n", "<br>", $content->address ?? '') !!}</span>
                             </span>
                         </div>
                         <div class="d-flex mb-5">
@@ -75,7 +83,7 @@
                             </span>
                             <span class="ml-3">
                                 <span class="fs-19 fw-700">{{ translate('Phone') }}</span><br>
-                                <span class="fs-14 text-secondary">{{ $content->phone }}</span>
+                                <span class="fs-14 text-secondary">{{ $content->phone ?? '' }}</span>
                             </span>
                         </div>
                         <div class="d-flex">
@@ -84,7 +92,7 @@
                             </span>
                             <span class="ml-3">
                                 <span class="fs-19 fw-700">{{ translate('Email Address') }}</span><br>
-                                <span class="fs-14 text-secondary">{{ $content->email }}</span>
+                                <span class="fs-14 text-secondary">{{ $content->email ?? '' }}</span>
                             </span>
                         </div>
                     </div>

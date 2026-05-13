@@ -69,7 +69,7 @@ class AuthService
      */
     public function getLoginView($routeName)
     {
-        $layout = get_setting('authentication_layout_select');
+        $layout = safe_auth_layout_select();
         
         if ($routeName == 'seller.login' && get_setting('vendor_system_activation') == 1) {
             return 'auth.' . $layout . '.seller_login';

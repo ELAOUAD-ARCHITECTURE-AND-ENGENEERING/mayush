@@ -270,11 +270,19 @@
             });
     });
 
+    @php
+        $activeCountries = get_active_countries();
+        $defaultCountry = is_array($activeCountries) ? ($activeCountries[0] ?? null) : $activeCountries->first();
+        $defaultCountryId = optional($defaultCountry)->id;
+    @endphp
+
     $(document).ready(function() {
-        @if(get_setting('has_state') == 1)
-            get_states(@json(get_active_countries()[0]->id));
-        @else
-            get_city_by_country(@json(get_active_countries()[0]->id));
+        @if($defaultCountryId)
+            @if(get_setting('has_state') == 1)
+                get_states(@json($defaultCountryId));
+            @else
+                get_city_by_country(@json($defaultCountryId));
+            @endif
         @endif
     });
 </script>

@@ -68,6 +68,13 @@ Branch: main
 - SEC-01 admin catalog destructive GET sweep: admin category, brand, digital product, tax, language, and color deletes now require DELETE routes; category/brand AJAX deletes send CSRF-protected DELETE requests, and digital/tax/language/color delete controls render CSRF/method-spoofed forms.
 - SEC-01 admin back-office destructive GET sweep: customer, custom page, role, staff, flash deal, subscriber, order, loyalty template, top banner, custom label, and custom notification deletes now require DELETE routes and CSRF/method-spoofed forms.
 - SEC-01 remaining web destructive GET sweep: account deletion, attribute-value deletion, auction product/bid deletion, wholesale product deletion, and preorder order/conversation/FAQ deletion no longer accept GET; preorder visible delete controls now render DELETE forms, and the formerly dead attribute-value delete route now has a controller action.
+- Browser QA automation recovery: the in-app browser was retried against `http://127.0.0.1:8001`, reached the app, and exposed a runtime form-entry blocker on email inputs; project-local Playwright was added as the fallback browser runner in `tests/BrowserQa/mayush-browser-qa.js`.
+- Browser QA deterministic data: seeded an isolated SQLite browser QA database with admin/customer/seller users, an approved seller shop, stocked and out-of-stock products, and an order/tracking record for repeatable browser flows.
+- Browser QA execution: Playwright completed the requested smoke run and documented pass/fail evidence in `docs/browser-qa-execution-report.md`; homepage, customer auth setup, purchase history, and DELETE-form smoke passed, while asset 404s, missing optional coupon tables, and SQLite-incompatible dashboard date SQL blocked several flows.
+- Browser QA blocker remediation: local `artisan serve` asset URLs now resolve without `/public`, optional coupon/payment-method helpers are schema-safe in SQLite, auth layout fallback no longer builds `auth..user_login`, contact pages tolerate plain text content, customer dashboard addresses tolerate missing location relations, and admin/seller dashboard date grouping is SQLite-safe.
+- Browser QA seed automation: added `tests/BrowserQa/seed-browser-qa.php` so browser fixtures are reproducible without PowerShell pipe encoding issues.
+- Browser QA runner hardening: Playwright Browser QA now isolates guest/customer/seller/admin contexts, uses resilient login/click assertions, submits registration/contact forms through the DOM, and explicitly disables OTP/recaptcha/turnstile in deterministic seed data.
+- Browser QA discovered runtime fixes: authenticated guest redirects now use the real `home` route instead of `/home`; customer profile, customer dashboard billing/shipping addresses, and checkout shipping address partials now tolerate missing city/country relations in local/test data.
 
 ## Tested This Session
 
@@ -137,20 +144,33 @@ Branch: main
 - Admin button/catalog/back-office route contract result: 5 passed, 69 assertions.
 - Remaining web destructive route contract result: 4 passed, 35 assertions.
 - Purchase history/classified product regression after route hardening: 9 passed, 39 assertions.
+- Browser QA route/security precheck after destructive GET sweep: 18 passed, 146 assertions.
+- Browser QA fallback runner: `BROWSER_QA_BASE_URL=http://127.0.0.1:8001 BROWSER_QA_FLOW_TIMEOUT_MS=8000 node tests\BrowserQa\mayush-browser-qa.js` completed and produced the execution matrix in `docs/browser-qa-execution-report.md`.
+- Browser QA npm audit after adding Playwright: `npm audit --omit=dev --audit-level=high` passed with 0 vulnerabilities.
+- Browser QA blocker regression result: `tests\Feature\BrowserQa\BrowserQaBlockerRegressionTest.php` passed, 8 tests and 18 assertions.
+- Browser QA blocker regression final result: `tests\Feature\BrowserQa\BrowserQaBlockerRegressionTest.php` passed, 11 tests and 23 assertions.
+- Contact/purchase-history/seller-dashboard regression result after Browser QA fixes: 11 passed, 45 assertions.
+- Browser QA rerun after blocker remediation: homepage, password reset, contact form, product detail, add to cart, stock alert, and destructive-form smoke rendered cleanly without console errors; repeated auth and navigation-wait flows remain for runner hardening.
+- Browser QA final Playwright run: public homepage, registration, login/logout, password reset, contact, search, product detail, stock alert, add to cart, cart to checkout, buy now, follow seller, purchase history, DELETE-form smoke, seller dashboard/notes, and admin sitemap all passed with no captured console errors.
 - Browser/HTTP smoke: public homepage, register, login, password reset, contact, robots, and sitemap returned 200; protected purchase history and checkout redirected to login.
 - Route cache after fixes: passed.
 - Composer validation after fixes: passed.
 - Production debug artifact scan after fixes: no matches.
+- Final verification route list: `php artisan route:list` passed and listed 1883 routes.
+- Final verification route/config/cache cycle: `php artisan route:clear`, `php artisan config:clear`, `php artisan cache:clear`, and `php artisan route:cache` all passed.
+- Final verification full suite: `php artisan test` passed with 560 tests and 1629 assertions.
+- Final verification npm production audit: `npm audit --omit=dev --audit-level=high` passed with 0 vulnerabilities.
+- Final verification debug artifact scan: no `dd()`, `dump()`, `ray()`, or `var_dump()` matches in `app`, `routes`, or `resources`.
 
 ## Not Tested
 
 - Full test suite: timed out after 15 minutes during baseline.
-- Live Browser Use automation: blocked locally because `node_repl` resolves Node v22.11.0 while the Browser plugin requires >= v22.22.0.
+- In-app browser form submission: the runtime is now reachable, but direct typing/filling into `input[type=email]` failed during login automation, so Playwright remains the active fallback until that browser-control issue is resolved upstream.
 - Live payment gateways, mail delivery, and carrier integrations: not run locally.
-- Full Dusk/Playwright browser flows remain pending because neither Dusk nor Playwright is installed/scaffolded in this repo.
+- In-app browser form entry remains blocked on email inputs; Playwright is the working fallback for automated Browser QA.
 - Some legacy destructive GET routes outside this pass remain for later phases, including auction/digital product, admin catalog/settings deletes, seller-side product deletes, and mobile API mutation routes.
 
 ## Requires Manual QA
 
-- End-to-end checkout, contact, seller follow, seller notes modal, stock alert subscription, product image upload/edit, variant selection, invoice PDF visual layout, and payment callbacks in a browser against a seeded environment.
+- Deeper browser QA remains useful for product image upload/edit, variant selection, invoice PDF visual layout, and real payment/shipping callbacks; the Playwright smoke matrix now covers checkout, contact, follow seller, seller notes, and stock alert subscription.
 - Production Onessta/CMI credentials, real mail delivery, cron, queue worker, supervisor, and storage symlink readiness.

@@ -109,12 +109,19 @@ class AdminController extends Controller
             ->whereYear('orders.created_at', Carbon::now()->year)
             ->whereMonth('orders.created_at', Carbon::now()->month)
             ->first();
-        $sales_stat = Order::select('orders.user_id', 'users.name', 'users.user_type', 'users.avatar_original', DB::raw('SUM(grand_total) as total'), DB::raw('DATE_FORMAT(orders.created_at, "%M") AS month'))
+        $monthExpression = DB::connection()->getDriverName() === 'sqlite'
+            ? "strftime('%m', orders.created_at)"
+            : 'DATE_FORMAT(orders.created_at, "%M")';
+        $monthOrderExpression = DB::connection()->getDriverName() === 'sqlite'
+            ? "strftime('%m', orders.created_at)"
+            : 'MONTH(orders.created_at)';
+
+        $sales_stat = Order::select('orders.user_id', 'users.name', 'users.user_type', 'users.avatar_original', DB::raw('SUM(grand_total) as total'), DB::raw($monthExpression . ' AS month'))
             ->leftJoin('users', 'orders.seller_id', '=', 'users.id')
             ->whereRaw('users.user_type = "admin"')
             ->whereYear('orders.created_at', '=', Date("Y"))
-            ->groupBy('month')
-            ->orderBy(DB::raw('MONTH(orders.created_at)'), 'asc')
+            ->groupBy(DB::raw($monthExpression))
+            ->orderBy(DB::raw($monthOrderExpression), 'asc')
             ->get();
         $new_stat = array();
         foreach ($sales_stat as $row) {

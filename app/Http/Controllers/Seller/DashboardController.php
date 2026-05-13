@@ -80,17 +80,24 @@ class DashboardController extends Controller
                                     ->limit(5)
                                     ->get();
 
+        $dayLabelExpression = DB::connection()->getDriverName() === 'sqlite'
+            ? "strftime('%d %m', created_at)"
+            : "DATE_FORMAT(created_at, '%d %b')";
+        $dayGroupExpression = DB::connection()->getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m-%d', created_at)"
+            : "DATE_FORMAT(created_at, '%Y-%m-%d')";
+
         $data['last_7_days_sales'] = Order::where('created_at', '>=', Carbon::now()->subDays(7))
                                 ->where('seller_id', '=', Auth::user()->id)
                                 ->where('delivery_status', '=', 'delivered')
-                                ->select(DB::raw("sum(grand_total) as total, DATE_FORMAT(created_at, '%d %b') as date"))
-                                ->groupBy(DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d')"))
+                                ->select(DB::raw('sum(grand_total) as total'), DB::raw($dayLabelExpression . ' as date'))
+                                ->groupBy(DB::raw($dayGroupExpression))
                                 ->get()->pluck('total', 'date');
 
         $data['last_7_days_views'] = \App\Models\ProductView::where('created_at', '>=', Carbon::now()->subDays(7))
                                 ->whereIn('product_id', Product::where('user_id', $authUserId)->pluck('id'))
-                                ->select(DB::raw("count(*) as total, DATE_FORMAT(created_at, '%d %b') as date"))
-                                ->groupBy(DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d')"))
+                                ->select(DB::raw('count(*) as total'), DB::raw($dayLabelExpression . ' as date'))
+                                ->groupBy(DB::raw($dayGroupExpression))
                                 ->orderBy('created_at', 'asc')
                                 ->get()->pluck('total', 'date');
 

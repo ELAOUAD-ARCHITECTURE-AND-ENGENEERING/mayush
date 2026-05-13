@@ -1420,7 +1420,7 @@ if (!function_exists('my_asset')) {
             $path = substr($path, 1);
         }
 
-        return rtrim(getBaseURL(), '/') . '/public/' . $path;
+        return rtrim(getBaseURL(), '/') . public_asset_url_prefix() . '/' . $path;
     }
 }
 
@@ -1435,7 +1435,17 @@ if (!function_exists('static_asset')) {
     function static_asset($path, $secure = null)
     {
         $path = ltrim($path, '/');
-        return rtrim(getBaseURL(), '/') . '/public/' . $path;
+        return rtrim(getBaseURL(), '/') . public_asset_url_prefix() . '/' . $path;
+    }
+}
+
+if (!function_exists('public_asset_url_prefix')) {
+    function public_asset_url_prefix()
+    {
+        $documentRoot = isset($_SERVER['DOCUMENT_ROOT']) ? realpath($_SERVER['DOCUMENT_ROOT']) : false;
+        $publicPath = realpath(public_path());
+
+        return $documentRoot && $publicPath && $documentRoot === $publicPath ? '' : '/public';
     }
 }
 
@@ -2678,6 +2688,14 @@ if (!function_exists('get_shop_by_user_id')) {
 if (!function_exists('get_coupons')) {
     function get_coupons($user_id = null, $paginate = null)
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('coupons')) {
+            if ($paginate) {
+                return new \Illuminate\Pagination\LengthAwarePaginator([], 0, $paginate);
+            }
+
+            return collect();
+        }
+
         $coupon_query = Coupon::query();
         $coupon_query = $coupon_query->where('start_date', '<=', strtotime(date('d-m-Y')))->where('end_date', '>=', strtotime(date('d-m-Y')));
         if ($user_id) {
@@ -2756,6 +2774,13 @@ if (!function_exists('get_Affiliate_onfig_value')) {
 if (!function_exists('offerUserWelcomeCoupon')) {
     function offerUserWelcomeCoupon()
     {
+        if (
+            !\Illuminate\Support\Facades\Schema::hasTable('coupons') ||
+            !\Illuminate\Support\Facades\Schema::hasTable('user_coupons')
+        ) {
+            return;
+        }
+
         $coupon = Coupon::where('type', 'welcome_base')->where('status', 1)->first();
         if ($coupon) {
 
@@ -2779,10 +2804,29 @@ if (!function_exists('offerUserWelcomeCoupon')) {
 if (!function_exists('ifUserHasWelcomeCouponAndNotUsed')) {
     function ifUserHasWelcomeCouponAndNotUsed()
     {
+        if (
+            !\Illuminate\Support\Facades\Schema::hasTable('coupons') ||
+            !\Illuminate\Support\Facades\Schema::hasTable('user_coupons')
+        ) {
+            return false;
+        }
+
         $user = auth()->user();
+        if (!$user) {
+            return false;
+        }
+
         $userCoupon = $user->userCoupon;
         if($userCoupon){
             if($userCoupon->expiry_date >=strtotime(date('d-m-Y H:i:s'))){
+                if (!$userCoupon->coupon) {
+                    return false;
+                }
+
+                if (!\Illuminate\Support\Facades\Schema::hasTable('coupon_usages')) {
+                    return $userCoupon;
+                }
+
                 $couponUse = $userCoupon->coupon->couponUsages->where('user_id',$user->id)->first();
                 if(!$couponUse){
                     return $userCoupon;
@@ -2912,6 +2956,10 @@ if (!function_exists('get_notification_type')) {
 if (!function_exists('get_activate_payment_methods')) {
     function get_activate_payment_methods()
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('payment_methods')) {
+            return collect();
+        }
+
         $payment_methods = PaymentMethod::where('active', 1)
                                         ->Where(function($query){
                                             $query->whereNull('addon_identifier')

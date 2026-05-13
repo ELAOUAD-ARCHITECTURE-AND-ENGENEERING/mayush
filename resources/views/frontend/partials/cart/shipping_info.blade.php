@@ -47,12 +47,12 @@
                 @php
                 $address = Auth::user()->addresses()->where('id', $address_id)->first();
                 if($address){
-                $city = optional($address->city);
+                $city = $address->city;
                 $area_id = $address->area_id;
 
                 $has_area_id = !is_null($area_id);
-                $city_status = $city->status;
-                $active_area_exists = $city->areas()->where('status', 1)->exists(); 
+                $city_status = optional($city)->status;
+                $active_area_exists = $city ? $city->areas()->where('status', 1)->exists() : false; 
                 $area_status = $has_area_id ? optional($address->area)->status : 1;
                 $is_disabled =
                     $city_status === 0 ||
@@ -72,7 +72,7 @@
                                 <span class="d-flex p-3 aiz-megabox-elem border-0">
                                     <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                     <span class="pl-3 text-left w-xl-300px"  id="choose-default">
-                                        {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ $address->city->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
+                                        {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ optional($address->city)->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
                                         <br>  {{ $address->phone }}
                                     </span>
                                 </span>
@@ -137,12 +137,12 @@
                 $address = Auth::user()->addresses()->where('set_billing', 1)->first();
                 
                 if($address){
-                $city = optional($address->city);
+                $city = $address->city;
                 $area_id = $address->area_id;
 
                 $has_area_id = !is_null($area_id);
-                $city_status = $city->status;
-                $active_area_exists = $city->areas()->where('status', 1)->exists(); 
+                $city_status = optional($city)->status;
+                $active_area_exists = $city ? $city->areas()->where('status', 1)->exists() : false; 
                 $area_status = $has_area_id ? optional($address->area)->status : 1;
                 
                 $is_disabled =
@@ -161,7 +161,7 @@
                                 <span class="d-flex p-3 aiz-megabox-elem border-0">
                                     <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                     <span class="pl-3 text-left w-xl-300px" id="choose-default-billing">
-                                        {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ $address->city->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
+                                        {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ optional($address->city)->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
                                         <br>  {{ $address->phone }}
                                     </span>
                                 </span>
@@ -219,12 +219,12 @@
                     <div>
                         @foreach (Auth::user()->addresses as $key => $address)
                         @php
-                            $city = optional($address->city);
+                            $city = $address->city;
                             $area_id = $address->area_id;
 
                             $has_area_id = !is_null($area_id);
-                            $city_status = $city->status;
-                            $active_area_exists = $city->areas()->where('status', 1)->exists(); // new line
+                            $city_status = optional($city)->status;
+                            $active_area_exists = $city ? $city->areas()->where('status', 1)->exists() : false;
                             $area_status = $has_area_id ? optional($address->area)->status : 1;
                             $is_disabled =
                                 $city_status === 0 ||
@@ -241,7 +241,7 @@
                                         <span class="d-flex p-3 aiz-megabox-elem border-0">
                                             <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                             <span class="pl-3 text-left w-xl-300px address-text">
-                                                {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ $address->city->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
+                                                {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ optional($address->city)->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
                                               <br>  {{ $address->phone }}
                                             </span>
                                         </span>
@@ -303,12 +303,12 @@
                     <div>
                         @foreach (Auth::user()->addresses as $key => $address)
                         @php
-                            $city = optional($address->city);
+                            $city = $address->city;
                             $area_id = $address->area_id;
 
                             $has_area_id = !is_null($area_id);
-                            $city_status = $city->status;
-                            $active_area_exists = $city->areas()->where('status', 1)->exists(); // new line
+                            $city_status = optional($city)->status;
+                            $active_area_exists = $city ? $city->areas()->where('status', 1)->exists() : false;
                             $area_status = $has_area_id ? optional($address->area)->status : 1;
                             $is_disabled =
                                 $city_status === 0 ||
@@ -325,7 +325,7 @@
                                         <span class="d-flex p-3 aiz-megabox-elem border-0">
                                             <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                             <span class="pl-3 text-left w-xl-300px address-text">
-                                                {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ $address->city->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
+                                                {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ optional($address->city)->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
                                                 <br>  {{ $address->phone }}
                                             </span>
                                         </span>
