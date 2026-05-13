@@ -75,6 +75,9 @@ Branch: main
 - Browser QA seed automation: added `tests/BrowserQa/seed-browser-qa.php` so browser fixtures are reproducible without PowerShell pipe encoding issues.
 - Browser QA runner hardening: Playwright Browser QA now isolates guest/customer/seller/admin contexts, uses resilient login/click assertions, submits registration/contact forms through the DOM, and explicitly disables OTP/recaptcha/turnstile in deterministic seed data.
 - Browser QA discovered runtime fixes: authenticated guest redirects now use the real `home` route instead of `/home`; customer profile, customer dashboard billing/shipping addresses, and checkout shipping address partials now tolerate missing city/country relations in local/test data.
+- Production readiness pass: documented ONESSTA/CMI/mail/queue/scheduler/storage release checks in `docs/production-readiness-pass.md`, added ONESSTA production env keys to `.env.example`, and fixed ONESSTA shipment creation to inherit the production queue connection instead of falling back to inline `sync` execution when `ONESSTA_CREATE_SHIPMENT_QUEUE_CONNECTION` is omitted.
+- ONESSTA production diagnostics: added `php artisan onessta:diagnose-order {order}` to explain why a specific order did or did not create a shipment, report local blockers, and optionally queue shipment creation through the same idempotent service path with `--dispatch`.
+- CMI production diagnostics: added `php artisan cmi:diagnose --production` to verify required CMI config, HTTPS callback/success/fail URLs, callback POST route wiring, IP whitelist middleware, and production `CMI_ALLOWED_IPS` readiness before a live payment test.
 
 ## Tested This Session
 
@@ -152,6 +155,10 @@ Branch: main
 - Contact/purchase-history/seller-dashboard regression result after Browser QA fixes: 11 passed, 45 assertions.
 - Browser QA rerun after blocker remediation: homepage, password reset, contact form, product detail, add to cart, stock alert, and destructive-form smoke rendered cleanly without console errors; repeated auth and navigation-wait flows remain for runner hardening.
 - Browser QA final Playwright run: public homepage, registration, login/logout, password reset, contact, search, product detail, stock alert, add to cart, cart to checkout, buy now, follow seller, purchase history, DELETE-form smoke, seller dashboard/notes, and admin sitemap all passed with no captured console errors.
+- Production readiness targeted result: `tests\Feature\OnesstaIntegrationTest.php`, `tests\Feature\OrderConfirmationWorkflowTest.php`, and `tests\Feature\DevOps\CiAndOpsReadinessTest.php` passed with 19 tests and 74 assertions.
+- ONESSTA diagnostic targeted result: `tests\Feature\OnesstaOrderDiagnosticsTest.php`, `tests\Feature\OrderConfirmationWorkflowTest.php`, and `tests\Feature\OnesstaIntegrationTest.php` passed with 17 tests and 61 assertions.
+- CMI diagnostic targeted result: `tests\Feature\Payment\CmiGatewayDiagnosticsTest.php`, `tests\Feature\Payment\PaymentVaultRegressionTest.php`, and `tests\Feature\Security\RouteHardeningTest.php` passed with 10 tests and 36 assertions.
+- Production-like route exposure check: config and route cache passed with `APP_ENV=production`, `APP_DEBUG=false`, and no `_debugbar` or `_ignition` routes were exposed.
 - Browser/HTTP smoke: public homepage, register, login, password reset, contact, robots, and sitemap returned 200; protected purchase history and checkout redirected to login.
 - Route cache after fixes: passed.
 - Composer validation after fixes: passed.
@@ -173,4 +180,4 @@ Branch: main
 ## Requires Manual QA
 
 - Deeper browser QA remains useful for product image upload/edit, variant selection, invoice PDF visual layout, and real payment/shipping callbacks; the Playwright smoke matrix now covers checkout, contact, follow seller, seller notes, and stock alert subscription.
-- Production Onessta/CMI credentials, real mail delivery, cron, queue worker, supervisor, and storage symlink readiness.
+- Production Onessta/CMI credentials, real mail delivery, cron, queue worker, supervisor, Redis/Horizon availability, failed-job cleanup, and storage symlink readiness.

@@ -53,7 +53,9 @@ Recommended production queue settings:
 
 ```env
 QUEUE_CONNECTION=redis
-ONESSTA_QUEUE=onessta
+ONESSTA_QUEUE_CONNECTION=redis
+ONESSTA_CREATE_SHIPMENT_QUEUE_CONNECTION=redis
+ONESSTA_QUEUE_NAME=onessta
 ```
 
 Critical queued work:

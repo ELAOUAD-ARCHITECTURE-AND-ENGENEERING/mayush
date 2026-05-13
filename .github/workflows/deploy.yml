@@ -222,6 +222,11 @@ jobs:
             
             echo "✔ Deploy & cache clearing finished"
 
+            echo ""
+            echo "▶ Running CMI production diagnostics..."
+            php8.2 artisan cmi:diagnose --production
+            echo "✔ CMI production diagnostics passed"
+
             # ── [6/6] AI Service Setup (Isolated) ──────────────────
             echo ""
             echo "▶ [6/6] Setting up AI Visual Search Service..."
