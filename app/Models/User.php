@@ -111,6 +111,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Wallet::class)->orderBy('created_at', 'desc');
     }
 
+    public function payment_informations()
+    {
+        return $this->hasMany(PaymentInformation::class);
+    }
+
     public function club_point()
     {
         return $this->hasOne(ClubPoint::class);

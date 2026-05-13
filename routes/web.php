@@ -23,6 +23,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PaymentInformationController;
 use App\Http\Controllers\PurchaseHistoryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
@@ -408,6 +409,20 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
         Route::get('/payment-methods', 'index')->name('payment_tokens.index');
         Route::post('/payment-methods/{token}/default', 'setDefault')->name('payment_tokens.set_default');
         Route::delete('/payment-methods/{token}', 'destroy')->name('payment_tokens.destroy');
+    });
+
+    Route::controller(PaymentInformationController::class)->group(function () {
+        Route::post('/payment-informations/create', 'create')->name('payment-informations.create');
+        Route::post('/payment-informations/ajax-create', 'ajax_create')->name('payment-informations.ajax_create');
+        Route::post('/payment-informations/store', 'store')->name('payment-informations.store');
+        Route::post('/payment-informations/ajax-store', 'ajax_store')->name('payment-informations.ajax_store');
+        Route::post('/payment-informations/edit', 'edit')->name('payment-informations.edit');
+        Route::post('/payment-informations/ajax-edit', 'ajax_edit')->name('payment-informations.ajax_edit');
+        Route::post('/payment-informations/ajax-list', 'ajax_list')->name('payment-informations.ajax_list');
+        Route::post('/payment-informations/update', 'update')->name('payment-informations.update');
+        Route::post('/payment-informations/ajax-update', 'ajax_update')->name('payment-informations.ajax_update');
+        Route::delete('/payment-informations/{id}', 'destroy')->name('payment-informations.destroy');
+        Route::post('/payment-informations/{id}/default', 'set_default')->name('payment-informations.set_default');
     });
 
     Route::resource('wishlists', WishlistController::class);

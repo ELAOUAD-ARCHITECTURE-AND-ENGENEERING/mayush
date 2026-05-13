@@ -723,5 +723,63 @@ class ProductService
         return $products->get();
     }
 
+    public function promotional_products_search(array $data, int $promotional = 1)
+    {
+        return $this->promotionSearchQuery($data)
+            ->where('promotional', $promotional)
+            ->limit(20)
+            ->get();
+    }
+
+    public function todays_deal_products_search(array $data, int $todaysDeal = 1)
+    {
+        return $this->promotionSearchQuery($data)
+            ->where('todays_deal', $todaysDeal)
+            ->limit(20)
+            ->get();
+    }
+
+    private function promotionSearchQuery(array $data)
+    {
+        $collection = collect($data);
+        $products = Product::query()
+            ->where('published', 1)
+            ->where('auction_product', 0)
+            ->where('approved', 1);
+
+        if ($collection->get('category')) {
+            $category = Category::with('childrenCategories')->find($collection->get('category'));
+            if ($category) {
+                $products = $category->products()
+                    ->where('products.published', 1)
+                    ->where('products.auction_product', 0)
+                    ->where('products.approved', 1);
+            }
+        }
+
+        if (auth()->check() && auth()->user()->user_type === 'seller') {
+            $products->where('products.user_id', auth()->id());
+        }
+
+        $productType = $collection->get('product_type');
+        if ($productType === 'physical') {
+            $products->where('digital', 0)->where('wholesale_product', 0);
+        } elseif ($productType === 'digital') {
+            $products->where('digital', 1);
+        } elseif ($productType === 'wholesale') {
+            $products->where('wholesale_product', 1);
+        }
+
+        if ($collection->get('product_id')) {
+            $products->where('products.id', '!=', $collection->get('product_id'));
+        }
+
+        if ($collection->get('search_key')) {
+            $products->where('products.name', 'like', '%' . $collection->get('search_key') . '%');
+        }
+
+        return $products;
+    }
+
     
 }
