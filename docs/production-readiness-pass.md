@@ -163,13 +163,13 @@ CMI_CALLBACK_URL=https://your-domain.example/cmi/callback
 CMI_ALLOWED_IPS=...
 ```
 
-Current local readiness note: credentials are present locally, but `CMI_ALLOWED_IPS` is not configured. Production should configure the CMI callback IP allowlist.
+Current local readiness note: credentials are present locally, but `CMI_ALLOWED_IPS` is not configured. The current deployment intentionally ignores the empty allowlist with `php artisan cmi:diagnose --production --allow-empty-ip-allowlist` so production testing can continue.
 
-GitHub Actions deployment expects a repository secret named `CMI_ALLOWED_IPS`. Use the official callback source IPs supplied by CMI/Attijari for the merchant account, comma-separated. Do not use a placeholder or broad public range.
+GitHub Actions deployment still accepts a repository secret named `CMI_ALLOWED_IPS` when available. Use the official callback source IPs supplied by CMI/Attijari for the merchant account, comma-separated. Do not use a placeholder or broad public range. Until that secret is populated, the callback route relies on normal CMI signature/status validation but not source IP filtering.
 
 Server checks:
 
-- Run `php artisan cmi:diagnose --production`.
+- Run `php artisan cmi:diagnose --production` when `CMI_ALLOWED_IPS` is configured, or `php artisan cmi:diagnose --production --allow-empty-ip-allowlist` for the current temporary test deployment.
 - Run one sandbox or low-value live CMI payment.
 - Confirm successful callback marks order/payment paid exactly once.
 - Replay the same callback and confirm idempotency.

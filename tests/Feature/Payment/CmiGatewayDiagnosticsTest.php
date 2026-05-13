@@ -60,4 +60,26 @@ class CmiGatewayDiagnosticsTest extends TestCase
             ->expectsOutputToContain('CMI diagnosis completed without local blockers.')
             ->assertExitCode(0);
     }
+
+    public function test_cmi_diagnose_can_explicitly_ignore_empty_ip_allowlist(): void
+    {
+        config([
+            'cmi.merchant_id' => 'merchant',
+            'cmi.secret_key' => 'secret',
+            'cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate',
+            'cmi.callback_url' => 'https://mayush.example/cmi/callback',
+            'cmi.ok_url' => 'https://mayush.example/cmi/success',
+            'cmi.fail_url' => 'https://mayush.example/cmi/fail',
+            'cmi.allowed_ips' => [],
+        ]);
+
+        $this->artisan('cmi:diagnose', [
+            '--production' => true,
+            '--allow-empty-ip-allowlist' => true,
+        ])
+            ->expectsOutputToContain('Callback IP whitelist middleware: registered')
+            ->expectsOutputToContain('Warning: CMI_ALLOWED_IPS is empty.')
+            ->expectsOutputToContain('CMI diagnosis completed without local blockers.')
+            ->assertExitCode(0);
+    }
 }

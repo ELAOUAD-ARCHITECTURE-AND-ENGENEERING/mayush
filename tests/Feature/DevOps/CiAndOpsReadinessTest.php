@@ -24,8 +24,8 @@ class CiAndOpsReadinessTest extends TestCase
         $this->assertStringContainsString('composer validate --no-check-publish --strict', $workflow);
         $this->assertStringContainsString('Block Production Debug Artifacts', $workflow);
         $this->assertStringContainsString('CMI_ALLOWED_IPS: ${{ secrets.CMI_ALLOWED_IPS }}', $workflow);
-        $this->assertStringContainsString('CMI_CONFIG_FAIL', $workflow);
-        $this->assertStringContainsString('php8.2 artisan cmi:diagnose --production', $workflow);
+        $this->assertStringNotContainsString('CMI_CONFIG_FAIL', $workflow);
+        $this->assertStringContainsString('php8.2 artisan cmi:diagnose --production --allow-empty-ip-allowlist', $workflow);
         $this->assertStringContainsString('php artisan config:cache', $workflow);
         $this->assertStringContainsString('php artisan route:cache', $workflow);
         $this->assertStringContainsString('php artisan test --stop-on-failure', $workflow);

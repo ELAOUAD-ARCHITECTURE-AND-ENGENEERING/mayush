@@ -9,7 +9,9 @@ use Illuminate\Support\Str;
 
 class DiagnoseCmiGateway extends Command
 {
-    protected $signature = 'cmi:diagnose {--production : Treat production safety warnings as blockers}';
+    protected $signature = 'cmi:diagnose
+        {--production : Treat production safety warnings as blockers}
+        {--allow-empty-ip-allowlist : Warn instead of failing when CMI_ALLOWED_IPS is empty in production}';
 
     protected $description = 'Diagnose local CMI gateway configuration, callback route wiring, and production safety settings.';
 
@@ -17,6 +19,7 @@ class DiagnoseCmiGateway extends Command
     {
         $blockers = 0;
         $productionMode = $this->option('production') || app()->environment('production');
+        $allowEmptyIpAllowlist = (bool) $this->option('allow-empty-ip-allowlist');
 
         $this->info('CMI gateway diagnosis');
         $this->line('Environment: ' . app()->environment());
@@ -50,7 +53,7 @@ class DiagnoseCmiGateway extends Command
         }
 
         $blockers += $this->checkCallbackRoute();
-        $blockers += $this->checkAllowedIps($productionMode);
+        $blockers += $this->checkAllowedIps($productionMode, $allowEmptyIpAllowlist);
 
         if ($blockers > 0) {
             $this->error("CMI diagnosis completed with {$blockers} blocker(s).");
@@ -122,7 +125,7 @@ class DiagnoseCmiGateway extends Command
         return false;
     }
 
-    private function checkAllowedIps(bool $productionMode): int
+    private function checkAllowedIps(bool $productionMode, bool $allowEmptyIpAllowlist): int
     {
         $allowedIps = array_values(array_filter(array_map('trim', config('cmi.allowed_ips', []))));
 
@@ -133,6 +136,12 @@ class DiagnoseCmiGateway extends Command
         }
 
         if ($productionMode) {
+            if ($allowEmptyIpAllowlist) {
+                $this->warn('Warning: CMI_ALLOWED_IPS is empty. Callback IP allowlist is explicitly ignored for this deployment.');
+
+                return 0;
+            }
+
             $this->warn('Blocker: CMI_ALLOWED_IPS is empty. Configure CMI callback source IPs before production launch.');
 
             return 1;
