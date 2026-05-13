@@ -78,6 +78,7 @@ Branch: main
 - Production readiness pass: documented ONESSTA/CMI/mail/queue/scheduler/storage release checks in `docs/production-readiness-pass.md`, added ONESSTA production env keys to `.env.example`, and fixed ONESSTA shipment creation to inherit the production queue connection instead of falling back to inline `sync` execution when `ONESSTA_CREATE_SHIPMENT_QUEUE_CONNECTION` is omitted.
 - ONESSTA production diagnostics: added `php artisan onessta:diagnose-order {order}` to explain why a specific order did or did not create a shipment, report local blockers, and optionally queue shipment creation through the same idempotent service path with `--dispatch`.
 - CMI production diagnostics: added `php artisan cmi:diagnose --production` to verify required CMI config, HTTPS callback/success/fail URLs, callback POST route wiring, IP whitelist middleware, and production `CMI_ALLOWED_IPS` readiness before a live payment test.
+- CMI deploy readiness: production deployment now injects `CMI_ALLOWED_IPS` from GitHub Secrets and fails before touching the server if the secret is missing.
 
 ## Tested This Session
 

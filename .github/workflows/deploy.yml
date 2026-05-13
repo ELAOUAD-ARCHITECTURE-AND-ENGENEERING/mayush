@@ -90,6 +90,7 @@ jobs:
           ONESSTA_WEBHOOK_SECRET: ${{ secrets.ONESSTA_WEBHOOK_SECRET }}
           ONESSTA_WEBHOOK_API_KEY: ${{ secrets.ONESSTA_WEBHOOK_API_KEY }}
           ONESSTA_WEBHOOK_CALLBACKURL: ${{ secrets.ONESSTA_WEBHOOK_CALLBACKURL }}
+          CMI_ALLOWED_IPS: ${{ secrets.CMI_ALLOWED_IPS }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
@@ -99,9 +100,14 @@ jobs:
           request_pty: true
           script_stop: false
           command_timeout: 30m
-          envs: DEPLOY_DB_PASSWORD,DEPLOY_DB_USER,GITHUB_TOKEN,ONESSTA_ENABLED,ONESSTA_BASE_URL,ONESSTA_TOKEN,ONESSTA_API_KEY,ONESSTA_CLIENT_ID,ONESSTA_WEBHOOK_SECRET,ONESSTA_WEBHOOK_API_KEY,ONESSTA_WEBHOOK_CALLBACKURL
+          envs: DEPLOY_DB_PASSWORD,DEPLOY_DB_USER,GITHUB_TOKEN,ONESSTA_ENABLED,ONESSTA_BASE_URL,ONESSTA_TOKEN,ONESSTA_API_KEY,ONESSTA_CLIENT_ID,ONESSTA_WEBHOOK_SECRET,ONESSTA_WEBHOOK_API_KEY,ONESSTA_WEBHOOK_CALLBACKURL,CMI_ALLOWED_IPS
           script: |
             set -euo pipefail
+
+            if [ -z "${CMI_ALLOWED_IPS:-}" ]; then
+              echo "CMI_CONFIG_FAIL: GitHub secret CMI_ALLOWED_IPS is missing. Add the official CMI callback source IPs before production deploy."
+              exit 1
+            fi
             
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "  MAYUSHDESIGN — DEPLOY STARTED"
@@ -134,7 +140,7 @@ jobs:
             git remote set-url origin https://github.com/${{ github.repository }}.git
 
             echo ""
-            echo "▶ [2/5] Injecting ONESSTA Environment Variables..."
+            echo "▶ [2/5] Injecting production gateway environment variables..."
             ENV_FILE="/home/mayushdesign/public_html/.env"
             
             # Ensure .env exists
@@ -149,10 +155,11 @@ jobs:
             sed -i "/^ONESSTA_WEBHOOK_SECRET=/d" "$ENV_FILE"
             sed -i "/^ONESSTA_WEBHOOK_API_KEY=/d" "$ENV_FILE"
             sed -i "/^ONESSTA_WEBHOOK_CALLBACKURL=/d" "$ENV_FILE"
+            sed -i "/^CMI_ALLOWED_IPS=/d" "$ENV_FILE"
 
             # Inject the secrets into .env
-            printf "\nONESSTA_ENABLED=%s\nONESSTA_BASE_URL=%s\nONESSTA_TOKEN=%s\nONESSTA_API_KEY=%s\nONESSTA_CLIENT_ID=%s\nONESSTA_WEBHOOK_SECRET=%s\nONESSTA_WEBHOOK_API_KEY=%s\nONESSTA_WEBHOOK_CALLBACKURL=%s\n" \
-              "$ONESSTA_ENABLED" "$ONESSTA_BASE_URL" "$ONESSTA_TOKEN" "$ONESSTA_API_KEY" "$ONESSTA_CLIENT_ID" "$ONESSTA_WEBHOOK_SECRET" "$ONESSTA_WEBHOOK_API_KEY" "$ONESSTA_WEBHOOK_CALLBACKURL" >> "$ENV_FILE"
+            printf "\nONESSTA_ENABLED=%s\nONESSTA_BASE_URL=%s\nONESSTA_TOKEN=%s\nONESSTA_API_KEY=%s\nONESSTA_CLIENT_ID=%s\nONESSTA_WEBHOOK_SECRET=%s\nONESSTA_WEBHOOK_API_KEY=%s\nONESSTA_WEBHOOK_CALLBACKURL=%s\nCMI_ALLOWED_IPS=%s\n" \
+              "$ONESSTA_ENABLED" "$ONESSTA_BASE_URL" "$ONESSTA_TOKEN" "$ONESSTA_API_KEY" "$ONESSTA_CLIENT_ID" "$ONESSTA_WEBHOOK_SECRET" "$ONESSTA_WEBHOOK_API_KEY" "$ONESSTA_WEBHOOK_CALLBACKURL" "$CMI_ALLOWED_IPS" >> "$ENV_FILE"
             
             echo "✔ Environment Variables Injected"
 

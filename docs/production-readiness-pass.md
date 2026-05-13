@@ -165,6 +165,8 @@ CMI_ALLOWED_IPS=...
 
 Current local readiness note: credentials are present locally, but `CMI_ALLOWED_IPS` is not configured. Production should configure the CMI callback IP allowlist.
 
+GitHub Actions deployment expects a repository secret named `CMI_ALLOWED_IPS`. Use the official callback source IPs supplied by CMI/Attijari for the merchant account, comma-separated. Do not use a placeholder or broad public range.
+
 Server checks:
 
 - Run `php artisan cmi:diagnose --production`.
