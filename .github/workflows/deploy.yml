@@ -57,7 +57,17 @@ jobs:
           php artisan route:clear
 
       - name: "Run Application Tests"
-        run: php artisan test --stop-on-failure
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+          CACHE_DRIVER: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+          ONESSTA_ENABLED: "false"
+        run: |
+          php artisan optimize:clear
+          php artisan test --stop-on-failure
 
   deploy:
     name: "🚀 Deploy to Production"
