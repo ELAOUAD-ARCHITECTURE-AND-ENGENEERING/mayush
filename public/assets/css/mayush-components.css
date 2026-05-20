@@ -493,6 +493,14 @@ footer .bg-dark,
   box-shadow: var(--mayush-shadow-card-hover) !important;
 }
 
+/* ── Remove gray border lines from carousel slide wrappers ── */
+.carousel-box.border-right,
+.carousel-box.border-top,
+.carousel-box.border-bottom,
+.carousel-box.border-left {
+  border-color: transparent !important;
+}
+
 .aiz-card-box .product-img-fit {
   border-radius: 0 !important;
 }
