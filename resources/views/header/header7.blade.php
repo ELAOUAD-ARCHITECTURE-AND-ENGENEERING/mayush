@@ -461,30 +461,33 @@
 </header>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        if (window.jQuery) {
-            initCategoryMenu(window.jQuery);
-        } else {
-            var checkExist = setInterval(function() {
-                if (window.jQuery) {
-                    initCategoryMenu(window.jQuery);
-                    clearInterval(checkExist);
-                }
-            }, 50);
-        }
-        
-        function initCategoryMenu($) {
-            $(document).ready(function() {
-                $('#category-menu-bar').on('click', function(e) {
+    (function() {
+        function initCategoryMenu() {
+            var menuBar = document.getElementById('category-menu-bar');
+            if (menuBar) {
+                menuBar.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    var $menu = $('#click-category-menu');
-                    if ($menu.hasClass('d-none')) {
-                        $menu.removeClass('d-none').hide();
+                    if (e.stopImmediatePropagation) {
+                        e.stopImmediatePropagation();
                     }
-                    $menu.slideToggle("fast");
-                    $('#category-menu-bar-icon').toggleClass('show');
+                    
+                    if (window.jQuery) {
+                        var $ = window.jQuery;
+                        var $menu = $('#click-category-menu');
+                        if ($menu.hasClass('d-none')) {
+                            $menu.removeClass('d-none').hide();
+                        }
+                        $menu.slideToggle("fast");
+                        $('#category-menu-bar-icon').toggleClass('show');
+                    }
                 });
-            });
+            }
         }
-    });
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initCategoryMenu);
+        } else {
+            initCategoryMenu();
+        }
+    })();
 </script>
