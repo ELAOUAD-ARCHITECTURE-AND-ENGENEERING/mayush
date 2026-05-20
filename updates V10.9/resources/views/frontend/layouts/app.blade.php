@@ -743,7 +743,7 @@
 
         $(document).on("click", function(event){
             var $trigger = $("#category-menu-bar");
-            if($trigger !== event.target && !$trigger.has(event.target).length){
+            if(!$trigger.is(event.target) && !$trigger.has(event.target).length){
                 $("#click-category-menu").slideUp("fast");;
                 $("#category-menu-bar-icon").removeClass('show');
             }
