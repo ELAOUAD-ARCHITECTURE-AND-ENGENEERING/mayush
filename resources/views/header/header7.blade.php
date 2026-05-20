@@ -450,8 +450,8 @@
         <div class="hover-category-menu position-absolute w-100 top-100 left-0 right-0 z-3 d-none"
             id="click-category-menu">
             <div class="container">
-                <div class="d-flex position-relative">
-                    <div class="position-static">
+                <div class="row gutters-10 position-relative">
+                    <div class="col-lg-3 position-static">
                         @include('frontend.' . safe_homepage_select() . '.partials.category_menu')
                     </div>
                 </div>
