@@ -383,8 +383,8 @@
                     @if (get_setting('show_language_switcher') == 'on')
                         <div class="dropdown market-switcher lang-visibility js-lang-change mr-2" id="lang-change">
                             <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" data-display="static">
-                                <span class="text-uppercase d-xl-none">{{ $system_language->code }}</span>
-                                <span class="d-none d-xl-inline">{{ $system_language->name }}</span>
+                                <img src="{{ static_asset('assets/img/flags/' . $system_language->code . '.png') }}" class="mr-1" alt="{{ $system_language->name }}" height="11">
+                                <span class="text-capitalize">{{ $system_language->code }}</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-right">
                                 @foreach (get_all_active_language() as $language)
@@ -395,24 +395,6 @@
                                                 data-src="{{ static_asset('assets/img/flags/' . $language->code . '.png') }}"
                                                 class="mr-1 lazyload" alt="{{ $language->name }}" height="11">
                                             <span class="language">{{ $language->name }}</span>
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    @if ($systemCurrency)
-                        <div class="dropdown market-switcher currency-visibility js-currency-change mr-2" id="currency-change">
-                            <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" data-display="static">
-                                {{ $systemCurrency->code ?? $systemCurrency->name }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                @foreach (get_all_active_currency() as $currency)
-                                    <li>
-                                        <a href="javascript:void(0)" data-currency="{{ $currency->code }}"
-                                            class="dropdown-item text-dark @if (($systemCurrency->code ?? null) == $currency->code) active @endif">
-                                            {{ $currency->name }} ({{ $currency->symbol }})
                                         </a>
                                     </li>
                                 @endforeach
