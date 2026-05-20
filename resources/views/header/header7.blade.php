@@ -460,38 +460,3 @@
     </div>
 </header>
 
-<script>
-    (function() {
-        function initCategoryMenu() {
-            var menuBars = document.querySelectorAll('#category-menu-bar');
-            menuBars.forEach(function(menuBar) {
-                if (menuBar.getAttribute('data-bound')) {
-                    return;
-                }
-                menuBar.setAttribute('data-bound', 'true');
-                menuBar.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    if (e.stopImmediatePropagation) {
-                        e.stopImmediatePropagation();
-                    }
-                    
-                    if (window.jQuery) {
-                        var $ = window.jQuery;
-                        var $menu = $('#click-category-menu');
-                        if ($menu.hasClass('d-none')) {
-                            $menu.removeClass('d-none').hide();
-                        }
-                        $menu.slideToggle("fast");
-                        $('#category-menu-bar-icon').toggleClass('show');
-                    }
-                });
-            });
-        }
-
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", initCategoryMenu);
-        } else {
-            initCategoryMenu();
-        }
-    })();
-</script>
