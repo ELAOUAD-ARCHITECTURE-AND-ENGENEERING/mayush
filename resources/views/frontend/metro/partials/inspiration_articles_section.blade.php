@@ -12,9 +12,9 @@
                 </a>
             </div>
             <div class="aiz-carousel inspiration-articles-carousel gutters-16"
-                data-items="3" data-xl-items="3" data-lg-items="3" data-md-items="2"
+                data-items="4" data-xl-items="4" data-lg-items="3" data-md-items="2"
                 data-sm-items="2" data-xs-items="1" data-arrows="true" data-dots="false"
-                data-infinite="{{ $inspirationBlogs->count() > 3 ? 'true' : 'false' }}">
+                data-infinite="{{ $inspirationBlogs->count() > 4 ? 'true' : 'false' }}">
                 @foreach($inspirationBlogs->take(6) as $blog)
                     @php
                         $title = $blog->getTranslation('title');
