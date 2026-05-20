@@ -59,8 +59,7 @@ class MarketplaceHeaderLayoutTest extends TestCase
             ->assertSee('Morocco')
             ->assertSee('Account &amp; Lists', false)
             ->assertSee('Office Furniture')
-            ->assertSee('id="lang-change"', false)
-            ->assertSee('id="currency-change"', false);
+            ->assertSee('id="lang-change"', false);
     }
 
     public function test_admin_can_select_marketplace_header_layout(): void

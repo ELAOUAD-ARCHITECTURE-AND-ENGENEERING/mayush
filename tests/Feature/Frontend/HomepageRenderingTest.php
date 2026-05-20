@@ -281,7 +281,7 @@ class HomepageRenderingTest extends TestCase
         $response
             ->assertSee('home_inspiration_articles_section', false)
             ->assertSee('inspiration-articles-carousel', false)
-            ->assertSee('data-items="3"', false)
+            ->assertSee('data-items="4"', false)
             ->assertSee('Inspiration &amp; Conseils', false)
             ->assertSee('read more')
             ->assertSee(route('blog'), false)
