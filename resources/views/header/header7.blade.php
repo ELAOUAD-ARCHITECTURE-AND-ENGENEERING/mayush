@@ -51,7 +51,6 @@
         .market-location:hover,
         .market-action-link:hover,
         .market-menu-trigger:hover {
-            border-color: rgba(255, 255, 255, 0.72);
             color: #fff;
             text-decoration: none;
         }
@@ -132,9 +131,6 @@
             border-radius: 3px;
         }
 
-        .market-switcher:hover {
-            border-color: rgba(255, 255, 255, 0.72);
-        }
 
         .market-switcher > a {
             min-height: 44px;
@@ -153,9 +149,6 @@
             border-radius: 3px;
         }
 
-        .market-cart-wrap:hover {
-            border-color: rgba(255, 255, 255, 0.72);
-        }
 
         .market-cart-wrap .nav-cart-box > a {
             padding-left: 8px !important;
@@ -189,7 +182,6 @@
         }
 
         .market-nav-link:hover {
-            border-color: rgba(255, 255, 255, 0.72);
             color: #fff;
             text-decoration: none;
         }
