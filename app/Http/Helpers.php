@@ -2380,7 +2380,7 @@ if (!function_exists('get_single_category')) {
 if (!function_exists('get_level_zero_categories')) {
     function get_level_zero_categories()
     {
-        $categories_query = Category::query()->with(['coverImage', 'catIcon']);
+        $categories_query = Category::query()->with(['coverImage', 'catIcon', 'childrenCategories', 'childrenCategories.childrenCategories']);
         return $categories_query->where('level', 0)->orderBy('order_level', 'desc')->get();
     }
 }
