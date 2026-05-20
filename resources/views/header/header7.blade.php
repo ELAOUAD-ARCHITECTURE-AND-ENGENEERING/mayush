@@ -33,6 +33,10 @@
         .market-logo-link {
             min-width: 150px;
         }
+        
+        .market-logo-link:focus {
+            outline: none !important;
+        }
 
         .market-logo-link img {
             max-height: 38px;
