@@ -463,8 +463,12 @@
 <script>
     (function() {
         function initCategoryMenu() {
-            var menuBar = document.getElementById('category-menu-bar');
-            if (menuBar) {
+            var menuBars = document.querySelectorAll('#category-menu-bar');
+            menuBars.forEach(function(menuBar) {
+                if (menuBar.getAttribute('data-bound')) {
+                    return;
+                }
+                menuBar.setAttribute('data-bound', 'true');
                 menuBar.addEventListener('click', function(e) {
                     e.stopPropagation();
                     if (e.stopImmediatePropagation) {
@@ -481,7 +485,7 @@
                         $('#category-menu-bar-icon').toggleClass('show');
                     }
                 });
-            }
+            });
         }
 
         if (document.readyState === "loading") {
