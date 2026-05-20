@@ -1,0 +1,11 @@
+*
+!fonts/
+!css/
+!css/aiz-core.css
+!css/mayush-components.css
+!css/mayush-design-tokens.css
+!js/
+!js/aiz-core.js
+!*.png
+!*.svg
+
