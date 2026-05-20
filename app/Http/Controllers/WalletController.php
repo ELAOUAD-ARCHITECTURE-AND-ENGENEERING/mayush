@@ -40,7 +40,7 @@ class WalletController extends Controller
 
         $decorator = __NAMESPACE__ . '\\Payment\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $request->payment_option))) . "Controller";
         if (class_exists($decorator)) {
-            $payment_controller = new $decorator;
+            $payment_controller = app($decorator);
             if (method_exists($payment_controller, 'pay')) {
                 return $payment_controller->pay($request);
             } else {

@@ -474,6 +474,7 @@
 @endsection
 
 @section('modal')
+    @include('frontend.partials.checkout_account_modal')
     <!-- Address Modal -->
     @if(Auth::check())
         @include('frontend.partials.address.address_modal')
@@ -487,6 +488,8 @@
     <script type="text/javascript">
         gsap.registerPlugin(ScrollTrigger);
         var carrierCount = 0;
+        var checkoutIsAuthenticated = @json(Auth::check());
+        var checkoutNeedsAddress = @json(Auth::check() && !Auth::user()->addresses()->exists());
 
         $(document).ready(function() {
             // Initial reveal of main content and sections
@@ -512,6 +515,11 @@
             stepCompletionShippingInfo();
             stepCompletionDeliveryInfo();
             stepCompletionPaymentInfo();
+
+            bindCheckoutAccountModal();
+            if (!checkoutIsAuthenticated || checkoutNeedsAddress) {
+                openCheckoutAccountModal();
+            }
         });
 
         // Minimum order settings
@@ -654,38 +662,172 @@
         }
 
         function stepCompletionShippingInfo() {
-            var allOk = false;
-            @if (Auth::check())
-                if ($('input[name="address_id"]:checked').length > 0) allOk = true;
-            @else
-                var count = 0;
-                var length = $('#shipping_info [required]').length;
-                $('#shipping_info [required]').each(function () {
-                    if ($(this).val()) count++;
-                });
-                if (count == length) allOk = true;
-            @endif
-            return allOk;
+            return $('input[name="address_id"]:checked').length > 0 || $('input[name="single_address_id"]:checked').length > 0;
         }
 
-        $('#shipping_info [required]').each(function (i, el) {
-            $(el).change(function(){
-                if ($(el).attr('name') == 'address_id') {
-                    updateDeliveryAddress($(el).val());
-                    setDefaultshippingAddress();
-                    setBillingAddress();
-                }
-                @if (get_setting('shipping_type') == 'area_wise_shipping')
-                    if ($(el).attr('name') == 'city_id') {
-                        let country_id = $('select[name="country_id"]').length? $('select[name="country_id"]').val() : $('input[name="country_id"]').val();
-                        let city_id = $(this).val();
-                        updateDeliveryAddress(country_id, city_id);
-                    }
-                @endif
-                
-                stepCompletionShippingInfo();
-            });
+        $(document).on('change', '#shipping_info [required]', function() {
+            if ($(this).attr('name') == 'address_id') {
+                updateDeliveryAddress($(this).val());
+                setDefaultshippingAddress();
+                setBillingAddress();
+            }
+            stepCompletionShippingInfo();
         });
+
+        $(document).on('click focusin', '#shipping_info', function() {
+            if (!checkoutIsAuthenticated) {
+                openCheckoutAccountModal();
+            }
+        });
+
+        function openCheckoutAccountModal() {
+            $('#checkout-account-modal').modal({
+                backdrop: 'static',
+                keyboard: checkoutIsAuthenticated && !checkoutNeedsAddress
+            });
+        }
+
+        function bindCheckoutAccountModal() {
+            $('[name="verification_method"]').on('change', function() {
+                var $form = $(this).closest('form');
+                var phoneMode = $form.find('[name="verification_method"]:checked').val() === 'phone';
+                $form.find('.checkout-phone-fields').toggleClass('d-none', !phoneMode);
+                $form.find('.checkout-email-fields').toggleClass('d-none', phoneMode);
+                $form.find('[name="email"]').prop('required', !phoneMode);
+                $form.find('[name="account_phone"], [name="account_country_code"]').prop('required', phoneMode);
+            });
+
+            $('[name="login_method"]').on('change', function() {
+                var $form = $(this).closest('form');
+                var phoneMode = $form.find('[name="login_method"]:checked').val() === 'phone';
+                $form.find('.checkout-login-phone-fields').toggleClass('d-none', !phoneMode);
+                $form.find('.checkout-login-email-fields').toggleClass('d-none', phoneMode);
+                $form.find('[name="login_email"]').prop('required', !phoneMode);
+                $form.find('[name="login_phone"], [name="login_country_code"]').prop('required', phoneMode);
+            });
+
+            $(document).on('change', '.checkout-country-select', function() {
+                var $form = $(this).closest('form');
+                var phoneCode = $(this).find(':selected').data('phone-code');
+                if (phoneCode) {
+                    $form.find('.checkout-delivery-country-code').val(phoneCode);
+                }
+                loadCheckoutStatesOrCities($form);
+            });
+
+            $(document).on('change', '.checkout-state-select', function() {
+                loadCheckoutCities($(this).closest('form'), $(this).val());
+            });
+
+            $(document).on('change', '.checkout-city-select', function() {
+                loadCheckoutAreas($(this).closest('form'), $(this).val());
+            });
+
+            $('[data-checkout-account-form]').each(function() {
+                var $country = $(this).find('.checkout-country-select');
+                if ($country.val()) {
+                    $country.trigger('change');
+                }
+            });
+
+            $(document).on('submit', '[data-checkout-account-form]', function(e) {
+                e.preventDefault();
+                submitCheckoutAccountForm($(this));
+            });
+        }
+
+        function submitCheckoutAccountForm($form) {
+            var $button = $form.find('.checkout-account-submit');
+            $('.checkout-account-errors').addClass('d-none').empty();
+            $button.prop('disabled', true).addClass('btn-loading');
+
+            $.ajax({
+                url: '{{ route('checkout.account_address') }}',
+                type: 'POST',
+                data: $form.serialize(),
+                success: function(data) {
+                    checkoutIsAuthenticated = true;
+                    checkoutNeedsAddress = false;
+                    $('#shipping_info').html(data.shipping_info);
+                    $('#delivery_info').html(data.delivery_info);
+                    $('#cart_summary').html(data.cart_summary);
+                    carrierCount = data.carrier_count || 0;
+                    $('#checkout-account-modal').modal('hide');
+                    checkCarrerShippingInfo();
+                    stepCompletionShippingInfo();
+                    stepCompletionDeliveryInfo();
+                    stepCompletionPaymentInfo();
+                    AIZ.plugins.notify('success', data.message || '{{ translate('Checkout details saved.') }}');
+                    AIZ.plugins.bootstrapSelect("refresh");
+                },
+                error: function(xhr) {
+                    if (xhr.responseJSON && xhr.responseJSON.needs_address) {
+                        checkoutIsAuthenticated = true;
+                        checkoutNeedsAddress = true;
+                        $('#checkout-account-modal .tab-pane').removeClass('show active');
+                        $('#checkout-address-tab').addClass('show active');
+                    }
+
+                    var message = xhr.responseJSON && xhr.responseJSON.message
+                        ? xhr.responseJSON.message
+                        : '{{ translate('Please check the highlighted fields.') }}';
+
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        var errors = [];
+                        $.each(xhr.responseJSON.errors, function(field, fieldErrors) {
+                            errors = errors.concat(fieldErrors);
+                        });
+                        message = errors.join('<br>');
+                    }
+
+                    $('.checkout-account-errors').removeClass('d-none').html(message);
+                    AIZ.plugins.notify('danger', $('<div>').html(message).text());
+                },
+                complete: function() {
+                    $button.prop('disabled', false).removeClass('btn-loading');
+                }
+            });
+        }
+
+        function loadCheckoutStatesOrCities($form) {
+            @if(get_setting('has_state') == 1)
+                $.post('{{ route('get-state') }}', {
+                    _token: AIZ.data.csrf,
+                    country_id: $form.find('.checkout-country-select').val()
+                }, function(data) {
+                    $form.find('.checkout-state-select').html(data);
+                    $form.find('.checkout-city-select').html('<option value="">{{ translate('Select your city') }}</option>');
+                    $form.find('.checkout-area-select').html('<option value="">{{ translate('Select your area') }}</option>');
+                });
+            @else
+                $.post('{{ route('get-city-by-country') }}', {
+                    _token: AIZ.data.csrf,
+                    country_id: $form.find('.checkout-country-select').val()
+                }, function(data) {
+                    $form.find('.checkout-city-select').html(data);
+                    $form.find('.checkout-area-select').html('<option value="">{{ translate('Select your area') }}</option>');
+                });
+            @endif
+        }
+
+        function loadCheckoutCities($form, stateId) {
+            $.post('{{ route('get-city') }}', {
+                _token: AIZ.data.csrf,
+                state_id: stateId
+            }, function(data) {
+                $form.find('.checkout-city-select').html(data);
+                $form.find('.checkout-area-select').html('<option value="">{{ translate('Select your area') }}</option>');
+            });
+        }
+
+        function loadCheckoutAreas($form, cityId) {
+            $.post('{{ route('get-area') }}', {
+                _token: AIZ.data.csrf,
+                city_id: cityId
+            }, function(data) {
+                $form.find('.checkout-area-select').html(data);
+            });
+        }
 
         function stepCompletionDeliveryInfo() {
             let isOk = $('.delivery_shipping_cost:checked').length > 0;

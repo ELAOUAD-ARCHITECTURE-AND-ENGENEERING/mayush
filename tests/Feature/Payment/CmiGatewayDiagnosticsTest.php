@@ -27,7 +27,7 @@ class CmiGatewayDiagnosticsTest extends TestCase
         config([
             'cmi.merchant_id' => 'merchant',
             'cmi.secret_key' => 'secret',
-            'cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate',
+            'cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate',
             'cmi.callback_url' => 'https://mayush.example/cmi/callback',
             'cmi.ok_url' => 'https://mayush.example/cmi/success',
             'cmi.fail_url' => 'https://mayush.example/cmi/fail',
@@ -45,7 +45,7 @@ class CmiGatewayDiagnosticsTest extends TestCase
         config([
             'cmi.merchant_id' => 'merchant',
             'cmi.secret_key' => 'secret',
-            'cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate',
+            'cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate',
             'cmi.callback_url' => 'https://mayush.example/cmi/callback',
             'cmi.ok_url' => 'https://mayush.example/cmi/success',
             'cmi.fail_url' => 'https://mayush.example/cmi/fail',
@@ -66,7 +66,7 @@ class CmiGatewayDiagnosticsTest extends TestCase
         config([
             'cmi.merchant_id' => 'merchant',
             'cmi.secret_key' => 'secret',
-            'cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate',
+            'cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate',
             'cmi.callback_url' => 'https://mayush.example/cmi/callback',
             'cmi.ok_url' => 'https://mayush.example/cmi/success',
             'cmi.fail_url' => 'https://mayush.example/cmi/fail',

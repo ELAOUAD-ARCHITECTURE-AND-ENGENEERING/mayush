@@ -150,8 +150,10 @@ return [
             'form_action' => [
                 "'self'",
                 // CMI Payment Gateway
+                "https://testpayment.cmi.co.ma",
                 "https://test-attijari.cmi.co.ma",
-                "https://attijari.cmi.co.ma",
+                "https://attijari-payment.cmi.co.ma",
+                "https://payment.cmi.co.ma",
                 // PayPal
                 "https://www.paypal.com",
                 "https://www.sandbox.paypal.com",

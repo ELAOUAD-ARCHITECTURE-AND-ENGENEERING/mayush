@@ -4,7 +4,9 @@
     if (count($carts) > 0) {
         foreach ($carts as $key => $cartItem) {
             $product = get_single_product($cartItem['product_id']);
-            $total = $total + cart_product_price($cartItem, $product, false) * $cartItem['quantity'];
+            if ($product && \App\Utility\CartUtility::is_cart_item_available($cartItem, $product) && $cartItem->status == 1) {
+                $total = $total + cart_product_price($cartItem, $product, false) * $cartItem['quantity'];
+            }
         }
     }
 @endphp
@@ -77,9 +79,11 @@
             @foreach ($carts as $key => $cartItem)
                 @php
                     $product = get_single_product($cartItem['product_id']);
+                    $availability = \App\Utility\CartUtility::cart_item_availability($cartItem, $product);
+                    $isUnavailable = !$availability['available'];
                 @endphp
                 @if ($product != null)
-                    <li class="list-group-item border-0 hov-scale-img">
+                    <li class="list-group-item border-0 hov-scale-img" @if($isUnavailable) style="opacity: .58; filter: grayscale(1);" @endif>
                         <span class="d-flex align-items-center">
                             <a href="{{ route('product', $product->slug) }}"
                                 class="text-reset d-flex align-items-center flex-grow-1">
@@ -92,8 +96,11 @@
                                         title="{{ $product->getTranslation('name') }}">
                                         {{ $product->getTranslation('name') }}
                                     </span>
+                                    @if ($isUnavailable)
+                                        <span class="fs-12 fw-700 text-danger d-block">{{ translate('Out of Stock') }}</span>
+                                    @endif
                                     <span class="fs-14 fw-400 text-secondary">{{ $cartItem['quantity'] }}x</span>
-                                    <span class="fs-14 fw-400 text-secondary">{{ cart_product_price($cartItem, $product) }}</span>
+                                    <span class="fs-14 fw-400 {{ $isUnavailable ? 'text-danger' : 'text-secondary' }}">{{ $isUnavailable ? translate('Unavailable') : cart_product_price($cartItem, $product) }}</span>
                                 </span>
                             </a>
                             <span class="">

@@ -61,7 +61,7 @@ class CmiConfigValidatorTest extends TestCase
         config([
             'cmi.merchant_id' => 'abc',
             'cmi.secret_key' => 'valid-secret-key-16chars',
-            'cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate',
+            'cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate',
         ]);
 
         $result = $this->validator->validate();
@@ -111,7 +111,7 @@ class CmiConfigValidatorTest extends TestCase
         config([
             'cmi.merchant_id' => 'validmerchant123',
             'cmi.secret_key' => 'shortkey123456', // 14 characters
-            'cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate',
+            'cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate',
         ]);
 
         $result = $this->validator->validate();
@@ -128,7 +128,7 @@ class CmiConfigValidatorTest extends TestCase
         config([
             'cmi.merchant_id' => 'validmerchant123',
             'cmi.secret_key' => 'exactly16chars!!', // 16 characters
-            'cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate',
+            'cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate',
         ]);
 
         $result = $this->validator->validate();
@@ -205,7 +205,7 @@ class CmiConfigValidatorTest extends TestCase
 
     public function test_is_test_mode_returns_false_when_using_production_url(): void
     {
-        config(['cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate']);
+        config(['cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate']);
 
         $this->assertFalse($this->validator->isTestMode());
     }
@@ -213,7 +213,7 @@ class CmiConfigValidatorTest extends TestCase
     public function test_is_test_mode_returns_true_when_demo_mode_is_on(): void
     {
         config([
-            'cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate',
+            'cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate',
             'cmi.demo_mode' => 'On',
         ]);
 
@@ -230,12 +230,12 @@ class CmiConfigValidatorTest extends TestCase
 
         $url = $this->validator->getGatewayUrl();
 
-        $this->assertEquals(CmiConfigValidator::TEST_GATEWAY_URL, $url);
+        $this->assertEquals('https://test-attijari.cmi.co.ma/fim/est3Dgate', $url);
     }
 
     public function test_get_gateway_url_returns_production_url_in_production_mode(): void
     {
-        config(['cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate']);
+        config(['cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate']);
 
         $url = $this->validator->getGatewayUrl();
 
@@ -244,11 +244,11 @@ class CmiConfigValidatorTest extends TestCase
 
     public function test_get_gateway_url_returns_configured_production_url_if_valid(): void
     {
-        config(['cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate']);
+        config(['cmi.gateway_url' => 'https://payment.cmi.co.ma/fim/est3Dgate']);
 
         $url = $this->validator->getGatewayUrl();
 
-        $this->assertEquals('https://attijari.cmi.co.ma/fim/est3Dgate', $url);
+        $this->assertEquals('https://payment.cmi.co.ma/fim/est3Dgate', $url);
     }
 
     // ========================================
@@ -280,7 +280,7 @@ class CmiConfigValidatorTest extends TestCase
         config([
             'cmi.merchant_id' => 'validmerchant123',
             'cmi.secret_key' => 'valid-secret-key-16chars',
-            'cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate',
+            'cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate',
             'cmi.callback_url' => 'https://example.com/cmi/callback',
             'cmi.ok_url' => 'https://example.com/cmi/success',
             'cmi.fail_url' => 'https://example.com/cmi/fail',
@@ -316,7 +316,7 @@ class CmiConfigValidatorTest extends TestCase
         config([
             'cmi.merchant_id' => 'validmerchant123',
             'cmi.secret_key' => 'valid-secret-key-16chars',
-            'cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate',
+            'cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate',
             'cmi.callback_url' => null,
         ]);
 
@@ -333,7 +333,7 @@ class CmiConfigValidatorTest extends TestCase
         config([
             'cmi.merchant_id' => 'validmerchant123',
             'cmi.secret_key' => 'valid-secret-key-16chars',
-            'cmi.gateway_url' => 'https://attijari.cmi.co.ma/fim/est3Dgate',
+            'cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate',
             'cmi.allowed_ips' => [],
         ]);
 

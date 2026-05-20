@@ -382,8 +382,7 @@ Route::middleware(['auth', 'verified', 'unbanned'])
         Route::post('/payment-informations/{id}/default', 'set_default')->name('payment-informations.set_default');
     });
 
-Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() {
-
+Route::middleware(['unbanned'])->group(function () {
     Route::get('/checkout-test', [CheckoutController::class, 'index']);
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.shipping_info');
     // Checkout Routes
@@ -403,11 +402,15 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
             //Club point
             Route::post('/apply-club-point', 'apply_club_point')->name('checkout.apply_club_point');
             Route::post('/remove-club-point', 'remove_club_point')->name('checkout.remove_club_point'); 
+            Route::post('/account-address', 'accountAddress')->name('checkout.account_address');
             Route::post('/update-delivery-address', 'updateDeliveryAddress')->name('checkout.updateDeliveryAddress');
             Route::post('/update-billing-address', 'updateBillingAddress')->name('checkout.updateBillingAddress');
             Route::post('/fast-purchase', 'fast_purchase')->name('checkout.fast_purchase');
         });
     });
+});
+
+Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() {
 
     // Purchase History
     Route::get('/purchase_history', [PurchaseHistoryController::class, 'index'])->name('purchase_history.index');

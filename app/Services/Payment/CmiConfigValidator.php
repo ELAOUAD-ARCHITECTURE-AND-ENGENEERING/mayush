@@ -16,12 +16,25 @@ class CmiConfigValidator implements CmiConfigValidatorInterface
     /**
      * Test gateway URL for CMI.
      */
-    public const TEST_GATEWAY_URL = 'https://test-attijari.cmi.co.ma/fim/est3Dgate';
+    public const TEST_GATEWAY_URL = 'https://testpayment.cmi.co.ma/fim/est3Dgate';
 
     /**
      * Production gateway URL for CMI.
      */
-    public const PRODUCTION_GATEWAY_URL = 'https://attijari.cmi.co.ma/fim/est3Dgate';
+    public const PRODUCTION_GATEWAY_URL = 'https://attijari-payment.cmi.co.ma/fim/est3Dgate';
+
+    /**
+     * Known CMI/Attijari hosted payment gateways.
+     */
+    private const TEST_GATEWAY_URLS = [
+        self::TEST_GATEWAY_URL,
+        'https://test-attijari.cmi.co.ma/fim/est3Dgate',
+    ];
+
+    private const PRODUCTION_GATEWAY_HOSTS = [
+        'attijari-payment.cmi.co.ma',
+        'payment.cmi.co.ma',
+    ];
 
     /**
      * Minimum required length for the secret key.
@@ -114,9 +127,9 @@ class CmiConfigValidator implements CmiConfigValidatorInterface
             return true;
         }
 
-        // Check if using test gateway URL
+        // Check if using a known test gateway URL
         $gatewayUrl = config('cmi.gateway_url');
-        if ($gatewayUrl === self::TEST_GATEWAY_URL) {
+        if (is_string($gatewayUrl) && in_array(rtrim($gatewayUrl, '/'), self::TEST_GATEWAY_URLS, true)) {
             return true;
         }
 
@@ -139,12 +152,15 @@ class CmiConfigValidator implements CmiConfigValidatorInterface
      */
     public function getGatewayUrl(): string
     {
+        $configuredUrl = config('cmi.gateway_url');
+
         if ($this->isTestMode()) {
-            return self::TEST_GATEWAY_URL;
+            return is_string($configuredUrl) && $this->isKnownTestUrl($configuredUrl)
+                ? $configuredUrl
+                : self::TEST_GATEWAY_URL;
         }
 
         // Return configured URL if it's a valid production URL
-        $configuredUrl = config('cmi.gateway_url');
         if ($this->isValidProductionUrl($configuredUrl)) {
             return $configuredUrl;
         }
@@ -254,7 +270,7 @@ class CmiConfigValidator implements CmiConfigValidatorInterface
 
         // In production mode, validate that production URL is used
         if (!$this->isTestMode() && !$this->isValidProductionUrl($gatewayUrl)) {
-            $errors[] = 'Production mode requires a valid CMI production gateway URL (https://attijari.cmi.co.ma/fim/est3Dgate).';
+            $errors[] = 'Production mode requires a valid CMI production gateway URL (https://attijari-payment.cmi.co.ma/fim/est3Dgate or https://payment.cmi.co.ma/fim/est3Dgate).';
         }
 
         return $errors;
@@ -272,8 +288,22 @@ class CmiConfigValidator implements CmiConfigValidatorInterface
             return false;
         }
 
-        return $url === self::PRODUCTION_GATEWAY_URL
-            || str_starts_with($url, 'https://attijari.cmi.co.ma');
+        $parts = parse_url($url);
+
+        if (($parts['scheme'] ?? null) !== 'https') {
+            return false;
+        }
+
+        if (!in_array(strtolower($parts['host'] ?? ''), self::PRODUCTION_GATEWAY_HOSTS, true)) {
+            return false;
+        }
+
+        return strcasecmp(rtrim($parts['path'] ?? '', '/'), '/fim/est3Dgate') === 0;
+    }
+
+    private function isKnownTestUrl(string $url): bool
+    {
+        return in_array(rtrim($url, '/'), self::TEST_GATEWAY_URLS, true);
     }
 
     /**
