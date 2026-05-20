@@ -72,6 +72,8 @@
 
         .market-search {
             min-width: 260px;
+            margin-top: 12px;
+            margin-bottom: 12px;
         }
 
         .market-search-form {
@@ -217,6 +219,8 @@
                 order: 5;
                 flex-basis: 100%;
                 min-width: 100%;
+                margin-top: 8px;
+                margin-bottom: 8px;
             }
 
             .market-search-category {
@@ -465,11 +469,30 @@
 </header>
 
 <script>
-    $(document).ready(function() {
-        $('#category-menu-bar').on('click', function(e) {
-            e.stopPropagation();
-            $('#click-category-menu').slideToggle("fast");
-            $('#category-menu-bar-icon').toggleClass('show');
-        });
+    document.addEventListener("DOMContentLoaded", function() {
+        if (window.jQuery) {
+            initCategoryMenu(window.jQuery);
+        } else {
+            var checkExist = setInterval(function() {
+                if (window.jQuery) {
+                    initCategoryMenu(window.jQuery);
+                    clearInterval(checkExist);
+                }
+            }, 50);
+        }
+        
+        function initCategoryMenu($) {
+            $(document).ready(function() {
+                $('#category-menu-bar').on('click', function(e) {
+                    e.stopPropagation();
+                    var $menu = $('#click-category-menu');
+                    if ($menu.hasClass('d-none')) {
+                        $menu.removeClass('d-none').hide();
+                    }
+                    $menu.slideToggle("fast");
+                    $('#category-menu-bar-icon').toggleClass('show');
+                });
+            });
+        }
     });
 </script>
