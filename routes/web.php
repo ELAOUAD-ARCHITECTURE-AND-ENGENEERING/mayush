@@ -23,6 +23,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PaymentInformationController;
 use App\Http\Controllers\PurchaseHistoryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
@@ -138,6 +139,7 @@ Route::controller(HomeController::class)->group(function () {
 
     //Home Page
     Route::get('/', 'index')->name('home');
+    Route::get('/mayush', 'index')->name('home.local_subdirectory');
 
     Route::match(['get', 'post'], '/home/section/featured', 'load_featured_section')->name('home.section.featured');
     Route::match(['get', 'post'], '/home/section/best_selling', 'load_best_selling_section')->name('home.section.best_selling');
@@ -362,6 +364,22 @@ Route::middleware(['auth', 'verified', 'unbanned', 'user'])
         Route::post('/customer_products/update/{id}', 'update')->name('customer_products.update');
         Route::delete('/customer_products/destroy/{id}', 'destroy')->name('customer_products.destroy');
         Route::post('/customer_products/promote', 'store_promotion')->name('customer_products.promote');
+    });
+
+Route::middleware(['auth', 'verified', 'unbanned'])
+    ->controller(PaymentInformationController::class)
+    ->group(function () {
+        Route::post('/payment-informations/create', 'create')->name('payment-informations.create');
+        Route::post('/payment-informations/ajax-create', 'ajax_create')->name('payment-informations.ajax_create');
+        Route::post('/payment-informations/store', 'store')->name('payment-informations.store');
+        Route::post('/payment-informations/ajax-store', 'ajax_store')->name('payment-informations.ajax_store');
+        Route::post('/payment-informations/edit', 'edit')->name('payment-informations.edit');
+        Route::post('/payment-informations/ajax-edit', 'ajax_edit')->name('payment-informations.ajax_edit');
+        Route::post('/payment-informations/ajax-list', 'ajax_list')->name('payment-informations.ajax_list');
+        Route::post('/payment-informations/update', 'update')->name('payment-informations.update');
+        Route::post('/payment-informations/ajax-update', 'ajax_update')->name('payment-informations.ajax_update');
+        Route::delete('/payment-informations/{id}', 'destroy')->name('payment-informations.destroy');
+        Route::post('/payment-informations/{id}/default', 'set_default')->name('payment-informations.set_default');
     });
 
 Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() {

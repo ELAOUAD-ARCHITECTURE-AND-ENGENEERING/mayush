@@ -92,7 +92,7 @@
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
 
     <script defer src="{{ static_asset('js/analytics-tracker.js') }}"></script>
@@ -107,6 +107,11 @@
     <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css?v=') }}{{ rand(1000, 9999) }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/semantic_search.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/custom-style.css') }}">
+
+    <!-- Mayush Design Tokens (Charte Graphique v1.0) -->
+    <link rel="stylesheet" href="{{ static_asset('assets/css/mayush-design-tokens.css') }}">
+    <link rel="stylesheet" href="{{ static_asset('assets/css/mayush-components.css') }}">
+
     @if(get_setting('homepage_select') == 'thecore')
     <link rel="stylesheet" href="{{ static_asset('assets/css/thecore.css') }}">
     @endif
@@ -173,9 +178,14 @@
             --primary: {{ get_setting('base_color', '#d43533') }};
             --hov-primary: {{ get_setting('base_hov_color', '#9d1b1a') }};
             --soft-primary: {{ hex2rgba(get_setting('base_color', '#d43533'), 0.15) }};
+            --white: #FFFFFF;
+            --red: #E53935;
+            --orange: #D97434;
+            --green: #00A86B;
+            --teal: #00A86B;
         }
         body{
-            font-family: {!! !empty(get_setting('system_font_family')) ? get_setting('system_font_family') : "'Public Sans', sans-serif" !!}, sans-serif;
+            font-family: var(--mayush-font-body), {!! !empty(get_setting('system_font_family')) ? get_setting('system_font_family') : "'Public Sans', sans-serif" !!}, sans-serif;
             font-weight: 400;
         }
 
@@ -605,9 +615,9 @@
                 });
             });
 
-            if ($('#lang-change').length > 0) {
-                $('#lang-change .dropdown-menu a').each(function() {
-                    $(this).on('click', function(e){
+            if ($('.js-lang-change, #lang-change').length > 0) {
+                $('.js-lang-change .dropdown-menu a, #lang-change .dropdown-menu a').each(function() {
+                    $(this).off('click.headerSwitcher').on('click.headerSwitcher', function(e){
                         e.preventDefault();
                         var $this = $(this);
                         var locale = $this.data('flag');
@@ -619,9 +629,9 @@
                 });
             }
 
-            if ($('#currency-change').length > 0) {
-                $('#currency-change .dropdown-menu a').each(function() {
-                    $(this).on('click', function(e){
+            if ($('.js-currency-change, #currency-change').length > 0) {
+                $('.js-currency-change .dropdown-menu a, #currency-change .dropdown-menu a').each(function() {
+                    $(this).off('click.headerSwitcher').on('click.headerSwitcher', function(e){
                         e.preventDefault();
                         var $this = $(this);
                         var currency_code = $this.data('currency');

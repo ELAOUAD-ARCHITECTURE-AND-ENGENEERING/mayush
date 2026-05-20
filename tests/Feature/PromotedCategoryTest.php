@@ -152,4 +152,85 @@ class PromotedCategoryTest extends TestCase
 
         $response->assertSee('promoted-category-section');
     }
+
+    /** @test */
+    public function promoted_section_renders_category_title_as_h2_and_configured_subtitle_as_h3()
+    {
+        $this->category->update([
+            'name' => 'Mobilier de Bureau',
+            'slug' => 'mobilier-de-bureau',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $this->category->id,
+            'published' => 1,
+            'approved' => 1,
+            'unit_price' => 100,
+            'discount' => 15,
+            'discount_type' => 'percent',
+        ]);
+
+        $subtitle = 'Des espaces inspirants pour plus d’efficacité Découvrez notre sélection exclusive de mobilier de bureau alliant design, confort et fonctionnalité.';
+
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'homepage_select'],
+            ['value' => 'metro']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_status'],
+            ['value' => '1']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_id'],
+            ['value' => $this->category->id]
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_subtitle', 'lang' => 'en'],
+            ['value' => $subtitle]
+        );
+        Cache::forget('business_settings');
+
+        $response = $this->get('/');
+
+        $response->assertSee('<h2 class="promoted-category-title', false);
+        $response->assertSee('Mobilier de Bureau');
+        $response->assertSee('<h3 class="promoted-category-subtitle', false);
+        $response->assertSee($subtitle);
+        $this->assertLessThan(
+            strpos($response->getContent(), '<h3 class="promoted-category-subtitle'),
+            strpos($response->getContent(), '<h2 class="promoted-category-title')
+        );
+    }
+
+    /** @test */
+    public function promoted_section_uses_default_h3_subtitle_when_admin_has_not_saved_one()
+    {
+        Product::factory()->create([
+            'category_id' => $this->category->id,
+            'published' => 1,
+            'approved' => 1,
+            'unit_price' => 100,
+            'discount' => 15,
+            'discount_type' => 'percent',
+        ]);
+
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'homepage_select'],
+            ['value' => 'metro']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_status'],
+            ['value' => '1']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_id'],
+            ['value' => $this->category->id]
+        );
+        Cache::forget('business_settings');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('<h3 class="promoted-category-subtitle', false)
+            ->assertSee('Des espaces inspirants pour plus d’efficacité');
+    }
 }

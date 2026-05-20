@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V2;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Middleware\EnsureSystemKey;
+use App\Http\Middleware\VerifyCsrfToken;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Illuminate\Support\Facades\Route;
 
 Route::get('blog/products', [\App\Http\Controllers\Api\BlogApiController::class, 'products'])->middleware('throttle:60,1');
@@ -493,8 +495,10 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
 
     // Analytics Routes
     Route::prefix('analytics')->group(function () {
-        Route::post('track-visit', [AnalyticsController::class, 'trackVisit'])->withoutMiddleware([\App\Http\Middleware\EnsureSystemKey::class]);
-        Route::post('track-health', [AnalyticsController::class, 'trackHealth'])->withoutMiddleware([\App\Http\Middleware\EnsureSystemKey::class]);
+        Route::post('track-visit', [AnalyticsController::class, 'trackVisit'])
+            ->withoutMiddleware([EnsureSystemKey::class, EnsureFrontendRequestsAreStateful::class, VerifyCsrfToken::class]);
+        Route::post('track-health', [AnalyticsController::class, 'trackHealth'])
+            ->withoutMiddleware([EnsureSystemKey::class, EnsureFrontendRequestsAreStateful::class, VerifyCsrfToken::class]);
     });
 });
 

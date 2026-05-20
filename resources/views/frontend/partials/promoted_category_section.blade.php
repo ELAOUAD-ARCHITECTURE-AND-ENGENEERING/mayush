@@ -1,8 +1,13 @@
 @if(get_setting('promoted_category_status') == '1' && get_setting('promoted_category_id'))
     @php
+        $lang = get_system_language()->code;
         $promoted_category_id = get_setting('promoted_category_id');
         $promoted_category = $promoted_category_id ? \App\Models\Category::find($promoted_category_id) : null;
         $promoted_products = collect();
+        $promoted_category_subtitle = trim((string) get_setting('promoted_category_subtitle', '', $lang));
+        $promoted_category_subtitle = $promoted_category_subtitle !== ''
+            ? $promoted_category_subtitle
+            : translate('Des espaces inspirants pour plus d’efficacité Découvrez notre sélection exclusive de mobilier de bureau alliant design, confort et fonctionnalité.');
         
         if($promoted_category) {
             // Safer way to get child IDs - using the 'categories' relationship defined in the model
@@ -34,17 +39,19 @@
         <div class="container">
             <div class="promoted-category-card shadow-sm rounded overflow-hidden">
                 {{-- Section Header --}}
-                <div class="promoted-header d-flex align-items-center justify-content-between px-4 py-3">
-                    <div class="d-flex align-items-center">
+                <div class="promoted-header d-flex align-items-start justify-content-between px-4 py-3">
+                    <div class="promoted-heading d-flex align-items-start">
                         <div class="promoted-badge mr-3">
                             <i class="las la-fire pulse"></i>
                         </div>
-                        <div>
-                            <h4 class="fs-18 fw-700 mb-0 text-dark">{{ $promoted_category->getTranslation('name') }}</h4>
-                            <span class="fs-12 text-muted">{{ translate('Special promotions on selected products') }}</span>
+                        <div class="promoted-heading-copy">
+                            <h2 class="promoted-category-title fs-18 fw-700 mb-1 text-dark">{{ $promoted_category->getTranslation('name') }}</h2>
+                            @if ($promoted_category_subtitle)
+                                <h3 class="promoted-category-subtitle fs-14 fw-500 text-muted mb-0">{{ $promoted_category_subtitle }}</h3>
+                            @endif
                         </div>
                     </div>
-                    <a href="{{ route('products.category', $promoted_category->slug) }}" class="btn btn-sm btn-outline-primary hov-svg-white rounded-pill px-4">
+                    <a href="{{ route('products.category', $promoted_category->slug) }}" class="promoted-view-all btn btn-sm btn-outline-primary hov-svg-white rounded-pill px-4">
                         {{ translate('View All') }} <i class="las la-arrow-right ml-1"></i>
                     </a>
                 </div>
@@ -75,8 +82,31 @@
     .promoted-header {
         background: linear-gradient(135deg, #fffcf9 0%, #fff3e0 100%);
         border-bottom: 1px solid #ffe0b2;
+        gap: 18px;
+    }
+    .promoted-category-title,
+    .promoted-category-subtitle {
+        letter-spacing: 0;
+        line-height: 1.35;
+    }
+    .promoted-heading {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+    .promoted-heading-copy {
+        min-width: 0;
+        max-width: 820px;
+    }
+    .promoted-category-subtitle {
+        display: block;
+        max-width: 820px;
+    }
+    .promoted-view-all {
+        flex: 0 0 auto;
+        margin-top: 4px;
     }
     .promoted-badge {
+        flex: 0 0 44px;
         width: 44px;
         height: 44px;
         background: linear-gradient(135deg, #f97316, #ef4444);
@@ -95,6 +125,22 @@
         0% { transform: scale(0.95); }
         70% { transform: scale(1.05); }
         100% { transform: scale(0.95); }
+    }
+    @media (max-width: 767px) {
+        .promoted-header {
+            display: block !important;
+            padding: 18px !important;
+        }
+        .promoted-heading {
+            align-items: flex-start;
+        }
+        .promoted-category-subtitle {
+            font-size: 13px !important;
+            line-height: 1.45;
+        }
+        .promoted-view-all {
+            margin-top: 14px;
+        }
     }
     </style>
     @endif

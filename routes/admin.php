@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddonController;
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AizUploadController;
 use App\Http\Controllers\AttributeController;
@@ -28,6 +29,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PromotionalProductController;
+use App\Http\Controllers\ShippingLabelDownloadController;
 use App\Http\Controllers\PickupPointController;
 use App\Http\Controllers\PickupController;
 use App\Http\Controllers\ShippingBoxSizeController;
@@ -67,6 +70,8 @@ use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\TopBannerController;
 use App\Http\Controllers\PromotionalCategoryController;
 use App\Http\Controllers\PosController;
+use App\Http\Controllers\TodaysDealController;
+use App\Http\Controllers\AIController;
 
 /*
   |--------------------------------------------------------------------------
@@ -192,6 +197,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/products/store-attribute-value-ajax', 'store_attribute_value_ajax')->name('products.store-attribute-value-ajax');
         Route::post('/set_product_discount', 'setProductDiscount')->name('set_product_discount');
         Route::get('/products/smart-bar', 'smartBar')->name('smart.bar');
+        Route::post('/products/generate-with-ai', 'generateWithAI')->name('products.generate-with-ai');
         
         Route::get('/products-filter', 'get_filter_products')->name('products.filter');
         Route::get('/products-search', 'search')->name('products.search');
@@ -203,6 +209,20 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/bulk-product-stock-update', 'bulk_product_stock_update')->name('bulk-product-stock-update');
         Route::get('/get-custom-review-product-by-category', 'get_custom_review_product_by_category')->name('get-custom-review-product-by-category');
         Route::get('/products-reviews', 'reviews')->name('products.reviews');
+    });
+
+    Route::controller(PromotionalProductController::class)->group(function () {
+        Route::get('/promotion-and-offers', 'dashboard')->name('promotion_and_offers.index');
+        Route::get('/promotional-products', 'index')->name('promotional_products.index');
+        Route::post('/promotional-products/update', 'update')->name('promotional_products.update');
+        Route::post('/promotional-products/search', 'search')->name('promotional_products.search');
+        Route::get('/promotional-products/filter', 'filter')->name('promotional_products.filter');
+    });
+
+    Route::controller(TodaysDealController::class)->group(function () {
+        Route::get('/todays-deal-products', 'index')->name('todays_deal_products.index');
+        Route::post('/todays-deal-products/update', 'update')->name('todays_deal_products.update');
+        Route::post('/todays-deal-products/search', 'search')->name('todays_deal_products.search');
     });
 
     // Digital Product
@@ -311,6 +331,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::controller(BusinessSettingsController::class)->group(function () {
         Route::post('/business-settings/update', 'update')->name('business_settings.update');
         Route::post('/business-settings/update/activation', 'updateActivationSettings')->name('business_settings.update.activation');
+        Route::post('/website/select-header', 'select_header')->name('settings.select-header');
         Route::get('/general-setting', 'general_setting')->name('general_setting.index');
         Route::get('/activation', 'activation')->name('activation.index');
         Route::get('/payment-method', 'payment_method')->name('payment_method.index');
@@ -337,6 +358,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/cloudflare_turnstile', 'cloudflare_turnstile_update')->name('cloudflare_turnstile.update');
         Route::post('/google-map', 'google_map_update')->name('google-map.update');
         Route::post('/google-firebase', 'google_firebase_update')->name('google-firebase.update');
+        Route::get('/invoice-config', 'invoice_config')->name('invoice.config');
+        Route::post('/invoice-config', 'invoice_config_update')->name('invoice.config.update');
+        Route::get('/shipping-label-config', 'shipping_label')->name('shipping.label');
+        Route::post('/shipping-label-config', 'shipping_label_update')->name('shipping.label.update');
+        Route::get('/thermal-printer-config', 'thermal_printer')->name('thermal.printer');
+        Route::post('/thermal-printer-config', 'thermal_printer_update')->name('thermal.printer.update');
+        Route::post('/ai-config', 'ai_config_update')->name('ai_config.update');
 
         Route::get('/whatsapp-chat', 'whatsappChat')->name('whatsapp_chat.index');
         Route::post('/whatsapp-chat-update', 'whatsappChatUpdate')->name('whatsapp_chat.update');
@@ -361,6 +389,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/business-settings/business-info-update', 'business_info_update')->name('business_info.update');
         Route::get('/business-settings/custom-product-visitors', 'customProductVisitorsUpdate')->name('custom_product_visitors');
         Route::post('/business-settings/custom-product-visitors-update', 'customProductVisitorsUpdate')->name('custom_product_visitors.update');
+    });
+
+    Route::controller(AIController::class)->group(function () {
+        Route::get('/ai-config', 'ai_configuration')->name('ai-config');
+        Route::get('/ai-prompt-templates', 'ai_templates')->name('ai-prompt-templates');
+        Route::post('/ai-prompt-templates/{id}', 'update')->name('ai-prompt-templates.update');
+        Route::get('/ai-product-generation', 'add_edit_products')->name('ai-product-generation');
+        Route::get('/ai-token-usage', 'ai_token_usage')->name('ai-token-usage');
     });
 
 
@@ -484,6 +520,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/unpaid-orders', 'all_orders')->name('unpaid_orders.index');
         Route::post('/unpaid-order-payment-notification', 'unpaid_order_payment_notification_send')->name('unpaid_order_payment_notification');
         Route::get('/order-bulk-export', 'orderBulkExport')->name('order-bulk-export');
+    });
+
+    Route::controller(ShippingLabelDownloadController::class)->group(function () {
+        Route::get('/orders/{id}/shipping-label/download', 'shipping_label_download')->name('shipping-label.download');
+        Route::get('/orders/{id}/shipping-label/print', 'shipping_label_print')->name('shipping-label.print');
+        Route::get('/orders/{id}/shipping-label/stream', 'shipping_label_printer')->name('shipping-label.stream');
+        Route::post('/orders/shipping-labels/download', 'bulk_shipping_label_download')->name('bulk-shipping-label.download');
+        Route::post('/orders/shipping-labels/print', 'bulk_shipping_label_print')->name('bulk-shipping-label.print');
     });
     
     Route::post('/pay_to_seller', [CommissionController::class, 'pay_to_seller'])->name('commissions.pay_to_seller');
@@ -748,6 +792,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     });
 
     Route::resource('areas', AreaController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::post('/get-states', [AddressController::class, 'getStates'])->name('admin.get-state');
     Route::resource('elements', ElementController::class);
     
     Route::resource('custom_label', CustomLabelController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);

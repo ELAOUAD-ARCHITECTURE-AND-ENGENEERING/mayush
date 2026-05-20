@@ -32,6 +32,20 @@
         </div>
     </div>
 
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0 h6">{{ translate('Payment Information') }}</h5>
+        </div>
+        <div class="card-body">
+            <div id="payment-information-list">
+                @include('frontend.partials.payment_information.payment_info', [
+                    'payment_information_id' => Auth::user()->payment_informations()->where('set_default', true)->value('id')
+                        ?: Auth::user()->payment_informations()->value('id')
+                ])
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header">
             <h5 class="mb-0 h6">{{ translate('Withdraw Request history')}}</h5>
@@ -120,6 +134,8 @@
 @endsection
 
 @section('script')
+    @include('frontend.partials.payment_information.payment_information_js')
+
     <script type="text/javascript">
         function show_request_modal(){
             $('#request_modal').modal('show');

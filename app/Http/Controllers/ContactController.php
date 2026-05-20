@@ -69,8 +69,8 @@ class ContactController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'content' => ['required', 'string', 'max:5000'],
+            'phone' => ['required', 'string', 'max:50'],
+            'content' => ['required', 'string', 'max:10000'],
         ]);
 
         // validate recaptcha
@@ -104,14 +104,39 @@ class ContactController extends Controller
         $array['subject'] = translate('Query Contact');
         $array['from'] = $request->email;
 
+        /* EAI extended fields */
+        $eaiData = [];
+        if ($request->filled('eai_profile')) {
+            $eaiData['profile'] = $request->eai_profile;
+        }
+        if ($request->filled('eai_request_type')) {
+            $eaiData['request_type'] = $request->eai_request_type;
+        }
+        if ($request->filled('eai_city')) {
+            $eaiData['city'] = $request->eai_city;
+        }
+        if ($request->filled('eai_project_stage')) {
+            $eaiData['project_stage'] = $request->eai_project_stage;
+        }
+        if ($request->filled('eai_budget')) {
+            $eaiData['budget'] = $request->eai_budget;
+        }
+        if ($request->filled('eai_timeline')) {
+            $eaiData['timeline'] = $request->eai_timeline;
+        }
+
         try {
             Mail::to($admin->email)->queue(new ContactMailManager($array));
-            Contact::insert([
+            $contactData = [
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'content' => $request->content,
-            ]);
+            ];
+            if (!empty($eaiData)) {
+                $contactData['eai_data'] = json_encode($eaiData);
+            }
+            Contact::insert($contactData);
         } catch (\Exception $e) {
             Log::error('Contact form submission failed.', [
                 'exception' => $e->getMessage(),
@@ -120,7 +145,7 @@ class ContactController extends Controller
             flash(translate('Something Went wrong'))->error();
             return back();
         }
-        flash(translate('Query has been sent successfully'))->success();
+        flash(translate('Votre demande a bien été envoyée. Notre équipe vous contactera prochainement afin de clarifier votre besoin et vous orienter vers la solution la plus adaptée.'))->success();
         return back();
     }
 }

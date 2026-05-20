@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Pagination\Paginator;
 use App\Models\Order;
 use Mayush\Shipping\Onessta\Observers\OrderObserver;
+use App\Services\Payment\CmiConfigValidatorInterface;
+use App\Services\Payment\CmiConfigValidator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,6 +46,9 @@ class AppServiceProvider extends ServiceProvider
    */
   public function register()
   {
+    // Bind CMI Configuration Validator interface
+    $this->app->bind(CmiConfigValidatorInterface::class, CmiConfigValidator::class);
+
     if (!$this->app->environment('production')) {
         if (class_exists('Barryvdh\\Debugbar\\ServiceProvider')) {
             $this->app->register('Barryvdh\\Debugbar\\ServiceProvider');

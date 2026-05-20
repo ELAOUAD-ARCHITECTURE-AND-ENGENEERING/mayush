@@ -117,6 +117,10 @@ class HomeController extends Controller
 
     public function load_home_categories_section()
     {
+        if (get_setting('home_categories_section_status', '1') != '1') {
+            return response('');
+        }
+
         return view('frontend.' . safe_homepage_select() . '.partials.home_categories_section');
     }
 

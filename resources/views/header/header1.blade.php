@@ -11,7 +11,8 @@
                 <ul class="list-inline d-flex justify-content-between justify-content-lg-start mb-0">
                     <!-- Language switcher -->
                     @if (get_setting('show_language_switcher') == 'on')
-                        <li class="list-inline-item dropdown mr-4 lang-visibility" id="lang-change">
+                        <li class="list-inline-item dropdown mr-4 lang-visibility js-lang-change mobile-header-switcher d-xl-none"
+                            id="mobile-lang-change">
 
                             <a href="javascript:void(0)" class="dropdown-toggle fs-12 py-2 top-text-color-visibility"
                                 style="color: {{ $topHeaderTextColor }}" data-toggle="dropdown"
@@ -36,7 +37,8 @@
 
                     <!-- Currency Switcher -->
                     @if (get_setting('show_currency_switcher') == 'on')
-                        <li class="list-inline-item dropdown ml-auto ml-lg-0 mr-0 currency-visibility" id="currency-change">
+                        <li class="list-inline-item dropdown ml-auto ml-lg-0 mr-0 currency-visibility js-currency-change mobile-header-switcher d-xl-none"
+                            id="mobile-currency-change">
                             @php
                                 $system_currency = get_system_currency();
                             @endphp
@@ -672,11 +674,12 @@
                     </div>
                 </div>
                 <!-- Cart -->
-                <div class="d-none d-xl-block align-self-stretch ml-5 mr-0 has-transition bg-black-10"
+                <div class="d-none d-xl-flex align-self-stretch align-items-center ml-5 mr-0 has-transition bg-black-10"
                     data-hover="dropdown">
                     <div class="nav-cart-box dropdown h-100" id="cart_items" style="width: max-content;">
                         @include('frontend.partials.cart.cart')
                     </div>
+                    @include('header.partials.cart_switchers', ['headerSwitcherColor' => $bottomHeaderTextColor])
                 </div>
             </div>
         </div>

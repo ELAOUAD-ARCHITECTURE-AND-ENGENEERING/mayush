@@ -154,6 +154,13 @@
 							{{ translate('Top Brands') }}
 						</a>
 					</li>
+					<!-- Inspiration Articles -->
+					<li class="nav-item">
+						<a class="nav-link" id="inspiration-articles-tab" href="#inspiration_articles"
+							data-toggle="tab" data-target="#inspiration_articles" type="button" role="tab" aria-controls="inspiration_articles" aria-selected="false">
+							{{ translate('Inspiration & Conseils') }}
+						</a>
+					</li>
 
 					@if(addon_is_activated('preorder'))
 					<!-- Preorder -->
@@ -212,6 +219,10 @@
 							<input type="hidden" name="tab" value="home_slider">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_slider_images">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_slider_links">
+							<input type="hidden" name="types[][{{ $lang }}]" value="home_slider_titles">
+							<input type="hidden" name="types[][{{ $lang }}]" value="home_slider_descriptions">
+							<input type="hidden" name="types[][{{ $lang }}]" value="home_slider_cta_texts">
+							<input type="hidden" name="types[][{{ $lang }}]" value="home_slider_cta_links">
 
 							<div class="bg-white p-3 p-sm-2rem">
 								<div class="w-100">
@@ -236,29 +247,68 @@
 										@php
 											$home_slider_images = get_setting('home_slider_images', null, $lang);
 											$home_slider_links = get_setting('home_slider_links', null, $lang);
+											$home_slider_titles = get_setting('home_slider_titles', null, $lang);
+											$home_slider_descriptions = get_setting('home_slider_descriptions', null, $lang);
+											$home_slider_cta_texts = get_setting('home_slider_cta_texts', null, $lang);
+											$home_slider_cta_links = get_setting('home_slider_cta_links', null, $lang);
+											$decoded_home_slider_images = json_decode($home_slider_images, true) ?: [];
+											$decoded_home_slider_links = json_decode($home_slider_links, true) ?: [];
+											$decoded_home_slider_titles = json_decode($home_slider_titles, true) ?: [];
+											$decoded_home_slider_descriptions = json_decode($home_slider_descriptions, true) ?: [];
+											$decoded_home_slider_cta_texts = json_decode($home_slider_cta_texts, true) ?: [];
+											$decoded_home_slider_cta_links = json_decode($home_slider_cta_links, true) ?: [];
 										@endphp
 										@if ($home_slider_images != null)
-											@foreach (json_decode($home_slider_images, true) as $key => $value)
+											@foreach ($decoded_home_slider_images as $key => $value)
 												<div class="p-3 p-md-4 mb-3 mb-md-2rem remove-parent" style="border: 1px dashed #e4e5eb;">
 													<div class="row gutters-5">
 														<!-- Image -->
 														<div class="col-md-5">
-															<div class="form-group mb-md-0">
+															<div class="form-group">
+																<label class="fs-13 fw-600">{{ translate('Slider Image') }}</label>
 																<div class="input-group" data-toggle="aizuploader" data-type="image">
 																	<div class="input-group-prepend">
 																		<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
 																	</div>
 																	<div class="form-control file-amount">{{ translate('Choose File') }}</div>
-																	<input type="hidden" name="home_slider_images[]" class="selected-files" value="{{ json_decode($home_slider_images, true)[$key] }}">
+																	<input type="hidden" name="home_slider_images[]" class="selected-files" value="{{ $decoded_home_slider_images[$key] }}">
 																</div>
 																<div class="file-preview box sm">
 																</div>
 															</div>
 														</div>
-														<!-- link -->
 														<div class="col-md">
-															<div class="form-group mb-md-0">
-																<input type="text" class="form-control" placeholder="http://" name="home_slider_links[]" value="{{ isset(json_decode($home_slider_links, true)[$key]) ? json_decode($home_slider_links, true)[$key] : '' }}">
+															<div class="row gutters-10">
+																<div class="col-md-6">
+																	<div class="form-group">
+																		<label class="fs-13 fw-600">{{ translate('Slide Link') }}</label>
+																		<input type="text" class="form-control" placeholder="http://" name="home_slider_links[]" value="{{ $decoded_home_slider_links[$key] ?? '' }}">
+																	</div>
+																</div>
+																<div class="col-md-6">
+																	<div class="form-group">
+																		<label class="fs-13 fw-600">{{ translate('Hero Title') }}</label>
+																		<textarea class="aiz-text-editor hero-title-editor form-control" data-buttons='[["font", ["bold", "underline", "italic", "clear"]], ["color", ["color"]], ["view", ["undo", "redo"]]]' data-min-height="90" placeholder="{{ translate('Large headline shown over this image') }}" name="home_slider_titles[]">{{ $decoded_home_slider_titles[$key] ?? '' }}</textarea>
+																	</div>
+																</div>
+																<div class="col-12">
+																	<div class="form-group">
+																		<label class="fs-13 fw-600">{{ translate('Hero Paragraph') }}</label>
+																		<textarea class="form-control" rows="2" placeholder="{{ translate('Short supporting text shown below the title') }}" name="home_slider_descriptions[]">{{ $decoded_home_slider_descriptions[$key] ?? '' }}</textarea>
+																	</div>
+																</div>
+																<div class="col-md-6">
+																	<div class="form-group mb-md-0">
+																		<label class="fs-13 fw-600">{{ translate('CTA Button Text') }}</label>
+																		<input type="text" class="form-control" placeholder="{{ translate('Shop Now') }}" name="home_slider_cta_texts[]" value="{{ $decoded_home_slider_cta_texts[$key] ?? '' }}">
+																	</div>
+																</div>
+																<div class="col-md-6">
+																	<div class="form-group mb-md-0">
+																		<label class="fs-13 fw-600">{{ translate('CTA Button Link') }}</label>
+																		<input type="text" class="form-control" placeholder="http://" name="home_slider_cta_links[]" value="{{ $decoded_home_slider_cta_links[$key] ?? '' }}">
+																	</div>
+																</div>
 															</div>
 														</div>
 														<!-- remove parent button -->
@@ -286,7 +336,8 @@
 												<div class="row gutters-5">
 													<!-- Image -->
 													<div class="col-md-5">
-														<div class="form-group mb-md-0">
+														<div class="form-group">
+															<label class="fs-13 fw-600">{{ translate('Slider Image') }}</label>
 															<div class="input-group" data-toggle="aizuploader" data-type="image">
 																<div class="input-group-prepend">
 																	<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
@@ -298,10 +349,38 @@
 															</div>
 														</div>
 													</div>
-													<!-- link -->
 													<div class="col-md">
-														<div class="form-group mb-md-0">
-															<input type="text" class="form-control" placeholder="http://" name="home_slider_links[]" value="">
+														<div class="row gutters-10">
+															<div class="col-md-6">
+																<div class="form-group">
+																	<label class="fs-13 fw-600">{{ translate('Slide Link') }}</label>
+																	<input type="text" class="form-control" placeholder="http://" name="home_slider_links[]" value="">
+																</div>
+															</div>
+															<div class="col-md-6">
+																<div class="form-group">
+																	<label class="fs-13 fw-600">{{ translate('Hero Title') }}</label>
+																	<textarea class="aiz-text-editor hero-title-editor form-control" data-buttons="[[&quot;font&quot;, [&quot;bold&quot;, &quot;underline&quot;, &quot;italic&quot;, &quot;clear&quot;]], [&quot;color&quot;, [&quot;color&quot;]], [&quot;view&quot;, [&quot;undo&quot;, &quot;redo&quot;]]]" data-min-height="90" placeholder="{{ translate('Large headline shown over this image') }}" name="home_slider_titles[]"></textarea>
+																</div>
+															</div>
+															<div class="col-12">
+																<div class="form-group">
+																	<label class="fs-13 fw-600">{{ translate('Hero Paragraph') }}</label>
+																	<textarea class="form-control" rows="2" placeholder="{{ translate('Short supporting text shown below the title') }}" name="home_slider_descriptions[]"></textarea>
+																</div>
+															</div>
+															<div class="col-md-6">
+																<div class="form-group mb-md-0">
+																	<label class="fs-13 fw-600">{{ translate('CTA Button Text') }}</label>
+																	<input type="text" class="form-control" placeholder="{{ translate('Shop Now') }}" name="home_slider_cta_texts[]" value="">
+																</div>
+															</div>
+															<div class="col-md-6">
+																<div class="form-group mb-md-0">
+																	<label class="fs-13 fw-600">{{ translate('CTA Button Link') }}</label>
+																	<input type="text" class="form-control" placeholder="http://" name="home_slider_cta_links[]" value="">
+																</div>
+															</div>
 														</div>
 													</div>
 													<!-- remove parent button -->
@@ -1116,6 +1195,17 @@
 							<input type="hidden" name="tab" value="home_categories">
 							<div class="bg-white p-3 p-sm-2rem">
 								<div class="w-100">
+									<input type="hidden" name="types[]" value="home_categories_section_status">
+									<input type="hidden" name="home_categories_section_status" value="0">
+									<div class="form-group row align-items-center mb-4">
+										<label class="col-md-3 col-from-label">{{ translate('Show Category Wise Products') }}</label>
+										<div class="col-md-8">
+											<label class="aiz-switch aiz-switch-success mb-0">
+												<input type="checkbox" name="home_categories_section_status" value="1" @if(get_setting('home_categories_section_status', '1') == '1') checked @endif>
+												<span></span>
+											</label>
+										</div>
+									</div>
 									<label class="col-from-label fs-13 fw-500 mb-3">{{ translate('Categories') }}</label>
 									<div class="home-categories-target">
 										<input type="hidden" name="types[]" value="home_categories">
@@ -1262,19 +1352,74 @@
 						</form>
 					</div>
 
-					<!-- Category Icon Navigation -->
-					<div class="tab-pane fade" id="category_icon_navigation" role="tabpanel" aria-labelledby="category-icon-navigation-tab">
-						<div class="bg-white p-3 p-sm-2rem">
-							<div class="row gutters-16">
-								<div class="col-lg-6">
-									<div class="p-4 border" style="background: #fcfcfc;">
-										<p class="fs-14 fw-500 mb-3">{{ translate("To set Category Icon Navigation on the homepage, first enable 'Hot Category' from the Category Listing page. Only the enabled categories will appear in this section.") }}
-											 <br>{{ translate("Set Hot categories") }}<a href="{{ route('categories.index') }}"> {{ translate('Here') }}</a> 
-										</p>
+					<!-- Inspiration Articles -->
+					<div class="tab-pane fade" id="inspiration_articles" role="tabpanel" aria-labelledby="inspiration-articles-tab">
+						<form action="{{ route('business_settings.update') }}" method="POST">
+							@csrf
+							<input type="hidden" name="tab" value="inspiration_articles">
+							<div class="bg-white p-3 p-sm-2rem">
+								<div class="w-100">
+									<input type="hidden" name="types[]" value="home_inspiration_section_status">
+									<input type="hidden" name="home_inspiration_section_status" value="0">
+									<div class="form-group row align-items-center mb-4">
+										<label class="col-md-3 col-from-label">{{ translate('Show Inspiration & Conseils') }}</label>
+										<div class="col-md-8">
+											<label class="aiz-switch aiz-switch-success mb-0">
+												<input type="checkbox" name="home_inspiration_section_status" value="1" @if(get_setting('home_inspiration_section_status', '1') == '1') checked @endif>
+												<span></span>
+											</label>
+										</div>
+									</div>
+
+									<div class="form-group">
+										<input type="hidden" name="types[]" value="home_inspiration_blog_ids">
+										<input type="hidden" name="home_inspiration_blog_ids[]" value="">
+										<label class="col-from-label fs-13 fw-500 mb-2">{{ translate('Articles to Show') }} ({{ translate('Max 6') }})</label>
+										<select name="home_inspiration_blog_ids[]" class="form-control aiz-selectpicker" multiple data-max-options="6" data-live-search="true" data-selected-text-format="count" data-selected="{{ get_setting('home_inspiration_blog_ids') }}">
+											@foreach (\App\Models\Blog::published()->with('translations')->orderBy('published_at', 'desc')->orderBy('created_at', 'desc')->limit(100)->get() as $blog)
+												<option value="{{ $blog->id }}">{{ $blog->getTranslation('title') }}</option>
+											@endforeach
+										</select>
+										<small class="text-muted d-block mt-2">{{ translate('Leave empty to automatically show the latest 6 published blog articles.') }}</small>
 									</div>
 								</div>
+								<div class="mt-4 text-right">
+									<button type="submit" class="btn btn-success w-230px btn-md rounded-2 fs-14 fw-700 shadow-success">{{ translate('Save') }}</button>
+								</div>
 							</div>
-						</div>
+						</form>
+					</div>
+
+					<!-- Category Icon Navigation -->
+					<div class="tab-pane fade" id="category_icon_navigation" role="tabpanel" aria-labelledby="category-icon-navigation-tab">
+						<form action="{{ route('business_settings.update') }}" method="POST">
+							@csrf
+							<input type="hidden" name="tab" value="category_icon_navigation">
+							<input type="hidden" name="types[]" value="category_icon_navigation_status">
+							<div class="bg-white p-3 p-sm-2rem">
+								<div class="row gutters-16">
+									<div class="col-lg-6">
+										<div class="p-4 border" style="background: #fcfcfc;">
+											<div class="form-group row align-items-center">
+												<label class="col-md-7 col-from-label">{{ translate('Show Category Icon Navigation') }}</label>
+												<div class="col-md-5">
+													<label class="aiz-switch aiz-switch-success mb-0">
+														<input type="checkbox" name="category_icon_navigation_status" value="1" @if(get_setting('category_icon_navigation_status', '1') == '1') checked @endif>
+														<span></span>
+													</label>
+												</div>
+											</div>
+											<p class="fs-14 fw-500 mb-0">{{ translate("To set Category Icon Navigation on the homepage, first enable 'Hot Category' from the Category Listing page. Only the enabled categories will appear in this section.") }}
+												 <br>{{ translate("Set Hot categories") }}<a href="{{ route('categories.index') }}"> {{ translate('Here') }}</a> 
+											</p>
+										</div>
+									</div>
+								</div>
+								<div class="mt-4 text-right">
+									<button type="submit" class="btn btn-success w-230px btn-md rounded-2 fs-14 fw-700 shadow-success">{{ translate('Save') }}</button>
+								</div>
+							</div>
+						</form>
 					</div>
 
 					<!-- Featured Products -->
@@ -1466,6 +1611,15 @@
 											</div>
 										</div>
 
+										<input type="hidden" name="types[][{{ $lang }}]" value="promoted_category_subtitle">
+										<div class="form-group row">
+											<label class="col-md-3 col-from-label">{{ translate('Category Subtitle') }}</label>
+											<div class="col-md-8">
+												<textarea class="form-control" name="promoted_category_subtitle" rows="3" placeholder="{{ translate('Des espaces inspirants pour plus d’efficacité Découvrez notre sélection exclusive de mobilier de bureau alliant design, confort et fonctionnalité.') }}">{{ get_setting('promoted_category_subtitle', null, $lang) }}</textarea>
+												<small class="text-muted">{{ translate('This text appears as the H3 subtitle below the selected promotional category title.') }}</small>
+											</div>
+										</div>
+
 										<div class="form-group row">
 											<div class="col-md-12">
 												<h6 class="mb-3">{{ translate('Set Per-Product Discounts for this Category') }}</h6>
@@ -1510,7 +1664,53 @@
 			$('.nav-tabs a').on('shown.bs.tab', function (e) {
 				window.location.hash = e.target.hash;
 			});
+
+			$(document).on('click', '[data-target=".home-slider-target"]', function () {
+				setTimeout(function () {
+					initHeroTitleEditors($('.home-slider-target'));
+				}, 80);
+			});
+
+			$(document).on('submit', 'form', function () {
+				if ($(this).find('textarea.hero-title-editor').length) {
+					syncHeroTitleEditors($(this));
+				}
+			});
 		});
+
+		function initHeroTitleEditors(context) {
+			$(context).find('textarea.hero-title-editor').each(function () {
+				var editor = $(this);
+				if (editor.next('.note-editor').length) {
+					return;
+				}
+
+				editor.summernote({
+					toolbar: [
+						['font', ['bold', 'underline', 'italic', 'clear']],
+						['color', ['color']],
+						['view', ['undo', 'redo']]
+					],
+					placeholder: editor.attr('placeholder') || '',
+					disableDragAndDrop: true,
+					height: editor.data('min-height') || 90,
+					callbacks: {
+						onChange: function (contents) {
+							editor.val(contents);
+						}
+					}
+				});
+			});
+		}
+
+		function syncHeroTitleEditors(context) {
+			$(context).find('textarea.hero-title-editor').each(function () {
+				var editor = $(this);
+				if (editor.data('summernote') || editor.next('.note-editor').length) {
+					editor.val(editor.summernote('code'));
+				}
+			});
+		}
 
 	    function loadPromotionalProducts(categoryId) {
 	        if(!categoryId) {

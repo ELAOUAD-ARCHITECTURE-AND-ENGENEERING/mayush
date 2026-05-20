@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use CoreComponentRepository;
 use Artisan;
 use Cache;
+use App\Services\AiService;
 use App\Services\ProductService;
 use App\Services\ProductTaxService;
 use App\Services\ProductFlashDealService;
@@ -40,19 +41,22 @@ class ProductController extends Controller
     protected $productFlashDealService;
     protected $productStockService;
     protected $frequentlyBoughtProductService;
+    protected $aiService;
 
     public function __construct(
         ProductService $productService,
         ProductTaxService $productTaxService,
         ProductFlashDealService $productFlashDealService,
         ProductStockService $productStockService,
-        FrequentlyBoughtProductService $frequentlyBoughtProductService
+        FrequentlyBoughtProductService $frequentlyBoughtProductService,
+        AiService $aiService
     ) {
         $this->productService = $productService;
         $this->productTaxService = $productTaxService;
         $this->productFlashDealService = $productFlashDealService;
         $this->productStockService = $productStockService;
         $this->frequentlyBoughtProductService = $frequentlyBoughtProductService;
+        $this->aiService = $aiService;
 
         // Staff Permission Check
         $this->middleware(['permission:add_new_product'])->only('create');
@@ -838,6 +842,9 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($request->id);
         $product->todays_deal = $request->status;
+        if ((int) $request->status === 1) {
+            $product->promotional = 1;
+        }
         $product->save();
         Cache::forget('todays_deal_products');
         return 1;
@@ -852,6 +859,7 @@ class ProductController extends Controller
                     continue;
                 }
                 $product->todays_deal = 1;
+                $product->promotional = 1;
                 $product->save();
             }
             Cache::forget('todays_deal_products');
@@ -1163,6 +1171,11 @@ class ProductController extends Controller
         $products = $this->productService->products_search($request->except(['_token']));
         $single_select = $request->single_select ?? 0;
         return view('partials.product.multiPick_products', compact('products', 'single_select'));
+    }
+
+    public function generateWithAI(Request $request)
+    {
+        return $this->aiService->productGenerateWithAI($request->all());
     }
 
     public function get_products_by_subcategory() { return 'Stub'; }

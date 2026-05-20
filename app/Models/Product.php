@@ -21,11 +21,12 @@ class Product extends Model
         'name', 'added_by', 'user_id', 'category_id', 'brand_id', 'video_provider', 'video_link', 
         'unit_price', 'purchase_price', 'tax', 'tax_type', 'discount', 'discount_type', 
         'current_stock', 'unit', 'min_qty', 'low_stock_quantity', 'slug', 'colors', 
-        'choice_options', 'attributes', 'published', 'featured', 'todays_deal', 'weight', 
+        'choice_options', 'attributes', 'published', 'featured', 'todays_deal', 'promotional', 'draft', 'pos', 'weight',
         'length', 'width', 'height', 'shipping_type', 'shipping_cost', 'is_quantity_multiplied', 
         'est_shipping_days', 'cash_on_delivery', 'meta_title', 'meta_description', 
         'meta_img', 'pdf', 'digital', 'auction_product', 'wholesale_product', 'rating', 'num_of_sale',
-        'photos', 'thumbnail_img', 'description', 'tags'
+        'photos', 'thumbnail_img', 'description', 'tags', 'show_estimated_shipping_time', 'shipping_note_id',
+        'show_shipping_note', 'show_warranty_note', 'delivery_note_id', 'show_delivery_notes'
     ];
 
     protected $with = ['product_translations', 'taxes', 'thumbnail'];

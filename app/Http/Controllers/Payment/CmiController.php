@@ -21,9 +21,24 @@ use App\Models\Address;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\View;
+use App\Services\Payment\CmiConfigValidatorInterface;
 
 class CmiController extends Controller
 {
+    /**
+     * @var CmiConfigValidatorInterface
+     */
+    protected CmiConfigValidatorInterface $configValidator;
+
+    /**
+     * Create a new CmiController instance.
+     *
+     * @param CmiConfigValidatorInterface $configValidator
+     */
+    public function __construct(CmiConfigValidatorInterface $configValidator)
+    {
+        $this->configValidator = $configValidator;
+    }
     public function pay(Request $request)
     {
         // Debugging: Log entry
@@ -114,17 +129,36 @@ class CmiController extends Controller
                     $shipping_info = [];
                 }
     
-                // CMI Credentials & Config from Config File (Strictly from .env / config for security)
+                // CMI Configuration Validation using CmiConfigValidator
+                // Validates credentials, gateway URL, and mode settings
+                $validationResult = $this->configValidator->validate();
+    
+                if (!$validationResult->isValid) {
+                    // Critical error: Log with full details for debugging (contains config info)
+                    Log::critical('CMI Configuration Validation Failed', [
+                        'errors' => $validationResult->errors,
+                        'warnings' => $validationResult->warnings,
+                        'user_id' => Auth::id(),
+                        'payment_type' => $paymentType,
+                        'ip_address' => $request->ip(),
+                    ]);
+                    
+                    // Return user-friendly message without exposing configuration details
+                    Session::flash('error', translate('Payment gateway is not available. Please contact support or try again later.'));
+                    return redirect()->route('home');
+                }
+    
+                // Log warnings if any (non-blocking issues)
+                if ($validationResult->hasWarnings()) {
+                    Log::warning('CMI Configuration has warnings', [
+                        'warnings' => $validationResult->warnings,
+                    ]);
+                }
+    
+                // Get validated configuration
                 $clientId = config('cmi.merchant_id');
                 $storeKey = config('cmi.secret_key');
                 $storeType = config('cmi.store_type');
-    
-                // Validate Credentials
-                if (empty($clientId) || empty($storeKey)) {
-                     Log::critical('CMI Setup Error: Missing Merchant ID or Secret Key.');
-                     Session::flash('error', translate('Payment gateway configuration error. Please contact support.'));
-                     return redirect()->route('home');
-                }
 
                 $data['clientid'] = $clientId;
                 $data['amount'] = $amount;
@@ -177,10 +211,14 @@ class CmiController extends Controller
                 // Hash Calculation
                 $data['hash'] = $this->generateHash($data, $storeKey);
     
-                // Gateway URL
-                $actionUrl = config('cmi.gateway_url');
+                // Gateway URL - use validated URL based on test/production mode
+                $actionUrl = $this->configValidator->getGatewayUrl();
                 
-                Log::info('CMI Form Data Generated', ['oid' => $oid, 'amount' => $amount]);
+                Log::info('CMI Form Data Generated', [
+                    'oid' => $oid, 
+                    'amount' => $amount,
+                    'test_mode' => $this->configValidator->isTestMode(),
+                ]);
 
                 return view('frontend.payment.cmi', compact('data', 'actionUrl'));
             } else {

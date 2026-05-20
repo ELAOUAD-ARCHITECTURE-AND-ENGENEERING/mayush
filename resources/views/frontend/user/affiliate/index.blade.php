@@ -83,6 +83,20 @@
             </div>
         </div>
 
+        <div class="card shadow-sm border-0 rounded-lg mb-4">
+            <div class="card-header border-light py-3">
+                <h5 class="mb-0 h6 fw-600">{{ translate('Payment Information') }}</h5>
+            </div>
+            <div class="card-body">
+                <div id="payment-information-list">
+                    @include('frontend.partials.payment_information.payment_info', [
+                        'payment_information_id' => $user->payment_informations()->where('set_default', true)->value('id')
+                            ?: $user->payment_informations()->value('id')
+                    ])
+                </div>
+            </div>
+        </div>
+
         <div class="card shadow-sm border-0 rounded-lg">
             <div class="card-header border-light py-3">
                 <h5 class="mb-0 h6 fw-600">{{ translate('Earnings History') }}</h5>
@@ -138,6 +152,8 @@
 @endsection
 
 @section('script')
+    @include('frontend.partials.payment_information.payment_information_js')
+
     <script type="text/javascript">
         function copyToClipboard(elementId) {
             var copyText = document.getElementById(elementId);
