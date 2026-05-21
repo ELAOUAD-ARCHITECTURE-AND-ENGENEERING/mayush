@@ -20,6 +20,12 @@
             color: var(--market-header-text);
         }
 
+        .mayush-market-header .container {
+            max-width: 96%;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
         .mayush-market-header a,
         .mayush-market-header button {
             color: inherit;
@@ -84,6 +90,16 @@
             border-radius: 4px;
             overflow: visible;
             background: #fff;
+        }
+
+        .mayush-market-header .search-input-box,
+        .mayush-market-header .search-input-box *,
+        .mayush-market-header .search-input-box .form-control,
+        .mayush-market-header .search-input-box input,
+        .mayush-market-header .search-input-box .ai-mode-toggle-wrap {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
         }
 
         .market-search-category {
@@ -153,10 +169,8 @@
             border-radius: 3px;
         }
 
-
-        .market-cart-wrap .nav-cart-box > a {
-            padding-left: 8px !important;
-            padding-right: 8px !important;
+        .market-cart-wrap .nav-cart-box > a:not(.market-cart-trigger) {
+            display: none !important;
         }
 
         .market-sub-row {
@@ -215,8 +229,10 @@
                 order: 5;
                 flex-basis: 100%;
                 min-width: 100%;
-                margin-top: 8px;
-                margin-bottom: 8px;
+                margin-top: 8px !important;
+                margin-bottom: 8px !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
             }
 
             .market-search-category {
@@ -291,11 +307,33 @@
                     </span>
                 </a>
 
+                @if (get_setting('show_language_switcher') == 'on')
+                    <div class="dropdown market-switcher lang-visibility js-lang-change ml-2 mr-2" id="lang-change">
+                        <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" data-display="static">
+                            <img src="{{ static_asset('assets/img/flags/' . $system_language->code . '.png') }}" class="mr-1" alt="{{ $system_language->name }}" height="11">
+                            <span class="text-capitalize">{{ $system_language->code }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            @foreach (get_all_active_language() as $language)
+                                <li>
+                                    <a href="javascript:void(0)" data-flag="{{ $language->code }}"
+                                        class="dropdown-item text-dark @if ($system_language->code == $language->code) active @endif">
+                                        <img src="{{ static_asset('assets/img/placeholder.jpg') }}"
+                                            data-src="{{ static_asset('assets/img/flags/' . $language->code . '.png') }}"
+                                            class="mr-1 lazyload" alt="{{ $language->name }}" height="11">
+                                        <span class="language">{{ $language->name }}</span>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div class="market-search flex-grow-1 ml-3 ml-md-4">
                     <div class="position-relative">
                         <form action="{{ route('search') }}" method="GET" class="stop-propagation">
                             <div class="d-flex position-relative align-items-center">
-                                <div class="search-input-box d-flex align-items-center bg-white border border-soft-light rounded-pill overflow-hidden hov-animate-outline" style="height: 48px; flex: 1;">
+                                <div class="search-input-box d-flex align-items-center bg-white rounded-pill overflow-hidden" style="height: 48px; flex: 1;">
                                     <div class="ai-mode-toggle-wrap ml-3" data-toggle="tooltip" data-placement="bottom" title="{{ translate('AI Semantic Search') }}" onclick="toggleAiMode()">
                                         <div class="ai-toggle-btn" id="ai-mode-toggle"></div>
                                         <span class="ai-toggle-label">✨ AI</span>
@@ -306,7 +344,7 @@
                                         id="search" name="keyword" @isset($query) value="{{ $query }}" @endisset
                                         placeholder="{{ translate('Search Mayush Design') }}" autocomplete="off" style="min-width: 0; color: #111827;">
 
-                                    <div class="d-flex align-items-center pr-2 pl-2 border-left border-soft-light" style="gap: 4px; height: 32px;">
+                                    <div class="d-flex align-items-center pr-2 pl-2" style="gap: 4px; height: 32px;">
                                         {{-- Visual Search Camera Button --}}
                                         <button type="button" class="btn btn-sm btn-icon text-secondary hov-text-primary visual-search-btn" onclick="document.getElementById('visual-search-input').click()" title="{{ translate('Search by Image') }}" style="background: none; border: none; outline: none; box-shadow: none;">
                                             <i class="las la-camera la-xl"></i>
@@ -334,6 +372,62 @@
                             <div class="search-nothing d-none p-3 text-center fs-16"></div>
                             <div id="search-content" class="text-left"></div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="dropdown d-none d-lg-block ml-3">
+                    <a href="javascript:void(0)" class="market-action-link d-flex flex-column justify-content-center" data-toggle="dropdown">
+                        <span class="label">{{ Auth::check() ? translate('Hello') . ', ' . \Illuminate\Support\Str::limit($user->name, 12) : translate('Hello, sign in') }}</span>
+                        <span class="value">{{ translate('Account & Lists') }}</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right py-0">
+                        @auth
+                            <a class="dropdown-item py-2" href="{{ isAdmin() ? route('admin.dashboard') : route('dashboard') }}">{{ translate('Dashboard') }}</a>
+                            @if (isCustomer())
+                                <a class="dropdown-item py-2" href="{{ route('purchase_history.index') }}">{{ translate('Purchase History') }}</a>
+                                <a class="dropdown-item py-2" href="{{ route('wishlists.index') }}">{{ translate('Wishlist') }}</a>
+                            @endif
+                            <a class="dropdown-item py-2 text-primary" href="{{ route('logout') }}">{{ translate('Logout') }}</a>
+                        @else
+                            <a class="dropdown-item py-2" href="{{ route('user.login') }}">{{ translate('Login') }}</a>
+                            <a class="dropdown-item py-2" href="{{ route('user.registration') }}">{{ translate('Registration') }}</a>
+                        @endauth
+                    </div>
+                </div>
+
+                <div class="market-cart-wrap dropdown ml-3" data-hover="dropdown">
+                    <div class="nav-cart-box dropdown h-100" id="cart_items">
+                        @php
+                            $total = 0;
+                            $carts = get_user_cart();
+                            if (count($carts) > 0) {
+                                foreach ($carts as $key => $cartItem) {
+                                    $product = get_single_product($cartItem['product_id']);
+                                    if ($product && \App\Utility\CartUtility::is_cart_item_available($cartItem, $product) && $cartItem->status == 1) {
+                                        $total = $total + cart_product_price($cartItem, $product, false) * $cartItem['quantity'];
+                                    }
+                                }
+                            }
+                            $cartCount = count($carts) > 0 ? count($carts) : 0;
+                        @endphp
+                        <a href="javascript:void(0)" class="d-flex align-items-center h-100 position-relative market-cart-trigger" data-toggle="dropdown" data-display="static" title="{{ translate('Cart') }}" style="padding: 4px 8px;">
+                            <span class="position-relative" style="display: inline-block;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 64 64" fill="none">
+                                    <path d="M20 20H54L49 42H25L20 20Z" stroke="#d97434" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                    <circle cx="30" cy="52" r="4" fill="#d97434"/>
+                                    <circle cx="46" cy="52" r="4" fill="#d97434"/>
+                                    <line x1="20" y1="20" x2="14" y2="10" stroke="#d97434" stroke-width="4" stroke-linecap="round"/>
+                                    <line x1="10" y1="24" x2="18" y2="24" stroke="#d97434" stroke-width="3" stroke-linecap="round"/>
+                                    <line x1="8" y1="30" x2="17" y2="30" stroke="#d97434" stroke-width="3" stroke-linecap="round"/>
+                                    <line x1="6" y1="36" x2="16" y2="36" stroke="#d97434" stroke-width="3" stroke-linecap="round"/>
+                                </svg>
+                                <span class="cart-count-badge" style="position: absolute; top: -6px; right: -8px; background: #e53e3e; color: #fff; font-size: 11px; font-weight: 700; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0 4px; border: 2px solid var(--market-header-bg);">
+                                    <span class="cart-count">{{ $cartCount }}</span>
+                                </span>
+                            </span>
+                        </a>
+                        <!-- Cart Dropdown Menu -->
+                        @include('frontend.partials.cart.cart')
                     </div>
                 </div>
             </div>
@@ -368,65 +462,17 @@
                             @endif
                             <a href="{{ route('contact') }}" class="market-nav-link">{{ translate('Customer Service') }}</a>
                         @endif
-
-                        <!-- Become Seller button (always show if vendor system activated) -->
-                        @if (get_setting('vendor_system_activation') == 1)
-                            <a href="{{ route(get_setting('seller_registration_verify') === '1' ? 'shop-reg.verification' : 'shops.create') }}" class="market-nav-link text-warning ml-3 fw-700">
-                                <i class="las la-store mr-1"></i>{{ translate('Become a Seller') }}
-                            </a>
-                        @endif
                     </div>
                 </div>
 
                 <!-- Right Section: Relocated switchers/actions block -->
                 <div class="d-flex align-items-center ml-auto">
-                    @if (get_setting('show_language_switcher') == 'on')
-                        <div class="dropdown market-switcher lang-visibility js-lang-change mr-2" id="lang-change">
-                            <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" data-display="static">
-                                <img src="{{ static_asset('assets/img/flags/' . $system_language->code . '.png') }}" class="mr-1" alt="{{ $system_language->name }}" height="11">
-                                <span class="text-capitalize">{{ $system_language->code }}</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                @foreach (get_all_active_language() as $language)
-                                    <li>
-                                        <a href="javascript:void(0)" data-flag="{{ $language->code }}"
-                                            class="dropdown-item text-dark @if ($system_language->code == $language->code) active @endif">
-                                            <img src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                                                data-src="{{ static_asset('assets/img/flags/' . $language->code . '.png') }}"
-                                                class="mr-1 lazyload" alt="{{ $language->name }}" height="11">
-                                            <span class="language">{{ $language->name }}</span>
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <div class="dropdown d-none d-lg-block mr-2">
-                        <a href="javascript:void(0)" class="market-action-link d-flex flex-column justify-content-center" data-toggle="dropdown">
-                            <span class="label">{{ Auth::check() ? translate('Hello') . ', ' . \Illuminate\Support\Str::limit($user->name, 12) : translate('Hello, sign in') }}</span>
-                            <span class="value">{{ translate('Account & Lists') }}</span>
+                    <!-- Become Seller button (always show if vendor system activated) -->
+                    @if (get_setting('vendor_system_activation') == 1)
+                        <a href="{{ route(get_setting('seller_registration_verify') === '1' ? 'shop-reg.verification' : 'shops.create') }}" class="market-nav-link text-warning ml-3 fw-700">
+                            <i class="las la-store mr-1"></i>{{ translate('Become a Seller') }}
                         </a>
-                        <div class="dropdown-menu dropdown-menu-right py-0">
-                            @auth
-                                <a class="dropdown-item py-2" href="{{ isAdmin() ? route('admin.dashboard') : route('dashboard') }}">{{ translate('Dashboard') }}</a>
-                                @if (isCustomer())
-                                    <a class="dropdown-item py-2" href="{{ route('purchase_history.index') }}">{{ translate('Purchase History') }}</a>
-                                    <a class="dropdown-item py-2" href="{{ route('wishlists.index') }}">{{ translate('Wishlist') }}</a>
-                                @endif
-                                <a class="dropdown-item py-2 text-primary" href="{{ route('logout') }}">{{ translate('Logout') }}</a>
-                            @else
-                                <a class="dropdown-item py-2" href="{{ route('user.login') }}">{{ translate('Login') }}</a>
-                                <a class="dropdown-item py-2" href="{{ route('user.registration') }}">{{ translate('Registration') }}</a>
-                            @endauth
-                        </div>
-                    </div>
-
-                    <div class="market-cart-wrap dropdown ml-1" data-hover="dropdown">
-                        <div class="nav-cart-box dropdown h-100" id="cart_items">
-                            @include('frontend.partials.cart.cart')
-                        </div>
-                    </div>
+                    @endif
                 </div>
 
             </div>
@@ -445,4 +491,3 @@
         </div>
     </div>
 </header>
-

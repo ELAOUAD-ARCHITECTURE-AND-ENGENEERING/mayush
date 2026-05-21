@@ -12,6 +12,17 @@
                         enctype="multipart/form-data">
                         @csrf
                         <div class="form-group row">
+                            <label class="col-xxl-3 col-from-label fs-13">{{translate('Activation')}}</label>
+                            <div class="col-xxl-9">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input type="hidden" name="types[]" value="top_banner_status">
+                                    <input type="checkbox" name="top_banner_status" value="1" @if(get_setting('top_banner_status') == 1) checked @endif>
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
                             <label class="col-xxl-3 col-from-label fs-13" for="image_for_mobile">
                             </label>
                             <div class="col-md-9 fs-11 d-flex mb-1rem">

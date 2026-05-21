@@ -705,5 +705,145 @@
         "duration_ms": 9.67,
         "memory_mb": 11.67,
         "timestamp": "2026-05-20 15:31:54"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_create_category",
+        "operation": "Create Category",
+        "duration_ms": 7.29,
+        "memory_mb": 7.68,
+        "timestamp": "2026-05-21 16:15:34"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_read_category_list",
+        "operation": "Read Category List",
+        "duration_ms": 16.76,
+        "memory_mb": 10.85,
+        "timestamp": "2026-05-21 16:15:35"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_update_category",
+        "operation": "Update Category",
+        "duration_ms": 6.81,
+        "memory_mb": 10.75,
+        "timestamp": "2026-05-21 16:15:35"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_delete_category",
+        "operation": "Delete Category",
+        "duration_ms": 6.52,
+        "memory_mb": 10.65,
+        "timestamp": "2026-05-21 16:15:35"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_create_category",
+        "operation": "Create Category",
+        "duration_ms": 7.2,
+        "memory_mb": 7.68,
+        "timestamp": "2026-05-21 17:36:22"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_read_category_list",
+        "operation": "Read Category List",
+        "duration_ms": 15.14,
+        "memory_mb": 10.85,
+        "timestamp": "2026-05-21 17:36:22"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_update_category",
+        "operation": "Update Category",
+        "duration_ms": 6.71,
+        "memory_mb": 10.75,
+        "timestamp": "2026-05-21 17:36:23"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_delete_category",
+        "operation": "Delete Category",
+        "duration_ms": 4.96,
+        "memory_mb": 10.65,
+        "timestamp": "2026-05-21 17:36:23"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_create_category",
+        "operation": "Create Category",
+        "duration_ms": 6.78,
+        "memory_mb": 7.68,
+        "timestamp": "2026-05-21 17:54:36"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_read_category_list",
+        "operation": "Read Category List",
+        "duration_ms": 15.78,
+        "memory_mb": 10.85,
+        "timestamp": "2026-05-21 17:54:36"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_update_category",
+        "operation": "Update Category",
+        "duration_ms": 6.38,
+        "memory_mb": 10.75,
+        "timestamp": "2026-05-21 17:54:36"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_delete_category",
+        "operation": "Delete Category",
+        "duration_ms": 5.16,
+        "memory_mb": 10.65,
+        "timestamp": "2026-05-21 17:54:36"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_create_category",
+        "operation": "Create Category",
+        "duration_ms": 6.75,
+        "memory_mb": 8.44,
+        "timestamp": "2026-05-21 18:03:41"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_read_category_list",
+        "operation": "Read Category List",
+        "duration_ms": 15.97,
+        "memory_mb": 11.28,
+        "timestamp": "2026-05-21 18:03:41"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_update_category",
+        "operation": "Update Category",
+        "duration_ms": 6.41,
+        "memory_mb": 11.11,
+        "timestamp": "2026-05-21 18:03:42"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_delete_category",
+        "operation": "Delete Category",
+        "duration_ms": 5.54,
+        "memory_mb": 11.01,
+        "timestamp": "2026-05-21 18:03:42"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_create_category",
+        "operation": "Create Category",
+        "duration_ms": 6.68,
+        "memory_mb": 8.44,
+        "timestamp": "2026-05-21 18:11:47"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_read_category_list",
+        "operation": "Read Category List",
+        "duration_ms": 15.14,
+        "memory_mb": 11.28,
+        "timestamp": "2026-05-21 18:11:47"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_update_category",
+        "operation": "Update Category",
+        "duration_ms": 6.18,
+        "memory_mb": 11.11,
+        "timestamp": "2026-05-21 18:11:47"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_delete_category",
+        "operation": "Delete Category",
+        "duration_ms": 4.81,
+        "memory_mb": 11.01,
+        "timestamp": "2026-05-21 18:11:48"
     }
 ]

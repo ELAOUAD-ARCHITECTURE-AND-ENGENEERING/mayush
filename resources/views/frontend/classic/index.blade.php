@@ -281,9 +281,9 @@ $flash_deal = get_featured_flash_deal();
 
 @if (addon_is_activated('preorder'))
 
-<!-- Preorder Banner 1 -->
-@php $homepreorder_banner_1Images = get_setting('home_preorder_banner_1_images', null, $lang); @endphp
-@if ($homepreorder_banner_1Images != null)
+    {{-- Preorder Banner section 1 --}}
+    @php $homepreorder_banner_1Images = get_setting('home_preorder_banner_1_images', null, $lang); @endphp
+    @if (get_setting('preorder_banner_1_status') == 1 && $homepreorder_banner_1Images != null)
 <div class="mb-2 mb-md-3 mt-2 mt-md-3">
     <div class="container">
         @php
