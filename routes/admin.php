@@ -10,6 +10,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\BrandBulkUploadController;
 use App\Http\Controllers\BusinessSettingsController;
+use App\Http\Controllers\BannerVersionController;
 use App\Http\Controllers\CarrierController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CityController;
@@ -389,6 +390,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/business-settings/business-info-update', 'business_info_update')->name('business_info.update');
         Route::get('/business-settings/custom-product-visitors', 'customProductVisitorsUpdate')->name('custom_product_visitors');
         Route::post('/business-settings/custom-product-visitors-update', 'customProductVisitorsUpdate')->name('custom_product_visitors.update');
+    });
+
+    Route::controller(BannerVersionController::class)->group(function () {
+        Route::get('/banner-versions/{settingKey}', 'index')->name('banner_versions.index');
+        Route::post('/banner-versions/{version}/restore', 'restore')->name('banner_versions.restore');
     });
 
     Route::controller(AIController::class)->group(function () {

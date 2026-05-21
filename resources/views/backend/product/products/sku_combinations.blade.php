@@ -1,5 +1,14 @@
+@php
+	$dimensionChoiceId = collect(request('choice_no', []))->first(function ($choiceId) {
+		$attribute = \App\Models\Attribute::find($choiceId);
+
+		return (int) $choiceId === 35 || strtolower((string) optional($attribute)->name) === 'dimension';
+	});
+	$dimensionSkuRowsEnabled = $dimensionChoiceId && count(request('choice_no', [])) === 1 && (int) $colors_active !== 1;
+@endphp
 @if(count($combinations) > 0)
-<table class="table table-bordered aiz-table">
+<div class="table-responsive">
+	<table class="table table-bordered sku-dimension-table @if(!$dimensionSkuRowsEnabled) aiz-table @endif" @if($dimensionSkuRowsEnabled) data-dimension-choice-input-name="choice_options_{{ $dimensionChoiceId }}[]" @endif>
 	<thead>
 		<tr>
 			<td class="text-center">
@@ -55,32 +64,44 @@
 		@if(strlen($str) > 0)
 			<tr class="variant">
 				<td>
-					<label for="" class="control-label">{{ $str }}</label>
+					<div class="sku-dimension-variant-cell">
+						<label for="" class="control-label mb-0 sku-dimension-variant-label" data-variant-key="{{ strtolower(preg_replace('/\s+/', '', $str)) }}">{{ $str }}</label>
+						@if($dimensionSkuRowsEnabled)
+							<div class="sku-dimension-variant-actions">
+								<button type="button" class="btn btn-icon btn-soft-danger btn-sm" onclick="skuDimensionRemoveRow(this)" data-variant="{{ $str }}" aria-label="{{ translate('Remove dimension variant') }}" title="{{ translate('Remove dimension variant') }}">
+									<i class="las la-trash"></i>
+								</button>
+								<button type="button" class="btn btn-icon btn-primary btn-sm" onclick="skuDimensionAddRow(this)" aria-label="{{ translate('Add dimension variant') }}" title="{{ translate('Add dimension variant') }}">
+									<i class="las la-plus"></i>
+								</button>
+							</div>
+						@endif
+					</div>
 				</td>
 				<td>
-					<input type="number" lang="en" name="price_{{ $str }}" value="{{ $unit_price }}" min="0" step="0.01" class="form-control" required>
+					<input type="number" lang="en" name="price_{{ $str }}@if($dimensionSkuRowsEnabled)[]@endif" value="{{ $unit_price }}" min="0" step="0.01" class="form-control" required>
 				</td>
 				<td>
-					<input type="text" name="sku_{{ $str }}" value="" class="form-control">
+					<input type="text" name="sku_{{ $str }}@if($dimensionSkuRowsEnabled)[]@endif" value="" class="form-control">
 				</td>
 				<td>
-					<input type="number" lang="en" name="qty_{{ $str }}" value="10" min="0" step="1" class="form-control" required>
+					<input type="number" lang="en" name="qty_{{ $str }}@if($dimensionSkuRowsEnabled)[]@endif" value="10" min="0" step="1" class="form-control" required>
 				</td>
 				<td>
 					<div class="row gutters-5">
 						<div class="col">
-							<input type="number" lang="en" name="length_{{ $str }}" value="0" min="0" step="0.01" class="form-control" placeholder="{{ translate('L') }}">
+							<input type="number" lang="en" name="length_{{ $str }}@if($dimensionSkuRowsEnabled)[]@endif" value="0" min="0" step="0.01" class="form-control" placeholder="{{ translate('L') }}">
 						</div>
 						<div class="col">
-							<input type="number" lang="en" name="width_{{ $str }}" value="0" min="0" step="0.01" class="form-control" placeholder="{{ translate('W') }}">
+							<input type="number" lang="en" name="width_{{ $str }}@if($dimensionSkuRowsEnabled)[]@endif" value="0" min="0" step="0.01" class="form-control" placeholder="{{ translate('W') }}">
 						</div>
 						<div class="col">
-							<input type="number" lang="en" name="height_{{ $str }}" value="0" min="0" step="0.01" class="form-control" placeholder="{{ translate('H') }}">
+							<input type="number" lang="en" name="height_{{ $str }}@if($dimensionSkuRowsEnabled)[]@endif" value="0" min="0" step="0.01" class="form-control" placeholder="{{ translate('H') }}">
 						</div>
 					</div>
 				</td>
 				<td>
-					<select name="unit_{{ $str }}" class="form-control aiz-selectpicker">
+					<select name="unit_{{ $str }}@if($dimensionSkuRowsEnabled)[]@endif" class="form-control aiz-selectpicker">
 						<option value="cm">cm</option>
 						<option value="inch">inch</option>
 					</select>
@@ -91,7 +112,7 @@
 							<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse') }}</div>
 						</div>
 						<div class="form-control file-amount text-truncate">{{ translate('Choose File') }}</div>
-						<input type="hidden" name="img_{{ $str }}" class="selected-files">
+						<input type="hidden" name="img_{{ $str }}@if($dimensionSkuRowsEnabled)[]@endif" class="selected-files">
 					</div>
 					<div class="file-preview box sm"></div>
 				</td>
@@ -99,5 +120,9 @@
 		@endif
 	@endforeach
 	</tbody>
-</table>
+	</table>
+</div>
+@if($dimensionSkuRowsEnabled)
+	@include('backend.product.products.sku_dimension_variant_assets', ['unit_price' => $unit_price])
+@endif
 @endif

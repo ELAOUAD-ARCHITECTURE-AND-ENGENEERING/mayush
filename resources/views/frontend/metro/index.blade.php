@@ -79,6 +79,38 @@
             margin-bottom: 22px;
             color: rgba(255, 255, 255, .92);
         }
+        .metro-promo-banner-text {
+            max-width: min(92%, 720px);
+            overflow-wrap: anywhere;
+        }
+        .metro-promo-banner-title {
+            font-size: clamp(1.75rem, 4vw, 3rem);
+            line-height: 1.15;
+        }
+        .metro-promo-banner-title *,
+        .metro-promo-banner-description * {
+            max-width: 100%;
+        }
+        .metro-promo-banner-title p,
+        .metro-promo-banner-title div,
+        .metro-promo-banner-description p,
+        .metro-promo-banner-description div {
+            margin-bottom: 0;
+        }
+        @media (max-width: 991px) {
+            .metro-promo-banner-text [style*="font-size"] {
+                font-size: min(1em, 2.25rem) !important;
+            }
+        }
+        @media (max-width: 575px) {
+            .metro-promo-banner-title {
+                font-size: clamp(1.35rem, 7vw, 2rem);
+            }
+            .metro-promo-banner-text [style*="font-size"] {
+                font-size: min(1em, 1.8rem) !important;
+                line-height: 1.35;
+            }
+        }
         .metro-hero-cta {
             display: inline-flex;
             align-items: center;

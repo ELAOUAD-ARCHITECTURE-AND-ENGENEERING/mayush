@@ -28,6 +28,7 @@ use App\Services\ProductTaxService;
 use App\Services\ProductFlashDealService;
 use App\Services\ProductStockService;
 use App\Services\FrequentlyBoughtProductService;
+use App\Utility\ProductUtility;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redirect;
@@ -354,7 +355,8 @@ class ProductController extends Controller
             'product_id',
             'length',
             'width',
-            'height'
+            'height',
+            'removed_sku_variants'
         ]), $product);
 
         // Frequently Bought Products
@@ -463,7 +465,8 @@ class ProductController extends Controller
                 'product_id',
                 'length',
                 'width',
-                'height'
+                'height',
+                'removed_sku_variants'
             ]), $product);
 
 
@@ -657,7 +660,8 @@ class ProductController extends Controller
             'product_id',
             'length',
             'width',
-            'height'
+            'height',
+            'removed_sku_variants'
         ]), $product);
 
         //Flash Deal
@@ -1044,6 +1048,7 @@ class ProductController extends Controller
                         // array_push($data, $item->value);
                         array_push($data, $item);
                     }
+
                     array_push($options, $data);
                 }
             }
@@ -1078,6 +1083,11 @@ class ProductController extends Controller
                         // array_push($data, $item->value);
                         array_push($data, $item);
                     }
+
+                    if (count($request->choice_no) === 1 && (int) $colors_active !== 1) {
+                        $data = ProductUtility::includeSavedDimensionOccurrences($data, $product, $no);
+                    }
+
                     array_push($options, $data);
                 }
             }

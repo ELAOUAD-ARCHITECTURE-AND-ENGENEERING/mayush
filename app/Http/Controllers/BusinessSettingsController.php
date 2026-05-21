@@ -14,6 +14,8 @@ use App\Models\ShippingSystem;
 use App\Models\State;
 use App\Models\Zone;
 use App\Services\HeroTitleSanitizerService;
+use App\Services\BannerTextSanitizerService;
+use App\Services\BannerTextVersionService;
 use Artisan;
 use CoreComponentRepository;
 use Illuminate\Support\Facades\Redirect;
@@ -484,10 +486,20 @@ class BusinessSettingsController extends Controller
                 }
 
                 $value = $this->businessSettingValue($request, $type);
+                $encodedValue = gettype($value) == 'array' ? json_encode($value) : $value;
 
                 if ($business_settings != null) {
+                    if ($this->isChangedBannerTextSetting($type, $business_settings->value, $encodedValue)) {
+                        app(BannerTextVersionService::class)->snapshot(
+                            $type,
+                            $lang,
+                            $business_settings->value,
+                            auth()->id()
+                        );
+                    }
+
                     if (gettype($value) == 'array') {
-                        $business_settings->value = json_encode($value);
+                        $business_settings->value = $encodedValue;
                     } else {
                         $business_settings->value = $value;
                         if ($type == "seller_commission_type"  && $value == "category_based") {
@@ -546,7 +558,17 @@ class BusinessSettingsController extends Controller
             return app(HeroTitleSanitizerService::class)->sanitizeArray($value);
         }
 
+        if (app(BannerTextSanitizerService::class)->isBannerTextSetting($type)) {
+            return app(BannerTextSanitizerService::class)->sanitizeArray($value);
+        }
+
         return $value;
+    }
+
+    private function isChangedBannerTextSetting(string $type, ?string $oldValue, $newValue): bool
+    {
+        return app(BannerTextSanitizerService::class)->isBannerTextSetting($type)
+            && $oldValue !== $newValue;
     }
 
 

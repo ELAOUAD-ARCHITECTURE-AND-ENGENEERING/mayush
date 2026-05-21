@@ -16,11 +16,17 @@
 
 @extends($layout)
 
-@section('meta_title')Contact EAI | ELAOUAD Architecture & Ingénierie Casablanca@stop
+@section('meta_title')
+    Contact EAI | ELAOUAD Architecture & Ingénierie Casablanca
+@endsection
 
-@section('meta_description')Contactez ELAOUAD Architecture & Ingénierie à Casablanca pour vos projets d'architecture, ingénierie, BIM, design intérieur, maîtrise d'œuvre, formations ou événements professionnels.@stop
+@section('meta_description')
+    Contactez ELAOUAD Architecture & Ingénierie à Casablanca pour vos projets d'architecture, ingénierie, BIM, design intérieur, maîtrise d'œuvre, formations ou événements professionnels.
+@endsection
 
-@section('meta_keywords')contact architecte Casablanca, ELAOUAD Architecture contact, cabinet architecture Casablanca contact, ingénierie construction Casablanca, BIM consulting Maroc contact, design intérieur Casablanca, formation architecture Maroc contact, événements architecture Maroc, EAI Casablanca@stop
+@section('meta_keywords')
+    contact architecte Casablanca, ELAOUAD Architecture contact, cabinet architecture Casablanca contact, ingénierie construction Casablanca, BIM consulting Maroc contact, design intérieur Casablanca, formation architecture Maroc contact, événements architecture Maroc, EAI Casablanca
+@endsection
 
 @section('meta')
     <meta itemprop="name" content="Contact EAI | ELAOUAD Architecture & Ingénierie Casablanca">

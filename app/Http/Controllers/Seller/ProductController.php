@@ -23,6 +23,7 @@ use App\Services\ProductTaxService;
 use App\Services\ProductFlashDealService;
 use App\Services\ProductStockService;
 use App\Services\FrequentlyBoughtProductService;
+use App\Utility\ProductUtility;
 use Illuminate\Support\Facades\Notification;
 
 class ProductController extends Controller
@@ -131,7 +132,7 @@ class ProductController extends Controller
 
         //Product Stock
         $this->productStockService->store($request->only([
-            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id', 'length', 'width', 'height'
+            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id', 'length', 'width', 'height', 'removed_sku_variants'
         ]), $product);
 
         // Frequently Bought Products
@@ -202,7 +203,7 @@ class ProductController extends Controller
         //Product Stock
         $product->stocks()->delete();
         $this->productStockService->store($request->only([
-            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id', 'length', 'width', 'height'
+            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id', 'length', 'width', 'height', 'removed_sku_variants'
         ]), $product);
 
         //VAT & Tax
@@ -266,6 +267,7 @@ class ProductController extends Controller
                 foreach ($request[$name] as $key => $item) {
                     array_push($data, $item);
                 }
+
                 array_push($options, $data);
             }
         }
@@ -296,6 +298,11 @@ class ProductController extends Controller
                 foreach ($request[$name] as $key => $item) {
                     array_push($data, $item);
                 }
+
+                if (count($request->choice_no) === 1 && (int) $colors_active !== 1) {
+                    $data = ProductUtility::includeSavedDimensionOccurrences($data, $product, $no);
+                }
+
                 array_push($options, $data);
             }
         }
