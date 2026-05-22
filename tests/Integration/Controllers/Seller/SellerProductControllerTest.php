@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Shop;
 use App\Models\Attribute;
 use App\Models\ProductStock;
+use App\Models\ProductTranslation;
 use App\Models\Language;
 use App\Models\BusinessSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -196,6 +197,58 @@ class SellerProductControllerTest extends TestCase
         $response->assertRedirect(route('seller.products.create'));
         $response->assertSessionHasErrors('choice_options_' . $dimension->id);
         $this->assertDatabaseMissing('products', ['name' => 'Invalid Dimension Table Product']);
+    }
+
+    /** @test */
+    public function seller_dimension_update_without_lang_uses_the_default_translation_language()
+    {
+        $category = Category::factory()->create();
+        $dimension = $this->dimensionAttribute();
+        $product = Product::factory()->create([
+            'name' => 'Default Language Dimension Product',
+            'user_id' => $this->seller->id,
+            'category_id' => $category->id,
+            'colors' => json_encode([]),
+            'attributes' => json_encode([$dimension->id]),
+            'choice_options' => json_encode([[
+                'attribute_id' => $dimension->id,
+                'values' => ['1-100cm'],
+            ]]),
+        ]);
+
+        ProductStock::create(['product_id' => $product->id, 'variant' => '1-100cm', 'price' => 50, 'qty' => 2]);
+
+        $this->actingAs($this->seller)
+            ->get(route('seller.products.edit', $product))
+            ->assertOk()
+            ->assertSee('name="lang" value="en"', false);
+
+        $response = $this->actingAs($this->seller)->post(route('seller.products.update', $product), [
+            'name' => 'Default Language Dimension Product Updated',
+            'category_ids' => [$category->id],
+            'category_id' => $category->id,
+            'unit' => 'pcs',
+            'min_qty' => 1,
+            'unit_price' => 50,
+            'current_stock' => 0,
+            'description' => 'Dimension update without a language query value.',
+            'meta_img' => null,
+            'thumbnail_img' => null,
+            'choice_no' => [$dimension->id],
+            'choice_options_' . $dimension->id => ['1-100cm'],
+            'price_1-100cm' => [50],
+            'sku_1-100cm' => ['DIM-DEFAULT-LANG'],
+            'qty_1-100cm' => [2],
+            'img_1-100cm' => [null],
+        ]);
+
+        $response->assertRedirect();
+        $this->assertSame(1, ProductTranslation::where('product_id', $product->id)->where('lang', 'en')->count());
+        $this->assertDatabaseHas('product_translations', [
+            'product_id' => $product->id,
+            'lang' => 'en',
+            'name' => 'Default Language Dimension Product Updated',
+        ]);
     }
 
     /** @test */

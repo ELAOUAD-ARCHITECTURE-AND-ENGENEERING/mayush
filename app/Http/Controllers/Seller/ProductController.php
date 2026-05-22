@@ -179,7 +179,7 @@ class ProductController extends Controller
             abort(403);
         }
 
-        $lang = $request->lang;
+        $lang = $this->translationLanguage($request->lang);
         $tags = json_decode($product->tags);
         $categories = Category::where('parent_id', 0)
             ->where('digital', 0)
@@ -190,6 +190,8 @@ class ProductController extends Controller
 
     public function update(ProductRequest $request, Product $product)
     {
+        $request->merge(['lang' => $this->translationLanguage($request->lang)]);
+
         //Product
         $product = $this->productService->update($request->except([
             '_token', 'sku', 'choice', 'tax_id', 'tax', 'tax_type', 'flash_deal_id', 'flash_discount', 'flash_discount_type'
@@ -448,6 +450,11 @@ class ProductController extends Controller
             }
         }
         return 1;
+    }
+
+    private function translationLanguage(?string $lang = null): string
+    {
+        return $lang ?: (env('DEFAULT_LANGUAGE') ?: (get_system_language()?->code ?: 'fr'));
     }
 
     public function product_search(Request $request)
