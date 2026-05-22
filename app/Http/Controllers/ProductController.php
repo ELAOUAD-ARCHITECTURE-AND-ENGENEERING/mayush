@@ -560,7 +560,7 @@ class ProductController extends Controller
             }
         }
 
-        $lang = $request->lang;
+        $lang = $this->translationLanguage($request->lang);
         $tags = json_decode($product->tags);
         $categories = Category::where('parent_id', 0)
             ->where('digital', 0)
@@ -592,7 +592,7 @@ class ProductController extends Controller
         if ($product->digital == 1) {
             return redirect('digitalproducts/' . $id . '/edit');
         }
-        $lang = $request->lang;
+        $lang = $this->translationLanguage($request->lang);
         $tags = json_decode($product->tags);
         // $categories = Category::all();
         $categories = Category::where('parent_id', 0)
@@ -612,6 +612,8 @@ class ProductController extends Controller
      */
     public function update(ProductRequest $request, Product $product)
     {
+        $request->merge(['lang' => $this->translationLanguage($request->lang)]);
+
         //Log::info('Product Update Request:', $request->all());
         //Product
         if (addon_is_activated('gst_system')) {
@@ -1186,6 +1188,11 @@ class ProductController extends Controller
     public function generateWithAI(Request $request)
     {
         return $this->aiService->productGenerateWithAI($request->all());
+    }
+
+    private function translationLanguage(?string $lang = null): string
+    {
+        return $lang ?: (env('DEFAULT_LANGUAGE') ?: (get_system_language()?->code ?: 'fr'));
     }
 
     public function get_products_by_subcategory() { return 'Stub'; }
