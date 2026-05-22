@@ -321,7 +321,7 @@ if (!function_exists('cart_product_price')) {
                 $str = $cart_product['variation'];
             }
             $price = 0;
-            $product_stock = $product->stocks->where('variant', $str)->first();
+            $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
             if ($product_stock) {
                 $price = $product_stock->price;
             }
@@ -383,7 +383,7 @@ if (!function_exists('cart_product_tax')) {
         if ($cart_product['variation'] != null) {
             $str = $cart_product['variation'];
         }
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         $price = $product_stock->price;
 
         //discount calculation
@@ -438,7 +438,7 @@ if (!function_exists('cart_product_gst')) {
         // $price = $product_stock->price;
 
         $price = 0;
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         if ($product_stock) {
             $price = $product_stock->price * $cart_product['quantity'];
         }
@@ -498,7 +498,7 @@ if (!function_exists('cart_product_discount')) {
         if ($cart_product['variation'] != null) {
             $str = $cart_product['variation'];
         }
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         $price = $product_stock->price;
 
         //discount calculation
@@ -541,7 +541,7 @@ if (!function_exists('carts_product_discount')) {
             if ($cart_product['variation'] != null) {
                 $str = $cart_product['variation'];
             }
-            $product_stock = $product->stocks->where('variant', $str)->first();
+            $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
             $price = $product_stock->price;
 
             //discount calculation
@@ -3731,7 +3731,7 @@ if (!function_exists('pos_cart_product_gst')) {
         // $price = $product_stock->price;
 
         $price = 0;
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         if ($product_stock) {
             $price = $product_stock->price * $cart_product['quantity'];
         }

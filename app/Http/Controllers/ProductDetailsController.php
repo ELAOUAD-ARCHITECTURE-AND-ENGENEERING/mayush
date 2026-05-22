@@ -22,6 +22,7 @@ use App\Models\FrequentlyBoughtProduct;
 use App\Models\User;
 use App\Models\ProductView;
 use App\Http\Controllers\AffiliateController;
+use App\Utility\CartUtility;
 
 class ProductDetailsController extends Controller
 {
@@ -213,7 +214,10 @@ class ProductDetailsController extends Controller
             }
         }
 
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = CartUtility::find_product_stock($product, $str);
+        if (!$product_stock) {
+            abort(404);
+        }
 
         $price = $product_stock->price;
 
@@ -289,7 +293,8 @@ class ProductDetailsController extends Controller
             'sku'      => $sku,
             'length'   => $product_stock->length,
             'width'    => $product_stock->width,
-            'height'   => $product_stock->height
+            'height'   => $product_stock->height,
+            'dimension_unit' => $product_stock->dimension_unit ?: 'cm',
         );
     }
 

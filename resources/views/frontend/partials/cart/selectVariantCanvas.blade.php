@@ -137,16 +137,19 @@
                                                 {{ get_single_attribute_name($choice->attribute_id) }}</div>
                                         </div>
                                         <div class="col-12">
+                                            @if (\App\Utility\ProductUtility::isDimensionAttribute($choice->attribute_id))
+                                                <p class="mb-2 fs-12 text-gray">{{ translate('Dimensions are shown as Length x Width x Height.') }}</p>
+                                            @endif
                                             <div class="aiz-radio-inline">
-                                                @foreach ($choice->values as $key => $value)
+                                                @foreach (\App\Utility\ProductUtility::frontendChoiceValues($product, $choice) as $key => $choiceValue)
                                                     <label class="aiz-megabox pl-0 mr-2 my-1">
                                                         <input type="radio"
                                                             name="attribute_id_{{ $choice->attribute_id }}"
-                                                            value="{{ $value }}"
+                                                            value="{{ $choiceValue['value'] }}"
                                                             @if ($key == 0) checked @endif>
                                                         <span
                                                             class="aiz-megabox-elem rounded-0 d-flex align-items-center justify-content-center py-1 px-3 rounded-1">
-                                                            {{ $value }}
+                                                            {{ $choiceValue['label'] }}
                                                         </span>
                                                     </label>
                                                 @endforeach

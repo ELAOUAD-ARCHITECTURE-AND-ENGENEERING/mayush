@@ -45,7 +45,7 @@
                         @endforeach
                         @foreach ($product->stocks as $key => $stock)
                             @if ($stock->image != null)
-                                <div class="carousel-box c-pointer border p-1 rounded" data-variation="{{ $stock->variant }}">
+                                <div class="carousel-box c-pointer border p-1 rounded" data-variation="{{ \App\Utility\ProductUtility::isDimensionOnlyChoiceProduct($product) && \App\Utility\ProductUtility::stockHasCustomerDimensions($stock) ? \App\Utility\ProductUtility::dimensionStockValue($stock) : $stock->variant }}">
                                     <img
                                         class="lazyload mw-100 size-50px mx-auto"
                                         src="{{ static_asset('assets/img/placeholder.jpg') }}"
@@ -150,17 +150,20 @@
                                         <div class="opacity-50 mt-2 ">{{ \App\Models\Attribute::find($choice->attribute_id)->getTranslation('name') }}:</div>
                                     </div>
                                     <div class="col-10">
+                                        @if (\App\Utility\ProductUtility::isDimensionAttribute($choice->attribute_id))
+                                            <p class="mb-2 fs-12 text-secondary">{{ translate('Dimensions are shown as Length x Width x Height.') }}</p>
+                                        @endif
                                         <div class="aiz-radio-inline">
-                                            @foreach ($choice->values as $key => $value)
+                                            @foreach (\App\Utility\ProductUtility::frontendChoiceValues($product, $choice) as $key => $choiceValue)
                                             <label class="aiz-megabox pl-0 mr-2">
                                                 <input
                                                     type="radio"
                                                     name="attribute_id_{{ $choice->attribute_id }}"
-                                                    value="{{ $value }}"
+                                                    value="{{ $choiceValue['value'] }}"
                                                     @if($key == 0) checked @endif
                                                 >
                                                 <span class="aiz-megabox-elem rounded d-flex align-items-center justify-content-center py-2 px-3 mb-2">
-                                                    {{ $value }}
+                                                    {{ $choiceValue['label'] }}
                                                 </span>
                                             </label>
                                             @endforeach

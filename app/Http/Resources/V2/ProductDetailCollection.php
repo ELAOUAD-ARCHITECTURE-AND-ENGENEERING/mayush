@@ -50,7 +50,10 @@ class ProductDetailCollection extends ResourceCollection
                 foreach ($data->stocks as $stockItem) {
                     if ($stockItem->image != null && $stockItem->image != "") {
                         $item = array();
-                        $item['variant'] = $stockItem->variant;
+                        $item['variant'] = \App\Utility\ProductUtility::isDimensionOnlyChoiceProduct($data)
+                            && \App\Utility\ProductUtility::stockHasCustomerDimensions($stockItem)
+                                ? \App\Utility\ProductUtility::dimensionStockValue($stockItem)
+                                : $stockItem->variant;
                         $item['path'] = uploaded_asset($stockItem->image);
                         $photos[] = $item;
                     }
@@ -91,7 +94,7 @@ class ProductDetailCollection extends ResourceCollection
                     'thumbnail_image' => uploaded_asset($data->thumbnail_img),
                     'tags' => explode(',', $data->tags),
                     'price_high_low' => (float)explode('-', home_discounted_base_price($data, false))[0] == (float)explode('-', home_discounted_price($data, false))[1] ? format_price((float)explode('-', home_discounted_price($data, false))[0]) : "From " . format_price((float)explode('-', home_discounted_price($data, false))[0]) . " to " . format_price((float)explode('-', home_discounted_price($data, false))[1]),
-                    'choice_options' => $this->convertToChoiceOptions(json_decode($data->choice_options)),
+                    'choice_options' => $this->convertToChoiceOptions($data, json_decode($data->choice_options)),
                     'colors' => json_decode($data->colors) ?? [],
                     'has_discount' => home_base_price($data, false) != home_discounted_base_price($data, false),
                     'discount' => "-" . discount_in_percentage($data) . "%",
@@ -126,14 +129,16 @@ class ProductDetailCollection extends ResourceCollection
         ];
     }
 
-    protected function convertToChoiceOptions($data)
+    protected function convertToChoiceOptions($product, $data)
     {
         $result = array();
         if ($data) {
             foreach ($data as $key => $choice) {
                 $item['name'] = $choice->attribute_id;
                 $item['title'] = Attribute::find($choice->attribute_id)->getTranslation('name');
-                $item['options'] = $choice->values;
+                $item['options'] = collect(\App\Utility\ProductUtility::frontendChoiceValues($product, $choice))
+                    ->pluck('value')
+                    ->all();
                 array_push($result, $item);
             }
         }

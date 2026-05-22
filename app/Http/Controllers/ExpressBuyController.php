@@ -13,6 +13,7 @@ use App\Models\ProductStock;
 use App\Models\InventoryLog;
 use App\Utility\EmailUtility;
 use App\Utility\NotificationUtility;
+use App\Utility\CartUtility;
 use Auth;
 use DB;
 use Illuminate\Support\Facades\Log;
@@ -95,6 +96,12 @@ class ExpressBuyController extends Controller
                     $product_stock_query->where('variant', $request->variant);
                 }
                 $product_stock = $product_stock_query->lockForUpdate()->first();
+                if (!$product_stock && $request->has('variant')) {
+                    $dimensionStock = CartUtility::find_product_stock($product, $request->variant);
+                    $product_stock = $dimensionStock
+                        ? $product->stocks()->whereKey($dimensionStock->id)->lockForUpdate()->first()
+                        : null;
+                }
 
                 if (!$product_stock) {
                     $product_stock = $product->stocks()->lockForUpdate()->first();

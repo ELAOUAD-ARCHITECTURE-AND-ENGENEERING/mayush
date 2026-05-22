@@ -5,6 +5,7 @@ namespace App\Utility;
 use App\Models\Addon;
 use App\Models\Attribute;
 use App\Models\Color;
+use App\Models\ProductStock;
 
 class ProductUtility
 {
@@ -104,8 +105,97 @@ class ProductUtility
         return $values;
     }
 
+    public static function isDimensionAttribute($attributeId): bool
+    {
+        $attribute = Attribute::find($attributeId);
+
+        return (int) $attributeId === 35 || strtolower((string) optional($attribute)->name) === 'dimension';
+    }
+
+    public static function isDimensionOnlyChoiceProduct($product): bool
+    {
+        $choices = collect(json_decode($product->choice_options ?? '[]'));
+        $colors = collect(json_decode($product->colors ?? '[]'));
+
+        return $choices->count() === 1
+            && $colors->isEmpty()
+            && self::isDimensionAttribute($choices->first()->attribute_id ?? null);
+    }
+
+    public static function frontendChoiceValues($product, $choice): array
+    {
+        if (!self::isDimensionOnlyChoiceProduct($product) || !self::isDimensionAttribute($choice->attribute_id ?? null)) {
+            return collect($choice->values ?? [])
+                ->map(fn ($value) => ['value' => $value, 'label' => $value])
+                ->all();
+        }
+
+        $dimensionValues = $product->stocks
+            ->filter(fn ($stock) => self::stockHasCustomerDimensions($stock))
+            ->map(function ($stock) {
+                $label = self::dimensionStockLabel($stock);
+
+                return [
+                    'value' => self::dimensionStockValue($stock),
+                    'label' => $label,
+                ];
+            })
+            ->unique('value')
+            ->values()
+            ->all();
+
+        if ($dimensionValues !== []) {
+            return $dimensionValues;
+        }
+
+        return collect($choice->values ?? [])
+            ->map(fn ($value) => ['value' => $value, 'label' => $value])
+            ->all();
+    }
+
+    public static function dimensionStockValue(ProductStock $stock): string
+    {
+        return self::dimensionNumber($stock->length)
+            . 'x' . self::dimensionNumber($stock->width)
+            . 'x' . self::dimensionNumber($stock->height)
+            . self::dimensionUnit($stock);
+    }
+
+    public static function dimensionStockLabel(ProductStock $stock): string
+    {
+        $parts = [
+            self::dimensionNumber($stock->length),
+            self::dimensionNumber($stock->width),
+        ];
+
+        if ((float) $stock->height > 0) {
+            $parts[] = self::dimensionNumber($stock->height);
+        }
+
+        return implode(' x ', $parts) . ' ' . self::dimensionUnit($stock);
+    }
+
+    public static function stockHasCustomerDimensions(ProductStock $stock): bool
+    {
+        return (float) $stock->length > 0
+            || (float) $stock->width > 0
+            || (float) $stock->height > 0;
+    }
+
     private static function normalizeVariantValue($value): string
     {
         return strtolower((string) preg_replace('/\s+/', '', trim((string) $value)));
+    }
+
+    private static function dimensionNumber($value): string
+    {
+        $number = number_format((float) $value, 4, '.', '');
+
+        return rtrim(rtrim($number, '0'), '.') ?: '0';
+    }
+
+    private static function dimensionUnit(ProductStock $stock): string
+    {
+        return strtolower(trim((string) ($stock->dimension_unit ?: 'cm')));
     }
 }

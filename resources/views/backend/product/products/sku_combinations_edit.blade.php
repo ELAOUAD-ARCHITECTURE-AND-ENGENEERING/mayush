@@ -114,7 +114,7 @@
                                 echo $stock->sku;
                             }
                             else {
-                                echo $str;
+                                echo $generatedSkus[$loop->index] ?? (new \App\Services\ProductSkuService())->next();
                             }
                            @endphp" class="form-control">
                 </td>

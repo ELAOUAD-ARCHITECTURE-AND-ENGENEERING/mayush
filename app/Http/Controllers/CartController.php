@@ -108,7 +108,7 @@ class CartController extends Controller
 
         //check the color enabled or disabled for the product
         $str = CartUtility::create_cart_variant($product, $request->all());
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = CartUtility::find_product_stock($product, $str);
         
         // If variant not found (e.g. Quick Add without attributes), pick first available stock
         if (!$product_stock && $product->stocks->count() > 0) {
@@ -350,7 +350,7 @@ class CartController extends Controller
         }
 
         $str = CartUtility::create_cart_variant($product, $request->all());
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = CartUtility::find_product_stock($product, $str);
         
         if (!$product_stock && $product->stocks->count() > 0) {
             $product_stock = $product->stocks->first();

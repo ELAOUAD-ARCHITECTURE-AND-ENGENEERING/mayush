@@ -43,9 +43,12 @@ class SellerProductControllerTest extends TestCase
     /** @test */
     public function seller_can_view_create_product_page()
     {
+        ProductStock::factory()->create(['sku' => 'SKU-000009']);
+
         $this->withoutExceptionHandling();
         $response = $this->actingAs($this->seller)->get(route('seller.products.create'));
         $response->assertStatus(200);
+        $response->assertSee('SKU-000010');
     }
 
     /** @test */
