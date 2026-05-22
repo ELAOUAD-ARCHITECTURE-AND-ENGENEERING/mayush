@@ -8,7 +8,7 @@
     $banner_images = json_decode($banner_images, true) ?: [];
 @endphp
 
-@if ($banner_images !== [])
+@if ($banner_images !== [] && get_setting($banner_key . '_status', '1') == '1')
     <section class="metro-marketplace-split metro-banner-level-split mt-2 mt-md-3 mb-2 mb-md-3">
         @foreach ($banner_images as $key => $image)
             @php

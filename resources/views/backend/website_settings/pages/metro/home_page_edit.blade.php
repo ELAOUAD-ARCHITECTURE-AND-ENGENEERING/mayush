@@ -624,8 +624,18 @@
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner1_titles">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner1_descriptions">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner1_cta_texts">
+							<input type="hidden" name="types[]" value="home_banner1_status">
 
 							<div class="bg-white p-3 p-sm-2rem">
+								<div class="form-group row align-items-center mb-4">
+									<label class="col-md-3 col-from-label">{{ translate('Show Banner Level 1') }}</label>
+									<div class="col-md-9">
+										<label class="aiz-switch aiz-switch-success mb-0">
+											<input type="checkbox" name="home_banner1_status" value="1" @if(get_setting('home_banner1_status', '1') == '1') checked @endif>
+											<span></span>
+										</label>
+									</div>
+								</div>
 								<div class="w-100">
 									<label class="col-from-label fs-13 fw-500 mb-0">{{ translate('Banner & Links (Max 3)') }}</label>
                                     <div class="small text-muted mb-3">{{ translate("Minimum dimensions required: 436px width X 436px height.") }}</div>
@@ -862,8 +872,18 @@
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner2_titles">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner2_descriptions">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner2_cta_texts">
+							<input type="hidden" name="types[]" value="home_banner2_status">
 
 							<div class="bg-white p-3 p-sm-2rem">
+								<div class="form-group row align-items-center mb-4">
+									<label class="col-md-3 col-from-label">{{ translate('Show Banner Level 2') }}</label>
+									<div class="col-md-9">
+										<label class="aiz-switch aiz-switch-success mb-0">
+											<input type="checkbox" name="home_banner2_status" value="1" @if(get_setting('home_banner2_status', '1') == '1') checked @endif>
+											<span></span>
+										</label>
+									</div>
+								</div>
 								<div class="w-100">
 									<label class="col-from-label fs-13 fw-500 mb-0">{{ translate('Banner & Links (Max 3)') }}</label>
                                     <div class="small text-muted mb-3">{{ translate("Minimum dimensions required: 1370px width X 420px height (If use a single banner).") }}</div>
@@ -989,8 +1009,18 @@
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner3_titles">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner3_descriptions">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner3_cta_texts">
+							<input type="hidden" name="types[]" value="home_banner3_status">
 
 							<div class="bg-white p-3 p-sm-2rem">
+								<div class="form-group row align-items-center mb-4">
+									<label class="col-md-3 col-from-label">{{ translate('Show Banner Level 3') }}</label>
+									<div class="col-md-9">
+										<label class="aiz-switch aiz-switch-success mb-0">
+											<input type="checkbox" name="home_banner3_status" value="1" @if(get_setting('home_banner3_status', '1') == '1') checked @endif>
+											<span></span>
+										</label>
+									</div>
+								</div>
 								<div class="w-100">
 									<label class="col-from-label fs-13 fw-500 mb-0">{{ translate('Banner & Links (Max 3)') }}</label>
                                     <div class="small text-muted mb-3">{{ translate("Minimum dimensions required: 436px width X 436px height.") }}</div>

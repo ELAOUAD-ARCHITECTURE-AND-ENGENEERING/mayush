@@ -177,6 +177,28 @@ class PromoBannerRichTextTest extends TestCase
             ->assertSee('Shop right');
     }
 
+    public function test_metro_banner_level_status_hides_banner_section(): void
+    {
+        $upload = Upload::create([
+            'file_original_name' => 'hidden-promo.jpg',
+            'file_name' => 'uploads/test-hidden-promo.jpg',
+            'extension' => 'jpg',
+            'type' => 'image',
+            'file_size' => 1024,
+        ]);
+
+        $this->setting('homepage_select', 'metro');
+        $this->setting('home_banner1_images', json_encode([$upload->id]));
+        $this->setting('home_banner1_titles', json_encode(['Hidden banner copy']));
+        $this->setting('home_banner1_status', '0');
+        Cache::flush();
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertDontSee('Hidden banner copy')
+            ->assertDontSee('metro-banner-level-split', false);
+    }
+
     private function setting(string $type, string $value): void
     {
         BusinessSetting::updateOrCreate(['type' => $type], ['value' => $value]);
