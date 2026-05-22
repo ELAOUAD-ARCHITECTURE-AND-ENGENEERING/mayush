@@ -37,7 +37,8 @@
         }
 
         .market-logo-link {
-            min-width: 150px;
+            min-width: 132px;
+            padding-right: 6px;
         }
         
         .market-logo-link:focus {
@@ -45,9 +46,10 @@
         }
 
         .market-logo-link img {
-            max-height: 38px;
+            max-height: 46px;
             width: auto;
             object-fit: contain;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .16));
         }
 
         .market-location {
@@ -219,10 +221,11 @@
             .market-logo-link {
                 min-width: 0;
                 flex: 1;
+                padding-right: 0;
             }
 
             .market-logo-link img {
-                max-height: 32px;
+                max-height: 36px;
             }
 
             .market-search {
@@ -256,6 +259,7 @@
             }
 
             .market-logo-link img {
+                max-height: 34px;
                 max-width: 116px;
             }
 
