@@ -431,7 +431,7 @@
                                 {{translate('SKU')}}
                             </label>
                             <div class="col-md-6">
-                                <input type="text" placeholder="{{ translate('SKU') }}" value="{{ optional($product->stocks->first())->sku ?? '' }}" name="sku" class="form-control">
+                                <input type="text" placeholder="{{ translate('SKU') }}" value="{{ optional($product->stocks->first())->sku ?: (new \App\Services\ProductSkuService())->next() }}" name="sku" class="form-control">
                             </div>
                         </div>
                     </div>

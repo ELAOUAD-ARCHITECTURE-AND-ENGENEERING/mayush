@@ -97,6 +97,105 @@
         .metro-promo-banner-description div {
             margin-bottom: 0;
         }
+        .metro-marketplace-split {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            width: 100%;
+        }
+        .metro-marketplace-split-item {
+            position: relative;
+            min-width: 0;
+            height: 480px;
+            overflow: hidden;
+            background: #f4f4f2;
+        }
+        .metro-marketplace-split-link,
+        .metro-marketplace-split-media {
+            position: absolute;
+            inset: 0;
+            display: block;
+        }
+        .metro-marketplace-split-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.03);
+            transition: transform .4s ease-out;
+        }
+        .metro-marketplace-split-item:hover .metro-marketplace-split-media img {
+            transform: scale(1.065);
+        }
+        .metro-marketplace-split-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            text-shadow: 0 2px 14px rgba(0, 0, 0, .38);
+        }
+        .metro-marketplace-split-content::before {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: rgba(0, 0, 0, .12);
+            content: "";
+        }
+        .metro-marketplace-split-title {
+            display: block;
+            max-width: min(100%, 620px);
+            font-size: clamp(1.8rem, 3.2vw, 3.1rem);
+            line-height: 1.13;
+            font-weight: 600;
+        }
+        .metro-marketplace-split-description {
+            display: block;
+            max-width: min(100%, 560px);
+            margin-top: 14px;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+        .metro-marketplace-split-title p,
+        .metro-marketplace-split-title div,
+        .metro-marketplace-split-description p,
+        .metro-marketplace-split-description div {
+            margin-bottom: 0;
+        }
+        .metro-marketplace-split-cta {
+            display: inline-block;
+            margin-top: 18px;
+            border-bottom: 1px solid currentColor;
+            padding-bottom: 2px;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.35;
+        }
+        @media (min-width: 992px) {
+            .metro-marketplace-split {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .metro-marketplace-split-item {
+                height: 760px;
+            }
+            .metro-marketplace-split-content {
+                padding: 80px;
+            }
+        }
+        @media (max-width: 575px) {
+            .metro-marketplace-split-content {
+                padding: 32px;
+            }
+            .metro-marketplace-split-title {
+                font-size: clamp(1.5rem, 7vw, 2.2rem);
+            }
+            .metro-marketplace-split-description {
+                font-size: .95rem;
+            }
+        }
         @media (max-width: 991px) {
             .metro-promo-banner-text [style*="font-size"] {
                 font-size: min(1em, 2.25rem) !important;
@@ -328,8 +427,8 @@
         </section>
     </div>
 
-    <!-- 8. Banner Level 1 -->
-    @include('frontend.metro.partials.banner_section', ['banner_key' => 'home_banner1'])
+    <!-- 8. Marketplace Banner -->
+    @include('frontend.metro.partials.marketplace_banner')
 
     <!-- 9. Banner Level 2 -->
     @include('frontend.metro.partials.banner_section', ['banner_key' => 'home_banner2'])
@@ -376,8 +475,8 @@
         </div>
     @endif
 
-    <!-- 15. Marketplace Banner -->
-    @include('frontend.metro.partials.marketplace_banner')
+    <!-- 15. Banner Level 1 -->
+    @include('frontend.metro.partials.banner_section', ['banner_key' => 'home_banner1'])
 
     <!-- 16. Top Sellers (Hidden by default, loaded via AJAX only if criteria met) -->
     <div id="section_best_sellers"></div>

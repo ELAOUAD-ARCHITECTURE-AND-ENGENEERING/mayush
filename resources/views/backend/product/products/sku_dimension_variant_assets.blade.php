@@ -97,6 +97,7 @@
         var invalidFormatMessage = @json(translate('Use a dimension such as 10x20x30 cm, 1-100cm, or +1000cm.'));
         var duplicateMessage = @json(translate('This dimension variant already exists.'));
         var invalidRowsMessage = @json(translate('Fix the dimension variant rows before saving.'));
+        var autoSkuSeed = @json($generatedSkus[count($combinations)] ?? (new \App\Services\ProductSkuService())->next());
 
         function normalizeVariant(value) {
             return String(value || '').trim().replace(/\s+/g, '').toLowerCase();
@@ -113,6 +114,23 @@
             return new RegExp('^' + number + '\\s*x\\s*' + number + '\\s*x\\s*' + number + '\\s*' + unit + '$', 'i').test(value)
                 || new RegExp('^' + number + '\\s*-\\s*' + number + '\\s*' + unit + '$', 'i').test(value)
                 || new RegExp('^\\+?' + number + '\\s*' + unit + '$', 'i').test(value);
+        }
+
+        function autoSkuNumber(value) {
+            var matches = String(value || '').trim().match(/^SKU-(\d+)$/);
+            return matches ? parseInt(matches[1], 10) : null;
+        }
+
+        function nextAutoSku(table) {
+            var highest = autoSkuNumber(autoSkuSeed) - 1;
+            table.find('input[name^="sku_"], [data-dimension-stock-field="sku"]').each(function () {
+                var number = autoSkuNumber($(this).val());
+                if (number !== null && number > highest) {
+                    highest = number;
+                }
+            });
+
+            return 'SKU-' + String(highest + 1).padStart(6, '0');
         }
 
         function getRowAttributes(row) {
@@ -270,6 +288,7 @@
 
             var selectElement = newRow.find('.sku-dimension-variant-select');
             button.closest('tr').after(newRow);
+            newRow.find('[data-dimension-stock-field="sku"]').val(nextAutoSku(newRow.closest(tableSelector)));
             populateVariantSelect(selectElement);
 
             if (window.AIZ && window.AIZ.plugins && typeof window.AIZ.plugins.bootstrapSelect === 'function') {

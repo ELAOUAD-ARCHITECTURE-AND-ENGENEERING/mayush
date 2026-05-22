@@ -71,7 +71,7 @@ class SendStockAlerts extends Command
         }
 
         if ($subscription->variant) {
-            return (int) optional($product->stocks->firstWhere('variant', $subscription->variant))->qty;
+            return (int) optional(\App\Utility\CartUtility::find_product_stock($product, $subscription->variant))->qty;
         }
 
         if ($product->variant_product) {

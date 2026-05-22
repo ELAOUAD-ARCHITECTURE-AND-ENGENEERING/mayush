@@ -65,6 +65,7 @@ class ProductRequest extends FormRequest
                 }
 
                 $seen_variants = [];
+                $seen_dimensions = [];
                 foreach ($values as $value) {
                     $dimension = trim((string) $value);
                     $normalized = $this->normalizeDimensionVariant($dimension);
@@ -87,6 +88,7 @@ class ProductRequest extends FormRequest
                     $lengths = $this->input('length_' . $suffix);
                     $widths = $this->input('width_' . $suffix);
                     $heights = $this->input('height_' . $suffix);
+                    $units = $this->input('unit_' . $suffix);
 
                     if (!isset($seen_variants[$normalized])) {
                         $seen_variants[$normalized] = [];
@@ -97,6 +99,16 @@ class ProductRequest extends FormRequest
                     $length = is_array($lengths) ? ($lengths[$occurrenceIndex] ?? 0) : ($lengths ?? 0);
                     $width = is_array($widths) ? ($widths[$occurrenceIndex] ?? 0) : ($widths ?? 0);
                     $height = is_array($heights) ? ($heights[$occurrenceIndex] ?? 0) : ($heights ?? 0);
+                    $unit = strtolower((string) (is_array($units) ? ($units[$occurrenceIndex] ?? 'cm') : ($units ?? 'cm')));
+
+                    $dimensionKey = $this->dimensionSelectionKey($length, $width, $height, $unit);
+                    if ($dimensionKey !== null && isset($seen_dimensions[$dimensionKey])) {
+                        $validator->errors()->add($field, translate('Exact dimension choices must be unique.'));
+                        break 2;
+                    }
+                    if ($dimensionKey !== null) {
+                        $seen_dimensions[$dimensionKey] = true;
+                    }
 
                     // Check if we have already seen a variant with the exact same price and L, W, H
                     foreach ($seen_variants[$normalized] as $existing) {
@@ -155,6 +167,20 @@ class ProductRequest extends FormRequest
         return preg_match('/^' . $number . '\s*x\s*' . $number . '\s*x\s*' . $number . '\s*' . $unit . '$/i', $value) === 1
             || preg_match('/^' . $number . '\s*-\s*' . $number . '\s*' . $unit . '$/i', $value) === 1
             || preg_match('/^\+?' . $number . '\s*' . $unit . '$/i', $value) === 1;
+    }
+
+    private function dimensionSelectionKey($length, $width, $height, string $unit): ?string
+    {
+        if ((float) $length <= 0 && (float) $width <= 0 && (float) $height <= 0) {
+            return null;
+        }
+
+        return implode(':', [
+            number_format((float) $length, 4, '.', ''),
+            number_format((float) $width, 4, '.', ''),
+            number_format((float) $height, 4, '.', ''),
+            $unit ?: 'cm',
+        ]);
     }
 
     /**

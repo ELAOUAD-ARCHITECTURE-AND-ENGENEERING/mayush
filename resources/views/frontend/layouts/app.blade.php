@@ -906,6 +906,7 @@
                             $('#p-length').html(data.length ? data.length : '-');
                             $('#p-width').html(data.width ? data.width : '-');
                             $('#p-height').html(data.height ? data.height : '-');
+                            $('#p-dimension-unit').html(data.dimension_unit ? data.dimension_unit : 'cm');
                         } else {
                             $('#product-dimensions').addClass('d-none');
                         }

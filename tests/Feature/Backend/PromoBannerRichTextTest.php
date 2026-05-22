@@ -144,11 +144,37 @@ class PromoBannerRichTextTest extends TestCase
 
         $this->get(route('home'))
             ->assertOk()
+            ->assertSee('class="metro-marketplace-split metro-banner-level-split', false)
             ->assertSee('<strong>Styled title</strong>', false)
             ->assertDontSee('bad()', false)
             ->assertSee('<span style="color: #ffffff">Styled detail</span>', false)
             ->assertSee('&lt;b&gt;Buy&lt;/b&gt;', false)
             ->assertDontSee('<b>Buy</b>', false);
+    }
+
+    public function test_metro_marketplace_banner_uses_split_banner_markup(): void
+    {
+        $upload = Upload::create([
+            'file_original_name' => 'split-promo.jpg',
+            'file_name' => 'uploads/test-split-promo.jpg',
+            'extension' => 'jpg',
+            'type' => 'image',
+            'file_size' => 1024,
+        ]);
+
+        $this->setting('homepage_select', 'metro');
+        $this->setting('home_banner4_images', json_encode([$upload->id, $upload->id]));
+        $this->setting('home_banner4_links', json_encode(['https://example.test/left', 'https://example.test/right']));
+        $this->setting('home_banner4_titles', json_encode(['Left banner', 'Right banner']));
+        $this->setting('home_banner4_cta_texts', json_encode(['Shop left', 'Shop right']));
+        Cache::flush();
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('class="metro-marketplace-split', false)
+            ->assertSee('class="metro-marketplace-split-item', false)
+            ->assertSee('Left banner')
+            ->assertSee('Shop right');
     }
 
     private function setting(string $type, string $value): void

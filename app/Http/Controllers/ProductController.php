@@ -1057,7 +1057,8 @@ class ProductController extends Controller
         }
 
         $combinations = (new CombinationService())->generate_combination($options);
-        return view('backend.product.products.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name'));
+        $generatedSkus = (new \App\Services\ProductSkuService())->candidates(count($combinations) + 1);
+        return view('backend.product.products.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'generatedSkus'));
     }
 
     public function sku_combination_edit(Request $request)
@@ -1096,7 +1097,8 @@ class ProductController extends Controller
         }
 
         $combinations = (new CombinationService())->generate_combination($options);
-        return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
+        $generatedSkus = (new \App\Services\ProductSkuService())->candidates(count($combinations) + 1);
+        return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product', 'generatedSkus'));
     }
 
     public function product_search(Request $request)

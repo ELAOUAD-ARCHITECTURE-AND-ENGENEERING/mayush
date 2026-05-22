@@ -363,7 +363,7 @@
                                     </label>
                                     <div class="col-md-6">
                                         <input type="text" placeholder="{{ translate('SKU') }}" name="sku"
-                                            class="form-control">
+                                            value="{{ old('sku', (new \App\Services\ProductSkuService())->next()) }}" class="form-control">
                                     </div>
                                 </div>
                             </div>
