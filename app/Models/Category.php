@@ -21,7 +21,7 @@ class Category extends Model
         $category_translation = $this->category_translations->where('lang', $lang)->first();
 
         if ($category_translation != null && $category_translation->$field !== null && $category_translation->$field !== $this->$field) {
-            return $category_translation->$field;
+            return in_array($field, ['name', 'title']) ? translate($category_translation->$field, $lang) : $category_translation->$field;
         }
 
         return $category_translation != null ? $category_translation->$field : $this->$field;

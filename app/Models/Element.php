@@ -17,7 +17,7 @@ class Element extends Model
         $lang = $lang ?: App::getLocale();
         $element_translation = $this->element_translations->where('lang', $lang)->first();
         if ($element_translation != null && $element_translation->$field !== null && $element_translation->$field !== $this->$field) {
-            return $element_translation->$field;
+            return in_array($field, ['name', 'title']) ? translate($element_translation->$field, $lang) : $element_translation->$field;
         }
 
         return $element_translation != null ? $element_translation->$field : $this->$field;

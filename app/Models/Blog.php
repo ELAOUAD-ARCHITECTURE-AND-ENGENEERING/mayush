@@ -65,10 +65,10 @@ class Blog extends Model
         $blog_translation = $this->translations->where('lang', $lang)->first();
 
         if ($blog_translation != null && $blog_translation->{$field} !== null && $blog_translation->{$field} !== $this->{$field}) {
-            return $blog_translation->{$field};
+            return in_array($field, ['name', 'title']) ? translate($blog_translation->{$field}, $lang) : $blog_translation->{$field};
         }
 
-        return $blog_translation != null ? $blog_translation->{$field} : $this->{$field};
+        return in_array($field, ['name', 'title']) ? translate($blog_translation != null ? $blog_translation->{$field} : $this->{$field}, $lang) : ($blog_translation != null ? $blog_translation->{$field} : $this->{$field});
     }
 
     public function scopePublished($query)

@@ -17,7 +17,7 @@ class RefundReason extends Model
     {
         $lang = $lang == false ? App::getLocale() : $lang;
         $refund_reason_translation = $this->refund_reason_translations->where('lang', $lang)->first();
-        return $refund_reason_translation != null ? $refund_reason_translation->$field : $this->$field;
+        return translate($refund_reason_translation != null ? $refund_reason_translation->$field : $this->$field, $lang);
     }
 
     public function refund_reason_translations()
