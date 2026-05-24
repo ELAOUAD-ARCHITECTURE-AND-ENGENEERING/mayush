@@ -14,7 +14,7 @@ class Page extends Model
       $lang = $lang ?: App::getLocale();
       $page_translation = $this->page_translations->where('lang', $lang)->first();
       if ($page_translation != null && $page_translation->$field !== null && $page_translation->$field !== $this->$field) {
-          return $page_translation->$field;
+          return in_array($field, ['name', 'title']) ? translate($page_translation->$field, $lang) : $page_translation->$field;
       }
 
       return $page_translation != null ? $page_translation->$field : $this->$field;

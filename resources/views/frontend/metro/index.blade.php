@@ -23,6 +23,234 @@
 @section('content')
     <h1 class="d-none">Mayush Marketplace : meubles, decoration et design interieur au Maroc</h1>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Josefin+Sans:wght@300;400;500;600;700&display=swap');
+
+        /* Luxury Font pairing rules */
+        h1, h2, h3, h4, 
+        .metro-hero-title, 
+        .metro-marketplace-split-title, 
+        .promoted-category-title, 
+        .fs-22, .fs-28 {
+            font-family: 'Cinzel', serif !important;
+            font-weight: 700 !important;
+            letter-spacing: 1.5px !important;
+            color: #12192A !important; /* Midnight Navy */
+        }
+
+        body, p, span, a, input, button, select, textarea,
+        .metro-hero-description,
+        .metro-hero-cta,
+        .promoted-category-subtitle,
+        .promoted-view-all,
+        .fs-12, .fs-13, .fs-14, .fs-15, .fs-16, .fs-17 {
+            font-family: 'Josefin Sans', sans-serif !important;
+        }
+
+        /* Color-mapping rules */
+        .text-dark {
+            color: #12192A !important;
+        }
+        .text-primary, .hov-text-primary:hover {
+            color: #D6A24E !important; /* Warm Gold */
+        }
+        .btn-outline-primary {
+            color: #D6A24E !important;
+            border-color: #D6A24E !important;
+        }
+        .btn-outline-primary:hover {
+            background-color: #D6A24E !important;
+            border-color: #D6A24E !important;
+            color: #ffffff !important;
+        }
+
+        /* Liquid Glass Container Overrides */
+        .bg-white.px-3.py-4.px-md-4.hov-shadow-md.has-transition.rounded {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(226, 224, 214, 0.6) !important; /* Off-White Border */
+            box-shadow: 0 8px 32px 0 rgba(18, 25, 42, 0.04) !important; /* Midnight Navy soft shadow */
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            border-radius: 20px !important;
+        }
+        .bg-white.px-3.py-4.px-md-4.hov-shadow-md.has-transition.rounded:hover {
+            box-shadow: 0 20px 40px 0 rgba(18, 25, 42, 0.08) !important;
+            transform: translateY(-2px) !important;
+            border-color: rgba(214, 162, 78, 0.3) !important; /* Warm Gold hover border */
+        }
+
+        /* Category navigation upgrades */
+        .bg-white.px-3.py-3.border {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(226, 224, 214, 0.6) !important; /* Off-White Border */
+            border-radius: 20px !important;
+            box-shadow: 0 8px 32px 0 rgba(18, 25, 42, 0.04) !important;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .bg-white.px-3.py-3.border:hover {
+            box-shadow: 0 20px 40px 0 rgba(18, 25, 42, 0.08) !important;
+            border-color: rgba(214, 162, 78, 0.3) !important;
+        }
+
+        /* Premium Product Box Upgrades (Liquid Glass Theme) */
+        .aiz-card-box {
+            border-radius: 16px !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(226, 224, 214, 0.5) !important; /* Off-White Border */
+            background: #ffffff !important;
+            box-shadow: 0 4px 20px rgba(18, 25, 42, 0.02) !important;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            cursor: pointer !important;
+        }
+        .aiz-card-box:hover {
+            box-shadow: 0 12px 30px rgba(18, 25, 42, 0.08) !important;
+            transform: translateY(-4px) !important;
+            border-color: rgba(214, 162, 78, 0.25) !important; /* Warm Gold hover border */
+        }
+
+        /* Smooth zoom on images */
+        .aiz-card-box .img-fit {
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .aiz-card-box:hover .img-fit {
+            transform: scale(1.04) !important;
+        }
+
+        /* Discount Tag */
+        .aiz-card-box .absolute-top-left {
+            background: linear-gradient(135deg, #D6A24E 0%, #C98446 100%) !important; /* Warm Gold to Soft Orange */
+            border-radius: 20px !important;
+            font-family: 'Josefin Sans', sans-serif !important;
+            font-weight: 700 !important;
+            padding: 3px 10px !important;
+            box-shadow: 0 4px 10px rgba(201, 132, 70, 0.25) !important;
+            border: none !important;
+            color: #ffffff !important;
+        }
+
+        /* Quick Action Buttons (Wishlist/Compare) */
+        .aiz-card-box .aiz-p-hov-icon {
+            gap: 8px !important;
+        }
+        .aiz-card-box .aiz-p-hov-icon a {
+            width: 36px !important;
+            height: 36px !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            border-radius: 50% !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 4px 12px rgba(18, 25, 42, 0.08) !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .aiz-card-box .aiz-p-hov-icon a:hover {
+            background: #D6A24E !important; /* Warm Gold */
+            transform: scale(1.1) !important;
+        }
+        .aiz-card-box .aiz-p-hov-icon a:hover svg path {
+            fill: #ffffff !important;
+        }
+
+        /* Add to Cart Overlay Button */
+        .aiz-card-box .cart-btn {
+            background: rgba(33, 41, 62, 0.95) !important; /* Dark Slate Blue Glass */
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 30px !important;
+            height: 38px !important;
+            font-family: 'Josefin Sans', sans-serif !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.5px !important;
+            box-shadow: 0 6px 15px rgba(33, 41, 62, 0.3) !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .aiz-card-box .cart-btn:hover {
+            background: #C98446 !important; /* Soft Orange */
+            box-shadow: 0 8px 20px rgba(201, 132, 70, 0.4) !important;
+            transform: scale(1.02) !important;
+        }
+
+        /* Flash Deal Nav item glass card */
+        .flash-nav-item {
+            background: rgba(214, 162, 78, 0.03) !important; /* Warm Gold tint */
+            border: 1px solid rgba(214, 162, 78, 0.1) !important;
+            border-radius: 16px !important;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .flash-nav-item:hover {
+            background: rgba(214, 162, 78, 0.08) !important;
+            border-color: rgba(214, 162, 78, 0.3) !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 24px rgba(214, 162, 78, 0.1) !important;
+        }
+
+        /* Inspiration Articles Custom styling */
+        #home_inspiration_articles_section article {
+            border-radius: 16px !important;
+            border: 1px solid rgba(226, 224, 214, 0.5) !important; /* Off-White Border */
+            background: #ffffff !important;
+            box-shadow: 0 4px 20px rgba(18, 25, 42, 0.02) !important;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        #home_inspiration_articles_section article:hover {
+            box-shadow: 0 12px 30px rgba(18, 25, 42, 0.08) !important;
+            transform: translateY(-4px) !important;
+            border-color: rgba(214, 162, 78, 0.15) !important;
+        }
+
+        .metro-hero-content {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: none !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            text-shadow: 0 2px 16px rgba(0, 0, 0, .45) !important;
+        }
+        .metro-hero-title {
+            font-size: 42px !important;
+            line-height: 1.2 !important;
+            font-weight: 700 !important;
+            letter-spacing: 2px !important;
+            margin-bottom: 14px;
+            color: #ffffff !important;
+            text-shadow: 0 2px 16px rgba(0, 0, 0, .45) !important;
+        }
+        .metro-hero-description {
+            font-size: 16px !important;
+            line-height: 1.6 !important;
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+        .metro-hero-cta {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 46px !important;
+            padding: 12px 32px !important;
+            border-radius: 30px !important;
+            font-weight: 600 !important;
+            text-shadow: none !important;
+            letter-spacing: 1px !important;
+            text-transform: uppercase !important;
+            background: linear-gradient(135deg, #D6A24E 0%, #C98446 100%) !important; /* Warm Gold to Soft Orange */
+            border: none !important;
+            color: #ffffff !important;
+            box-shadow: 0 10px 20px rgba(201, 132, 70, 0.3) !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .metro-hero-cta:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 15px 30px rgba(201, 132, 70, 0.5) !important;
+            filter: brightness(1.1) !important;
+            color: #ffffff !important;
+        }
+
         #section_featured .slick-slider .slick-list{
             background: #fff;
         }
@@ -388,7 +616,7 @@
                         @foreach ($active_flash_deals as $key => $flash_deal_item)
                             <div class="carousel-box">
                                 <a href="{{ route('flash-deal-details', $flash_deal_item->slug) }}" class="d-block text-reset text-center">
-                                    <div class="flash-nav-item img-fit h-100px h-md-140px mb-1" style="background: #fdf2f2; border: 1px solid #fee2e2; border-radius: 12px; overflow: hidden;">
+                                    <div class="flash-nav-item img-fit h-100px h-md-140px mb-1 overflow-hidden">
                                         <img draggable="false" class="lazyload img-fit p-3"
                                             src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                             data-src="{{ uploaded_asset($flash_deal_item->banner) }}"

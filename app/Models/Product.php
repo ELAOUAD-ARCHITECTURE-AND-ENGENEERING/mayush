@@ -41,7 +41,7 @@ class Product extends Model
         $lang = $lang ?: App::getLocale();
         $product_translation = $this->product_translations->where('lang', $lang)->first();
         if ($product_translation != null && $product_translation->$field !== null && $product_translation->$field !== $this->$field) {
-            return $product_translation->$field;
+            return in_array($field, ['name', 'title']) ? translate($product_translation->$field, $lang) : $product_translation->$field;
         }
 
         return $product_translation != null ? $product_translation->$field : $this->$field;

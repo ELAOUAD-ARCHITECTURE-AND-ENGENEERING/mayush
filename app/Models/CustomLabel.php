@@ -23,7 +23,7 @@ class CustomLabel extends Model
         $lang = $lang ?: App::getLocale();
         $custom_label_translation = $this->custom_label_translations->where('lang', $lang)->first();
         if ($custom_label_translation != null && $custom_label_translation->$field !== null && $custom_label_translation->$field !== $this->$field) {
-            return $custom_label_translation->$field;
+            return in_array($field, ['name', 'title']) ? translate($custom_label_translation->$field, $lang) : $custom_label_translation->$field;
         }
 
         return $custom_label_translation != null ? $custom_label_translation->$field : $this->$field;

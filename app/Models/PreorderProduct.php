@@ -19,7 +19,7 @@ class PreorderProduct extends Model
         $lang = $lang ?: App::getLocale();
         $preorder_product_translation = $this->preorder_product_translations->where('lang', $lang)->first();
         if ($preorder_product_translation != null && $preorder_product_translation->$field !== null && $preorder_product_translation->$field !== $this->$field) {
-            return $preorder_product_translation->$field;
+            return in_array($field, ['name', 'title']) ? translate($preorder_product_translation->$field, $lang) : $preorder_product_translation->$field;
         }
 
         return $preorder_product_translation != null ? $preorder_product_translation->$field : $this->$field;

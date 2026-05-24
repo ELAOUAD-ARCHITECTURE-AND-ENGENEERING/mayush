@@ -16,7 +16,7 @@ class Role extends Model
         $lang = $lang ?: App::getLocale();
         $role_translation = $this->role_translations->where('lang', $lang)->first();
         if ($role_translation != null && $role_translation->$field !== null && $role_translation->$field !== $this->$field) {
-            return $role_translation->$field;
+            return in_array($field, ['name', 'title']) ? translate($role_translation->$field, $lang) : $role_translation->$field;
         }
 
         return $role_translation != null ? $role_translation->$field : $this->$field;
