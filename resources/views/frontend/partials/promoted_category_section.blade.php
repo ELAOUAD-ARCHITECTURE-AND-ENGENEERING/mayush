@@ -63,7 +63,7 @@
                         {{-- Left Column: Large Category Banner (50%) --}}
                         <div class="col-lg-6 mb-4 mb-lg-0">
                             <a href="{{ route('products.category', $promoted_category->slug) }}" class="d-block promoted-banner-wrap">
-                                <img src="{{ $promoted_category->banner ? uploaded_asset($promoted_category->banner) : static_asset('assets/img/placeholder-rect.jpg') }}" 
+                                <img src="{{ static_asset('assets/img/office_furniture_4k.png') }}" 
                                      alt="{{ $promoted_category->getTranslation('name') }}" 
                                      class="promoted-banner-img skeleton-shimmer"
                                      onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">

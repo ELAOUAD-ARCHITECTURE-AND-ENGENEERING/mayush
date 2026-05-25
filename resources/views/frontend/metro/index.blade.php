@@ -213,13 +213,16 @@
             box-shadow: none !important;
             text-shadow: 0 2px 16px rgba(0, 0, 0, .45) !important;
         }
+        .metro-hero-title,
+        .metro-hero-title * {
+            color: #ffffff !important;
+        }
         .metro-hero-title {
             font-size: 42px !important;
             line-height: 1.2 !important;
             font-weight: 700 !important;
             letter-spacing: 2px !important;
             margin-bottom: 14px;
-            color: #ffffff !important;
             text-shadow: 0 2px 16px rgba(0, 0, 0, .45) !important;
         }
         .metro-hero-description {
@@ -372,6 +375,10 @@
             z-index: -1;
             background: rgba(0, 0, 0, .12);
             content: "";
+        }
+        .metro-marketplace-split-title,
+        .metro-marketplace-split-title * {
+            color: #ffffff !important;
         }
         .metro-marketplace-split-title {
             display: block;

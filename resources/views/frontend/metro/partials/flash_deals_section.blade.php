@@ -29,7 +29,9 @@
             color: white;
             text-align: center;
         }
-        .flash-deal-banner-content h2 {
+        .flash-deal-banner-content h2,
+        .flash-deal-banner-content h2 * {
+            color: #ffffff !important;
             font-size: 3rem;
             font-weight: 800;
             text-transform: uppercase;
