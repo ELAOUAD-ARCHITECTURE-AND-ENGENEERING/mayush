@@ -11,15 +11,6 @@
 @endif
 
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-D5PZ73508T"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-D5PZ73508T');
-    </script>
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -92,10 +83,10 @@
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
 
-    <script defer src="{{ static_asset('js/analytics-tracker.js') }}"></script>
+    <script defer src="{{ versioned_static_asset('js/analytics-tracker.js') }}"></script>
     @yield('styles')
     @yield('script_at_head')
 
@@ -104,7 +95,7 @@
     @if ($rtl == 1)
         <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
     @endif
-    <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css?v=') }}{{ rand(1000, 9999) }}">
+    <link rel="stylesheet" href="{{ versioned_static_asset('assets/css/aiz-core.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/semantic_search.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/custom-style.css') }}">
 
@@ -116,8 +107,9 @@
     <link rel="stylesheet" href="{{ static_asset('assets/css/thecore.css') }}">
     @endif
     
-    <!-- AOS Animations -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+    @if(request()->routeIs('shop.visit', 'shop.visit.type') || request()->is('*contact-us*'))
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+    @endif
 
     @if (get_setting('cloudflare_turnstile') == 1)
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -516,8 +508,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="{{ static_asset('assets/js/vendors.js') }}"></script>
-    <script src="{{ static_asset('assets/js/aiz-core.js?v=') }}{{ rand(1000, 9999) }}"></script>
+    <script src="{{ versioned_static_asset('assets/js/vendors.js') }}"></script>
+    <script src="{{ versioned_static_asset('assets/js/aiz-core.js') }}"></script>
 
     {{-- WhatsaApp Chat --}}
     @if (get_setting('whatsapp_chat') == 1)
@@ -1436,17 +1428,18 @@
         </script>
     @endif
 
-    <!-- AOS Initialization -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script>
-        $(document).ready(function() {
-            AOS.init({
-                duration: 1000,
-                once: true,
-                offset: 120,
-                easing: 'ease-out-cubic'
+    @if(request()->routeIs('shop.visit', 'shop.visit.type') || request()->is('*contact-us*'))
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+        <script>
+            $(document).ready(function() {
+                AOS.init({
+                    duration: 1000,
+                    once: true,
+                    offset: 120,
+                    easing: 'ease-out-cubic'
+                });
             });
-        });
-    </script>
+        </script>
+    @endif
 </body>
 </html>

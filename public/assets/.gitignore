@@ -10,4 +10,10 @@
 !js/banner-text-editor.js
 !*.png
 !*.svg
+!img/
+img/*
+!img/office_furniture_4k*.webp
+!img/cards/
+img/cards/*
+!img/cards/*.webp
 

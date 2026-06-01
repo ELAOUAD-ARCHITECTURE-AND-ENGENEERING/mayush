@@ -27,6 +27,7 @@ Current `php artisan schedule:list` output:
 0   0 * * *  php artisan inventory:prune-affinities --days=30
 0   * * * *  php artisan stock:send-alerts
 30  2 * * *  php artisan app:generate-sitemap
+0   * * * *  php artisan images:audit --repair --include-static --limit=500
 0   2 * * *  php artisan vault:prune-expired
 0   0 * * *  Mayush\Shipping\Onessta\Jobs\SyncCitiesJob
 0   1 * * *  Mayush\Shipping\Onessta\Jobs\SyncPickupCitiesJob
@@ -44,6 +45,7 @@ Scheduler notes:
 - ONESSTA polling runs every five minutes and requires valid ONESSTA credentials when `ONESSTA_ENABLED=true`.
 - Analytics aggregation jobs use date-based upserts, so reruns replace the same daily snapshot instead of duplicating it.
 - Search reindex and inventory affinity commands should be monitored after large catalog imports.
+- `images:audit` inspects a bounded, resumable slice of uploads and queues only missing or stale WebP derivative repairs. It never replaces originals.
 
 ## Queues
 
@@ -56,6 +58,7 @@ QUEUE_CONNECTION=redis
 ONESSTA_QUEUE_CONNECTION=redis
 ONESSTA_CREATE_SHIPMENT_QUEUE_CONNECTION=redis
 ONESSTA_QUEUE_NAME=onessta
+IMAGE_OPTIMIZATION_QUEUE=images
 ```
 
 Critical queued work:
@@ -65,6 +68,7 @@ Critical queued work:
 - Search: `SyncSemanticEmbeddingJob`.
 - Stock/notifications: stock alert mail dispatch and critical alert notifications.
 - Catalog intelligence: `ProcessFrequentlyBoughtJob`.
+- Images: `OptimizeUploadedImageJob` and `OptimizeStaticImageJob` on the dedicated `images` queue.
 
 Failure handling:
 
@@ -103,6 +107,19 @@ numprocs=1
 redirect_stderr=true
 stdout_logfile=/home/mayushdesign/public_html/storage/logs/worker-onessta.log
 stopwaitsecs=3600
+
+[program:mayush-worker-images]
+process_name=%(program_name)s_%(process_num)02d
+command=php8.2 /home/mayushdesign/public_html/artisan queue:work redis --queue=images --sleep=3 --tries=3 --timeout=180
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=mayushdesign
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/home/mayushdesign/public_html/storage/logs/worker-images.log
+stopwaitsecs=3600
 ```
 
 After deploy:
@@ -111,6 +128,7 @@ After deploy:
 php8.2 artisan queue:restart
 php8.2 artisan horizon:terminate
 php8.2 artisan schedule:list
+php8.2 artisan images:audit --repair --include-static --limit=500
 php8.2 artisan queue:failed
 ```
 
@@ -122,4 +140,9 @@ php8.2 artisan queue:failed
 - `failed_jobs` table exists and is monitored.
 - ONESSTA credentials and webhook secrets are present when ONESSTA is enabled.
 - `storage/logs` is writable by the PHP and queue users.
+- `storage`, the local public upload directory, and any configured cloud bucket are writable by the PHP and image worker users.
 - `php artisan schedule:list` returns without errors after deployment.
+
+## Static Asset Caching
+
+Apache serves versioned static assets with long-lived cache headers from `.htaccess`. Configure the matching Cloudflare cache rule for `assets/*`, `uploads/*`, and `build/*`, but exclude HTML routes because storefront responses contain session and cart state. Purge changed static paths after deployment when Cloudflare has cached an older response.
