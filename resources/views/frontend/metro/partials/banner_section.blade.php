@@ -10,7 +10,7 @@
 @endphp
 
 @if ($banner_images !== [] && get_setting($banner_key . '_status', '1') == '1')
-    <section class="metro-marketplace-split metro-banner-level-split mt-2 mt-md-3">
+    <section class="metro-marketplace-split metro-banner-level-split{{ $banner_key === 'home_banner1' ? '' : ' mt-2 mt-md-3' }}">
         @foreach ($banner_images as $key => $image)
             @php
                 $collection = !empty($banner_collection_ids[$key])
