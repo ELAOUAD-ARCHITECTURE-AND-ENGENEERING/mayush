@@ -11,12 +11,12 @@
         <p class="metro-collection-description mb-0">{{ $description }}</p>
         <a href="{{ $link }}" class="metro-collection-cta text-reset">{{ $cta }}</a>
         <div class="metro-collection-slider-nav">
-            <a type="button" class="metro-collection-slider-arrow" onclick="clickToSlide('slick-prev','section_newest')" aria-label="{{ translate('Previous') }}">
+            <button type="button" class="metro-collection-slider-arrow" onclick="clickToSlide('slick-prev','section_newest')" aria-label="{{ translate('Previous') }}">
                 <i class="las la-angle-left"></i>
-            </a>
-            <a type="button" class="metro-collection-slider-arrow" onclick="clickToSlide('slick-next','section_newest')" aria-label="{{ translate('Next') }}">
+            </button>
+            <button type="button" class="metro-collection-slider-arrow" onclick="clickToSlide('slick-next','section_newest')" aria-label="{{ translate('Next') }}">
                 <i class="las la-angle-right"></i>
-            </a>
+            </button>
         </div>
     </div>
     <div class="metro-collection-products aiz-carousel arrow-inactive-none" data-items="3" data-xxl-items="3" data-xl-items="3" data-lg-items="2" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows="false" data-infinite="true" data-autoplay="true">

@@ -23,7 +23,7 @@
 @section('content')
     <h1 class="d-none">Mayush Marketplace : meubles, decoration et design interieur au Maroc</h1>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Josefin+Sans:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Josefin+Sans:wght@400;600;700&display=swap');
 
         /* Luxury Font pairing rules */
         h1, h2, h3, h4, 
@@ -687,13 +687,21 @@
                                     @if (!$hasHeroContent && $slideLink)
                                         <a class="d-block h-100" href="{{ $slideLink }}">
                                             <img class="img-fit h-100 m-auto has-transition"
-                                            src="{{ $slider ? my_asset($slider->file_name) : static_asset('assets/img/placeholder.jpg') }}"
+                                            src="{{ $slider ? uploaded_asset($slider, 'large') : static_asset('assets/img/placeholder.jpg') }}"
+                                            @if($slider) srcset="{{ uploaded_asset_srcset($slider) }}" sizes="100vw" @endif
+                                            width="1600" height="720"
+                                            loading="{{ $key === 0 ? 'eager' : 'lazy' }}"
+                                            @if($key === 0) fetchpriority="high" @endif
                                             alt="{{ $slideTitleText ?: translate('Mayush furniture and decor marketplace promotion') }}"
                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
                                         </a>
                                     @else
                                         <img class="img-fit h-100 m-auto has-transition"
-                                        src="{{ $slider ? my_asset($slider->file_name) : static_asset('assets/img/placeholder.jpg') }}"
+                                        src="{{ $slider ? uploaded_asset($slider, 'large') : static_asset('assets/img/placeholder.jpg') }}"
+                                        @if($slider) srcset="{{ uploaded_asset_srcset($slider) }}" sizes="100vw" @endif
+                                        width="1600" height="720"
+                                        loading="{{ $key === 0 ? 'eager' : 'lazy' }}"
+                                        @if($key === 0) fetchpriority="high" @endif
                                         alt="{{ $slideTitleText ?: translate('Mayush furniture and decor marketplace promotion') }}"
                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
                                     @endif

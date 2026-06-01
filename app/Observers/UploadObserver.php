@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
+use App\Jobs\OptimizeUploadedImageJob;
 use App\Models\Upload;
-use App\Utility\ImageUtility;
 
 class UploadObserver
 {
@@ -15,9 +15,8 @@ class UploadObserver
      */
     public function created(Upload $upload)
     {
-        if (strpos($upload->type, 'image') !== false) {
-            $path = 'uploads/' . $upload->file_name;
-            ImageUtility::convertToWebp($path);
+        if (str_contains((string) $upload->type, 'image')) {
+            OptimizeUploadedImageJob::dispatch($upload->id)->afterCommit();
         }
     }
 }

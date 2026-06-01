@@ -11,7 +11,7 @@
     }
 @endphp
 <!-- Cart button with cart count -->
-<a href="javascript:void(0)" class="d-flex align-items-center @if (get_setting('header_element') !=6) px-3 @endif h-100" data-toggle="dropdown" data-display="static"
+<button type="button" class="d-flex align-items-center border-0 bg-transparent @if (get_setting('header_element') !=6) px-3 @endif h-100" data-toggle="dropdown" data-display="static"
     title="{{translate('Cart')}}">
     @if (get_setting('header_element') != 6)
         <span class="mr-2">
@@ -66,7 +66,7 @@
             (<span class="cart-count">{{count($carts) > 0 ? count($carts) : 0 }}</span>)
         </span>      
     @endif
-</a>
+</button>
 
 <!-- Cart Items -->
 <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg p-0 stop-propagation rounded-0">

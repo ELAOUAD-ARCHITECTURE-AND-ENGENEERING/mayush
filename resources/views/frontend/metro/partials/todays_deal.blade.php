@@ -22,7 +22,7 @@
         }
         .todays-deal-yellow-section .deal-btn {
             background: white;
-            color: #f59e0b;
+            color: #92400e;
             font-weight: 800;
             padding: 9px 24px;
             border-radius: 50px;
@@ -58,8 +58,8 @@
             gap: 7px;
             padding: 10px 13px;
             border-radius: 8px;
-            background: #ea580c;
-            color: #111827;
+            background: #9a3412;
+            color: #ffffff;
             box-shadow: 0 8px 20px rgba(124, 45, 18, .24);
         }
         .todays-deal-countdown__unit {
@@ -105,7 +105,7 @@
             height: 34px;
             border-radius: 50%;
             background: rgba(255, 255, 255, .92);
-            color: #f59e0b;
+            color: #92400e;
             box-shadow: 0 8px 20px rgba(124, 45, 18, .18);
         }
         .todays-deal-product-card {

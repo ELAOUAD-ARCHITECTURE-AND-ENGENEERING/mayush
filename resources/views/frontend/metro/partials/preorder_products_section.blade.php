@@ -25,8 +25,8 @@
                         </h3>
                         <!-- Links -->
                         <div class="d-flex">
-                            <a type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2" onclick="clickToSlide('slick-prev','section_preorder_featured_div')"><i class="las la-angle-left fs-20 fw-600"></i></a>
-                            <a type="button" class="arrow-next slide-arrow text-secondary ml-2" onclick="clickToSlide('slick-next','section_preorder_featured_div')"><i class="las la-angle-right fs-20 fw-600"></i></a>
+                            <button type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2 border-0 bg-transparent" onclick="clickToSlide('slick-prev','section_preorder_featured_div')" aria-label="{{ translate('Previous') }}"><i class="las la-angle-left fs-20 fw-600"></i></button>
+                            <button type="button" class="arrow-next slide-arrow text-secondary ml-2 border-0 bg-transparent" onclick="clickToSlide('slick-next','section_preorder_featured_div')" aria-label="{{ translate('Next') }}"><i class="las la-angle-right fs-20 fw-600"></i></button>
                         </div>
                     </div>
                     <div class="border mt-3">

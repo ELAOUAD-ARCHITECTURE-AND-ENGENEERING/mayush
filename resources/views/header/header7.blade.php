@@ -171,7 +171,7 @@
             border-radius: 3px;
         }
 
-        .market-cart-wrap .nav-cart-box > a:not(.market-cart-trigger) {
+        .market-cart-wrap .nav-cart-box > :not(.market-cart-trigger):not(.dropdown-menu) {
             display: none !important;
         }
 
@@ -313,20 +313,20 @@
 
                 @if (get_setting('show_language_switcher') == 'on')
                     <div class="dropdown market-switcher lang-visibility js-lang-change ml-2 mr-2" id="lang-change">
-                        <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" data-display="static">
+                        <button type="button" class="dropdown-toggle border-0 bg-transparent p-0" data-toggle="dropdown" data-display="static">
                             <img src="{{ static_asset('assets/img/flags/' . $system_language->code . '.png') }}" class="mr-1" alt="{{ $system_language->name }}" height="11">
                             <span class="text-capitalize">{{ $system_language->code }}</span>
-                        </a>
+                        </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             @foreach (get_all_active_language() as $language)
                                 <li>
-                                    <a href="javascript:void(0)" data-flag="{{ $language->code }}"
-                                        class="dropdown-item text-dark @if ($system_language->code == $language->code) active @endif">
+                                    <button type="button" data-flag="{{ $language->code }}"
+                                        class="dropdown-item text-dark w-100 text-left @if ($system_language->code == $language->code) active @endif">
                                         <img src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                             data-src="{{ static_asset('assets/img/flags/' . $language->code . '.png') }}"
                                             class="mr-1 lazyload" alt="{{ $language->name }}" height="11">
                                         <span class="language">{{ $language->name }}</span>
-                                    </a>
+                                    </button>
                                 </li>
                             @endforeach
                         </ul>
@@ -380,10 +380,10 @@
                 </div>
 
                 <div class="dropdown d-none d-lg-block ml-3">
-                    <a href="javascript:void(0)" class="market-action-link d-flex flex-column justify-content-center" data-toggle="dropdown">
+                    <button type="button" class="market-action-link d-flex flex-column justify-content-center border-0 bg-transparent text-left" data-toggle="dropdown">
                         <span class="label">{{ Auth::check() ? translate('Hello') . ', ' . \Illuminate\Support\Str::limit($user->name, 12) : translate('Hello, sign in') }}</span>
                         <span class="value">{{ translate('Account & Lists') }}</span>
-                    </a>
+                    </button>
                     <div class="dropdown-menu dropdown-menu-right py-0">
                         @auth
                             <a class="dropdown-item py-2" href="{{ isAdmin() ? route('admin.dashboard') : route('dashboard') }}">{{ translate('Dashboard') }}</a>
@@ -414,7 +414,7 @@
                             }
                             $cartCount = count($carts) > 0 ? count($carts) : 0;
                         @endphp
-                        <a href="javascript:void(0)" class="d-flex align-items-center h-100 position-relative market-cart-trigger" data-toggle="dropdown" data-display="static" title="{{ translate('Cart') }}" style="padding: 4px 8px;">
+                        <button type="button" class="d-flex align-items-center h-100 position-relative market-cart-trigger border-0 bg-transparent" data-toggle="dropdown" data-display="static" title="{{ translate('Cart') }}" style="padding: 4px 8px;">
                             <span class="position-relative" style="display: inline-block;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 64 64" fill="none">
                                     <path d="M20 20H54L49 42H25L20 20Z" stroke="#d97434" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -429,7 +429,7 @@
                                     <span class="cart-count">{{ $cartCount }}</span>
                                 </span>
                             </span>
-                        </a>
+                        </button>
                         <!-- Cart Dropdown Menu -->
                         @include('frontend.partials.cart.cart')
                     </div>

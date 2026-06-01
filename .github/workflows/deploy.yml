@@ -242,6 +242,11 @@ jobs:
             
             # Run the server's specific ENV and cache script
             sudo -E /usr/local/bin/deploy_mayush_env_and_cache.sh
+
+            echo ""
+            echo "Validating scheduler and queueing bounded image repairs..."
+            php8.2 artisan schedule:list --no-ansi
+            php8.2 artisan images:audit --repair --include-static --limit=500
             
             echo "✔ Deploy & cache clearing finished"
 
