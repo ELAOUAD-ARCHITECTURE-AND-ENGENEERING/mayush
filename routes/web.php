@@ -14,6 +14,7 @@ use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\CustomerPackageController;
 use App\Http\Controllers\CustomerProductController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ProductCollectionController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\DigitalProductController;
 use App\Http\Controllers\HomeController;
@@ -409,6 +410,8 @@ Route::middleware(['unbanned'])->group(function () {
         });
     });
 });
+
+Route::get('/collections/{slug}', [ProductCollectionController::class, 'show'])->name('product-collections.show');
 
 Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() {
 

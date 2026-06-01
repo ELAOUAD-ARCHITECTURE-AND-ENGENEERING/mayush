@@ -78,18 +78,11 @@
 							{{ translate('Banner Level 2') }}
 						</a>
 					</li>
-					<!-- Best Selling -->
+					<!-- Collections Split -->
 					<li class="nav-item">
-						<a class="nav-link" id="best-selling-tab" href="#best_selling"
-							data-toggle="tab" data-target="#best_selling" type="button" role="tab" aria-controls="best_selling" aria-selected="false">
-							{{ translate('Best Selling') }}
-						</a>
-					</li>
-					<!-- New Products -->
-					<li class="nav-item">
-						<a class="nav-link" id="new-products-tab" href="#new_products"
-							data-toggle="tab" data-target="#new_products" type="button" role="tab" aria-controls="new_products" aria-selected="false">
-							{{ translate('New Products') }}
+						<a class="nav-link" id="collections-split-tab" href="#collections_split"
+							data-toggle="tab" data-target="#collections_split" type="button" role="tab" aria-controls="collections_split" aria-selected="false">
+							{{ translate('Collections Split') }}
 						</a>
 					</li>
 					<!-- Banner Level 3 -->
@@ -624,6 +617,7 @@
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner1_titles">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner1_descriptions">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner1_cta_texts">
+							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner1_collection_ids">
 							<input type="hidden" name="types[]" value="home_banner1_status">
 
 							<div class="bg-white p-3 p-sm-2rem">
@@ -648,6 +642,7 @@
 											$home_banner1_titles = json_decode(get_setting('home_banner1_titles', null, $lang), true) ?: [];
 											$home_banner1_descriptions = json_decode(get_setting('home_banner1_descriptions', null, $lang), true) ?: [];
 											$home_banner1_cta_texts = json_decode(get_setting('home_banner1_cta_texts', null, $lang), true) ?: [];
+											$home_banner1_collection_ids = json_decode(get_setting('home_banner1_collection_ids', null, $lang), true) ?: [];
 										@endphp
 										@if ($home_banner1_images != null)
 											@foreach (json_decode($home_banner1_images, true) as $key => $value)
@@ -687,6 +682,7 @@
 														'bannerTitle' => $home_banner1_titles[$key] ?? '',
 														'bannerDescription' => $home_banner1_descriptions[$key] ?? '',
 														'bannerCta' => $home_banner1_cta_texts[$key] ?? '',
+														'bannerCollectionId' => $home_banner1_collection_ids[$key] ?? '',
 													])
 												</div>
 											@endforeach
@@ -872,6 +868,7 @@
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner2_titles">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner2_descriptions">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner2_cta_texts">
+							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner2_collection_ids">
 							<input type="hidden" name="types[]" value="home_banner2_status">
 
 							<div class="bg-white p-3 p-sm-2rem">
@@ -896,6 +893,7 @@
 											$home_banner2_titles = json_decode(get_setting('home_banner2_titles', null, $lang), true) ?: [];
 											$home_banner2_descriptions = json_decode(get_setting('home_banner2_descriptions', null, $lang), true) ?: [];
 											$home_banner2_cta_texts = json_decode(get_setting('home_banner2_cta_texts', null, $lang), true) ?: [];
+											$home_banner2_collection_ids = json_decode(get_setting('home_banner2_collection_ids', null, $lang), true) ?: [];
 										@endphp
 										@if ($home_banner2_images != null)
 											@foreach (json_decode($home_banner2_images, true) as $key => $value)
@@ -935,6 +933,7 @@
 														'bannerTitle' => $home_banner2_titles[$key] ?? '',
 														'bannerDescription' => $home_banner2_descriptions[$key] ?? '',
 														'bannerCta' => $home_banner2_cta_texts[$key] ?? '',
+														'bannerCollectionId' => $home_banner2_collection_ids[$key] ?? '',
 													])
 												</div>
 											@endforeach
@@ -1009,6 +1008,7 @@
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner3_titles">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner3_descriptions">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner3_cta_texts">
+							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner3_collection_ids">
 							<input type="hidden" name="types[]" value="home_banner3_status">
 
 							<div class="bg-white p-3 p-sm-2rem">
@@ -1033,6 +1033,7 @@
 											$home_banner3_titles = json_decode(get_setting('home_banner3_titles', null, $lang), true) ?: [];
 											$home_banner3_descriptions = json_decode(get_setting('home_banner3_descriptions', null, $lang), true) ?: [];
 											$home_banner3_cta_texts = json_decode(get_setting('home_banner3_cta_texts', null, $lang), true) ?: [];
+											$home_banner3_collection_ids = json_decode(get_setting('home_banner3_collection_ids', null, $lang), true) ?: [];
 										@endphp
 										@if ($home_banner3_images != null)
 											@foreach (json_decode($home_banner3_images, true) as $key => $value)
@@ -1072,6 +1073,7 @@
 														'bannerTitle' => $home_banner3_titles[$key] ?? '',
 														'bannerDescription' => $home_banner3_descriptions[$key] ?? '',
 														'bannerCta' => $home_banner3_cta_texts[$key] ?? '',
+														'bannerCollectionId' => $home_banner3_collection_ids[$key] ?? '',
 													])
 												</div>
 											@endforeach
@@ -1503,6 +1505,95 @@
 						</form>
 					</div>
 
+					<!-- Collections Split -->
+					<div class="tab-pane fade" id="collections_split" role="tabpanel" aria-labelledby="collections-split-tab">
+						<form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+							@csrf
+							<input type="hidden" name="tab" value="collections_split">
+							<input type="hidden" name="types[]" value="metro_collections_section_status">
+							<input type="hidden" name="metro_collections_section_status" value="0">
+							<input type="hidden" name="types[][{{ $lang }}]" value="metro_collections_newest_image">
+							<input type="hidden" name="types[][{{ $lang }}]" value="metro_collections_newest_title">
+							<input type="hidden" name="types[][{{ $lang }}]" value="metro_collections_newest_description">
+							<input type="hidden" name="types[][{{ $lang }}]" value="metro_collections_newest_cta_text">
+							<input type="hidden" name="types[][{{ $lang }}]" value="metro_collections_newest_cta_link">
+							<input type="hidden" name="types[][{{ $lang }}]" value="metro_collections_best_selling_image">
+							<input type="hidden" name="types[][{{ $lang }}]" value="metro_collections_best_selling_title">
+							<input type="hidden" name="types[][{{ $lang }}]" value="metro_collections_best_selling_description">
+							<input type="hidden" name="types[][{{ $lang }}]" value="metro_collections_best_selling_cta_text">
+							<input type="hidden" name="types[][{{ $lang }}]" value="metro_collections_best_selling_cta_link">
+							<div class="bg-white p-3 p-sm-2rem">
+								<div class="row gutters-16">
+									<div class="col-lg-8">
+										<div class="p-4 border" style="background: #fcfcfc;">
+											<div class="form-group row align-items-center">
+												<label class="col-md-7 col-from-label">{{ translate('Show Collections Split Section') }}</label>
+												<div class="col-md-5">
+													<label class="aiz-switch aiz-switch-success mb-0">
+														<input type="checkbox" name="metro_collections_section_status" value="1" @if(get_setting('metro_collections_section_status', '1') == '1') checked @endif>
+														<span></span>
+													</label>
+												</div>
+											</div>
+											<p class="fs-14 fw-500 mb-0">{{ translate('Each panel uses a large background image, overlaid copy and CTA, with a compact autoplay product slider displayed at the bottom.') }}</p>
+											<a href="{{ route('product-collections.index') }}" class="btn btn-soft-primary btn-sm mt-3">
+												<i class="las la-layer-group mr-1"></i>{{ translate('Manage Product Collections') }}
+											</a>
+										</div>
+									</div>
+								</div>
+								<div class="row gutters-16 mt-4">
+									@foreach ([
+										'newest' => translate('New Collections Panel'),
+										'best_selling' => translate('Best Selling Panel'),
+									] as $panelKey => $panelLabel)
+										<div class="col-xl-6 mb-3">
+											<div class="p-4 border h-100" style="background: #fcfcfc;">
+												<h3 class="fs-16 fw-700 mb-3">{{ $panelLabel }}</h3>
+												<div class="form-group">
+													<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('Background Image') }}</label>
+													<div class="input-group" data-toggle="aizuploader" data-type="image">
+														<div class="input-group-prepend">
+															<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+														</div>
+														<div class="form-control file-amount">{{ translate('Choose File') }}</div>
+														<input type="hidden" name="metro_collections_{{ $panelKey }}_image" class="selected-files" value="{{ get_setting('metro_collections_' . $panelKey . '_image', null, $lang) }}">
+													</div>
+													<div class="file-preview box sm"></div>
+												</div>
+												<div class="form-group">
+													<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('Title') }}</label>
+													<input type="text" class="form-control" name="metro_collections_{{ $panelKey }}_title" value="{{ get_setting('metro_collections_' . $panelKey . '_title', null, $lang) }}">
+												</div>
+												<div class="form-group">
+													<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('Description') }}</label>
+													<textarea class="form-control" rows="3" name="metro_collections_{{ $panelKey }}_description">{{ get_setting('metro_collections_' . $panelKey . '_description', null, $lang) }}</textarea>
+												</div>
+												<div class="row gutters-10">
+													<div class="col-md-5">
+														<div class="form-group mb-md-0">
+															<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('CTA Text') }}</label>
+															<input type="text" class="form-control" name="metro_collections_{{ $panelKey }}_cta_text" value="{{ get_setting('metro_collections_' . $panelKey . '_cta_text', null, $lang) }}">
+														</div>
+													</div>
+													<div class="col-md-7">
+														<div class="form-group mb-0">
+															<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('CTA Link') }}</label>
+															<input type="text" class="form-control" placeholder="http://" name="metro_collections_{{ $panelKey }}_cta_link" value="{{ get_setting('metro_collections_' . $panelKey . '_cta_link', null, $lang) }}">
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									@endforeach
+								</div>
+								<div class="mt-4 text-right">
+									<button type="submit" class="btn btn-success w-230px btn-md rounded-2 fs-14 fw-700 shadow-success">{{ translate('Save') }}</button>
+								</div>
+							</div>
+						</form>
+					</div>
+
 					<!-- Marketplace Banner -->
 					<div class="tab-pane fade" id="marketplace_banner" role="tabpanel" aria-labelledby="marketplace-banner-tab">
 						<form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
@@ -1513,6 +1604,7 @@
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner4_titles">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner4_descriptions">
 							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner4_cta_texts">
+							<input type="hidden" name="types[][{{ $lang }}]" value="home_banner4_collection_ids">
 							<input type="hidden" name="types[]" value="home_banner4_status">
 
 							<div class="bg-white p-3 p-sm-2rem">
@@ -1539,6 +1631,7 @@
 											$home_banner4_titles = get_setting('home_banner4_titles', null, $lang);
 											$home_banner4_descriptions = get_setting('home_banner4_descriptions', null, $lang);
 											$home_banner4_cta_texts = get_setting('home_banner4_cta_texts', null, $lang);
+											$home_banner4_collection_ids = get_setting('home_banner4_collection_ids', null, $lang);
 										@endphp
 										@if ($home_banner4_images != null)
 											@foreach (json_decode($home_banner4_images, true) as $key => $value)
@@ -1596,6 +1689,15 @@
 																<input type="text" class="form-control" placeholder="http://" name="home_banner4_links[]" value="{{ isset(json_decode($home_banner4_links ?? '[]', true)[$key]) ? json_decode($home_banner4_links, true)[$key] : '' }}">
 															</div>
 														</div>
+													</div>
+													<div class="form-group">
+														<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('CTA Product Collection') }}</label>
+														<select class="form-control aiz-selectpicker" name="home_banner4_collection_ids[]" data-live-search="true">
+															<option value="">{{ translate('Use custom URL') }}</option>
+															@foreach (\App\Models\ProductCollection::orderBy('name')->get() as $productCollection)
+																<option value="{{ $productCollection->id }}" @selected((string) (json_decode($home_banner4_collection_ids ?? '[]', true)[$key] ?? '') === (string) $productCollection->id)>{{ $productCollection->name }}</option>
+															@endforeach
+														</select>
 													</div>
 													<div class="text-right">
 														<button type="button" class="btn btn-soft-primary btn-sm js-banner-preview">
@@ -1656,11 +1758,20 @@
 															<input type="text" class="form-control" placeholder="Acheter maintenant" name="home_banner4_cta_texts[]" value="">
 														</div>
 													</div>
-													<div class="col-md-8">
+														<div class="col-md-8">
 														<div class="form-group">
 															<label class="fs-12 fw-600 text-uppercase text-muted">CTA Link</label>
 															<input type="text" class="form-control" placeholder="http://" name="home_banner4_links[]" value="">
 														</div>
+													</div>
+													<div class="form-group">
+														<label class="fs-12 fw-600 text-uppercase text-muted">CTA Product Collection</label>
+														<select class="form-control aiz-selectpicker" name="home_banner4_collection_ids[]" data-live-search="true">
+															<option value="">Use custom URL</option>
+															@foreach (\App\Models\ProductCollection::orderBy('name')->get() as $productCollection)
+																<option value="{{ $productCollection->id }}">{{ $productCollection->name }}</option>
+															@endforeach
+														</select>
 													</div>
 												</div>
 												<div class="text-right">

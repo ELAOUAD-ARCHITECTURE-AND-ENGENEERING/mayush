@@ -5,14 +5,18 @@
     $banner_titles = json_decode(get_setting($banner_key . '_titles', null, $lang), true) ?: [];
     $banner_descriptions = json_decode(get_setting($banner_key . '_descriptions', null, $lang), true) ?: [];
     $banner_cta_texts = json_decode(get_setting($banner_key . '_cta_texts', null, $lang), true) ?: [];
+    $banner_collection_ids = json_decode(get_setting($banner_key . '_collection_ids', null, $lang), true) ?: [];
     $banner_images = json_decode($banner_images, true) ?: [];
 @endphp
 
 @if ($banner_images !== [] && get_setting($banner_key . '_status', '1') == '1')
-    <section class="metro-marketplace-split metro-banner-level-split mt-2 mt-md-3 mb-2 mb-md-3">
+    <section class="metro-marketplace-split metro-banner-level-split mt-2 mt-md-3">
         @foreach ($banner_images as $key => $image)
             @php
-                $link = $banner_links[$key] ?? '';
+                $collection = !empty($banner_collection_ids[$key])
+                    ? \App\Models\ProductCollection::published()->find($banner_collection_ids[$key])
+                    : null;
+                $link = $collection ? route('product-collections.show', $collection->slug) : ($banner_links[$key] ?? '');
                 $title = $banner_titles[$key] ?? '';
                 $desc = $banner_descriptions[$key] ?? '';
                 $cta = $banner_cta_texts[$key] ?? '';
