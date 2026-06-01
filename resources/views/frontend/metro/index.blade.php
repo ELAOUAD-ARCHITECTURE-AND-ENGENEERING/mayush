@@ -739,7 +739,7 @@
                                     @if ($hasHeroContent)
                                         <div class="metro-hero-content">
                                             @if ($slideTitle)
-                                                <h1 class="metro-hero-title">{!! app(\App\Services\HeroTitleSanitizerService::class)->sanitize($slideTitle) !!}</h1>
+                                                <h2 class="metro-hero-title">{!! app(\App\Services\HeroTitleSanitizerService::class)->sanitize($slideTitle) !!}</h2>
                                             @endif
                                             @if ($slideDescription)
                                                 <p class="metro-hero-description">{{ $slideDescription }}</p>

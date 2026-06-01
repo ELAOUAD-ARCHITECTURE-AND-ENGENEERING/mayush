@@ -100,14 +100,17 @@ class HomepageRenderingTest extends TestCase
 
         Cache::flush();
 
-        $this->get(route('home'))
+        $response = $this->get(route('home'))
             ->assertOk()
             ->assertSee('metro-hero-slide has-content', false)
+            ->assertSee('<h2 class="metro-hero-title">', false)
             ->assertSee('Design <span style="color: red;"><strong>Your Living Room</strong></span>', false)
             ->assertDontSee('alert("x")', false)
             ->assertSee('Curated furniture and decor from Mayush sellers.')
             ->assertSee('Shop the Collection')
             ->assertSee('href="https://example.test/collections/living-room"', false);
+
+        $this->assertSame(1, substr_count($response->getContent(), '<h1'));
     }
 
     public function test_metro_homepage_cta_button_falls_back_to_search_when_link_is_empty(): void
