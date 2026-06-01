@@ -17,12 +17,10 @@
                     ? \App\Models\ProductCollection::published()->find($banner_collection_ids[$key])
                     : null;
                 $link = $collection ? route('product-collections.show', $collection->slug) : ($banner_links[$key] ?? '');
-                $title = $banner_titles[$key] ?? '';
-                $desc = $banner_descriptions[$key] ?? '';
+                $title = trim(strip_tags(html_entity_decode(app(\App\Services\BannerTextSanitizerService::class)->sanitize((string) ($banner_titles[$key] ?? '')))));
+                $desc = trim(strip_tags(html_entity_decode(app(\App\Services\BannerTextSanitizerService::class)->sanitize((string) ($banner_descriptions[$key] ?? '')))));
                 $cta = $banner_cta_texts[$key] ?? '';
-                $safe_title = app(\App\Services\BannerTextSanitizerService::class)->sanitize($title);
-                $safe_desc = app(\App\Services\BannerTextSanitizerService::class)->sanitize($desc);
-                $alt = trim(strip_tags($safe_title)) ?: env('APP_NAME') . ' Promo';
+                $alt = $title ?: env('APP_NAME') . ' Promo';
             @endphp
             <article class="metro-marketplace-split-item">
                 <a href="{{ $link }}" class="metro-marketplace-split-link text-reset">
@@ -34,13 +32,13 @@
                     </span>
                     <span class="sr-only">{{ $alt }}</span>
 
-                    @if($safe_title || $safe_desc || $cta)
+                    @if($title || $desc || $cta)
                         <div class="metro-marketplace-split-content text-white">
-                            @if($safe_title)
-                                <div class="metro-marketplace-split-title metro-promo-banner-text">{!! $safe_title !!}</div>
+                            @if($title)
+                                <h2 class="metro-marketplace-split-title">{{ $title }}</h2>
                             @endif
-                            @if($safe_desc)
-                                <div class="metro-marketplace-split-description metro-promo-banner-text">{!! $safe_desc !!}</div>
+                            @if($desc)
+                                <p class="metro-marketplace-split-description">{{ $desc }}</p>
                             @endif
                             @if($cta)
                                 <span class="metro-marketplace-split-cta">{{ $cta }}</span>

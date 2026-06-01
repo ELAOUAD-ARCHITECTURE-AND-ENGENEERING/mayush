@@ -124,7 +124,7 @@ class PromoBannerRichTextTest extends TestCase
         $this->assertSame(20, BannerTextVersion::where('setting_key', 'home_banner2_descriptions')->where('lang', 'en')->count());
     }
 
-    public function test_metro_promo_banner_renders_sanitized_html_and_escapes_cta(): void
+    public function test_metro_promo_banner_renders_plain_semantic_copy_and_escapes_cta(): void
     {
         $upload = Upload::create([
             'file_original_name' => 'promo.jpg',
@@ -145,9 +145,9 @@ class PromoBannerRichTextTest extends TestCase
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('class="metro-marketplace-split metro-banner-level-split', false)
-            ->assertSee('<strong>Styled title</strong>', false)
+            ->assertSee('<h2 class="metro-marketplace-split-title">Styled title</h2>', false)
             ->assertDontSee('bad()', false)
-            ->assertSee('<span style="color: #ffffff">Styled detail</span>', false)
+            ->assertSee('<p class="metro-marketplace-split-description">Styled detail</p>', false)
             ->assertSee('&lt;b&gt;Buy&lt;/b&gt;', false)
             ->assertDontSee('<b>Buy</b>', false);
     }
