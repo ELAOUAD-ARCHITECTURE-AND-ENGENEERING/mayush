@@ -409,6 +409,143 @@
             font-weight: 500;
             line-height: 1.35;
         }
+        .metro-collections-split {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            width: 100%;
+            background: #f4f4f2;
+        }
+        .metro-collections-split-panel {
+            position: relative;
+            min-width: 0;
+            min-height: 620px;
+            overflow: hidden;
+            background-color: #12192a;
+            background-position: center;
+            background-size: cover;
+        }
+        .metro-collections-split-panel + .metro-collections-split-panel {
+            border-top: 1px solid rgba(18, 25, 42, .12);
+        }
+        .metro-collections-split-panel::before {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(18, 25, 42, .22) 0%, rgba(18, 25, 42, .5) 55%, rgba(18, 25, 42, .9) 100%);
+            content: "";
+        }
+        .metro-collections-split-panel .metro-collection-subsection {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            height: 100%;
+            min-height: 620px;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        .metro-collection-copy {
+            padding: 42px 28px 26px;
+            text-align: center;
+            text-shadow: 0 2px 14px rgba(0, 0, 0, .38);
+        }
+        .metro-collection-title {
+            color: #ffffff !important;
+            font-size: clamp(1.75rem, 3vw, 2.75rem);
+            line-height: 1.13;
+        }
+        .metro-collection-description {
+            max-width: 560px;
+            margin: 12px auto 0;
+            color: rgba(255, 255, 255, .92);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .metro-collection-cta {
+            display: inline-block;
+            margin-top: 16px;
+            border-bottom: 1px solid currentColor;
+            padding-bottom: 2px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.35;
+        }
+        .metro-collection-products {
+            padding: 0 14px 18px;
+        }
+        .metro-collection-products .slick-list {
+            margin: 0 -7px;
+        }
+        .metro-collection-product-slide {
+            padding: 0 7px;
+        }
+        .metro-collection-product {
+            min-width: 0;
+            height: 100%;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .28);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .14);
+            box-shadow: 0 10px 26px rgba(0, 0, 0, .15);
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: border-color .3s ease, background .3s ease, transform .3s ease;
+        }
+        .metro-collection-product:hover {
+            border-color: rgba(214, 162, 78, .75);
+            background: rgba(255, 255, 255, .22);
+            transform: translateY(-4px);
+        }
+        .metro-collection-product-link {
+            display: flex;
+            height: 100%;
+            min-height: 112px;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+        }
+        .metro-collection-product-image {
+            width: 68px;
+            height: 82px;
+            flex: 0 0 68px;
+            object-fit: cover;
+        }
+        .metro-collection-product-name {
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            font-size: .8rem;
+            line-height: 1.35;
+        }
+        .metro-collection-product-price {
+            display: block;
+            margin-top: 6px;
+            color: #d6a24e;
+            font-size: .85rem;
+            font-weight: 700;
+        }
+        .metro-collection-slider-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .metro-collection-slider-arrow {
+            display: inline-flex;
+            width: 34px;
+            height: 34px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, .62);
+            border-radius: 50%;
+            color: #ffffff;
+            transition: background .25s ease, color .25s ease;
+        }
+        .metro-collection-slider-arrow:hover {
+            background: #ffffff;
+            color: #12192a !important;
+        }
         @media (min-width: 992px) {
             .metro-marketplace-split {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -418,6 +555,13 @@
             }
             .metro-marketplace-split-content {
                 padding: 80px;
+            }
+            .metro-collections-split {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .metro-collections-split-panel + .metro-collections-split-panel {
+                border-top: 0;
+                border-left: 1px solid rgba(18, 25, 42, .12);
             }
         }
         @media (max-width: 575px) {
@@ -429,6 +573,35 @@
             }
             .metro-marketplace-split-description {
                 font-size: .95rem;
+            }
+            .metro-collections-split-panel,
+            .metro-collections-split-panel .metro-collection-subsection {
+                min-height: 540px;
+            }
+            .metro-collection-copy {
+                padding: 32px 20px 22px;
+            }
+            .metro-collection-product-link {
+                display: block;
+                min-height: 0;
+                padding: 8px;
+            }
+            .metro-collection-product-image {
+                width: 100%;
+                height: 92px;
+            }
+            .metro-collection-product-name {
+                margin-top: 7px;
+                font-size: .72rem;
+            }
+            .metro-collection-product-price {
+                font-size: .76rem;
+            }
+            .metro-collection-products {
+                padding: 0 8px 12px;
+            }
+            .metro-collection-product-slide {
+                padding: 0 5px;
             }
         }
         @media (max-width: 991px) {
@@ -522,7 +695,7 @@
     @php $lang = get_system_language()->code;  @endphp
     
     <!-- 1. Home Slider -->
-    <div class="home-banner-area mb-3">
+    <div class="home-banner-area">
         <div class="p-0">
             <div class="home-slider slider-full">
                 @if (get_setting('home_slider_images', null, $lang) != null)
@@ -669,26 +842,21 @@
     @include('frontend.metro.partials.banner_section', ['banner_key' => 'home_banner2'])
 
     <!-- 10. New Collections & Best Selling -->
-    <section id="metro_collections_section" class="mb-4">
-        <div class="container">
-            <div class="bg-white px-3 py-4 px-md-4 hov-shadow-md has-transition rounded">
-                <div id="section_newest" class="metro-collection-subsection">
-                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
-                        @for ($i=0; $i<5; $i++)
-                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
-                        @endfor
-                    </div>
-                </div>
-                <div id="section_best_selling" class="metro-collection-subsection mt-4 pt-3 border-top">
-                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
-                        @for ($i=0; $i<5; $i++)
-                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
-                        @endfor
-                    </div>
-                </div>
-            </div>
+    @if (get_setting('metro_collections_section_status', '1') == '1')
+    @php
+        $collectionsLang = get_system_language()->code;
+        $newestCollectionImage = uploaded_asset(get_setting('metro_collections_newest_image', null, $collectionsLang)) ?: static_asset('assets/img/placeholder-rect.jpg');
+        $bestSellingCollectionImage = uploaded_asset(get_setting('metro_collections_best_selling_image', null, $collectionsLang)) ?: static_asset('assets/img/placeholder-rect.jpg');
+    @endphp
+    <section id="metro_collections_section" class="metro-collections-split">
+        <div id="section_newest" class="metro-collections-split-panel" style="background-image: url('{{ $newestCollectionImage }}');">
+            @include('frontend.metro.partials.collection_panel_placeholder')
+        </div>
+        <div id="section_best_selling" class="metro-collections-split-panel" style="background-image: url('{{ $bestSellingCollectionImage }}');">
+            @include('frontend.metro.partials.collection_panel_placeholder')
         </div>
     </section>
+    @endif
 
     <!-- 12. Banner Level 3 -->
     @include('frontend.metro.partials.banner_section', ['banner_key' => 'home_banner3'])
@@ -732,8 +900,10 @@
         $(document).ready(function(){
             // Load sections via AJAX for maximum performance
             loadSection('{{ route('home.section.featured') }}', '#section_featured');
+            @if (get_setting('metro_collections_section_status', '1') == '1')
             loadSection('{{ route('home.section.best_selling') }}', '#section_best_selling');
             loadSection('{{ route('home.section.newest_products') }}', '#section_newest');
+            @endif
             @if (get_setting('home_categories_section_status', '1') == '1')
                 loadSection('{{ route('home.section.home_categories') }}', '#section_home_categories');
             @endif

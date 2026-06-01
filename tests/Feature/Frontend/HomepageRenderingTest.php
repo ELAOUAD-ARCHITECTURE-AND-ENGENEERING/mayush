@@ -227,6 +227,19 @@ class HomepageRenderingTest extends TestCase
         $this->assertSame('', $sectionResponse->getContent());
     }
 
+    public function test_metro_collections_split_section_can_be_hidden_from_home_settings(): void
+    {
+        $this->setting('homepage_select', 'metro');
+        $this->setting('metro_collections_section_status', '0');
+        Cache::flush();
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertDontSee('id="metro_collections_section"', false)
+            ->assertDontSee("loadSection('" . route('home.section.best_selling') . "', '#section_best_selling')", false)
+            ->assertDontSee("loadSection('" . route('home.section.newest_products') . "', '#section_newest')", false);
+    }
+
     public function test_metro_collection_ajax_sections_render_merged_section_headings(): void
     {
         $this->setting('homepage_select', 'metro');
@@ -235,7 +248,9 @@ class HomepageRenderingTest extends TestCase
         $this->get(route('home.section.newest_products'))
             ->assertOk()
             ->assertSee('Nouvelles collections')
-            ->assertSee('Découvrez une sélection exclusive de mobilier et décoration où design contemporain, confort et raffinement se rencontrent.');
+            ->assertSee('Découvrez une sélection exclusive de mobilier et décoration où design contemporain, confort et raffinement se rencontrent.')
+            ->assertSee('metro-collection-products aiz-carousel', false)
+            ->assertSee('data-autoplay="true"', false);
 
         $this->get(route('home.section.best_selling'))
             ->assertOk()

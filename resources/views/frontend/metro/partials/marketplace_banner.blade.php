@@ -4,14 +4,18 @@
     $home_banner4_titles = json_decode(get_setting('home_banner4_titles', null, $lang), true) ?: [];
     $home_banner4_descriptions = json_decode(get_setting('home_banner4_descriptions', null, $lang), true) ?: [];
     $home_banner4_cta_texts = json_decode(get_setting('home_banner4_cta_texts', null, $lang), true) ?: [];
+    $home_banner4_collection_ids = json_decode(get_setting('home_banner4_collection_ids', null, $lang), true) ?: [];
     $home_banner4_images = json_decode($home_banner4_images, true) ?: [];
 @endphp
 
 @if ($home_banner4_images !== [] && get_setting('home_banner4_status', '1') == '1')
-    <section class="metro-marketplace-split mt-2 mt-md-3 mb-2 mb-md-3">
+    <section class="metro-marketplace-split mt-2 mt-md-3">
         @foreach ($home_banner4_images as $key => $value)
             @php
-                $link = $home_banner4_links[$key] ?? '';
+                $collection = !empty($home_banner4_collection_ids[$key])
+                    ? \App\Models\ProductCollection::published()->find($home_banner4_collection_ids[$key])
+                    : null;
+                $link = $collection ? route('product-collections.show', $collection->slug) : ($home_banner4_links[$key] ?? '');
                 $title = $home_banner4_titles[$key] ?? '';
                 $desc = $home_banner4_descriptions[$key] ?? '';
                 $cta = $home_banner4_cta_texts[$key] ?? '';

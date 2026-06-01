@@ -73,6 +73,7 @@ use App\Http\Controllers\PromotionalCategoryController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\TodaysDealController;
 use App\Http\Controllers\AIController;
+use App\Http\Controllers\Admin\ProductCollectionController;
 
 /*
   |--------------------------------------------------------------------------
@@ -802,6 +803,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::resource('elements', ElementController::class);
     
     Route::resource('custom_label', CustomLabelController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::resource('product-collections', ProductCollectionController::class)->except('show');
     Route::controller(CustomLabelController::class)->group(function () {
         Route::get('/custom-label/products', 'custom_label_products')->name('custom_label.products');
         Route::post('/custom-label/update-status', 'update_status')->name('custom-label.update-status');
