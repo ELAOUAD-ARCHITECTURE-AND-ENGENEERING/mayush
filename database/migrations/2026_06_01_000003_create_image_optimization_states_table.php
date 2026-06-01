@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('image_optimization_states', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('upload_id')->nullable()->constrained('uploads')->nullOnDelete();
+            $table->unsignedInteger('upload_id')->nullable();
+            $table->foreign('upload_id')->references('id')->on('uploads')->nullOnDelete();
             $table->string('source_kind', 20)->default('upload');
             $table->string('disk', 50);
             $table->string('source_path', 500);
