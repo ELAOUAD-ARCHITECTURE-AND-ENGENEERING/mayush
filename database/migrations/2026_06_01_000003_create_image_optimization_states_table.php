@@ -8,6 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Drop ghost table left by prior failed migration (FK error left table without migrations record)
+        Schema::dropIfExists('image_optimization_states');
+
         Schema::create('image_optimization_states', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('upload_id')->nullable();
