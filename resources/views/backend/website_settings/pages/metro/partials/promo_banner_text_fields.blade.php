@@ -9,13 +9,13 @@
     <div class="col-lg-6">
         <div class="form-group">
             <label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('Banner Title') }}</label>
-            <textarea class="aiz-banner-text-editor form-control" name="{{ $bannerKey }}_titles[]" data-min-height="105" placeholder="{{ translate('Headline shown over this banner') }}">{{ $bannerTitle }}</textarea>
+            <textarea class="form-control" name="{{ $bannerKey }}_titles[]" rows="3" placeholder="{{ translate('Headline shown over this banner') }}">{{ trim(strip_tags(app(\App\Services\BannerTextSanitizerService::class)->sanitize($bannerTitle))) }}</textarea>
         </div>
     </div>
     <div class="col-lg-6">
         <div class="form-group">
             <label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('Description') }}</label>
-            <textarea class="aiz-banner-text-editor form-control" name="{{ $bannerKey }}_descriptions[]" data-min-height="105" placeholder="{{ translate('Supporting text shown below the title') }}">{{ $bannerDescription }}</textarea>
+            <textarea class="form-control" name="{{ $bannerKey }}_descriptions[]" rows="3" placeholder="{{ translate('Supporting text shown below the title') }}">{{ trim(strip_tags(app(\App\Services\BannerTextSanitizerService::class)->sanitize($bannerDescription))) }}</textarea>
         </div>
     </div>
 </div>

@@ -1659,18 +1659,18 @@
 														</div>
 													</div>
 													<div class="row gutters-10">
-														<!-- H3 Title -->
+														<!-- H2 Title -->
 														<div class="col-md-6">
 															<div class="form-group">
-																<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('H3 Title') }}</label>
-																<textarea class="aiz-banner-text-editor form-control" data-min-height="105" placeholder="{{ translate('Headline shown over this banner') }}" name="home_banner4_titles[]">{{ isset(json_decode($home_banner4_titles ?? '[]', true)[$key]) ? json_decode($home_banner4_titles, true)[$key] : '' }}</textarea>
+																<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('H2 Title') }}</label>
+																<textarea class="form-control" rows="3" placeholder="{{ translate('Headline shown over this banner') }}" name="home_banner4_titles[]">{{ isset(json_decode($home_banner4_titles ?? '[]', true)[$key]) ? trim(strip_tags(app(\App\Services\BannerTextSanitizerService::class)->sanitize(json_decode($home_banner4_titles, true)[$key]))) : '' }}</textarea>
 															</div>
 														</div>
 														<!-- Description -->
 														<div class="col-md-6">
 															<div class="form-group">
 																<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('Description') }}</label>
-																<textarea class="aiz-banner-text-editor form-control" data-min-height="105" placeholder="{{ translate('Supporting text shown below the title') }}" name="home_banner4_descriptions[]">{{ isset(json_decode($home_banner4_descriptions ?? '[]', true)[$key]) ? json_decode($home_banner4_descriptions, true)[$key] : '' }}</textarea>
+																<textarea class="form-control" rows="3" placeholder="{{ translate('Supporting text shown below the title') }}" name="home_banner4_descriptions[]">{{ isset(json_decode($home_banner4_descriptions ?? '[]', true)[$key]) ? trim(strip_tags(app(\App\Services\BannerTextSanitizerService::class)->sanitize(json_decode($home_banner4_descriptions, true)[$key]))) : '' }}</textarea>
 															</div>
 														</div>
 													</div>
@@ -1740,14 +1740,14 @@
 												<div class="row gutters-10">
 													<div class="col-md-6">
 														<div class="form-group">
-															<label class="fs-12 fw-600 text-uppercase text-muted">H3 Title</label>
-															<textarea class="aiz-banner-text-editor form-control" data-min-height="105" placeholder="Headline shown over this banner" name="home_banner4_titles[]"></textarea>
+															<label class="fs-12 fw-600 text-uppercase text-muted">H2 Title</label>
+															<textarea class="form-control" rows="3" placeholder="Headline shown over this banner" name="home_banner4_titles[]"></textarea>
 														</div>
 													</div>
 													<div class="col-md-6">
 														<div class="form-group">
 															<label class="fs-12 fw-600 text-uppercase text-muted">Description</label>
-															<textarea class="aiz-banner-text-editor form-control" data-min-height="105" placeholder="Supporting text shown below the title" name="home_banner4_descriptions[]"></textarea>
+															<textarea class="form-control" rows="3" placeholder="Supporting text shown below the title" name="home_banner4_descriptions[]"></textarea>
 														</div>
 													</div>
 												</div>
@@ -1884,8 +1884,8 @@
 					<div class="banner-editor-preview position-relative overflow-hidden bg-dark text-white">
 						<img class="js-banner-preview-image w-100" src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" alt="{{ translate('Banner preview') }}">
 						<div class="position-absolute w-100 h-100 top-0 left-0 d-flex flex-column align-items-center justify-content-center text-center p-4" style="background: rgba(0, 0, 0, .2);">
-							<div class="js-banner-preview-title h3 fw-700 mb-3"></div>
-							<div class="js-banner-preview-description mb-3"></div>
+							<h2 class="js-banner-preview-title fw-700 mb-3"></h2>
+							<p class="js-banner-preview-description mb-3"></p>
 							<div class="js-banner-preview-cta border-bottom border-white pb-1"></div>
 						</div>
 					</div>
