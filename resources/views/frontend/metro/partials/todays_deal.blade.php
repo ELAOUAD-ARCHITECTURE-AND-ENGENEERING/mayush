@@ -45,10 +45,10 @@
             position: relative;
             z-index: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 24px;
-            flex-wrap: wrap;
             margin-bottom: 28px;
         }
         .todays-deal-countdown {
@@ -218,14 +218,14 @@
 
                 <div class="todays-deal-header-row">
                     <div>
-                        <h2 class="mb-0">{{ translate('Specially Made For U') }}</h2>
-                        <div class="deal-btn mt-3">{{ translate("Today's Deal") }}</div>
+                        <h2 class="mb-0">{{ get_setting('todays_deal_title', translate('Specially Made For U')) }}</h2>
+                        <div class="deal-btn mt-3">{{ get_setting('todays_deal_subtitle', translate("Today's Deal")) }}</div>
                         <p class="todays-deal-urgency-copy">
-                            {{ translate('Featured products selected for today only. The countdown resets every night at midnight.') }}
+                            {{ get_setting('todays_deal_description', translate('Featured products selected for today only. The countdown resets every night at midnight.')) }}
                         </p>
                     </div>
 
-                    <div class="todays-deal-countdown" data-metro-todays-countdown aria-label="{{ translate('Time remaining before today\'s deals reset') }}">
+                    <div class="todays-deal-countdown mx-auto mt-3 mt-md-0" data-metro-todays-countdown aria-label="{{ translate('Time remaining before today\'s deals reset') }}">
                         <span class="todays-deal-countdown__unit">
                             <span class="todays-deal-countdown__value" data-countdown-part="days">00</span>
                             <span class="todays-deal-countdown__label">{{ translate('JJ') }}</span>
