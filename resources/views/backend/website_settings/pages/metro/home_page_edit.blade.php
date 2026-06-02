@@ -24,166 +24,164 @@
 				<ul class="nav nav-tabs flex-sm-column border-0" role="tablist" aria-orientation="vertical">
 					<!-- Home Slider -->
 					<li class="nav-item">
-						<a class="nav-link active" id="home-slider-tab" href="#home_slider"
-							data-toggle="tab" data-target="#home_slider" type="button" role="tab" aria-controls="home_slider" aria-selected="true">
-							{{ translate('Home Slider') }}
-						</a>
-					</li>
-					<!-- Flash Deals -->
-					<li class="nav-item">
-						<a class="nav-link" id="flash-deals-tab" href="#flash_deals"
-							data-toggle="tab" data-target="#flash_deals" type="button" role="tab" aria-controls="flash_deals" aria-selected="false">
-							{{ translate('Flash Deals Section') }}
-						</a>
-					</li>
-                    <!-- Flash Deals Navigation -->
-					<li class="nav-item">
-						<a class="nav-link" id="flash-deals-navigation-tab" href="#flash_deals_navigation"
-							data-toggle="tab" data-target="#flash_deals_navigation" type="button" role="tab" aria-controls="flash_deals_navigation" aria-selected="false">
-							{{ translate('Flash Deals Navigation') }}
-						</a>
-					</li>
-					<!-- Category Icon Navigation -->
-					<li class="nav-item">
-						<a class="nav-link" id="category-icon-navigation-tab" href="#category_icon_navigation"
-							data-toggle="tab" data-target="#category_icon_navigation" type="button" role="tab" aria-controls="category_icon_navigation" aria-selected="false">
-							{{ translate('Category Icon Navigation') }}
-						</a>
-					</li>
-					<!-- Featured Products -->
-					<li class="nav-item">
-						<a class="nav-link" id="featured-products-tab" href="#featured_products"
-							data-toggle="tab" data-target="#featured_products" type="button" role="tab" aria-controls="featured_products" aria-selected="false">
-							{{ translate('Featured Products') }}
-						</a>
-					</li>
-					<!-- Banner Level 1 -->
-					<li class="nav-item">
-						<a class="nav-link" id="banner-1-tab" href="#banner_1"
-							data-toggle="tab" data-target="#banner_1" type="button" role="tab" aria-controls="banner_1" aria-selected="false">
-							{{ translate('Banner Level 1') }}
-						</a>
+					<a class="nav-link active" id="home-slider-tab" href="#home_slider"
+					data-toggle="tab" data-target="#home_slider" type="button" role="tab" aria-controls="home_slider" aria-selected="true">
+					{{ translate('Home Slider') }}
+					</a>
 					</li>
 					<!-- Featured Categories -->
 					<li class="nav-item">
-						<a class="nav-link" id="featured-categories-tab" href="#featured_categories_section"
-							data-toggle="tab" data-target="#featured_categories_section" type="button" role="tab" aria-controls="featured_categories_section" aria-selected="false">
-							{{ translate('Featured Categories') }}
-						</a>
+					<a class="nav-link" id="featured-categories-tab" href="#featured_categories_section"
+					data-toggle="tab" data-target="#featured_categories_section" type="button" role="tab" aria-controls="featured_categories_section" aria-selected="false">
+					{{ translate('Featured Categories') }}
+					</a>
+					</li>
+					<li class="nav-item">
+					<a class="nav-link" id="todays-deal-tab" href="#todays_deal"
+					data-toggle="tab" data-target="#todays_deal" type="button" role="tab" aria-controls="todays_deal" aria-selected="false">
+					{{ translate("Today's Deal") }}
+					</a>
+					</li>
+					<li class="nav-item">
+					<a class="nav-link" id="promotional-category-tab" href="#promotional_category"
+					data-toggle="tab" data-target="#promotional_category" type="button" role="tab" aria-controls="promotional_category" aria-selected="false">
+					{{ translate('Promotional Category') }}
+					</a>
+					</li>
+					<!-- Flash Deals -->
+					<li class="nav-item">
+					<a class="nav-link" id="flash-deals-tab" href="#flash_deals"
+					data-toggle="tab" data-target="#flash_deals" type="button" role="tab" aria-controls="flash_deals" aria-selected="false">
+					{{ translate('Flash Deals Section') }}
+					</a>
+					</li>
+					<!-- Flash Deals Navigation -->
+					<li class="nav-item">
+					<a class="nav-link" id="flash-deals-navigation-tab" href="#flash_deals_navigation"
+					data-toggle="tab" data-target="#flash_deals_navigation" type="button" role="tab" aria-controls="flash_deals_navigation" aria-selected="false">
+					{{ translate('Flash Deals Navigation') }}
+					</a>
+					</li>
+					<!-- Category Icon Navigation -->
+					<li class="nav-item">
+					<a class="nav-link" id="category-icon-navigation-tab" href="#category_icon_navigation"
+					data-toggle="tab" data-target="#category_icon_navigation" type="button" role="tab" aria-controls="category_icon_navigation" aria-selected="false">
+					{{ translate('Category Icon Navigation') }}
+					</a>
+					</li>
+					<!-- Featured Products -->
+					<li class="nav-item">
+					<a class="nav-link" id="featured-products-tab" href="#featured_products"
+					data-toggle="tab" data-target="#featured_products" type="button" role="tab" aria-controls="featured_products" aria-selected="false">
+					{{ translate('Featured Products') }}
+					</a>
+					</li>
+					<!-- Marketplace Banner -->
+					<li class="nav-item">
+					<a class="nav-link" id="marketplace-banner-tab" href="#marketplace_banner"
+					data-toggle="tab" data-target="#marketplace_banner" type="button" role="tab" aria-controls="marketplace_banner" aria-selected="false">
+					{{ translate('Marketplace Banner') }}
+					</a>
 					</li>
 					<!-- Banner Level 2 -->
 					<li class="nav-item">
-						<a class="nav-link" id="banner-2-tab" href="#banner_2"
-							data-toggle="tab" data-target="#banner_2" type="button" role="tab" aria-controls="banner_2" aria-selected="false">
-							{{ translate('Banner Level 2') }}
-						</a>
+					<a class="nav-link" id="banner-2-tab" href="#banner_2"
+					data-toggle="tab" data-target="#banner_2" type="button" role="tab" aria-controls="banner_2" aria-selected="false">
+					{{ translate('Banner Level 2') }}
+					</a>
 					</li>
 					<!-- Collections Split -->
 					<li class="nav-item">
-						<a class="nav-link" id="collections-split-tab" href="#collections_split"
-							data-toggle="tab" data-target="#collections_split" type="button" role="tab" aria-controls="collections_split" aria-selected="false">
-							{{ translate('Collections Split') }}
-						</a>
+					<a class="nav-link" id="collections-split-tab" href="#collections_split"
+					data-toggle="tab" data-target="#collections_split" type="button" role="tab" aria-controls="collections_split" aria-selected="false">
+					{{ translate('Collections Split') }}
+					</a>
 					</li>
 					<!-- Banner Level 3 -->
 					<li class="nav-item">
-						<a class="nav-link" id="banner-3-tab" href="#banner_3"
-							data-toggle="tab" data-target="#banner_3" type="button" role="tab" aria-controls="banner_3" aria-selected="false">
-							{{ translate('Banner Level 3') }}
-						</a>
+					<a class="nav-link" id="banner-3-tab" href="#banner_3"
+					data-toggle="tab" data-target="#banner_3" type="button" role="tab" aria-controls="banner_3" aria-selected="false">
+					{{ translate('Banner Level 3') }}
+					</a>
 					</li>
-					@if(addon_is_activated('auction'))
-					<!-- Auction Products -->
-					<li class="nav-item">
-						<a class="nav-link" id="auction-tab" href="#auction"
-							data-toggle="tab" data-target="#auction" type="button" role="tab" aria-controls="auction" aria-selected="false">
-							{{ translate('Auction Products') }}
-							@if (env("DEMO_MODE") == "On")
-							<span class="badge badge-pill badge-secondary ml-1">{{ translate('Addon') }}</span>
-							@endif
-						</a>
-					</li>
-					@endif
 					@if(get_setting('coupon_system') == 1)
 					<!-- Coupon Section -->
 					<li class="nav-item">
-						<a class="nav-link" id="coupon-tab" href="#coupon"
-							data-toggle="tab" data-target="#coupon" type="button" role="tab" aria-controls="coupon" aria-selected="false">
-							{{ translate('Coupon Section') }}
-						</a>
+					<a class="nav-link" id="coupon-tab" href="#coupon"
+					data-toggle="tab" data-target="#coupon" type="button" role="tab" aria-controls="coupon" aria-selected="false">
+					{{ translate('Coupon Section') }}
+					</a>
 					</li>
 					@endif
 					<!-- Category Wise Products -->
 					<li class="nav-item">
-						<a class="nav-link" id="home-categories-tab" href="#home_categories"
-							data-toggle="tab" data-target="#home_categories" type="button" role="tab" aria-controls="home_categories" aria-selected="false">
-							{{ translate('Category Wise Products') }}
-						</a>
+					<a class="nav-link" id="home-categories-tab" href="#home_categories"
+					data-toggle="tab" data-target="#home_categories" type="button" role="tab" aria-controls="home_categories" aria-selected="false">
+					{{ translate('Category Wise Products') }}
+					</a>
 					</li>
+					<!-- Banner Level 1 -->
 					<li class="nav-item">
-						<a class="nav-link" id="promotional-category-tab" href="#promotional_category"
-							data-toggle="tab" data-target="#promotional_category" type="button" role="tab" aria-controls="promotional_category" aria-selected="false">
-							{{ translate('Promotional Category') }}
-						</a>
-					</li>
-					<!-- Marketplace Banner -->
-					<li class="nav-item">
-						<a class="nav-link" id="marketplace-banner-tab" href="#marketplace_banner"
-							data-toggle="tab" data-target="#marketplace_banner" type="button" role="tab" aria-controls="marketplace_banner" aria-selected="false">
-							{{ translate('Marketplace Banner') }}
-						</a>
+					<a class="nav-link" id="banner-1-tab" href="#banner_1"
+					data-toggle="tab" data-target="#banner_1" type="button" role="tab" aria-controls="banner_1" aria-selected="false">
+					{{ translate('Banner Level 1') }}
+					</a>
 					</li>
 					<!-- Top Sellers -->
 					<li class="nav-item">
-						<a class="nav-link" id="top-sellers-tab" href="#top_sellers"
-							data-toggle="tab" data-target="#top_sellers" type="button" role="tab" aria-controls="top_sellers" aria-selected="false">
-							{{ translate('Top Sellers') }}
-						</a>
+					<a class="nav-link" id="top-sellers-tab" href="#top_sellers"
+					data-toggle="tab" data-target="#top_sellers" type="button" role="tab" aria-controls="top_sellers" aria-selected="false">
+					{{ translate('Top Sellers') }}
+					</a>
 					</li>
 					<!-- Top Brands -->
 					<li class="nav-item">
-						<a class="nav-link" id="brands-tab" href="#brands"
-							data-toggle="tab" data-target="#brands" type="button" role="tab" aria-controls="brands" aria-selected="false">
-							{{ translate('Top Brands') }}
-						</a>
+					<a class="nav-link" id="brands-tab" href="#brands"
+					data-toggle="tab" data-target="#brands" type="button" role="tab" aria-controls="brands" aria-selected="false">
+					{{ translate('Top Brands') }}
+					</a>
 					</li>
 					<!-- Inspiration Articles -->
 					<li class="nav-item">
-						<a class="nav-link" id="inspiration-articles-tab" href="#inspiration_articles"
-							data-toggle="tab" data-target="#inspiration_articles" type="button" role="tab" aria-controls="inspiration_articles" aria-selected="false">
-							{{ translate('Inspiration & Conseils') }}
-						</a>
+					<a class="nav-link" id="inspiration-articles-tab" href="#inspiration_articles"
+					data-toggle="tab" data-target="#inspiration_articles" type="button" role="tab" aria-controls="inspiration_articles" aria-selected="false">
+					{{ translate('Inspiration & Conseils') }}
+					</a>
 					</li>
-
+					<li class="nav-item">
+					<a class="nav-link" id="classifiedss-tab" href="#classifieds"
+					data-toggle="tab" data-target="#classifieds" type="button" role="tab" aria-controls="classifieds" aria-selected="false">
+					{{ translate('Classifieds') }}
+					</a>
+					</li>
+					@if(addon_is_activated('auction'))
+					<!-- Auction Products -->
+					<li class="nav-item">
+					<a class="nav-link" id="auction-tab" href="#auction"
+					data-toggle="tab" data-target="#auction" type="button" role="tab" aria-controls="auction" aria-selected="false">
+					{{ translate('Auction Products') }}
+					@if (env("DEMO_MODE") == "On")
+					<span class="badge badge-pill badge-secondary ml-1">{{ translate('Addon') }}</span>
+					@endif
+					</a>
+					</li>
+					@endif
 					@if(addon_is_activated('preorder'))
 					<!-- Preorder -->
 					<li class="nav-item divider my-2"></li>
 					<li class="nav-item">
-						<a class="nav-link" id="preorder-banner-tab" href="#preorder_banner_1"
-							data-toggle="tab" data-target="#preorder_banner_1" type="button" role="tab" aria-controls="preorder_banner_1" aria-selected="false">
-							{{ translate('Preorder Banner 1') }}
-						</a>
+					<a class="nav-link" id="preorder-banner-tab" href="#preorder_banner_1"
+					data-toggle="tab" data-target="#preorder_banner_1" type="button" role="tab" aria-controls="preorder_banner_1" aria-selected="false">
+					{{ translate('Preorder Banner 1') }}
+					</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" id="newest-preorder-tab" href="#newestPreorder"
-							data-toggle="tab" data-target="#newestPreorder" type="button" role="tab" aria-controls="newestPreorder" aria-selected="false">
-							{{ translate('Newest Preorder Products') }}
-						</a>
+					<a class="nav-link" id="newest-preorder-tab" href="#newestPreorder"
+					data-toggle="tab" data-target="#newestPreorder" type="button" role="tab" aria-controls="newestPreorder" aria-selected="false">
+					{{ translate('Newest Preorder Products') }}
+					</a>
 					</li>
 					@endif
-					
-					<li class="nav-item">
-						<a class="nav-link" id="todays-deal-tab" href="#todays_deal"
-							data-toggle="tab" data-target="#todays_deal" type="button" role="tab" aria-controls="todays_deal" aria-selected="false">
-							{{ translate("Today's Deal") }}
-						</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" id="classifiedss-tab" href="#classifieds"
-							data-toggle="tab" data-target="#classifieds" type="button" role="tab" aria-controls="classifieds" aria-selected="false">
-							{{ translate('Classifieds') }}
-						</a>
-					</li>
 				</ul>
 			</div>
 
@@ -533,6 +531,33 @@
 									<!-- Todays Deal Settings -->
 									<div class="col-lg-7">
 										<div class="w-100">
+											<!-- Title -->
+											<div class="form-group">
+												<label class="col-from-label fs-13 fw-500">{{ translate("Title") }}</label>
+												<div class="input-group">
+													<input type="hidden" name="types[][{{ $lang }}]" value="todays_deal_title">
+													<input type="text" class="form-control" name="todays_deal_title" value="{{ get_setting('todays_deal_title', null, $lang) }}" placeholder="{{ translate('Specially Made For U') }}">
+												</div>
+											</div>
+
+											<!-- Subtitle / Badge -->
+											<div class="form-group">
+												<label class="col-from-label fs-13 fw-500">{{ translate("Subtitle / Badge") }}</label>
+												<div class="input-group">
+													<input type="hidden" name="types[][{{ $lang }}]" value="todays_deal_subtitle">
+													<input type="text" class="form-control" name="todays_deal_subtitle" value="{{ get_setting('todays_deal_subtitle', null, $lang) }}" placeholder="{{ translate('Today\'s Deal') }}">
+												</div>
+											</div>
+
+											<!-- Description -->
+											<div class="form-group">
+												<label class="col-from-label fs-13 fw-500">{{ translate("Description") }}</label>
+												<div class="input-group">
+													<input type="hidden" name="types[][{{ $lang }}]" value="todays_deal_description">
+													<textarea class="form-control" name="todays_deal_description" rows="3" placeholder="{{ translate('Featured products selected for today only. The countdown resets every night at midnight.') }}">{{ get_setting('todays_deal_description', null, $lang) }}</textarea>
+												</div>
+											</div>
+
 											<!-- Large Banner -->
 											<div class="form-group">
 												<label class="col-from-label fs-13 fw-500">{{ translate("Large Banner") }} (<small>{{ translate('Will be shown in large device') }}</small>)</label>
