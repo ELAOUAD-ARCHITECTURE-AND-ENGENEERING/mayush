@@ -256,7 +256,7 @@
                         <div class="carousel-box">
                             <a href="{{ route('product', $product->slug) }}" class="todays-deal-product-card text-reset">
                                 <div class="todays-deal-item-circle hov-scale-img has-transition">
-                                    <img src="{{ get_image($product->thumbnail, 'medium') }}" class="img-fit h-100 w-100 rounded-circle" alt="{{ $product->getTranslation('name') }}" onerror="this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
+                                    <img src="{{ get_image($product->thumbnail, 'small') }}" class="img-fit h-100 w-100 rounded-circle" width="160" height="160" loading="lazy" decoding="async" alt="{{ $product->getTranslation('name') }}" onerror="this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
                                 </div>
                                 <span class="todays-deal-product-title">{{ $product->getTranslation('name') }}</span>
                                 <div class="todays-deal-product-price">{{ home_discounted_base_price($product) }}</div>

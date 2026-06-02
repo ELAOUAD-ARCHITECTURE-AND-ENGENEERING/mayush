@@ -63,9 +63,10 @@
                         {{-- Left Column: Large Category Banner (50%) --}}
                         <div class="col-lg-6 mb-4 mb-lg-0">
                             <a href="{{ route('products.category', $promoted_category->slug) }}" class="d-block promoted-banner-wrap">
-                                <img src="{{ optimized_static_asset('assets/img/office_furniture_4k.png', 'large') }}"
+                                <img src="{{ optimized_static_asset('assets/img/office_furniture_4k.png', 'medium') }}"
                                      alt="{{ $promoted_category->getTranslation('name') }}" 
                                      width="1024" height="1024"
+                                     loading="lazy" decoding="async"
                                      class="promoted-banner-img skeleton-shimmer"
                                      onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
                             </a>

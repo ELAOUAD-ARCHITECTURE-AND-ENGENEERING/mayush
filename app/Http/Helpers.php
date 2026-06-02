@@ -1357,10 +1357,10 @@ if (!function_exists('uploaded_asset')) {
 
             $optimizer = app(\App\Services\ImageOptimizationService::class);
             $file_name = str_replace('\\', '/', $asset->file_name);
-            $variant = in_array($size, ['small', 'thumb', 'medium', 'large'], true) ? $size : null;
+            $variant = array_key_exists((string) $size, (array) config('image-optimization.variants', [])) ? $size : null;
 
             if (str_contains((string) $asset->type, 'image')) {
-                $file_name = $optimizer->resolveDerivative($file_name, $variant);
+                $file_name = $optimizer->resolveUploadDerivative($asset, $variant);
             }
 
             // If the configured disk is missing the file, try the legacy uploads/all prefix.
@@ -1381,16 +1381,56 @@ if (!function_exists('uploaded_asset')) {
 }
 
 if (!function_exists('uploaded_asset_srcset')) {
-    function uploaded_asset_srcset($id): string
+    function uploaded_asset_srcset($id, array $variants = []): string
     {
-        $sources = [
-            uploaded_asset($id, 'small').' 160w',
-            uploaded_asset($id, 'thumb').' 300w',
-            uploaded_asset($id, 'medium').' 600w',
-            uploaded_asset($id, 'large').' 1200w',
-        ];
+        $asset = $id instanceof Upload ? $id : Upload::find($id);
 
-        return implode(', ', array_unique($sources));
+        if (!$asset || $asset->external_link || !str_contains((string) $asset->type, 'image')) {
+            return '';
+        }
+
+        $optimizer = app(\App\Services\ImageOptimizationService::class);
+        $configuredVariants = (array) config('image-optimization.variants', []);
+        $sources = [];
+
+        foreach ($optimizer->existingUploadDerivatives($asset, $variants) as $variant => $path) {
+            $url = my_asset($path);
+            $sources[$url] = $url.' '.$configuredVariants[$variant].'w';
+        }
+
+        return implode(', ', array_values($sources));
+    }
+}
+
+if (!function_exists('responsive_image')) {
+    function responsive_image($upload, string $profile = 'product-card', array $attributes = []): string
+    {
+        $profile = (array) config('image-optimization.profiles.'.$profile, []);
+        $attributes = array_merge([
+            'src' => uploaded_asset($upload, $profile['variant'] ?? null),
+            'srcset' => uploaded_asset_srcset($upload, $profile['variants'] ?? []),
+            'sizes' => $profile['sizes'] ?? null,
+            'width' => $profile['width'] ?? null,
+            'height' => $profile['height'] ?? null,
+            'loading' => 'lazy',
+            'decoding' => 'async',
+        ], $attributes);
+
+        $htmlAttributes = [];
+        foreach ($attributes as $name => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            if ($value === true) {
+                $htmlAttributes[] = e($name);
+                continue;
+            }
+
+            $htmlAttributes[] = e($name).'="'.e((string) $value).'"';
+        }
+
+        return '<img '.implode(' ', $htmlAttributes).'>';
     }
 }
 
@@ -1443,11 +1483,27 @@ if (!function_exists('versioned_static_asset')) {
     }
 }
 
+if (!function_exists('storefront_asset')) {
+    function storefront_asset(string $entry): ?string
+    {
+        $manifestPath = public_path('build/storefront/manifest.json');
+
+        if (!file_exists($manifestPath)) {
+            return null;
+        }
+
+        $manifest = json_decode((string) file_get_contents($manifestPath), true);
+        $path = is_array($manifest) ? ($manifest[$entry] ?? null) : null;
+
+        return is_string($path) ? static_asset($path) : null;
+    }
+}
+
 if (!function_exists('optimized_static_asset')) {
     function optimized_static_asset($path, $size = null): string
     {
         $optimizer = app(\App\Services\ImageOptimizationService::class);
-        $variant = in_array($size, ['small', 'thumb', 'medium', 'large'], true) ? $size : null;
+        $variant = array_key_exists((string) $size, (array) config('image-optimization.variants', [])) ? $size : null;
         $candidate = $optimizer->derivativePath($path, $variant);
 
         return static_asset($optimizer->exists($candidate, 'static') ? $candidate : $path);

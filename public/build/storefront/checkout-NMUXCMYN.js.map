@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../resources/js/storefront/checkout.js"],
+  "sourcesContent": ["document.documentElement.classList.add('storefront-profile-checkout');\n"],
+  "mappings": "AAAA,SAAS,gBAAgB,UAAU,IAAI,6BAA6B",
+  "names": []
+}

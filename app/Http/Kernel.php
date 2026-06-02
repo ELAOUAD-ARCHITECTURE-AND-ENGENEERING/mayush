@@ -49,6 +49,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\CheckForMaintenanceMode::class,
             \App\Http\Middleware\MarkdownForAgents::class,
             \App\Http\Middleware\AgentDiscoveryHeaders::class,
+            \App\Http\Middleware\StorefrontServerTiming::class,
         ],
 
         'api' => [

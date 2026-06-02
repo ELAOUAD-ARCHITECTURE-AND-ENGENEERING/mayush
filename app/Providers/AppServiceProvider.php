@@ -32,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
       \App\Models\Upload::observe(\App\Observers\UploadObserver::class);
       \App\Models\Product::observe(\App\Observers\ProductObserver::class);
       \App\Models\ProductStock::observe(\App\Observers\ProductStockObserver::class);
+      \App\Models\BusinessSetting::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\Category::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\Blog::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\FlashDeal::observe(\App\Observers\StorefrontCacheObserver::class);
 
       // ONESSTA 3PL Shipping Integration
       if (config('onessta.enabled', false)) {

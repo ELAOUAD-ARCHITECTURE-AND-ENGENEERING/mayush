@@ -30,6 +30,18 @@ jobs:
       - name: "Install Dependencies"
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: "Setup Node"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: "Validate Storefront Asset Manifest"
+        run: |
+          npm ci
+          npm run build:storefront
+          test -z "$(git status --porcelain -- public/build/storefront)"
+
       - name: "Prepare Laravel Environment"
         run: |
           cp .env.example .env
@@ -208,6 +220,7 @@ jobs:
             echo "▶ [5/5] Deploying Application..."
             php8.2 artisan optimize:clear
             php8.2 artisan view:clear
+            sed -i '/sourceMappingURL=swiper-bundle\.min\.js\.map/d' public/assets/js/vendors.js
 
             echo "Creating pre-migration database backup..."
             DB_HOST=$(grep '^DB_HOST=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
@@ -246,7 +259,9 @@ jobs:
             echo ""
             echo "Validating scheduler and queueing bounded image repairs..."
             php8.2 artisan schedule:list --no-ansi
-            php8.2 artisan images:audit --repair --include-static --limit=500
+            php8.2 artisan images:audit --repair --priority-storefront --include-static --limit=500
+            php8.2 artisan storefront:cache-warm
+            php8.2 artisan images:status
             
             echo "✔ Deploy & cache clearing finished"
 

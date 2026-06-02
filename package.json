@@ -1,9 +1,14 @@
 {
     "private": true,
     "scripts": {
-        "audit:prod": "npm audit --omit=dev --audit-level=high"
+        "audit:prod": "npm audit --omit=dev --audit-level=high",
+        "build:storefront": "node scripts/storefront/build.mjs",
+        "performance:lighthouse": "node scripts/performance/lighthouse-matrix.mjs"
     },
     "devDependencies": {
+        "chrome-launcher": "^1.0.0",
+        "esbuild": "^0.25.0",
+        "lighthouse": "^12.8.2",
         "playwright": "^1.60.0"
     }
 }

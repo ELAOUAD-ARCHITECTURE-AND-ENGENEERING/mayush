@@ -572,12 +572,12 @@
                                     <div class="text-center mb-3">
                                         <h6 class="fs-14 fw-600 text-muted mb-3">{{ translate('Secured Payment Partners') }}</h6>
                                         <div class="d-flex justify-content-center align-items-center flex-wrap">
-                                            <img src="{{ static_asset('assets/img/cards/verified_by_visa.png') }}" height="25" class="mx-2 mb-2" alt="Verified by Visa" style="max-height: 25px;">
-                                            <img src="{{ static_asset('assets/img/cards/secure_code.png') }}" height="25" class="mx-2 mb-2" alt="Mastercard SecureCode" style="max-height: 25px;">
-                                            <img src="{{ static_asset('assets/img/cards/amex.png') }}" height="25" class="mx-2 mb-2" alt="American Express" style="max-height: 25px;">
-                                            <img src="{{ static_asset('assets/img/cards/cmi.png') }}" height="25" class="mx-2 mb-2" alt="CMI Payment Gateway" style="max-height: 25px;">
-                                            <img src="{{ static_asset('assets/img/cards/marocpay.png') }}" height="25" class="mx-2 mb-2" alt="MarocPay" style="max-height: 25px;">
-                                            <img src="{{ static_asset('assets/img/cards/unionpay.png') }}" height="25" class="mx-2 mb-2" alt="UnionPay" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/verified_by_visa.png', 'small') }}" width="56" height="25" class="mx-2 mb-2" alt="Verified by Visa" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/secure_code.png', 'small') }}" width="54" height="25" class="mx-2 mb-2" alt="Mastercard SecureCode" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/amex.png', 'small') }}" width="25" height="25" class="mx-2 mb-2" alt="American Express" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/cmi.png', 'small') }}" width="31" height="25" class="mx-2 mb-2" alt="CMI Payment Gateway" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/marocpay.png', 'small') }}" width="29" height="25" class="mx-2 mb-2" alt="MarocPay" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/unionpay.png', 'small') }}" width="36" height="25" class="mx-2 mb-2" alt="UnionPay" style="max-height: 25px;">
                                         </div>
                                     </div>
                                 </div>

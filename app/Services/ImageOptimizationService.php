@@ -2,15 +2,20 @@
 
 namespace App\Services;
 
+use App\Jobs\OptimizeUploadedImageJob;
 use App\Models\ImageOptimizationState;
 use App\Models\Upload;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Throwable;
 
 class ImageOptimizationService
 {
+    private static ?bool $stateTableAvailable = null;
+
     public function diskName(string $sourceKind = 'upload'): string
     {
         if ($sourceKind === 'static') {
@@ -62,6 +67,86 @@ class ImageOptimizationService
         $candidate = $this->derivativePath($path, $variant);
 
         return $this->exists($candidate) ? $candidate : $path;
+    }
+
+    public function resolveUploadDerivative(Upload $upload, ?string $variant = null): string
+    {
+        $path = (string) $upload->file_name;
+        $candidate = $this->derivativePath($path, $variant);
+
+        if ($this->exists($candidate)) {
+            return $candidate;
+        }
+
+        $this->requestUploadRepair($upload);
+
+        return $path;
+    }
+
+    /**
+     * Return real derivatives only. Repeating the original URL at invented
+     * widths causes browsers to download an oversized source image.
+     *
+     * @return array<string, string>
+     */
+    public function existingUploadDerivatives(Upload $upload, array $variants = []): array
+    {
+        $path = (string) $upload->file_name;
+        $configuredVariants = (array) config('image-optimization.variants', []);
+        $variants = $variants ?: array_keys($configuredVariants);
+        $derivatives = [];
+
+        foreach ($variants as $variant) {
+            if (! array_key_exists($variant, $configuredVariants)) {
+                continue;
+            }
+
+            $candidate = $this->derivativePath($path, $variant);
+
+            if ($this->exists($candidate)) {
+                $derivatives[$variant] = $candidate;
+            }
+        }
+
+        if ($derivatives === []) {
+            $this->requestUploadRepair($upload);
+        }
+
+        return $derivatives;
+    }
+
+    public function requestUploadRepair(Upload $upload): void
+    {
+        $path = (string) $upload->file_name;
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+        if ($path === ''
+            || $upload->external_link
+            || in_array($extension, ['svg', 'gif'], true)
+            || ! $this->stateTableAvailable()) {
+            return;
+        }
+
+        if (! Cache::add($this->repairCacheKey($upload->getKey()), true, now()->addMinutes(10))) {
+            return;
+        }
+
+        OptimizeUploadedImageJob::dispatch($upload->getKey());
+    }
+
+    public function repairCacheKey(int $uploadId): string
+    {
+        return 'image-optimization:repair-upload:'.$uploadId;
+    }
+
+    public function clearRepairLock(int $uploadId): void
+    {
+        Cache::forget($this->repairCacheKey($uploadId));
+    }
+
+    private function stateTableAvailable(): bool
+    {
+        return self::$stateTableAvailable ??= Schema::hasTable('image_optimization_states');
     }
 
     public function exists(string $path, string $sourceKind = 'upload'): bool

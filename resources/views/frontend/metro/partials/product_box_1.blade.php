@@ -13,13 +13,21 @@
         <a href="{{ $product_url }}" class="d-block h-100 position-relative image-hover-effect">
             <img
                 class="lazyload mx-auto img-fit has-transition product-main-image"
-                src="{{ get_image($product->thumbnail, 'medium') }}"
+                src="{{ get_image($product->thumbnail, 'card') }}"
+                width="480"
+                height="480"
+                loading="lazy"
+                decoding="async"
                 alt="{{ $product->getTranslation('name') }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
             <img
                 class="lazyload mx-auto img-fit has-transition product-hover-image position-absolute"
-                src="{{ get_first_product_image($product->photos, $product->thumbnail, 'medium') }}"
+                src="{{ get_first_product_image($product->photos, $product->thumbnail, 'card') }}"
+                width="480"
+                height="480"
+                loading="lazy"
+                decoding="async"
                 alt="{{ $product->getTranslation('name') }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
