@@ -23,8 +23,6 @@
 @section('content')
     <h1 class="d-none">Mayush Marketplace : meubles, decoration et design interieur au Maroc</h1>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Josefin+Sans:wght@400;600;700&display=swap');
-
         /* Luxury Font pairing rules */
         h1, h2, h3, h4, 
         .metro-hero-title, 
@@ -51,7 +49,10 @@
             color: #12192A !important;
         }
         .text-primary, .hov-text-primary:hover {
-            color: #D6A24E !important; /* Warm Gold */
+            color: #8A5A12 !important; /* Accessible warm accent for text */
+        }
+        .text-secondary {
+            color: #5F6368 !important;
         }
         .btn-outline-primary {
             color: #D6A24E !important;
@@ -651,6 +652,10 @@
                 line-height: 1.38;
             }
         }
+        .metro-deferred-section {
+            content-visibility: auto;
+            contain-intrinsic-size: auto 560px;
+        }
     </style>
 
     @php $lang = get_system_language()->code;  @endphp
@@ -681,6 +686,7 @@
                                 $slideCtaText = $configuredCtaText !== '' ? $configuredCtaText : ($configuredCtaLink !== '' ? translate('Shop Now') : '');
                                 $slideCtaLink = $configuredCtaLink !== '' ? $configuredCtaLink : ($slideLink !== '' ? $slideLink : route('search'));
                                 $slideTitleText = trim(strip_tags($slideTitle));
+                                $slideSrcset = $slider ? uploaded_asset_srcset($slider, ['medium', 'large']) : '';
                             @endphp
                             <div class="carousel-box h-auto">
                                 <div class="metro-hero-slide {{ $hasHeroContent ? 'has-content' : '' }} d-block mw-100 img-fit h-180px h-md-320px h-lg-460px h-xl-553px">
@@ -688,7 +694,7 @@
                                         <a class="d-block h-100" href="{{ $slideLink }}">
                                             <img class="img-fit h-100 m-auto has-transition"
                                             src="{{ $slider ? uploaded_asset($slider, 'large') : static_asset('assets/img/placeholder.jpg') }}"
-                                            @if($slider) srcset="{{ uploaded_asset_srcset($slider) }}" sizes="100vw" @endif
+                                            @if($slideSrcset) srcset="{{ $slideSrcset }}" sizes="100vw" @endif
                                             width="1600" height="720"
                                             loading="{{ $key === 0 ? 'eager' : 'lazy' }}"
                                             @if($key === 0) fetchpriority="high" @endif
@@ -698,7 +704,7 @@
                                     @else
                                         <img class="img-fit h-100 m-auto has-transition"
                                         src="{{ $slider ? uploaded_asset($slider, 'large') : static_asset('assets/img/placeholder.jpg') }}"
-                                        @if($slider) srcset="{{ uploaded_asset_srcset($slider) }}" sizes="100vw" @endif
+                                        @if($slideSrcset) srcset="{{ $slideSrcset }}" sizes="100vw" @endif
                                         width="1600" height="720"
                                         loading="{{ $key === 0 ? 'eager' : 'lazy' }}"
                                         @if($key === 0) fetchpriority="high" @endif
@@ -733,7 +739,7 @@
     @include('frontend.metro.partials.featured_categories_section')
 
     <!-- 3. Today's Deal -->
-    <div id="todays_deal_section">
+    <div id="todays_deal_section" class="metro-deferred-section" data-section-url="{{ route('home.section.todays_deal') }}">
         <section class="mb-4">
             <div class="container">
                 <div class="bg-white px-3 py-4 px-md-4 hov-shadow-md has-transition rounded">
@@ -767,8 +773,9 @@
                                 <a href="{{ route('flash-deal-details', $flash_deal_item->slug) }}" class="d-block text-reset text-center">
                                     <div class="flash-nav-item img-fit h-100px h-md-140px mb-1 overflow-hidden">
                                         <img draggable="false" class="lazyload img-fit p-3"
-                                            src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                                            data-src="{{ uploaded_asset($flash_deal_item->banner) }}"
+                                             src="{{ static_asset('assets/img/placeholder.jpg') }}"
+                                             data-src="{{ uploaded_asset($flash_deal_item->banner) }}"
+                                             width="140" height="140" loading="lazy" decoding="async"
                                             alt="{{ $flash_deal_item->getTranslation('title') }} - Mayush"
                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                                     </div>
@@ -790,7 +797,7 @@
     @endif
 
     <!-- 7. Featured Products -->
-    <div id="section_featured">
+    <div id="section_featured" class="metro-deferred-section" data-section-url="{{ route('home.section.featured') }}">
         <section class="mb-4">
             <div class="container">
                 <div class="bg-white px-3 py-4 px-md-4 hov-shadow-md has-transition rounded">
@@ -818,10 +825,10 @@
         $bestSellingCollectionImage = uploaded_asset(get_setting('metro_collections_best_selling_image', null, $collectionsLang)) ?: static_asset('assets/img/placeholder-rect.jpg');
     @endphp
     <section id="metro_collections_section" class="metro-collections-split">
-        <div id="section_newest" class="metro-collections-split-panel" style="background-image: url('{{ $newestCollectionImage }}');">
+        <div id="section_newest" class="metro-collections-split-panel metro-deferred-section" data-section-url="{{ route('home.section.newest_products') }}" data-background-image="{{ $newestCollectionImage }}">
             @include('frontend.metro.partials.collection_panel_placeholder')
         </div>
-        <div id="section_best_selling" class="metro-collections-split-panel" style="background-image: url('{{ $bestSellingCollectionImage }}');">
+        <div id="section_best_selling" class="metro-collections-split-panel metro-deferred-section" data-section-url="{{ route('home.section.best_selling') }}" data-background-image="{{ $bestSellingCollectionImage }}">
             @include('frontend.metro.partials.collection_panel_placeholder')
         </div>
     </section>
@@ -832,7 +839,7 @@
 
     @if (get_setting('home_categories_section_status', '1') == '1')
         <!-- 13. Category Wise Products -->
-        <div id="section_home_categories">
+        <div id="section_home_categories" class="metro-deferred-section" data-section-url="{{ route('home.section.home_categories') }}">
             <section class="mb-4">
                 <div class="container">
                     <div class="bg-white px-3 py-4 px-md-4 hov-shadow-md has-transition rounded">
@@ -851,7 +858,7 @@
     @include('frontend.metro.partials.banner_section', ['banner_key' => 'home_banner1'])
 
     <!-- 16. Top Sellers (Hidden by default, loaded via AJAX only if criteria met) -->
-    <div id="section_best_sellers"></div>
+    <div id="section_best_sellers" class="metro-deferred-section" data-section-url="{{ route('home.section.best_sellers') }}"></div>
 
     <!-- 17. Top Brands (Hidden as requested) -->
     {{-- @include('frontend.metro.partials.top_brands_section') --}}
@@ -867,24 +874,32 @@
 @section('script')
     <script>
         $(document).ready(function(){
-            // Load sections via AJAX for maximum performance
-            loadSection('{{ route('home.section.featured') }}', '#section_featured');
-            @if (get_setting('metro_collections_section_status', '1') == '1')
-            loadSection('{{ route('home.section.best_selling') }}', '#section_best_selling');
-            loadSection('{{ route('home.section.newest_products') }}', '#section_newest');
-            @endif
-            @if (get_setting('home_categories_section_status', '1') == '1')
-                loadSection('{{ route('home.section.home_categories') }}', '#section_home_categories');
-            @endif
-            loadSection('{{ route('home.section.todays_deal') }}', '#todays_deal_section');
-            
-            // Re-load best sellers with forced logic
-            loadSection('{{ route('home.section.best_sellers') }}', '#section_best_sellers');
+            var observer = 'IntersectionObserver' in window
+                ? new IntersectionObserver(function(entries){
+                    entries.forEach(function(entry){
+                        if (!entry.isIntersecting) return;
+                        observer.unobserve(entry.target);
+                        loadSection(entry.target);
+                    });
+                }, { rootMargin: '500px 0px' })
+                : null;
 
-            function loadSection(url, target) {
-                $.get(url, function(data){
-                    $(target).html(data);
-                    // Critical: Re-initialize slick carousel for the new content
+            document.querySelectorAll('[data-section-url]').forEach(function(section){
+                if (observer) observer.observe(section);
+                else loadSection(section);
+            });
+
+            function loadSection(section) {
+                var $section = $(section);
+                if ($section.data('section-loading')) return;
+                $section.data('section-loading', true);
+
+                if (section.dataset.backgroundImage) {
+                    section.style.backgroundImage = "url('" + section.dataset.backgroundImage + "')";
+                }
+
+                $.get(section.dataset.sectionUrl, function(data){
+                    $section.html(data);
                     setTimeout(function(){
                         AIZ.plugins.slickCarousel();
                         AIZ.extra.plusMinus();

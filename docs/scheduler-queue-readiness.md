@@ -27,7 +27,7 @@ Current `php artisan schedule:list` output:
 0   0 * * *  php artisan inventory:prune-affinities --days=30
 0   * * * *  php artisan stock:send-alerts
 30  2 * * *  php artisan app:generate-sitemap
-0   * * * *  php artisan images:audit --repair --include-static --limit=500
+0   * * * *  php artisan images:audit --repair --priority-storefront --include-static --limit=500
 0   2 * * *  php artisan vault:prune-expired
 0   0 * * *  Mayush\Shipping\Onessta\Jobs\SyncCitiesJob
 0   1 * * *  Mayush\Shipping\Onessta\Jobs\SyncPickupCitiesJob
@@ -128,7 +128,9 @@ After deploy:
 php8.2 artisan queue:restart
 php8.2 artisan horizon:terminate
 php8.2 artisan schedule:list
-php8.2 artisan images:audit --repair --include-static --limit=500
+php8.2 artisan images:audit --repair --priority-storefront --include-static --limit=500
+php8.2 artisan images:status
+php8.2 artisan storefront:performance-readiness
 php8.2 artisan queue:failed
 ```
 
@@ -145,4 +147,8 @@ php8.2 artisan queue:failed
 
 ## Static Asset Caching
 
-Apache serves versioned static assets with long-lived cache headers from `.htaccess`. Configure the matching Cloudflare cache rule for `assets/*`, `uploads/*`, and `build/*`, but exclude HTML routes because storefront responses contain session and cart state. Purge changed static paths after deployment when Cloudflare has cached an older response.
+Apache serves compressed, versioned static assets with long-lived cache headers from `.htaccess`. Configure the matching Cloudflare cache rule for `assets/*`, `uploads/*`, and `build/*`, including WebP, AVIF, JavaScript, CSS, and WOFF2 files. Do not cache HTML routes at the edge because storefront responses contain session and cart state. Purge changed legacy static paths once after deployment when Cloudflare has cached an older response.
+
+For controlled Lighthouse testing, add a Cloudflare WAF skip rule restricted to the test runner IP only. Keep a second smoke test through normal Cloudflare protection and record challenge or Turnstile warnings separately from application regressions.
+
+Set `STOREFRONT_SERVER_TIMING=true` on staging while profiling. Keep it disabled in production unless temporarily diagnosing response time.

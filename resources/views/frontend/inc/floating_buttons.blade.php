@@ -1,12 +1,12 @@
 <div class="floating-buttons-section">
     <div class="position-relative">
-        <a class="floating-buttons-section-control d-lg-none" onclick="showFloatingButtons()">
+        <button type="button" class="floating-buttons-section-control d-lg-none border-0" aria-label="{{ translate('Toggle quick navigation') }}" onclick="showFloatingButtons()">
             <i class="las la-2x la-angle-double-right"></i>
-        </a>
+        </button>
     </div>
     <!-- All Categories -->
     <div class="aiz-floating-button">
-        <a href="{{ route('categories.all') }}">
+        <a href="{{ route('categories.all') }}" aria-label="{{ translate('All Categories') }}">
             <span class="circle">
                 <span class="">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14">
@@ -28,7 +28,7 @@
     </div>
     <!-- Flash Sale -->
     <div class="aiz-floating-button">
-        <a href="{{ route('flash-deals') }}">
+        <a href="{{ route('flash-deals') }}" aria-label="{{ translate('Flash Sale') }}">
             <span class="circle">
                 <span class="">
                     <svg xmlns="http://www.w3.org/2000/svg" width="13.333" height="20" viewBox="0 0 13.333 20">
@@ -46,7 +46,7 @@
     </div>
     <!-- Today's Deal -->
     <div class="aiz-floating-button">
-        <a href="{{ route('todays-deal') }}">
+        <a href="{{ route('todays-deal') }}" aria-label="{{ translate("Today's Deal") }}">
             <span class="circle">
                 <span class="">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
@@ -68,7 +68,7 @@
     @if(addon_is_activated('auction'))
     <!-- Auction -->
     <div class="aiz-floating-button">
-        <a href="{{ route('auction_products.all') }}">
+        <a href="{{ route('auction_products.all') }}" aria-label="{{ translate('Auction') }}">
             <span class="circle">
                 <span class="">
                     <svg xmlns="http://www.w3.org/2000/svg" width="19.627" height="20" viewBox="0 0 19.627 20">

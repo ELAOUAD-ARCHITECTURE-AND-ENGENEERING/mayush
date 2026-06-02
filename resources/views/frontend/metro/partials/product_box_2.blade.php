@@ -14,14 +14,22 @@
             <img
                 class="lazyload mx-auto img-fit has-transition product-main-image skeleton-shimmer"
                 src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                data-src="{{ get_image($product->thumbnail, 'medium') }}"
+                data-src="{{ get_image($product->thumbnail, 'card') }}"
+                width="480"
+                height="480"
+                loading="lazy"
+                decoding="async"
                 alt="{{ $product->getTranslation('name') }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
             <img
                 class="lazyload mx-auto img-fit has-transition product-hover-image position-absolute skeleton-shimmer"
                 src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                data-src="{{ get_first_product_image($product->photos, $product->thumbnail, 'medium') }}"
+                data-src="{{ get_first_product_image($product->photos, $product->thumbnail, 'card') }}"
+                width="480"
+                height="480"
+                loading="lazy"
+                decoding="async"
                 alt="{{ $product->getTranslation('name') }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">

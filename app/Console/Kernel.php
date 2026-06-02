@@ -42,7 +42,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:generate-sitemap')->dailyAt('02:30');
 
         // Keep uploaded and storefront images covered by the responsive WebP pipeline.
-        $schedule->command('images:audit --repair --include-static --limit='.config('image-optimization.audit_limit', 500))
+        $schedule->command('images:audit --repair --priority-storefront --include-static --limit='.config('image-optimization.audit_limit', 500))
             ->hourly()
             ->withoutOverlapping()
             ->onOneServer();

@@ -11,14 +11,6 @@
 @endif
 
 <head>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-KSHLDCWK');</script>
-    <!-- End Google Tag Manager -->
-
     @php
         $seo = \App\Services\SeoService::meta([
             'title' => trim($__env->yieldContent('meta_title')),
@@ -83,10 +75,35 @@
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="preload" as="style" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css"></noscript>
 
-    <script defer src="{{ versioned_static_asset('js/analytics-tracker.js') }}"></script>
+    <script defer src="{{ versioned_static_asset('js/storefront-bootstrap.js') }}"
+        data-analytics-src="{{ versioned_static_asset('js/analytics-tracker.js') }}"
+        data-defer-marketing="{{ config('storefront-performance.defer_marketing') ? '1' : '0' }}"
+        data-gtm-enabled="{{ get_setting('google_analytics') == 1 ? '1' : '0' }}"
+        data-gtm-id="{{ config('storefront-performance.gtm_id') }}"
+        data-facebook-enabled="{{ get_setting('facebook_pixel') == 1 ? '1' : '0' }}"
+        data-facebook-pixel-id="{{ config('storefront-performance.facebook_pixel_id') }}"
+        data-whatsapp-enabled="{{ get_setting('whatsapp_chat') == 1 ? '1' : '0' }}"
+        data-whatsapp-number="{{ env('WHATSAPP_NUMBER') }}"
+        data-whatsapp-label="{{ translate('Message us') }}"></script>
+    @if (config('storefront-performance.asset_profiles_enabled') && storefront_asset('core.js'))
+        <script type="module" src="{{ storefront_asset('core.js') }}"></script>
+        @if (request()->routeIs('home'))
+            <script type="module" src="{{ storefront_asset('home.js') }}"></script>
+        @elseif (request()->routeIs('products.category', 'search'))
+            <script type="module" src="{{ storefront_asset('listing.js') }}"></script>
+        @elseif (request()->routeIs('product'))
+            <script type="module" src="{{ storefront_asset('product.js') }}"></script>
+        @elseif (request()->routeIs('cart'))
+            <script type="module" src="{{ storefront_asset('cart.js') }}"></script>
+        @elseif (request()->routeIs('checkout*'))
+            <script type="module" src="{{ storefront_asset('checkout.js') }}"></script>
+        @endif
+    @endif
     @yield('styles')
     @yield('script_at_head')
 
@@ -109,10 +126,6 @@
     
     @if(request()->routeIs('shop.visit', 'shop.visit.type') || request()->is('*contact-us*'))
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
-    @endif
-
-    @if (get_setting('cloudflare_turnstile') == 1)
-        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     @endif
 
     <script>
@@ -248,49 +261,12 @@
     </style>
 
 
-@if (get_setting('google_analytics') == 1)
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ env('TRACKING_ID') }}"></script>
-
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', '{{ env('TRACKING_ID') }}');
-    </script>
-@endif
-
-@if (get_setting('facebook_pixel') == 1)
-    <!-- Facebook Pixel Code -->
-    <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '{{ env('FACEBOOK_PIXEL_ID') }}');
-        fbq('track', 'PageView');
-    </script>
-    <noscript>
-        <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ env('FACEBOOK_PIXEL_ID') }}&ev=PageView&noscript=1"/>
-    </noscript>
-    <!-- End Facebook Pixel Code -->
-@endif
-
 @php
     // echo get_setting('header_script');
 @endphp
 
 </head>
 <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KSHLDCWK"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-
     <!-- aiz-main-wrapper -->
     <div class="aiz-main-wrapper d-flex flex-column bg-white aiz-{{ get_setting('homepage_select') }}">
         @php
@@ -316,6 +292,14 @@
     @if(get_setting('use_floating_buttons') == 1)
         <!-- Floating Buttons -->
         @include('frontend.inc.floating_buttons')
+    @endif
+
+    @if (get_setting('google_analytics') == 1 || get_setting('facebook_pixel') == 1)
+        <div id="marketing-consent-notice" class="position-fixed fixed-bottom bg-white border shadow-lg p-3 m-3" style="max-width: 420px; z-index: 1050;" hidden>
+            <p class="mb-2 fs-13 text-dark">{{ translate('Allow optional analytics and marketing cookies to help us improve your shopping experience?') }}</p>
+            <button type="button" id="marketing-consent-accept" class="btn btn-sm btn-primary mr-2">{{ translate('Allow') }}</button>
+            <button type="button" id="marketing-consent-reject" class="btn btn-sm btn-outline-secondary">{{ translate('Decline') }}</button>
+        </div>
     @endif
 
     <div class="aiz-refresh">
@@ -432,7 +416,7 @@
                                 </form>
                             @endif
                         </div>
-                        <button class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup" data-value="removed" data-parent=".website-popup">
+                        <button type="button" aria-label="{{ translate('Close popup') }}" class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup" data-value="removed" data-parent=".website-popup">
                             <i class="la la-close fs-20"></i>
                         </button>
                     </div>
@@ -456,7 +440,7 @@
                                 {{ $dynamic_popup->btn_text }}
                             </a>
                         </div>
-                        <button class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup-{{ $dynamic_popup->id }}" data-value="removed" data-parent=".website-popup">
+                        <button type="button" aria-label="{{ translate('Close popup') }}" class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup-{{ $dynamic_popup->id }}" data-value="removed" data-parent=".website-popup">
                             <i class="la la-close fs-20"></i>
                         </button>
                     </div>
@@ -511,23 +495,6 @@
     <script src="{{ versioned_static_asset('assets/js/vendors.js') }}"></script>
     <script src="{{ versioned_static_asset('assets/js/aiz-core.js') }}"></script>
 
-    {{-- WhatsaApp Chat --}}
-    @if (get_setting('whatsapp_chat') == 1)
-        <script type="text/javascript">
-            (function () {
-                var options = {
-                    whatsapp: "{{ env('WHATSAPP_NUMBER') }}",
-                    call_to_action: "{{ translate('Message us') }}",
-                    position: "right", // Position may be 'right' or 'left'
-                };
-                var proto = document.location.protocol, host = "getbutton.io", url = proto + "//static." + host;
-                var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = url + '/widget-send-button/js/init.js';
-                s.onload = function () { WhWidgetSendButton.init(host, proto, options); };
-                var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
-            })();
-        </script>
-    @endif
-
     <style>
     .sc-q8c6tt-3 {
         bottom: 54px !important;
@@ -546,7 +513,7 @@
     </script>
 
     <script>
-        @if (Route::currentRouteName() == 'home' || Route::currentRouteName() == '/')
+        @if ((Route::currentRouteName() == 'home' || Route::currentRouteName() == '/') && get_setting('homepage_select') != 'metro')
 
             $.get('{{ route('home.section.featured') }}', function(data) {
                 $('#section_featured').html(data);
@@ -973,7 +940,7 @@
                     }
                 });
 
-                if ("{{ get_setting('facebook_pixel') }}" == 1){
+                if ("{{ get_setting('facebook_pixel') }}" == 1 && typeof fbq === 'function'){
                     // Facebook Pixel AddToCart Event
                     fbq('track', 'AddToCart', {content_type: 'product'});
                     // Facebook Pixel AddToCart Event
@@ -1039,7 +1006,7 @@
                     }
                 });
 
-                if ("{{ get_setting('facebook_pixel') }}" == 1){
+                if ("{{ get_setting('facebook_pixel') }}" == 1 && typeof fbq === 'function'){
                     fbq('track', 'AddToCart', {content_type: 'product'});
                 }
             }
@@ -1348,14 +1315,14 @@
             const html = `
                 <div class="alert  bg-white alert-dismissible rounded-0" role="alert" style="display: none;">
                     <div class="d-flex align-items-center">
-                        <img src="${randomProduct.image}" class="h-50px w-50px img-fit mr-2 rounded" alt="${randomProduct.title}">
+                        <img src="${randomProduct.image}" class="h-50px w-50px img-fit mr-2 rounded" width="50" height="50" alt="${randomProduct.title}">
                         <div>
                             <span class="text-truncate-2">
                                 <a href="${randomProduct.url}" class="text-dark font-weight-bold">${randomProduct.title}</a>
                             </span>
                              — {{ translate('ordered just now') }}!
                         </div>
-                        <button type="button" class="close ml-auto hov-text-primary set-session" data-parent=".alert">
+                        <button type="button" aria-label="{{ translate('Close notification') }}" class="close ml-auto hov-text-primary set-session" data-parent=".alert">
                             <i class="la la-close fs-20"></i>
                         </button>
                     </div>

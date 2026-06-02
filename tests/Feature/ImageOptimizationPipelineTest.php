@@ -43,6 +43,7 @@ class ImageOptimizationPipelineTest extends TestCase
         Storage::disk('local')->assertExists('assets/office.webp');
         Storage::disk('local')->assertExists('assets/office_small.webp');
         Storage::disk('local')->assertExists('assets/office_thumb.webp');
+        Storage::disk('local')->assertExists('assets/office_card.webp');
         Storage::disk('local')->assertExists('assets/office_medium.webp');
         Storage::disk('local')->assertExists('assets/office_large.webp');
         $this->assertSame($source, Storage::disk('local')->get('assets/office.png'));
@@ -137,5 +138,29 @@ class ImageOptimizationPipelineTest extends TestCase
 
         Queue::assertPushed(OptimizeUploadedImageJob::class, fn ($job) => $job->uploadId === $upload->id);
         Queue::assertPushed(OptimizeStaticImageJob::class, fn ($job) => $job->path === 'assets/static.png');
+    }
+
+    /** @test */
+    public function responsive_srcsets_include_only_real_unique_derivatives_and_queue_one_repair(): void
+    {
+        Queue::fake();
+        Storage::disk('local')->put('uploads/all/hero.png', UploadedFile::fake()->image('hero.png', 1600, 720)->getContent());
+        $upload = Upload::withoutEvents(fn () => Upload::create([
+            'file_original_name' => 'hero',
+            'file_name' => 'uploads/all/hero.png',
+            'extension' => 'png',
+            'type' => 'image',
+            'file_size' => 123,
+        ]));
+
+        $this->assertSame('', uploaded_asset_srcset($upload, ['medium', 'large']));
+        $this->assertSame('', uploaded_asset_srcset($upload, ['medium', 'large']));
+        Queue::assertPushed(OptimizeUploadedImageJob::class, 1);
+
+        Storage::disk('local')->put('uploads/all/hero_medium.webp', 'medium');
+        $srcset = uploaded_asset_srcset($upload, ['medium', 'large']);
+
+        $this->assertStringContainsString('hero_medium.webp', $srcset);
+        $this->assertStringNotContainsString('hero.png 1200w', $srcset);
     }
 }

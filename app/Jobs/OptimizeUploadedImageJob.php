@@ -25,10 +25,14 @@ class OptimizeUploadedImageJob implements ShouldQueue
 
     public function handle(ImageOptimizationService $optimizer): void
     {
-        $upload = Upload::find($this->uploadId);
+        try {
+            $upload = Upload::find($this->uploadId);
 
-        if ($upload && str_contains((string) $upload->type, 'image')) {
-            $optimizer->optimizeUpload($upload);
+            if ($upload && str_contains((string) $upload->type, 'image')) {
+                $optimizer->optimizeUpload($upload);
+            }
+        } finally {
+            $optimizer->clearRepairLock($this->uploadId);
         }
     }
 }
