@@ -15,7 +15,7 @@ class CustomerPackage extends Model
       $lang = $lang ?: App::getLocale();
       $customer_package_translation = $this->customer_package_translations->where('lang', $lang)->first();
       if ($customer_package_translation != null && $customer_package_translation->$field !== null && $customer_package_translation->$field !== $this->$field) {
-          return $customer_package_translation->$field;
+          return in_array($field, ['name', 'title']) ? translate($customer_package_translation->$field, $lang) : $customer_package_translation->$field;
       }
 
       return $customer_package_translation != null ? $customer_package_translation->$field : $this->$field;

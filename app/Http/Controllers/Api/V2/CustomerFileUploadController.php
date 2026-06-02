@@ -125,29 +125,8 @@ class CustomerFileUploadController extends Controller
                     // Get the MIME type of the file
                     $file_mime = finfo_file($finfo, base_path('public/') . $path);
 
-                    if ($type[$extension] == 'image' && get_setting('disable_image_optimization') != 1) {
-                        try {
-                            $img = Image::make($request->file('aiz_file')->getRealPath())->encode();
-                            $height = $img->height();
-                            $width = $img->width();
-                            if ($width > $height && $width > 1500) {
-                                $img->resize(1500, null, function ($constraint) {
-                                    $constraint->aspectRatio();
-                                });
-                            } elseif ($height > 1500) {
-                                $img->resize(null, 800, function ($constraint) {
-                                    $constraint->aspectRatio();
-                                });
-                            }
-                            $img->save(base_path('public/') . $path);
-                            clearstatcache();
-                            $size = $img->filesize();
-                        } catch (\Exception $e) {
-                        }
-                    }
-
-                    if (env('FILESYSTEM_DRIVER') == 's3') {
-                        Storage::disk('s3')->put(
+                    if (config('filesystems.default') != 'local') {
+                        Storage::disk(config('filesystems.default'))->put(
                             $path,
                             file_get_contents(base_path('public/') . $path),
                             [
@@ -183,8 +162,8 @@ class CustomerFileUploadController extends Controller
             return $this->failed(translate("You don't have permission for deleting this!"));
         }
         try {
-            if (env('FILESYSTEM_DRIVER') == 's3') {
-                Storage::disk('s3')->delete($upload->file_name);
+            if (config('filesystems.default') != 'local') {
+                Storage::disk(config('filesystems.default'))->delete($upload->file_name);
                 if (file_exists(public_path() . '/' . $upload->file_name)) {
                     unlink(public_path() . '/' . $upload->file_name);
                 }
@@ -233,8 +212,8 @@ class CustomerFileUploadController extends Controller
         $uploads = Upload::all();
         foreach ($uploads as $upload) {
             try {
-                if (env('FILESYSTEM_DRIVER') == 's3') {
-                    Storage::disk('s3')->delete($upload->file_name);
+                if (config('filesystems.default') != 'local') {
+                    Storage::disk(config('filesystems.default'))->delete($upload->file_name);
                     if (file_exists(public_path() . '/' . $upload->file_name)) {
                         unlink(public_path() . '/' . $upload->file_name);
                     }

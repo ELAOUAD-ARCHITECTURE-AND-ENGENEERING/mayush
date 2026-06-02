@@ -12,6 +12,11 @@
 
 <!-- Offcanvas Body -->
 <div class="right-offcanvas-body position-absolute h-100 px-30px pt-20px">
+    @php
+        $bank_payment_methods = \App\Models\OfflinePayoutMethod::where('type', 'bank_payment')->get();
+        $payment_methods = \App\Models\OfflinePayoutMethod::where('type', 'others')->get();
+    @endphp
+
     <!-- Type -->
     <div class="form-group mb-3">
         <label>{{ translate('Type')}} <span class="text-danger">*</span></label>
@@ -31,6 +36,12 @@
             <select name="payment_name" class="form-control aiz-selectpicker">
 
                 <option value="">{{ translate('Select Method') }}</option>
+
+                @foreach ($payment_methods as $payment_method)
+                    <option value="{{ $payment_method->id }}" {{ is_numeric($payment_information->payment_name) && $payment_information->payment_name == $payment_method->id ? 'selected' : '' }}>
+                        {{ $payment_method->name }}
+                    </option>
+                @endforeach
 
                 <option value="other_method" {{ !is_numeric($payment_information->payment_name) ? 'selected' : '' }}>
                     {{ translate('Others') }}
@@ -60,6 +71,12 @@
             <select name="bank_name" class="form-control aiz-selectpicker" data-live-search="true">
 
                 <option value="">{{ translate('Select Bank') }}</option>
+
+                @foreach ($bank_payment_methods as $bank_payment_method)
+                    <option value="{{ $bank_payment_method->id }}" {{ is_numeric($payment_information->bank_name) && $payment_information->bank_name == $bank_payment_method->id ? 'selected' : '' }}>
+                        {{ $bank_payment_method->name }}
+                    </option>
+                @endforeach
 
                 <option value="other_bank" {{ !is_numeric($payment_information->bank_name) ? 'selected' : '' }}>
                     {{ translate('Others') }}

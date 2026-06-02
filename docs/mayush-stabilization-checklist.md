@@ -78,9 +78,10 @@ Branch: main
 - Production readiness pass: documented ONESSTA/CMI/mail/queue/scheduler/storage release checks in `docs/production-readiness-pass.md`, added ONESSTA production env keys to `.env.example`, and fixed ONESSTA shipment creation to inherit the production queue connection instead of falling back to inline `sync` execution when `ONESSTA_CREATE_SHIPMENT_QUEUE_CONNECTION` is omitted.
 - ONESSTA production diagnostics: added `php artisan onessta:diagnose-order {order}` to explain why a specific order did or did not create a shipment, report local blockers, and optionally queue shipment creation through the same idempotent service path with `--dispatch`.
 - CMI production diagnostics: added `php artisan cmi:diagnose --production` to verify required CMI config, HTTPS callback/success/fail URLs, callback POST route wiring, IP whitelist middleware, and production `CMI_ALLOWED_IPS` readiness before a live payment test.
-- V10.9 safe integration: created a clean `codex/v10-9-safe-integration` worktree from `origin/main`, treated `updates V10.9` as read-only input, converted V10.9 schema/settings/permissions into an idempotent migration, imported promotion/offers, today's deal, invoice/shipping label/thermal printer config, payment information, guarded AI/Gemini, guarded Facebook CAPI, and shipping label views/controllers without wholesale overwrites.
-- V10.9 safety tests: added focused V10.9 regression coverage for schema/settings, promotion/today's deal toggles, payment information ownership and DELETE route method, AI/Facebook external API guards, and shipping label authorization.
+- V10.9 snapshot cleanup: removed the archived `updates V10.9` source tree after extracting maintained application slices and idempotent migrations.
 - CMI deploy readiness: production deployment now injects `CMI_ALLOWED_IPS` from GitHub Secrets when available and explicitly allows an empty allowlist during the current production test deploy via `php artisan cmi:diagnose --production --allow-empty-ip-allowlist`.
+- V10.9 active workspace visibility: imported V10.9 admin/sidebar links and route wiring into active `main`, surfaced payment information management on affiliate and seller withdrawal pages, moved payment information routes out of customer-only middleware while preserving auth/verified/unbanned protection and ownership checks, and added a permission-assignment migration so existing `Admin`/`Super Admin` roles can see and access V10.9 pages after deployment.
+- V10.9 admin sidebar verification: applied the V10.9 permission-assignment migration to local MariaDB, fixed the Setup & Configurations parent sidebar gate for `business_settings`/`manage_ai_configuration`, logged in through XAMPP at `http://localhost/mayush/admin`, and confirmed the imported promotion, invoice, shipping label, thermal printer, and AI menu entries/pages load.
 
 ## Tested This Session
 
@@ -161,6 +162,7 @@ Branch: main
 - Production readiness targeted result: `tests\Feature\OnesstaIntegrationTest.php`, `tests\Feature\OrderConfirmationWorkflowTest.php`, and `tests\Feature\DevOps\CiAndOpsReadinessTest.php` passed with 19 tests and 74 assertions.
 - ONESSTA diagnostic targeted result: `tests\Feature\OnesstaOrderDiagnosticsTest.php`, `tests\Feature\OrderConfirmationWorkflowTest.php`, and `tests\Feature\OnesstaIntegrationTest.php` passed with 17 tests and 61 assertions.
 - CMI diagnostic targeted result: `tests\Feature\Payment\CmiGatewayDiagnosticsTest.php`, `tests\Feature\Payment\PaymentVaultRegressionTest.php`, and `tests\Feature\Security\RouteHardeningTest.php` passed with 10 tests and 36 assertions.
+- V10.9 active workspace targeted result: `tests\Feature\V109`, `tests\Feature\AnalyticsTrackingPublicTest.php`, and `tests\Feature\HomeSubdirectoryRouteTest.php` passed with 18 tests and 65 assertions.
 - Production-like route exposure check: config and route cache passed with `APP_ENV=production`, `APP_DEBUG=false`, and no `_debugbar` or `_ignition` routes were exposed.
 - Browser/HTTP smoke: public homepage, register, login, password reset, contact, robots, and sitemap returned 200; protected purchase history and checkout redirected to login.
 - Route cache after fixes: passed.
@@ -179,6 +181,7 @@ Branch: main
 - Live payment gateways, mail delivery, and carrier integrations: not run locally.
 - In-app browser form entry remains blocked on email inputs; Playwright is the working fallback for automated Browser QA.
 - Some legacy destructive GET routes outside this pass remain for later phases, including auction/digital product, admin catalog/settings deletes, seller-side product deletes, and mobile API mutation routes.
+- Local MySQL was briefly unavailable during the V10.9 active workspace check, then recovered; `php artisan migrate --force` applied the new V10.9 permission-assignment migration locally.
 
 ## Requires Manual QA
 

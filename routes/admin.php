@@ -10,6 +10,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\BrandBulkUploadController;
 use App\Http\Controllers\BusinessSettingsController;
+use App\Http\Controllers\BannerVersionController;
 use App\Http\Controllers\CarrierController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CityController;
@@ -72,6 +73,7 @@ use App\Http\Controllers\PromotionalCategoryController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\TodaysDealController;
 use App\Http\Controllers\AIController;
+use App\Http\Controllers\Admin\ProductCollectionController;
 
 /*
   |--------------------------------------------------------------------------
@@ -331,6 +333,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::controller(BusinessSettingsController::class)->group(function () {
         Route::post('/business-settings/update', 'update')->name('business_settings.update');
         Route::post('/business-settings/update/activation', 'updateActivationSettings')->name('business_settings.update.activation');
+        Route::post('/website/select-header', 'select_header')->name('settings.select-header');
         Route::get('/general-setting', 'general_setting')->name('general_setting.index');
         Route::get('/activation', 'activation')->name('activation.index');
         Route::get('/payment-method', 'payment_method')->name('payment_method.index');
@@ -388,6 +391,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/business-settings/business-info-update', 'business_info_update')->name('business_info.update');
         Route::get('/business-settings/custom-product-visitors', 'customProductVisitorsUpdate')->name('custom_product_visitors');
         Route::post('/business-settings/custom-product-visitors-update', 'customProductVisitorsUpdate')->name('custom_product_visitors.update');
+    });
+
+    Route::controller(BannerVersionController::class)->group(function () {
+        Route::get('/banner-versions/{settingKey}', 'index')->name('banner_versions.index');
+        Route::post('/banner-versions/{version}/restore', 'restore')->name('banner_versions.restore');
     });
 
     Route::controller(AIController::class)->group(function () {
@@ -795,6 +803,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::resource('elements', ElementController::class);
     
     Route::resource('custom_label', CustomLabelController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::resource('product-collections', ProductCollectionController::class)->except('show');
     Route::controller(CustomLabelController::class)->group(function () {
         Route::get('/custom-label/products', 'custom_label_products')->name('custom_label.products');
         Route::post('/custom-label/update-status', 'update_status')->name('custom-label.update-status');

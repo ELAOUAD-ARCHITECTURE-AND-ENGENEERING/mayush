@@ -120,6 +120,7 @@ class ProductService
 
         unset($collection['colors_active']);
 
+        $removed_sku_variants = $this->normalizedRemovedSkuVariants($collection);
         $choice_options = array();
         if (isset($collection['choice_no']) && $collection['choice_no']) {
             $str = '';
@@ -131,7 +132,9 @@ class ProductService
                 
                 if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
                     foreach ($collection[$str] as $key => $eachValue) {
-                        array_push($attribute_data, $eachValue);
+                        if (!in_array($this->normalizeSkuVariant($eachValue), $removed_sku_variants, true)) {
+                            array_push($attribute_data, $eachValue);
+                        }
                     }
                 }
                 unset($collection[$str]);
@@ -149,6 +152,7 @@ class ProductService
         } else {
             $attributes = json_encode(array());
         }
+        unset($collection['removed_sku_variants']);
 
         $published = 1;
         if ($collection->get('button') == 'unpublish' || $collection->get('button') == 'draft') {
@@ -297,6 +301,7 @@ class ProductService
 
         unset($collection['colors_active']);
 
+        $removed_sku_variants = $this->normalizedRemovedSkuVariants($collection);
         $choice_options = array();
         if (isset($collection['choice_no']) && $collection['choice_no']) {
             $str = '';
@@ -308,7 +313,9 @@ class ProductService
                 
                 if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
                     foreach ($collection[$str] as $key => $eachValue) {
-                        array_push($attribute_data, $eachValue);
+                        if (!in_array($this->normalizeSkuVariant($eachValue), $removed_sku_variants, true)) {
+                            array_push($attribute_data, $eachValue);
+                        }
                     }
                 }
                 unset($collection[$str]);
@@ -326,6 +333,7 @@ class ProductService
         } else {
             $attributes = json_encode(array());
         }
+        unset($collection['removed_sku_variants']);
 
         $published = 1;
         if (isset($collection['button']) && ($collection['button'] == 'unpublish' || $collection['button'] == 'draft')) {
@@ -627,6 +635,7 @@ class ProductService
         }
         unset($collection['colors_active']);
 
+        $removed_sku_variants = $this->normalizedRemovedSkuVariants($collection);
         $choice_options = array();
         if (isset($collection['choice_no']) && $collection['choice_no']) {
             $item = array();
@@ -637,7 +646,9 @@ class ProductService
                 
                 if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
                     foreach ($collection[$str] as $eachValue) {
-                        array_push($attribute_data, $eachValue);
+                        if (!in_array($this->normalizeSkuVariant($eachValue), $removed_sku_variants, true)) {
+                            array_push($attribute_data, $eachValue);
+                        }
                     }
                 }
                 unset($collection[$str]);
@@ -650,6 +661,7 @@ class ProductService
 
         $attributes = isset($collection['choice_no']) ? json_encode($collection['choice_no']) : json_encode(array());
         unset($collection['choice_no']);
+        unset($collection['removed_sku_variants']);
 
        
         $collection['has_warranty'] = isset($collection['has_warranty']) ? 1 : 0;
@@ -779,6 +791,20 @@ class ProductService
         }
 
         return $products;
+    }
+
+    private function normalizedRemovedSkuVariants($collection): array
+    {
+        return collect($collection->get('removed_sku_variants', []))
+            ->map(fn ($variant) => $this->normalizeSkuVariant($variant))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function normalizeSkuVariant($variant): string
+    {
+        return strtolower((string) preg_replace('/\s+/', '', trim((string) $variant)));
     }
 
     

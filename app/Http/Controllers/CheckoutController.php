@@ -25,7 +25,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
+use Illuminate\Validation\Rule;
 use App\Models\PaymentToken;
+use App\Utility\CartUtility;
 
 class CheckoutController extends Controller
 {
@@ -37,10 +39,6 @@ class CheckoutController extends Controller
 
     public function index(Request $request)
     {
-        if(get_setting('guest_checkout_activation') == 0 && !Auth::check()){
-            return Redirect::route('user.login');
-        }
-
         if(Auth::check() && !$request->user()->hasVerifiedEmail()){
             return Redirect::route('verification.notice');
         }
@@ -53,6 +51,7 @@ class CheckoutController extends Controller
 
         if (Auth::check()) {
             $user_id = Auth::id();
+            CartUtility::sync_cart_stock_statuses(Cart::query()->where('user_id', $user_id)->get());
             $carts = Cart::query()->where('user_id', $user_id)->active()->get();
             $addresses = Address::query()->where('user_id', $user_id)->get();
             if(count($addresses)){
@@ -72,6 +71,9 @@ class CheckoutController extends Controller
         }
         else {
             $temp_user_id = $request->session()->get('temp_user_id');
+            if ($temp_user_id != null) {
+                CartUtility::sync_cart_stock_statuses(Cart::query()->where('temp_user_id', $temp_user_id)->get());
+            }
             $carts = ($temp_user_id != null) ? Cart::query()->where('temp_user_id', $temp_user_id)->active()->get() : [];
         }
 
@@ -135,21 +137,15 @@ class CheckoutController extends Controller
     //check the selected payment gateway and redirect to that controller accordingly
     public function checkout(Request $request)
     {
-        // if guest checkout, create user
         if(auth()->user() == null){
-            $guest_user = $this->createUser($request->except('_token', 'payment_option'));
-            if(gettype($guest_user) == "object"){
-                $errors = $guest_user;
-                if ($request->ajax()) {
-                    return response()->json(['status' => 'error', 'message' => translate('Validation failed'), 'errors' => $errors], 422);
-                }
-                return Redirect::route('checkout.shipping_info')->withErrors($errors);
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'needs_account' => true,
+                    'message' => translate('Please sign up or log in before entering your delivery address.'),
+                ], 401);
             }
-
-            if($guest_user == 0){
-                Session::flash('warning', translate('Please try again later.'));
-                return Redirect::route('checkout.shipping_info');
-            }
+            return Redirect::route('checkout.shipping_info');
         }
 
         if ($request->input('payment_option') == null) {
@@ -202,7 +198,7 @@ class CheckoutController extends Controller
             // If block for Online payment, wallet and cash on delivery. Else block for Offline payment
             $decorator = __NAMESPACE__ . '\\Payment\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $request->input('payment_option')))) . "Controller";
             if (class_exists($decorator)) {
-                $payment_controller = new $decorator;
+                $payment_controller = app($decorator);
                 if (!method_exists($payment_controller, 'pay')) {
                     \Illuminate\Support\Facades\Log::error("Payment controller 'pay' method missing for method: " . $request->input('payment_option'));
                     Session::flash('error', translate('Selected payment method is currently unavailable.'));
@@ -242,6 +238,280 @@ class CheckoutController extends Controller
                 return Redirect::route('order_confirmed');
             }
         }
+    }
+
+    public function accountAddress(Request $request)
+    {
+        $action = $request->input('action');
+
+        if (Auth::check()) {
+            $validator = Validator::make($request->all(), $this->checkoutAddressRules());
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => translate('Please complete the delivery address.'),
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $address = $this->createCheckoutAddress(Auth::user(), $request->all());
+            $this->attachActiveCartsToAddress(Auth::user(), $address);
+
+            return $this->checkoutAccountPayload($address->id, translate('Delivery address saved.'));
+        }
+
+        if ($action === 'login') {
+            $user = $this->authenticateCheckoutCustomer($request);
+            if (!$user instanceof User) {
+                return $user;
+            }
+
+            Auth::login($user, (bool) $request->input('remember'));
+            $this->attachGuestCartsToUser($user);
+
+            $address = $user->addresses()->where('set_default', 1)->first() ?: $user->addresses()->first();
+            if (!$address) {
+                $validator = Validator::make($request->all(), $this->checkoutAddressRules());
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'needs_address' => true,
+                        'message' => translate('Please add your delivery address to continue checkout.'),
+                        'errors' => $validator->errors(),
+                    ], 422);
+                }
+                $address = $this->createCheckoutAddress($user, $request->all());
+            }
+
+            $this->attachActiveCartsToAddress($user, $address);
+            return $this->checkoutAccountPayload($address->id, translate('Logged in successfully.'));
+        }
+
+        $validator = Validator::make($request->all(), array_merge([
+            'name' => ['required', 'string', 'max:255'],
+            'verification_method' => ['required', Rule::in(['email', 'phone'])],
+            'email' => [
+                Rule::requiredIf($request->input('verification_method') === 'email'),
+                'nullable',
+                'email',
+                'max:255',
+                'unique:users,email',
+            ],
+            'account_phone' => [
+                Rule::requiredIf($request->input('verification_method') === 'phone'),
+                'nullable',
+                'string',
+                'max:20',
+            ],
+            'account_country_code' => [
+                Rule::requiredIf($request->input('verification_method') === 'phone'),
+                'nullable',
+                'string',
+                'max:10',
+            ],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'],
+        ], $this->checkoutAddressRules()));
+
+        $validator->after(function ($validator) use ($request) {
+            if ($request->input('verification_method') === 'phone') {
+                $phone = $this->formatCheckoutPhone($request->input('account_phone'), $request->input('account_country_code'));
+                if ($phone && $this->findCheckoutCustomerByPhone($phone)) {
+                    $validator->errors()->add('account_phone', translate('The phone has already been taken.'));
+                }
+            }
+        });
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => translate('Please complete the account and delivery details.'),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $phone = $request->input('verification_method') === 'phone'
+            ? $this->formatCheckoutPhone($request->input('account_phone'), $request->input('account_country_code'))
+            : null;
+
+        $user = User::create([
+            'name' => $request->input('name'),
+            'email' => $request->input('verification_method') === 'email'
+                ? $request->input('email')
+                : $this->syntheticCheckoutEmailForPhone($phone),
+            'phone' => $phone,
+            'password' => Hash::make($request->input('password')),
+            'verification_code' => rand(100000, 999999),
+            'email_verified_at' => now(),
+            'verification_status' => 1,
+            'user_type' => 'customer',
+        ]);
+
+        Auth::login($user);
+        $this->attachGuestCartsToUser($user);
+        $address = $this->createCheckoutAddress($user, $request->all());
+        $this->attachActiveCartsToAddress($user, $address);
+
+        Session::forget('temp_user_id');
+        Session::forget('guest_shipping_info');
+
+        return $this->checkoutAccountPayload($address->id, translate('Account created successfully.'));
+    }
+
+    private function authenticateCheckoutCustomer(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'login_method' => ['required', Rule::in(['email', 'phone'])],
+            'login_email' => [
+                Rule::requiredIf($request->input('login_method') === 'email'),
+                'nullable',
+                'email',
+            ],
+            'login_phone' => [
+                Rule::requiredIf($request->input('login_method') === 'phone'),
+                'nullable',
+                'string',
+            ],
+            'login_country_code' => [
+                Rule::requiredIf($request->input('login_method') === 'phone'),
+                'nullable',
+                'string',
+                'max:10',
+            ],
+            'login_password' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => translate('Please enter your login details.'),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $user = $request->input('login_method') === 'phone'
+            ? $this->findCheckoutCustomerByPhone($this->formatCheckoutPhone($request->input('login_phone'), $request->input('login_country_code')))
+            : User::where('email', $request->input('login_email'))->first();
+
+        if (!$user || !Hash::check($request->input('login_password'), $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => translate('Invalid login credentials.'),
+            ], 422);
+        }
+
+        return $user;
+    }
+
+    private function checkoutAddressRules(): array
+    {
+        return [
+            'delivery_address' => ['required', 'string', 'max:255'],
+            'delivery_country_id' => ['required', 'integer'],
+            'delivery_state_id' => get_setting('has_state') == 1 ? ['required', 'integer'] : ['nullable', 'integer'],
+            'delivery_city_id' => ['required', 'integer'],
+            'delivery_area_id' => ['nullable', 'integer'],
+            'delivery_postal_code' => ['nullable', 'string', 'max:20'],
+            'delivery_phone' => ['required', 'string', 'max:20'],
+            'delivery_country_code' => ['required', 'string', 'max:10'],
+        ];
+    }
+
+    private function createCheckoutAddress(User $user, array $data): Address
+    {
+        $address = new Address();
+        $address->user_id = $user->id;
+        $address->address = $data['delivery_address'];
+        $address->country_id = $data['delivery_country_id'];
+        $address->state_id = $data['delivery_state_id'] ?? null;
+        $address->city_id = $data['delivery_city_id'];
+        $address->area_id = $data['delivery_area_id'] ?? null;
+        $address->postal_code = $data['delivery_postal_code'] ?? null;
+        $address->phone = $this->formatCheckoutPhone($data['delivery_phone'], $data['delivery_country_code']);
+        $address->longitude = $data['delivery_longitude'] ?? null;
+        $address->latitude = $data['delivery_latitude'] ?? null;
+        $address->set_default = $user->addresses()->exists() ? 0 : 1;
+        $address->set_billing = !get_setting('billing_address_required') ? 1 : 0;
+        $address->save();
+
+        return $address;
+    }
+
+    private function attachGuestCartsToUser(User $user): void
+    {
+        if (Session::get('temp_user_id') == null) {
+            return;
+        }
+
+        Cart::where('temp_user_id', Session::get('temp_user_id'))->update([
+            'user_id' => $user->id,
+            'temp_user_id' => null,
+        ]);
+    }
+
+    private function attachActiveCartsToAddress(User $user, Address $address): void
+    {
+        Cart::where('user_id', $user->id)->active()->update([
+            'address_id' => $address->id,
+            'billing_address' => $address->id,
+        ]);
+    }
+
+    private function checkoutAccountPayload(int $addressId, string $message)
+    {
+        $delivery = $this->updateDeliveryAddress(new Request([
+            'address_id' => $addressId,
+            'city_id' => 0,
+            'area_id' => 0,
+        ]));
+
+        $carts = Cart::where('user_id', Auth::id())->active()->get();
+        $shipping_info = [
+            'country_id' => Address::find($addressId)?->country_id ?? 0,
+            'city_id' => Address::find($addressId)?->city_id ?? 0,
+            'area_id' => Address::find($addressId)?->area_id ?? 0,
+        ];
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
+            'authenticated' => true,
+            'address_id' => $addressId,
+            'shipping_info' => View::make('frontend.partials.cart.shipping_info', [
+                'address_id' => $addressId,
+                'shipping_info' => $shipping_info,
+            ])->render(),
+            'delivery_info' => $delivery['delivery_info'],
+            'cart_summary' => $delivery['cart_summary'],
+            'carrier_count' => $delivery['carrier_count'],
+        ]);
+    }
+
+    private function formatCheckoutPhone(?string $phone, ?string $countryCode): ?string
+    {
+        $phone = preg_replace('/\D+/', '', (string) $phone);
+        $countryCode = preg_replace('/\D+/', '', (string) $countryCode);
+
+        if ($phone === '') {
+            return null;
+        }
+
+        return '+' . ($countryCode ? $countryCode : '') . $phone;
+    }
+
+    private function findCheckoutCustomerByPhone(?string $phone): ?User
+    {
+        if (!$phone) {
+            return null;
+        }
+
+        return User::whereNotNull('phone')->get()->first(function (User $user) use ($phone) {
+            return $user->phone === $phone;
+        });
+    }
+
+    private function syntheticCheckoutEmailForPhone(?string $phone): string
+    {
+        return 'phone-' . sha1((string) $phone) . '@phone.local';
     }
 
     public function createUser($guest_shipping_info)
@@ -962,7 +1232,7 @@ class CheckoutController extends Controller
             // If block for Online payment, wallet and cash on delivery. Else block for Offline payment
             $decorator = __NAMESPACE__ . '\\Payment\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $request->input('payment_option')))) . "Controller";
             if (class_exists($decorator)) {
-                return (new $decorator)->pay($request);
+                return app($decorator)->pay($request);
             }
             else {
                 $manual_payment_data = array(

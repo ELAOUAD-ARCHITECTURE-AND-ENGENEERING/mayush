@@ -14,6 +14,7 @@ use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\CustomerPackageController;
 use App\Http\Controllers\CustomerProductController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ProductCollectionController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\DigitalProductController;
 use App\Http\Controllers\HomeController;
@@ -139,6 +140,7 @@ Route::controller(HomeController::class)->group(function () {
 
     //Home Page
     Route::get('/', 'index')->name('home');
+    Route::get('/mayush', 'index')->name('home.local_subdirectory');
 
     Route::match(['get', 'post'], '/home/section/featured', 'load_featured_section')->name('home.section.featured');
     Route::match(['get', 'post'], '/home/section/best_selling', 'load_best_selling_section')->name('home.section.best_selling');
@@ -365,8 +367,23 @@ Route::middleware(['auth', 'verified', 'unbanned', 'user'])
         Route::post('/customer_products/promote', 'store_promotion')->name('customer_products.promote');
     });
 
-Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() {
+Route::middleware(['auth', 'verified', 'unbanned'])
+    ->controller(PaymentInformationController::class)
+    ->group(function () {
+        Route::post('/payment-informations/create', 'create')->name('payment-informations.create');
+        Route::post('/payment-informations/ajax-create', 'ajax_create')->name('payment-informations.ajax_create');
+        Route::post('/payment-informations/store', 'store')->name('payment-informations.store');
+        Route::post('/payment-informations/ajax-store', 'ajax_store')->name('payment-informations.ajax_store');
+        Route::post('/payment-informations/edit', 'edit')->name('payment-informations.edit');
+        Route::post('/payment-informations/ajax-edit', 'ajax_edit')->name('payment-informations.ajax_edit');
+        Route::post('/payment-informations/ajax-list', 'ajax_list')->name('payment-informations.ajax_list');
+        Route::post('/payment-informations/update', 'update')->name('payment-informations.update');
+        Route::post('/payment-informations/ajax-update', 'ajax_update')->name('payment-informations.ajax_update');
+        Route::delete('/payment-informations/{id}', 'destroy')->name('payment-informations.destroy');
+        Route::post('/payment-informations/{id}/default', 'set_default')->name('payment-informations.set_default');
+    });
 
+Route::middleware(['unbanned'])->group(function () {
     Route::get('/checkout-test', [CheckoutController::class, 'index']);
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.shipping_info');
     // Checkout Routes
@@ -386,11 +403,17 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
             //Club point
             Route::post('/apply-club-point', 'apply_club_point')->name('checkout.apply_club_point');
             Route::post('/remove-club-point', 'remove_club_point')->name('checkout.remove_club_point'); 
+            Route::post('/account-address', 'accountAddress')->name('checkout.account_address');
             Route::post('/update-delivery-address', 'updateDeliveryAddress')->name('checkout.updateDeliveryAddress');
             Route::post('/update-billing-address', 'updateBillingAddress')->name('checkout.updateBillingAddress');
             Route::post('/fast-purchase', 'fast_purchase')->name('checkout.fast_purchase');
         });
     });
+});
+
+Route::get('/collections/{slug}', [ProductCollectionController::class, 'show'])->name('product-collections.show');
+
+Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() {
 
     // Purchase History
     Route::get('/purchase_history', [PurchaseHistoryController::class, 'index'])->name('purchase_history.index');
@@ -409,20 +432,6 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
         Route::get('/payment-methods', 'index')->name('payment_tokens.index');
         Route::post('/payment-methods/{token}/default', 'setDefault')->name('payment_tokens.set_default');
         Route::delete('/payment-methods/{token}', 'destroy')->name('payment_tokens.destroy');
-    });
-
-    Route::controller(PaymentInformationController::class)->group(function () {
-        Route::post('/payment-informations/create', 'create')->name('payment-informations.create');
-        Route::post('/payment-informations/ajax-create', 'ajax_create')->name('payment-informations.ajax_create');
-        Route::post('/payment-informations/store', 'store')->name('payment-informations.store');
-        Route::post('/payment-informations/ajax-store', 'ajax_store')->name('payment-informations.ajax_store');
-        Route::post('/payment-informations/edit', 'edit')->name('payment-informations.edit');
-        Route::post('/payment-informations/ajax-edit', 'ajax_edit')->name('payment-informations.ajax_edit');
-        Route::post('/payment-informations/ajax-list', 'ajax_list')->name('payment-informations.ajax_list');
-        Route::post('/payment-informations/update', 'update')->name('payment-informations.update');
-        Route::post('/payment-informations/ajax-update', 'ajax_update')->name('payment-informations.ajax_update');
-        Route::delete('/payment-informations/{id}', 'destroy')->name('payment-informations.destroy');
-        Route::post('/payment-informations/{id}/default', 'set_default')->name('payment-informations.set_default');
     });
 
     Route::resource('wishlists', WishlistController::class);

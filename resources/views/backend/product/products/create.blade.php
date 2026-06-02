@@ -587,7 +587,7 @@
                                     <!-- SKU -->
                                     <div class="form-group">
                                         <label class="col-from-label">{{translate('SKU')}}</label>
-                                        <input type="text" placeholder="{{ translate('SKU') }}" name="sku" value="{{ old('sku') }}" class="form-control">
+                                        <input type="text" placeholder="{{ translate('SKU') }}" name="sku" value="{{ old('sku', (new \App\Services\ProductSkuService())->next()) }}" class="form-control">
                                     </div>
                                 </div>
                                 <!-- External link -->

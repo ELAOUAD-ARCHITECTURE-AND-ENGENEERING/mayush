@@ -29,6 +29,7 @@ use App\Notifications\OrderNotification;
 use App\Utility\EmailUtility;
 use App\Models\ProductStock;
 use App\Models\InventoryLog;
+use App\Utility\CartUtility;
 use DB;
 
 class OrderController extends Controller
@@ -253,7 +254,7 @@ class OrderController extends Controller
 
                 // Use the same stock lookup logic as CartController for consistency
                 if ($product->digital != 1) {
-                    $product_stock = $product->stocks->where('variant', $product_variation)->first();
+                    $product_stock = CartUtility::find_product_stock($product, $product_variation);
                     
                     // If no exact variant match, try to get the first stock record
                     if (!$product_stock) {

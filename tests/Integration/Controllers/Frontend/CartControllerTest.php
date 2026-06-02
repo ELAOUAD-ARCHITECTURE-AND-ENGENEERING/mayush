@@ -5,6 +5,7 @@ namespace Tests\Integration\Controllers\Frontend;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\ProductStock;
 use App\Models\Cart;
 use App\Models\Language;
 use App\Models\BusinessSetting;
@@ -86,5 +87,37 @@ class CartControllerTest extends TestCase
         // Depending on implementation, it might return a specific error message or status
         $response->assertStatus(200); // Usually AJAX returns 200 with JSON status
         $response->assertJson(['status' => 0]); 
+    }
+
+    /** @test */
+    public function out_of_stock_cart_item_stays_visible_but_is_marked_unavailable()
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create(['current_stock' => 0]);
+        ProductStock::factory()->create([
+            'product_id' => $product->id,
+            'variant' => '',
+            'price' => $product->unit_price,
+            'qty' => 0,
+        ]);
+
+        $cart = Cart::factory()->create([
+            'user_id' => $user->id,
+            'product_id' => $product->id,
+            'variation' => '',
+            'quantity' => 2,
+            'status' => 1,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('cart'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Out of Stock');
+        $response->assertSee('filter: grayscale', false);
+        $this->assertDatabaseHas('carts', [
+            'id' => $cart->id,
+            'quantity' => 2,
+            'status' => 0,
+        ]);
     }
 }

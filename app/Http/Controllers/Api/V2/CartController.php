@@ -122,9 +122,9 @@ class CartController extends Controller
                         $shop_items_data_item["shipping_cost"] = (float) $shop_items_raw_data_item["shipping_cost"];
                         $shop_items_data_item["quantity"] = intval($shop_items_raw_data_item["quantity"]);
                         $shop_items_data_item["lower_limit"] = intval($product->min_qty);
-                        $shop_items_data_item["upper_limit"] = intval($product->stocks->where('variant', $shop_items_raw_data_item['variation'])->first()->qty);
+                        $shop_items_data_item["upper_limit"] = intval(optional(CartUtility::find_product_stock($product, $shop_items_raw_data_item['variation']))->qty);
                         $shop_items_data_item["digital"] = $product->digital;   
-                        $shop_items_data_item["stock"] = $product->stocks->where('variant', $shop_items_raw_data_item['variation'])->first()->qty; 
+                        $shop_items_data_item["stock"] = optional(CartUtility::find_product_stock($product, $shop_items_raw_data_item['variation']))->qty;
                         $sub_total += $price + $tax + $gst;
                         $shop_items_data[] = $shop_items_data_item;
                     }
@@ -198,7 +198,14 @@ class CartController extends Controller
         $tax = 0;
         $quantity = $request->quantity;
 
-        $product_stock = $product->stocks->where('variant', $variant)->first();
+        $product_stock = CartUtility::find_product_stock($product, $variant);
+        if (!$product_stock) {
+            return response()->json([
+                'result' => false,
+                'temp_user_id' => $temp_user_id,
+                'message' => translate('Variant not found')
+            ], 404);
+        }
 
         if($user_id != null) {
             $cart = Cart::firstOrNew([
@@ -271,7 +278,7 @@ class CartController extends Controller
             if ($product->auction_product == 1) {
                 return response()->json(['result' => false, 'message' => translate('Maximum available quantity reached')], 200);
             }
-            if ($cart->product->stocks->where('variant', $cart->variation)->first()->qty >= $request->quantity) {
+            if (optional(CartUtility::find_product_stock($cart->product, $cart->variation))->qty >= $request->quantity) {
                 $cart->update([
                     'quantity' => $request->quantity
                 ]);
@@ -300,7 +307,7 @@ class CartController extends Controller
                     return response()->json(['result' => false, 'message' => translate("Minimum") . " {$product->min_qty} " . translate("item(s) should be ordered for") . " {$product->name}"], 200);
                 }
 
-                $stock = $cart_item->product->stocks->where('variant', $cart_item->variation)->first()->qty;
+                $stock = optional(CartUtility::find_product_stock($cart_item->product, $cart_item->variation))->qty;
                 $variant_string = $cart_item->variation != null && $cart_item->variation != "" ? " ($cart_item->variation)" : "";
                 if ($stock >= $cart_quantities[$i] || $product->digital == 1) {
                     $cart_item->update([

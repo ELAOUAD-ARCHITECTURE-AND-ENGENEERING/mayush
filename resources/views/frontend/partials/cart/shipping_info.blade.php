@@ -52,7 +52,7 @@
 
                 $has_area_id = !is_null($area_id);
                 $city_status = optional($city)->status;
-                $active_area_exists = $city ? $city->areas()->where('status', 1)->exists() : false; 
+                $active_area_exists = $city && \Illuminate\Support\Facades\Schema::hasTable('areas') ? $city->areas()->where('status', 1)->exists() : false; 
                 $area_status = $has_area_id ? optional($address->area)->status : 1;
                 $is_disabled =
                     $city_status === 0 ||
@@ -142,7 +142,7 @@
 
                 $has_area_id = !is_null($area_id);
                 $city_status = optional($city)->status;
-                $active_area_exists = $city ? $city->areas()->where('status', 1)->exists() : false; 
+                $active_area_exists = $city && \Illuminate\Support\Facades\Schema::hasTable('areas') ? $city->areas()->where('status', 1)->exists() : false; 
                 $area_status = $has_area_id ? optional($address->area)->status : 1;
                 
                 $is_disabled =
@@ -224,7 +224,7 @@
 
                             $has_area_id = !is_null($area_id);
                             $city_status = optional($city)->status;
-                            $active_area_exists = $city ? $city->areas()->where('status', 1)->exists() : false;
+                            $active_area_exists = $city && \Illuminate\Support\Facades\Schema::hasTable('areas') ? $city->areas()->where('status', 1)->exists() : false;
                             $area_status = $has_area_id ? optional($address->area)->status : 1;
                             $is_disabled =
                                 $city_status === 0 ||
@@ -308,7 +308,7 @@
 
                             $has_area_id = !is_null($area_id);
                             $city_status = optional($city)->status;
-                            $active_area_exists = $city ? $city->areas()->where('status', 1)->exists() : false;
+                            $active_area_exists = $city && \Illuminate\Support\Facades\Schema::hasTable('areas') ? $city->areas()->where('status', 1)->exists() : false;
                             $area_status = $has_area_id ? optional($address->area)->status : 1;
                             $is_disabled =
                                 $city_status === 0 ||
@@ -376,6 +376,15 @@
     
     <!--Modal End -->
 @else
-    <!-- Guest Shipping a address -->
-    @include('frontend.partials.cart.guest_shipping_info')
+    <div class="border p-4 bg-white">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+            <div class="mb-3 mb-md-0">
+                <h5 class="fs-16 fw-700 mb-1">{{ translate('Add your delivery address') }}</h5>
+                <p class="fs-14 text-muted mb-0">{{ translate('Create an account or log in to save your delivery address and continue checkout.') }}</p>
+            </div>
+            <button type="button" class="btn btn-primary rounded-0 px-4" onclick="openCheckoutAccountModal()">
+                {{ translate('Continue') }}
+            </button>
+        </div>
+    </div>
 @endif

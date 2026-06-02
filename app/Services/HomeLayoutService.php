@@ -34,8 +34,40 @@ class HomeLayoutService
                     ->take(3)
                     ->get();
             }),
+            'inspiration_blogs' => $this->getHomepageInspirationBlogs(),
             'lang' => $lang,
         ];
+    }
+
+    public function getHomepageInspirationBlogs()
+    {
+        if (get_setting('home_inspiration_section_status', '1') != '1') {
+            return collect();
+        }
+
+        $selectedIds = json_decode(get_setting('home_inspiration_blog_ids'), true) ?: [];
+        $selectedIds = array_values(array_filter(array_map('intval', $selectedIds)));
+
+        if ($selectedIds !== []) {
+            return Blog::published()
+                ->with(['category', 'translations'])
+                ->whereIn('id', $selectedIds)
+                ->get()
+                ->sortBy(function ($blog) use ($selectedIds) {
+                    return array_search((int) $blog->id, $selectedIds, true);
+                })
+                ->take(6)
+                ->values();
+        }
+
+        return Cache::remember('home_inspiration_blogs', 900, function () {
+            return Blog::published()
+                ->with(['category', 'translations'])
+                ->orderBy('published_at', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->take(6)
+                ->get();
+        });
     }
 
     /**

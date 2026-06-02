@@ -118,7 +118,7 @@
         <span class="fs-14 fw-500 text-dark ml-2">
             <span id="p-length">{{ $detailedProduct->length ?? '-' }}</span> x 
             <span id="p-width">{{ $detailedProduct->width ?? '-' }}</span> x 
-            <span id="p-height">{{ $detailedProduct->height ?? '-' }}</span> cm
+            <span id="p-height">{{ $detailedProduct->height ?? '-' }}</span> <span id="p-dimension-unit">cm</span>
         </span>
     </div>
     <!-- Dimensions End -->
@@ -444,12 +444,15 @@
                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                         <p class="m-0 fs-14 fw-bold text-dark">{{ get_single_attribute_name($choice->attribute_id) }}</p>
                                     </div>
+                                    @if (\App\Utility\ProductUtility::isDimensionAttribute($choice->attribute_id))
+                                        <p class="mb-2 fs-12 fw-400 text-gray">{{ translate('Dimensions are shown as Length x Width x Height.') }}</p>
+                                    @endif
                                     <div class="variant-wrapper">
-                                        @foreach ($choice->values as $key => $value)
+                                        @foreach (\App\Utility\ProductUtility::frontendChoiceValues($detailedProduct, $choice) as $key => $choiceValue)
                                             <label class="rounded-1 bg-white cursor-pointer aiz-megabox mb-1">
-                                                <input type="radio" name="attribute_id_{{ $choice->attribute_id }}" value="{{ $value }}" @if ($key == 0) checked @endif>
+                                                <input type="radio" name="attribute_id_{{ $choice->attribute_id }}" value="{{ $choiceValue['value'] }}" @if ($key == 0) checked @endif>
                                                 <div class="variant-item-select aiz-megabox-elem px-10px">
-                                                    <span class="fs-14 fw-400 text-dark px-15px">{{ $value }}</span>
+                                                    <span class="fs-14 fw-400 text-dark px-15px">{{ $choiceValue['label'] }}</span>
                                                 </div>
                                             </label>
                                         @endforeach
@@ -618,9 +621,9 @@
                     <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
                         @if ($detailedProduct->digital == 1 || $total_qty > 0)
                             {{-- Show buttons only when stock is available or product is digital --}}
-                            <button type="button" @if (Auth::check() || get_Setting('guest_checkout_activation')==1) onclick="buyNow()" @else onclick="showLoginModal()" @endif
+                            <button type="button" onclick="buyNow()"
                                 class="buy-now buy-now-pulse text-white border-0 rounded-1 fs-14 fw-bold bg-black hov-opacity-70 has-transition py-20px px-20px d-block w-100 mb-2 mb-md-0 mr-0 mr-md-2">{{ translate('Buy Now') }}</button>
-                            <button type="button" id="added_to_cart_btn" @if (Auth::check() || get_Setting('guest_checkout_activation')==1) onclick="addToCart()" @else onclick="showLoginModal()" @endif
+                            <button type="button" id="added_to_cart_btn" onclick="addToCart()"
                                 class="add-to-cart text-blue border-0 rounded-1 fs-14 fw-bold bg-soft-blue hov-bg-blue hov-text-white py-20px px-20px d-block w-100 mb-2 mb-md-0">{{translate('Add to Cart')}} <span id="add_to_cart_count">(01)</span></button>
                         @else
                             {{-- Show out of stock message when stock is 0 --}}

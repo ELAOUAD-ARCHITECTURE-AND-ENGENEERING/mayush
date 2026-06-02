@@ -39,6 +39,30 @@ class PaymentInformationTest extends TestCase
         ]);
     }
 
+    public function test_seller_can_manage_payment_information_for_withdrawals(): void
+    {
+        $seller = User::factory()->seller()->create();
+
+        $this->actingAs($seller)->postJson(route('payment-informations.ajax_store'), [
+            'payment_type' => 'bank_transfer',
+            'bank_name' => 'other_bank',
+            'other_bank_name' => 'Seller Bank',
+            'account_name' => 'Seller Account',
+            'account_number' => '654321',
+            'routing_number' => '111',
+        ])->assertOk()
+            ->assertJson([
+                'success' => true,
+            ])
+            ->assertJsonStructure(['html', 'message']);
+
+        $this->assertDatabaseHas('payment_informations', [
+            'user_id' => $seller->id,
+            'bank_name' => 'Seller Bank',
+            'set_default' => 1,
+        ]);
+    }
+
     public function test_customer_cannot_update_or_delete_another_customer_payment_information(): void
     {
         $owner = User::factory()->customer()->create();

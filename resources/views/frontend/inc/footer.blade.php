@@ -15,8 +15,8 @@
                     </h3>
                     <!-- Links -->
                     <div class="d-flex">
-                        <a type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2" onclick="clickToSlide('slick-prev','section_last_viewed_products')"><i class="las la-angle-left fs-20 fw-600"></i></a>
-                        <a type="button" class="arrow-next slide-arrow text-secondary ml-2" onclick="clickToSlide('slick-next','section_last_viewed_products')"><i class="las la-angle-right fs-20 fw-600"></i></a>
+                        <button type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2 border-0 bg-transparent" onclick="clickToSlide('slick-prev','section_last_viewed_products')" aria-label="{{ translate('Previous') }}"><i class="las la-angle-left fs-20 fw-600"></i></button>
+                        <button type="button" class="arrow-next slide-arrow text-secondary ml-2 border-0 bg-transparent" onclick="clickToSlide('slick-next','section_last_viewed_products')" aria-label="{{ translate('Next') }}"><i class="las la-angle-right fs-20 fw-600"></i></button>
                     </div>
                 </div>
                 <!-- Product Section -->
@@ -66,7 +66,7 @@
   font-size: 20px;
   flex-shrink: 0;
 }
-.global-trust-text h4 {
+.global-trust-text .global-trust-title {
   font-family: inherit;
   font-size: 13.5px;
   font-weight: 700;
@@ -93,10 +93,10 @@
 </style>
 <div class="global-trust-strip">
   <div class="global-trust-inner">
-    <div class="global-trust-item"><div class="global-trust-icon">🚚</div><div class="global-trust-text"><h4>{{ translate('Free Delivery') }}</h4><p>{{ translate('Orders over 500 Dhs Morocco-wide') }}</p></div></div>
-    <div class="global-trust-item"><div class="global-trust-icon">🔄</div><div class="global-trust-text"><h4>{{ translate('Easy Returns') }}</h4><p>{{ translate('14-day hassle-free policy') }}</p></div></div>
-    <div class="global-trust-item"><div class="global-trust-icon">🔒</div><div class="global-trust-text"><h4>{{ translate('Secure Payment') }}</h4><p>{{ translate('CMI, Visa, Mastercard, COD') }}</p></div></div>
-    <div class="global-trust-item"><div class="global-trust-icon">⭐</div><div class="global-trust-text"><h4>{{ translate('Verified Sellers') }}</h4><p>{{ translate('All vendors background-checked') }}</p></div></div>
+    <div class="global-trust-item"><div class="global-trust-icon">🚚</div><div class="global-trust-text"><p class="global-trust-title">{{ translate('Free Delivery') }}</p><p>{{ translate('Orders over 500 Dhs Morocco-wide') }}</p></div></div>
+    <div class="global-trust-item"><div class="global-trust-icon">🔄</div><div class="global-trust-text"><p class="global-trust-title">{{ translate('Easy Returns') }}</p><p>{{ translate('14-day hassle-free policy') }}</p></div></div>
+    <div class="global-trust-item"><div class="global-trust-icon">🔒</div><div class="global-trust-text"><p class="global-trust-title">{{ translate('Secure Payment') }}</p><p>{{ translate('CMI, Visa, Mastercard, COD') }}</p></div></div>
+    <div class="global-trust-item"><div class="global-trust-icon">⭐</div><div class="global-trust-text"><p class="global-trust-title">{{ translate('Verified Sellers') }}</p><p>{{ translate('All vendors background-checked') }}</p></div></div>
   </div>
 </div>
 
@@ -632,7 +632,7 @@
                     <a href="{{ route('terms') }}" class="text-reset opacity-70 hov-opacity-100">{{ translate('Terms & conditions') }}</a>
                     <span class="mx-2 opacity-50">|</span>
                     <a href="{{ route('privacypolicy') }}" class="text-reset opacity-70 hov-opacity-100">{{ translate('Privacy Policy') }}</a>
-                    <img src="{{ static_asset('assets/img/cards/cmi.png') }}" height="24" class="ml-3 my-1 mw-100" style="max-height: 24px; filter: brightness(1.1);" alt="CMI Payment Gateway">
+                    <img src="{{ optimized_static_asset('assets/img/cards/cmi.png', 'thumb') }}" width="62" height="24" class="ml-3 my-1 mw-100" style="max-height: 24px; filter: brightness(1.1);" alt="CMI Payment Gateway">
                 </div>
             </div>
 
@@ -662,22 +662,22 @@
                     <div class="d-flex flex-wrap justify-content-center align-items-center opacity-80 hov-opacity-100 has-transition">
                         <!-- Security Logos -->
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/verified_by_visa.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="Verified by Visa">
+                            <img src="{{ optimized_static_asset('assets/img/cards/verified_by_visa.png', 'thumb') }}" width="79" height="35" class="mw-100" style="max-height: 35px" alt="Verified by Visa">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/secure_code.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="Mastercard SecureCode">
+                            <img src="{{ optimized_static_asset('assets/img/cards/secure_code.png', 'thumb') }}" width="76" height="35" class="mw-100" style="max-height: 35px" alt="Mastercard SecureCode">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/amex.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="American Express">
+                            <img src="{{ optimized_static_asset('assets/img/cards/amex.png', 'thumb') }}" width="35" height="35" class="mw-100" style="max-height: 35px" alt="American Express">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/cmi.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="CMI Payment Gateway">
+                            <img src="{{ optimized_static_asset('assets/img/cards/cmi.png', 'thumb') }}" width="44" height="35" class="mw-100" style="max-height: 35px" alt="CMI Payment Gateway">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/marocpay.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="MarocPay">
+                            <img src="{{ optimized_static_asset('assets/img/cards/marocpay.png', 'thumb') }}" width="41" height="35" class="mw-100" style="max-height: 35px" alt="MarocPay">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/unionpay.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="UnionPay">
+                            <img src="{{ optimized_static_asset('assets/img/cards/unionpay.png', 'thumb') }}" width="50" height="35" class="mw-100" style="max-height: 35px" alt="UnionPay">
                         </div>
                     </div>
                 </div>

@@ -43,3 +43,12 @@ Homestead.yaml
 ### Local Trello sync artifacts ###
 .trello-synced
 /scripts/trello/
+
+### AI Agent Skills & Tooling (local only) ###
+.agent/
+.agents/
+.claude/
+.kiro/
+.qodo/
+.claude-flow/
+skills-lock.json

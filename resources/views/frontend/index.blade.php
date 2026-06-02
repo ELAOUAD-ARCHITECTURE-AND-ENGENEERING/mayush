@@ -1,4 +1,4 @@
-﻿@extends('frontend.layouts.app')
+@extends('frontend.layouts.app')
 
 @php
     $homepageSeoTitle = translate('Mayush Marketplace for Furniture, Decor and Interior Design in Morocco');
@@ -40,7 +40,7 @@
                 @endphp
 
                 <div class="@if($num_todays_deal > 0) col-lg-7 @else col-lg-9 @endif">
-                    @if (get_setting('home_slider_images') != null)
+                    @if (get_setting('home_slider_status') == 1 && get_setting('home_slider_images') != null)
                         <div class="aiz-carousel dots-inside-bottom mobile-img-auto-height" data-items="1" data-xl-items="1" data-lg-items="1" data-md-items="1" data-sm-items="1" data-arrows="true" data-dots="true" data-autoplay="true">
                             @php $slider_images = json_decode(get_setting('home_slider_images'), true);  @endphp
                             @foreach ($slider_images as $key => $value)
@@ -83,7 +83,7 @@
                     @endif
                 </div>
 
-                @if($num_todays_deal > 0)
+                @if(get_setting('todays_deal_status') == 1 && $num_todays_deal > 0)
                 <div class="col-lg-2 order-3 mt-3 mt-lg-0">
                     <div class="bg-white rounded shadow-sm">
                         <div class="bg-soft-primary rounded-top p-3 d-flex align-items-center justify-content-center">
@@ -135,7 +135,7 @@
 
 
     {{-- Banner section 1 --}}
-    @if (get_setting('home_banner1_images') != null)
+    @if (get_setting('home_banner1_status') == 1 && get_setting('home_banner1_images') != null)
     <div class="mb-4">
         <div class="container">
             <div class="row gutters-10">
@@ -279,7 +279,7 @@
 
 
     {{-- Banner Section 2 --}}
-    @if (get_setting('home_banner2_images') != null)
+    @if (get_setting('home_banner2_status') == 1 && get_setting('home_banner2_images') != null)
     <div class="mb-4">
         <div class="container">
             <div class="row gutters-10">
@@ -371,8 +371,8 @@
         @endif
     @endif
 
-    {{-- Banner Section 2 --}}
-    @if (get_setting('home_banner3_images') != null)
+    {{-- Banner Section 3 --}}
+    @if (get_setting('home_banner3_status') == 1 && get_setting('home_banner3_images') != null)
     <div class="mb-4">
         <div class="container">
             <div class="row gutters-10">

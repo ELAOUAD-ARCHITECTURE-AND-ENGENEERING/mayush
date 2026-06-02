@@ -4,12 +4,14 @@
     if (count($carts) > 0) {
         foreach ($carts as $key => $cartItem) {
             $product = get_single_product($cartItem['product_id']);
-            $total = $total + cart_product_price($cartItem, $product, false) * $cartItem['quantity'];
+            if ($product && \App\Utility\CartUtility::is_cart_item_available($cartItem, $product) && $cartItem->status == 1) {
+                $total = $total + cart_product_price($cartItem, $product, false) * $cartItem['quantity'];
+            }
         }
     }
 @endphp
 <!-- Cart button with cart count -->
-<a href="javascript:void(0)" class="d-flex align-items-center @if (get_setting('header_element') !=6) px-3 @endif h-100" data-toggle="dropdown" data-display="static"
+<button type="button" class="d-flex align-items-center border-0 bg-transparent @if (get_setting('header_element') !=6) px-3 @endif h-100" data-toggle="dropdown" data-display="static"
     title="{{translate('Cart')}}">
     @if (get_setting('header_element') != 6)
         <span class="mr-2">
@@ -64,7 +66,7 @@
             (<span class="cart-count">{{count($carts) > 0 ? count($carts) : 0 }}</span>)
         </span>      
     @endif
-</a>
+</button>
 
 <!-- Cart Items -->
 <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg p-0 stop-propagation rounded-0">
@@ -77,9 +79,11 @@
             @foreach ($carts as $key => $cartItem)
                 @php
                     $product = get_single_product($cartItem['product_id']);
+                    $availability = \App\Utility\CartUtility::cart_item_availability($cartItem, $product);
+                    $isUnavailable = !$availability['available'];
                 @endphp
                 @if ($product != null)
-                    <li class="list-group-item border-0 hov-scale-img">
+                    <li class="list-group-item border-0 hov-scale-img" @if($isUnavailable) style="opacity: .58; filter: grayscale(1);" @endif>
                         <span class="d-flex align-items-center">
                             <a href="{{ route('product', $product->slug) }}"
                                 class="text-reset d-flex align-items-center flex-grow-1">
@@ -92,8 +96,11 @@
                                         title="{{ $product->getTranslation('name') }}">
                                         {{ $product->getTranslation('name') }}
                                     </span>
+                                    @if ($isUnavailable)
+                                        <span class="fs-12 fw-700 text-danger d-block">{{ translate('Out of Stock') }}</span>
+                                    @endif
                                     <span class="fs-14 fw-400 text-secondary">{{ $cartItem['quantity'] }}x</span>
-                                    <span class="fs-14 fw-400 text-secondary">{{ cart_product_price($cartItem, $product) }}</span>
+                                    <span class="fs-14 fw-400 {{ $isUnavailable ? 'text-danger' : 'text-secondary' }}">{{ $isUnavailable ? translate('Unavailable') : cart_product_price($cartItem, $product) }}</span>
                                 </span>
                             </a>
                             <span class="">

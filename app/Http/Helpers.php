@@ -321,7 +321,7 @@ if (!function_exists('cart_product_price')) {
                 $str = $cart_product['variation'];
             }
             $price = 0;
-            $product_stock = $product->stocks->where('variant', $str)->first();
+            $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
             if ($product_stock) {
                 $price = $product_stock->price;
             }
@@ -383,7 +383,7 @@ if (!function_exists('cart_product_tax')) {
         if ($cart_product['variation'] != null) {
             $str = $cart_product['variation'];
         }
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         $price = $product_stock->price;
 
         //discount calculation
@@ -438,7 +438,7 @@ if (!function_exists('cart_product_gst')) {
         // $price = $product_stock->price;
 
         $price = 0;
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         if ($product_stock) {
             $price = $product_stock->price * $cart_product['quantity'];
         }
@@ -498,7 +498,7 @@ if (!function_exists('cart_product_discount')) {
         if ($cart_product['variation'] != null) {
             $str = $cart_product['variation'];
         }
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         $price = $product_stock->price;
 
         //discount calculation
@@ -541,7 +541,7 @@ if (!function_exists('carts_product_discount')) {
             if ($cart_product['variation'] != null) {
                 $str = $cart_product['variation'];
             }
-            $product_stock = $product->stocks->where('variant', $str)->first();
+            $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
             $price = $product_stock->price;
 
             //discount calculation
@@ -1351,53 +1351,46 @@ if (!function_exists('uploaded_asset')) {
         }
 
         if ($asset != null) {
-            $file_name = $asset->file_name;
-            $info = pathinfo($file_name);
-            $extension = isset($info['extension']) ? strtolower($info['extension']) : '';
-
-            $dirname = isset($info['dirname']) ? $info['dirname'] : '';
-            $filename = isset($info['filename']) ? $info['filename'] : '';
-
-            // Handle Specific Sizes (Thumb/Medium)
-            if ($size && in_array($size, ['thumb', 'medium'])) {
-                $suffix = '_' . $size;
-                $size_file_name = ($dirname ? $dirname . '/' : '') . $filename . $suffix . ($extension ? '.' . $extension : '');
-                $size_file_name = str_replace('\\', '/', $size_file_name);
-                if (file_exists(public_path($size_file_name))) {
-                    $file_name = $size_file_name;
-                }
+            if ($asset->external_link != null) {
+                return $asset->external_link;
             }
 
-            $file_name = str_replace('\\', '/', $file_name);
+            $optimizer = app(\App\Services\ImageOptimizationService::class);
+            $file_name = str_replace('\\', '/', $asset->file_name);
+            $variant = in_array($size, ['small', 'thumb', 'medium', 'large'], true) ? $size : null;
 
-            // Prefer WebP if it's an image and not already webp
-            if (str_contains($asset->type, 'image') && $extension !== 'webp') {
-                $webp_file = ($dirname ? $dirname . '/' : '') . $filename . '.webp';
-                // If we requested a size, check for the size-specific webp
-                if ($size && in_array($size, ['thumb', 'medium'])) {
-                    $webp_file = ($dirname ? $dirname . '/' : '') . $filename . '_' . $size . '.webp';    
-                }
-
-                $webp_file = str_replace(['\\', '//'], '/', $webp_file);
-                if (file_exists(public_path($webp_file))) {
-                    $file_name = $webp_file;
-                }
+            if (str_contains((string) $asset->type, 'image')) {
+                $file_name = $optimizer->resolveDerivative($file_name, $variant);
             }
 
-            // If local file is missing, try adding uploads/all/ prefix if not present
-            if ($asset->external_link == null && !file_exists(public_path($file_name))) {
+            // If the configured disk is missing the file, try the legacy uploads/all prefix.
+            if (!$optimizer->exists($file_name)) {
                 $basename = basename($file_name);
                 $prefixed_path = 'uploads/all/' . $basename;
-                if (file_exists(public_path($prefixed_path))) {
+                if ($optimizer->exists($prefixed_path)) {
                     $file_name = $prefixed_path;
                 } else {
                     return static_asset('assets/img/placeholder.jpg');
                 }
             }
 
-            return $asset->external_link == null ? my_asset($file_name) : $asset->external_link;
+            return my_asset($file_name);
         }
         return static_asset('assets/img/placeholder.jpg');
+    }
+}
+
+if (!function_exists('uploaded_asset_srcset')) {
+    function uploaded_asset_srcset($id): string
+    {
+        $sources = [
+            uploaded_asset($id, 'small').' 160w',
+            uploaded_asset($id, 'thumb').' 300w',
+            uploaded_asset($id, 'medium').' 600w',
+            uploaded_asset($id, 'large').' 1200w',
+        ];
+
+        return implode(', ', array_unique($sources));
     }
 }
 
@@ -1436,6 +1429,28 @@ if (!function_exists('static_asset')) {
     {
         $path = ltrim($path, '/');
         return rtrim(getBaseURL(), '/') . public_asset_url_prefix() . '/' . $path;
+    }
+}
+
+if (!function_exists('versioned_static_asset')) {
+    function versioned_static_asset($path): string
+    {
+        $path = ltrim($path, '/');
+        $fullPath = public_path($path);
+        $version = file_exists($fullPath) ? filemtime($fullPath) : null;
+
+        return static_asset($path).($version ? '?v='.$version : '');
+    }
+}
+
+if (!function_exists('optimized_static_asset')) {
+    function optimized_static_asset($path, $size = null): string
+    {
+        $optimizer = app(\App\Services\ImageOptimizationService::class);
+        $variant = in_array($size, ['small', 'thumb', 'medium', 'large'], true) ? $size : null;
+        $candidate = $optimizer->derivativePath($path, $variant);
+
+        return static_asset($optimizer->exists($candidate, 'static') ? $candidate : $path);
     }
 }
 
@@ -2380,7 +2395,7 @@ if (!function_exists('get_single_category')) {
 if (!function_exists('get_level_zero_categories')) {
     function get_level_zero_categories()
     {
-        $categories_query = Category::query()->with(['coverImage', 'catIcon']);
+        $categories_query = Category::query()->with(['coverImage', 'catIcon', 'childrenCategories', 'childrenCategories.childrenCategories']);
         return $categories_query->where('level', 0)->orderBy('order_level', 'desc')->get();
     }
 }
@@ -3731,7 +3746,7 @@ if (!function_exists('pos_cart_product_gst')) {
         // $price = $product_stock->price;
 
         $price = 0;
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         if ($product_stock) {
             $price = $product_stock->price * $cart_product['quantity'];
         }

@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class PromotionalProductController extends Controller
 {
@@ -32,6 +33,7 @@ class PromotionalProductController extends Controller
     public function dashboard()
     {
         $today = strtotime(date('d-m-Y'));
+        $couponQuery = Schema::hasTable('coupons') ? Coupon::query() : null;
 
         return view('backend.promotion_and_offers.dashboard', [
             'totalProducts' => Product::where('approved', 1)->where('published', 1)->count(),
@@ -41,8 +43,8 @@ class PromotionalProductController extends Controller
             'todaysDeal' => Product::where('promotional', 1)->where('todays_deal', 1)->count(),
             'all_categories' => Category::count(),
             'main_categories' => Category::where('parent_id', 0)->count(),
-            'totalCoupons' => Coupon::count(),
-            'activeCoupons' => Coupon::where(function ($query) use ($today) {
+            'totalCoupons' => $couponQuery ? (clone $couponQuery)->count() : 0,
+            'activeCoupons' => $couponQuery ? (clone $couponQuery)->where(function ($query) use ($today) {
                 $query->where(function ($q) use ($today) {
                     $q->where('start_date', '<=', $today)
                         ->where('end_date', '>=', $today)
@@ -50,7 +52,7 @@ class PromotionalProductController extends Controller
                 })->orWhere(function ($q) {
                     $q->where('type', 'welcome_base')->where('status', 1);
                 });
-            })->count(),
+            })->count() : 0,
         ]);
     }
 

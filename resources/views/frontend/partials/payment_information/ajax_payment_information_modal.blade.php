@@ -12,6 +12,11 @@
 
 <!-- Offcanvas Body -->
 <div class="right-offcanvas-body position-absolute h-100 px-30px pt-20px">
+    @php
+        $bank_payment_methods = \App\Models\OfflinePayoutMethod::where('type', 'bank_payment')->get();
+        $payment_methods = \App\Models\OfflinePayoutMethod::where('type', 'others')->get();
+    @endphp
+
     <!-- Type -->
     <div class="form-group mb-3">
         <label>{{ translate('Type')}} <span class="text-danger">*</span></label>
@@ -27,6 +32,9 @@
             <label>{{ translate('Name')}} <span class="text-danger">*</span></label>
             <select name="payment_name" class="form-control aiz-selectpicker" data-live-search="true" required>
                 <option value="">{{ translate('Select Payment Method') }}</option>
+                @foreach ($payment_methods as $payment_method)
+                    <option value="{{ $payment_method->id }}">{{ $payment_method->name }}</option>
+                @endforeach
                 <option value="other_method">{{ ucfirst(translate('Others'))  }}</option>
             </select>
         </div>
@@ -47,6 +55,9 @@
             <label>{{ translate('Bank Name')}} <span class="text-danger">*</span></label>
             <select name="bank_name" class="form-control aiz-selectpicker" data-live-search="true" required>
                 <option value="">{{ translate('Select Bank') }}</option>
+                @foreach ($bank_payment_methods as $bank_payment_method)
+                    <option value="{{ $bank_payment_method->id }}">{{ $bank_payment_method->name }}</option>
+                @endforeach
                 <option value="other_bank">{{ ucfirst(translate('Others'))  }}</option>
             </select>
         </div>

@@ -14,14 +14,14 @@
                                 <span class="d-flex p-3 aiz-megabox-elem border-0">
                                     <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                         <span class="pl-3 text-left w-xl-300px"  id="choose-default">
-                                            {{ $payment_information->bank_name_text }}, {{ $payment_information->account_name }}, {{ $payment_information->account_number }}, {{ $payment_information->routing_number }}
+                                            {{ optional($payment_information->payout_method)->name ?? $payment_information->bank_name }}, {{ $payment_information->account_name }}, {{ $payment_information->account_number }}, {{ $payment_information->routing_number }}
                                         </span>
                                 </span>
                             @else
                                 <span class="d-flex p-3 aiz-megabox-elem border-0">
                                     <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                         <span class="pl-3 text-left w-xl-300px"  id="choose-default">
-                                            {{ $payment_information->payment_name_text }}
+                                            {{ optional($payment_information->other_payout_method)->name ?? $payment_information->payment_name }}
                                         </span>
                                 </span>
                             @endif

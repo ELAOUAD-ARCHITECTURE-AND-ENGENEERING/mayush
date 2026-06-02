@@ -7,6 +7,110 @@ use Cookie;
 
 class CartUtility
 {
+    public static function product_stock($product, $variation)
+    {
+        if (!$product) {
+            return null;
+        }
+
+        return self::find_product_stock($product, $variation)
+            ?: $product->stocks->first();
+    }
+
+    public static function find_product_stock($product, $variation)
+    {
+        if (!$product) {
+            return null;
+        }
+
+        $stock = $product->stocks->where('variant', $variation)->first();
+        if ($stock || !is_string($variation)) {
+            return $stock;
+        }
+
+        $dimension = self::parse_dimension_variation($variation);
+        if (!$dimension) {
+            return null;
+        }
+
+        return $product->stocks->first(function ($candidate) use ($dimension) {
+            return self::same_dimension($candidate->length, $dimension['length'])
+                && self::same_dimension($candidate->width, $dimension['width'])
+                && self::same_dimension($candidate->height, $dimension['height'])
+                && strtolower((string) ($candidate->dimension_unit ?: 'cm')) === $dimension['unit'];
+        });
+    }
+
+    public static function cart_item_availability($cartItem, $product = null): array
+    {
+        $product = $product ?: $cartItem->product;
+
+        if (!$product) {
+            return [
+                'available' => false,
+                'stock' => null,
+                'stock_qty' => 0,
+                'out_of_stock' => true,
+                'insufficient_quantity' => false,
+            ];
+        }
+
+        if ($product->digital == 1 || $product->auction_product == 1) {
+            return [
+                'available' => true,
+                'stock' => null,
+                'stock_qty' => null,
+                'out_of_stock' => false,
+                'insufficient_quantity' => false,
+            ];
+        }
+
+        $stock = self::product_stock($product, $cartItem->variation);
+        $stockQty = $stock ? (int) $stock->qty : 0;
+
+        return [
+            'available' => $stockQty >= (int) $cartItem->quantity && $stockQty >= (int) $product->min_qty,
+            'stock' => $stock,
+            'stock_qty' => $stockQty,
+            'out_of_stock' => $stockQty <= 0,
+            'insufficient_quantity' => $stockQty > 0 && $stockQty < (int) $cartItem->quantity,
+        ];
+    }
+
+    public static function is_cart_item_available($cartItem, $product = null): bool
+    {
+        return self::cart_item_availability($cartItem, $product)['available'];
+    }
+
+    public static function sync_cart_item_stock_status($cartItem): void
+    {
+        $product = $cartItem->product;
+        if (!$product || $product->digital == 1 || $product->auction_product == 1) {
+            return;
+        }
+
+        $availability = self::cart_item_availability($cartItem, $product);
+
+        if ($availability['out_of_stock']) {
+            $cartItem->status = 0;
+        } elseif ($availability['insufficient_quantity']) {
+            $cartItem->quantity = $availability['stock_qty'];
+            if ($availability['stock_qty'] < (int) $product->min_qty) {
+                $cartItem->status = 0;
+            }
+        } elseif (!$availability['available']) {
+            $cartItem->status = 0;
+        }
+
+        $cartItem->save();
+    }
+
+    public static function sync_cart_stock_statuses($carts): void
+    {
+        foreach ($carts as $cartItem) {
+            self::sync_cart_item_stock_status($cartItem);
+        }
+    }
 
     public static function create_cart_variant($product, $request)
     {
@@ -26,6 +130,26 @@ class CartUtility
             }
         }
         return $str;
+    }
+
+    private static function parse_dimension_variation(string $variation): ?array
+    {
+        $number = '(\d+(?:\.\d+)?)';
+        if (!preg_match('/^' . $number . '\s*x\s*' . $number . '\s*x\s*' . $number . '\s*(cm|mm|m|in|inch|inches)$/i', trim($variation), $matches)) {
+            return null;
+        }
+
+        return [
+            'length' => (float) $matches[1],
+            'width' => (float) $matches[2],
+            'height' => (float) $matches[3],
+            'unit' => strtolower($matches[4]),
+        ];
+    }
+
+    private static function same_dimension($left, float $right): bool
+    {
+        return abs((float) $left - $right) < 0.0001;
     }
 
     public static function get_price($product, $product_stock, $quantity)

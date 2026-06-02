@@ -16,7 +16,7 @@ class PickupPoint extends Model
         $lang = $lang ?: App::getLocale();
         $pickup_point_translation = $this->pickup_point_translations->where('lang', $lang)->first();
         if ($pickup_point_translation != null && $pickup_point_translation->$field !== null && $pickup_point_translation->$field !== $this->$field) {
-            return $pickup_point_translation->$field;
+            return in_array($field, ['name', 'title']) ? translate($pickup_point_translation->$field, $lang) : $pickup_point_translation->$field;
         }
 
         return $pickup_point_translation != null ? $pickup_point_translation->$field : $this->$field;

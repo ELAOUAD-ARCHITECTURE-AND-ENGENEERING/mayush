@@ -7,7 +7,7 @@
     $top_banner_image_for_mobile = get_setting('top_banner_image_for_mobile');
     $topBanners = \App\Models\TopBanner::where('status', 1)->orderBy('id','desc')->get();
 @endphp 
-    @if (count($topBanners) > 0 || $top_banner_image != null)
+    @if (get_setting('top_banner_status') == 1 && (count($topBanners) > 0 || $top_banner_image != null))
     <div class="position-relative top-banner removable-session z-1035 d-none" 
          data-key="top-banner" data-value="removed" style="background-color: {{ $top_banner_background_color }}">
         <div class="d-block text-reset h-40px h-lg-60px position-relative overflow-hidden">

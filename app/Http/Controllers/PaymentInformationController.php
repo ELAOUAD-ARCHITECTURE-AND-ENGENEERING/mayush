@@ -20,21 +20,17 @@ class PaymentInformationController extends Controller
 
     public function store(Request $request)
     {
-        $paymentInformation = new PaymentInformation($this->validatedData($request));
-        $paymentInformation->user_id = Auth::id();
-        $paymentInformation->save();
-
-        if (!Auth::user()->payment_informations()->where('id', '!=', $paymentInformation->id)->exists()) {
-            $paymentInformation->update(['set_default' => true]);
-        }
-
+        $this->createPaymentInformation($request);
         flash(translate('Payment info stored successfully'))->success();
+
         return back();
     }
 
     public function ajax_store(Request $request)
     {
-        return $this->store($request);
+        $this->createPaymentInformation($request);
+
+        return $this->paymentInfoListResponse(translate('Payment info stored successfully'));
     }
 
     public function edit(Request $request)
@@ -57,11 +53,8 @@ class PaymentInformationController extends Controller
 
     public function ajax_list()
     {
-        $paymentInformationId = Auth::user()->payment_informations()->where('set_default', true)->value('id')
-            ?: Auth::user()->payment_informations()->value('id');
-
         return view('frontend.partials.payment_information.payment_info', [
-            'payment_information_id' => $paymentInformationId,
+            'payment_information_id' => $this->defaultPaymentInformationId(),
         ]);
     }
 
@@ -76,7 +69,10 @@ class PaymentInformationController extends Controller
 
     public function ajax_update(Request $request)
     {
-        return $this->update($request);
+        $paymentInformation = $this->ownedPaymentInformation($request->payment_information_id);
+        $paymentInformation->update($this->validatedData($request));
+
+        return $this->paymentInfoListResponse(translate('Payment information updated successfully'));
     }
 
     public function destroy($id)
@@ -136,5 +132,32 @@ class PaymentInformationController extends Controller
     private function ownedPaymentInformation($id): PaymentInformation
     {
         return Auth::user()->payment_informations()->whereKey($id)->firstOrFail();
+    }
+
+    private function createPaymentInformation(Request $request): PaymentInformation
+    {
+        $paymentInformation = new PaymentInformation($this->validatedData($request));
+        $paymentInformation->user_id = Auth::id();
+        $paymentInformation->set_default = !Auth::user()->payment_informations()->exists();
+        $paymentInformation->save();
+
+        return $paymentInformation;
+    }
+
+    private function defaultPaymentInformationId()
+    {
+        return Auth::user()->payment_informations()->where('set_default', true)->value('id')
+            ?: Auth::user()->payment_informations()->value('id');
+    }
+
+    private function paymentInfoListResponse(string $message)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'html' => view('frontend.partials.payment_information.payment_info', [
+                'payment_information_id' => $this->defaultPaymentInformationId(),
+            ])->render(),
+        ]);
     }
 }

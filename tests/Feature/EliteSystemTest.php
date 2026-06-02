@@ -126,9 +126,9 @@ class EliteSystemTest extends TestCase
         
         // CMI credentials are read through config/cmi.php, not BusinessSetting rows.
         config([
-            'cmi.merchant_id' => 'TEST_MERCHANT',
-            'cmi.secret_key' => 'TEST_KEY',
-            'cmi.gateway_url' => 'http://localhost/cmi',
+            'cmi.merchant_id' => 'validmerchant123',
+            'cmi.secret_key' => 'valid-secret-key-16chars',
+            'cmi.gateway_url' => 'https://test-attijari.cmi.co.ma/fim/est3Dgate',
         ]);
 
         // 1. Initiate processPayment to set session

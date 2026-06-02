@@ -117,7 +117,7 @@ class DiagnoseCmiGateway extends Command
     private function hasMiddleware(array $middleware, string $class): bool
     {
         foreach ($middleware as $entry) {
-            if ($entry === $class || str_contains((string) $entry, $class)) {
+            if ($entry === $class || str_contains((string) $entry, $class) || $entry === 'cmi.ip-whitelist') {
                 return true;
             }
         }

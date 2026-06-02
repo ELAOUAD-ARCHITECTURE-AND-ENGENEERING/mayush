@@ -28,6 +28,9 @@
     <env name="MAIL_DRIVER" value="array"/>
     <env name="DB_CONNECTION" value="sqlite"/>
     <env name="DB_DATABASE" value=":memory:"/>
+    <env name="APP_PACKAGES_CACHE" value="bootstrap/cache/testing_packages.php"/>
+    <env name="APP_SERVICES_CACHE" value="bootstrap/cache/testing_services.php"/>
+    <env name="VIEW_COMPILED_PATH" value="storage/framework/testing"/>
     <env name="DISABLE_CLAMAV" value="false"/>
     <server name="DEFAULT_LANGUAGE" value="en"/>
     <server name="DEMO_MODE" value="Off"/>

@@ -13,6 +13,9 @@ use App\Models\Product;
 use App\Models\ShippingSystem;
 use App\Models\State;
 use App\Models\Zone;
+use App\Services\HeroTitleSanitizerService;
+use App\Services\BannerTextSanitizerService;
+use App\Services\BannerTextVersionService;
 use Artisan;
 use CoreComponentRepository;
 use Illuminate\Support\Facades\Redirect;
@@ -482,16 +485,28 @@ class BusinessSettingsController extends Controller
                     $business_settings = BusinessSetting::where('type', $type)->first();
                 }
 
+                $value = $this->businessSettingValue($request, $type);
+                $encodedValue = gettype($value) == 'array' ? json_encode($value) : $value;
+
                 if ($business_settings != null) {
-                    if (gettype($request[$type]) == 'array') {
-                        $business_settings->value = json_encode($request[$type]);
+                    if ($this->isChangedBannerTextSetting($type, $business_settings->value, $encodedValue)) {
+                        app(BannerTextVersionService::class)->snapshot(
+                            $type,
+                            $lang,
+                            $business_settings->value,
+                            auth()->id()
+                        );
+                    }
+
+                    if (gettype($value) == 'array') {
+                        $business_settings->value = $encodedValue;
                     } else {
-                        $business_settings->value = $request[$type];
-                        if ($type == "seller_commission_type"  && $request[$type] == "category_based") {
+                        $business_settings->value = $value;
+                        if ($type == "seller_commission_type"  && $value == "category_based") {
                             $business_settings2 = BusinessSetting::where('type', 'category_wise_commission')->first();
                             $business_settings2->value = 1;
                             $business_settings2->save();
-                        } elseif ($type == "seller_commission_type" && ($request[$type] == "seller_based" || $request[$type] == "fixed_rate")) {
+                        } elseif ($type == "seller_commission_type" && ($value == "seller_based" || $value == "fixed_rate")) {
                             $business_settings2 = BusinessSetting::where('type', 'category_wise_commission')->first();
                             $business_settings2->value = 0;
                             $business_settings2->save();
@@ -502,10 +517,10 @@ class BusinessSettingsController extends Controller
                 } else {
                     $business_settings = new BusinessSetting;
                     $business_settings->type = $type;
-                    if (gettype($request[$type]) == 'array') {
-                        $business_settings->value = json_encode($request[$type]);
+                    if (gettype($value) == 'array') {
+                        $business_settings->value = json_encode($value);
                     } else {
-                        $business_settings->value = $request[$type];
+                        $business_settings->value = $value;
                     }
                     $business_settings->lang = $lang;
                     $business_settings->save();
@@ -533,6 +548,27 @@ class BusinessSettingsController extends Controller
             return Redirect::to(URL::previous() . "#" . $request->tab);
         }
         return redirect()->back();
+    }
+
+    private function businessSettingValue(Request $request, string $type)
+    {
+        $value = $request[$type];
+
+        if ($type === 'home_slider_titles') {
+            return app(HeroTitleSanitizerService::class)->sanitizeArray($value);
+        }
+
+        if (app(BannerTextSanitizerService::class)->isBannerTextSetting($type)) {
+            return app(BannerTextSanitizerService::class)->sanitizeArray($value);
+        }
+
+        return $value;
+    }
+
+    private function isChangedBannerTextSetting(string $type, ?string $oldValue, $newValue): bool
+    {
+        return app(BannerTextSanitizerService::class)->isBannerTextSetting($type)
+            && $oldValue !== $newValue;
     }
 
 
@@ -742,6 +778,10 @@ class BusinessSettingsController extends Controller
 
     public function select_header(Request $request)
     {
+        $request->validate([
+            'header_element' => ['required', 'integer', 'exists:element_types,id'],
+        ]);
+
         $business_settings = BusinessSetting::where('type', 'header_element')->first();
         if (!$business_settings) {
             $business_settings = new BusinessSetting();

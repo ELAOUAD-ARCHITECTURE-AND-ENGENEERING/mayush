@@ -1,35 +1,29 @@
-<section class="mb-2 mb-md-3 mt-2 mt-md-3">
-    <div class="container">
-        <!-- Top Section -->
-        <div class="d-flex mb-2 mb-md-3 align-items-baseline justify-content-between">
-            <!-- Title -->
-            <h3 class="fs-16 fs-md-20 fw-700 mb-2 mb-sm-0">
-                <span class="">{{ translate('New Products') }}</span>
-            </h3>
-            <!-- Links -->
-            <div class="d-flex">
-                <a type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2" onclick="clickToSlide('slick-prev','section_newest')"><i class="las la-angle-left fs-20 fw-600"></i></a>
-                <a class="text-blue fs-10 fs-md-12 fw-700 hov-text-primary animate-underline-primary" href="{{ route('search',['sort_by'=>'newest']) }}">{{ translate('View All') }}</a>
-                <a type="button" class="arrow-next slide-arrow text-secondary ml-2" onclick="clickToSlide('slick-next','section_newest')"><i class="las la-angle-right fs-20 fw-600"></i></a>
-            </div>
-        </div>
-        <!-- Products Section -->
-        <div class="px-sm-3">
-            <div class="aiz-carousel arrow-inactive-none sm-gutters-16" data-items="6" data-xxl-items="6" data-xl-items="6" data-lg-items="4"  data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='false' data-autoplay='true'>
-                @if (count($newest_products) > 0)
-                    @foreach ($newest_products as $key => $new_product)
-                    <div class="carousel-box px-3 position-relative has-transition border-right border-top border-bottom @if($key == 0) border-left @endif hov-animate-outline">
-                        @include('frontend.'.get_setting('homepage_select').'.partials.product_box_2',['product' => $new_product])
-                    </div>
-                    @endforeach
-                @else
-                    @for ($i = 0; $i < 6; $i++)
-                    <div class="carousel-box px-3 position-relative has-transition border-right border-top border-bottom @if($i == 0) border-left @endif hov-animate-outline">
-                        @include('frontend.'.get_setting('homepage_select').'.partials.product_placeholder_box')
-                    </div>
-                    @endfor
-                @endif
-            </div>
+@php
+    $lang = get_system_language()->code;
+    $title = get_setting('metro_collections_newest_title', null, $lang) ?: translate('Nouvelles collections');
+    $description = get_setting('metro_collections_newest_description', null, $lang) ?: translate('Découvrez une sélection exclusive de mobilier et décoration où design contemporain, confort et raffinement se rencontrent.');
+    $cta = get_setting('metro_collections_newest_cta_text', null, $lang) ?: translate('View All');
+    $link = get_setting('metro_collections_newest_cta_link', null, $lang) ?: route('search', ['sort_by' => 'newest']);
+@endphp
+<div class="metro-collection-subsection">
+    <div class="metro-collection-copy text-white">
+        <h2 class="metro-collection-title mb-0">{{ $title }}</h2>
+        <p class="metro-collection-description mb-0">{{ $description }}</p>
+        <a href="{{ $link }}" class="metro-collection-cta text-reset">{{ $cta }}</a>
+        <div class="metro-collection-slider-nav">
+            <button type="button" class="metro-collection-slider-arrow" onclick="clickToSlide('slick-prev','section_newest')" aria-label="{{ translate('Previous') }}">
+                <i class="las la-angle-left"></i>
+            </button>
+            <button type="button" class="metro-collection-slider-arrow" onclick="clickToSlide('slick-next','section_newest')" aria-label="{{ translate('Next') }}">
+                <i class="las la-angle-right"></i>
+            </button>
         </div>
     </div>
-</section>
+    <div class="metro-collection-products aiz-carousel arrow-inactive-none" data-items="3" data-xxl-items="3" data-xl-items="3" data-lg-items="2" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows="false" data-infinite="true" data-autoplay="true">
+        @forelse ($newest_products as $new_product)
+            @include('frontend.metro.partials.collection_product_preview', ['product' => $new_product])
+        @empty
+            @include('frontend.metro.partials.collection_panel_placeholder_products')
+        @endforelse
+    </div>
+</div>

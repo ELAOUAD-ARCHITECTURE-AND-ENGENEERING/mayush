@@ -94,6 +94,7 @@ class Kernel extends HttpKernel
         'handle-demo-login' => \App\Http\Middleware\HandleDemoLogin::class,
         'portfolio-view' => \App\Http\Middleware\PortfolioView::class,
         'seller.approved' => \App\Http\Middleware\SellerApproved::class,
+        'cmi.ip-whitelist' => \App\Http\Middleware\CmiIpWhitelist::class,
     ];
 
     /**
