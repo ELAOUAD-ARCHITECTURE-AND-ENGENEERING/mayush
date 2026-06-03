@@ -300,27 +300,23 @@ class ProductDetailsController extends Controller
 
     public function flash_deal_details($slug)
     {
-        $flash_deal = FlashDeal::where('slug', $slug)->first();
-        $all_flash_deals = FlashDeal::active()->orderBy('created_at', 'desc')->get();
-        
-        if ($flash_deal != null) {
-            return view('frontend.flash_deal.modern_flash_deal_details', compact('flash_deal', 'all_flash_deals'));
-        }
-        
-        abort(404);
+        $flash_deal = $this->storefrontFlashDeals()
+            ->where('slug', $slug)
+            ->firstOrFail();
+        $all_flash_deals = $this->storefrontFlashDeals()
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('frontend.flash_deal.modern_flash_deal_details', compact('flash_deal', 'all_flash_deals'));
     }
 
     public function flash_deal_details_grid($slug)
     {
-        $flash_deal = FlashDeal::where('slug', $slug)
-            ->with(['flash_deal_products.product.stocks', 'flash_deal_products.product.user', 'flash_deal_products.product.reviews'])
-            ->first();
-        
-        if ($flash_deal != null) {
-            return view('frontend.flash_deal.partials.single_deal_product_grid', compact('flash_deal'));
-        }
-        
-        abort(404);
+        $flash_deal = $this->storefrontFlashDeals()
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        return view('frontend.flash_deal.partials.single_deal_product_grid', compact('flash_deal'));
     }
 
     public function trackOrder(Request $request)
@@ -336,27 +332,68 @@ class ProductDetailsController extends Controller
 
     public function all_flash_deals()
     {
-        $all_flash_deals = FlashDeal::active()->has('flash_deal_products')->orderBy('created_at', 'desc')->get();
-        
+        $all_flash_deals = $this->storefrontFlashDeals()
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $flash_deal_products = $this->uniqueFlashDealProducts($all_flash_deals);
+
         $fallback_best_sellers = collect();
         $fallback_suggested = collect();
 
-        if ($all_flash_deals->count() == 0) {
-            $fallback_best_sellers = filter_products(\App\Models\Product::where('published', 1)->orderBy('num_of_sale', 'desc'))->limit(10)->get();
-            $fallback_suggested = filter_products(\App\Models\Product::where('published', 1)->orderBy('created_at', 'desc'))->limit(10)->get();
+        if ($all_flash_deals->isEmpty()) {
+            $fallback_best_sellers = filter_products(Product::query())
+                ->orderBy('num_of_sale', 'desc')
+                ->limit(10)
+                ->get();
+            $fallback_suggested = filter_products(Product::query())
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
         }
 
-        return view("frontend.flash_deal.modern_all_flash_deal_list", compact('all_flash_deals', 'fallback_best_sellers', 'fallback_suggested'));
+        return view("frontend.flash_deal.modern_all_flash_deal_list", compact(
+            'all_flash_deals',
+            'flash_deal_products',
+            'fallback_best_sellers',
+            'fallback_suggested'
+        ));
     }
 
     public function flash_deals_grid()
     {
-        $all_flash_deals = FlashDeal::active()
-            ->with(['flash_deal_products.product.stocks', 'flash_deal_products.product.user', 'flash_deal_products.product.category', 'flash_deal_products.product.reviews'])
+        $all_flash_deals = $this->storefrontFlashDeals()
             ->orderBy('created_at', 'desc')
             ->get();
+        $flash_deal_products = $this->uniqueFlashDealProducts($all_flash_deals);
 
-        return view("frontend.flash_deal.partials.product_grid", compact('all_flash_deals'));
+        return view("frontend.flash_deal.partials.product_grid", compact('flash_deal_products'));
+    }
+
+    private function storefrontFlashDeals()
+    {
+        $visibleProducts = fn ($query) => filter_products($query);
+
+        return FlashDeal::active()
+            ->whereHas('flash_deal_products.product', $visibleProducts)
+            ->with([
+                'flash_deal_products' => function ($query) use ($visibleProducts) {
+                    $query->whereHas('product', $visibleProducts)
+                        ->with([
+                            'product' => function ($query) {
+                                filter_products($query)->with(['stocks', 'user', 'reviews']);
+                            },
+                        ]);
+                },
+            ]);
+    }
+
+    private function uniqueFlashDealProducts($flashDeals)
+    {
+        return $flashDeals
+            ->flatMap->flash_deal_products
+            ->filter(fn ($flashDealProduct) => $flashDealProduct->product != null)
+            ->unique('product_id')
+            ->values();
     }
 
     public function todays_deal()

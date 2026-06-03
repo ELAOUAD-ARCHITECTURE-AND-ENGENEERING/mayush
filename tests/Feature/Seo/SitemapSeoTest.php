@@ -91,6 +91,7 @@ class SitemapSeoTest extends TestCase
         $this->assertStringContainsString('/brand/atlas-brand', $contents);
         $this->assertStringContainsString('/product/published-lamp', $contents);
         $this->assertStringContainsString('/shop/verified-shop', $contents);
+        $this->assertStringContainsString('/flash-deals', $contents);
         $this->assertStringNotContainsString('hidden-brand', $contents);
         $this->assertStringNotContainsString('draft-lamp', $contents);
         $this->assertStringNotContainsString('unapproved-lamp', $contents);

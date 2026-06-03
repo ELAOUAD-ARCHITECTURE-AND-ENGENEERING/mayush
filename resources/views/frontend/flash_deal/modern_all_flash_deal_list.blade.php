@@ -1,367 +1,288 @@
 @extends('frontend.layouts.app')
 
-@section('content')
-<!-- Google Fonts for Reference Fidelity -->
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ asset('public/css/modern.css') }}?v={{ time() }}">
+@php
+    $flashDealsSeoTitle = translate('Flash Deals on Furniture and Decor in Morocco | Mayush');
+    $flashDealsSeoDescription = translate('Discover active Mayush flash deals on furniture, decor, lighting and interior design products in Morocco. Shop limited-time offers from marketplace sellers.');
+    $flashDealsSeoImage = uploaded_asset(optional($all_flash_deals->first())->banner ?: get_setting('meta_image') ?: get_setting('header_logo'));
+    $flashDealsCanonical = route('flash-deals');
+    $flashDealsItemList = [
+        '@context' => 'https://schema.org',
+        '@type' => 'ItemList',
+        'name' => $flashDealsSeoTitle,
+        'itemListElement' => $flash_deal_products->take(24)->values()->map(function ($flashDealProduct, $index) {
+            return [
+                '@type' => 'ListItem',
+                'position' => $index + 1,
+                'url' => route('product', $flashDealProduct->product->slug),
+                'name' => \App\Services\SeoService::altText($flashDealProduct->product->getTranslation('name')),
+            ];
+        })->all(),
+    ];
+@endphp
 
+@section('meta_title'){{ $flashDealsSeoTitle }}@stop
+@section('meta_description'){{ $flashDealsSeoDescription }}@stop
+@section('meta_keywords'){{ translate('flash deals Morocco, furniture deals Morocco, decor offers, interior design promotions, Mayush deals') }}@stop
+@section('meta_image'){{ $flashDealsSeoImage }}@stop
+@section('canonical_url'){{ $flashDealsCanonical }}@stop
 
-<div id="modern-flash-deals">
-    <!-- FLASH DEALS CONTENT STARTS HERE -->
-
-    @if($all_flash_deals->count() > 0)
-    <!-- HERO SECTION -->
-    <section class="deals-hero">
-      <div class="hero-inner">
-        <div class="hero-left">
-          <div class="hero-badge">
-            <span class="live-dot"></span> {{ translate('Live Now') }} · {{ count($all_flash_deals) }} {{ translate('Active Deals') }}
-          </div>
-          <h1 class="hero-title">{{ translate('FLASH') }}<br><span class="hollow">{{ translate('DEALS') }}</span></h1>
-          <p class="hero-sub">{{ translate('Limited-time offers on top Moroccan deco. Once they\'re gone, they\'re gone.') }}</p>
-        </div>
-        
-        @php
-            $main_deal = $all_flash_deals->first();
-            $main_end_date = $main_deal ? $main_deal->end_date : time();
-        @endphp
-        
-        <div class="main-timer" id="main-countdown" data-end="{{ date('Y/m/d H:i:s', $main_end_date) }}">
-          <span class="timer-label">{{ translate('Resets In') }}</span>
-          <div class="t-block"><span class="t-num" id="mt-h">--</span><div class="t-unit">{{ translate('HRS') }}</div></div>
-          <span class="t-sep">:</span>
-          <div class="t-block"><span class="t-num" id="mt-m">--</span><div class="t-unit">{{ translate('MIN') }}</div></div>
-          <span class="t-sep">:</span>
-          <div class="t-block"><span class="t-num" id="mt-s">--</span><div class="t-unit">{{ translate('SEC') }}</div></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CAROUSEL SECTION (Active Flash Deals) -->
-    <section class="carousel-section" id="carouselSection">
-      <div class="section-hdr">
-        <h2 class="section-title">{{ translate('Active') }} <span>{{ translate('Flash Deals') }}</span></h2>
-        <a href="{{ route('flash-deals') }}" class="see-all-link">{{ translate('See all deals') }} →</a>
-      </div>
-      <div class="carousel-outer">
-        <button class="carousel-nav prev" id="carouselPrevBtn">‹</button>
-        <div class="carousel-track-wrap" id="carouselTrackWrap">
-          <div class="carousel-track" id="carouselTrack">
-            @foreach($all_flash_deals as $deal)
-                @php
-                    $products_count = count($deal->flash_deal_products);
-                @endphp
-                <div class="deal-slide fade-in" onclick="window.location='{{ route('flash-deal-details', $deal->slug) }}'">
-                    <div class="slide-img">
-                      <img src="{{ uploaded_asset($deal->banner) }}" alt="{{ $deal->title }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                      <div class="slide-overlay"></div>
-                    </div>
-                    <div class="slide-time">
-                      <span class="slide-time-dot"></span>
-                      <span class="slide-t-countdown" data-end="{{ date('Y/m/d H:i:s', $deal->end_date) }}">00:00:00</span>
-                    </div>
-                    <div class="slide-body">
-                      <span class="slide-tag">{{ strtoupper($deal->title) }}</span>
-                      <div class="slide-name">{{ $deal->title }}</div>
-                      <div class="slide-meta">
-                        <span class="slide-count">{{ $products_count }} {{ translate('products') }}</span>
-                        <span class="slide-discount">{{ translate('Up to -70%') }}</span>
-                      </div>
-                    </div>
-                </div>
-            @endforeach
-          </div>
-        </div>
-        <button class="carousel-nav next" id="carouselNextBtn">›</button>
-      </div>
-      <div class="carousel-dots" id="carouselDots"></div>
-    </section>
-
-    <!-- CONTROLS BAR -->
-    <div class="controls-bar">
-      <div class="pills">
-        <a href="{{ route('flash-deals') }}" class="pill active">{{ translate('All Deals') }}</a>
-        @foreach($all_flash_deals as $pill_deal)
-            <a href="{{ route('flash-deal-details', $pill_deal->slug) }}" class="pill">
-                <span>⚡</span> {{ $pill_deal->getTranslation('title') }}
-            </a>
-        @endforeach
-      </div>
-      <div class="sort-wrap">
-        <span class="sort-lbl">{{ translate('Sort by:') }}</span>
-        <select class="sort-sel">
-          <option value="velocity">{{ translate('Sales Velocity') }}</option>
-          <option value="discount">{{ translate('Biggest Discount') }}</option>
-          <option value="price_asc">{{ translate('Price: Low to High') }} ↑</option>
-          <option value="price_desc">{{ translate('Price: High to Low') }} ↓</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- PRODUCT GRID -->
-    <div class="grid-section">
-      <div class="section-hdr" style="margin-bottom:16px">
-        <h2 class="section-title">{{ translate('Top Picks Across') }} <span>{{ translate('All Deals') }}</span></h2>
-        <span style="font-size:12px;color:var(--ink-3)">{{ translate('Auto-refreshes every 60 s') }}</span>
-      </div>
-      
-      <div class="products-grid" id="flash-deals-grid">
-        @include('frontend.flash_deal.partials.product_grid', ['all_flash_deals' => $all_flash_deals])
-      </div>
-    </div>
-    @else
-    
-    <!-- EMPTY STATE -->
-    <style>
-    .empty-deals-banner {
-      background: var(--surface);
-      border-radius: 12px;
-      padding: 60px 24px;
-      text-align: center;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-      margin-bottom: 40px;
-    }
-    .empty-deals-banner h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: 32px;
-      font-weight: 800;
-      color: var(--ink-1);
-      margin-bottom: 12px;
-      margin-top: 20px;
-    }
-    .empty-deals-banner p {
-      font-size: 16px;
-      color: var(--ink-3);
-      max-width: 500px;
-      margin: 0 auto;
-    }
-    .fallback-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--ink-1);
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .fallback-title::before {
-      content: '';
-      display: block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--primary);
-    }
-    </style>
-
-    <div class="empty-deals-wrapper" style="padding: 40px 24px; max-width: 1440px; margin: 0 auto;">
-        <div class="empty-deals-banner fade-in">
-            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;">
-                <path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-            <h2>{{ translate('Deals are resting!') }}</h2>
-            <p>{{ translate('There are no active flash deals at the moment, but you can still grab amazing items below.') }}</p>
-        </div>
-
-        @if(isset($fallback_best_sellers) && $fallback_best_sellers->count() > 0)
-        <div class="fallback-section" style="margin-bottom: 60px;">
-            <h3 class="fallback-title">{{ translate('Best Selling Products') }}</h3>
-            <div class="products-grid">
-                @foreach($fallback_best_sellers as $product)
-                    <div class="product-card fade-in">
-                        @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
-                    </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
-
-        @if(isset($fallback_suggested) && $fallback_suggested->count() > 0)
-        <div class="fallback-section" style="margin-bottom: 60px;">
-            <h3 class="fallback-title">{{ translate('Products You May Like') }}</h3>
-            <div class="products-grid">
-                @foreach($fallback_suggested as $product)
-                    <div class="product-card fade-in">
-                        @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
-                    </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
-    </div>
+@section('meta')
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
+        'title' => $flashDealsSeoTitle,
+        'description' => $flashDealsSeoDescription,
+        'canonical' => $flashDealsCanonical,
+    ])) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
+        ['name' => translate('Home'), 'url' => route('home')],
+        ['name' => translate('Flash Deals'), 'url' => $flashDealsCanonical],
+    ])) !!}</script>
+    @if($flash_deal_products->isNotEmpty())
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd($flashDealsItemList) !!}</script>
     @endif
-
-
-</div>
-
 @endsection
 
-@section('script')
-<script>
-    'use strict';
-
-    // Countdown Logic
-    function updateCountdowns() {
-        document.querySelectorAll('[data-end]').forEach(el => {
-            const endDate = new Date(el.dataset.end).getTime();
-            const now = new Date().getTime();
-            const diff = endDate - now;
-
-            if (diff <= 0) return;
-
-            const h = Math.floor(diff / (1000 * 60 * 60));
-            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-            const hStr = h.toString().padStart(2, '0');
-            const mStr = m.toString().padStart(2, '0');
-            const sStr = s.toString().padStart(2, '0');
-
-            if (el.id === 'main-countdown') {
-                document.getElementById('mt-h').textContent = hStr;
-                document.getElementById('mt-m').textContent = mStr;
-                document.getElementById('mt-s').textContent = sStr;
-            } else if (el.classList.contains('slide-t-countdown')) {
-                el.textContent = `${hStr}:${mStr}:${sStr}`;
-            } else if (el.classList.contains('mini-timer')) {
-                el.querySelector('.mt-h').textContent = hStr;
-                el.querySelector('.mt-m').textContent = mStr;
-                el.querySelector('.mt-s').textContent = sStr;
+@section('content')
+    <style>
+        .flash-deals-page {
+            background: var(--mayush-white);
+            color: var(--mayush-text);
+        }
+        .flash-deals-page-hero {
+            border-bottom: 1px solid var(--mayush-border);
+            background: linear-gradient(135deg, var(--mayush-beige) 0%, var(--mayush-beige-alt) 100%);
+        }
+        .flash-deals-page-hero__inner {
+            max-width: 780px;
+            padding: 52px 0;
+        }
+        .flash-deals-eyebrow,
+        .flash-deals-count {
+            color: var(--mayush-orange);
+            font-family: var(--mayush-font-body);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+        .flash-deals-title,
+        .flash-deals-section-title,
+        .flash-deal-card__title {
+            font-family: var(--mayush-font-heading);
+        }
+        .flash-deals-title {
+            max-width: 720px;
+            margin-bottom: 14px;
+            color: var(--mayush-black);
+            font-size: clamp(38px, 5vw, 62px);
+            line-height: 1.08;
+        }
+        .flash-deals-intro {
+            max-width: 700px;
+            color: var(--mayush-text-muted);
+            font-size: 17px;
+            line-height: 1.7;
+        }
+        .flash-deals-breadcrumb {
+            color: var(--mayush-gray);
+            font-size: 13px;
+        }
+        .flash-deals-section-title {
+            color: var(--mayush-black);
+            font-size: clamp(28px, 3vw, 38px);
+        }
+        .flash-deals-section-copy {
+            max-width: 680px;
+            color: var(--mayush-text-muted);
+        }
+        .flash-deal-card {
+            height: 100%;
+            overflow: hidden;
+            border: 1px solid var(--mayush-border);
+            border-radius: var(--mayush-radius-xl);
+            background: var(--mayush-white);
+            box-shadow: var(--mayush-shadow-card);
+            transition: all var(--mayush-transition-base);
+        }
+        .flash-deal-card:hover {
+            border-color: rgba(217, 116, 52, .35);
+            box-shadow: var(--mayush-shadow-card-hover);
+            transform: translateY(-4px);
+        }
+        .flash-deal-card__image {
+            display: block;
+            height: 190px;
+            overflow: hidden;
+            background: var(--mayush-beige);
+        }
+        .flash-deal-card__image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--mayush-transition-slow);
+        }
+        .flash-deal-card:hover .flash-deal-card__image img {
+            transform: scale(1.04);
+        }
+        .flash-deal-card__body {
+            padding: 18px;
+        }
+        .flash-deal-card__title {
+            margin-bottom: 8px;
+            color: var(--mayush-black);
+            font-size: 24px;
+        }
+        .flash-deal-card__meta {
+            color: var(--mayush-gray);
+            font-size: 13px;
+        }
+        .flash-deal-card__link {
+            color: var(--mayush-orange);
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .flash-deals-empty {
+            border: 1px solid var(--mayush-border);
+            border-radius: var(--mayush-radius-xl);
+            background: var(--mayush-beige);
+            padding: 42px 24px;
+            text-align: center;
+        }
+        .flash-deals-empty__icon {
+            color: var(--mayush-orange);
+            font-size: 48px;
+        }
+        .flash-deals-products {
+            border-top: 1px solid var(--mayush-border);
+        }
+        @media (max-width: 767px) {
+            .flash-deals-page-hero__inner {
+                padding: 38px 0;
             }
-        });
-    }
-
-    setInterval(updateCountdowns, 1000);
-    updateCountdowns();
-
-    // Carousel Logic
-    const track = document.getElementById('carouselTrack');
-    const prevBtn = document.getElementById('carouselPrevBtn');
-    const nextBtn = document.getElementById('carouselNextBtn');
-    const dotsContainer = document.getElementById('carouselDots');
-    let currentIndex = 0;
-    const cards = document.querySelectorAll('.deal-slide');
-    const cardWidth = 320; 
-
-    function updateCarousel() {
-        const offset = -currentIndex * cardWidth;
-        track.style.transform = `translateX(${offset}px)`;
-        
-        document.querySelectorAll('.carousel-dot').forEach((dot, idx) => {
-            dot.classList.toggle('active', idx === currentIndex);
-        });
-
-        prevBtn.disabled = currentIndex === 0;
-        nextBtn.disabled = currentIndex >= cards.length - 1;
-    }
-
-    if(cards.length > 0) {
-        for(let i=0; i<cards.length; i++) {
-            const dot = document.createElement('span');
-            dot.classList.add('carousel-dot');
-            if(i === 0) dot.classList.add('active');
-            dot.onclick = () => { currentIndex = i; updateCarousel(); };
-            dotsContainer.appendChild(dot);
-        }
-
-        prevBtn.onclick = () => { if(currentIndex > 0) { currentIndex--; updateCarousel(); } };
-        nextBtn.onclick = () => { if(currentIndex < cards.length - 1) { currentIndex++; updateCarousel(); } };
-        
-        updateCarousel();
-    }
-
-    // ── Filter & Sort & Auto-Refresh ──────────────────────────
-
-    function initFilterAndSort() {
-        const filterButtons = document.querySelectorAll('.pills .pill');
-        const productGrid   = document.getElementById('flash-deals-grid');
-        let   productCards   = Array.from(productGrid.querySelectorAll('.product-card'));
-
-        // Filtering (Zone 1)
-        filterButtons.forEach(btn => {
-            btn.onclick = () => {
-                filterButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const filter = btn.dataset.filter;
-
-                productCards.forEach(card => {
-                    if (filter === 'all' || card.dataset.category === filter) {
-                        card.style.display = 'block';
-                        card.classList.add('fade-in');
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            };
-        });
-
-        // Sorting (Zone 2)
-        const sortSelect = document.querySelector('.sort-sel');
-        if(sortSelect) {
-            sortSelect.onchange = () => {
-                const value = sortSelect.value;
-                productCards = Array.from(productGrid.querySelectorAll('.product-card'));
-                const sorted = [...productCards].sort((a, b) => {
-                    if (value === 'price_asc')  return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
-                    if (value === 'price_desc') return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
-                    if (value === 'discount')   return parseFloat(b.dataset.discount) - parseFloat(a.dataset.discount);
-                    if (value === 'velocity')   return parseFloat(b.dataset.sales) - parseFloat(a.dataset.sales);
-                    return 0;
-                });
-                productGrid.innerHTML = '';
-                sorted.forEach(card => productGrid.appendChild(card));
-            };
-        }
-    }
-
-    initFilterAndSort();
-
-    // ── 60 s AJAX Auto-Refresh (lightweight, no full page reload) ──
-    const REFRESH_URL      = "{{ route('flash-deals-grid') }}";
-    const REFRESH_INTERVAL = 60000; // 60 seconds
-    let   refreshTimer     = null;
-    let   isRefreshing     = false;
-
-    async function refreshGrid() {
-        if (isRefreshing) return;         // prevent overlapping requests
-        if (document.hidden) return;      // skip if tab is not visible
-        isRefreshing = true;
-
-        try {
-            const resp = await fetch(REFRESH_URL, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            if (!resp.ok) throw new Error('Network ' + resp.status);
-            const html = await resp.text();
-
-            const grid = document.getElementById('flash-deals-grid');
-            if (grid) {
-                grid.innerHTML = html;
-                // Re-init filters, sort, and mini-timers on the new DOM
-                initFilterAndSort();
-                updateCountdowns();
+            .flash-deals-title {
+                font-size: 38px;
             }
-        } catch (e) {
-            console.warn('[Flash Deals] Auto-refresh skipped:', e.message);
-        } finally {
-            isRefreshing = false;
+            .flash-deal-card__image {
+                height: 150px;
+            }
         }
-    }
+    </style>
 
-    // Start / stop when tab visibility changes (saves bandwidth)
-    function startAutoRefresh() {
-        if (refreshTimer) return;
-        refreshTimer = setInterval(refreshGrid, REFRESH_INTERVAL);
-    }
-    function stopAutoRefresh() {
-        if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
-    }
+    <div class="flash-deals-page">
+        <section class="flash-deals-page-hero">
+            <div class="container">
+                <div class="flash-deals-page-hero__inner">
+                    <div class="flash-deals-breadcrumb mb-3">
+                        <a href="{{ route('home') }}" class="text-reset">{{ translate('Home') }}</a>
+                        <span class="mx-2">/</span>
+                        <span>{{ translate('Flash Deals') }}</span>
+                    </div>
+                    <div class="flash-deals-eyebrow mb-2">{{ translate('Limited-time offers') }}</div>
+                    <h1 class="flash-deals-title">{{ translate('Flash deals on furniture and decor') }}</h1>
+                    <p class="flash-deals-intro mb-0">
+                        {{ translate('Explore limited-time Mayush offers on furniture, decor, lighting and interior design pieces selected for homes across Morocco.') }}
+                    </p>
+                </div>
+            </div>
+        </section>
 
-    document.addEventListener('visibilitychange', () => {
-        document.hidden ? stopAutoRefresh() : startAutoRefresh();
-    });
+        @if($all_flash_deals->isNotEmpty())
+            <section class="py-4 py-md-5" aria-labelledby="active-flash-deals-title">
+                <div class="container">
+                    <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between mb-4">
+                        <div>
+                            <div class="flash-deals-count mb-2">{{ $all_flash_deals->count() }} {{ translate('active deals') }}</div>
+                            <h2 class="flash-deals-section-title mb-2" id="active-flash-deals-title">{{ translate('Active flash deals') }}</h2>
+                            <p class="flash-deals-section-copy mb-0">{{ translate('Choose an offer to discover its curated selection before the promotion ends.') }}</p>
+                        </div>
+                    </div>
 
-    startAutoRefresh();
-</script>
+                    <div class="row gutters-10">
+                        @foreach($all_flash_deals as $deal)
+                            <div class="col-12 col-md-6 col-lg-4 mb-3">
+                                <article class="flash-deal-card">
+                                    <a href="{{ route('flash-deal-details', $deal->slug) }}" class="flash-deal-card__image">
+                                        <img src="{{ uploaded_asset($deal->banner) }}" loading="lazy" decoding="async"
+                                            alt="{{ \App\Services\SeoService::altText($deal->getTranslation('title'), translate('Mayush flash deal')) }}"
+                                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                                    </a>
+                                    <div class="flash-deal-card__body">
+                                        <h3 class="flash-deal-card__title">
+                                            <a href="{{ route('flash-deal-details', $deal->slug) }}" class="text-reset">{{ $deal->getTranslation('title') }}</a>
+                                        </h3>
+                                        <div class="flash-deal-card__meta mb-3">
+                                            {{ $deal->flash_deal_products->count() }} {{ translate('products') }}
+                                            <span class="mx-2">|</span>
+                                            {{ translate('Ends') }} <time datetime="{{ date('c', $deal->end_date) }}">{{ date('d/m/Y H:i', $deal->end_date) }}</time>
+                                        </div>
+                                        <a href="{{ route('flash-deal-details', $deal->slug) }}" class="flash-deal-card__link">
+                                            {{ translate('View deal') }} <span aria-hidden="true">&rarr;</span>
+                                        </a>
+                                    </div>
+                                </article>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+
+            <section class="flash-deals-products py-4 py-md-5" aria-labelledby="flash-deals-products-title">
+                <div class="container">
+                    <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between mb-4">
+                        <div>
+                            <h2 class="flash-deals-section-title mb-2" id="flash-deals-products-title">{{ translate('Products in our flash deals') }}</h2>
+                            <p class="flash-deals-section-copy mb-0">{{ translate('Shop active marketplace promotions with the same product experience used across Mayush.') }}</p>
+                        </div>
+                        <span class="text-secondary fs-13 mt-2 mt-md-0">{{ $flash_deal_products->count() }} {{ translate('products') }}</span>
+                    </div>
+
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4" id="flash-deals-grid">
+                        @include('frontend.flash_deal.partials.product_grid', ['flash_deal_products' => $flash_deal_products])
+                    </div>
+                </div>
+            </section>
+        @else
+            <section class="py-4 py-md-5">
+                <div class="container">
+                    <div class="flash-deals-empty">
+                        <div class="flash-deals-empty__icon mb-2" aria-hidden="true"><i class="las la-hourglass-half"></i></div>
+                        <h2 class="flash-deals-section-title mb-2">{{ translate('New flash deals are coming soon') }}</h2>
+                        <p class="flash-deals-section-copy mx-auto mb-3">{{ translate('There are no active flash deals at the moment. Discover popular Mayush products while the next limited-time selection is being prepared.') }}</p>
+                        <a href="{{ route('search') }}" class="btn btn-primary px-4">{{ translate('Explore all products') }}</a>
+                    </div>
+                </div>
+            </section>
+
+            @if($fallback_best_sellers->isNotEmpty())
+                <section class="flash-deals-products py-4 py-md-5" aria-labelledby="flash-deals-best-sellers-title">
+                    <div class="container">
+                        <h2 class="flash-deals-section-title mb-2" id="flash-deals-best-sellers-title">{{ translate('Best-selling furniture and decor') }}</h2>
+                        <p class="flash-deals-section-copy mb-4">{{ translate('Explore popular products chosen by Mayush customers while you wait for the next flash deal.') }}</p>
+                        <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4">
+                            @foreach($fallback_best_sellers as $product)
+                                <div class="col mb-3">
+                                    @include('frontend.metro.partials.product_box_1', ['product' => $product])
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </section>
+            @endif
+
+            @if($fallback_suggested->isNotEmpty())
+                <section class="flash-deals-products py-4 py-md-5" aria-labelledby="flash-deals-latest-title">
+                    <div class="container">
+                        <h2 class="flash-deals-section-title mb-2" id="flash-deals-latest-title">{{ translate('Latest interior design arrivals') }}</h2>
+                        <p class="flash-deals-section-copy mb-4">{{ translate('Discover recently added furniture and decor from the Mayush marketplace.') }}</p>
+                        <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4">
+                            @foreach($fallback_suggested as $product)
+                                <div class="col mb-3">
+                                    @include('frontend.metro.partials.product_box_1', ['product' => $product])
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </section>
+            @endif
+        @endif
+    </div>
 @endsection
