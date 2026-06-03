@@ -8,6 +8,14 @@
 !js/
 !js/aiz-core.js
 !js/banner-text-editor.js
+!blog/
+blog/*
+!blog/css/
+blog/css/*
+!blog/css/blog-builder.css
+!blog/js/
+blog/js/*
+!blog/js/blog-builder.js
 !*.png
 !*.svg
 !img/

@@ -556,6 +556,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     // Route::get('/blog-category/destroy/{id}', [BlogCategoryController::class, 'destroy'])->name('blog-category.destroy');
 
     // Blog
+    Route::controller(BlogController::class)->group(function () {
+        Route::get('/blog/authors', 'authors')->name('blog.authors');
+        Route::post('/blog/authors', 'assign_author')->name('blog.authors.assign');
+        Route::delete('/blog/authors/{id}', 'remove_author')->name('blog.authors.remove');
+        Route::post('/blog/{id}/publish', 'publish')->name('blog.publish');
+        Route::post('/blog/{id}/archive', 'archive')->name('blog.archive');
+        Route::post('/blog/{id}/request-changes', 'request_changes')->name('blog.request-changes');
+    });
     Route::resource('blog', BlogController::class);
     Route::controller(BlogController::class)->group(function () {
         // Route::get('/blog/destroy/{id}', 'destroy')->name('blog.destroy');

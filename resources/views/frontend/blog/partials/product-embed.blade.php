@@ -17,7 +17,7 @@
             data-blog-id="{{ $blog->id }}"
             data-blog-count="{{ $count }}"
             data-blog-placement="{{ $placement }}"
-            data-blog-products-url="{{ url('/api/blog/products') }}"
+            data-blog-products-url="{{ route('blog.products') }}"
         @endif>
         <div class="mb-blog-product-embed__head d-flex flex-column flex-md-row align-items-md-end justify-content-between mb-3">
             <div>
