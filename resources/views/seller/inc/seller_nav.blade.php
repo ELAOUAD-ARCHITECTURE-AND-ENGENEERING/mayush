@@ -37,6 +37,11 @@
                     </div>
                 </div>
             @endif
+            <div class="aiz-topbar-item ml-3">
+                <div class="d-flex align-items-center h-100">
+                    @include('partials.account_mode_switcher')
+                </div>
+            </div>
         </div>
         <div class="d-flex justify-content-around align-items-center align-items-stretch">
 
@@ -146,6 +151,9 @@
                         </span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-animated dropdown-menu-md">
+                        <div class="px-3 py-2 border-bottom">
+                            @include('partials.account_mode_switcher')
+                        </div>
                         <a href="{{ route('seller.profile.index') }}" class="dropdown-item">
                             <i class="las la-user-circle"></i>
                             <span>{{translate('Profile')}}</span>

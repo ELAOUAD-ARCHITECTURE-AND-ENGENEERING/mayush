@@ -36,6 +36,11 @@
             @else
                 <div class="text-truncate opacity-60 fs-12">{{ $user->email }}</div>
             @endif
+            @if (can_switch_account_mode())
+                <div class="mt-3">
+                    @include('partials.account_mode_switcher')
+                </div>
+            @endif
         </div>
 
         <!-- Menus -->
