@@ -42,6 +42,7 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user
 Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user', 'prevent-back-history'], 'as' => 'seller.'], function () {
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
+        Route::get('/clear-cache', 'clearCache')->name('cache.clear');
     });
 
     // Onboarding
