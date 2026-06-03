@@ -3,6 +3,7 @@
         $lang = get_system_language()->code;
         $promoted_category_id = get_setting('promoted_category_id');
         $promoted_category = $promoted_category_id ? \App\Models\Category::find($promoted_category_id) : null;
+        $promoted_category_name = $promoted_category ? $promoted_category->getTranslation('name', $lang) : '';
         $promoted_products = collect();
         $promoted_category_subtitle = trim((string) get_setting('promoted_category_subtitle', '', $lang));
         $promoted_category_subtitle = $promoted_category_subtitle !== ''
@@ -45,7 +46,7 @@
                             <i class="las la-fire pulse"></i>
                         </div>
                         <div class="promoted-heading-copy">
-                            <h2 class="promoted-category-title fs-18 fw-700 mb-1 text-dark">{{ $promoted_category->getTranslation('name') }}</h2>
+                            <h2 class="promoted-category-title fs-18 fw-700 mb-1 text-dark">{{ $promoted_category_name }}</h2>
                             @if ($promoted_category_subtitle)
                                 <h3 class="promoted-category-subtitle fs-14 fw-500 text-muted mb-0">{{ $promoted_category_subtitle }}</h3>
                             @endif
@@ -64,7 +65,7 @@
                         <div class="col-lg-6 mb-4 mb-lg-0">
                             <a href="{{ route('products.category', $promoted_category->slug) }}" class="d-block promoted-banner-wrap">
                                 <img src="{{ optimized_static_asset('assets/img/office_furniture_4k.png', 'medium') }}"
-                                     alt="{{ $promoted_category->getTranslation('name') }}" 
+                                     alt="{{ $promoted_category_name }}" 
                                      width="1024" height="1024"
                                      loading="lazy" decoding="async"
                                      class="promoted-banner-img skeleton-shimmer"

@@ -19,12 +19,36 @@ class Category extends Model
     {
         $lang = $lang ?: App::getLocale();
         $category_translation = $this->category_translations->where('lang', $lang)->first();
+        $base_value = $this->$field;
 
-        if ($category_translation != null && $category_translation->$field !== null && $category_translation->$field !== $this->$field) {
-            return in_array($field, ['name', 'title']) ? translate($category_translation->$field, $lang) : $category_translation->$field;
+        if ($category_translation != null && $category_translation->$field !== null && trim((string) $category_translation->$field) !== '') {
+            $translated_value = $category_translation->$field;
+
+            if ($this->shouldUseGlobalTranslationFallback($field, $translated_value, $base_value)) {
+                return $this->translateBaseValue($base_value, $lang);
+            }
+
+            return $translated_value;
         }
 
-        return $category_translation != null ? $category_translation->$field : $this->$field;
+        if (in_array($field, ['name', 'title'], true) && trim((string) $base_value) !== '') {
+            return $this->translateBaseValue($base_value, $lang);
+        }
+
+        return $base_value;
+    }
+
+    private function shouldUseGlobalTranslationFallback(string $field, $translated_value, $base_value): bool
+    {
+        return in_array($field, ['name', 'title'], true)
+            && trim((string) $translated_value) === trim((string) $base_value);
+    }
+
+    private function translateBaseValue($base_value, string $lang)
+    {
+        $translated_value = translate($base_value, $lang);
+
+        return trim((string) $translated_value) !== '' ? $translated_value : $base_value;
     }
 
     public function category_translations()
