@@ -12,6 +12,7 @@
     $blogSeoTitle = \App\Services\SeoService::meaningfulText($blogMetaTitle ?: $blogTitle, $blogTitleFallback, 70, 30);
     $blogSeoDescription = \App\Services\SeoService::meaningfulText($blogMetaDescription ?: $blogDescriptionFallback, $blogDescriptionFallback, 170, 80);
     $blogSeoImage = uploaded_asset($blog->meta_img ?: $blog->banner);
+    $blogCanonical = $blog->canonical_url ?: route('blog.details', $blog->slug);
 @endphp
 
 @section('meta_title'){{ $blogSeoTitle }}@stop
@@ -19,13 +20,16 @@
 @section('meta_keywords'){{ $blogMetaKeywords }}@stop
 @section('meta_image'){{ $blogSeoImage }}@stop
 @section('meta_type')article@stop
-@section('canonical_url'){{ route('blog.details', $blog->slug) }}@stop
+@section('canonical_url'){{ $blogCanonical }}@stop
 
 @section('styles')
     <link rel="stylesheet" href="{{ static_asset('assets/blog/css/blog-conversion.css') }}">
 @endsection
 
 @section('meta')
+    @if($isPreview ?? false)
+        <meta name="robots" content="noindex,nofollow">
+    @endif
     @if(($blog->schema_enabled ?? true) && ($blogSettings['article_schema_enabled'] ?? true))
         <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::articleSchema($blog)) !!}</script>
     @endif
@@ -42,6 +46,14 @@
 @section('content')
 
 <section class="py-4 mb-blog mb-blog-detail">
+    @if($isPreview ?? false)
+        <div class="container">
+            <div class="alert alert-info d-flex align-items-center">
+                <i class="las la-eye fs-22 mr-2"></i>
+                <span>{{ translate('Preview mode: this article is not necessarily visible to readers yet.') }}</span>
+            </div>
+        </div>
+    @endif
     @if(($blogSettings['scroll_progress_enabled'] ?? true))
         <div class="mb-blog-progress" data-blog-scroll-progress></div>
     @endif

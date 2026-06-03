@@ -957,5 +957,61 @@
         "duration_ms": 33.19,
         "memory_mb": 10.69,
         "timestamp": "2026-06-01 16:27:59"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_create_category",
+        "operation": "Create Category",
+        "duration_ms": 159.18,
+        "memory_mb": 3.44,
+        "timestamp": "2026-06-03 10:11:21"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_read_category_list",
+        "operation": "Read Category List",
+        "duration_ms": 239.7,
+        "memory_mb": 3.74,
+        "timestamp": "2026-06-03 10:11:23"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_update_category",
+        "operation": "Update Category",
+        "duration_ms": 86.79,
+        "memory_mb": 3.75,
+        "timestamp": "2026-06-03 10:11:24"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_delete_category",
+        "operation": "Delete Category",
+        "duration_ms": 40.17,
+        "memory_mb": 0.2,
+        "timestamp": "2026-06-03 10:11:26"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_create_category",
+        "operation": "Create Category",
+        "duration_ms": 50.92,
+        "memory_mb": 3.44,
+        "timestamp": "2026-06-03 10:18:19"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_read_category_list",
+        "operation": "Read Category List",
+        "duration_ms": 29.05,
+        "memory_mb": 3.74,
+        "timestamp": "2026-06-03 10:18:19"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_update_category",
+        "operation": "Update Category",
+        "duration_ms": 8.43,
+        "memory_mb": 3.75,
+        "timestamp": "2026-06-03 10:18:20"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_delete_category",
+        "operation": "Delete Category",
+        "duration_ms": 7.08,
+        "memory_mb": 0.2,
+        "timestamp": "2026-06-03 10:18:20"
     }
 ]

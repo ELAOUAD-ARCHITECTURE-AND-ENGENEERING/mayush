@@ -8,6 +8,8 @@ use App\Models\Product;
 use Auth;
 use Carbon\Carbon;
 use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 
 class DashboardController extends Controller
 {
@@ -114,5 +116,13 @@ class DashboardController extends Controller
         $data['shop'] = Auth::user()->shop;
 
         return view('seller.dashboard', $data);
+    }
+
+    public function clearCache(Request $request)
+    {
+        Artisan::call('optimize:clear');
+        flash(translate('Cache cleared successfully'))->success();
+
+        return back();
     }
 }

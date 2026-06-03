@@ -15,6 +15,13 @@ class Blog extends Model
     use SoftDeletes;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'content_blocks' => 'array',
+        'published_at' => 'datetime',
+        'submitted_at' => 'datetime',
+        'reviewed_at' => 'datetime',
+    ];
     
     public function category() {
         return $this->belongsTo(BlogCategory::class, 'category_id');
@@ -52,6 +59,11 @@ class Blog extends Model
     public function translations()
     {
         return $this->hasMany(BlogTranslation::class);
+    }
+
+    public function versions()
+    {
+        return $this->hasMany(BlogVersion::class);
     }
 
     public function blog_translations()

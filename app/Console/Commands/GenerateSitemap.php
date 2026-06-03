@@ -137,7 +137,7 @@ class GenerateSitemap extends Command
                     ->setPriority(0.7));
             });
 
-            foreach (['sellerpolicy', 'returnpolicy', 'supportpolicy', 'terms', 'privacypolicy', 'blog', 'brands.all', 'categories.all'] as $routeName) {
+            foreach (['sellerpolicy', 'returnpolicy', 'supportpolicy', 'terms', 'privacypolicy', 'blog', 'brands.all', 'categories.all', 'flash-deals'] as $routeName) {
                 if (Route::has($routeName)) {
                     $sitemap->add(Url::create(route($routeName))
                         ->setLastModificationDate(Carbon::now())

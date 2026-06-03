@@ -18,6 +18,12 @@
                         <i class="las la-envelope-open-text mr-1"></i>
                         <span>{{ translate('Subscriber Logs') }}</span>
                     </a>
+                    @can('manage_blog_authors')
+                        <a href="{{ route('blog.authors') }}" class="btn btn-soft-info mr-2">
+                            <i class="las la-user-edit mr-1"></i>
+                            <span>{{ translate('Authors') }}</span>
+                        </a>
+                    @endcan
                 @endcan
                 <a href="{{ route('blog') }}" target="_blank" class="btn btn-soft-dark mr-2">
                     <i class="las la-external-link-alt mr-1"></i>
@@ -66,6 +72,22 @@
                     <input type="text" class="form-control form-control-sm" id="search" name="search"@isset($sort_search) value="{{ $sort_search }}" @endisset placeholder="{{ translate('Type & Enter') }}">
                 </div>
             </div>
+            <div class="col-md-2">
+                <select class="form-control form-control-sm aiz-selectpicker" name="workflow_status" onchange="document.getElementById('sort_blogs').submit()">
+                    <option value="">{{ translate('All statuses') }}</option>
+                    @foreach($workflowStatuses as $status => $label)
+                        <option value="{{ $status }}" @selected(request('workflow_status') === $status)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control form-control-sm aiz-selectpicker" name="author_id" data-live-search="true" onchange="document.getElementById('sort_blogs').submit()">
+                    <option value="">{{ translate('All authors') }}</option>
+                    @foreach($authors as $author)
+                        <option value="{{ $author->id }}" @selected((string) request('author_id') === (string) $author->id)>{{ $author->name }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
         </form>
         <div class="card-body">
@@ -75,6 +97,7 @@
                         <th>#</th>
                         <th>{{translate('Title')}}</th>
                         <th data-breakpoints="lg">{{translate('Category')}}</th>
+                        <th data-breakpoints="lg">{{translate('Author')}}</th>
                         <th data-breakpoints="lg">{{translate('Short Description')}}</th>
                         @if(get_setting('portfolio_landing'))
                         <th data-breakpoints="lg">{{translate('News')}}</th>
@@ -82,6 +105,7 @@
                         <th data-breakpoints="lg" class="w-80px">{{translate('Going On')}}</th>
                         @endif
                         <th data-breakpoints="lg">{{translate('Status')}}</th>
+                        <th data-breakpoints="lg">{{translate('Workflow')}}</th>
                         <th class="text-right">{{translate('Options')}}</th>
                     </tr>
                 </thead>
@@ -100,6 +124,9 @@
                             @else
                                 --
                             @endif
+                        </td>
+                        <td>
+                            {{ optional($blog->author)->name ?? translate('Unassigned') }}
                         </td>
                         <td>
                             {{ $blog->short_description }}
@@ -152,11 +179,46 @@
                                 <span></span>
                             </label>
                         </td>
+                        <td>
+                            @php
+                                $workflow = $blog->workflow_status ?: ($blog->status ? 'published' : 'draft');
+                                $badgeClass = [
+                                    'published' => 'badge-success',
+                                    'submitted' => 'badge-info',
+                                    'changes_requested' => 'badge-warning',
+                                    'archived' => 'badge-dark',
+                                ][$workflow] ?? 'badge-secondary';
+                            @endphp
+                            <span class="badge {{ $badgeClass }}">{{ $workflowStatuses[$workflow] ?? ucfirst(str_replace('_', ' ', $workflow)) }}</span>
+                            @if($blog->published_at && $workflow === 'published' && $blog->published_at->isFuture())
+                                <span class="badge badge-soft-primary mt-1">{{ translate('Scheduled') }}</span>
+                            @endif
+                        </td>
                         <td class="text-right">
+                            <a class="btn btn-soft-info btn-icon btn-circle btn-sm" href="{{ route('blog.preview', $blog->id) }}" target="_blank" title="{{ translate('Preview') }}">
+                                <i class="las la-eye"></i>
+                            </a>
                             @can('edit_blog')
                                 <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{ route('blog.edit',$blog->id)}}" title="{{ translate('Edit') }}">
                                     <i class="las la-pen"></i>
                                 </a>
+                            @endcan
+                            @can('publish_blog')
+                                @if($blog->workflow_status !== 'published')
+                                    <form action="{{ route('blog.publish', $blog->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-soft-success btn-icon btn-circle btn-sm" title="{{ translate('Publish') }}">
+                                            <i class="las la-check"></i>
+                                        </button>
+                                    </form>
+                                @else
+                                    <form action="{{ route('blog.archive', $blog->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-soft-dark btn-icon btn-circle btn-sm" title="{{ translate('Archive') }}">
+                                            <i class="las la-archive"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             @endcan
                             @can('delete_blog')
                                 <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('blog.destroy', $blog->id)}}" title="{{ translate('Delete') }}">

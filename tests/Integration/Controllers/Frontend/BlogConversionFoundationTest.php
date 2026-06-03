@@ -653,6 +653,115 @@ class BlogConversionFoundationTest extends TestCase
     }
 
     /** @test */
+    public function public_blog_products_endpoint_does_not_require_system_key(): void
+    {
+        BusinessSetting::updateOrCreate(['type' => 'blog_enable_product_embeds'], ['value' => '1']);
+        BusinessSetting::updateOrCreate(['type' => 'blog_products_per_embed'], ['value' => '4']);
+        Cache::forget('business_settings');
+
+        $blog = $this->createPublishedBlog('public-products-guide');
+        $product = Product::factory()->create([
+            'name' => 'Public Blog Lamp',
+            'slug' => 'public-blog-lamp',
+            'current_stock' => 5,
+            'min_qty' => 1,
+        ]);
+        $blog->products()->attach($product->id, ['placement' => 'manual', 'sort_order' => 1]);
+
+        $response = $this->get(route('blog.products', ['blog_id' => $blog->id, 'count' => 4]));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('success', true);
+        $response->assertJsonFragment(['name' => 'Public Blog Lamp']);
+    }
+
+    /** @test */
+    public function api_v2_blog_details_hides_unpublished_drafts(): void
+    {
+        $draft = Blog::create([
+            'category_id' => $this->createBlogCategory()->id,
+            'title' => 'Hidden Draft Guide',
+            'slug' => 'hidden-draft-guide',
+            'short_description' => 'Draft only.',
+            'description' => '<p>Draft only.</p>',
+            'status' => 0,
+            'workflow_status' => 'draft',
+        ]);
+
+        $response = $this->getJson('/api/v2/blog-details/' . $draft->slug);
+
+        $response->assertStatus(404);
+        $response->assertJsonPath('result', false);
+    }
+
+    /** @test */
+    public function admin_article_builder_saves_blocks_as_draft_and_versions_content(): void
+    {
+        $admin = $this->adminWithBlogPermissions();
+        $category = $this->createBlogCategory();
+
+        $response = $this->actingAs($admin)->post(route('blog.store'), [
+            'category_id' => $category->id,
+            'title' => 'Builder Draft Guide',
+            'slug' => 'builder-draft-guide',
+            'short_description' => 'Structured draft content.',
+            'content_blocks' => json_encode([
+                ['type' => 'heading', 'data' => ['level' => 2, 'text' => 'Room Plan']],
+                ['type' => 'paragraph', 'data' => ['text' => 'Start with the focal wall.']],
+            ]),
+            'workflow_action' => 'draft',
+        ]);
+
+        $response->assertRedirect(route('blog.index'));
+        $blog = Blog::where('slug', 'builder-draft-guide')->firstOrFail();
+        $this->assertSame(0, (int) $blog->status);
+        $this->assertSame('draft', $blog->workflow_status);
+        $this->assertSame('heading', $blog->content_blocks[0]['type']);
+        $this->assertStringContainsString('<h2>Room Plan</h2>', $blog->description);
+        $this->assertDatabaseHas('blog_versions', [
+            'blog_id' => $blog->id,
+            'action' => 'draft',
+        ]);
+    }
+
+    /** @test */
+    public function admin_blog_create_loads_even_when_author_role_is_not_seeded_yet(): void
+    {
+        \Spatie\Permission\Models\Role::query()
+            ->where('name', 'author')
+            ->where('guard_name', 'web')
+            ->delete();
+
+        $admin = $this->adminWithBlogPermissions();
+        $this->createBlogCategory();
+
+        $response = $this->actingAs($admin)->get(route('blog.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Blog Information');
+    }
+
+    /** @test */
+    public function blog_status_toggle_rejects_unapproved_fields(): void
+    {
+        $admin = $this->adminWithBlogPermissions();
+        $blog = $this->createPublishedBlog('protected-toggle-guide');
+
+        $response = $this
+            ->actingAs($admin)
+            ->from(route('blog.index'))
+            ->post(route('blog.change-status'), [
+                'id' => $blog->id,
+                'field' => 'title',
+                'status' => 0,
+            ]);
+
+        $response->assertRedirect(route('blog.index'));
+        $response->assertSessionHasErrors('field');
+        $this->assertSame('Lighting Conversion Guide', $blog->fresh()->title);
+    }
+
+    /** @test */
     public function admin_dashboard_surfaces_blog_conversion_entry_points(): void
     {
         $admin = $this->adminWithBlogPermissions();

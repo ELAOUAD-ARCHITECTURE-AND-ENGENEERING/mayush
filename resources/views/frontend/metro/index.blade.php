@@ -1,4 +1,4 @@
-@extends('frontend.layouts.app')
+﻿@extends('frontend.layouts.app')
 
 @php
     $homepageSeoTitle = translate('Mayush Marketplace for Furniture, Decor and Interior Design in Morocco');
@@ -24,15 +24,22 @@
     <h1 class="d-none">Mayush Marketplace : meubles, decoration et design interieur au Maroc</h1>
     <style>
         /* Luxury Font pairing rules */
-        h1, h2, h3, h4, 
-        .metro-hero-title, 
-        .metro-marketplace-split-title, 
-        .promoted-category-title, 
+        h1, h2, h3, h4,
+        .promoted-category-title,
         .fs-22, .fs-28 {
             font-family: 'Cinzel', serif !important;
             font-weight: 700 !important;
             letter-spacing: 1.5px !important;
             color: #12192A !important; /* Midnight Navy */
+        }
+
+        /* Banner headings must stay white — separate from the dark heading rule above */
+        .metro-hero-title,
+        .metro-marketplace-split-title {
+            font-family: 'Cinzel', serif !important;
+            font-weight: 700 !important;
+            letter-spacing: 1.5px !important;
+            color: #ffffff !important;
         }
 
         body, p, span, a, input, button, select, textarea,
@@ -368,6 +375,7 @@
             font-size: clamp(1.8rem, 3.2vw, 3.1rem);
             line-height: 1.13;
             font-weight: 600;
+            color: #ffffff !important;
         }
         .metro-marketplace-split-description {
             display: block;
@@ -375,8 +383,10 @@
             margin-top: 14px;
             font-size: 1.05rem;
             line-height: 1.5;
+            color: rgba(255, 255, 255, .92) !important;
         }
         .metro-marketplace-split-cta {
+            color: #ffffff !important;
             display: inline-block;
             margin-top: 18px;
             border-bottom: 1px solid currentColor;

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AgentDiscoveryController;
 use App\Http\Controllers\AizUploadController;
+use App\Http\Controllers\AuthorBlogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\BlogController;
@@ -602,7 +603,13 @@ Route::middleware(['throttle:payments'])->group(function () {
 Route::controller(BlogController::class)->group(function () {
     Route::get('/blog', 'all_blog')->name('blog');
     Route::post('/blog/subscribe', 'subscribe')->middleware('throttle:10,1')->name('blog.subscribe');
+    Route::get('/blog/products', [\App\Http\Controllers\Api\BlogApiController::class, 'products'])->name('blog.products');
+    Route::get('/blog/preview/{id}', 'preview')->middleware('auth')->name('blog.preview');
     Route::get('/blog/{slug}', 'blog_details')->name('blog.details');
+});
+
+Route::middleware(['auth'])->prefix('author')->name('author.')->group(function () {
+    Route::resource('blogs', AuthorBlogController::class)->parameters(['blogs' => 'id'])->except('show');
 });
 
 Route::controller(PageController::class)->group(function () {
