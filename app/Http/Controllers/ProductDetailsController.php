@@ -100,7 +100,7 @@ class ProductDetailsController extends Controller
                 }
             }
 
-            if(get_setting('last_viewed_product_activation') == 1 && Auth::check() && auth()->user()->user_type == 'customer'){
+            if(get_setting('last_viewed_product_activation') == 1 && Auth::check() && isCustomer()){
                 lastViewedProducts($detailedProduct->id, auth()->user()->id);
             }
 

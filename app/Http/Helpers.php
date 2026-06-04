@@ -1610,7 +1610,7 @@ if (!function_exists('isAdmin')) {
 if (!function_exists('isSeller')) {
     function isSeller()
     {
-        if (Auth::check() && Auth::user()->user_type == 'seller') {
+        if (Auth::check() && Auth::user()->user_type == 'seller' && active_account_mode() == 'seller') {
             return true;
         }
         return false;
@@ -1620,10 +1620,63 @@ if (!function_exists('isSeller')) {
 if (!function_exists('isCustomer')) {
     function isCustomer()
     {
-        if (Auth::check() && Auth::user()->user_type == 'customer') {
+        if (Auth::check() && (
+            Auth::user()->user_type == 'customer' ||
+            (Auth::user()->user_type == 'seller' && active_account_mode() == 'buyer')
+        )) {
             return true;
         }
         return false;
+    }
+}
+
+if (!function_exists('has_seller_account')) {
+    function has_seller_account($user = null)
+    {
+        $user = $user ?: Auth::user();
+
+        if (!$user || $user->user_type !== 'seller' || $user->banned) {
+            return false;
+        }
+
+        return $user->shop !== null;
+    }
+}
+
+if (!function_exists('can_switch_account_mode')) {
+    function can_switch_account_mode($user = null)
+    {
+        $user = $user ?: Auth::user();
+
+        if (!has_seller_account($user) || $user->email_verified_at === null) {
+            return false;
+        }
+
+        $shop = $user->shop;
+        $shopVerified = (int) ($shop->verification_status ?? 0) === 1;
+        $shopApproved = $shop->approval_status === 'approved' || (int) ($shop->registration_approval ?? 0) === 1;
+
+        return $shopVerified || $shopApproved;
+    }
+}
+
+if (!function_exists('active_account_mode')) {
+    function active_account_mode()
+    {
+        if (!Auth::check()) {
+            return 'guest';
+        }
+
+        $sessionMode = session('account_mode');
+        if (can_switch_account_mode() && in_array($sessionMode, ['seller', 'buyer'], true)) {
+            return $sessionMode;
+        }
+
+        if (Auth::user()->user_type === 'seller') {
+            return 'seller';
+        }
+
+        return 'buyer';
     }
 }
 

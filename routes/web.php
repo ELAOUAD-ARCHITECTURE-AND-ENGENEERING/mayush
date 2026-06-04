@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\AccountModeController;
 use App\Http\Controllers\AgentDiscoveryController;
 use App\Http\Controllers\AizUploadController;
 use App\Http\Controllers\AuthorBlogController;
@@ -346,6 +347,8 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function() {
         Route::get('/profile', 'profile')->name('profile');
         Route::post('/user/update-profile', 'userProfileUpdate')->name('user.profile.update');
     });
+
+    Route::post('/account-mode/switch', [AccountModeController::class, 'switch'])->name('account-mode.switch');
 
     Route::controller(\App\Http\Controllers\Auth\CustomAuthController::class)->group(function () {
         Route::post('/new-user-verification', 'new_verify')->name('user.new.verify');

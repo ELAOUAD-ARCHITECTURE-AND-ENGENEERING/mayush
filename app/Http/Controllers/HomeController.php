@@ -183,7 +183,7 @@ class HomeController extends Controller
             return view('delivery_boys.dashboard');
         }
 
-        if ($user->user_type == 'customer') {
+        if ($user->user_type == 'customer' || ($user->user_type == 'seller' && active_account_mode() === 'buyer')) {
             $users_cart = Cart::where('user_id', $user->id)->first();
             if ($users_cart) {
                 flash(translate('You had placed your items in the shopping cart. Try to order before the product quantity runs out.'))->warning();
@@ -196,7 +196,7 @@ class HomeController extends Controller
 
     public function profile(Request $request)
     {
-        if (Auth::user()->user_type == 'seller') {
+        if (Auth::user()->user_type == 'seller' && active_account_mode() === 'seller') {
             return redirect()->route('seller.profile.index');
         } elseif (Auth::user()->user_type == 'delivery_boy') {
             return view('delivery_boys.profile');

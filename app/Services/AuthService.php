@@ -87,7 +87,7 @@ class AuthService
      */
     public function getDashboardRedirect(User $user)
     {
-        if ($user->user_type == 'seller') {
+        if ($user->user_type == 'seller' && active_account_mode() === 'seller') {
             return 'seller.dashboard';
         } 
         

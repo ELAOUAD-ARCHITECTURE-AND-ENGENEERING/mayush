@@ -1,4 +1,4 @@
-﻿@extends('frontend.layouts.app')
+@extends('frontend.layouts.app')
 
 @php
     $homepageSeoTitle = translate('Mayush Marketplace for Furniture, Decor and Interior Design in Morocco');
@@ -316,7 +316,7 @@
             font-size: 17px;
             line-height: 1.65;
             margin-bottom: 22px;
-            color: rgba(255, 255, 255, .92);
+            color: #ffffff !important;
         }
         .metro-marketplace-split {
             display: grid;
@@ -383,7 +383,7 @@
             margin-top: 14px;
             font-size: 1.05rem;
             line-height: 1.5;
-            color: rgba(255, 255, 255, .92) !important;
+            color: #ffffff !important;
         }
         .metro-marketplace-split-cta {
             color: #ffffff !important;
@@ -441,7 +441,7 @@
         .metro-collection-description {
             max-width: 560px;
             margin: 12px auto 0;
-            color: rgba(255, 255, 255, .92);
+            color: #ffffff !important;
             font-size: 1rem;
             line-height: 1.5;
         }

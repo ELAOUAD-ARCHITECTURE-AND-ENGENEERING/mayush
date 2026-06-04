@@ -3,7 +3,6 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\BusinessSetting;
-use App\Models\RegistrationVerificationCode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -19,17 +18,6 @@ class PasswordRegistrationValidationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        if (! Schema::hasTable('registration_verification_codes')) {
-            Schema::create('registration_verification_codes', function (Blueprint $table) {
-                $table->id();
-                $table->string('email')->nullable();
-                $table->string('phone')->nullable();
-                $table->string('code');
-                $table->boolean('is_verified')->default(false);
-                $table->timestamps();
-            });
-        }
 
         if (! Schema::hasTable('coupons')) {
             Schema::create('coupons', function (Blueprint $table) {
@@ -67,18 +55,11 @@ class PasswordRegistrationValidationTest extends TestCase
 
     public function test_weak_registration_password_is_rejected(): void
     {
-        RegistrationVerificationCode::query()->create([
-            'email' => 'weak-password@example.test',
-            'code' => '123456',
-            'is_verified' => 1,
-        ]);
-
         $this->from(route('register'))
             ->post(route('register'), [
                 'name' => 'Weak Password',
                 'email' => 'weak-password@example.test',
                 'verification_method' => 'email',
-                'code' => '123456',
                 'password' => 'password',
                 'password_confirmation' => 'password',
             ])
@@ -92,17 +73,10 @@ class PasswordRegistrationValidationTest extends TestCase
 
     public function test_valid_registration_password_creates_customer_account(): void
     {
-        RegistrationVerificationCode::query()->create([
-            'email' => 'strong-password@example.test',
-            'code' => '654321',
-            'is_verified' => 1,
-        ]);
-
         $this->post(route('register'), [
             'name' => 'Strong Password',
             'email' => 'strong-password@example.test',
             'verification_method' => 'email',
-            'code' => '654321',
             'password' => 'Secret123',
             'password_confirmation' => 'Secret123',
         ])->assertRedirect(route('home'));
