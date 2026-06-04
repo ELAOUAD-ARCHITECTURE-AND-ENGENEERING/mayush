@@ -115,14 +115,14 @@
         padding: 1.5rem 2rem !important;
     }
     .promoted-category-title {
-        font-family: 'Cinzel', serif !important;
+        font-family: var(--mayush-font-heading) !important;
         font-size: 20px !important;
         font-weight: 700 !important;
         letter-spacing: 1px !important;
         color: #12192A !important; /* Midnight Navy */
     }
     .promoted-category-subtitle {
-        font-family: 'Josefin Sans', sans-serif !important;
+        font-family: var(--mayush-font-body) !important;
         font-size: 14px !important;
         color: #21293E !important; /* Dark Slate Blue */
         line-height: 1.5 !important;
@@ -140,7 +140,7 @@
         max-width: 820px;
     }
     .promoted-view-all {
-        font-family: 'Josefin Sans', sans-serif !important;
+        font-family: var(--mayush-font-body) !important;
         font-weight: 600 !important;
         color: #D6A24E !important; /* Warm Gold outline */
         border-color: #D6A24E !important;

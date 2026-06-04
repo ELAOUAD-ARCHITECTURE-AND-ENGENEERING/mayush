@@ -23,22 +23,22 @@
 @section('content')
     <h1 class="d-none">Mayush Marketplace : meubles, decoration et design interieur au Maroc</h1>
     <style>
-        /* Luxury Font pairing rules */
+        /* Luxury Font pairing rules — Charte Graphique v1.0 */
         h1, h2, h3, h4,
         .promoted-category-title,
         .fs-22, .fs-28 {
-            font-family: 'Cinzel', serif !important;
+            font-family: var(--mayush-font-heading) !important;
             font-weight: 700 !important;
-            letter-spacing: 1.5px !important;
+            letter-spacing: 0.5px !important;
             color: #12192A !important; /* Midnight Navy */
         }
 
         /* Banner headings must stay white — separate from the dark heading rule above */
         .metro-hero-title,
         .metro-marketplace-split-title {
-            font-family: 'Cinzel', serif !important;
+            font-family: var(--mayush-font-heading) !important;
             font-weight: 700 !important;
-            letter-spacing: 1.5px !important;
+            letter-spacing: 0.5px !important;
             color: #ffffff !important;
         }
 
@@ -48,7 +48,7 @@
         .promoted-category-subtitle,
         .promoted-view-all,
         .fs-12, .fs-13, .fs-14, .fs-15, .fs-16, .fs-17 {
-            font-family: 'Josefin Sans', sans-serif !important;
+            font-family: var(--mayush-font-body) !important;
         }
 
         /* Color-mapping rules */
@@ -130,7 +130,7 @@
         .aiz-card-box .absolute-top-left {
             background: linear-gradient(135deg, #D6A24E 0%, #C98446 100%) !important; /* Warm Gold to Soft Orange */
             border-radius: 20px !important;
-            font-family: 'Josefin Sans', sans-serif !important;
+            font-family: var(--mayush-font-body) !important;
             font-weight: 700 !important;
             padding: 3px 10px !important;
             box-shadow: 0 4px 10px rgba(201, 132, 70, 0.25) !important;
@@ -172,7 +172,7 @@
             border: none !important;
             border-radius: 30px !important;
             height: 38px !important;
-            font-family: 'Josefin Sans', sans-serif !important;
+            font-family: var(--mayush-font-body) !important;
             font-weight: 600 !important;
             letter-spacing: 0.5px !important;
             box-shadow: 0 6px 15px rgba(33, 41, 62, 0.3) !important;
@@ -226,10 +226,10 @@
             color: #ffffff !important;
         }
         .metro-hero-title {
-            font-size: 42px !important;
-            line-height: 1.2 !important;
+            font-size: 48px !important;
+            line-height: 1.15 !important;
             font-weight: 700 !important;
-            letter-spacing: 2px !important;
+            letter-spacing: 0.5px !important;
             margin-bottom: 14px;
             text-shadow: 0 2px 16px rgba(0, 0, 0, .45) !important;
         }
@@ -297,10 +297,10 @@
             text-shadow: 0 2px 16px rgba(0, 0, 0, .35);
         }
         .metro-hero-title {
-            font-size: 44px;
-            line-height: 1.08;
-            font-weight: 800;
-            letter-spacing: 0;
+            font-size: 48px;
+            line-height: 1.15;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             margin-bottom: 14px;
         }
         .metro-hero-title span,

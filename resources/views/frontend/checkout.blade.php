@@ -12,7 +12,7 @@
         }
 
         .premium-checkout-container {
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--mayush-font-body);
             background-color: var(--premium-soft);
             min-height: 100vh;
             padding: 40px 0;

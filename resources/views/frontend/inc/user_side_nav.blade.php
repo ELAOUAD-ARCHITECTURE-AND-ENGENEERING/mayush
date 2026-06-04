@@ -383,8 +383,8 @@
     --bdash-icon-active: #0F766E;
     --bdash-badge-bg: #DC2626;
     --bdash-badge-color: #FFFFFF;
-    --bdash-font-body: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    --bdash-font-head: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    --bdash-font-body: var(--mayush-font-body);
+    --bdash-font-head: var(--mayush-font-heading);
     --bdash-transition: 160ms ease;
 }
 

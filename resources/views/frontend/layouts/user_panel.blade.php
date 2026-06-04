@@ -29,7 +29,7 @@
         align-items: center;
         color: #FFFFFF;
         display: inline-flex;
-        font-family: 'Poppins', sans-serif;
+        font-family: var(--mayush-font-body);
         font-size: 14px;
         font-weight: 700;
         gap: 0;
@@ -127,7 +127,7 @@
 
     .buyer-account-title {
         color: #0F766E;
-        font-family: 'Poppins', sans-serif;
+        font-family: var(--mayush-font-body);
         font-size: 20px;
         font-weight: 700;
         line-height: 1.25;

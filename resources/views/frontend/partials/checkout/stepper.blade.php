@@ -68,7 +68,7 @@
         --stepper-track-bg: #f1f2f4;
         --stepper-node-size: 50px;
         --stepper-icon-size: 24px;
-        --stepper-font: 'Outfit', sans-serif;
+        --stepper-font: var(--mayush-font-body);
     }
 
     .purchase-stepper-wrap {
