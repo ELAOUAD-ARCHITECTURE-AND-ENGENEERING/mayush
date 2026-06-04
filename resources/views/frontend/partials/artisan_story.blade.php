@@ -82,7 +82,7 @@
         border-top: 1px solid #f0f0f0;
     }
     .artisan-title {
-        font-family: 'Outfit', sans-serif;
+        font-family: var(--mayush-font-heading);
         color: #1a1a1a;
         letter-spacing: -0.02em;
     }
@@ -125,7 +125,7 @@
         font-style: italic;
     }
     .artisan-quote {
-        font-family: 'Playfair Display', serif;
+        font-family: var(--mayush-font-heading);
         border-bottom: 2px solid #eee;
         padding-bottom: 15px;
         display: inline-block;

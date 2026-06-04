@@ -9,7 +9,7 @@
         </div>
         <div class="position-absolute w-100 d-flex flex-column align-items-center justify-content-center text-center text-white" style="top: 50%; transform: translateY(-50%); z-index: 2;">
             <img src="{{ uploaded_asset($shop->logo) }}" alt="{{ $shop->name }}" class="rounded-circle shadow-lg mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #fff;">
-            <h1 class="display-3 font-weight-bold" style="font-family: serif;">{{ $shop->name }}</h1>
+            <h1 class="display-3 font-weight-bold" style="font-family: var(--mayush-font-heading);">{{ $shop->name }}</h1>
             <p class="lead mt-2">{{ $shop->meta_description }}</p>
         </div>
     </div>
@@ -20,7 +20,7 @@
         <div class="container py-5">
             <h2 class="mb-4 text-uppercase text-secondary" style="letter-spacing: 2px;">Our Philosophy</h2>
             <blockquote class="blockquote">
-                <p class="mb-0 font-italic" style="font-size: 1.5rem; line-height: 1.8; color: #333; font-family: serif;">
+                <p class="mb-0 font-italic" style="font-size: 1.5rem; line-height: 1.8; color: #333; font-family: var(--mayush-font-heading);">
                     "{{ $shop->brand_philosophy }}"
                 </p>
             </blockquote>
@@ -43,7 +43,7 @@
                 @endif
             </div>
             <div class="col-lg-6 pl-lg-5">
-                <h2 class="mb-4 font-weight-bold" style="font-size: 2.5rem; font-family: serif;">The Artisan Story</h2>
+                <h2 class="mb-4 font-weight-bold" style="font-size: 2.5rem; font-family: var(--mayush-font-heading);">The Artisan Story</h2>
                 <div class="text-muted mb-4" style="line-height: 1.8; font-size: 1.1rem;">
                     {!! nl2br(e($shop->artisan_story)) !!}
                 </div>
@@ -56,7 +56,7 @@
     <!-- Products Grid -->
     <div id="shop-products" class="container py-5">
         <div class="text-center mb-5">
-            <h3 class="font-weight-bold" style="font-family: serif;">Featured Works</h3>
+            <h3 class="font-weight-bold" style="font-family: var(--mayush-font-heading);">Featured Works</h3>
             <span class="text-muted">Handcrafted with passion</span>
         </div>
         <div class="row gutters-10">

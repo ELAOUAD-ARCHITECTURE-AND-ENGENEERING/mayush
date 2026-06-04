@@ -3024,3 +3024,49 @@ select.form-control.mo-custom-select {
 .hov-animate-outline-2:has(.aiz-card-box)::after {
     display: none !important;
 }
+
+/* 1. Mega Menu Height Fix */
+.aiz-category-menu { position: relative; }
+.aiz-category-menu .sub-cat-menu,
+.aiz-category-menu .sub-cat-menu.more {
+    height: 100% !important;
+    top: 0;
+    bottom: 0;
+    left: 100% !important;
+    width: max-content !important;
+    min-width: 700px !important;
+    max-width: calc(100vw - 300px) !important;
+    border-left: 1px solid #f1f5f9; /* Subtle divider */
+    box-shadow: 20px 0 40px rgba(0,0,0,0.05) !important; /* Premium Depth */
+    /* Add slide-in animation base */
+    transform: translateX(-10px);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Slide in when hovered */
+.aiz-category-menu .category-nav-element:hover .sub-cat-menu {
+    transform: translateX(0);
+}
+
+/* 2. Premium Typography for Headers */
+.aiz-category-menu .sub-cat-menu .font-weight-bold,
+.aiz-category-menu .sub-cat-menu .fw-600 {
+    font-size: 11px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b !important; /* Slate 500 */
+    margin-bottom: 12px;
+}
+
+/* 3. Interactive Links */
+.aiz-category-menu .sub-cat-menu ul.list-unstyled li a {
+    color: #334155;
+    transition: all 0.2s ease;
+    display: inline-block;
+    padding: 3px 0;
+}
+.aiz-category-menu .sub-cat-menu ul.list-unstyled li a:hover {
+    color: var(--primary);
+    transform: translateX(3px);
+}
+
