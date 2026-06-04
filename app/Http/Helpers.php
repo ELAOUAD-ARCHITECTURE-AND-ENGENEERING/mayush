@@ -1653,9 +1653,10 @@ if (!function_exists('can_switch_account_mode')) {
         }
 
         $shop = $user->shop;
+        $shopVerified = (int) ($shop->verification_status ?? 0) === 1;
+        $shopApproved = $shop->approval_status === 'approved' || (int) ($shop->registration_approval ?? 0) === 1;
 
-        return (int) $shop->verification_status === 1
-            && ($shop->approval_status === 'approved' || (int) $shop->registration_approval === 1);
+        return $shopVerified || $shopApproved;
     }
 }
 

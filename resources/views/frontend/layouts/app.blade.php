@@ -279,17 +279,21 @@
 
             $system_language = get_system_language();
         @endphp
-        <!-- Header -->
-        @include('frontend.inc.nav')
+        @if (!trim($__env->yieldContent('hide_default_frontend_nav')))
+            <!-- Header -->
+            @include('frontend.inc.nav')
+        @endif
 
         @yield('content')
 
-        <!-- footer -->
-        @include('frontend.inc.footer')
+        @if (!trim($__env->yieldContent('hide_default_frontend_footer')))
+            <!-- footer -->
+            @include('frontend.inc.footer')
+        @endif
 
     </div>
 
-    @if(get_setting('use_floating_buttons') == 1)
+    @if(get_setting('use_floating_buttons') == 1 && !trim($__env->yieldContent('hide_default_frontend_nav')))
         <!-- Floating Buttons -->
         @include('frontend.inc.floating_buttons')
     @endif

@@ -23,10 +23,36 @@ class AccountModeSwitchTest extends TestCase
     {
         $seller = $this->approvedSeller();
 
-        $this->actingAs($seller)
+        $response = $this->actingAs($seller)
             ->get(route('seller.dashboard'))
             ->assertOk()
             ->assertSee('Switch to Buyer');
+
+        $this->assertSame(1, substr_count($response->getContent(), 'data-account-mode-switcher'));
+    }
+
+    public function test_legacy_verified_seller_can_use_switcher_without_new_approval_status(): void
+    {
+        $seller = User::factory()->seller()->create();
+        Shop::factory()->create([
+            'user_id' => $seller->id,
+            'registration_approval' => 0,
+            'approval_status' => 'pending',
+            'verification_status' => 1,
+        ]);
+
+        $response = $this->actingAs($seller)
+            ->get(route('seller.dashboard'))
+            ->assertOk()
+            ->assertSee('Switch to Buyer')
+            ->assertSee('data-account-mode-switcher', false);
+
+        $this->assertSame(1, substr_count($response->getContent(), 'data-account-mode-switcher'));
+
+        $this->actingAs($seller)
+            ->post(route('account-mode.switch'), ['mode' => 'buyer'])
+            ->assertRedirect(route('dashboard'))
+            ->assertSessionHas('account_mode', 'buyer');
     }
 
     public function test_buyer_only_account_does_not_see_switcher(): void
@@ -71,12 +97,16 @@ class AccountModeSwitchTest extends TestCase
             ->assertRedirect(route('dashboard'))
             ->assertSessionHas('account_mode', 'buyer');
 
-        $this->actingAs($seller)
+        $response = $this->actingAs($seller)
             ->withSession(['account_mode' => 'buyer'])
             ->get(route('dashboard'))
             ->assertOk()
+            ->assertSee('buyer-dashboard-navbar', false)
             ->assertSee('Switch to Seller')
-            ->assertDontSee('Switch to Buyer');
+            ->assertDontSee('Switch to Buyer')
+            ->assertDontSee('mayush-market-header', false);
+
+        $this->assertSame(1, substr_count($response->getContent(), 'data-account-mode-switcher'));
     }
 
     public function test_seller_can_switch_back_to_seller_mode(): void

@@ -38,10 +38,102 @@
                 </div>
             @endif
             <div class="aiz-topbar-item ml-3">
-                <div class="d-flex align-items-center h-100">
+                <div class="d-flex align-items-center h-100 seller-topbar-mode-wrap">
                     @include('partials.account_mode_switcher')
                 </div>
             </div>
+
+            {{-- ── Seller-context mode-switcher override ──────────────────────────
+                 The global .ms-pill uses dark-glass styling (for dark buyer navbar).
+                 Here it sits on the white/light seller topbar, so we override it to
+                 be fully visible: solid dark pill with amber seller accent.
+            ──────────────────────────────────────────────────────────────────── --}}
+            <style>
+                /* ── Scoped to the seller topbar only ────────────────────────── */
+                .aiz-topbar {
+                    background: #FFFFFF !important;
+                    border-bottom: 1px solid #CFFAFE !important; /* cyan-100 */
+                }
+                .aiz-topbar .btn-light {
+                    background: #ECFEFF !important; /* cyan-50 */
+                    color: #0891B2 !important; /* cyan-600 */
+                    border-color: #CFFAFE !important;
+                }
+                .aiz-topbar .btn-light:hover {
+                    background: #CFFAFE !important;
+                }
+
+                .seller-topbar-mode-wrap .ms-pill {
+                    background: #164E63;                       /* cyan-900 solid */
+                    border: none;
+                    border-radius: 12px;
+                    box-shadow: 0 2px 8px rgba(22, 78, 99, 0.22),
+                                0 0 0 1px rgba(22, 78, 99, 0.10);
+                    height: 38px;
+                    padding: 0;
+                    transition: box-shadow 180ms ease;
+                }
+
+                .seller-topbar-mode-wrap .ms-pill:hover {
+                    box-shadow: 0 4px 16px rgba(22, 78, 99, 0.30),
+                                0 0 0 1px rgba(22, 78, 99, 0.14);
+                }
+
+                /* Current mode segment — cyan for seller */
+                .seller-topbar-mode-wrap .ms-pill__mode--seller {
+                    color: #22D3EE;                            /* cyan-400 */
+                    font-size: 11.5px;
+                    font-family: 'Poppins', -apple-system, sans-serif;
+                    font-weight: 700;
+                    letter-spacing: 0.03em;
+                    padding: 0 12px;
+                }
+
+                /* Current mode segment — emerald for buyer (edge case) */
+                .seller-topbar-mode-wrap .ms-pill__mode--buyer {
+                    color: #6EE7B7;
+                    font-size: 11.5px;
+                    font-family: 'Poppins', -apple-system, sans-serif;
+                    font-weight: 700;
+                    letter-spacing: 0.03em;
+                    padding: 0 12px;
+                }
+
+                /* Divider */
+                .seller-topbar-mode-wrap .ms-pill__divider {
+                    background: rgba(255, 255, 255, 0.12);
+                }
+
+                /* Action button */
+                .seller-topbar-mode-wrap .ms-pill__btn {
+                    background: rgba(34, 211, 238, 0.12);     /* cyan tint */
+                    border-left: 1px solid rgba(34, 211, 238, 0.18);
+                    border-radius: 0 12px 12px 0;
+                    color: #A5F3FC;                            /* cyan-200 */
+                    font-size: 11.5px;
+                    font-family: 'Poppins', -apple-system, sans-serif;
+                    font-weight: 600;
+                    gap: 6px;
+                    padding: 0 13px;
+                    transition: background 180ms ease, color 180ms ease;
+                }
+
+                .seller-topbar-mode-wrap .ms-pill__btn:hover {
+                    background: rgba(34, 211, 238, 0.22);
+                    color: #FFFFFF;
+                }
+
+                .seller-topbar-mode-wrap .ms-pill__btn:focus-visible {
+                    background: rgba(34, 211, 238, 0.22);
+                    box-shadow: inset 0 0 0 2px rgba(165, 243, 252, 0.6);
+                    color: #FFFFFF;
+                }
+
+                /* Arrow icon inherits button color */
+                .seller-topbar-mode-wrap .ms-pill__btn svg {
+                    opacity: 0.85;
+                }
+            </style>
         </div>
         <div class="d-flex justify-content-around align-items-center align-items-stretch">
 
@@ -151,9 +243,6 @@
                         </span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-animated dropdown-menu-md">
-                        <div class="px-3 py-2 border-bottom">
-                            @include('partials.account_mode_switcher')
-                        </div>
                         <a href="{{ route('seller.profile.index') }}" class="dropdown-item">
                             <i class="las la-user-circle"></i>
                             <span>{{translate('Profile')}}</span>
