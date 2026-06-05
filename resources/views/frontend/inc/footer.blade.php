@@ -232,13 +232,13 @@
                     <ul class="list-inline social colored mb-4">
                         @if (!empty(get_setting('facebook_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('facebook_link') }}" target="_blank"
+                                <a href="{{ get_setting('facebook_link') }}" target="_blank" rel="noopener noreferrer"
                                     class="facebook"><i class="lab la-facebook-f"></i></a>
                             </li>
                         @endif
                         @if (!empty(get_setting('twitter_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('twitter_link') }}" target="_blank"
+                                <a href="{{ get_setting('twitter_link') }}" target="_blank" rel="noopener noreferrer"
                                     class="x-twitter">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#ffffff" viewBox="0 0 16 16" class="mb-2 pb-1">
                                         <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 
@@ -249,19 +249,19 @@
                         @endif
                         @if (!empty(get_setting('instagram_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('instagram_link') }}" target="_blank"
+                                <a href="{{ get_setting('instagram_link') }}" target="_blank" rel="noopener noreferrer"
                                     class="instagram"><i class="lab la-instagram"></i></a>
                             </li>
                         @endif
                         @if (!empty(get_setting('youtube_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('youtube_link') }}" target="_blank"
+                                <a href="{{ get_setting('youtube_link') }}" target="_blank" rel="noopener noreferrer"
                                     class="youtube"><i class="lab la-youtube"></i></a>
                             </li>
                         @endif
                         @if (!empty(get_setting('linkedin_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('linkedin_link') }}" target="_blank"
+                                <a href="{{ get_setting('linkedin_link') }}" target="_blank" rel="noopener noreferrer"
                                     class="linkedin"><i class="lab la-linkedin-in"></i></a>
                             </li>
                         @endif
@@ -273,12 +273,12 @@
                     <h5 class="fs-14 fw-700 text-secondary text-uppercase mt-3">{{ translate('Mobile Apps') }}</h5>
                     <div class="d-flex mt-3">
                         <div class="">
-                            <a href="{{ get_setting('play_store_link') }}" target="_blank" class="mr-2 mb-2 overflow-hidden hov-scale-img">
+                            <a href="{{ get_setting('play_store_link') }}" target="_blank" rel="noopener noreferrer" class="mr-2 mb-2 overflow-hidden hov-scale-img">
                                 <img class="lazyload has-transition" src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" data-src="{{ static_asset('assets/img/play.png') }}" alt="{{ env('APP_NAME') }}" height="44">
                             </a>
                         </div>
                         <div class="">
-                            <a href="{{ get_setting('app_store_link') }}" target="_blank" class="overflow-hidden hov-scale-img">
+                            <a href="{{ get_setting('app_store_link') }}" target="_blank" rel="noopener noreferrer" class="overflow-hidden hov-scale-img">
                                 <img class="lazyload has-transition" src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" data-src="{{ static_asset('assets/img/app.png') }}" alt="{{ env('APP_NAME') }}" height="44">
                             </a>
                         </div>
@@ -414,7 +414,7 @@
                             @endguest
                             @if(get_setting('seller_app_link'))
                                 <li class="mb-2">
-                                    <a class="fs-13 text-soft-light animate-underline-white" target="_blank" href="{{ get_setting('seller_app_link')}}">
+                                    <a class="fs-13 text-soft-light animate-underline-white" target="_blank" rel="noopener noreferrer" href="{{ get_setting('seller_app_link')}}">
                                         {{ translate('Download Seller App') }}
                                     </a>
                                 </li>
@@ -436,7 +436,7 @@
 
                             @if(get_setting('delivery_boy_app_link'))
                                 <li class="mb-2">
-                                    <a class="fs-13 text-soft-light animate-underline-white" target="_blank" href="{{ get_setting('delivery_boy_app_link')}}">
+                                    <a class="fs-13 text-soft-light animate-underline-white" target="_blank" rel="noopener noreferrer" href="{{ get_setting('delivery_boy_app_link')}}">
                                         {{ translate('Download Delivery Boy App') }}
                                     </a>
                                 </li>
@@ -578,7 +578,7 @@
                         @endguest
                         @if(get_setting('seller_app_link'))
                             <li class="mb-2 pb-2">
-                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" target="_blank" href="{{ get_setting('seller_app_link')}}">
+                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" target="_blank" rel="noopener noreferrer" href="{{ get_setting('seller_app_link')}}">
                                     {{ translate('Download Seller App') }}
                                 </a>
                             </li>
@@ -607,7 +607,7 @@
                         @endguest
                         @if(get_setting('delivery_boy_app_link'))
                             <li class="mb-2 pb-2">
-                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" target="_blank" href="{{ get_setting('delivery_boy_app_link')}}">
+                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" target="_blank" rel="noopener noreferrer" href="{{ get_setting('delivery_boy_app_link')}}">
                                     {{ translate('Download Delivery Boy App') }}
                                 </a>
                             </li>

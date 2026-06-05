@@ -7,6 +7,7 @@ use App\Models\BusinessSetting;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductStock;
+use App\Models\Shop;
 use App\Services\IndexNowService;
 use App\Services\SeoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -69,8 +70,11 @@ class AdvancedSeoSchemaTest extends TestCase
             ->assertSee('"@type": "CollectionPage"', false)
             ->assertSee('"@type": "FAQPage"', false)
             ->assertSee('Office Furniture Morocco Modern Workspace Collection', false)
-            ->assertSee('Comment choisir Office Furniture au Maroc sur Mayush', false)
-            ->assertSee('Office Furniture au Maroc', false);
+            ->assertSee('Comment optimiser un espace de bureau ou coworking au Maroc ?', false)
+            ->assertSee('Office Furniture au Maroc', false)
+            ->assertSee('Derniere mise a jour', false)
+            ->assertSee('geo-expert-note', false)
+            ->assertSee('postes de travail modulaires', false);
     }
 
     public function test_homepage_and_product_pages_render_mayushseo_visible_geo_content(): void
@@ -87,12 +91,18 @@ class AdvancedSeoSchemaTest extends TestCase
             'brand_id' => $brand->id,
             'published' => 1,
             'approved' => 1,
+            'photos' => '1',
+            'thumbnail_img' => 1,
             'est_shipping_days' => 4,
         ]);
         ProductStock::factory()->create(['product_id' => $product->id, 'qty' => 3]);
 
         $this->get(route('home'))
             ->assertOk()
+            ->assertSee('max-image-preview:large, max-snippet:-1, max-video-preview:-1', false)
+            ->assertSee('"@type": "ItemList"', false)
+            ->assertSee('Que peut-on acheter sur Mayush au Maroc ?', false)
+            ->assertSee('Mayush Marketplace', false)
             ->assertSee('Marketplace de Mobilier & Decoration au Maroc', false)
             ->assertSee('marketplace marocaine de mobilier', false);
 
@@ -100,8 +110,46 @@ class AdvancedSeoSchemaTest extends TestCase
             ->assertOk()
             ->assertSee('geo-direct-answer', false)
             ->assertSee('geo-specs-table', false)
+            ->assertSee('geo-expert-note', false)
             ->assertSee('Table a manger scandinave est un produit', false)
-            ->assertSee('Estimation 4 jours au Maroc', false);
+            ->assertSee('Estimation 4 jours au Maroc', false)
+            ->assertSee('Casablanca, Rabat, Tanger, Marrakech', false)
+            ->assertSee('Livraison Maroc', false);
+    }
+
+    public function test_global_organization_schema_includes_marketplace_entity_details(): void
+    {
+        $schema = SeoService::organizationSchema([
+            'site_name' => 'MayushTest',
+            'description' => 'Fallback description',
+        ]);
+
+        $this->assertSame('Mayush Marketplace', $schema['alternateName']);
+        $this->assertSame('Maroc', $schema['foundingLocation']['name']);
+        $this->assertContains('marketplace mobilier', $schema['knowsAbout']);
+    }
+
+    public function test_seller_profile_renders_mayushseo_eeat_content_and_store_schema(): void
+    {
+        $shop = Shop::factory()->create([
+            'name' => 'Atelier Atlas',
+            'slug' => 'atelier-atlas',
+            'address' => 'Casablanca, Maroc',
+            'verification_status' => 1,
+        ]);
+        Product::factory()->create([
+            'user_id' => $shop->user_id,
+            'published' => 1,
+            'approved' => 1,
+        ]);
+
+        $this->get(route('shop.visit', $shop->slug))
+            ->assertOk()
+            ->assertSee('"@type": "Store"', false)
+            ->assertSee('Atelier Atlas - vendeur Mayush au Maroc', false)
+            ->assertSee('Vendeur verifie Mayush', false)
+            ->assertSee('1 produits publies', false)
+            ->assertSee('Casablanca, Maroc', false);
     }
 
     public function test_indexnow_service_noops_without_configuration(): void

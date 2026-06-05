@@ -12,6 +12,7 @@
     $productGeoAvailabilityLabel = $productGeoQty > 0 ? 'En stock' : 'Rupture de stock';
     $productGeoAnswer = \App\Services\SeoService::productDirectAnswer($detailedProduct, $productGeoAvailabilityLabel);
     $productGeoSpecRows = \App\Services\SeoService::productSpecRows($detailedProduct, $productGeoAvailabilityLabel);
+    $productGeoExpertNote = \App\Services\SeoService::productExpertNote($detailedProduct);
 @endphp
 
 @section('meta_title'){{ $productSeoTitle }}@stop
@@ -126,7 +127,7 @@
                             <p class="geo-direct-answer fs-15 text-dark mb-3">{{ $productGeoAnswer }}</p>
                             @if(count($productGeoSpecRows) > 0)
                                 <div class="table-responsive">
-                                    <table class="table table-bordered geo-specs-table mb-0">
+                                    <table class="table table-bordered geo-specs-table mb-3">
                                         <tbody>
                                             @foreach($productGeoSpecRows as $label => $value)
                                                 <tr>
@@ -138,6 +139,9 @@
                                     </table>
                                 </div>
                             @endif
+                            <blockquote class="expert-note geo-expert-note bg-light p-3 border-left border-primary fs-14 text-dark mb-0">
+                                {{ $productGeoExpertNote }}
+                            </blockquote>
                         </article>
                         <div class="mw-100 overflow-hidden text-left aiz-editor-data">
                             <?php echo $detailedProduct->getTranslation('description'); ?>

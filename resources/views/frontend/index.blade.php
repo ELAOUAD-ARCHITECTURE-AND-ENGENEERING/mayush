@@ -23,15 +23,6 @@
     @endsection
 @endif
 
-@section('meta')
-    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
-        'title' => $homepageSeoTitle,
-        'description' => $homepageSeoDescription,
-        'canonical' => route('home'),
-    ])) !!}</script>
-    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(app(\App\Services\SeoStatsService::class)->homepageFaqSchema()) !!}</script>
-@endsection
-
 @section('content')
     @include('frontend.partials.mayushseo_home_intro')
     {{-- Categories , Sliders . Today's deal --}}

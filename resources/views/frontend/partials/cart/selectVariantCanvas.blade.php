@@ -279,7 +279,7 @@
                         @if (($product->added_by == 'seller' && get_setting('whatsapp_order_seller_prods') == 1) || ($product->added_by == 'admin'))
 
                         <div class="order-via-whatsapp mt-2">
-                            <a href="{{ $whatsappUrl }}" target="_blank"class="d-inline-flex align-items-center  animate-underline-green has-transition">
+                            <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="d-inline-flex align-items-center  animate-underline-green has-transition">
                                 <i class="lab la-whatsapp fs-20"></i>
                                 <span class="fs-14 fw-400 pl-1">{{ translate('Order Via WhatsApp') }}</span>
                             </a>

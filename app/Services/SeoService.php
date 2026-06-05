@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Shop;
 use Illuminate\Support\Str;
 
 class SeoService
@@ -84,14 +85,14 @@ class SeoService
             'image' => $image,
             'canonical' => $canonical,
             'type' => ($overrides['type'] ?? '') ?: 'website',
-            'robots' => ($overrides['robots'] ?? '') ?: 'index, follow',
+            'robots' => ($overrides['robots'] ?? '') ?: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
             'site_name' => $siteName,
         ];
     }
 
     public static function homepageTitle(): string
     {
-        return 'Mobilier, Decoration & Amenagement au Maroc | Mayush';
+        return 'Mayush Marketplace : Mobilier & Decoration au Maroc';
     }
 
     public static function homepageDescription(): string
@@ -131,6 +132,22 @@ class SeoService
         return self::cleanText("Achetez {$name} sur Mayush Maroc. Comparez les details, dimensions, prix et options de livraison pour {$category}.", '', 160);
     }
 
+    public static function shopMetaTitle(Shop $shop): string
+    {
+        $name = self::cleanText($shop->name, 'Vendeur Mayush', 42);
+
+        return self::cleanText($name . ' - Vendeur mobilier au Maroc | Mayush', $name, 70);
+    }
+
+    public static function shopMetaDescription(Shop $shop): string
+    {
+        $name = self::cleanText($shop->name, 'Ce vendeur Mayush', 60);
+        $location = self::cleanText($shop->address, 'Maroc', 70);
+        $verified = (int) $shop->verification_status === 1 ? 'verifie' : 'reference';
+
+        return self::cleanText("Decouvrez {$name}, vendeur {$verified} sur Mayush Marketplace au Maroc. Consultez ses produits, avis, profil, localisation ({$location}) et options de contact.", '', 170);
+    }
+
     public static function jsonLd(array $data): string
     {
         return json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
@@ -140,14 +157,32 @@ class SeoService
     {
         $seo = $seo ?: self::meta();
         $logo = self::absoluteUrl(uploaded_asset(get_setting('header_logo')));
+        $stats = app(SeoStatsService::class)->homepageStats();
 
         $schema = [
             '@context' => 'https://schema.org',
             '@type' => 'Organization',
             '@id' => route('home') . '#organization',
             'name' => $seo['site_name'],
+            'alternateName' => 'Mayush Marketplace',
             'url' => route('home'),
-            'description' => $seo['description'],
+            'description' => self::marketplaceDescription($stats),
+            'foundingLocation' => [
+                '@type' => 'Country',
+                'name' => 'Maroc',
+            ],
+            'areaServed' => [
+                '@type' => 'Country',
+                'name' => 'Maroc',
+            ],
+            'knowsAbout' => [
+                'mobilier Maroc',
+                'decoration maison Maroc',
+                'amenagement interieur',
+                'luminaires',
+                'marketplace mobilier',
+            ],
+            'additionalProperty' => self::marketplaceProperties($stats),
             'sameAs' => self::socialProfileUrls(),
         ];
 
@@ -155,6 +190,8 @@ class SeoService
             $schema['logo'] = [
                 '@type' => 'ImageObject',
                 'url' => $logo,
+                'width' => 600,
+                'height' => 60,
             ];
         }
 
@@ -221,6 +258,24 @@ class SeoService
 
     public static function categoryFaqSchema(Category $category, ?int $productCount = null, ?int $verifiedSellers = null): array
     {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => array_map(function (array $item) {
+                return [
+                    '@type' => 'Question',
+                    'name' => $item['question'],
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => $item['answer'],
+                    ],
+                ];
+            }, self::categoryFaqItems($category, $productCount, $verifiedSellers)),
+        ];
+    }
+
+    public static function categoryFaqItems(Category $category, ?int $productCount = null, ?int $verifiedSellers = null): array
+    {
         $categoryName = self::cleanText($category->getTranslation('name'), $category->name, 80);
         $countText = $productCount !== null && $productCount > 0
             ? 'Cette categorie regroupe ' . number_format($productCount) . ' produits publies sur Mayush.'
@@ -228,29 +283,46 @@ class SeoService
         $sellerText = $verifiedSellers !== null && $verifiedSellers > 0
             ? 'Le catalogue Mayush s appuie sur ' . number_format($verifiedSellers) . ' vendeurs verifies au Maroc.'
             : 'Le catalogue Mayush s appuie sur des vendeurs verifies au Maroc.';
+        $intent = self::categoryIntentProfile($category);
 
         return [
-            '@context' => 'https://schema.org',
-            '@type' => 'FAQPage',
-            'mainEntity' => [
-                [
-                    '@type' => 'Question',
-                    'name' => "Comment choisir {$categoryName} au Maroc sur Mayush ?",
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text' => $countText . ' Comparez les dimensions, matieres, prix, vendeurs et options de livraison avant de choisir le produit adapte a votre espace.',
-                    ],
-                ],
-                [
-                    '@type' => 'Question',
-                    'name' => "Mayush propose-t-il des vendeurs verifies pour {$categoryName} ?",
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text' => $sellerText . ' Chaque page produit presente les informations disponibles sur le prix, la disponibilite, la livraison et les caracteristiques.',
-                    ],
-                ],
+            [
+                'question' => $intent['primary_question'] ?: "Comment choisir {$categoryName} au Maroc sur Mayush ?",
+                'answer' => $countText . ' ' . $intent['primary_answer'],
+            ],
+            [
+                'question' => $intent['secondary_question'] ?: "Mayush propose-t-il des vendeurs verifies pour {$categoryName} ?",
+                'answer' => $sellerText . ' ' . $intent['secondary_answer'],
             ],
         ];
+    }
+
+    public static function categoryExpertNote(Category $category): string
+    {
+        $categoryName = self::cleanText($category->getTranslation('name'), $category->name, 80);
+        $intent = self::categoryIntentProfile($category);
+
+        return self::cleanText(
+            "Note de l'equipe conseil Mayush : pour {$categoryName}, privilegiez {$intent['expert_focus']} et verifiez toujours les dimensions, les finitions et les options de livraison avant de commander.",
+            '',
+            260
+        );
+    }
+
+    public static function productExpertNote(Product $product): string
+    {
+        $category = optional($product->main_category)->getTranslation('name') ?: 'mobilier et decoration';
+
+        return self::cleanText(
+            "Note de l'equipe conseil Mayush : pour un achat {$category} au Maroc, comparez les dimensions, la disponibilite, les delais de livraison et les informations du vendeur afin de choisir une piece adaptee a votre espace.",
+            '',
+            260
+        );
+    }
+
+    public static function categoryFreshnessLabel(): string
+    {
+        return 'Derniere mise a jour : ' . now()->translatedFormat('F Y');
     }
 
     public static function productDirectAnswer(Product $product, string $availabilityLabel): string
@@ -259,7 +331,7 @@ class SeoService
         $category = optional($product->main_category)->getTranslation('name') ?: 'mobilier et decoration';
         $brand = optional($product->brand)->name ? ' de la marque ' . self::cleanText($product->brand->name, '', 60) : '';
 
-        return self::cleanText("{$name} est un produit {$category}{$brand} disponible sur Mayush Maroc. Consultez les dimensions, le prix, la disponibilite ({$availabilityLabel}) et les options de livraison avant achat.", '', 260);
+        return self::cleanText("{$name} est un produit {$category}{$brand} disponible sur Mayush Maroc. Consultez les dimensions, le prix, la disponibilite ({$availabilityLabel}) et les options de livraison partout au Maroc, notamment Casablanca, Rabat, Tanger et Marrakech.", '', 300);
     }
 
     public static function productSpecRows(Product $product, string $availabilityLabel): array
@@ -272,6 +344,7 @@ class SeoService
             'Livraison' => $product->est_shipping_days
                 ? 'Estimation ' . (int) $product->est_shipping_days . ' jours au Maroc'
                 : 'Options de livraison selon le vendeur au Maroc',
+            'Zones de livraison' => 'Partout au Maroc (Casablanca, Rabat, Tanger, Marrakech et autres villes selon vendeur)',
             'SKU' => $product->slug,
         ];
 
@@ -401,6 +474,45 @@ class SeoService
         return $schema;
     }
 
+    public static function shopSchema(Shop $shop): array
+    {
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Store',
+            '@id' => route('shop.visit', $shop->slug) . '#seller',
+            'name' => self::cleanText($shop->name, 'Vendeur Mayush', 90),
+            'url' => route('shop.visit', $shop->slug),
+            'image' => self::absoluteUrl(uploaded_asset($shop->logo)),
+            'description' => self::shopMetaDescription($shop),
+            'address' => self::cleanText($shop->address, 'Maroc', 140),
+            'telephone' => self::cleanText($shop->phone, '', 40),
+            'memberOf' => [
+                '@id' => route('home') . '#organization',
+            ],
+            'areaServed' => [
+                '@type' => 'Country',
+                'name' => 'Maroc',
+            ],
+            'additionalProperty' => [
+                [
+                    '@type' => 'PropertyValue',
+                    'name' => 'Statut Mayush',
+                    'value' => (int) $shop->verification_status === 1 ? 'Vendeur verifie' : 'Vendeur reference',
+                ],
+            ],
+        ];
+
+        if ((int) $shop->num_of_reviews > 0) {
+            $schema['aggregateRating'] = [
+                '@type' => 'AggregateRating',
+                'ratingValue' => (float) $shop->rating,
+                'reviewCount' => (int) $shop->num_of_reviews,
+            ];
+        }
+
+        return self::filterSchema($schema);
+    }
+
     public static function merchantReturnPolicySchema(Product $product): array
     {
         $days = (int) (optional($product->main_category)->refund_request_time ?: get_setting('refund_request_time') ?: config('seo.return_policy_days', 15));
@@ -463,6 +575,101 @@ class SeoService
     public static function altText(?string $name, string $fallback = 'Mayush'): string
     {
         return self::cleanText($name, $fallback, 120);
+    }
+
+    public static function productAltText(Product $product, string $suffix = 'Livraison Maroc'): string
+    {
+        $name = self::cleanText($product->getTranslation('name'), $product->name, 70);
+        $category = optional($product->main_category)->getTranslation('name');
+        $parts = array_filter([$name, $category, $suffix]);
+
+        return self::cleanText(implode(' - ', $parts), $name, 140);
+    }
+
+    public static function marketplaceDescription(?array $stats = null): string
+    {
+        $stats = $stats ?: app(SeoStatsService::class)->homepageStats();
+        $sellerText = ($stats['verified_sellers'] ?? 0) > 0
+            ? number_format($stats['verified_sellers']) . ' vendeurs verifies'
+            : 'vendeurs verifies';
+        $productText = ($stats['published_products'] ?? 0) > 0
+            ? number_format($stats['published_products']) . ' produits publies'
+            : 'produits publies';
+
+        return "Marketplace marocaine reliant {$sellerText} a des acheteurs de mobilier, decoration, luminaires et amenagement interieur, avec {$productText}.";
+    }
+
+    private static function marketplaceProperties(array $stats): array
+    {
+        $properties = [];
+        foreach ([
+            'verified_sellers' => 'Vendeurs verifies',
+            'published_products' => 'Produits publies',
+        ] as $key => $name) {
+            if (($stats[$key] ?? 0) > 0) {
+                $properties[] = [
+                    '@type' => 'PropertyValue',
+                    'name' => $name,
+                    'value' => (string) $stats[$key],
+                ];
+            }
+        }
+
+        return $properties;
+    }
+
+    private static function categoryIntentProfile(Category $category): array
+    {
+        $source = Str::lower($category->slug . ' ' . $category->name . ' ' . $category->getTranslation('name'));
+        $default = [
+            'primary_question' => null,
+            'primary_answer' => 'Comparez les dimensions, matieres, prix, vendeurs et options de livraison avant de choisir le produit adapte a votre espace.',
+            'secondary_question' => null,
+            'secondary_answer' => 'Chaque page produit presente les informations disponibles sur le prix, la disponibilite, la livraison et les caracteristiques.',
+            'expert_focus' => 'des dimensions coherentes avec votre piece, des finitions durables',
+        ];
+
+        if (Str::contains($source, ['office', 'bureau', 'bureaux', 'workspace'])) {
+            return [
+                'primary_question' => 'Comment optimiser un espace de bureau ou coworking au Maroc ?',
+                'primary_answer' => 'Pour un bureau efficace, recherchez des postes de travail modulaires, des fauteuils ergonomiques, des rangements accessibles et, si possible, des cloisons acoustiques pour reduire le bruit.',
+                'secondary_question' => 'Quels criteres verifier pour le mobilier de bureau sur Mayush ?',
+                'secondary_answer' => 'Verifiez la hauteur, la profondeur, le soutien ergonomique, la disponibilite, le prix et les conditions de livraison au Maroc avant de commander.',
+                'expert_focus' => 'l ergonomie, les postes de travail modulaires, la gestion acoustique',
+            ];
+        }
+
+        if (Str::contains($source, ['salon', 'canape', 'canapes', 'fauteuil'])) {
+            return [
+                'primary_question' => 'Comment choisir un canape pour un petit salon au Maroc ?',
+                'primary_answer' => 'Pour un petit salon marocain, privilegiez un canape compact ou d angle, des rangements integres et des dimensions qui laissent circuler facilement autour de la table basse.',
+                'secondary_question' => 'Quels details comparer pour les canapes et fauteuils sur Mayush ?',
+                'secondary_answer' => 'Comparez le revetement, la profondeur d assise, la modularite, les couleurs disponibles, la disponibilite et les delais de livraison.',
+                'expert_focus' => 'la profondeur d assise, la modularite, les revetements faciles a entretenir',
+            ];
+        }
+
+        if (Str::contains($source, ['eclairage', 'luminaire', 'lighting', 'lampe'])) {
+            return [
+                'primary_question' => 'Quel eclairage choisir pour un interieur marocain moderne ?',
+                'primary_answer' => 'Associez un eclairage general, des lampes d ambiance et des points lumineux fonctionnels. Les temperatures chaleureuses conviennent souvent aux salons et chambres.',
+                'secondary_question' => 'Quels criteres verifier avant d acheter un luminaire sur Mayush ?',
+                'secondary_answer' => 'Controlez les dimensions, la puissance, le type d ampoule, la couleur de lumiere, le style et les informations de livraison au Maroc.',
+                'expert_focus' => 'la temperature de lumiere, la hauteur de pose, la compatibilite ampoule',
+            ];
+        }
+
+        if (Str::contains($source, ['ameublement', 'meuble', 'furniture'])) {
+            return [
+                'primary_question' => 'Quel bois ou materiau choisir pour des meubles au Maroc ?',
+                'primary_answer' => 'Les meubles destines a un usage quotidien doivent combiner structure stable, finitions faciles a entretenir et dimensions adaptees au climat et aux espaces marocains.',
+                'secondary_question' => 'Comment comparer les meubles sur Mayush Marketplace ?',
+                'secondary_answer' => 'Comparez les materiaux, dimensions, prix, disponibilite, vendeur, delais de livraison et photos produit avant de prendre une decision.',
+                'expert_focus' => 'la stabilite de la structure, les materiaux, les finitions durables',
+            ];
+        }
+
+        return $default;
     }
 
     private static function socialProfileUrls(): array

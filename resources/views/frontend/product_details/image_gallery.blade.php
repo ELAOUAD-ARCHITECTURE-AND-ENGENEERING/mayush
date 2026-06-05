@@ -21,7 +21,7 @@
                         class="swiper-slide rounded-corner-8px border  border-light-gray bg-light cursor-pointer overflow-hidden d-flex align-items-center justify-content-center">
                         <img src="{{ uploaded_asset($photo) }}"
                             class="img-fluid object-fit-cover object-position-center"
-                            alt="{{ $detailedProduct->getTranslation('name') }} - Image {{ $key + 1 }}">
+                            alt="{{ \App\Services\SeoService::productAltText($detailedProduct, 'Image ' . ($key + 1) . ' - Livraison Maroc') }}">
                     </div>
                     @endforeach
 
@@ -95,7 +95,7 @@
                 <!--Single-->
                 <div
                     class="swiper-slide rounded-corner-8px border  border-light-gray bg-light overflow-hidden lightbox-item">
-                    <img src="{{ uploaded_asset($photo) }}" class="img-fluid w-100 h-100 lightbox-source" alt="{{ $detailedProduct->getTranslation('name') }} - Image {{ $key + 1 }}" @if($key === 0) fetchpriority="high" @endif>
+                    <img src="{{ uploaded_asset($photo) }}" class="img-fluid w-100 h-100 lightbox-source" alt="{{ \App\Services\SeoService::productAltText($detailedProduct, 'Image ' . ($key + 1) . ' - Livraison Maroc') }}" @if($key === 0) fetchpriority="high" loading="eager" @endif>
                     <div class="img-preview-btn wd-show-product-gallery-wrap rounded-pill overflow-hidden">
                         <a href="#"
                             class="border-0 bg-transparent d-inline-flex align-items-center woodmart-show-product-gallery">

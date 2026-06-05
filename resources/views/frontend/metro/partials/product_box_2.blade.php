@@ -19,7 +19,7 @@
                 height="480"
                 loading="lazy"
                 decoding="async"
-                alt="{{ $product->getTranslation('name') }}"
+                alt="{{ \App\Services\SeoService::productAltText($product) }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
             <img
@@ -30,7 +30,7 @@
                 height="480"
                 loading="lazy"
                 decoding="async"
-                alt="{{ $product->getTranslation('name') }}"
+                alt="{{ \App\Services\SeoService::productAltText($product, 'Photo detail - Livraison Maroc') }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
         </a>
