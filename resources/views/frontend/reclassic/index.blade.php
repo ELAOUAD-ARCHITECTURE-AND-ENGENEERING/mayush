@@ -41,6 +41,8 @@
 
     @php $lang = get_system_language()->code;  @endphp
 
+    @include('frontend.partials.mayushseo_home_intro')
+
     <!-- home banner area -->
     <div class="home-banner-area mb-3" style="">
         <div class="container">

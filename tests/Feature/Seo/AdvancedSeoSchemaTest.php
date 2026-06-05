@@ -68,7 +68,40 @@ class AdvancedSeoSchemaTest extends TestCase
             ->assertOk()
             ->assertSee('"@type": "CollectionPage"', false)
             ->assertSee('"@type": "FAQPage"', false)
-            ->assertSee('Office Furniture Morocco Modern Workspace Collection', false);
+            ->assertSee('Office Furniture Morocco Modern Workspace Collection', false)
+            ->assertSee('Comment choisir Office Furniture au Maroc sur Mayush', false)
+            ->assertSee('Office Furniture au Maroc', false);
+    }
+
+    public function test_homepage_and_product_pages_render_mayushseo_visible_geo_content(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'Tables a manger',
+            'slug' => 'tables-a-manger',
+        ]);
+        $brand = Brand::factory()->create(['name' => 'Mayush Artisans']);
+        $product = Product::factory()->create([
+            'name' => 'Table a manger scandinave',
+            'slug' => 'table-a-manger-scandinave',
+            'category_id' => $category->id,
+            'brand_id' => $brand->id,
+            'published' => 1,
+            'approved' => 1,
+            'est_shipping_days' => 4,
+        ]);
+        ProductStock::factory()->create(['product_id' => $product->id, 'qty' => 3]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('Marketplace de Mobilier & Decoration au Maroc', false)
+            ->assertSee('marketplace marocaine de mobilier', false);
+
+        $this->get(route('product', $product->slug))
+            ->assertOk()
+            ->assertSee('geo-direct-answer', false)
+            ->assertSee('geo-specs-table', false)
+            ->assertSee('Table a manger scandinave est un produit', false)
+            ->assertSee('Estimation 4 jours au Maroc', false);
     }
 
     public function test_indexnow_service_noops_without_configuration(): void

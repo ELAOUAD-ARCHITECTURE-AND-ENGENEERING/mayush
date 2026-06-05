@@ -44,6 +44,8 @@
         }
     </style>
 
+    @include('frontend.partials.mayushseo_home_intro')
+
     <!-- Sliders -->
     <div class="home-banner-area mb-3">
         <div class="p-0 position-relative">

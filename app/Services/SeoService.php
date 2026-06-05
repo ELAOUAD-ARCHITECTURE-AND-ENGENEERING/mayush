@@ -68,8 +68,8 @@ class SeoService
     public static function meta(array $overrides = []): array
     {
         $siteName = self::cleanText(get_setting('website_name'), config('app.name'), 80);
-        $defaultTitle = self::cleanText(get_setting('meta_title'), $siteName . ' | ' . self::cleanText(get_setting('site_motto'), 'Luxury interior design marketplace', 80), 70);
-        $defaultDescription = 'Discover Mayush, a Moroccan marketplace for furniture, interior design products, decor, lighting, and premium home materials.';
+        $defaultTitle = self::cleanText(get_setting('meta_title'), self::homepageTitle(), 70);
+        $defaultDescription = self::homepageDescription();
         $description = self::cleanText($overrides['description'] ?? get_setting('meta_description'), $defaultDescription, 170);
         $title = self::cleanText($overrides['title'] ?? $defaultTitle, $defaultTitle, 70);
         $imageInput = $overrides['image'] ?? '';
@@ -87,6 +87,48 @@ class SeoService
             'robots' => ($overrides['robots'] ?? '') ?: 'index, follow',
             'site_name' => $siteName,
         ];
+    }
+
+    public static function homepageTitle(): string
+    {
+        return 'Mobilier, Decoration & Amenagement au Maroc | Mayush';
+    }
+
+    public static function homepageDescription(): string
+    {
+        return 'Decouvrez Mayush, marketplace marocaine de mobilier, decoration, luminaires et amenagement interieur avec vendeurs verifies.';
+    }
+
+    public static function categoryMetaTitle(Category $category): string
+    {
+        $name = self::cleanText($category->getTranslation('name'), $category->name, 46);
+
+        return self::cleanText($name . ' au Maroc | Mayush Marketplace', $name, 70);
+    }
+
+    public static function categoryMetaDescription(Category $category, ?int $productCount = null): string
+    {
+        $name = self::cleanText($category->getTranslation('name'), $category->name, 60);
+        $count = $productCount !== null && $productCount > 0
+            ? number_format($productCount) . ' references'
+            : 'une selection de references';
+
+        return self::cleanText("Comparez {$count} {$name} sur Mayush : mobilier, decoration et amenagement interieur livres au Maroc.", '', 160);
+    }
+
+    public static function productMetaTitle(Product $product): string
+    {
+        $name = self::cleanText($product->getTranslation('name'), $product->name, 48);
+
+        return self::cleanText($name . ' | Mayush Maroc', $name, 70);
+    }
+
+    public static function productMetaDescription(Product $product): string
+    {
+        $name = self::cleanText($product->getTranslation('name'), $product->name, 70);
+        $category = optional($product->main_category)->getTranslation('name') ?: 'mobilier et decoration';
+
+        return self::cleanText("Achetez {$name} sur Mayush Maroc. Comparez les details, dimensions, prix et options de livraison pour {$category}.", '', 160);
     }
 
     public static function jsonLd(array $data): string
@@ -177,12 +219,15 @@ class SeoService
         ]);
     }
 
-    public static function categoryFaqSchema(Category $category, ?int $productCount = null): array
+    public static function categoryFaqSchema(Category $category, ?int $productCount = null, ?int $verifiedSellers = null): array
     {
         $categoryName = self::cleanText($category->getTranslation('name'), $category->name, 80);
         $countText = $productCount !== null && $productCount > 0
             ? 'Cette categorie regroupe ' . number_format($productCount) . ' produits publies sur Mayush.'
             : 'Cette categorie regroupe une selection de produits publies sur Mayush.';
+        $sellerText = $verifiedSellers !== null && $verifiedSellers > 0
+            ? 'Le catalogue Mayush s appuie sur ' . number_format($verifiedSellers) . ' vendeurs verifies au Maroc.'
+            : 'Le catalogue Mayush s appuie sur des vendeurs verifies au Maroc.';
 
         return [
             '@context' => 'https://schema.org',
@@ -190,22 +235,63 @@ class SeoService
             'mainEntity' => [
                 [
                     '@type' => 'Question',
-                    'name' => "Quels produits trouver dans la categorie {$categoryName} sur Mayush ?",
+                    'name' => "Comment choisir {$categoryName} au Maroc sur Mayush ?",
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text' => $countText . ' Les acheteurs peuvent comparer les vendeurs, les styles, les prix et les options de livraison au Maroc.',
+                        'text' => $countText . ' Comparez les dimensions, matieres, prix, vendeurs et options de livraison avant de choisir le produit adapte a votre espace.',
                     ],
                 ],
                 [
                     '@type' => 'Question',
-                    'name' => "Mayush livre-t-il les produits {$categoryName} au Maroc ?",
+                    'name' => "Mayush propose-t-il des vendeurs verifies pour {$categoryName} ?",
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text' => 'Mayush presente les produits de vendeurs marocains et indique les informations de disponibilite, de prix et de livraison sur les pages produit lorsque ces donnees sont disponibles.',
+                        'text' => $sellerText . ' Chaque page produit presente les informations disponibles sur le prix, la disponibilite, la livraison et les caracteristiques.',
                     ],
                 ],
             ],
         ];
+    }
+
+    public static function productDirectAnswer(Product $product, string $availabilityLabel): string
+    {
+        $name = self::cleanText($product->getTranslation('name'), $product->name, 90);
+        $category = optional($product->main_category)->getTranslation('name') ?: 'mobilier et decoration';
+        $brand = optional($product->brand)->name ? ' de la marque ' . self::cleanText($product->brand->name, '', 60) : '';
+
+        return self::cleanText("{$name} est un produit {$category}{$brand} disponible sur Mayush Maroc. Consultez les dimensions, le prix, la disponibilite ({$availabilityLabel}) et les options de livraison avant achat.", '', 260);
+    }
+
+    public static function productSpecRows(Product $product, string $availabilityLabel): array
+    {
+        $rows = [
+            'Categorie' => optional($product->main_category)->getTranslation('name'),
+            'Marque' => optional($product->brand)->name,
+            'Disponibilite' => $availabilityLabel,
+            'Prix' => single_price(self::productSchemaPrice($product)),
+            'Livraison' => $product->est_shipping_days
+                ? 'Estimation ' . (int) $product->est_shipping_days . ' jours au Maroc'
+                : 'Options de livraison selon le vendeur au Maroc',
+            'SKU' => $product->slug,
+        ];
+
+        $dimensions = self::productDimensions($product);
+        if ($dimensions !== '') {
+            $rows['Dimensions'] = $dimensions;
+        }
+
+        return array_filter($rows, fn ($value) => filled($value));
+    }
+
+    public static function productDimensions(Product $product): string
+    {
+        $parts = array_filter([
+            $product->length ? (float) $product->length : null,
+            $product->width ? (float) $product->width : null,
+            $product->height ? (float) $product->height : null,
+        ], fn ($value) => $value !== null);
+
+        return $parts === [] ? '' : implode(' x ', $parts) . ' cm';
     }
 
     public static function breadcrumbSchema(array $items): array

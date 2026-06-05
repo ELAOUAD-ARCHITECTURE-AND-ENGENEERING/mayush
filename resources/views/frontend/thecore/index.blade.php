@@ -10,6 +10,8 @@
 </style>
 @php $lang = get_system_language()->code; @endphp
 
+@include('frontend.partials.mayushseo_home_intro')
+
 <div class="pt-32px pb-26px" style="background: {{ get_setting('hero_bg_color', '#f5f5f5') }}">
     <div class="container">
         <div class="row">

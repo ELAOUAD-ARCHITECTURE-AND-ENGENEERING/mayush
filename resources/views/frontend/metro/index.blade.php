@@ -1,8 +1,8 @@
 @extends('frontend.layouts.app')
 
 @php
-    $homepageSeoTitle = translate('Mayush Marketplace for Furniture, Decor and Interior Design in Morocco');
-    $homepageSeoDescription = translate('Discover furniture, decor, lighting, home materials and interior design products from Mayush sellers in Morocco.');
+    $homepageSeoTitle = \App\Services\SeoService::homepageTitle();
+    $homepageSeoDescription = \App\Services\SeoService::homepageDescription();
     $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
     $metroSliderImages = get_setting('home_slider_images') != null ? json_decode(get_setting('home_slider_images'), true) : [];
     $firstMetroSliderImage = is_array($metroSliderImages) && count($metroSliderImages) > 0 ? uploaded_asset($metroSliderImages[0]) : null;
@@ -29,7 +29,7 @@
 @endsection
 
 @section('content')
-    <h1 class="d-none">Mayush Marketplace : meubles, decoration et design interieur au Maroc</h1>
+    @include('frontend.partials.mayushseo_home_intro')
     <style>
         /* Luxury Font pairing rules — Charte Graphique v1.0 */
         h1, h2, h3, h4,

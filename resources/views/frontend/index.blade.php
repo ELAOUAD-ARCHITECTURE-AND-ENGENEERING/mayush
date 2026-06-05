@@ -1,12 +1,11 @@
 @extends('frontend.layouts.app')
 
 @php
-    $homepageSeoTitle = translate('Mayush Marketplace for Furniture, Decor and Interior Design in Morocco');
-    $homepageSeoDescription = translate('Discover furniture, decor, lighting, home materials and interior design products from Mayush sellers in Morocco.');
+    $homepageSeoTitle = \App\Services\SeoService::homepageTitle();
+    $homepageSeoDescription = \App\Services\SeoService::homepageDescription();
     $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
     $homeSliderImages = get_setting('home_slider_images') != null ? json_decode(get_setting('home_slider_images'), true) : [];
     $firstHomeSliderImage = is_array($homeSliderImages) && count($homeSliderImages) > 0 ? uploaded_asset($homeSliderImages[0]) : null;
-    $homepageStats = app(\App\Services\SeoStatsService::class)->homepageStats();
     $featured_categories = $featured_categories ?? collect();
     $hot_categories = $hot_categories ?? collect();
     $todays_deal_products = $todays_deal_products ?? collect();
@@ -34,7 +33,7 @@
 @endsection
 
 @section('content')
-    <h1 class="d-none">Mayush Marketplace : meubles, decoration et design interieur au Maroc</h1>
+    @include('frontend.partials.mayushseo_home_intro')
     {{-- Categories , Sliders . Today's deal --}}
     <div class="home-banner-area mb-4 pt-3">
         <div class="container">
