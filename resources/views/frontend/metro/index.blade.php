@@ -4,12 +4,20 @@
     $homepageSeoTitle = translate('Mayush Marketplace for Furniture, Decor and Interior Design in Morocco');
     $homepageSeoDescription = translate('Discover furniture, decor, lighting, home materials and interior design products from Mayush sellers in Morocco.');
     $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
+    $metroSliderImages = get_setting('home_slider_images') != null ? json_decode(get_setting('home_slider_images'), true) : [];
+    $firstMetroSliderImage = is_array($metroSliderImages) && count($metroSliderImages) > 0 ? uploaded_asset($metroSliderImages[0]) : null;
 @endphp
 
 @section('meta_title'){{ $homepageSeoTitle }}@stop
 @section('meta_description'){{ $homepageSeoDescription }}@stop
 @section('meta_image'){{ $homepageSeoImage }}@stop
 @section('canonical_url'){{ route('home') }}@stop
+
+@if($firstMetroSliderImage)
+    @section('preload')
+        <link rel="preload" as="image" href="{{ $firstMetroSliderImage }}">
+    @endsection
+@endif
 
 @section('meta')
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([

@@ -40,6 +40,7 @@ class Kernel extends ConsoleKernel
 
         // SEO: keep the public sitemap fresh for crawlers and AI answer engines
         $schedule->command('app:generate-sitemap')->dailyAt('02:30');
+        $schedule->command('seo:indexnow:submit --recent --limit=250')->dailyAt('02:45')->withoutOverlapping();
 
         // Keep uploaded and storefront images covered by the responsive WebP pipeline.
         $schedule->command('images:audit --repair --priority-storefront --include-static --limit='.config('image-optimization.audit_limit', 500))

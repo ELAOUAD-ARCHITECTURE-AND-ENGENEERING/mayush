@@ -4,6 +4,8 @@
     $homepageSeoTitle = translate('Mayush Marketplace for Furniture, Decor and Interior Design in Morocco');
     $homepageSeoDescription = translate('Discover furniture, decor, lighting, home materials and interior design products from Mayush sellers in Morocco.');
     $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
+    $homeSliderImages = get_setting('home_slider_images') != null ? json_decode(get_setting('home_slider_images'), true) : [];
+    $firstHomeSliderImage = is_array($homeSliderImages) && count($homeSliderImages) > 0 ? uploaded_asset($homeSliderImages[0]) : null;
     $homepageStats = app(\App\Services\SeoStatsService::class)->homepageStats();
     $featured_categories = $featured_categories ?? collect();
     $hot_categories = $hot_categories ?? collect();
@@ -15,6 +17,12 @@
 @section('meta_description'){{ $homepageSeoDescription }}@stop
 @section('meta_image'){{ $homepageSeoImage }}@stop
 @section('canonical_url'){{ route('home') }}@stop
+
+@if($firstHomeSliderImage)
+    @section('preload')
+        <link rel="preload" as="image" href="{{ $firstHomeSliderImage }}">
+    @endsection
+@endif
 
 @section('meta')
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
@@ -55,6 +63,7 @@
                                             @else
                                             height="315"
                                             @endif
+                                            @if($key === 0) fetchpriority="high" @endif
                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
                                         >
                                     </a>

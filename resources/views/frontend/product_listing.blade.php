@@ -48,7 +48,17 @@
         $breadcrumbUrl = isset($category_id)
             ? route('products.category', $category->slug)
             : url()->current();
+        $listingProductCount = method_exists($products, 'total') ? $products->total() : null;
+        $listingSeo = [
+            'title' => $meta_title,
+            'description' => $meta_description,
+            'canonical' => url()->current(),
+        ];
     @endphp
+    @if(isset($category_id) && $category)
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::collectionPageSchema($category, $listingSeo, $listingProductCount)) !!}</script>
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::categoryFaqSchema($category, $listingProductCount)) !!}</script>
+    @endif
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
         ['name' => 'Home', 'url' => route('home')],
         ['name' => $breadcrumbName, 'url' => $breadcrumbUrl],

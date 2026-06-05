@@ -4,6 +4,7 @@
     $productSeoTitle = \App\Services\SeoService::cleanText($detailedProduct->meta_title ?: $detailedProduct->getTranslation('name'), $detailedProduct->getTranslation('name'), 70);
     $productSeoDescription = \App\Services\SeoService::cleanText($detailedProduct->meta_description ?: $detailedProduct->description, $productSeoTitle, 170);
     $productSeoImage = uploaded_asset($detailedProduct->meta_img ?: $detailedProduct->thumbnail_img);
+    $productPreloadImage = $productSeoImage ?: uploaded_asset($detailedProduct->thumbnail_img);
 @endphp
 
 @section('meta_title'){{ $productSeoTitle }}@stop
@@ -14,6 +15,12 @@
 @section('meta_image'){{ $productSeoImage }}@stop
 
 @section('canonical_url'){{ route('product', $detailedProduct->slug) }}@stop
+
+@if($productPreloadImage)
+    @section('preload')
+        <link rel="preload" as="image" href="{{ $productPreloadImage }}">
+    @endsection
+@endif
 
 @section('meta')
     @php
