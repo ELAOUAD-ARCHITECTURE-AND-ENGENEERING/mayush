@@ -247,3 +247,49 @@ class SeoService
         return self::cleanText($name, $fallback, 120);
     }
 }
+            'sku' => (string) $product->slug,
+            'mpn' => (string) $product->id,
+            'brand' => [
+                '@type' => 'Brand',
+                'name' => self::cleanText(optional($product->brand)->name, get_setting('website_name') ?: config('app.name'), 80),
+            ],
+            'offers' => [
+                '@type' => 'Offer',
+                'url' => route('product', $product->slug),
+                'priceCurrency' => optional(get_system_default_currency())->code ?: 'MAD',
+                'price' => number_format(self::productSchemaPrice($product), 2, '.', ''),
+                'priceValidUntil' => now()->endOfYear()->toDateString(),
+                'itemCondition' => 'https://schema.org/NewCondition',
+                'availability' => 'https://schema.org/' . $availability,
+                'seller' => [
+                    '@type' => 'Organization',
+                    'name' => self::cleanText($product->added_by === 'seller' ? optional(optional($product->user)->shop)->name : get_setting('site_name'), get_setting('website_name') ?: config('app.name'), 80),
+                ],
+            ],
+        ];
+
+        $approvedReviews = $product->reviews->where('status', 1);
+        if ($approvedReviews->count() > 0) {
+            $schema['aggregateRating'] = [
+                '@type' => 'AggregateRating',
+                'ratingValue' => (float) $product->rating,
+                'reviewCount' => $approvedReviews->count(),
+            ];
+        }
+
+        return $schema;
+    }
+
+    public static function productSchemaPrice(Product $product): float
+    {
+        $raw = (string) home_discounted_price($product, false);
+        $first = trim(explode('-', $raw)[0]);
+
+        return max(0, (float) preg_replace('/[^0-9.]/', '', $first));
+    }
+
+    public static function altText(?string $name, string $fallback = 'Mayush'): string
+    {
+        return self::cleanText($name, $fallback, 120);
+    }
+}
