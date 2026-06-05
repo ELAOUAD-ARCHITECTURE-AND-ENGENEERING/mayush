@@ -1,10 +1,11 @@
 @extends('frontend.layouts.app')
 
 @php
-    $homepageSeoTitle = translate('Mayush Marketplace for Furniture, Decor and Interior Design in Morocco');
-    $homepageSeoDescription = translate('Discover furniture, decor, lighting, home materials and interior design products from Mayush sellers in Morocco.');
+    $homepageSeoTitle = \App\Services\SeoService::homepageTitle();
+    $homepageSeoDescription = \App\Services\SeoService::homepageDescription();
     $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
-    $homepageStats = app(\App\Services\SeoStatsService::class)->homepageStats();
+    $homeSliderImages = get_setting('home_slider_images') != null ? json_decode(get_setting('home_slider_images'), true) : [];
+    $firstHomeSliderImage = is_array($homeSliderImages) && count($homeSliderImages) > 0 ? uploaded_asset($homeSliderImages[0]) : null;
     $featured_categories = $featured_categories ?? collect();
     $hot_categories = $hot_categories ?? collect();
     $todays_deal_products = $todays_deal_products ?? collect();
@@ -16,17 +17,14 @@
 @section('meta_image'){{ $homepageSeoImage }}@stop
 @section('canonical_url'){{ route('home') }}@stop
 
-@section('meta')
-    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
-        'title' => $homepageSeoTitle,
-        'description' => $homepageSeoDescription,
-        'canonical' => route('home'),
-    ])) !!}</script>
-    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(app(\App\Services\SeoStatsService::class)->homepageFaqSchema()) !!}</script>
-@endsection
+@if($firstHomeSliderImage)
+    @section('preload')
+        <link rel="preload" as="image" href="{{ $firstHomeSliderImage }}">
+    @endsection
+@endif
 
 @section('content')
-    <h1 class="d-none">Mayush Marketplace : meubles, decoration et design interieur au Maroc</h1>
+    @include('frontend.partials.mayushseo_home_intro')
     {{-- Categories , Sliders . Today's deal --}}
     <div class="home-banner-area mb-4 pt-3">
         <div class="container">
@@ -55,6 +53,7 @@
                                             @else
                                             height="315"
                                             @endif
+                                            @if($key === 0) fetchpriority="high" @endif
                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
                                         >
                                     </a>

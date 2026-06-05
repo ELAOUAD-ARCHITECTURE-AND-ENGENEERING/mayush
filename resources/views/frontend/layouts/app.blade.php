@@ -62,6 +62,18 @@
 
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::organizationSchema($seo)) !!}</script>
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::websiteSchema($seo)) !!}</script>
+    @if(request()->routeIs('home'))
+        @php
+            $homepageStatsService = app(\App\Services\SeoStatsService::class);
+        @endphp
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
+            'title' => $seo['title'],
+            'description' => $seo['description'],
+            'canonical' => route('home'),
+        ], \App\Services\SeoService::homepageTitle())) !!}</script>
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd($homepageStatsService->homepageFaqSchema()) !!}</script>
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd($homepageStatsService->homepageItemListSchema()) !!}</script>
+    @endif
 
     @yield('meta')
 
@@ -71,6 +83,7 @@
     @endphp
     <link rel="icon" href="{{ $site_icon }}">
     <link rel="apple-touch-icon" href="{{ $site_icon }}">
+    @yield('preload')
 
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

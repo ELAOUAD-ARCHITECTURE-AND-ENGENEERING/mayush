@@ -28,7 +28,7 @@ Homestead.json
 Homestead.yaml
 .DS_Store
 /nbproject/
-
+/MayushSEO
 ### Public Directory (Safe Handling) ###
 # DO NOT ignore the whole public folder!
 # Only ignore user uploads, generated storage symlinks, and temp dumps:

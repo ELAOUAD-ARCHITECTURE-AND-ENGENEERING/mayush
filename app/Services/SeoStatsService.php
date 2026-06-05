@@ -49,16 +49,16 @@ class SeoStatsService
     {
         $stats = $this->homepageStats();
         $sellerText = $stats['verified_sellers'] > 0
-            ? 'Mayush connects shoppers with ' . number_format($stats['verified_sellers']) . ' verified sellers for furniture, decor, lighting, and interior design products in Morocco.'
-            : 'Mayush connects shoppers with verified sellers for furniture, decor, lighting, and interior design products in Morocco.';
+            ? 'Mayush relie les acheteurs a ' . number_format($stats['verified_sellers']) . ' vendeurs verifies pour le mobilier, la decoration, les luminaires et l amenagement interieur au Maroc.'
+            : 'Mayush relie les acheteurs a des vendeurs verifies pour le mobilier, la decoration, les luminaires et l amenagement interieur au Maroc.';
 
         $productText = $stats['published_products'] > 0
-            ? 'The marketplace currently lists ' . number_format($stats['published_products']) . ' approved and published products across furniture, decor, lighting, materials, and home accessories.'
-            : 'The marketplace organizes approved products across furniture, decor, lighting, materials, and home accessories.';
+            ? 'Le catalogue Mayush presente actuellement ' . number_format($stats['published_products']) . ' produits approuves et publies dans le mobilier, la decoration, les luminaires, les materiaux et les accessoires maison.'
+            : 'Le catalogue Mayush organise des produits approuves dans le mobilier, la decoration, les luminaires, les materiaux et les accessoires maison.';
 
         $deliveryText = $stats['delivery_success_rate'] !== null
-            ? 'Based on eligible orders from the last 180 days, Mayush has a ' . $stats['delivery_success_rate'] . '% delivery success rate for completed delivery outcomes.'
-            : 'Mayush supports coordinated delivery workflows for Moroccan furniture and home decor orders, with order tracking available for customers.';
+            ? 'Sur les commandes eligibles des 180 derniers jours, Mayush affiche un taux de livraison reussie de ' . $stats['delivery_success_rate'] . '% pour les statuts de livraison finalises.'
+            : 'Mayush prend en charge des parcours de livraison coordonnes pour les commandes de mobilier et decoration au Maroc, avec suivi de commande disponible pour les clients.';
 
         return [
             '@context' => 'https://schema.org',
@@ -66,7 +66,7 @@ class SeoStatsService
             'mainEntity' => [
                 [
                     '@type' => 'Question',
-                    'name' => 'What can I buy on Mayush?',
+                    'name' => 'Que peut-on acheter sur Mayush au Maroc ?',
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
                         'text' => $productText,
@@ -74,7 +74,7 @@ class SeoStatsService
                 ],
                 [
                     '@type' => 'Question',
-                    'name' => 'Who sells on Mayush?',
+                    'name' => 'Qui vend sur Mayush Marketplace ?',
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
                         'text' => $sellerText,
@@ -82,13 +82,41 @@ class SeoStatsService
                 ],
                 [
                     '@type' => 'Question',
-                    'name' => 'Does Mayush support delivery in Morocco?',
+                    'name' => 'Mayush propose-t-il la livraison au Maroc ?',
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
                         'text' => $deliveryText,
                     ],
                 ],
             ],
+        ];
+    }
+
+    public function homepageItemListSchema(int $limit = 8): array
+    {
+        $products = Product::isApprovedPublished()
+            ->latest('updated_at')
+            ->take($limit)
+            ->get();
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            '@id' => route('home') . '#featured-products',
+            'name' => 'Produits Mayush selectionnes',
+            'itemListElement' => $products->values()->map(function (Product $product, int $index) {
+                return [
+                    '@type' => 'ListItem',
+                    'position' => $index + 1,
+                    'url' => route('product', $product->slug),
+                    'item' => [
+                        '@type' => 'Product',
+                        'name' => SeoService::cleanText($product->getTranslation('name'), $product->name, 120),
+                        'url' => route('product', $product->slug),
+                        'image' => SeoService::absoluteUrl(uploaded_asset($product->thumbnail_img)),
+                    ],
+                ];
+            })->all(),
         ];
     }
 }

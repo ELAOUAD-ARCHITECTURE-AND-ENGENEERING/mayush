@@ -9,8 +9,9 @@
     @php
         $category_search = $category;
         $categoryName = $category->getTranslation('name');
-        $categoryTitleFallback = $categoryName . ' : ' . translate('Furniture, decor and interior design on Mayush');
-        $categoryDescriptionFallback = translate('Discover furniture, decor, lighting, and interior design products for this category on Mayush.');
+        $categoryProductCountForSeo = method_exists($products, 'total') ? $products->total() : null;
+        $categoryTitleFallback = \App\Services\SeoService::categoryMetaTitle($category);
+        $categoryDescriptionFallback = \App\Services\SeoService::categoryMetaDescription($category, $categoryProductCountForSeo);
         $meta_title = \App\Services\SeoService::meaningfulText($category->meta_title, $categoryTitleFallback, 70, 30);
         $meta_description = \App\Services\SeoService::meaningfulText($category->meta_description, $categoryDescriptionFallback, 170, 80);
         $meta_keywords = $category->meta_keywords;
@@ -48,7 +49,18 @@
         $breadcrumbUrl = isset($category_id)
             ? route('products.category', $category->slug)
             : url()->current();
+        $listingProductCount = method_exists($products, 'total') ? $products->total() : null;
+        $listingSeo = [
+            'title' => $meta_title,
+            'description' => $meta_description,
+            'canonical' => url()->current(),
+        ];
+        $verifiedSellerCount = app(\App\Services\SeoStatsService::class)->verifiedSellerCount();
     @endphp
+    @if(isset($category_id) && $category)
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::collectionPageSchema($category, $listingSeo, $listingProductCount)) !!}</script>
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::categoryFaqSchema($category, $listingProductCount, $verifiedSellerCount)) !!}</script>
+    @endif
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
         ['name' => 'Home', 'url' => route('home')],
         ['name' => $breadcrumbName, 'url' => $breadcrumbUrl],
@@ -59,6 +71,31 @@
 
     <section class="mb-1">
         <div class="container sm-px-0 pt-1">
+            @if(isset($category_id) && $category)
+                @php
+                    $categoryVisibleProductCount = method_exists($products, 'total') ? $products->total() : 0;
+                    $categoryFaqItems = \App\Services\SeoService::categoryFaqItems($category, $categoryVisibleProductCount, app(\App\Services\SeoStatsService::class)->verifiedSellerCount());
+                @endphp
+                <section class="py-3 px-3 px-md-0">
+                    <h1 class="fs-24 fs-md-28 fw-700 text-dark mb-2">{{ $category->getTranslation('name') }} au Maroc</h1>
+                    <p class="fs-12 text-gray mb-2">{{ \App\Services\SeoService::categoryFreshnessLabel() }}</p>
+                    <p class="fs-14 fs-md-15 text-gray mb-0">
+                        Comparez {{ number_format($categoryVisibleProductCount) }} references {{ $category->getTranslation('name') }}
+                        sur Mayush Marketplace avec vendeurs verifies, prix, dimensions et options de livraison au Maroc.
+                    </p>
+                    <blockquote class="geo-expert-note mt-3 mb-0 p-3 bg-light border-left border-primary fs-14 text-dark">
+                        {{ \App\Services\SeoService::categoryExpertNote($category) }}
+                    </blockquote>
+                    <div class="geo-category-faq mt-3">
+                        @foreach($categoryFaqItems as $faqItem)
+                            <details class="mb-2">
+                                <summary class="fw-700 fs-14 text-dark">{{ $faqItem['question'] }}</summary>
+                                <p class="fs-13 text-gray mt-2 mb-0">{{ $faqItem['answer'] }}</p>
+                            </details>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
             <form class="" id="search-form" action="" method="GET">
                 <div class="row">
 

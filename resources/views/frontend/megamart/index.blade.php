@@ -38,6 +38,8 @@
 
     @php $lang = get_system_language()->code;  @endphp
 
+    @include('frontend.partials.mayushseo_home_intro')
+
     <!-- Featured Categories -->
     @if (count($featured_categories) > 0)
         <section class="mb-3 mb-md-4 pt-3 pt-md-2rem">

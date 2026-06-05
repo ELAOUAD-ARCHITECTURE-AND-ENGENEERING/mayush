@@ -9,6 +9,7 @@
     }
 </style>
 @php $lang = get_system_language()->code; @endphp
+@include('frontend.partials.mayushseo_home_intro')
 <!-- Sliders -->
 <div class="home-banner-area mb-3">
     <div class="container">
