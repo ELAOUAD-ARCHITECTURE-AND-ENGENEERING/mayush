@@ -103,7 +103,7 @@ class HomepageRenderingTest extends TestCase
         $response = $this->get(route('home'))
             ->assertOk()
             ->assertSee('metro-hero-slide has-content', false)
-            ->assertSee('<h2 class="metro-hero-title">', false)
+            ->assertSee('<h1 class="metro-hero-title">', false)
             ->assertSee('Design <span style="color: red;"><strong>Your Living Room</strong></span>', false)
             ->assertDontSee('alert("x")', false)
             ->assertSee('Curated furniture and decor from Mayush sellers.')
