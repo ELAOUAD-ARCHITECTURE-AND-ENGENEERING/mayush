@@ -36,6 +36,16 @@ class AppServiceProvider extends ServiceProvider
       \App\Models\Category::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\Blog::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\FlashDeal::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\FlashDealProduct::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\ProductCollection::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\TopBanner::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\TopBannerTranslation::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\DynamicPopup::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\CustomAlert::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\CustomSaleAlert::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\Language::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\Currency::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\CustomLabel::observe(\App\Observers\StorefrontCacheObserver::class);
 
       // ONESSTA 3PL Shipping Integration
       if (config('onessta.enabled', false)) {
