@@ -743,7 +743,7 @@ class SearchController extends Controller
     {
         $query = $request->search;
         $mode = $request->mode ?? 'standard';
-        $preorder_products = null;
+        $preorder_products = [];
 
         if (empty(trim($query))) {
             return '0';
