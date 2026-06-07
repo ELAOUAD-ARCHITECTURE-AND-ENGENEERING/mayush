@@ -4,7 +4,7 @@
         <ul class="list-group list-group-raw">
             @foreach ($keywords as $key => $keyword)
                 <li class="list-group-item py-1">
-                    <a class="text-reset hov-text-primary" href="{{ route('suggestion.search', $keyword) }}">{{ $keyword }}</a>
+                    <a class="text-dark hov-text-primary" href="{{ route('suggestion.search', $keyword) }}">{{ $keyword }}</a>
                 </li>
             @endforeach
         </ul>
@@ -16,7 +16,7 @@
         <ul class="list-group list-group-raw">
             @foreach ($categories as $key => $category)
                 <li class="list-group-item py-1">
-                    <a class="text-reset hov-text-primary" href="{{ route('products.category', $category->slug) }}">{{ $category->getTranslation('name') }}</a>
+                    <a class="text-dark hov-text-primary" href="{{ route('products.category', $category->slug) }}">{{ $category->getTranslation('name') }}</a>
                 </li>
             @endforeach
         </ul>
@@ -38,7 +38,7 @@
                     $score = isset($semantic_scores) ? ($semantic_scores[$product->id] ?? null) : null;
                 @endphp
                 <li class="list-group-item">
-                    <a class="text-reset" href="{{ route('product', $product->slug) }}">
+                    <a class="text-dark" href="{{ route('product', $product->slug) }}">
                         <div class="d-flex search-product align-items-center">
                             @if($score)
                                 <div class="ai-match-badge position-absolute top-0 right-0 mt-2 mr-2">
@@ -73,7 +73,7 @@
         <ul class="list-group list-group-raw">
             @foreach ($preorder_products as $key => $product)
                 <li class="list-group-item">
-                    <a class="text-reset" href="{{ route('preorder-product.details', $product->product_slug) }}">
+                    <a class="text-dark" href="{{ route('preorder-product.details', $product->product_slug) }}">
                         <div class="d-flex search-product align-items-center">
                             <div class="mr-3">
                                 <img class="size-40px img-fit rounded" src="{{ uploaded_asset($product->thumbnail) }}">
@@ -99,7 +99,7 @@
             <ul class="list-group list-group-raw">
                 @foreach ($shops as $key => $shop)
                     <li class="list-group-item">
-                        <a class="text-reset" href="{{ route('shop.visit', $shop->slug) }}">
+                        <a class="text-dark" href="{{ route('shop.visit', $shop->slug) }}">
                             <div class="d-flex search-product align-items-center">
                                 <div class="mr-3">
                                     <img class="size-40px img-fit rounded" src="{{ uploaded_asset($shop->logo) }}">
