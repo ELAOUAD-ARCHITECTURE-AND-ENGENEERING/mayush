@@ -6,12 +6,14 @@ use App\Models\Blog;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\PreorderProduct;
-use App\Models\Shop;
 use Cache;
-use Carbon\Carbon;
 
 class HomeLayoutService
 {
+    public function __construct(private readonly StorefrontDataService $storefrontData)
+    {
+    }
+
     /**
      * Assemble data required by the homepage shell.
      */
@@ -83,7 +85,11 @@ class HomeLayoutService
      */
     public function getTodaysDealProducts()
     {
-        return filter_products(Product::where('todays_deal', '1'))->orderBy('id', 'desc')->get();
+        return Cache::remember('todays_deal_products', 900, function () {
+            return filter_products(Product::where('todays_deal', '1'))
+                ->orderBy('id', 'desc')
+                ->get();
+        });
     }
 
     /**
@@ -112,7 +118,7 @@ class HomeLayoutService
      */
     public function getPreorderFeaturedProducts()
     {
-        return PreorderProduct::where('is_published', 1)->where('is_featured', 1)
+        return Cache::remember('home_preorder_featured_products', 300, fn () => PreorderProduct::where('is_published', 1)->where('is_featured', 1)
             ->where(function ($query) {
                 $query->whereHas('user', function ($q) {
                     $q->where('user_type', 'admin');
@@ -122,7 +128,7 @@ class HomeLayoutService
             })
             ->latest()
             ->limit(12)
-            ->get();
+            ->get());
     }
 
     /**
@@ -130,8 +136,11 @@ class HomeLayoutService
      */
     public function getEliteArtisans()
     {
-        return Shop::whereHas('activeEliteSubscription')
-            ->where('verification_status', 1)
-            ->get();
+        return $this->storefrontData->eliteArtisans();
+    }
+
+    public function getRecentBestSellers()
+    {
+        return $this->storefrontData->recentBestSellers();
     }
 }

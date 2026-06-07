@@ -5,7 +5,7 @@
     $top_banner_image = get_setting('top_banner_image');
     $top_banner_image_for_tabs = get_setting('top_banner_image_for_tabs');
     $top_banner_image_for_mobile = get_setting('top_banner_image_for_mobile');
-    $topBanners = \App\Models\TopBanner::where('status', 1)->orderBy('id','desc')->get();
+    $topBanners = app(\App\Services\StorefrontDataService::class)->topBanners();
 @endphp 
     @if (get_setting('top_banner_status') == 1 && (count($topBanners) > 0 || $top_banner_image != null))
     <div class="position-relative top-banner removable-session z-1035 d-none" 

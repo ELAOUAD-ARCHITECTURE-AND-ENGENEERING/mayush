@@ -333,7 +333,7 @@
     @php
         $alert_location = get_setting('custom_alert_location');
         $order = in_array($alert_location, ['top-left', 'top-right']) ? 'asc' : 'desc';
-        $custom_alerts = App\Models\CustomAlert::where('status', 1)->orderBy('id', $order)->get();
+        $custom_alerts = app(\App\Services\StorefrontDataService::class)->customAlerts($order);
     @endphp
 
     <div class="aiz-custom-alert {{ get_setting('custom_alert_location') }}" id="aiz-custom-sale-alert">
@@ -387,7 +387,7 @@
 
     <!-- website popup -->
     @php
-        $dynamic_popups = App\Models\DynamicPopup::where('status', 1)->orderBy('id', 'asc')->get();
+        $dynamic_popups = app(\App\Services\StorefrontDataService::class)->dynamicPopups();
         use App\Models\Order;
         use App\Models\OrderDetail;
     @endphp

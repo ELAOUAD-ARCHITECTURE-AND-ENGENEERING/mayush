@@ -7,7 +7,6 @@ use Hash;
 use Cache;
 use Cookie;
 use App\Models\Page;
-use App\Models\Shop;
 use App\Models\User;
 use App\Models\Brand;
 use App\Models\Order;
@@ -39,7 +38,6 @@ use DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\URL;
 use ZipArchive;
-use Carbon\Carbon;
 use Session;
 use App\Models\LastViewedProduct;
 use App\Services\HomeLayoutService;
@@ -124,22 +122,9 @@ class HomeController extends Controller
         return view('frontend.' . safe_homepage_select() . '.partials.home_categories_section');
     }
 
-    public function load_best_sellers_section()
+    public function load_best_sellers_section(HomeLayoutService $layoutService)
     {
-        $sellers = Shop::where('verification_status', 1)
-            ->whereHas('user', function ($query) {
-                $query->where('is_intern', 0);
-            })
-            ->whereIn('user_id', function ($query) {
-                $query->select('seller_id')
-                    ->from('order_details')
-                    ->where('created_at', '>=', Carbon::now()->subDays(3))
-                    ->groupBy('seller_id')
-                    ->havingRaw('COUNT(*) > 10');
-            })
-            ->orderBy('num_of_sale', 'desc')
-            ->take(20)
-            ->get();
+        $sellers = $layoutService->getRecentBestSellers();
 
         if ($sellers->isEmpty()) {
             return "";

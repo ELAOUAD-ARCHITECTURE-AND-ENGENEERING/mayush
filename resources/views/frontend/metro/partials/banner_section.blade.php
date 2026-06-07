@@ -14,7 +14,7 @@
         @foreach ($banner_images as $key => $image)
             @php
                 $collection = !empty($banner_collection_ids[$key])
-                    ? \App\Models\ProductCollection::published()->find($banner_collection_ids[$key])
+                    ? app(\App\Services\StorefrontDataService::class)->productCollection((int) $banner_collection_ids[$key])
                     : null;
                 $link = $collection ? route('product-collections.show', $collection->slug) : ($banner_links[$key] ?? '');
                 $title = trim(strip_tags(html_entity_decode(app(\App\Services\BannerTextSanitizerService::class)->sanitize((string) ($banner_titles[$key] ?? '')))));

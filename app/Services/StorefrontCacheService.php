@@ -21,6 +21,7 @@ class StorefrontCacheService
         'newest_products',
         'todays_deal_products',
         'best_selers',
+        'home_preorder_featured_products',
     ];
 
     public function revision(): int

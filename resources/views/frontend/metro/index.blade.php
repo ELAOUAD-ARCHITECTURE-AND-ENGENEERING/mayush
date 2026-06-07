@@ -20,7 +20,6 @@
 @endif
 
 @section('content')
-    @include('frontend.partials.mayushseo_home_intro')
     <style>
         /* Luxury Font pairing rules — Charte Graphique v1.0 */
         h1, h2, h3, h4,

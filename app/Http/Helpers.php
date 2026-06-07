@@ -168,9 +168,7 @@ if (!function_exists('filter_products')) {
 if (!function_exists('get_cached_products')) {
     function get_cached_products($category_id = null)
     {
-        return Cache::remember('products-category-' . $category_id, 86400, function () use ($category_id) {
-            return filter_products(Product::where('category_id', $category_id))->latest()->take(5)->get();
-        });
+        return app(\App\Services\StorefrontDataService::class)->categoryProducts((int) $category_id, 5);
     }
 }
 
@@ -2006,45 +2004,28 @@ if (!function_exists('get_admin')) {
 if (!function_exists('get_slider_images')) {
     function get_slider_images($ids)
     {
-        $slider_query = Upload::query();
-        $sliders = $slider_query->whereIn('id', $ids);
-        foreach ($ids as $id) {
-            $sliders->orderByRaw("id!=?", [$id]);
-        }
-        return $sliders->get();
+        return app(\App\Services\StorefrontDataService::class)->sliderImages((array) $ids);
     }
 }
 
 if (!function_exists('get_featured_flash_deal')) {
     function get_featured_flash_deal()
     {
-        $flash_deal_query = FlashDeal::query();
-        $featured_flash_deal = $flash_deal_query->isActiveAndFeatured()
-            ->where('start_date', '<=', strtotime(date('Y-m-d H:i:s')))
-            ->where('end_date', '>=', strtotime(date('Y-m-d H:i:s')))
-            ->first();
-
-        return $featured_flash_deal;
+        return app(\App\Services\StorefrontDataService::class)->featuredFlashDeal();
     }
 }
 
 if (!function_exists('get_flash_deal_products')) {
     function get_flash_deal_products($flash_deal_id)
     {
-        $flash_deal_product_query = FlashDealProduct::query();
-        $flash_deal_product_query->where('flash_deal_id', $flash_deal_id);
-        $flash_deal_products = $flash_deal_product_query->with('product')->orderBy('id', 'desc')->limit(10)->get();
-
-        return $flash_deal_products;
+        return app(\App\Services\StorefrontDataService::class)->flashDealProducts((int) $flash_deal_id, 10);
     }
 }
 
 if (!function_exists('get_active_flash_deals')) {
     function get_active_flash_deals()
     {
-        return \App\Models\FlashDeal::active()
-            ->has('flash_deal_products')
-            ->get();
+        return app(\App\Services\StorefrontDataService::class)->activeFlashDeals();
     }
 }
 
@@ -2101,10 +2082,11 @@ if (!function_exists('get_system_language')) {
 if (!function_exists('get_all_active_language')) {
     function get_all_active_language()
     {
-        $language_query = Language::query();
-        $language_query->where('status', 1);
+        $revision = app(\App\Services\StorefrontCacheService::class)->revision();
 
-        return $language_query->get();
+        return Cache::remember("storefront:v{$revision}:active-languages", 900, function () {
+            return Language::query()->where('status', 1)->get();
+        });
     }
 }
 
@@ -2112,8 +2094,11 @@ if (!function_exists('get_all_active_language')) {
 if (!function_exists('get_session_language')) {
     function get_session_language()
     {
-        $language_query = Language::query();
-        $lang = $language_query->where('code', Session::get('locale', Config::get('app.locale')))->first();
+        $code = Session::get('locale', Config::get('app.locale'));
+        $revision = app(\App\Services\StorefrontCacheService::class)->revision();
+        $lang = Cache::remember("storefront:v{$revision}:session-language:{$code}", 900, function () use ($code) {
+            return Language::query()->where('code', $code)->first();
+        });
         if (!$lang && app()->runningUnitTests()) {
             return (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
         }
@@ -2124,14 +2109,18 @@ if (!function_exists('get_session_language')) {
 if (!function_exists('get_system_currency')) {
     function get_system_currency()
     {
-        $currency_query = Currency::query();
+        $revision = app(\App\Services\StorefrontCacheService::class)->revision();
         if (Session::has('currency_code')) {
-            $currency_query->where('code', Session::get('currency_code'));
+            $currencyKey = 'code:'.Session::get('currency_code');
+            $currency = Cache::remember("storefront:v{$revision}:system-currency:{$currencyKey}", 900, function () {
+                return Currency::query()->where('code', Session::get('currency_code'))->first();
+            });
         } else {
-            $currency_query = $currency_query->where('id', get_setting('system_default_currency'));
+            $currencyId = get_setting('system_default_currency');
+            $currency = Cache::remember("storefront:v{$revision}:system-currency:id:{$currencyId}", 900, function () use ($currencyId) {
+                return Currency::query()->where('id', $currencyId)->first();
+            });
         }
-
-        $currency = $currency_query->first();
         if (!$currency && app()->runningUnitTests()) {
             return (object)['code' => 'USD', 'symbol' => '$', 'exchange_rate' => 1];
         }
@@ -2142,10 +2131,11 @@ if (!function_exists('get_system_currency')) {
 if (!function_exists('get_all_active_currency')) {
     function get_all_active_currency()
     {
-        $currency_query = Currency::query();
-        $currency_query->where('status', 1);
+        $revision = app(\App\Services\StorefrontCacheService::class)->revision();
 
-        return $currency_query->get();
+        return Cache::remember("storefront:v{$revision}:active-currencies", 900, function () {
+            return Currency::query()->where('status', 1)->get();
+        });
     }
 }
 
@@ -2481,13 +2471,7 @@ if (!function_exists('get_brands_by_products')) {
 if (!function_exists('get_category')) {
     function get_category($category_ids)
     {
-        $category_query = Category::query();
-        $category_query->with('coverImage');
-
-        $category_query->whereIn('id', $category_ids);
-
-        $categories = $category_query->get();
-        return $categories;
+        return app(\App\Services\StorefrontDataService::class)->categories((array) $category_ids);
     }
 }
 
@@ -2504,8 +2488,7 @@ if (!function_exists('get_single_category')) {
 if (!function_exists('get_level_zero_categories')) {
     function get_level_zero_categories()
     {
-        $categories_query = Category::query()->with(['coverImage', 'catIcon', 'childrenCategories', 'childrenCategories.childrenCategories']);
-        return $categories_query->where('level', 0)->orderBy('order_level', 'desc')->get();
+        return app(\App\Services\StorefrontDataService::class)->levelZeroCategories();
     }
 }
 
@@ -3653,34 +3636,36 @@ function youtubeVideoId($url)
 }
 
 if (!function_exists('get_all_sale_alert_products')) {
-    function get_all_sale_alert_products() {
-        return CustomSaleAlert::with('product')->get()->map(function($alert) {
-            if (!$alert->product) return null; 
-
-            return [
-                'id' => $alert->product->id,
-                'title' => $alert->product->getTranslation('name'),
-                'image' => uploaded_asset($alert->product->thumbnail_img),
-                'url'  => route('product',  $alert->product->slug),
-            ];
-        })->filter();
+    function get_all_sale_alert_products()
+    {
+        return app(\App\Services\StorefrontDataService::class)->saleAlertProducts();
     }
 }
 
 //get products label
 if (!function_exists('get_custom_labels')) {
-    function get_custom_labels($labels) {
-        $labels_array = [];
-        if($labels){
-            $labels = explode(',',$labels);
-            foreach($labels as $label){
-                $label_data = CustomLabel::where('id',$label)->first();
-                if($label_data){
-                    $labels_array[] = $label_data;
-                }
+    function get_custom_labels($labels)
+    {
+        $revision = app(\App\Services\StorefrontCacheService::class)->revision();
+
+        return Cache::remember("storefront:v{$revision}:custom-labels:".md5((string) $labels), 900, function () use ($labels) {
+            $labelIds = collect(explode(',', (string) $labels))
+                ->map(fn ($label) => (int) trim($label))
+                ->filter()
+                ->values();
+
+            if ($labelIds->isEmpty()) {
+                return [];
             }
-        }
-        return $labels_array;
+
+            $labelsById = CustomLabel::whereIn('id', $labelIds)->get()->keyBy('id');
+
+            return $labelIds
+                ->map(fn ($labelId) => $labelsById->get($labelId))
+                ->filter()
+                ->values()
+                ->all();
+        });
     }
 }
 

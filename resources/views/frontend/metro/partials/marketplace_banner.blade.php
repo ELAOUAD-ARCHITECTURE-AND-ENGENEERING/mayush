@@ -13,7 +13,7 @@
         @foreach ($home_banner4_images as $key => $value)
             @php
                 $collection = !empty($home_banner4_collection_ids[$key])
-                    ? \App\Models\ProductCollection::published()->find($home_banner4_collection_ids[$key])
+                    ? app(\App\Services\StorefrontDataService::class)->productCollection((int) $home_banner4_collection_ids[$key])
                     : null;
                 $link = $collection ? route('product-collections.show', $collection->slug) : ($home_banner4_links[$key] ?? '');
                 $title = trim(strip_tags(html_entity_decode(app(\App\Services\BannerTextSanitizerService::class)->sanitize((string) ($home_banner4_titles[$key] ?? '')))));

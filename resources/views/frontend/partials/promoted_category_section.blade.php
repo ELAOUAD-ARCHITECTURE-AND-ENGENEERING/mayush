@@ -14,24 +14,7 @@
             // Safer way to get child IDs - using the 'categories' relationship defined in the model
             $category_ids = array_merge([$promoted_category->id], $promoted_category->categories->pluck('id')->toArray());
             
-            // Primary query: Discounted products
-            $promoted_products = \App\Models\Product::whereIn('category_id', $category_ids)
-                ->where('published', 1)
-                ->where('approved', 1)
-                ->where('discount', '>', 0)
-                ->latest()
-                ->limit(12)
-                ->get();
-            
-            // Fallback: If no discounts, show latest products in this category
-            if($promoted_products->count() == 0) {
-                $promoted_products = \App\Models\Product::whereIn('category_id', $category_ids)
-                    ->where('published', 1)
-                    ->where('approved', 1)
-                    ->latest()
-                    ->limit(12)
-                    ->get();
-            }
+            $promoted_products = app(\App\Services\StorefrontDataService::class)->promotedCategoryProducts($category_ids);
         }
     @endphp
 
