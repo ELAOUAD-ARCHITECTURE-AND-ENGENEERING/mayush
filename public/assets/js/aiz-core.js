@@ -2415,7 +2415,12 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
     AIZ.extra.trimAppUrl();
     AIZ.extra.acceptCookie();
     AIZ.extra.setSession();
-    AIZ.extra.showSessionPopup();
+    
+    $(window).on('load', function() {
+        setTimeout(function() {
+            AIZ.extra.showSessionPopup();
+        }, 10000);
+    });
 
     AIZ.plugins.metismenu();
     AIZ.plugins.bootstrapSelect();
