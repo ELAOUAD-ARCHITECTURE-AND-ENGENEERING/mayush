@@ -520,126 +520,88 @@
                         </ul>
 
                         <!-- Top Filters -->
-                        <div class="text-left mb-3">
-                            <div class="row gutters-5 flex-wrap align-items-center">
-                                <div class="col-lg col-10">
-                                    <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
-                                        <h1 class="fs-18 fs-md-20 fw-700 text-dark mb-0">
-                                            @if (isset($category_id))
-                                                {{ $category_search->getTranslation('name') }} : {{ translate('Meubles et Décoration') }}
-                                            @elseif(isset($brand_id))
-                                                {{ $brand_name }} : {{ translate('Mobilier de marque') }}
-                                            @elseif(isset($query))
-                                                {{ translate('Search result for ') }} "{{ $query }}"
-                                            @else
-                                                {{ translate('Tous les produits de design') }}
-                                            @endif
-                                        </h1>
+                        <!-- Top Filters -->
+                        <div class="text-left mb-4">
+                            <div class="d-flex flex-column flex-xl-row justify-content-between align-items-start align-items-xl-center">
+                                <!-- Left: Title, Count, AI Button -->
+                                <div class="mb-3 mb-xl-0">
+                                    <h1 class="fs-18 fs-md-20 fw-700 text-dark mb-2">
+                                        @if (isset($category_id))
+                                            {{ $category_search->getTranslation('name') }} : {{ translate('Meubles et Décoration') }}
+                                        @elseif(isset($brand_id))
+                                            {{ $brand_name }} : {{ translate('Mobilier de marque') }}
+                                        @elseif(isset($query))
+                                            {{ translate('Search result for ') }} "{{ $query }}"
+                                        @else
+                                            {{ translate('Tous les produits de design') }}
+                                        @endif
+                                    </h1>
+                                    <div class="d-flex align-items-center flex-wrap">
+                                        <div class="badge badge-inline badge-soft-secondary rounded-pill px-3 py-2 fs-12 fw-500 mr-3 @if(!isset($products) || $products->total() == 0) d-none @endif" id="search_product_count">
+                                            <span id="total_product_count">{{ $products->total() }}</span> {{ translate('Products Found') }}
+                                        </div>
                                         
                                         @if(!empty($query))
-                                        <div class="ai-toggle-wrap mt-2 mt-md-0">
+                                        <div class="ai-toggle-wrap">
                                             <button type="button" id="ai-mode-toggle" 
-                                                class="btn btn-sm aiz-ai-search-btn rounded-pill px-3 fw-700 h-35px d-flex align-items-center gap-2" 
+                                                class="btn btn-sm aiz-ai-search-btn rounded-pill px-3 fw-700 h-35px d-flex align-items-center text-nowrap" 
                                                 onclick="toggleAiMode(this)"
                                                 data-toggle="tooltip"
                                                 title="{{ translate('AI Semantic Search understands concepts, not just keywords.') }}">
-                                                <i class="las la-magic fs-16"></i>
+                                                <i class="las la-magic fs-16 mr-2"></i>
                                                 <span>{{ translate('AI Mode') }}</span>
                                             </button>
                                         </div>
                                         @endif
                                     </div>
-
-                                    <div class="fs-12 mt-1 @if(!isset($products) || $products->total() == 0) d-none @endif" id="search_product_count">
-                                        <span class="fw-bold" id="total_product_count">{{ $products->total() }}</span>
-                                        <span class="product-name-color">{{ translate('Products Found') }}</span>
-                                    </div>
                                     <div class="d-none fs-12 product-name-color mt-1" id="searching_product">{{ translate('AI is analyzing your request...') }}</div>
                                     <input type="hidden" name="keyword" value="{{ $query }}">
                                 </div>
-                                <div class="col-2 col-lg-auto d-xl-none mb-lg-3 text-right">
-                                    <button type="button" class="btn btn-icon p-0" data-toggle="class-toggle"
-                                        data-target=".aiz-filter-sidebar">
-                                        <i class="la la-filter la-2x"></i>
-                                    </button>
-                                </div>
 
-                                <div class="col-6 col-lg-auto mb-3 w-lg-200px d-flex align-items-center gap-2">
-                                    <div id="select_option_svg">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="13.5"
-                                            viewBox="0 0 17.5 13.5">
-                                            <g id="Group_38743" data-name="Group 38743"
-                                                transform="translate(-3444 2590)">
-                                                <g id="Group_38742" data-name="Group 38742"
-                                                    transform="translate(2089 -2895)">
-                                                    <path id="Path_45144" data-name="Path 45144"
-                                                        d="M20.522,10.663a.75.75,0,0,1-1.061-.016l-2.712-2.8V18a.75.75,0,0,1-1.5,0V7.851l-2.712,2.8A.75.75,0,1,1,11.462,9.6l4-4.125a.75.75,0,0,1,1.077,0l4,4.125A.75.75,0,0,1,20.522,10.663Z"
-                                                        transform="translate(1351.75 299.75)" fill="#aaa"
-                                                        fill-rule="evenodd" />
-                                                    <path id="Path_45145" data-name="Path 45145"
-                                                        d="M12.522,13.337a.75.75,0,0,0-1.061.016l-2.712,2.8V6a.75.75,0,0,0-1.5,0V16.149l-2.712-2.8A.75.75,0,0,0,3.462,14.4l4,4.125a.75.75,0,0,0,1.077,0l4-4.125A.75.75,0,0,0,12.522,13.337Z"
-                                                        transform="translate(1351.75 299.75)" fill="#111"
-                                                        fill-rule="evenodd" />
-                                                    <path id="Path_45144-2" data-name="Path 45144"
-                                                        d="M20.522,10.663a.75.75,0,0,1-1.061-.016l-2.712-2.8V18a.75.75,0,0,1-1.5,0V7.851l-2.712,2.8A.75.75,0,1,1,11.462,9.6l4-4.125a.75.75,0,0,1,1.077,0l4,4.125A.75.75,0,0,1,20.522,10.663Z"
-                                                        transform="translate(1351.75 299.75)" fill="#aaa"
-                                                        fill-rule="evenodd" />
-                                                    <path id="Path_45145-2" data-name="Path 45145"
-                                                        d="M12.522,13.337a.75.75,0,0,0-1.061.016l-2.712,2.8V6a.75.75,0,0,0-1.5,0V16.149l-2.712-2.8A.75.75,0,0,0,3.462,14.4l4,4.125a.75.75,0,0,0,1.077,0l4-4.125A.75.75,0,0,0,12.522,13.337Z"
-                                                        transform="translate(1351.75 299.75)" fill="#111"
-                                                        fill-rule="evenodd" />
-                                                </g>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                    <select id="select_option"
-                                        class="form-control select_btn_border_none form-control-sm text-center border-0 form-control-sm aiz-selectpicker rounded-0 "
-                                        name="sort_by" onchange="filter(event)">
-                                        <option value="">
-                                            {{ translate('Sort by') }}</option>
-                                        <option value="newest"
-                                            @isset($sort_by) @if ($sort_by == 'newest') selected @endif @endisset>
-                                            {{ translate('Newest') }}</option>
-                                        <option value="oldest"
-                                            @isset($sort_by) @if ($sort_by == 'oldest') selected @endif @endisset>
-                                            {{ translate('Oldest') }}</option>
-                                        <option value="price-asc"
-                                            @isset($sort_by) @if ($sort_by == 'price-asc') selected @endif @endisset>
-                                            {{ translate('Price low to high') }}</option>
-                                        <option value="price-desc"
-                                            @isset($sort_by) @if ($sort_by == 'price-desc') selected @endif @endisset>
-                                            {{ translate('Price high to low') }}</option>
-                                    </select>
-                                </div>
-
-
-                                <div class="d-flex gap-2 mb-3 " style="gap: 8px;">
-                                    <button type="button" class="btn-col-filter view-2-hide" data-cols="2">
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                    </button>
-
-                                    <button type="button" class="btn-col-filter view-3-hide"data-cols="3">
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                    </button>
-
-                                    <div class="btn-col-filter view-4-hide" data-cols="4">
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
+                                <!-- Right: Filter (mobile), Sort, View Toggles -->
+                                <div class="d-flex flex-wrap align-items-center justify-content-start justify-content-xl-end">
+                                    <!-- Mobile Filter Toggle -->
+                                    <div class="d-xl-none mr-2 mb-2">
+                                        <button type="button" class="btn btn-icon btn-soft-secondary rounded-circle" data-toggle="class-toggle" data-target=".aiz-filter-sidebar">
+                                            <i class="las la-filter fs-20"></i>
+                                        </button>
                                     </div>
 
-                                    <div class="btn-col-filter view-6-hide" data-cols="6">
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
-                                        <div class="block_btn"></div>
+                                    <!-- Sort Dropdown -->
+                                    <div class="mr-3 mb-2 top-filter-select" style="min-width: 160px;">
+                                        <select id="select_option"
+                                            class="form-control form-control-sm aiz-selectpicker rounded-pill"
+                                            name="sort_by" onchange="filter(event)">
+                                            <option value="">{{ translate('Sort by') }}</option>
+                                            <option value="newest" @isset($sort_by) @if ($sort_by == 'newest') selected @endif @endisset>{{ translate('Newest') }}</option>
+                                            <option value="oldest" @isset($sort_by) @if ($sort_by == 'oldest') selected @endif @endisset>{{ translate('Oldest') }}</option>
+                                            <option value="price-asc" @isset($sort_by) @if ($sort_by == 'price-asc') selected @endif @endisset>{{ translate('Price low to high') }}</option>
+                                            <option value="price-desc" @isset($sort_by) @if ($sort_by == 'price-desc') selected @endif @endisset>{{ translate('Price high to low') }}</option>
+                                        </select>
                                     </div>
+
+                                    <!-- View Mode Toggles -->
+                                    <div class="view-toggles-container bg-white border rounded-pill p-1 d-flex align-items-center shadow-sm mb-2">
+                                        <button type="button" class="btn btn-sm btn-icon rounded-pill mb-0 border-0 btn-col-filter view-2-hide text-secondary {{ session('grid_view', 'grid4') == 'grid2' ? 'active' : '' }}" data-cols="2" style="width: 32px; height: 32px; transition: all 0.2s;">
+                                            <i class="las la-th-large fs-20"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-icon rounded-pill mb-0 border-0 btn-col-filter view-3-hide text-secondary {{ session('grid_view', 'grid4') == 'grid3' ? 'active' : '' }}" data-cols="3" style="width: 32px; height: 32px; transition: all 0.2s;">
+                                            <i class="las la-th fs-20"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-icon rounded-pill mb-0 border-0 btn-col-filter view-4-hide text-secondary {{ session('grid_view', 'grid4') == 'grid4' ? 'active' : '' }}" data-cols="4" style="width: 32px; height: 32px; transition: all 0.2s;">
+                                            <i class="las la-border-all fs-20"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-icon rounded-pill mb-0 border-0 btn-col-filter view-6-hide text-secondary {{ session('grid_view', 'grid4') == 'grid5' ? 'active' : '' }}" data-cols="6" style="width: 32px; height: 32px; transition: all 0.2s;">
+                                            <i class="las la-grip-horizontal fs-20"></i>
+                                        </button>
+                                    </div>
+                                    <style>
+                                        .view-toggles-container .btn-col-filter:hover { background-color: #f8f9fa; color: var(--primary) !important; }
+                                        .view-toggles-container .btn-col-filter.active { background-color: var(--primary) !important; color: #fff !important; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+                                        .top-filter-select .bootstrap-select { border: none !important; border-radius: 50px !important; }
+                                        .top-filter-select .bootstrap-select .btn { border-radius: 50px !important; border: 1px solid #e2e5ec !important; box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important; background: white; padding-left: 1rem; padding-right: 1rem; height: 38px; display: flex; align-items: center; }
+                                        .top-filter-select .bootstrap-select.show .btn { border-color: var(--primary) !important; box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.05) !important; }
+                                    </style>
                                 </div>
                             </div>
                         </div>

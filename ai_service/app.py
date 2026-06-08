@@ -34,6 +34,14 @@ def predict():
         # We can extract the main nouns and adjectives or just return the caption as search keywords
         keywords = caption.replace('a photograph of a ', '').replace('a photograph of ', '')
         
+        # Extract just the main object by splitting off the rest of the sentence
+        split_phrases = [' sitting ', ' standing ', ' laying ', ' lying ', ' in ', ' on ', ' at ', ' with ', ' next to ', ' beside ', ' and ', ' inside ', ' outside ', ' near ', ' hanging ']
+        for phrase in split_phrases:
+            if phrase in keywords:
+                keywords = keywords.split(phrase)[0]
+                
+        keywords = keywords.strip()
+        
         return jsonify({
             'success': True,
             'caption': caption,

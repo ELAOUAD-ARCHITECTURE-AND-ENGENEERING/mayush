@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Stichoza\GoogleTranslate\GoogleTranslate;
+use Illuminate\Support\Facades\App;
 
 class VisualSearchController extends Controller
 {
@@ -15,7 +17,7 @@ class VisualSearchController extends Controller
     public function visualSearch(Request $request)
     {
         $request->validate([
-            'visual_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+            'visual_image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
         ]);
 
         $imageFile = $request->file('visual_image');
@@ -32,8 +34,21 @@ class VisualSearchController extends Controller
                 $data = $response->json();
                 
                 if (isset($data['success']) && $data['success']) {
-                    // Extract the AI-generated keywords
+                    // Extract the AI-generated keywords (which are in English)
                     $keywords = $data['keywords'] ?? $data['caption'];
+                    
+                    // Translate the English keywords to the app's current active language
+                    try {
+                        $locale = App::getLocale() ?? 'en';
+                        if ($locale !== 'en') {
+                            $tr = new GoogleTranslate();
+                            $tr->setSource('en');
+                            $tr->setTarget($locale);
+                            $keywords = $tr->translate($keywords);
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Visual Search Translation failed: ' . $e->getMessage());
+                    }
                     
                     // Flash a friendly message to the user showing what AI detected
                     flash(translate('Visual search detected: ') . '"' . $keywords . '"')->info();
