@@ -15,6 +15,7 @@ use Throwable;
 class ImageOptimizationService
 {
     private static ?bool $stateTableAvailable = null;
+    private static array $existsCache = [];
 
     public function diskName(string $sourceKind = 'upload'): string
     {
@@ -123,6 +124,7 @@ class ImageOptimizationService
         if ($path === ''
             || $upload->external_link
             || in_array($extension, ['svg', 'gif'], true)
+            || (config('queue.default') === 'sync' && ! app()->runningUnitTests())
             || ! $this->stateTableAvailable()) {
             return;
         }
@@ -155,7 +157,20 @@ class ImageOptimizationService
             return false;
         }
 
-        return Storage::disk($this->diskName($sourceKind))->exists($path);
+        $diskName = $this->diskName($sourceKind);
+        $cacheKey = $diskName.':'.$path;
+
+        if (array_key_exists($cacheKey, self::$existsCache)) {
+            return true;
+        }
+
+        if (Storage::disk($diskName)->exists($path)) {
+            self::$existsCache[$cacheKey] = true;
+
+            return true;
+        }
+
+        return false;
     }
 
     private function inspectPath(string $path, string $sourceKind, ?Upload $upload = null): array

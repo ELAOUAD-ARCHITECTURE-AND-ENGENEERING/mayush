@@ -60,6 +60,9 @@ class OrderController extends Controller
     public function show($id)
     {
         $order = Order::findOrFail(decrypt($id));
+        if ($order->seller_id != Auth::user()->id) {
+            abort(403);
+        }
         $order_shipping_address = json_decode($order->shipping_address);
         $delivery_boys = User::where('city', $order_shipping_address->city)
             ->where('user_type', 'delivery_boy')

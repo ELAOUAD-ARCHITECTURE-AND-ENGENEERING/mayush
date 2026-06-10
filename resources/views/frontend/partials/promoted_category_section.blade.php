@@ -2,7 +2,9 @@
     @php
         $lang = get_system_language()->code;
         $promoted_category_id = get_setting('promoted_category_id');
-        $promoted_category = $promoted_category_id ? \App\Models\Category::find($promoted_category_id) : null;
+        $promoted_category = $promoted_category_id
+            ? app(\App\Services\StorefrontDataService::class)->categories([(int) $promoted_category_id])->first()
+            : null;
         $promoted_category_name = $promoted_category ? $promoted_category->getTranslation('name', $lang) : '';
         $promoted_products = collect();
         $promoted_category_subtitle = trim((string) get_setting('promoted_category_subtitle', '', $lang));

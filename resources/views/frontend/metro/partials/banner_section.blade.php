@@ -1,12 +1,12 @@
 @php 
     $lang = get_system_language()->code;
     $banner_images = get_setting($banner_key . '_images', null, $lang);
-    $banner_links = json_decode(get_setting($banner_key . '_links', null, $lang), true) ?: [];
-    $banner_titles = json_decode(get_setting($banner_key . '_titles', null, $lang), true) ?: [];
-    $banner_descriptions = json_decode(get_setting($banner_key . '_descriptions', null, $lang), true) ?: [];
-    $banner_cta_texts = json_decode(get_setting($banner_key . '_cta_texts', null, $lang), true) ?: [];
-    $banner_collection_ids = json_decode(get_setting($banner_key . '_collection_ids', null, $lang), true) ?: [];
-    $banner_images = json_decode($banner_images, true) ?: [];
+    $banner_links = json_decode(get_setting($banner_key . '_links', null, $lang) ?: '[]', true) ?: [];
+    $banner_titles = json_decode(get_setting($banner_key . '_titles', null, $lang) ?: '[]', true) ?: [];
+    $banner_descriptions = json_decode(get_setting($banner_key . '_descriptions', null, $lang) ?: '[]', true) ?: [];
+    $banner_cta_texts = json_decode(get_setting($banner_key . '_cta_texts', null, $lang) ?: '[]', true) ?: [];
+    $banner_collection_ids = json_decode(get_setting($banner_key . '_collection_ids', null, $lang) ?: '[]', true) ?: [];
+    $banner_images = json_decode($banner_images ?: '[]', true) ?: [];
 @endphp
 
 @if ($banner_images !== [] && get_setting($banner_key . '_status', '1') == '1')
