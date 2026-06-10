@@ -90,7 +90,7 @@ class ExpireStalePayments extends Command
                     }
                 }
                 
-                Log::info("Auto-expired stale payment attempt {$attempt->id} and cancelled related unpaid orders to restore stock.");
+                Log::channel('payments')->info("Auto-expired stale payment attempt {$attempt->id} and cancelled related unpaid orders to restore stock.");
             }
         }
         

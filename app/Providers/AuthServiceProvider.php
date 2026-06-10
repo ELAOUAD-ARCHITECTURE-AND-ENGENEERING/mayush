@@ -51,5 +51,9 @@ class AuthServiceProvider extends ServiceProvider
 
       return null;
     });
+
+    Gate::define('viewPulse', function ($user = null) {
+      return $user && in_array($user->user_type, ['admin', 'staff']);
+    });
   }
 }
