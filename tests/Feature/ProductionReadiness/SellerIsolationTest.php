@@ -116,6 +116,8 @@ class SellerIsolationTest extends TestCase
     public function admin_can_access_seller_order_management(): void
     {
         $admin = User::factory()->admin()->create();
+        $role = \Spatie\Permission\Models\Role::findOrCreate('Super Admin', 'web');
+        $admin->assignRole($role);
         $seller = User::factory()->seller()->create();
         $shop = Shop::factory()->create(['user_id' => $seller->id, 'approval_status' => 'approved']);
         $order = Order::factory()->create(['seller_id' => $seller->id]);
