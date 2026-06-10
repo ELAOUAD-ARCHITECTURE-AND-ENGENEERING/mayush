@@ -12,15 +12,18 @@ use Mayush\Shipping\Onessta\Services\ReferenceDataService;
 
 class SyncCitiesJob implements ShouldQueue
 {
+    public $tries = 2;
+    public $timeout = 300;
+
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 1;
     public bool $force = false;
 
     public function __construct(bool $force = false)
     {
+        $this->onQueue('shipping');
         $this->force = $force;
-        $this->queue = config('onessta.queue.name', 'onessta');
+        
     }
 
     public function handle(ReferenceDataService $referenceDataService): void

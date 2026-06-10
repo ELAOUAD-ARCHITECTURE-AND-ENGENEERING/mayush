@@ -13,15 +13,18 @@ use Mayush\Shipping\Onessta\Services\WebhookService;
 
 class ProcessWebhookJob implements ShouldQueue
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 3;
     public array $backoff = [10, 30, 60];
 
     public function __construct(
         public readonly OnesstaWebhookLog $webhookLog
     ) {
-        $this->queue = config('onessta.queue.name', 'onessta');
+        $this->onQueue('shipping');
+        
     }
 
     public function handle(WebhookService $webhookService): void
