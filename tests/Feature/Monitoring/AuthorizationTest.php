@@ -35,4 +35,30 @@ class AuthorizationTest extends TestCase
         $response->assertSuccessful();
         $response->assertViewIs('backend.system.health');
     }
+
+    public function test_pulse_and_horizon_gates()
+    {
+        $admin = User::factory()->create(['user_type' => 'admin']);
+        $staff = User::factory()->create(['user_type' => 'staff']);
+        $customer = User::factory()->create(['user_type' => 'customer']);
+        $seller = User::factory()->create(['user_type' => 'seller']);
+
+        // Admin and Staff can view Pulse and Horizon
+        $this->assertTrue(\Illuminate\Support\Facades\Gate::forUser($admin)->check('viewPulse'));
+        $this->assertTrue(\Illuminate\Support\Facades\Gate::forUser($admin)->check('viewHorizon'));
+        
+        $this->assertTrue(\Illuminate\Support\Facades\Gate::forUser($staff)->check('viewPulse'));
+        $this->assertTrue(\Illuminate\Support\Facades\Gate::forUser($staff)->check('viewHorizon'));
+
+        // Customer and Seller cannot
+        $this->assertFalse(\Illuminate\Support\Facades\Gate::forUser($customer)->check('viewPulse'));
+        $this->assertFalse(\Illuminate\Support\Facades\Gate::forUser($customer)->check('viewHorizon'));
+
+        $this->assertFalse(\Illuminate\Support\Facades\Gate::forUser($seller)->check('viewPulse'));
+        $this->assertFalse(\Illuminate\Support\Facades\Gate::forUser($seller)->check('viewHorizon'));
+
+        // Guests cannot
+        $this->assertFalse(\Illuminate\Support\Facades\Gate::check('viewPulse'));
+        $this->assertFalse(\Illuminate\Support\Facades\Gate::check('viewHorizon'));
+    }
 }

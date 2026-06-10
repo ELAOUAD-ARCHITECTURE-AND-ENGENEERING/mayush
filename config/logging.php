@@ -117,6 +117,18 @@ return [
             'path' => storage_path('logs/search.log'),
             'days' => 7,
         ],
+
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'days' => 14,
+        ],
+
+        'performance' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/performance.log'),
+            'days' => 7,
+        ],
     ],
 
 ];
