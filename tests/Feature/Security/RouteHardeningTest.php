@@ -25,16 +25,16 @@ class RouteHardeningTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        // Send 5 requests (below/at limit)
-        for ($i = 0; $i < 5; $i++) {
+        // Send 3 requests (below/at limit)
+        for ($i = 0; $i < 3; $i++) {
             $response = $this->post(route('express.buy', 1));
             // We expect 403 or 302 (validation/session mismatch) but NOT 429
             $this->assertNotEquals(429, $response->getStatusCode(), "Request $i should not be throttled yet");
         }
 
-        // 6th request should be throttled
+        // 4th request should be throttled
         $response = $this->post(route('express.buy', 1));
-        $this->assertEquals(429, $response->getStatusCode(), '6th request must be throttled');
+        $this->assertEquals(429, $response->getStatusCode(), '4th request must be throttled');
     }
 
     /** @test */
