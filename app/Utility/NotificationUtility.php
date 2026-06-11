@@ -16,15 +16,22 @@ class NotificationUtility
 {
     public static function sendOrderPlacedNotification($order, $request = null)
     {       
-        //sends email to Customer, Seller and Admin with the invoice pdf attached
-        $adminId = get_admin()->id;
-        $userIds = array($order->seller_id);
-        if($order->user->email != null){
-            array_push($userIds, $order->user_id);
+        $lock = \Illuminate\Support\Facades\Cache::lock('order_placed_notify_'.$order->id, 30);
+        if (!$lock->get()) {
+            \Log::info("Duplicate order notification dispatch suppressed for order {$order->id}");
+            return;
         }
-        if ($order->seller_id != $adminId) {
-            array_push($userIds, $adminId);
-        }
+
+        try {
+            //sends email to Customer, Seller and Admin with the invoice pdf attached
+            $adminId = get_admin()->id;
+            $userIds = array($order->seller_id);
+            if($order->user->email != null){
+                array_push($userIds, $order->user_id);
+            }
+            if ($order->seller_id != $adminId) {
+                array_push($userIds, $adminId);
+            }
         $users = User::findMany($userIds);
         foreach($users as $user){
             $emailIdentifier = 'order_placed_email_to_'.$user->user_type;
@@ -69,12 +76,22 @@ class NotificationUtility
 
             self::sendFirebaseNotification($request);
         }
+        } catch (\Exception $e) {
+            \Log::error("Failed to process order placed notifications: " . $e->getMessage());
+        }
     }
 
     public static function sendNotification($order, $order_status)
     {     
-        $adminId = get_admin()->id;
-        $userIds = array($order->user->id, $order->seller_id);
+        $lock = \Illuminate\Support\Facades\Cache::lock('order_status_notify_'.$order->id.'_'.$order_status, 30);
+        if (!$lock->get()) {
+            \Log::info("Duplicate status notification suppressed for order {$order->id} status {$order_status}");
+            return;
+        }
+
+        try {
+            $adminId = get_admin()->id;
+            $userIds = array($order->user->id, $order->seller_id);
         if ($order->seller_id != $adminId) {
             array_push($userIds, $adminId);
         }
@@ -93,6 +110,9 @@ class NotificationUtility
                 $order_notification['notification_type_id'] = $notificationType->id;
                 Notification::send($user, new OrderNotification($order_notification));
             }
+        }
+        } catch (\Exception $e) {
+            \Log::error("Failed to process status notification: " . $e->getMessage());
         }
     }
 
