@@ -4,8 +4,8 @@
     $homepageSeoTitle = \App\Services\SeoService::homepageTitle();
     $homepageSeoDescription = \App\Services\SeoService::homepageDescription();
     $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
-    $metroSliderImages = get_setting('home_slider_images') != null ? json_decode(get_setting('home_slider_images'), true) : [];
-    $firstMetroSliderImage = is_array($metroSliderImages) && count($metroSliderImages) > 0 ? uploaded_asset($metroSliderImages[0]) : null;
+    $firstMetroHero = app(\App\Services\StorefrontHeroImageService::class)->firstValidHero();
+    $firstMetroSliderImage = $firstMetroHero ? uploaded_asset($firstMetroHero, 'large') : null;
 @endphp
 
 @section('meta_title'){{ $homepageSeoTitle }}@stop
@@ -685,6 +685,7 @@
                         @endphp
                         @foreach ($sliders as $key => $slider)
                             @php
+                                $isFirstHeroSlide = $loop->first;
                                 $slideLink = trim((string) ($home_slider_links[$key] ?? ''));
                                 $slideTitle = trim((string) ($home_slider_titles[$key] ?? ''));
                                 $slideDescription = trim((string) ($home_slider_descriptions[$key] ?? ''));
@@ -704,8 +705,8 @@
                                             src="{{ $slider ? uploaded_asset($slider, 'large') : static_asset('assets/img/placeholder.jpg') }}"
                                             @if($slideSrcset) srcset="{{ $slideSrcset }}" sizes="100vw" @endif
                                             width="1600" height="720"
-                                            loading="{{ $key === 0 ? 'eager' : 'lazy' }}"
-                                            @if($key === 0) fetchpriority="high" @endif
+                                            loading="{{ $isFirstHeroSlide ? 'eager' : 'lazy' }}"
+                                            @if($isFirstHeroSlide) fetchpriority="high" @endif
                                             alt="{{ $slideTitleText ?: translate('Mayush furniture and decor marketplace promotion') }}"
                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
                                         </a>
@@ -714,15 +715,15 @@
                                         src="{{ $slider ? uploaded_asset($slider, 'large') : static_asset('assets/img/placeholder.jpg') }}"
                                         @if($slideSrcset) srcset="{{ $slideSrcset }}" sizes="100vw" @endif
                                         width="1600" height="720"
-                                        loading="{{ $key === 0 ? 'eager' : 'lazy' }}"
-                                        @if($key === 0) fetchpriority="high" @endif
+                                        loading="{{ $isFirstHeroSlide ? 'eager' : 'lazy' }}"
+                                        @if($isFirstHeroSlide) fetchpriority="high" @endif
                                         alt="{{ $slideTitleText ?: translate('Mayush furniture and decor marketplace promotion') }}"
                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
                                     @endif
                                     @if ($hasHeroContent)
                                         <div class="metro-hero-content">
                                             @if ($slideTitle)
-                                                @if ($key === 0)
+                                                @if ($isFirstHeroSlide)
                                                     <h1 class="metro-hero-title">{!! app(\App\Services\HeroTitleSanitizerService::class)->sanitize($slideTitle) !!}</h1>
                                                 @else
                                                     <h2 class="metro-hero-title">{!! app(\App\Services\HeroTitleSanitizerService::class)->sanitize($slideTitle) !!}</h2>

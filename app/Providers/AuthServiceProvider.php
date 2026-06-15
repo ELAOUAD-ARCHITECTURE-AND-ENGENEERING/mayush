@@ -16,6 +16,10 @@ class AuthServiceProvider extends ServiceProvider
     \App\Models\Order::class => \App\Policies\OrderPolicy::class,
     \App\Models\Shop::class => \App\Policies\ShopPolicy::class,
     \App\Models\SellerWithdrawRequest::class => \App\Policies\SellerWithdrawRequestPolicy::class,
+    \App\Models\Upload::class => \App\Policies\UploadPolicy::class,
+    \App\Models\Product::class => \App\Policies\ProductPolicy::class,
+    \App\Models\Review::class => \App\Policies\ReviewPolicy::class,
+    \App\Models\RefundRequest::class => \App\Policies\RefundPolicy::class,
   ];
 
   /**
@@ -26,6 +30,7 @@ class AuthServiceProvider extends ServiceProvider
   public function boot()
   {
     $this->registerPolicies();
+    Gate::policy('system-log', \App\Policies\SystemLogPolicy::class);
 
     // Implicitly grant "Super Admin" role all permissions.
     // Blog admins also get the full editorial surface without changing user_type.
@@ -50,6 +55,10 @@ class AuthServiceProvider extends ServiceProvider
       }
 
       return null;
+    });
+
+    Gate::define('viewPulse', function ($user = null) {
+      return $user && in_array($user->user_type, ['admin', 'staff']);
     });
   }
 }

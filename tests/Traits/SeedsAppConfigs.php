@@ -10,6 +10,16 @@ trait SeedsAppConfigs
 {
     protected function seedConfigs(): void
     {
+        \App\Models\User::firstOrCreate(
+            ['user_type' => 'admin'],
+            [
+                'name' => 'Admin User',
+                'email' => 'admin@mayush.com',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+
         Language::updateOrCreate(
             ['code' => 'en'],
             ['name' => 'English', 'app_lang_code' => 'en', 'rtl' => 0]

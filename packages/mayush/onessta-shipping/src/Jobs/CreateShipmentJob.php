@@ -18,18 +18,21 @@ use Mayush\Shipping\Onessta\Services\ShipmentService;
 
 class CreateShipmentJob implements ShouldQueue
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries;
     public array $backoff;
 
     public function __construct(
         public readonly int $orderId,
         public readonly array $shipmentData
     ) {
-        $this->tries = config('onessta.http.retry_times', 3);
+        $this->onQueue('shipping');
+        
         $this->backoff = config('onessta.queue.create_shipment_retry', [60, 300, 900]);
-        $this->queue = config('onessta.queue.name', 'onessta');
+        
     }
 
     public function handle(ShipmentService $shipmentService, ReferenceDataService $referenceDataService): void

@@ -175,9 +175,7 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        if (Auth::user()->id != $product->user_id) {
-            abort(403);
-        }
+        $this->authorize('update', $product);
 
         $lang = $this->translationLanguage($request->lang);
         $tags = json_decode($product->tags);
@@ -370,9 +368,7 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
 
-        if (Auth::user()->id != $product->user_id) {
-            abort(403);
-        }
+        $this->authorize('update', $product);
 
         if (addon_is_activated('seller_subscription')) {
             if (!seller_package_validity_check()) {
@@ -414,9 +410,7 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        if (Auth::user()->id != $product->user_id) {
-            abort(403);
-        }
+        $this->authorize('update', $product);
 
         $product->product_translations()->delete();
         $product->categories()->detach();
@@ -488,3 +482,4 @@ class ProductController extends Controller
         return $response;
     }
 }
+

@@ -10,6 +10,13 @@ class ShopPolicy
 {
     use HandlesAuthorization;
 
+    public function before(User $user, $ability)
+    {
+        if ($user->user_type === 'admin') {
+            return true;
+        }
+    }
+
     /**
      * Determine whether the user can view/manage the shop's financial data.
      */

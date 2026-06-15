@@ -115,21 +115,21 @@ Route::controller(VerificationController::class)->group(function () {
     Route::get('/verification-confirmation/{code}', 'verification_confirmation')->name('email.verification.confirmation');
 });
 
-Route::post('/contact', [ContactController::class, 'contact'])->name('contact.store');
+Route::post('/contact', [ContactController::class, 'contact'])->middleware('throttle:contact-form')->name('contact.store');
 
 
 
 Route::controller(\App\Http\Controllers\Auth\CustomAuthController::class)->group(function () {
     Route::get('/email_change/callback', 'email_change_callback')->name('email_change.callback');
-    Route::post('/password/reset/email/submit', 'reset_password_with_code')->name('password.update.email');
-    Route::get('/users/login', 'login')->middleware(['throttle:login'])->name('user.login');
-    Route::get('/seller/login', 'login')->middleware(['throttle:login'])->name('seller.login');
-    Route::get('/deliveryboy/login', 'login')->middleware(['throttle:login'])->name('deliveryboy.login');
+    Route::post('/password/reset/email/submit', 'reset_password_with_code')->middleware('throttle:password-reset')->name('password.update.email');
+    Route::get('/users/login', 'login')->middleware(['throttle:auth-login'])->name('user.login');
+    Route::get('/seller/login', 'login')->middleware(['throttle:seller-login'])->name('seller.login');
+    Route::get('/deliveryboy/login', 'login')->middleware(['throttle:auth-login'])->name('deliveryboy.login');
     Route::get('/users/registration', 'registration')->name('user.registration');
-    Route::post('/users/login/cart', 'cart_login')->middleware(['throttle:login'])->name('cart.login.submit');
+    Route::post('/users/login/cart', 'cart_login')->middleware(['throttle:auth-login'])->name('cart.login.submit');
     // Route::get('/new-page', 'new_page')->name('new_page');
 
-    Route::post('/customer-reg/verification-code-send', 'sendRegVerificationCode')->name('customer-reg.verification_code_send');
+    Route::post('/customer-reg/verification-code-send', 'sendRegVerificationCode')->middleware('throttle:auth-register')->name('customer-reg.verification_code_send');
     Route::get('/customer-reg/verify-code/{id}', 'regVerifyCode')->name('customer-reg.verify_code');
     Route::post('/customer-reg/verify-code-confirmation', 'regVerifyCodeConfirmation')->name('customer-reg.verify_code_confirmation');
 });
@@ -270,7 +270,7 @@ Route::controller(CustomerProductController::class)->group(function () {
 });
 
 // Search
-Route::controller(SearchController::class)->group(function () {
+Route::controller(SearchController::class)->middleware('throttle:search')->group(function () {
     Route::get('/search', 'index')->name('search');
     Route::get('/search?keyword={search}', 'index')->name('suggestion.search');
     Route::get('/search-v2', 'index2')->name('suggestion.search2');
@@ -391,7 +391,7 @@ Route::middleware(['unbanned'])->group(function () {
     Route::get('/checkout-test', [CheckoutController::class, 'index']);
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.shipping_info');
     // Checkout Routes
-    Route::group(['prefix' => 'checkout', 'middleware' => ['throttle:payments']], function() {
+    Route::group(['prefix' => 'checkout', 'middleware' => ['throttle:checkout-submit']], function() {
         Route::controller(CheckoutController::class)->group(function () {
             Route::any('/delivery_info', 'store_shipping_info')->name('checkout.store_shipping_infostore');
             Route::post('/payment_select', 'store_delivery_info')->name('checkout.store_delivery_info');
@@ -475,7 +475,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('invoice/{order_id}', [InvoiceController::class, 'invoice_download'])->name('invoice.download');
 
     Route::get('/express-buy/check', [ExpressBuyController::class, 'eligibility'])->name('express.check');
-    Route::post('/express-buy/{product_id}', [ExpressBuyController::class, 'submit'])->middleware('throttle:5,1')->name('express.buy');
+    Route::post('/express-buy/{product_id}', [ExpressBuyController::class, 'submit'])->middleware('throttle:express-buy')->name('express.buy');
 
 
     // Reviews
@@ -512,7 +512,8 @@ Route::group(['middleware' => ['auth']], function() {
 
 });
 
-Route::resource('shops', ShopController::class);
+Route::post('shops', [ShopController::class, 'store'])->middleware('throttle:seller-application')->name('shops.store');
+Route::resource('shops', ShopController::class)->except('store');
 Route::controller(ShopController::class)->group(function () {
     Route::get('/shop-reg/verification', 'verifyRegEmailorPhone')->name('shop-reg.verification');
     Route::post('/shop-reg/verification-code-send', 'sendRegVerificationCode')->name('shop-reg.verification_code_send');
@@ -605,7 +606,7 @@ Route::middleware(['throttle:payments'])->group(function () {
 //Blog Section
 Route::controller(BlogController::class)->group(function () {
     Route::get('/blog', 'all_blog')->name('blog');
-    Route::post('/blog/subscribe', 'subscribe')->middleware('throttle:10,1')->name('blog.subscribe');
+    Route::post('/blog/subscribe', 'subscribe')->middleware('throttle:blog-lead')->name('blog.subscribe');
     Route::get('/blog/products', [\App\Http\Controllers\Api\BlogApiController::class, 'products'])->name('blog.products');
     Route::get('/blog/preview/{id}', 'preview')->middleware('auth')->name('blog.preview');
     Route::get('/blog/{slug}', 'blog_details')->name('blog.details');

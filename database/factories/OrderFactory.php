@@ -24,6 +24,7 @@ class OrderFactory extends Factory
                 'address' => $this->faker->streetAddress(),
                 'city'    => $this->faker->city(),
                 'country' => 'US',
+                'postal_code' => $this->faker->postcode(),
             ]),
             'payment_type'      => 'cash_on_delivery',
             'payment_status'    => 'unpaid',

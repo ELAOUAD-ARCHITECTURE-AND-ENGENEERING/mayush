@@ -47,6 +47,11 @@ class AppServiceProvider extends ServiceProvider
       \App\Models\Currency::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\CustomLabel::observe(\App\Observers\StorefrontCacheObserver::class);
 
+      // SMS Rate Limiting Configuration
+      \Illuminate\Support\Facades\RateLimiter::for('sms_sender', function ($job) {
+          return \Illuminate\Cache\RateLimiting\Limit::perMinute(30);
+      });
+
       // ONESSTA 3PL Shipping Integration
       if (config('onessta.enabled', false)) {
           Order::observe(OrderObserver::class);
@@ -64,7 +69,7 @@ class AppServiceProvider extends ServiceProvider
     $this->app->bind(CmiConfigValidatorInterface::class, CmiConfigValidator::class);
 
     if (!$this->app->environment('production')) {
-        if (class_exists('Barryvdh\\Debugbar\\ServiceProvider')) {
+        if (env('DEBUGBAR_ENABLED', false) && class_exists('Barryvdh\\Debugbar\\ServiceProvider')) {
             $this->app->register('Barryvdh\\Debugbar\\ServiceProvider');
         }
 

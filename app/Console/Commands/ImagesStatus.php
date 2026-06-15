@@ -3,9 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\ImageOptimizationState;
-use App\Models\Upload;
-use App\Services\ImageOptimizationService;
-use App\Services\StorefrontImageReferenceService;
+use App\Services\StorefrontHeroImageService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +16,7 @@ class ImagesStatus extends Command
 
     protected $description = 'Report image optimization state and storefront hero readiness.';
 
-    public function handle(ImageOptimizationService $optimizer, StorefrontImageReferenceService $references): int
+    public function handle(StorefrontHeroImageService $heroes): int
     {
         if (! Schema::hasTable('image_optimization_states')) {
             $this->error('Run migrations before checking image status: image_optimization_states is missing.');
@@ -37,16 +35,12 @@ class ImagesStatus extends Command
             $queueDepth = 'unavailable';
         }
 
-        $missingHeroIds = Upload::query()
-            ->whereIn('id', $references->heroUploadIds())
-            ->get()
-            ->filter(fn (Upload $upload) => ! $optimizer->exists($optimizer->derivativePath((string) $upload->file_name, 'medium')))
-            ->pluck('id')
-            ->values()
-            ->all();
+        $validHeroIds = $heroes->validHeroUploads()->pluck('id')->map(fn ($id) => (int) $id)->values()->all();
+        $staleHeroIds = $heroes->staleHeroIds();
+        $missingHeroDerivativeIds = $heroes->validHeroIdsMissingDerivative('medium');
 
         $this->table(
-            ['Optimized', 'Pending', 'Failed', 'Skipped', 'Missing', 'Queue depth', 'Heroes missing medium WebP'],
+            ['Optimized', 'Pending', 'Failed', 'Skipped', 'Missing', 'Queue depth', 'Valid heroes', 'Ignored stale heroes', 'Valid heroes missing medium WebP'],
             [[
                 (int) ($counts['optimized'] ?? 0),
                 (int) ($counts['pending'] ?? 0),
@@ -54,14 +48,30 @@ class ImagesStatus extends Command
                 (int) ($counts['skipped'] ?? 0),
                 (int) ($counts['missing'] ?? 0),
                 $queueDepth,
-                $missingHeroIds === [] ? 'none' : implode(', ', $missingHeroIds),
+                $validHeroIds === [] ? 'none' : implode(', ', $validHeroIds),
+                $staleHeroIds === [] ? 'none' : implode(', ', $staleHeroIds),
+                $missingHeroDerivativeIds === [] ? 'none' : implode(', ', $missingHeroDerivativeIds),
             ]]
         );
 
-        if ($this->option('fail-on-hero-missing') && $missingHeroIds !== []) {
-            $this->error('Storefront readiness failed: active hero derivatives are missing.');
+        if (! $this->option('fail-on-hero-missing')) {
+            return self::SUCCESS;
+        }
+
+        if ($validHeroIds === []) {
+            $this->error('Storefront readiness failed: no valid active hero image exists.');
 
             return self::FAILURE;
+        }
+
+        if ($missingHeroDerivativeIds !== []) {
+            $this->error('Storefront readiness failed: valid active hero derivatives are missing.');
+
+            return self::FAILURE;
+        }
+
+        if ($staleHeroIds !== []) {
+            $this->warn('Ignored stale hero IDs with missing upload records or source files: '.implode(', ', $staleHeroIds));
         }
 
         return self::SUCCESS;
