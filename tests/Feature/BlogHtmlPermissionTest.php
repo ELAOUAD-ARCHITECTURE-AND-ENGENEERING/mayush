@@ -27,7 +27,9 @@ class BlogHtmlPermissionTest extends TestCase
 
     public function test_user_without_permission_cannot_submit_html_blocks()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['user_type' => 'admin']);
+        Permission::firstOrCreate(['name' => 'add_blog', 'guard_name' => 'web']);
+        $user->givePermissionTo('add_blog');
         $category = BlogCategory::create(['category_name' => 'Test Category', 'slug' => 'test-cat']);
 
         $blocks = [
@@ -68,7 +70,7 @@ class BlogHtmlPermissionTest extends TestCase
 
     public function test_user_with_permission_can_submit_html_blocks()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['user_type' => 'admin']);
         $user->assignRole('super_admin');
         
         $category = BlogCategory::create(['category_name' => 'Test Category', 'slug' => 'test-cat-2']);
