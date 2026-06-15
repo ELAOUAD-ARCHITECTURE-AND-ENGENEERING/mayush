@@ -21,14 +21,14 @@ class BlogRequest extends FormRequest
      */
     public function rules(): array
     {
-        $id = $this->route('id'); // Get ID if we are updating
+        $id = $this->route('blog') ?: $this->route('id'); // Get ID if we are updating
 
         return [
             'category_id' => ['required', 'integer', 'exists:blog_categories,id'],
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('blogs', 'slug')->ignore($id)],
             'short_description' => ['required', 'string'],
-            'workflow_action' => ['nullable', \Illuminate\Validation\Rule::in(['draft', 'submit', 'publish'])],
+            'workflow_action' => ['nullable', \Illuminate\Validation\Rule::in(['draft', 'submit', 'publish', 'preview'])],
             'published_at' => ['nullable', 'date'],
             'banner' => ['nullable', 'integer'], // upload id
             'meta_title' => ['nullable', 'string', 'max:255'],
