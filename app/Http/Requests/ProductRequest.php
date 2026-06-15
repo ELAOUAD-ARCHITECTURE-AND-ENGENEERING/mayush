@@ -8,6 +8,32 @@ use App\Models\Attribute;
 
 class ProductRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if (!$this->filled('category_id') && $this->route('product')?->category_id) {
+            $this->merge([
+                'category_id' => $this->route('product')->category_id,
+            ]);
+        }
+
+        if (!$this->filled('category_id')) {
+            return;
+        }
+
+        $categoryIds = collect((array) $this->input('category_ids', []))
+            ->filter(fn ($categoryId) => $categoryId !== null && $categoryId !== '')
+            ->map(fn ($categoryId) => (string) $categoryId);
+
+        $mainCategoryId = (string) $this->input('category_id');
+        if (!$categoryIds->contains($mainCategoryId)) {
+            $categoryIds->push($mainCategoryId);
+        }
+
+        $this->merge([
+            'category_ids' => $categoryIds->values()->all(),
+        ]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *

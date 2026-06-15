@@ -109,6 +109,72 @@ class AdminProductControllerTest extends TestCase
     }
 
     /** @test */
+    public function admin_can_edit_product_with_null_colors()
+    {
+        $product = Product::factory()->create([
+            'added_by' => 'admin',
+            'colors' => null,
+        ]);
+
+        $response = $this->actingAs($this->admin)->get(route('products.admin.edit', $product->id));
+
+        $response->assertOk();
+        $response->assertViewIs('backend.product.products.edit');
+    }
+
+    /** @test */
+    public function admin_can_update_product_when_saved_category_is_missing_from_tree()
+    {
+        $missingCategoryId = 999999;
+        $product = Product::factory()->create([
+            'added_by' => 'admin',
+            'category_id' => $missingCategoryId,
+        ]);
+
+        $product->categories()->detach();
+
+        $response = $this->actingAs($this->admin)->post(route('products.update', $product), [
+            'name' => 'Updated Product With Missing Pivot',
+            'unit' => 'pcs',
+            'min_qty' => 1,
+            'unit_price' => 50,
+            'discount' => 0,
+            'discount_type' => 'amount',
+            'current_stock' => 5,
+            'description' => 'Updated description',
+            'thumbnail_img' => null,
+            'meta_img' => null,
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+        ]);
+        $this->assertDatabaseHas('product_categories', [
+            'product_id' => $product->id,
+            'category_id' => $missingCategoryId,
+        ]);
+    }
+
+    /** @test */
+    public function admin_edit_page_warns_when_saved_category_is_missing()
+    {
+        $missingCategoryId = 999999;
+        $product = Product::factory()->create([
+            'added_by' => 'admin',
+            'category_id' => $missingCategoryId,
+        ]);
+
+        $product->categories()->detach();
+
+        $response = $this->actingAs($this->admin)->get(route('products.admin.edit', $product->id));
+
+        $response->assertOk();
+        $response->assertSee('Saved category');
+        $response->assertSee('#' . $missingCategoryId);
+    }
+
+    /** @test */
     public function admin_can_delete_product()
     {
         $product = Product::factory()->create();
