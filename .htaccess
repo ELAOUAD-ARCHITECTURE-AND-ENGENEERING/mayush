@@ -42,3 +42,21 @@ Options -Indexes
     ExpiresByType image/x-icon "access plus 1 year"
     ExpiresDefault "access plus 1 days"
 </IfModule>
+
+# Mayush emergency exposure protection
+<IfModule mod_authz_core.c>
+    <FilesMatch (^\.env|^\.env\..*|^\..*env.*|.*\.swp$|^composer\.(json|lock)$|^package(-lock)?\.json$|^vite\.config\..*|^phpunit\.xml$|^\.gitignore$|.*\.(sql|sql\.gz|zip|tar|tar\.gz|bak|bak-.*|old|old-.*)$|^(info|phpinfo|db_check|dump_flash_deals)\.php$)>
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    <FilesMatch (^\.env|^\.env\..*|^\..*env.*|.*\.swp$|^composer\.(json|lock)$|^package(-lock)?\.json$|^vite\.config\..*|^phpunit\.xml$|^\.gitignore$|.*\.(sql|sql\.gz|zip|tar|tar\.gz|bak|bak-.*|old|old-.*)$|^(info|phpinfo|db_check|dump_flash_deals)\.php$)>
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+RedirectMatch 403 ^/\.git
+RedirectMatch 403 ^/vendor/
+RedirectMatch 403 ^/storage/logs/

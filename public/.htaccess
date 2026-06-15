@@ -1,0 +1,13 @@
+# Mayush emergency public-directory exposure protection
+<IfModule mod_authz_core.c>
+    <FilesMatch (^\.env|^\.env\..*|^\..*env.*|.*\.swp$|^composer\.(json|lock)$|^package(-lock)?\.json$|^vite\.config\..*|^phpunit\.xml$|^\.gitignore$|.*\.(sql|sql\.gz|zip|tar|tar\.gz|bak|bak-.*|old|old-.*)$|^(info|phpinfo|db_check|dump_flash_deals)\.php$)>
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    <FilesMatch (^\.env|^\.env\..*|^\..*env.*|.*\.swp$|^composer\.(json|lock)$|^package(-lock)?\.json$|^vite\.config\..*|^phpunit\.xml$|^\.gitignore$|.*\.(sql|sql\.gz|zip|tar|tar\.gz|bak|bak-.*|old|old-.*)$|^(info|phpinfo|db_check|dump_flash_deals)\.php$)>
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
