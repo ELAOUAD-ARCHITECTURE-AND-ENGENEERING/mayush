@@ -62,12 +62,34 @@ class BlogContentBlockService
                     'text' => trim((string) Arr::get($data, 'text')),
                 ],
             ],
+            'rich_text' => [
+                'type' => 'rich_text',
+                'data' => [
+                    'text' => $this->sanitizer->sanitize(trim((string) Arr::get($data, 'text'))), // Sanitized HTML
+                ],
+            ],
+            'html' => \Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->can('manage_blog_html') ? [
+                'type' => 'html',
+                'data' => [
+                    'code' => trim((string) Arr::get($data, 'code')), // Raw HTML allowed for trusted admins
+                ],
+            ] : null,
             'image' => [
                 'type' => 'image',
                 'data' => [
                     'upload_id' => trim((string) Arr::get($data, 'upload_id')),
                     'alt' => Str::limit(trim((string) Arr::get($data, 'alt')), 180, ''),
                     'caption' => Str::limit(trim((string) Arr::get($data, 'caption')), 220, ''),
+                ],
+            ],
+            'gallery' => [
+                'type' => 'gallery',
+                'data' => [
+                    'upload_ids' => collect(explode(',', (string) Arr::get($data, 'upload_ids', '')))
+                        ->map(fn($id) => trim((string)$id))
+                        ->filter()
+                        ->take(12)
+                        ->implode(','),
                 ],
             ],
             'quote' => [
@@ -89,6 +111,39 @@ class BlogContentBlockService
                         ->all(),
                 ],
             ],
+            'faq' => [
+                'type' => 'faq',
+                'data' => [
+                    'items' => collect(Arr::get($data, 'items', []))
+                        ->map(function ($item) {
+                            return [
+                                'question' => Str::limit(trim((string) Arr::get($item, 'question')), 200, ''),
+                                'answer' => trim((string) Arr::get($item, 'answer')),
+                            ];
+                        })
+                        ->filter(fn($item) => !empty($item['question']) && !empty($item['answer']))
+                        ->take(10)
+                        ->values()
+                        ->all(),
+                ],
+            ],
+            'product_recommendation' => [
+                'type' => 'product_recommendation',
+                'data' => [
+                    'product_ids' => collect(explode(',', (string) Arr::get($data, 'product_ids', '')))
+                        ->map(fn($id) => trim((string)$id))
+                        ->filter()
+                        ->take(4)
+                        ->implode(','),
+                    'title' => Str::limit(trim((string) Arr::get($data, 'title')), 100, ''),
+                ],
+            ],
+            'shop_highlight' => [
+                'type' => 'shop_highlight',
+                'data' => [
+                    'shop_id' => trim((string) Arr::get($data, 'shop_id')),
+                ],
+            ],
             'divider' => [
                 'type' => 'divider',
                 'data' => [],
@@ -104,9 +159,17 @@ class BlogContentBlockService
         return match ($block['type']) {
             'heading' => $this->renderHeading($data),
             'paragraph' => $this->renderParagraph($data),
+            'rich_text' => $this->renderRichText($data),
+            'html' => $this->renderHtml($data),
             'image' => $this->renderImage($data),
+            'gallery' => $this->renderGallery($data),
             'quote' => $this->renderQuote($data),
             'list' => $this->renderList($data),
+            'faq' => $this->renderFaq($data),
+            // Complex blocks won't be fully rendered into the DB description field anymore, 
+            // but we leave placeholders or basic markup for fallback.
+            'product_recommendation' => '<div class="block-placeholder product-recommendation-placeholder"></div>',
+            'shop_highlight' => '<div class="block-placeholder shop-highlight-placeholder"></div>',
             'divider' => '<hr>',
             default => '',
         };
@@ -132,6 +195,18 @@ class BlogContentBlockService
         return $text === '' ? '' : '<p>' . nl2br($text) . '</p>';
     }
 
+    private function renderRichText(array $data): string
+    {
+        // Already sanitized during normalizeBlock
+        $text = (string) ($data['text'] ?? '');
+        return $text === '' ? '' : '<div class="rich-text">' . $text . '</div>';
+    }
+
+    private function renderHtml(array $data): string
+    {
+        return (string) ($data['code'] ?? '');
+    }
+
     private function renderImage(array $data): string
     {
         $uploadId = $data['upload_id'] ?? null;
@@ -146,6 +221,24 @@ class BlogContentBlockService
         $captionHtml = $caption !== '' ? "<figcaption>{$caption}</figcaption>" : '';
 
         return '<figure><img src="' . e($src) . '" alt="' . $alt . '" loading="lazy">' . $captionHtml . '</figure>';
+    }
+
+    private function renderGallery(array $data): string
+    {
+        $uploadIds = array_filter(explode(',', (string) ($data['upload_ids'] ?? '')));
+        if (empty($uploadIds)) {
+            return '';
+        }
+
+        $imagesHtml = '';
+        foreach ($uploadIds as $id) {
+            $src = uploaded_asset($id);
+            if ($src) {
+                $imagesHtml .= '<img src="' . e($src) . '" loading="lazy">';
+            }
+        }
+
+        return $imagesHtml !== '' ? '<div class="gallery-block">' . $imagesHtml . '</div>' : '';
     }
 
     private function renderQuote(array $data): string
@@ -178,8 +271,22 @@ class BlogContentBlockService
         return "<{$tag}>{$items}</{$tag}>";
     }
 
+    private function renderFaq(array $data): string
+    {
+        $itemsHtml = collect($data['items'] ?? [])
+            ->map(function ($item) {
+                $q = e((string) $item['question']);
+                $a = nl2br(e((string) $item['answer']));
+                return "<details><summary>{$q}</summary><p>{$a}</p></details>";
+            })
+            ->filter()
+            ->implode('');
+
+        return $itemsHtml !== '' ? '<div class="faq-block">' . $itemsHtml . '</div>' : '';
+    }
+
     private function supportedTypes(): array
     {
-        return ['heading', 'paragraph', 'image', 'quote', 'list', 'divider'];
+        return ['heading', 'paragraph', 'rich_text', 'html', 'image', 'gallery', 'quote', 'list', 'faq', 'product_recommendation', 'shop_highlight', 'divider'];
     }
 }
