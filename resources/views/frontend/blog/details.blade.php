@@ -107,7 +107,10 @@
                         @include('frontend.blog.partials.share-bar', ['blog' => $blog])
                     @endif
                     <div class="mb-blog-article-body mb-4 overflow-hidden">
-                        {!! $blogDescription !!}
+                        @include('frontend.blog.partials.content_blocks', [
+                            'blocks' => $blog->content_blocks,
+                            'fallbackDescription' => $blogDescription
+                        ])
                     </div>
                     @if(($blogSettings['product_embeds_enabled'] ?? true))
                         @include('frontend.blog.partials.product-embed', [

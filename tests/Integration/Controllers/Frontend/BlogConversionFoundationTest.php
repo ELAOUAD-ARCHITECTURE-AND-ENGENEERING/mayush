@@ -738,7 +738,7 @@ class BlogConversionFoundationTest extends TestCase
         $response = $this->actingAs($admin)->get(route('blog.create'));
 
         $response->assertStatus(200);
-        $response->assertSee('Blog Information');
+        $response->assertSee('Publishing Details');
     }
 
     /** @test */

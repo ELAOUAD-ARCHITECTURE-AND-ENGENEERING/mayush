@@ -5,7 +5,7 @@
 <div class="aiz-titlebar text-left mt-2 mb-3">
     <div class="row align-items-center">
         <div class="col-auto">
-            <h1 class="h3">{{translate('All Posts')}}</h1>
+            <h1 class="h3">{{translate('All Articles')}}</h1>
         </div>
         @can('add_blog')
             <div class="col text-right">
@@ -25,12 +25,12 @@
                         </a>
                     @endcan
                 @endcan
-                <a href="{{ route('blog') }}" target="_blank" class="btn btn-soft-dark mr-2">
+                <a href="{{ route('blog') }}" target="_blank" class="btn btn-soft-secondary mr-2">
                     <i class="las la-external-link-alt mr-1"></i>
                     <span>{{ translate('Preview Blog') }}</span>
                 </a>
-                <a href="{{ route('blog.create') }}" class="btn btn-circle btn-info">
-                    <span>{{translate('Add New Post')}}</span>
+                <a href="{{ route('blog.create') }}" class="btn btn-primary">
+                    <span>{{translate('Add New Article')}}</span>
                 </a>
             </div>
         @endcan
@@ -64,7 +64,7 @@
     <form class="" id="sort_blogs" action="" method="GET">
         <div class="card-header row gutters-5">
             <div class="col text-center text-md-left">
-                <h5 class="mb-md-0 h6">{{ translate('All blog posts') }}</h5>
+                <h5 class="mb-md-0 h6">{{ translate('All articles') }}</h5>
             </div>
 
             <div class="col-md-2">
@@ -189,9 +189,9 @@
                                     'archived' => 'badge-dark',
                                 ][$workflow] ?? 'badge-secondary';
                             @endphp
-                            <span class="badge {{ $badgeClass }}">{{ $workflowStatuses[$workflow] ?? ucfirst(str_replace('_', ' ', $workflow)) }}</span>
+                            <span class="badge badge-inline {{ $badgeClass }}">{{ $workflowStatuses[$workflow] ?? ucfirst(str_replace('_', ' ', $workflow)) }}</span>
                             @if($blog->published_at && $workflow === 'published' && $blog->published_at->isFuture())
-                                <span class="badge badge-soft-primary mt-1">{{ translate('Scheduled') }}</span>
+                                <span class="badge badge-inline badge-soft-primary mt-1">{{ translate('Scheduled') }}</span>
                             @endif
                         </td>
                         <td class="text-right">
@@ -214,7 +214,7 @@
                                 @else
                                     <form action="{{ route('blog.archive', $blog->id) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-soft-dark btn-icon btn-circle btn-sm" title="{{ translate('Archive') }}">
+                                        <button type="submit" class="btn btn-soft-warning btn-icon btn-circle btn-sm" title="{{ translate('Archive') }}">
                                             <i class="las la-archive"></i>
                                         </button>
                                     </form>
