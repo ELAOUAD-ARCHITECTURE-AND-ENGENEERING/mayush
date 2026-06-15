@@ -8,6 +8,7 @@ use App\Notifications\CustomNotification;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Schema;
 use Validator;
 use Redirect;
 
@@ -104,10 +105,11 @@ class NotificationController extends Controller
     }
 
     public function bulkDelete($data){
-        if($data['notification_ids']){
-            foreach($data['notification_ids'] as $notificationId){
-                DB::table('notifications')->where('id',$notificationId)->delete();
-            }
+        if(!empty($data['notification_ids'])){
+            auth()->user()
+                ->notifications()
+                ->whereIn('id', (array) $data['notification_ids'])
+                ->delete();
         }
     }
     // Notification delete end
@@ -116,10 +118,10 @@ class NotificationController extends Controller
     public function readAndRedirect($id) {
         $userType = auth()->user()->user_type;
         $notificationId = decrypt($id);
-        $notification = auth()->user()->unreadNotifications->where('id',$notificationId)->first();
+        $notification = auth()->user()->notifications()->where('id', $notificationId)->firstOrFail();
 
         // Notification mark as read
-        auth()->user()->unreadNotifications->where('id',$notificationId)->markAsRead();
+        $notification->markAsRead();
 
         // Order notification redirect
         if($notification->type == 'App\Notifications\OrderNotification'){
@@ -144,7 +146,7 @@ class NotificationController extends Controller
                     return redirect()->route('products.seller.edit', ['id'=>$productId, 'lang'=>$lang]);
                 }
                 elseif($productType == 'digital'){
-                    return redirect()->route('digitalproducts.edit', ['id'=>$productId, 'lang'=>$lang]);
+                    return redirect()->route('digitalproducts.edit', ['digitalproduct'=>$productId, 'lang'=>$lang]);
                 }
             }
             if($userType == 'seller'){
@@ -199,11 +201,10 @@ class NotificationController extends Controller
 
     // non Linkable custom Notification mark as Read and return total unread count
     public function nonLinkableNotificationRead(){
-        $unReadNotifications = auth()->user()->notifications()->where('type', 'App\Notifications\customNotification')->get();
+        $unReadNotifications = auth()->user()->unreadNotifications()->where('type', 'App\Notifications\CustomNotification')->get();
         foreach($unReadNotifications  as $notification){
             if($notification->data['link'] == null){
-                $notification->read_at = date("Y-m-d H:i:s");
-                $notification->save();
+                $notification->markAsRead();
             }
         }
         return count(auth()->user()->unreadNotifications);
@@ -229,6 +230,10 @@ class NotificationController extends Controller
         $var = explode("_", $identifier);
         $type = $var[0];
         $created_at = date('Y-m-d', strtotime($var[1]));
+        if (!Schema::hasColumn('notifications', 'notification_type_id')) {
+            return;
+        }
+
         DB::table('notifications')->where('notification_type_id', $type)->where(DB::raw('Date(created_at)'), $created_at)->delete();
     }
     // Custom Notifications delete end

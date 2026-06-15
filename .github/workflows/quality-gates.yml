@@ -1,0 +1,115 @@
+name: Mayush Quality Gates
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  app-health:
+    name: App health
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: bcmath, curl, dom, fileinfo, gd, intl, mbstring, pcntl, pdo_sqlite, posix, redis, sqlite3, xml, zip
+          coverage: none
+
+      - name: Validate Composer manifest
+        run: composer validate --no-check-publish --strict
+
+      - name: Block production debug artifacts
+        run: |
+          ! grep -RInE '(^|[^A-Za-z0-9_])(dd|dump|ray|var_dump)[[:space:]]*\(' app routes resources --include='*.php'
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Prepare Laravel test environment
+        run: |
+          cp .env.example .env
+          sed -i 's/^APP_ENV=.*/APP_ENV=testing/' .env
+          sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          sed -i 's#^DB_DATABASE=.*#DB_DATABASE=:memory:#' .env
+          sed -i 's/^CACHE_DRIVER=.*/CACHE_DRIVER=array/' .env
+          sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=array/' .env
+          sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' .env
+          sed -i 's/^ONESSTA_ENABLED=.*/ONESSTA_ENABLED=false/' .env
+          php artisan key:generate --ansi
+          php artisan optimize:clear
+
+      - name: Validate route registration
+        run: php artisan route:list
+
+      - name: Validate config cache
+        run: |
+          php artisan config:cache
+          php artisan config:clear
+
+      - name: Validate route cache
+        run: |
+          php artisan route:cache
+          php artisan route:clear
+
+      - name: Run application tests
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+          CACHE_DRIVER: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+          ONESSTA_ENABLED: "false"
+        run: |
+          php artisan optimize:clear
+          php artisan test --stop-on-failure
+
+  composer-audit:
+    name: Composer audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: bcmath, curl, dom, fileinfo, gd, intl, mbstring, pcntl, pdo_sqlite, posix, redis, sqlite3, xml, zip
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run Composer security audit
+        run: |
+          composer audit --locked --format=json > composer-audit.json || true
+          php scripts/ci/check-composer-audit.php composer-audit.json
+
+  npm-audit:
+    name: NPM production audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run production dependency audit
+        run: npm audit --omit=dev --audit-level=high

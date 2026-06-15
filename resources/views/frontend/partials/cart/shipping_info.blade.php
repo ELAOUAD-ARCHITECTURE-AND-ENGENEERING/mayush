@@ -35,22 +35,24 @@
         <!--Shipping Address-->
         <div class="tab-pane fade show active" id="shipping-address" role="tabpanel"
             aria-labelledby="shipping-address-tab">
+            @if(count(Auth::user()->addresses) > 0)
             <div class="d-flex justify-content-end choose-address">
                 <button type="button" class="px-0 py-1 border-0 bg-white fs-12 fw-bold text-blue" data-toggle="modal"
                     data-target="#choose-address-modal">{{ translate('Choose Another
                     Address') }}</button>
             </div>
+            @endif
             <!-- Single Start -->
             <div class="mb-2 mt-2 mt-md-3">
                 @php
                 $address = Auth::user()->addresses()->where('id', $address_id)->first();
                 if($address){
-                $city = optional($address->city);
+                $city = $address->city;
                 $area_id = $address->area_id;
 
                 $has_area_id = !is_null($area_id);
-                $city_status = $city->status;
-                $active_area_exists = $city->areas()->where('status', 1)->exists(); 
+                $city_status = optional($city)->status;
+                $active_area_exists = $city && \Illuminate\Support\Facades\Schema::hasTable('areas') ? $city->areas()->where('status', 1)->exists() : false; 
                 $area_status = $has_area_id ? optional($address->area)->status : 1;
                 $is_disabled =
                     $city_status === 0 ||
@@ -70,7 +72,7 @@
                                 <span class="d-flex p-3 aiz-megabox-elem border-0">
                                     <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                     <span class="pl-3 text-left w-xl-300px"  id="choose-default">
-                                        {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ $address->city->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
+                                        {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ optional($address->city)->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
                                         <br>  {{ $address->phone }}
                                     </span>
                                 </span>
@@ -124,21 +126,23 @@
         @if (get_setting('billing_address_required'))
         <!--Billing Address Start-->
         <div class="tab-pane fade" id="billing-address" role="tabpanel" aria-labelledby="billing-address-tab">
+            @if(count(Auth::user()->addresses) > 0)
              <div class="d-flex justify-content-end choose-address">
                 <button type="button" class="px-0 py-1 border-0 bg-white fs-12 fw-bold text-blue" data-toggle="modal"
                     data-target="#choose-billing-address-modal">{{ translate('Choose Another Billing Address') }}</button>
             </div>
+            @endif
             <div class="mb-2 mt-2 mt-md-3">
                 @php
                 $address = Auth::user()->addresses()->where('set_billing', 1)->first();
                 
                 if($address){
-                $city = optional($address->city);
+                $city = $address->city;
                 $area_id = $address->area_id;
 
                 $has_area_id = !is_null($area_id);
-                $city_status = $city->status;
-                $active_area_exists = $city->areas()->where('status', 1)->exists(); 
+                $city_status = optional($city)->status;
+                $active_area_exists = $city && \Illuminate\Support\Facades\Schema::hasTable('areas') ? $city->areas()->where('status', 1)->exists() : false; 
                 $area_status = $has_area_id ? optional($address->area)->status : 1;
                 
                 $is_disabled =
@@ -157,7 +161,7 @@
                                 <span class="d-flex p-3 aiz-megabox-elem border-0">
                                     <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                     <span class="pl-3 text-left w-xl-300px" id="choose-default-billing">
-                                        {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ $address->city->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
+                                        {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ optional($address->city)->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
                                         <br>  {{ $address->phone }}
                                     </span>
                                 </span>
@@ -215,12 +219,12 @@
                     <div>
                         @foreach (Auth::user()->addresses as $key => $address)
                         @php
-                            $city = optional($address->city);
+                            $city = $address->city;
                             $area_id = $address->area_id;
 
                             $has_area_id = !is_null($area_id);
-                            $city_status = $city->status;
-                            $active_area_exists = $city->areas()->where('status', 1)->exists(); // new line
+                            $city_status = optional($city)->status;
+                            $active_area_exists = $city && \Illuminate\Support\Facades\Schema::hasTable('areas') ? $city->areas()->where('status', 1)->exists() : false;
                             $area_status = $has_area_id ? optional($address->area)->status : 1;
                             $is_disabled =
                                 $city_status === 0 ||
@@ -237,7 +241,7 @@
                                         <span class="d-flex p-3 aiz-megabox-elem border-0">
                                             <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                             <span class="pl-3 text-left w-xl-300px address-text">
-                                                {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ $address->city->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
+                                                {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ optional($address->city)->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
                                               <br>  {{ $address->phone }}
                                             </span>
                                         </span>
@@ -299,12 +303,12 @@
                     <div>
                         @foreach (Auth::user()->addresses as $key => $address)
                         @php
-                            $city = optional($address->city);
+                            $city = $address->city;
                             $area_id = $address->area_id;
 
                             $has_area_id = !is_null($area_id);
-                            $city_status = $city->status;
-                            $active_area_exists = $city->areas()->where('status', 1)->exists(); // new line
+                            $city_status = optional($city)->status;
+                            $active_area_exists = $city && \Illuminate\Support\Facades\Schema::hasTable('areas') ? $city->areas()->where('status', 1)->exists() : false;
                             $area_status = $has_area_id ? optional($address->area)->status : 1;
                             $is_disabled =
                                 $city_status === 0 ||
@@ -321,7 +325,7 @@
                                         <span class="d-flex p-3 aiz-megabox-elem border-0">
                                             <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                             <span class="pl-3 text-left w-xl-300px address-text">
-                                                {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ $address->city->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
+                                                {{ $address->address }}, {{ $address->area ? $address->area->name . ',' : '' }} {{ $address->postal_code }}-{{ optional($address->city)->name }},{{ $address->state && $address->state->status == 1 ? $address->state->name . ',' : '' }} {{ optional($address->country)->name }}
                                                 <br>  {{ $address->phone }}
                                             </span>
                                         </span>
@@ -372,6 +376,15 @@
     
     <!--Modal End -->
 @else
-    <!-- Guest Shipping a address -->
-    @include('frontend.partials.cart.guest_shipping_info')
+    <div class="border p-4 bg-white">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+            <div class="mb-3 mb-md-0">
+                <h5 class="fs-16 fw-700 mb-1">{{ translate('Add your delivery address') }}</h5>
+                <p class="fs-14 text-muted mb-0">{{ translate('Create an account or log in to save your delivery address and continue checkout.') }}</p>
+            </div>
+            <button type="button" class="btn btn-primary rounded-0 px-4" onclick="openCheckoutAccountModal()">
+                {{ translate('Continue') }}
+            </button>
+        </div>
+    </div>
 @endif

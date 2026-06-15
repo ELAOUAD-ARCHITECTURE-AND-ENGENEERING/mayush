@@ -11,8 +11,12 @@ class Page extends Model
   use PreventDemoModeChanges;
 
   public function getTranslation($field = '', $lang = false){
-      $lang = $lang == false ? App::getLocale() : $lang;
-      $page_translation = $this->hasMany(PageTranslation::class)->where('lang', $lang)->first();
+      $lang = $lang ?: App::getLocale();
+      $page_translation = $this->page_translations->where('lang', $lang)->first();
+      if ($page_translation != null && $page_translation->$field !== null && $page_translation->$field !== $this->$field) {
+          return in_array($field, ['name', 'title']) ? translate($page_translation->$field, $lang) : $page_translation->$field;
+      }
+
       return $page_translation != null ? $page_translation->$field : $this->$field;
   }
 

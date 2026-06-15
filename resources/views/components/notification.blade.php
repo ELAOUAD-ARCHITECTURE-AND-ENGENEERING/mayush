@@ -85,7 +85,7 @@
                                     $route = $user_type == 'admin'
                                         ? ( $product_type == 'physical'
                                             ? route('products.seller.edit', ['id'=>$product_id, 'lang'=>$lang])
-                                            : route('digitalproducts.edit', ['id'=>$product_id, 'lang'=>$lang] ))
+                                            : route('digitalproducts.edit', ['digitalproduct'=>$product_id, 'lang'=>$lang] ))
                                         : ( $product_type == 'physical'
                                             ? route('seller.products.edit', ['id'=>$product_id, 'lang'=>$lang])
                                             : route('seller.digitalproducts.edit',  ['id'=>$product_id, 'lang'=>$lang] ));

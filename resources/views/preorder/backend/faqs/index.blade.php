@@ -52,14 +52,18 @@
                                 </td>
                                 <td class="text-right">
                                     @can('edit_faq')
-                                        <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('faq.edit', ['id'=>$faq->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}" title="{{ translate('Edit') }}">
+                                        <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('faqs.edit', ['faq'=>$faq->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}" title="{{ translate('Edit') }}">
                                             <i class="las la-edit"></i>
                                         </a>
                                     @endcan
                                     @can('delete_faq')
-                                        <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('faq.destroy', $faq->id)}}" title="{{ translate('Delete') }}">
-                                            <i class="las la-trash"></i>
-                                        </a>
+                                        <form action="{{ route('faq.destroy', $faq->id) }}" method="POST" class="d-inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+                                                <i class="las la-trash"></i>
+                                            </button>
+                                        </form>
                                     @endcan
                                 </td>
                             </tr>

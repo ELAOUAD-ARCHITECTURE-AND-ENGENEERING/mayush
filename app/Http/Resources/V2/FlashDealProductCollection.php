@@ -22,7 +22,7 @@ class FlashDealProductCollection extends ResourceCollection
                     'image' => uploaded_asset($data->product->thumbnail_img),
                     'price' => home_discounted_base_price($data->product),
                     'links' => [
-                        'details' => route('products.show', $data->product_id),
+                        'details' => route('api.products.show', $data->product_id),
                     ]
                 ];
             })

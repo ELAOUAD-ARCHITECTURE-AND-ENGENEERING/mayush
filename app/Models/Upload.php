@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\PreventDemoModeChanges;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Upload extends Model
 {
-    use SoftDeletes,PreventDemoModeChanges;
+    use HasFactory, SoftDeletes, PreventDemoModeChanges;
 
     /**
     * The attributes that are mass assignable.
@@ -22,5 +23,10 @@ class Upload extends Model
     public function user()
     {
     	return $this->belongsTo(User::class);
+    }
+
+    public function imageOptimizationState()
+    {
+        return $this->hasOne(ImageOptimizationState::class);
     }
 }

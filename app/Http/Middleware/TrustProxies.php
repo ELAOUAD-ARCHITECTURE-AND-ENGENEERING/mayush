@@ -12,7 +12,16 @@ class TrustProxies extends Middleware
      *
      * @var array|string
      */
-    protected $proxies = '*'; // Trust all proxies for VPS deployment
+    protected $proxies = '*';
+
+    public function __construct()
+    {
+        // On some local environments, REMOTE_ADDR might be null which causes IpUtils::checkIp4 to crash if proxies is '*'
+        if (!isset($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] === null || $_SERVER['REMOTE_ADDR'] === '') {
+            $this->proxies = null;
+        }
+    }
+
 
     /**
      * The headers that should be used to detect proxies.

@@ -170,7 +170,22 @@
 		});
 
 		function detailsInfo(e){
-            $('#info-modal-content').html('<div class="c-preloader text-center absolute-center"><i class="las la-spinner la-spin la-3x opacity-70"></i></div>');
+            let skeletonInfo = `
+                <div class="p-4">
+                    <div class="text-center mb-4">
+                         <div class="skeleton-shimmer mx-auto h-150px w-150px rounded"></div>
+                    </div>
+                    <div class="text-left">
+                         <div class="skeleton-shimmer h-20px w-100 mb-2 rounded"></div>
+                         <div class="skeleton-shimmer h-15px w-75 mb-4 rounded"></div>
+                         
+                         <div class="skeleton-shimmer h-12px w-50 mb-2 rounded"></div>
+                         <div class="skeleton-shimmer h-12px w-60 mb-2 rounded"></div>
+                         <div class="skeleton-shimmer h-12px w-40 mb-2 rounded"></div>
+                    </div>
+                </div>
+            `;
+            $('#info-modal-content').html(skeletonInfo);
 			var id = $(e).data('id')
 			$('#info-modal').modal('show');
 			$.post('{{ route('uploaded-files.info') }}', {_token: AIZ.data.csrf, id:id}, function(data){

@@ -14,7 +14,7 @@ use App\Jobs\ProcessFrequentlyBoughtJob;
 
 class RecommendationEngineTest extends TestCase
 {
-    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+    use RefreshDatabase;
 
     /** @test */
     public function it_associates_products_bought_together_frequently()

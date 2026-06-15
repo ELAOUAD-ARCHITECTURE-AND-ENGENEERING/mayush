@@ -14,9 +14,13 @@ class CustomerProduct extends Model
 
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
-        $customer_product_translations = $this->customer_product_translations->where('lang', $lang)->first();
-        return $customer_product_translations != null ? $customer_product_translations->$field : $this->$field;
+        $lang = $lang ?: App::getLocale();
+        $customer_product_translation = $this->customer_product_translations->where('lang', $lang)->first();
+        if ($customer_product_translation != null && $customer_product_translation->$field !== null && $customer_product_translation->$field !== $this->$field) {
+            return in_array($field, ['name', 'title']) ? translate($customer_product_translation->$field, $lang) : $customer_product_translation->$field;
+        }
+
+        return $customer_product_translation != null ? $customer_product_translation->$field : $this->$field;
     }
 
     public function scopeIsActiveAndApproval($query)

@@ -294,13 +294,59 @@
 
                             <!-- Add to cart & Buy now Buttons -->
                             <div class="mt-3">
-                                <button type="button" class="btn btn-secondary-base mr-2 add-to-cart fw-600 w-150px rounded-0 text-white" @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
+                                <button type="button" class="btn btn-secondary-base mr-2 add-to-cart fw-600 w-150px rounded-0 text-white" onclick="addToCart()">
                                     <i class="las la-shopping-bag"></i>
                                     <span class="d-none d-md-inline-block"> {{ translate('Add to cart')}}</span>
                                 </button>
                                 <button type="button" class="btn btn-primary buy-now fw-600 add-to-cart w-150px rounded-0" onclick="buyNow()">
                                     <i class="la la-shopping-cart"></i> {{ translate('Buy Now')}}
                                 </button>
+                                @if (Auth::check())
+                                    <button type="button" onclick="expressBuy({{ $detailedProduct->id }})" class="btn text-white fw-bold w-100 mt-2 rounded-0" style="background-color: #ff9900;">⚡ {{ translate('Express Buy (1-Click)') }}</button>
+                                    <script>
+                                        function expressBuy(id) {
+                                            $('#expressBuyModal').modal('show');
+                                            $('#expressBuyLoading').removeClass('d-none');
+                                            $('#expressBuyEligible').addClass('d-none');
+                                            $('#expressBuyNotEligible').addClass('d-none');
+
+                                            $.get('{{ route("express.check") }}', function(data) {
+                                                $('#expressBuyLoading').addClass('d-none');
+                                                
+                                                if(data.eligible) {
+                                                    $('#expressBuyEligible').removeClass('d-none');
+                                                    $('#eb_preferred_payment').text(data.preferred_payment);
+                                                    if (data.default_address) {
+                                                        $('#eb_address_name').text(data.default_address.name);
+                                                        $('#eb_address_text').text(data.default_address.address);
+                                                        $('#eb_address_phone').text(data.default_address.phone);
+                                                    }
+                                                    
+                                                    $('#btnConfirmExpressBuy').off('click').on('click', function() {
+                                                        const form = $('#option-choice-form');
+                                                        
+                                                        if (form.find('input[name="v_token"]').length == 0) {
+                                                            form.append('<input type="hidden" name="v_token" value="' + data.v_token + '">');
+                                                        } else {
+                                                            form.find('input[name="v_token"]').val(data.v_token);
+                                                        }
+
+                                                        form.attr('action', '{{ url("express-buy") }}/' + id);
+                                                        form.attr('method', 'POST');
+                                                        form.submit();
+                                                        
+                                                        $(this).prop('disabled', true).html('<i class="las la-spinner la-spin"></i> {{ translate("Processing...") }}');
+                                                    });
+                                                } else {
+                                                    $('#expressBuyNotEligible').removeClass('d-none');
+                                                }
+                                            }).fail(function() {
+                                                $('#expressBuyModal').modal('hide');
+                                                AIZ.plugins.notify('danger', '{{ translate("Failed to check eligibility.") }}');
+                                            });
+                                        }
+                                    </script>
+                                @endif
                             </div>
 
                             <!-- Promote Link -->

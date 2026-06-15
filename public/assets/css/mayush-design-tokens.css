@@ -1,0 +1,173 @@
+/* ═══════════════════════════════════════════════
+   MAYUSH DESIGN TOKENS — Charte Graphique v1.0
+   Premium Interior Design Marketplace
+   Marrakech, Morocco — Mai 2026
+═══════════════════════════════════════════════ */
+
+/* ── Color Palette ── */
+:root {
+  /* Primary Colors */
+  --mayush-orange: #D97434;
+  --mayush-orange-hover: #C46524;
+  --mayush-price: #9F4F18;
+  --mayush-black: #1A1A1A;
+  --mayush-beige: #F5F1E8;
+  --mayush-beige-alt: #F0E8DD;
+  --mayush-white: #FFFFFF;
+  --mayush-gray: #8B8B8B;
+
+  /* Complementary Colors */
+  --mayush-border: #E5E0D8;
+  --mayush-text: #333333;
+  --mayush-text-muted: #666666;
+  --mayush-text-light: #999999;
+
+  /* Semantic Colors */
+  --mayush-success: #00A86B;
+  --mayush-danger: #E53935;
+  --mayush-warning: #F3AF3D;
+  --mayush-info: #1565C0;
+
+  /* Soft Backgrounds (for legacy class mapping) */
+  --mayush-soft-orange: rgba(217, 116, 52, 0.10);
+  --mayush-soft-black: rgba(26, 26, 26, 0.06);
+  --mayush-soft-gray: rgba(139, 139, 139, 0.10);
+  --mayush-soft-beige: rgba(245, 241, 232, 0.50);
+
+  /* Typography */
+  --mayush-font-heading: 'Playfair Display', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --mayush-font-body: 'Inter', 'Poppins', 'Montserrat', system-ui, -apple-system, sans-serif;
+
+  /* Border Radius */
+  --mayush-radius-sm: 4px;
+  --mayush-radius-md: 6px;
+  --mayush-radius-lg: 8px;
+  --mayush-radius-xl: 12px;
+  --mayush-radius-2xl: 16px;
+  --mayush-radius-full: 9999px;
+
+  /* Shadows */
+  --mayush-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --mayush-shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --mayush-shadow-cta: 0 8px 16px rgba(217, 116, 52, 0.30);
+  --mayush-shadow-cta-hover: 0 12px 24px rgba(217, 116, 52, 0.40);
+  --mayush-shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.16);
+  --mayush-shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.10);
+
+  /* Spacing */
+  --mayush-container-max: 1200px;
+  --mayush-section-gap: 80px;
+  --mayush-card-gap: 30px;
+  --mayush-card-padding: 24px;
+  --mayush-hero-padding: 80px 40px;
+  --mayush-container-padding: 40px 20px;
+
+  /* Transitions */
+  --mayush-transition-fast: 0.15s ease;
+  --mayush-transition-base: 0.3s ease;
+  --mayush-transition-slow: 0.5s ease;
+
+  /* Z-Index Scale */
+  --mayush-z-dropdown: 1000;
+  --mayush-z-sticky: 1020;
+  --mayush-z-fixed: 1030;
+  --mayush-z-modal-backdrop: 1040;
+  --mayush-z-modal: 1050;
+  --mayush-z-popover: 1060;
+  --mayush-z-tooltip: 1070;
+}
+
+/* ── Typography Base ── */
+body {
+  font-family: var(--mayush-font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--mayush-text);
+  background-color: var(--mayush-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--mayush-font-heading);
+  color: var(--mayush-black);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.5em;
+}
+
+h1 { font-size: clamp(36px, 5vw, 64px); }
+h2 { font-size: clamp(28px, 3.5vw, 42px); }
+h3 { font-size: clamp(22px, 2.5vw, 28px); font-weight: 600; }
+h4 { font-size: clamp(18px, 2vw, 24px); font-weight: 600; }
+h5 { font-size: 18px; font-weight: 600; }
+h6 { font-size: 16px; font-weight: 600; }
+
+p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--mayush-text);
+  margin-bottom: 1rem;
+}
+
+.text-muted, .text-secondary, small, .small {
+  color: var(--mayush-gray) !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+/* ── Container ── */
+.container {
+  max-width: var(--mayush-container-max);
+}
+
+/* ── Focus States (Accessibility) ── */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--mayush-orange);
+  outline-offset: 3px;
+}
+
+/* ── Selection ── */
+::selection {
+  background-color: var(--mayush-orange);
+  color: var(--mayush-white);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--mayush-beige);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--mayush-border);
+  border-radius: var(--mayush-radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mayush-gray);
+}
+
+/* ── Responsive Adjustments ── */
+@media (max-width: 768px) {
+  :root {
+    --mayush-section-gap: 48px;
+    --mayush-card-gap: 16px;
+    --mayush-card-padding: 16px;
+    --mayush-hero-padding: 40px 20px;
+  }
+
+  h1 { font-size: 36px; }
+  h2 { font-size: 32px; }
+  h3 { font-size: 24px; }
+  h4 { font-size: 20px; }
+
+  body {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+}

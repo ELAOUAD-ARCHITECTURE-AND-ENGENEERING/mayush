@@ -24,7 +24,7 @@ class AuctionMiniCollection extends ResourceCollection
                     'rating' => (float) $data->rating,
                     'sales' => (int) $data->num_of_sale,
                     'links' => [
-                        'details' => route('products.show', $data->id),
+                        'details' => route('api.products.show', $data->id),
                     ]
                 ];
             })

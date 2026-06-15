@@ -16,6 +16,18 @@ class Product extends Model
     protected $appends = ['flash_deal', 'is_in_flash_deal'];
 
     protected $guarded = ['choice_attributes'];
+    
+    protected $fillable = [
+        'name', 'added_by', 'user_id', 'category_id', 'brand_id', 'video_provider', 'video_link', 
+        'unit_price', 'purchase_price', 'tax', 'tax_type', 'discount', 'discount_type', 
+        'current_stock', 'unit', 'min_qty', 'low_stock_quantity', 'slug', 'colors', 
+        'choice_options', 'attributes', 'published', 'featured', 'todays_deal', 'promotional', 'draft', 'pos', 'weight',
+        'length', 'width', 'height', 'shipping_type', 'shipping_cost', 'is_quantity_multiplied', 
+        'est_shipping_days', 'cash_on_delivery', 'meta_title', 'meta_description', 
+        'meta_img', 'pdf', 'digital', 'auction_product', 'wholesale_product', 'rating', 'num_of_sale',
+        'photos', 'thumbnail_img', 'description', 'tags', 'show_estimated_shipping_time', 'shipping_note_id',
+        'show_shipping_note', 'show_warranty_note', 'delivery_note_id', 'show_delivery_notes'
+    ];
 
     protected $with = ['product_translations', 'taxes', 'thumbnail'];
 
@@ -26,9 +38,13 @@ class Product extends Model
 
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
-        $product_translations = $this->product_translations->where('lang', $lang)->first();
-        return $product_translations != null ? $product_translations->$field : $this->$field;
+        $lang = $lang ?: App::getLocale();
+        $product_translation = $this->product_translations->where('lang', $lang)->first();
+        if ($product_translation != null && $product_translation->$field !== null && $product_translation->$field !== $this->$field) {
+            return in_array($field, ['name', 'title']) ? translate($product_translation->$field, $lang) : $product_translation->$field;
+        }
+
+        return $product_translation != null ? $product_translation->$field : $this->$field;
     }
 
     public function product_translations()
@@ -104,6 +120,13 @@ class Product extends Model
     public function bids()
     {
         return $this->hasMany(AuctionProductBid::class);
+    }
+
+    public function blogs()
+    {
+        return $this->belongsToMany(Blog::class, 'blog_product')
+            ->withPivot(['placement', 'sort_order'])
+            ->withTimestamps();
     }
 
     public function thumbnail()

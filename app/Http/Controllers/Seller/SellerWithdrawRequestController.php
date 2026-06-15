@@ -42,13 +42,17 @@ class SellerWithdrawRequestController extends Controller
         if ($seller_withdraw_request->save()) {
 
             // Seller payout request web notification to admin
-            $users = User::findMany(User::where('user_type', 'admin')->first()->id);
-            $data = array();
-            $data['user'] = $seller;
-            $data['amount'] = $request->amount;
-            $data['status'] = 'pending';
-            $data['notification_type_id'] = get_notification_type('seller_payout_request', 'type')->id;
-            Notification::send($users, new PayoutNotification($data));
+            $users = User::where('user_type', 'admin')->get();
+            $notificationType = get_notification_type('seller_payout_request', 'type');
+            
+            if ($users->isNotEmpty() && $notificationType) {
+                $data = array();
+                $data['user'] = $seller;
+                $data['amount'] = $request->amount;
+                $data['status'] = 'pending';
+                $data['notification_type_id'] = $notificationType->id;
+                Notification::send($users, new PayoutNotification($data));
+            }
 
             // Seller payout request email to admin & seller
             $emailIdentifiers = ['seller_payout_request_email_to_admin','seller_payout_request_email_to_seller'];

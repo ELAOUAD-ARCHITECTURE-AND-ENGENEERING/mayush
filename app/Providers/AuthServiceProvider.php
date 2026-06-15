@@ -16,6 +16,10 @@ class AuthServiceProvider extends ServiceProvider
     \App\Models\Order::class => \App\Policies\OrderPolicy::class,
     \App\Models\Shop::class => \App\Policies\ShopPolicy::class,
     \App\Models\SellerWithdrawRequest::class => \App\Policies\SellerWithdrawRequestPolicy::class,
+    \App\Models\Upload::class => \App\Policies\UploadPolicy::class,
+    \App\Models\Product::class => \App\Policies\ProductPolicy::class,
+    \App\Models\Review::class => \App\Policies\ReviewPolicy::class,
+    \App\Models\RefundRequest::class => \App\Policies\RefundPolicy::class,
   ];
 
   /**
@@ -26,10 +30,35 @@ class AuthServiceProvider extends ServiceProvider
   public function boot()
   {
     $this->registerPolicies();
+    Gate::policy('system-log', \App\Policies\SystemLogPolicy::class);
 
-    // Implicitly grant "Super Admin" role all permissions
+    // Implicitly grant "Super Admin" role all permissions.
+    // Blog admins also get the full editorial surface without changing user_type.
     Gate::before(function ($user, $ability) {
-      return $user->hasRole('Super Admin') ? true : null;
+      if ($user->hasRole('Super Admin')) {
+        return true;
+      }
+
+      $blogSuperAbilities = [
+        'blog_super_admin',
+        'manage_blog_authors',
+        'view_blogs',
+        'add_blog',
+        'edit_blog',
+        'delete_blog',
+        'publish_blog',
+        'review_blog',
+      ];
+
+      if (($user->user_type === 'admin' || $user->hasRole('blog_super_admin')) && in_array($ability, $blogSuperAbilities, true)) {
+        return true;
+      }
+
+      return null;
+    });
+
+    Gate::define('viewPulse', function ($user = null) {
+      return $user && in_array($user->user_type, ['admin', 'staff']);
     });
   }
 }

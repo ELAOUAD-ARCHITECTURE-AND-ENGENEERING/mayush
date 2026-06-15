@@ -76,7 +76,7 @@
                 @php $products = get_multiple_products($coupon_products); @endphp
                 <div class="aiz-carousel slick-left gutters-16" data-items="6" data-lg-items="6"  data-md-items="4" data-sm-items="4" data-xs-items="4" data-arrows='false' data-infinite='true' data-autoplay="true">
                     @foreach($products as $key => $product)
-                        <a href="{{ route('product', $product->slug) }}" title="{{ $product->name }}" class='p-1 border border-transparent hov-border' target="_blank">
+                        <a href="{{ route('product', $product->slug) }}" title="{{ $product->name }}" class='p-1 border border-transparent hov-border' target="_blank" rel="noopener noreferrer">
                             <img class="img-fit mx-auto h-48px w-48px"
                                 src="{{ uploaded_asset($product->thumbnail_img) }}"
                                 data-src="{{ uploaded_asset($product->thumbnail_img) }}"

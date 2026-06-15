@@ -9,6 +9,10 @@
 
         let identifier = email ? email : phone;
         let verify_field = email ? 'email' :'phone';
+        $('#verification_method').val(verify_field);
+        $('#verified_registration_code').val('');
+        $('#verification_code').prop('readonly', false);
+
         if (!identifier) {
             AIZ.plugins.notify('danger', '{{ translate("Please enter your email or phone number") }}');
             return;
@@ -93,12 +97,14 @@
                 if(data.status === 1){
                     verifyBtn.innerHTML = '<i class="las la-lg la-check-circle text-success"></i>';
                     AIZ.plugins.notify('success', `${data.message}`);
-                    codeInput.disabled = true;
+                    codeInput.readOnly = true;
+                    $('#verified_registration_code').val(codeInput.value);
                     verifyBtn.classList.add('disabled');
                     verifyBtn.style.backgroundColor = '#f7f8fa';
                      toggleCreateBtn();
 
                 } else {
+                    $('#verified_registration_code').val('');
                     AIZ.plugins.notify('danger', `${data.message}`);
                     verifyBtn.innerHTML = '<i class="las la-lg la-times-circle text-danger"></i>';
                      toggleCreateBtn();
@@ -106,7 +112,13 @@
             });
         } else {
             verifyBtn.innerHTML = '<i class="las la-lg la-arrow-right"></i>';
+            $('#verified_registration_code').val('');
         }
+    });
+
+    document.getElementById('reg-form')?.addEventListener('submit', function() {
+        let email = $('#signinSrEmail').length ? $('#signinSrEmail').val() : $('#signinAddonEmail').val();
+        $('#verification_method').val(email ? 'email' : 'phone');
     });
 
    

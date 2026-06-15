@@ -1,58 +1,44 @@
 @extends('frontend.layouts.app')
 
-@section('meta_title'){{ $detailedProduct->meta_title }}@stop
+@php
+    $productSeoTitle = \App\Services\SeoService::meaningfulText($detailedProduct->meta_title, \App\Services\SeoService::productMetaTitle($detailedProduct), 70, 8);
+    $productSeoDescription = \App\Services\SeoService::meaningfulText($detailedProduct->meta_description, \App\Services\SeoService::productMetaDescription($detailedProduct), 170, 20);
+    $productSeoImage = uploaded_asset($detailedProduct->meta_img ?: $detailedProduct->thumbnail_img);
+    $productPreloadImage = $productSeoImage ?: uploaded_asset($detailedProduct->thumbnail_img);
+    $productGeoQty = $detailedProduct->variant_product
+        ? $detailedProduct->stocks->sum('qty')
+        : optional($detailedProduct->stocks->first())->qty;
+    $productGeoAvailability = $productGeoQty > 0 ? 'InStock' : 'OutOfStock';
+    $productGeoAvailabilityLabel = $productGeoQty > 0 ? 'En stock' : 'Rupture de stock';
+    $productGeoAnswer = \App\Services\SeoService::productDirectAnswer($detailedProduct, $productGeoAvailabilityLabel);
+    $productGeoSpecRows = \App\Services\SeoService::productSpecRows($detailedProduct, $productGeoAvailabilityLabel);
+    $productGeoExpertNote = \App\Services\SeoService::productExpertNote($detailedProduct);
+@endphp
 
-@section('meta_description'){{ $detailedProduct->meta_description }}@stop
+@section('meta_title'){{ $productSeoTitle }}@stop
+
+@section('meta_description'){{ $productSeoDescription }}@stop
 
 @section('meta_keywords'){{ $detailedProduct->tags }},{{ $detailedProduct->meta_keywords }}@stop
+@section('meta_image'){{ $productSeoImage }}@stop
+
+@section('canonical_url'){{ route('product', $detailedProduct->slug) }}@stop
+
+@if($productPreloadImage)
+    @section('preload')
+        <link rel="preload" as="image" href="{{ $productPreloadImage }}">
+    @endsection
+@endif
 
 @section('meta')
     @php
-        $availability = "out of stock";
-        $qty = 0;
-        if($detailedProduct->variant_product) {
-            foreach ($detailedProduct->stocks as $key => $stock) {
-                $qty += $stock->qty;
-            }
-        }
-        else {
-            $qty = optional($detailedProduct->stocks->first())->qty;
-        }
-        if($qty > 0){
-            $availability = "in stock";
-        }
+        $productSchema = \App\Services\SeoService::productSchema($detailedProduct, $productGeoAvailability);
     @endphp
-    <!-- Schema.org markup for Google+ -->
-    <meta itemprop="name" content="{{ $detailedProduct->meta_title }}">
-    <meta itemprop="description" content="{{ $detailedProduct->meta_description }}">
-    <meta itemprop="image" content="{{ uploaded_asset($detailedProduct->meta_img) }}">
-
-    <!-- Twitter Card data -->
-    <meta name="twitter:card" content="product">
-    <meta name="twitter:site" content="@publisher_handle">
-    <meta name="twitter:title" content="{{ $detailedProduct->meta_title }}">
-    <meta name="twitter:description" content="{{ $detailedProduct->meta_description }}">
-    <meta name="twitter:creator" content="@author_handle">
-    <meta name="twitter:image" content="{{ uploaded_asset($detailedProduct->meta_img) }}">
-    <meta name="twitter:data1" content="{{ single_price($detailedProduct->unit_price) }}">
-    <meta name="twitter:label1" content="Price">
-
-    <!-- Open Graph data -->
-    <meta property="og:title" content="{{ $detailedProduct->meta_title }}" />
-    <meta property="og:type" content="og:product" />
-    <meta property="og:url" content="{{ route('product', $detailedProduct->slug) }}" />
-    <meta property="og:image" content="{{ uploaded_asset($detailedProduct->meta_img) }}" />
-    <meta property="og:description" content="{{ $detailedProduct->meta_description }}" />
-    <meta property="og:site_name" content="{{ get_setting('meta_title') }}" />
-    <meta property="og:price:amount" content="{{ single_price($detailedProduct->unit_price) }}" />
-    <meta property="product:brand" content="{{ $detailedProduct->brand ? $detailedProduct->brand->name : env('APP_NAME') }}">
-    <meta property="product:availability" content="{{ $availability }}">
-    <meta property="product:condition" content="new">
-    <meta property="product:price:amount" content="{{ number_format($detailedProduct->unit_price, 2) }}">
-    <meta property="product:retailer_item_id" content="{{ $detailedProduct->slug }}">
-    <meta property="product:price:currency"
-        content="{{ get_system_default_currency()->code }}" />
-    <meta property="fb:app_id" content="{{ env('FACEBOOK_PIXEL_ID') }}">
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd($productSchema) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
+        ['name' => 'Home', 'url' => route('home')],
+        ['name' => $detailedProduct->getTranslation('name'), 'url' => route('product', $detailedProduct->slug)],
+    ])) !!}</script>
 @endsection
 
 
@@ -137,6 +123,26 @@
                 <!--DESCRIPTION SECTION START-->
                 <section id="description">
                     <div class="py-30px px-30px border  bg-white border-light-gray rounded-2">
+                        <article class="geo-product-summary mb-4">
+                            <p class="geo-direct-answer fs-15 text-dark mb-3">{{ $productGeoAnswer }}</p>
+                            @if(count($productGeoSpecRows) > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-bordered geo-specs-table mb-3">
+                                        <tbody>
+                                            @foreach($productGeoSpecRows as $label => $value)
+                                                <tr>
+                                                    <th scope="row" class="w-35 fs-13 text-dark">{{ $label }}</th>
+                                                    <td class="fs-13 text-gray">{{ $value }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
+                            <blockquote class="expert-note geo-expert-note bg-light p-3 border-left border-primary fs-14 text-dark mb-0">
+                                {{ $productGeoExpertNote }}
+                            </blockquote>
+                        </article>
                         <div class="mw-100 overflow-hidden text-left aiz-editor-data">
                             <?php echo $detailedProduct->getTranslation('description'); ?>
                         </div>

@@ -4,70 +4,102 @@ namespace Tests\Unit\Services;
 
 use Tests\TestCase;
 use App\Services\PaymentVaultService;
+use App\Models\User;
+use App\Models\Address;
+use App\Models\PaymentToken;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 
-/**
- * PaymentVaultServiceTest
- *
- * Tests eligibility logic and preferred payment method resolution.
- * All Auth/DB calls are exercised through structural and logic tests.
- */
 class PaymentVaultServiceTest extends TestCase
 {
+    use RefreshDatabase;
+
     /** @test */
-    public function class_exists(): void
+    public function it_returns_false_eligibility_for_guests()
     {
-        $this->assertTrue(class_exists(PaymentVaultService::class));
+        Auth::logout();
+        $this->assertFalse(PaymentVaultService::isEligible());
     }
 
     /** @test */
-    public function is_eligible_is_static(): void
+    public function it_returns_false_if_user_has_no_default_address()
     {
-        $ref = new \ReflectionMethod(PaymentVaultService::class, 'isEligible');
-        $this->assertTrue($ref->isStatic());
+        $user = User::factory()->create();
+        Auth::login($user);
+
+        // User exists but has no address
+        $this->assertFalse(PaymentVaultService::isEligible());
     }
 
     /** @test */
-    public function get_preferred_payment_method_is_static(): void
+    public function it_returns_false_if_user_has_address_but_no_vaulted_token()
     {
-        $ref = new \ReflectionMethod(PaymentVaultService::class, 'getPreferredPaymentMethod');
-        $this->assertTrue($ref->isStatic());
+        $user = User::factory()->create();
+        Address::create([
+            'user_id' => $user->id,
+            'address' => '123 Test St',
+            'country_id' => 1,
+            'city_id' => 1,
+            'set_default' => 1
+        ]);
+        Auth::login($user);
+
+        $this->assertFalse(PaymentVaultService::isEligible());
     }
 
     /** @test */
-    public function is_eligible_returns_false_for_guest(): void
+    public function it_returns_true_if_user_has_address_and_active_token()
     {
-        // Unauthenticated session — should return false
-        $result = PaymentVaultService::isEligible();
-        $this->assertFalse($result, 'Guest users must not be eligible for 1-click purchase');
+        $user = User::factory()->create();
+        Address::create([
+            'user_id' => $user->id,
+            'address' => '123 Test St',
+            'country_id' => 1,
+            'city_id' => 1,
+            'set_default' => 1
+        ]);
+        PaymentToken::create([
+            'user_id' => $user->id,
+            'gateway' => 'cmi',
+            'token' => 'vault-token-123',
+            'is_active' => true,
+            'is_default' => true
+        ]);
+        Auth::login($user);
+
+        $this->assertTrue(PaymentVaultService::isEligible());
     }
 
     /** @test */
-    public function get_preferred_payment_method_returns_null_for_guest(): void
+    public function it_correctly_stores_tokens_and_detects_card_brands()
     {
-        // Unauthenticated — should return null
-        $result = PaymentVaultService::getPreferredPaymentMethod();
-        $this->assertNull($result, 'Guest users should have no preferred payment method');
-    }
+        $user = User::factory()->create();
+        
+        // Scenario 1: Visa
+        $callbackDataVisa = [
+            'TransId' => 'VISA_TEST_TOKEN',
+            'MaskedPan' => '411111XXXXXX1122'
+        ];
+        
+        $tokenVisa = PaymentVaultService::storeToken($user->id, $callbackDataVisa);
+        
+        $this->assertEquals('Visa', $tokenVisa->card_brand);
+        $this->assertEquals('1122', $tokenVisa->card_last_four);
+        $this->assertEquals('VISA_TEST_TOKEN', $tokenVisa->token);
 
-    /** @test */
-    public function default_payment_method_fallback_is_cod(): void
-    {
-        // This validates the fallback string constant used in the service
-        $this->assertEquals('cash_on_delivery', 'cash_on_delivery');
-    }
-
-    /** @test */
-    public function eligibility_requires_address_and_paid_order_logic(): void
-    {
-        // Logic: isEligible = has default address AND has previous paid order
-        // Test the boolean composition
-        $hasDefaultAddress = false;
-        $hasPaidOrder = true;
-        $eligible = $hasDefaultAddress && $hasPaidOrder;
-        $this->assertFalse($eligible);
-
-        $hasDefaultAddress = true;
-        $eligible = $hasDefaultAddress && $hasPaidOrder;
-        $this->assertTrue($eligible);
+        // Scenario 2: Mastercard
+        $callbackDataMc = [
+            'TransId' => 'MC_TEST_TOKEN',
+            'MaskedPan' => '512345XXXXXX4455'
+        ];
+        
+        $tokenMc = PaymentVaultService::storeToken($user->id, $callbackDataMc);
+        
+        $this->assertEquals('Mastercard', $tokenMc->card_brand);
+        $this->assertEquals('4455', $tokenMc->card_last_four);
+        
+        // Verify MC became the new default
+        $this->assertTrue($tokenMc->is_default);
+        $this->assertFalse($tokenVisa->fresh()->is_default);
     }
 }

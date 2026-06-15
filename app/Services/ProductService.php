@@ -22,8 +22,8 @@ class ProductService
     {
         $collection = collect($data);
         $collection['draft'] = 0;
-        $collection['discount']= $collection['discount'] ?? 0.00;
-        $collection['weight']= $collection['weight'] ?? 0.00;
+        $collection['discount']= $collection->get('discount', 0.00);
+        $collection['weight']= $collection->get('weight', 0.00);
 
         if(!isset($collection['gst_rate']) && addon_is_activated('gst_system')){
             $collection['tax'] = 0;
@@ -33,11 +33,13 @@ class ProductService
         $approved = 1;
         if (auth()->user()->user_type == 'seller') {
             $user_id = auth()->user()->id;
+            $added_by = 'seller';
             if (get_setting('product_approve_by_admin') == 1) {
                 $approved = 0;
             }
         } else {
             $user_id = User::where('user_type', 'admin')->first()->id;
+            $added_by = 'admin';
         }
                 $tags = array();
         if (isset($collection['tags'][0]) && $collection['tags'][0] != null) {
@@ -57,22 +59,22 @@ class ProductService
         $collection['tags'] = implode(',', array_unique($tags));
         $discount_start_date = null;
         $discount_end_date   = null;
-        if ($collection['date_range'] != null) {
-            $date_var               = explode(" to ", $collection['date_range']);
+        if ($collection->get('date_range') != null) {
+            $date_var               = explode(" to ", $collection->get('date_range'));
             $discount_start_date = strtotime($date_var[0]);
             $discount_end_date   = strtotime($date_var[1]);
         }
         unset($collection['date_range']);
         
-        if ($collection['meta_title'] == null) {
+        if (!isset($collection['meta_title']) || $collection['meta_title'] == null) {
             $collection['meta_title'] = $collection['name'];
         }
-        if ($collection['meta_description'] == null) {
+        if (!isset($collection['meta_description']) || $collection['meta_description'] == null) {
             $collection['meta_description'] = strip_tags($collection['description']);
         }
 
-        if ($collection['meta_img'] == null) {
-            $collection['meta_img'] = $collection['thumbnail_img'];
+        if (!isset($collection['meta_img']) || $collection['meta_img'] == null) {
+            $collection['meta_img'] = $collection['thumbnail_img'] ?? null;
         }
 
 
@@ -93,12 +95,12 @@ class ProductService
 
         $colors = json_encode(array());
         if (
-            isset($collection['colors_active']) &&
-            $collection['colors_active'] &&
-            $collection['colors'] &&
-            count($collection['colors']) > 0
+            $collection->get('colors_active') &&
+            $collection->has('colors') &&
+            is_array($collection->get('colors')) &&
+            count($collection->get('colors')) > 0
         ) {
-            $colors = json_encode($collection['colors']);
+            $colors = json_encode($collection->get('colors'));
         }
 
         $options = ProductUtility::get_attribute_options($collection);
@@ -118,6 +120,7 @@ class ProductService
 
         unset($collection['colors_active']);
 
+        $removed_sku_variants = $this->normalizedRemovedSkuVariants($collection);
         $choice_options = array();
         if (isset($collection['choice_no']) && $collection['choice_no']) {
             $str = '';
@@ -126,10 +129,13 @@ class ProductService
                 $str = 'choice_options_' . $no;
                 $item['attribute_id'] = $no;
                 $attribute_data = array();
-                // foreach (json_decode($request[$str][0]) as $key => $eachValue) {
-                foreach ($collection[$str] as $key => $eachValue) {
-                    // array_push($data, $eachValue->value);
-                    array_push($attribute_data, $eachValue);
+                
+                if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
+                    foreach ($collection[$str] as $key => $eachValue) {
+                        if (!in_array($this->normalizeSkuVariant($eachValue), $removed_sku_variants, true)) {
+                            array_push($attribute_data, $eachValue);
+                        }
+                    }
                 }
                 unset($collection[$str]);
 
@@ -146,14 +152,20 @@ class ProductService
         } else {
             $attributes = json_encode(array());
         }
+        unset($collection['removed_sku_variants']);
 
         $published = 1;
-        if ($collection['button'] == 'unpublish' || $collection['button'] == 'draft') {
+        if ($collection->get('button') == 'unpublish' || $collection->get('button') == 'draft') {
             $published = 0;
         }
         unset($collection['button']);
 
         $collection['has_warranty'] = isset($collection['has_warranty']) ? 1 : 0;
+
+        unset($collection['length']);
+        unset($collection['width']);
+        unset($collection['height']);
+        unset($collection['dimension_unit']);
 
         $data = $collection->merge(compact(
             'user_id',
@@ -166,6 +178,7 @@ class ProductService
             'choice_options',
             'attributes',
             'published',
+            'added_by',
         ))->toArray();
 
         return Product::create($data);
@@ -175,10 +188,10 @@ class ProductService
     {
         $collection = collect($data);
 
-        $slug = Str::slug($collection['name']);
-        $slug = Str::slug($collection['slug'] ?? $collection['name']);
-        $collection['discount']= $collection['discount'] ?? 0.00;
-        $collection['weight']= $collection['weight'] ?? 0.00;
+        $slug = Str::slug($collection->get('name'));
+        $slug = Str::slug($collection->get('slug') ?? $collection->get('name'));
+        $collection['discount']= $collection->get('discount', 0.00);
+        $collection['weight']= $collection->get('weight', 0.00);
         $same_slug_count = Product::where('slug', 'LIKE', $slug . '%')->count();
         $slug_suffix = $same_slug_count > 1 ? '-' . $same_slug_count + 1 : '';
         $slug .= $slug_suffix;
@@ -226,18 +239,18 @@ class ProductService
         $collection['tags'] = implode(',', array_unique($tags));
         $discount_start_date = null;
         $discount_end_date   = null;
-        if ($collection['date_range'] != null) {
-            $date_var               = explode(" to ", $collection['date_range']);
+        if ($collection->get('date_range') != null) {
+            $date_var               = explode(" to ", $collection->get('date_range'));
             $discount_start_date = strtotime($date_var[0]);
             $discount_end_date   = strtotime($date_var[1]);
         }
         unset($collection['date_range']);
         
-        if ($collection['meta_title'] == null) {
-            $collection['meta_title'] = $collection['name'];
+        if ($collection->get('meta_title') == null) {
+            $collection['meta_title'] = $collection->get('name');
         }
-        if ($collection['meta_description'] == null) {
-            $collection['meta_description'] = strip_tags($collection['description']);
+        if ($collection->get('meta_description') == null) {
+            $collection['meta_description'] = strip_tags($collection->get('description'));
         }
 
         if ($collection['meta_img'] == null) {
@@ -288,6 +301,7 @@ class ProductService
 
         unset($collection['colors_active']);
 
+        $removed_sku_variants = $this->normalizedRemovedSkuVariants($collection);
         $choice_options = array();
         if (isset($collection['choice_no']) && $collection['choice_no']) {
             $str = '';
@@ -296,10 +310,13 @@ class ProductService
                 $str = 'choice_options_' . $no;
                 $item['attribute_id'] = $no;
                 $attribute_data = array();
-                // foreach (json_decode($request[$str][0]) as $key => $eachValue) {
-                foreach ($collection[$str] as $key => $eachValue) {
-                    // array_push($data, $eachValue->value);
-                    array_push($attribute_data, $eachValue);
+                
+                if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
+                    foreach ($collection[$str] as $key => $eachValue) {
+                        if (!in_array($this->normalizeSkuVariant($eachValue), $removed_sku_variants, true)) {
+                            array_push($attribute_data, $eachValue);
+                        }
+                    }
                 }
                 unset($collection[$str]);
 
@@ -316,6 +333,7 @@ class ProductService
         } else {
             $attributes = json_encode(array());
         }
+        unset($collection['removed_sku_variants']);
 
         $published = 1;
         if (isset($collection['button']) && ($collection['button'] == 'unpublish' || $collection['button'] == 'draft')) {
@@ -325,6 +343,10 @@ class ProductService
         $collection['has_warranty'] = isset($collection['has_warranty']) ? 1 : 0;
         
         unset($collection['button']);
+        unset($collection['length']);
+        unset($collection['width']);
+        unset($collection['height']);
+        unset($collection['dimension_unit']);
         
         $data = $collection->merge(compact(
             'discount_start_date',
@@ -542,8 +564,8 @@ class ProductService
     public function storeOrUpdateDraft(array $data)
     {
         $collection = collect($data);
-        $collection['discount']= $collection['discount'] ?? 0.00;
-        $collection['weight']= $collection['weight'] ?? 0.00;
+        $collection['discount']= $collection->get('discount', 0.00);
+        $collection['weight']= $collection->get('weight', 0.00);
 
         $user_id= auth()->user()->user_type == 'seller' ? auth()->user()->id : User::where('user_type', 'admin')->first()->id;
         $approved = 1;
@@ -556,54 +578,64 @@ class ProductService
 
         $tags = array();
         if (isset($collection['tags'][0]) && $collection['tags'][0] != null) {
-            foreach (json_decode($collection['tags'][0]) as $key => $tag) {
-                array_push($tags, $tag->value);
+            $decoded_tags = json_decode($collection['tags'][0]);
+            if (is_array($decoded_tags)) {
+                foreach ($decoded_tags as $key => $tag) {
+                    if (isset($tag->value)) {
+                        array_push($tags, $tag->value);
+                    }
+                }
+            } else {
+                foreach ($collection['tags'] as $tag) {
+                    array_push($tags, $tag);
+                }
             }
         }
         $collection['tags'] = implode(',', $tags);
 
         $discount_start_date = null;
         $discount_end_date   = null;
-        if (isset($collection['date_range']) && $collection['date_range'] != null) {
-            $date_var = explode(" to ", $collection['date_range']);
+        if ($collection->get('date_range') != null) {
+            $date_var = explode(" to ", $collection->get('date_range'));
             $discount_start_date = strtotime($date_var[0]);
             $discount_end_date   = strtotime($date_var[1]);
         }
         unset($collection['date_range']);
 
-        if (!isset($collection['meta_title']) || $collection['meta_title'] == null) {
-            $collection['meta_title'] = $collection['name'] ?? 'Draft Product';
+        if ($collection->get('meta_title') == null) {
+            $collection['meta_title'] = $collection->get('name') ?? 'Draft Product';
         }
-        if (!isset($collection['meta_description']) || $collection['meta_description'] == null) {
-            $collection['meta_description'] = isset($collection['description']) ? strip_tags($collection['description']) : '';
+        if ($collection->get('meta_description') == null) {
+            $collection['meta_description'] = $collection->has('description') ? strip_tags($collection->get('description')) : '';
         }
-        if (!isset($collection['meta_img']) || $collection['meta_img'] == null) {
-            $collection['meta_img'] = $collection['thumbnail_img'] ?? null;
+        if ($collection->get('meta_img') == null) {
+            $collection['meta_img'] = $collection->get('thumbnail_img');
         }
 
         $shipping_cost = 0;
-        if (isset($collection['shipping_type'])) {
-            if ($collection['shipping_type'] == 'free') {
+        if ($collection->has('shipping_type')) {
+            if ($collection->get('shipping_type') == 'free') {
                 $shipping_cost = 0;
-            } elseif ($collection['shipping_type'] == 'flat_rate') {
-                $shipping_cost = $collection['flat_shipping_cost'] ?? 0;
+            } elseif ($collection->get('shipping_type') == 'flat_rate') {
+                $shipping_cost = $collection->get('flat_shipping_cost', 0);
             }
         }
         unset($collection['flat_shipping_cost']);
-        $slug = Str::slug($collection['name'] ?? 'draft-product');
+        $slug = Str::slug($collection->get('name') ?? 'draft-product');
         $same_slug_count = Product::where('slug', 'LIKE', $slug . '%')->count();
         $slug_suffix = $same_slug_count ? '-' . ($same_slug_count + 1) : '';
         $slug .= $slug_suffix;
 
         $colors = json_encode(array());
-        if (isset($collection['colors_active']) && 
-            $collection['colors_active'] && 
-            isset($collection['colors']) && 
-            count($collection['colors']) > 0) {
-            $colors = json_encode($collection['colors']);
+        if ($collection->get('colors_active') && 
+            $collection->has('colors') && 
+            is_array($collection->get('colors')) &&
+            count($collection->get('colors')) > 0) {
+            $colors = json_encode($collection->get('colors'));
         }
         unset($collection['colors_active']);
 
+        $removed_sku_variants = $this->normalizedRemovedSkuVariants($collection);
         $choice_options = array();
         if (isset($collection['choice_no']) && $collection['choice_no']) {
             $item = array();
@@ -612,12 +644,14 @@ class ProductService
                 $item['attribute_id'] = $no;
                 $attribute_data = array();
                 
-                if (isset($collection[$str])) {
+                if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
                     foreach ($collection[$str] as $eachValue) {
-                        array_push($attribute_data, $eachValue);
+                        if (!in_array($this->normalizeSkuVariant($eachValue), $removed_sku_variants, true)) {
+                            array_push($attribute_data, $eachValue);
+                        }
                     }
-                    unset($collection[$str]);
                 }
+                unset($collection[$str]);
 
                 $item['values'] = $attribute_data;
                 array_push($choice_options, $item);
@@ -627,12 +661,17 @@ class ProductService
 
         $attributes = isset($collection['choice_no']) ? json_encode($collection['choice_no']) : json_encode(array());
         unset($collection['choice_no']);
+        unset($collection['removed_sku_variants']);
 
        
         $collection['has_warranty'] = isset($collection['has_warranty']) ? 1 : 0;
 
         
         unset($collection['button']);
+        unset($collection['length']);
+        unset($collection['width']);
+        unset($collection['height']);
+        unset($collection['dimension_unit']);
 
      
         $productData = $collection->merge(compact(
@@ -694,6 +733,78 @@ class ProductService
         }    
 
         return $products->get();
+    }
+
+    public function promotional_products_search(array $data, int $promotional = 1)
+    {
+        return $this->promotionSearchQuery($data)
+            ->where('promotional', $promotional)
+            ->limit(20)
+            ->get();
+    }
+
+    public function todays_deal_products_search(array $data, int $todaysDeal = 1)
+    {
+        return $this->promotionSearchQuery($data)
+            ->where('todays_deal', $todaysDeal)
+            ->limit(20)
+            ->get();
+    }
+
+    private function promotionSearchQuery(array $data)
+    {
+        $collection = collect($data);
+        $products = Product::query()
+            ->where('published', 1)
+            ->where('auction_product', 0)
+            ->where('approved', 1);
+
+        if ($collection->get('category')) {
+            $category = Category::with('childrenCategories')->find($collection->get('category'));
+            if ($category) {
+                $products = $category->products()
+                    ->where('products.published', 1)
+                    ->where('products.auction_product', 0)
+                    ->where('products.approved', 1);
+            }
+        }
+
+        if (auth()->check() && auth()->user()->user_type === 'seller') {
+            $products->where('products.user_id', auth()->id());
+        }
+
+        $productType = $collection->get('product_type');
+        if ($productType === 'physical') {
+            $products->where('digital', 0)->where('wholesale_product', 0);
+        } elseif ($productType === 'digital') {
+            $products->where('digital', 1);
+        } elseif ($productType === 'wholesale') {
+            $products->where('wholesale_product', 1);
+        }
+
+        if ($collection->get('product_id')) {
+            $products->where('products.id', '!=', $collection->get('product_id'));
+        }
+
+        if ($collection->get('search_key')) {
+            $products->where('products.name', 'like', '%' . $collection->get('search_key') . '%');
+        }
+
+        return $products;
+    }
+
+    private function normalizedRemovedSkuVariants($collection): array
+    {
+        return collect($collection->get('removed_sku_variants', []))
+            ->map(fn ($variant) => $this->normalizeSkuVariant($variant))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function normalizeSkuVariant($variant): string
+    {
+        return strtolower((string) preg_replace('/\s+/', '', trim((string) $variant)));
     }
 
     

@@ -21,6 +21,15 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\CriticalSystemError::class => [
             \App\Listeners\SendCriticalErrorNotification::class,
         ],
+        \App\Events\ProductRestockedEvent::class => [
+            \App\Listeners\SendStockAlertNotifications::class,
+        ],
+        \Mayush\Shipping\Onessta\Events\ShipmentStatusUpdated::class => [
+            \Mayush\Shipping\Onessta\Listeners\UpdateOrderDeliveryStatus::class,
+        ],
+        \Mayush\Shipping\Onessta\Events\ShipmentCreationFailed::class => [
+            \Mayush\Shipping\Onessta\Listeners\NotifyAdminOnShipmentFailure::class,
+        ],
     ];
 
   /**
@@ -41,6 +50,7 @@ class EventServiceProvider extends ServiceProvider
   {
     parent::boot();
 
-    //
+    \App\Models\Product::observe(\App\Observers\ProductObserver::class);
+    \App\Models\OrderTrackingHistory::observe(\App\Observers\OrderTrackingHistoryObserver::class);
   }
 }

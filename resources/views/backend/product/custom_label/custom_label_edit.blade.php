@@ -12,7 +12,7 @@
                     @foreach (get_all_active_language() as $language)
                         <li class="nav-item">
                             <a class="nav-link text-reset @if ($language->code == $lang) active @endif py-3"
-                                href="{{ route('custom_label.edit', ['id' => $custom_label->id, 'lang' => $language->code]) }}">
+                                href="{{ route('custom_label.edit', ['custom_label' => $custom_label->id, 'lang' => $language->code]) }}">
                                 <img src="{{ static_asset('assets/img/flags/' . $language->code . '.png') }}" height="11" class="mr-1">
                                 <span>{{ $language->name }}</span>
                             </a>

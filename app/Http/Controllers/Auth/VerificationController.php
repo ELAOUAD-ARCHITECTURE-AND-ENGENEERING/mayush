@@ -57,12 +57,12 @@ class VerificationController extends Controller
         if ($request->user()->email != null) {
             return $request->user()->hasVerifiedEmail()
                             ? redirect($this->redirectPath())
-                            : view('auth.'.get_setting('authentication_layout_select').'.verify_email');
+                            : view('auth.'.safe_auth_layout_select().'.verify_email');
         }
         else {
             $otpController = new OTPVerificationController;
             $otpController->send_code($request->user());
-            return redirect()->route('verification');
+            return redirect()->route('otp.verification');
         }
     }
 
@@ -109,7 +109,7 @@ class VerificationController extends Controller
             return redirect($this->redirectPath());
         }
         
-        return view('auth.'.get_setting('authentication_layout_select').'.verification_waiting');
+        return view('auth.'.safe_auth_layout_select().'.verification_waiting');
     }
 
     public function check_status(Request $request)
@@ -137,7 +137,7 @@ class VerificationController extends Controller
             flash(translate('Sorry, we could not verifiy you. Please try again'))->error();
         }
 
-        if($user->user_type == 'seller') {
+        if($user != null && $user->user_type == 'seller') {
             return redirect()->route('seller.dashboard');
         }
 

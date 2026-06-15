@@ -3,49 +3,7 @@
 @section('content')
 
     <!-- Steps -->
-    <section class="pt-5 mb-0">
-        <div class="container">
-            <div class="row">
-                <div class="col-xl-8 mx-auto">
-                    <div class="row gutters-5 sm-gutters-10">
-                        <div class="col done">
-                            <div class="text-center border border-bottom-6px p-2 text-success">
-                                <i class="la-3x mb-2 las la-shopping-cart"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('1. My Cart') }}</h3>
-                            </div>
-                        </div>
-                        <div class="col done">
-                            <div class="text-center border border-bottom-6px p-2 text-success">
-                                <i class="la-3x mb-2 las la-map"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('2. Shipping info') }}
-                                </h3>
-                            </div>
-                        </div>
-                        <div class="col done">
-                            <div class="text-center border border-bottom-6px p-2 text-success">
-                                <i class="la-3x mb-2 las la-truck"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('3. Delivery info') }}
-                                </h3>
-                            </div>
-                        </div>
-                        <div class="col done">
-                            <div class="text-center border border-bottom-6px p-2 text-danger">
-                                <i class="la-3x mb-2 las la-credit-card"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('4. Payment') }}</h3>
-                            </div>
-                        </div>
-                        <div class="col active">
-                            <div class="text-center border border-bottom-6px p-2 text-danger">
-                                <i class="la-3x mb-2 las la-times-circle"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('5. Failed') }}
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    @include('frontend.partials.checkout.stepper', ['step' => 5, 'failed' => true])
 
     <!-- Payment Failure -->
     <section class="py-4">
@@ -60,8 +18,9 @@
                         <h1 class="mb-2 fs-28 fw-500 text-danger">{{ translate('Payment Failed!')}}</h1>
                         <p class="fs-16 text-soft-dark">{{ translate('We are sorry, but your payment could not be processed at this time.') }}</p>
                         @if(Session::has('payment_error'))
-                            <div class="alert alert-danger mx-4 mt-3">
-                                {{ Session::get('payment_error') }}
+                            <div class="alert alert-danger mx-4 mt-3 d-flex align-items-center justify-content-center mb-0 border-0 bg-soft-danger text-danger">
+                                <i class="las la-exclamation-triangle fs-24 mr-2"></i>
+                                <span class="fw-600 fs-14">{{ Session::get('payment_error') }}</span>
                             </div>
                         @endif
                         <p class="fs-13 text-secondary mt-3">

@@ -11,6 +11,20 @@ use Validator;
 
 class NoteController extends Controller
 {
+    private function noteRules()
+    {
+        return [
+            'description' => ['required','max:900'],
+        ];
+    }
+
+    private function noteMessages()
+    {
+        return [
+            'description.required' => translate('Note description is required'),
+            'description.max'  => translate('Max 900 character'),
+        ];
+    }
 
     public function __construct() {
         // Staff Permission Check
@@ -18,15 +32,6 @@ class NoteController extends Controller
         $this->middleware(['permission:add_note'])->only('create');
         $this->middleware(['permission:edit_note'])->only('edit');
         $this->middleware(['permission:delete_note'])->only('destroy');
-
-        $this->note_rules = [
-            'description' => ['required','max:900'],
-        ];
-
-        $this->note_messages = [
-            'description.required' => translate('Note description is required'),
-            'description.max'  => translate('Max 900 character'),
-        ];
     }
 
     /**
@@ -65,8 +70,8 @@ class NoteController extends Controller
      */
     public function store(Request $request)
     {
-        $rules      = $this->note_rules;
-        $messages   = $this->note_messages;
+        $rules      = $this->noteRules();
+        $messages   = $this->noteMessages();
         $validator  = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
@@ -112,8 +117,8 @@ class NoteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $rules      = $this->note_rules;
-        $messages   = $this->note_messages;
+        $rules      = $this->noteRules();
+        $messages   = $this->noteMessages();
         $validator  = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
@@ -177,11 +182,19 @@ class NoteController extends Controller
         return $note;
     }
 
-
     public function updateSelelrAccess(Request $request) {
         $note = Note::findOrFail($request->id);
         $note->seller_access = $request->status;
         $note->save();
         return 1;
     }
+
+    /** Alias: route expects snake_case get_notes */
+    public function get_notes(Request $request) { return $this->getNotes($request); }
+
+    /** Alias: route expects snake_case get_single_note */
+    public function get_single_note(Request $request) { return $this->getSingleNote($request->id); }
+
+    /** Alias: route expects snake_case update_seller_access */
+    public function update_seller_access(Request $request) { return $this->updateSelelrAccess($request); }
 }

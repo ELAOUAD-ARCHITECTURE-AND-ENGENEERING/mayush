@@ -14,13 +14,13 @@
             <img
                 class="lazyload mx-auto img-fit has-transition product-main-image"
                 src="{{ get_image($product->thumbnail) }}"
-                alt="{{ $product->getTranslation('name') }}"
+                alt="{{ \App\Services\SeoService::productAltText($product) }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
             <img
                 class="lazyload mx-auto img-fit has-transition product-hover-image position-absolute"
                 src="{{ get_first_product_image($product->photos, $product->thumbnail) }}"
-                alt="{{ $product->getTranslation('name') }}"
+                alt="{{ \App\Services\SeoService::productAltText($product, 'Photo detail - Livraison Maroc') }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
         </a>
@@ -147,7 +147,7 @@
                 </a>
             @else
                 <a class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-none d-sm-flex flex-column justify-content-center align-items-center @if (in_array($product->id, $cart_added)) active @endif"
-                    href="javascript:void(0)" @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCartSingleProduct({{ $product->id }})" @else onclick="showLoginModal()" @endif>
+                    href="javascript:void(0)" onclick="addToCartSingleProduct({{ $product->id }})">
                     <span class="cart-btn-text">
                         {{ translate('Add to Cart') }}
                     </span>

@@ -21,7 +21,7 @@
                         class="swiper-slide rounded-corner-8px border  border-light-gray bg-light cursor-pointer overflow-hidden d-flex align-items-center justify-content-center">
                         <img src="{{ uploaded_asset($photo) }}"
                             class="img-fluid object-fit-cover object-position-center"
-                            alt="">
+                            alt="{{ \App\Services\SeoService::productAltText($detailedProduct, 'Image ' . ($key + 1) . ' - Livraison Maroc') }}">
                     </div>
                     @endforeach
 
@@ -36,6 +36,7 @@
                                 count($short_video_thumb) == count($short_video) ? $short_video_thumb[$index] : $short_video_thumb[0],
                             )
                             : '' }}"
+                            alt="{{ $detailedProduct->getTranslation('name') }} - Mayush video thumbnail"
                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                         <span class="position-absolute z-2">
                             <i class="las la-play-circle fs-36 text-gray has-transition"></i>
@@ -55,6 +56,7 @@
                             class="swiper-slide position-relative rounded-corner-8px border  border-light-gray bg-light cursor-pointer overflow-hidden d-flex align-items-center justify-content-center" data-variation="youtube">
                             
                                 <img class="img-fluid object-fit-cover object-position-cent" src="{{ $youtube_thumb }}"
+                            alt="{{ $detailedProduct->getTranslation('name') }} - Mayush video preview"
                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                             <span class="position-absolute z-2">
                                 <i class="las la-play-circle fs-36 text-gray has-transition"></i>
@@ -93,7 +95,7 @@
                 <!--Single-->
                 <div
                     class="swiper-slide rounded-corner-8px border  border-light-gray bg-light overflow-hidden lightbox-item">
-                    <img src="{{ uploaded_asset($photo) }}" class="img-fluid w-100 h-100 lightbox-source" alt="">
+                    <img src="{{ uploaded_asset($photo) }}" class="img-fluid w-100 h-100 lightbox-source" alt="{{ \App\Services\SeoService::productAltText($detailedProduct, 'Image ' . ($key + 1) . ' - Livraison Maroc') }}" @if($key === 0) fetchpriority="high" loading="eager" @endif>
                     <div class="img-preview-btn wd-show-product-gallery-wrap rounded-pill overflow-hidden">
                         <a href="#"
                             class="border-0 bg-transparent d-inline-flex align-items-center woodmart-show-product-gallery">

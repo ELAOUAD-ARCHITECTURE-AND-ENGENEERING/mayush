@@ -43,7 +43,8 @@
         <tbody>
             <!-- ROW  -->
             @foreach ($products as $key => $product)
-            <tr class="data-row">
+            @php $is_unpublished = !$product->draft && $product->published == 0; @endphp
+            <tr class="data-row {{ ($show_unpublished ?? false) && $is_unpublished ? 'unpublished-row' : '' }}">
                 
                 <td class="align-middle w-40px">
                     <div>
@@ -74,6 +75,9 @@
                     <div class="row gutters-5 w-sm-180px w-md-200px w-lg-100 mw-100 ml-1 ml-lg-0">
                         <div class="col">
                             <span class="text-truncate-2 fs-12 fs-md-14 fw-400 mr-2">{{ $product->getTranslation('name') }}</span>
+                            @if(($show_unpublished ?? false) && $is_unpublished)
+                                <span class="badge-unpublished">{{ translate('Unpublished') }}</span>
+                            @endif
                             @if(isset($product->brand->name))
                                 <a href="{{ route('products.all', ['brand_id' => $product->brand->id, 'brand_name' => $product->brand->name]) }}" class="fs-12 fs-md-14 fw-700 d-inline-block mt-1">
                                     {{ translate($product->brand->name) }}

@@ -48,8 +48,8 @@
     </div>
     <div class="border-bottom-dashed  pt-15px pb-15px">
         <p class="m-0 fs-14 fw-700 text-dark pb-5px">{{translate('Products in the Category')}}</p>
-        <span class="fs-14 fw-400 text-dark">{{ $category->product_categories_count }} </span>
-        @if($category->product_categories_count>0)
+        <span class="fs-14 fw-400 text-dark">{{ $category->total_product_count }} </span>
+        @if($category->total_product_count > 0)
         <span>
             <a type="button" href="{{ route('products.all', ['category_id' => $category->id,'category_name' => $category->name]) }}"
                 class="fs-12 fw-700 text-blue py-1 px-10px pb-0 rounded-pill border border-gray-300 bg-gray-100 ml-2 hov-bg-blue hov-text-white text-nowrap">{{ translate('View Products')}}</a>

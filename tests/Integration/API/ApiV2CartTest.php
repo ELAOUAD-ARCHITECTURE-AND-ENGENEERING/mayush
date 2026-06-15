@@ -17,6 +17,13 @@ class ApiV2CartTest extends TestCase
     {
         parent::setUp();
         $this->product = Product::factory()->create(['published' => 1, 'approved' => 1, 'min_qty' => 1]);
+        \App\Models\ProductStock::create([
+            'product_id' => $this->product->id,
+            'variant' => '',
+            'price' => 100,
+            'qty' => 100,
+            'sku' => 'TEST-SKU'
+        ]);
         $this->user = User::factory()->create();
     }
 

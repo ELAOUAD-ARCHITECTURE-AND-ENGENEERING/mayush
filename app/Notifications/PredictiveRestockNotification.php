@@ -9,6 +9,9 @@ use Illuminate\Notifications\Notification;
 
 class PredictiveRestockNotification extends Notification implements ShouldQueue
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use Queueable;
 
     public $data;
@@ -21,6 +24,7 @@ class PredictiveRestockNotification extends Notification implements ShouldQueue
      */
     public function __construct($data)
     {
+        $this->onQueue('notifications');
         $this->data = $data;
         $this->className = PredictiveRestockNotification::class;
     }
@@ -62,7 +66,7 @@ class PredictiveRestockNotification extends Notification implements ShouldQueue
                     ->line('**Product:** ' . $product_name)
                     ->line('**Current Stock:** ' . $stock)
                     ->line('**Predicted Stock-out in:** ' . $days . ' days')
-                    ->action('Manage Stock', route('seller.products.index'))
+                    ->action('Manage Stock', route('seller.products'))
                     ->line('We recommend replenishing your stock soon to avoid lost sales.')
                     ->line('Thank you for using Mayush!');
     }

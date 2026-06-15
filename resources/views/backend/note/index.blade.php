@@ -96,7 +96,7 @@
                                 </a>
                                 @can('edit_note')
                                     <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
-                                        href="{{route('note.edit', ['id'=>$note->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}"
+                                        href="{{route('note.edit', ['note'=>$note->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}"
                                         title="{{ translate('Edit') }}">
                                         <i class="las la-edit"></i>
                                     </a>

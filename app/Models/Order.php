@@ -9,9 +9,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Order extends Model
 {
     use PreventDemoModeChanges, HasFactory;
+
+    protected $fillable = [
+        'combined_order_id', 'user_id', 'seller_id', 'shipping_address', 'billing_address',
+        'payment_type', 'payment_status', 'grand_total', 'code', 'invoice_number', 'order_note', 'date', 'is_confirmed'
+    ];
+
+    protected $casts = [
+        'is_confirmed' => 'boolean',
+    ];
     public function orderDetails()
     {
         return $this->hasMany(OrderDetail::class);
+    }
+
+    public function orderTrackingHistories()
+    {
+        return $this->hasMany(OrderTrackingHistory::class);
     }
 
     public function refund_requests()

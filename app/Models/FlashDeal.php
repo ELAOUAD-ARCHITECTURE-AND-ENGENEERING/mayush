@@ -3,19 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\PreventDemoModeChanges;
 use App;
 use Carbon\Carbon;
 
 class FlashDeal extends Model
 {
-    use PreventDemoModeChanges;
+    use HasFactory, PreventDemoModeChanges;
 
     protected $with = ['flash_deal_translations'];
 
     public function getTranslation($field = '', $lang = false){
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $flash_deal_translation = $this->flash_deal_translations->where('lang', $lang)->first();
+        if ($flash_deal_translation != null && $flash_deal_translation->$field !== null && $flash_deal_translation->$field !== $this->$field) {
+            return in_array($field, ['name', 'title']) ? translate($flash_deal_translation->$field, $lang) : $flash_deal_translation->$field;
+        }
+
         return $flash_deal_translation != null ? $flash_deal_translation->$field : $this->$field;
     }
 

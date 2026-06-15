@@ -115,6 +115,7 @@
                             <th data-breakpoints="md">{{ translate('Delivery Status') }}</th>
                             <th data-breakpoints="md">{{ translate('Payment method') }}</th>
                             <th data-breakpoints="md">{{ translate('Payment Status') }}</th>
+                            <th data-breakpoints="md">{{ translate('Order Confirmation') }}</th>
                             @if (addon_is_activated('refund_request'))
                                 <th>{{ translate('Refund') }}</th>
                             @endif
@@ -199,6 +200,22 @@
                                         <span class="badge badge-inline badge-danger">{{ translate('Unpaid') }}</span>
                                     @endif
                                 </td>
+                                <td>
+                                    <div class="order-confirmation-list-control" data-order-confirmation-row="{{ $order->id }}">
+                                        <span class="badge badge-inline badge-{{ $order->is_confirmed ? 'success' : 'warning' }} mb-2" data-confirmation-badge>
+                                            {{ $order->is_confirmed ? translate('Confirmed') : translate('Pending Confirmation') }}
+                                        </span>
+                                        <label class="aiz-switch aiz-switch-success mb-0 d-block">
+                                            <input
+                                                type="checkbox"
+                                                class="js-order-confirmation-toggle"
+                                                data-order-id="{{ $order->id }}"
+                                                {{ $order->is_confirmed ? 'checked' : '' }}
+                                            >
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </td>
                                 @if (addon_is_activated('refund_request'))
                                     <td>
                                         @if (count($order->refund_requests) > 0)
@@ -246,12 +263,13 @@
                                         </a>
                                     @endif
                                     @can('delete_order')
-                                        <a href="#"
-                                            class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
-                                            data-href="{{ route('orders.destroy', $order->id) }}"
-                                            title="{{ translate('Delete') }}">
-                                            <i class="las la-trash"></i>
-                                        </a>
+                                        <form action="{{ route('orders.destroy', $order->id) }}" method="POST" class="d-inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+                                                <i class="las la-trash"></i>
+                                            </button>
+                                        </form>
                                     @endcan
                                 </td>
                             </tr>
@@ -366,5 +384,90 @@
                 AIZ.plugins.notify('danger', '{{ translate('Please Select Order first.') }}');
             }
         }
+
+        function updateOrderConfirmationListState(container, isConfirmed) {
+            var badge = container.find('[data-confirmation-badge]');
+
+            if (isConfirmed) {
+                badge
+                    .removeClass('badge-warning')
+                    .addClass('badge-success')
+                    .text('{{ translate('Confirmed') }}');
+            } else {
+                badge
+                    .removeClass('badge-success')
+                    .addClass('badge-warning')
+                    .text('{{ translate('Pending Confirmation') }}');
+            }
+        }
+
+        function orderConfirmationShipmentNotification(response) {
+            var shipment = response.shipment || {};
+
+            if (!response.is_confirmed) {
+                return {
+                    type: 'success',
+                    message: '{{ translate('Confirmation removed.') }}'
+                };
+            }
+
+            if (shipment.status === 'created') {
+                return {
+                    type: 'success',
+                    message: shipment.shipment_code
+                        ? '{{ translate('ONESSTA shipment created') }}: ' + shipment.shipment_code
+                        : '{{ translate('ONESSTA shipment created.') }}'
+                };
+            }
+
+            if (shipment.status === 'exists') {
+                return {
+                    type: 'info',
+                    message: shipment.shipment_code
+                        ? '{{ translate('ONESSTA shipment already exists') }}: ' + shipment.shipment_code
+                        : '{{ translate('ONESSTA shipment already exists.') }}'
+                };
+            }
+
+            if (shipment.status === 'queued') {
+                return {
+                    type: 'success',
+                    message: '{{ translate('ONESSTA shipment creation queued.') }}'
+                };
+            }
+
+            if (shipment.status === 'failed') {
+                return {
+                    type: 'danger',
+                    message: shipment.message || '{{ translate('ONESSTA shipment creation failed.') }}'
+                };
+            }
+
+            return {
+                type: 'warning',
+                message: shipment.message || '{{ translate('Order confirmed, but ONESSTA shipment was not created.') }}'
+            };
+        }
+
+        $(document).on('change', '.js-order-confirmation-toggle', function() {
+            var checkbox = $(this);
+            var isConfirmed = checkbox.is(':checked');
+            var container = checkbox.closest('.order-confirmation-list-control');
+
+            $.post('{{ route('orders.confirm') }}', {
+                _token: '{{ csrf_token() }}',
+                order_id: checkbox.data('order-id'),
+                is_confirmed: isConfirmed ? 1 : 0
+            }, function(response) {
+                if (response.success) {
+                    updateOrderConfirmationListState(container, response.is_confirmed);
+                    var notification = orderConfirmationShipmentNotification(response);
+                    AIZ.plugins.notify(notification.type, notification.message);
+                }
+            }).fail(function() {
+                checkbox.prop('checked', !isConfirmed);
+                AIZ.plugins.notify('danger', '{{ translate('Failed to update confirmation status.') }}');
+            });
+        });
     </script>
 @endsection

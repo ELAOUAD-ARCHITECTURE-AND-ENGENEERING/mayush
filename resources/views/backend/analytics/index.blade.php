@@ -9,48 +9,16 @@
         </div>
     </div>
 
+    <!-- Laravel Livewire technical dashboard -->
     <div id="tech-dashboard-root">
-        <div class="card">
-            <div class="card-body text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-                <p class="mt-2">Initializing Technical Dashboard...</p>
-            </div>
-        </div>
+        @livewire('analytics.technical-dashboard')
     </div>
 @endsection
 
 @section('styles')
-    @php
-        $_vManifest = [];
-        $_manifestPath = public_path('build/manifest.json');
-        if (file_exists($_manifestPath)) {
-            $_vManifest = json_decode(file_get_contents($_manifestPath), true);
-        }
-        $_vCss = $_vManifest['resources/sass/app.scss']['file'] ?? null;
-    @endphp
-    @if($_vCss)
-        <link rel="stylesheet" href="{{ static_asset('build/' . $_vCss) }}">
-    @endif
-@endsection
-
-@section('script_at_head')
-    @php
-        $_vManifest = [];
-        $_manifestPath = public_path('build/manifest.json');
-        if (file_exists($_manifestPath)) {
-            $_vManifest = json_decode(file_get_contents($_manifestPath), true);
-        }
-        $_vDash = $_vManifest['resources/js/dashboard.jsx']['file'] ?? null;
-    @endphp
-    @if($_vDash)
-        <script type="module" src="{{ static_asset('build/' . $_vDash) }}"></script>
-    @endif
+    @livewireStyles
 @endsection
 
 @section('script')
-    <script>
-        window.APP_BASE_URL = "{{ rtrim(config('app.url'), '/') }}";
-    </script>
+    @livewireScripts
 @endsection

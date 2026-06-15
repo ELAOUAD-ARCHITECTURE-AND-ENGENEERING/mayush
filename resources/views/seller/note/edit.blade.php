@@ -11,7 +11,7 @@
                     @foreach (get_all_active_language() as $key => $language)
                         <li class="nav-item">
                             <a class="nav-link text-reset @if ($language->code == $lang) active @endif py-3"
-                                href="{{ route('seller.note.edit', ['id' => $note->id, 'lang' => $language->code]) }}">
+                                href="{{ route('seller.note.edit', ['note' => $note->id, 'lang' => $language->code]) }}">
                                 <img src="{{ static_asset('assets/img/flags/' . $language->code . '.png') }}" height="11" class="mr-1">
                                 <span>{{ $language->name }}</span>
                             </a>

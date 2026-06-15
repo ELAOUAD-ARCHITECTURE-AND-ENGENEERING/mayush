@@ -27,7 +27,7 @@ class AuctionProductCollection extends ResourceCollection
                     'can_edit' => $data->auction_start_date > strtotime("now"),
 
                     'links' => [
-                        'details' => route('products.show', $data->id),
+                        'details' => route('api.products.show', $data->id),
                     ]
                 ];
             })

@@ -576,7 +576,7 @@
                                         <input type="text" class="form-control" value="{{translate('Colors')}}" disabled>
                                     </div>
                                     <div class="col-md-8">
-                                        <select class="form-control aiz-selectpicker" data-live-search="true" data-selected-text-format="count" name="colors[]" id="colors" multiple <?php if (count(json_decode($product->colors)) < 1) echo "disabled"; ?>>
+                                        <select class="form-control aiz-selectpicker" data-live-search="true" data-selected-text-format="count" name="colors[]" id="colors" multiple <?php if (count(json_decode($product->colors) ?: []) < 1) echo "disabled"; ?>>
                                             @foreach (\App\Models\Color::orderBy('name', 'asc')->get() as $key => $color)
                                             <option
                                                 value="{{ $color->code }}"
@@ -588,7 +588,7 @@
                                     </div>
                                     <div class="col-md-1">
                                         <label class="aiz-switch aiz-switch-success mb-0">
-                                            <input value="1" type="checkbox" name="colors_active" <?php if (count(json_decode($product->colors)) > 0) echo "checked"; ?> >
+                                            <input value="1" type="checkbox" name="colors_active" <?php if (count(json_decode($product->colors) ?: []) > 0) echo "checked"; ?> >
                                             <span></span>
                                         </label>
                                     </div>
@@ -613,18 +613,25 @@
 
                                 <!-- choice options -->
                                 <div class="customer_choice_options" id="customer_choice_options">
-                                    @foreach (json_decode($product->choice_options) as $key => $choice_option)
+                                    @foreach ((json_decode($product->choice_options) ?: []) as $key => $choice_option)
                                     <div class="form-group row">
                                         <div class="col-lg-3">
                                             <input type="hidden" name="choice_no[]" value="{{ $choice_option->attribute_id }}">
                                             <input type="text" class="form-control" name="choice[]" value="{{ optional(\App\Models\Attribute::find($choice_option->attribute_id))->getTranslation('name') }}" placeholder="{{ translate('Choice Title') }}" disabled>
                                         </div>
                                         <div class="col-lg-8">
+                                            @php
+                                                $attributeValues = \App\Models\AttributeValue::where('attribute_id', $choice_option->attribute_id)->get();
+                                                $savedLocalValues = collect($choice_option->values)->diff($attributeValues->pluck('value'));
+                                            @endphp
                                             <select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_{{ $choice_option->attribute_id }}[]" data-selected-text-format="count" multiple required>
-                                                @foreach (\App\Models\AttributeValue::where('attribute_id', $choice_option->attribute_id)->get() as $row)
+                                                @foreach ($attributeValues as $row)
                                                 <option value="{{ $row->value }}" @if( in_array($row->value, $choice_option->values)) selected @endif>
                                                     {{ $row->value }}
                                                 </option>
+                                                @endforeach
+                                                @foreach ($savedLocalValues as $savedLocalValue)
+                                                <option value="{{ $savedLocalValue }}" selected>{{ $savedLocalValue }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -684,7 +691,7 @@
                                         <label class="col-from-label">
                                             {{translate('SKU')}}
                                         </label>
-                                        <input type="text" placeholder="{{ translate('SKU') }}" value="{{ optional($product->stocks->first())->sku }}" name="sku" class="form-control">
+                                        <input type="text" placeholder="{{ translate('SKU') }}" value="{{ optional($product->stocks->first())->sku ?: (new \App\Services\ProductSkuService())->next() }}" name="sku" class="form-control">
                                     </div>
                                 </div>
                                 <!-- External link -->
@@ -1098,7 +1105,7 @@
 
 @section('script')
 <!-- Treeview js -->
-<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}"></script>
+<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}?v={{ file_exists(public_path('assets/js/hummingbird-treeview.js')) ? filemtime(public_path('assets/js/hummingbird-treeview.js')) : time() }}"></script>
 
 <script type="text/javascript">
     $(document).ready(function (){
@@ -1166,16 +1173,48 @@
             },
             success: function(data) {
                 var obj = JSON.parse(data);
+                var custom_ui = '';
+                if (name.toLowerCase() === 'dimension' || i == 35) {
+                    custom_ui = '\
+                    <div class="mt-2 p-3 border border-dashed rounded bg-light">\
+                        <div class="row align-items-end select_dimension_values">\
+                            <div class="col-md-3">\
+                                <label class="fs-12">{{translate('Length')}}</label>\
+                                <input type="number" step="0.01" class="form-control form-control-sm dimension_l" placeholder="0.00">\
+                            </div>\
+                            <div class="col-md-3">\
+                                <label class="fs-12">{{translate('Width')}}</label>\
+                                <input type="number" step="0.01" class="form-control form-control-sm dimension_w" placeholder="0.00">\
+                            </div>\
+                            <div class="col-md-3">\
+                                <label class="fs-12">{{translate('Height')}}</label>\
+                                <input type="number" step="0.01" class="form-control form-control-sm dimension_h" placeholder="0.00">\
+                            </div>\
+                            <div class="col-md-2">\
+                                <label class="fs-12">{{translate('Unit')}}</label>\
+                                <select class="form-control form-control-sm dimension_u">\
+                                    <option value="cm">cm</option>\
+                                    <option value="inch">inch</option>\
+                                </select>\
+                            </div>\
+                            <div class="col-md-1">\
+                                <button type="button" class="btn btn-sm btn-primary btn-block" onclick="add_dimension_value('+i+')"><i class="las la-plus"></i></button>\
+                            </div>\
+                        </div>\
+                    </div>';
+                }
+
                 $('#customer_choice_options').append('\
                 <div class="form-group row">\
                     <div class="col-md-3">\
                         <input type="hidden" name="choice_no[]" value="'+i+'">\
                         <input type="text" class="form-control" name="choice[]" value="'+name+'" placeholder="{{ translate('Choice Title') }}" readonly>\
                     </div>\
-                    <div class="col-md-8">\
-                        <select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_'+ i +'[]" data-selected-text-format="count" multiple required>\
+                    <div class="col-md-9">\
+                        <select class="form-control aiz-selectpicker attribute_choice" id="choice_options_'+i+'" data-live-search="true" name="choice_options_'+ i +'[]" data-selected-text-format="count" multiple required>\
                             '+obj+'\
                         </select>\
+                        '+custom_ui+'\
                     </div>\
                 </div>');
                 AIZ.plugins.bootstrapSelect('refresh');
@@ -1329,11 +1368,11 @@
     function warrantySelection(){
         if($('input[name="has_warranty"]').is(':checked')) {
             $('.warranty_selection_div').removeClass('d-none');
-            $('#warranty_id').attr('required', true);
+            // $('#warranty_id').attr('required', true);
         }
         else {
             $('.warranty_selection_div').addClass('d-none');
-            $('#warranty_id').removeAttr('required');
+            // $('#warranty_id').removeAttr('required');
         }
     }
 
@@ -1533,6 +1572,31 @@
         });
 
     });
+
+    function add_dimension_value(attribute_id) {
+        var l = $('.dimension_l').val();
+        var w = $('.dimension_w').val();
+        var h = $('.dimension_h').val();
+        var u = $('.dimension_u').val();
+
+        if (l && w && h) {
+            var value = l + 'x' + w + 'x' + h + ' ' + u;
+            $.post('{{ route('products.store-attribute-value-ajax') }}', {
+                _token: AIZ.data.csrf,
+                attribute_id: attribute_id,
+                value: value
+            }, function(data) {
+                if (data.success) {
+                    var option = new Option(data.value, data.value, true, true);
+                    $('#choice_options_' + attribute_id).append(option).trigger('change');
+                    AIZ.plugins.bootstrapSelect('refresh');
+                    $('.dimension_l, .dimension_w, .dimension_h').val('');
+                }
+            });
+        } else {
+            AIZ.plugins.notify('warning', '{{ translate('Please enter all dimension values') }}');
+        }
+    }
 </script>
 
 @endsection

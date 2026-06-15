@@ -44,6 +44,7 @@
                     <tr>
                         <th scope="col" class="fs-14 fw-700 text-dark border-soft-secondary">Variant</th>
                         <th scope="col" class="fs-14 fw-700 text-dark border-soft-secondary text-center">Stock</th>
+                        <th scope="col" class="fs-14 fw-700 text-dark border-soft-secondary">{{ translate('Dimensions') }}</th>
                         <th scope="col" class="fs-14 fw-700 text-dark border-soft-secondary">Price</th>
                     </tr>
                 </thead>
@@ -54,6 +55,13 @@
                         <td class="fs-14 fw-300 text-dark text-center"><span id="stock-quantity">{{ $stock->qty }}</span>
                             <input type="number" name="{{ $stock->id}}" value="{{ $stock->qty }}" class="stock-input fs-14 text-dark d-none text-center">
                         </td>
+                        <td class="fs-14 fw-300 text-dark">
+                            @if($stock->length > 0 || $stock->width > 0 || $stock->height > 0)
+                                {{ $stock->length }} x {{ $stock->width }} x {{ $stock->height }} {{ $stock->dimension_unit }}
+                            @else
+                                {{ translate('N/A') }}
+                            @endif
+                        </td>
                         <td class="fs-14 fw-300 text-dark">{{ $stock->price }}</td>
                     </tr>
                     @endforeach
@@ -62,13 +70,22 @@
                 <thead>
                     <tr>
                         <th scope="col" class="fs-14 fw-700 text-dark border-soft-secondary text-center">{{ translate('Stock') }}</th>
+                        <th scope="col" class="fs-14 fw-700 text-dark border-soft-secondary text-center">{{ translate('Dimensions') }}</th>
                         <th scope="col" class="fs-14 fw-700 text-dark border-soft-secondary">{{ translate('Price') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="fs-14 fw-300 text-dark text-center"><span id="stock-quantity">{{ $qty }}</span>
-                            <input type="number" name="{{ $product->stocks->first()->id ?? ''}}" value="{{ $qty ?? '0' }}" class="stock-input fs-14 text-dark d-none text-center">
+                            <input type="number" name="{{ $product->stocks->first()->id ?? ''}}" value="{{ $qty ?? '0' }}" class="stock-input fs-14 text-dark d-none text-center"></td>
+                        <td class="fs-14 fw-300 text-dark text-center">
+                            @php $base_stock = $product->stocks->first(); @endphp
+                            @if($base_stock && ($base_stock->length > 0 || $base_stock->width > 0 || $base_stock->height > 0))
+                                {{ $base_stock->length }} x {{ $base_stock->width }} x {{ $base_stock->height }} {{ $base_stock->dimension_unit }}
+                            @else
+                                {{ translate('N/A') }}
+                            @endif
+                        </td>
                         <td class="fs-14 fw-300 text-dark">{{ $product->unit_price }}</td>
                     </tr>
                 </tbody>

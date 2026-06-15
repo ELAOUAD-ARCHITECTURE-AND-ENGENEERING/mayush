@@ -1,0 +1,16 @@
+﻿
+   ErrorException 
+
+  file_put_contents(C:\xampp\htdocs\mayush\tmp/theme_report.txt): Failed to open stream: Resource temporarily unavailable
+
+  at tmp\check_theme.php:49
+     45Ôûò } else {
+     46Ôûò     $out .= "  Partials directory DOES NOT EXIST\n";
+     47Ôûò }
+     48Ôûò 
+  Ô×£  49Ôûò file_put_contents(__DIR__ . '/theme_report.txt', $out);
+     50Ôûò echo $out;
+     51Ôûò
+
+  1   tmp\check_theme.php:49
+

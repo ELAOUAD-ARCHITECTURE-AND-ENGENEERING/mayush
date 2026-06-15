@@ -2,8 +2,9 @@
 
 namespace App\Observers;
 
+use App\Jobs\OptimizeUploadedImageJob;
 use App\Models\Upload;
-use App\Utility\ImageUtility;
+use App\Services\StorefrontCacheService;
 
 class UploadObserver
 {
@@ -15,9 +16,20 @@ class UploadObserver
      */
     public function created(Upload $upload)
     {
-        if (strpos($upload->type, 'image') !== false) {
-            $path = 'uploads/' . $upload->file_name;
-            ImageUtility::convertToWebp($path);
+        app(StorefrontCacheService::class)->bump();
+
+        if (str_contains((string) $upload->type, 'image')) {
+            OptimizeUploadedImageJob::dispatch($upload->id)->afterCommit();
         }
+    }
+
+    public function updated(): void
+    {
+        app(StorefrontCacheService::class)->bump();
+    }
+
+    public function deleted(): void
+    {
+        app(StorefrontCacheService::class)->bump();
     }
 }

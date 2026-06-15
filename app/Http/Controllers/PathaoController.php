@@ -19,8 +19,9 @@ class PathaoController extends Controller
     {
         return 'Stub';
     }
-    public function destroy($id)
-    {
-        return 'Stub';
-    }
+    public function createOrderPathao(Request $request) { return 'Stub'; }
+    public function deliveryStatus() { return 'Stub'; }
+    public function getCities() { return 'Stub'; }
+    public function getZones($city_id) { return 'Stub'; }
+    public function getAreas($zone_id) { return 'Stub'; }
 }

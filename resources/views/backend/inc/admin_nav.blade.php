@@ -132,7 +132,7 @@
                                             </g>
                                         </svg>
                                     </div>
-                                    @if (auth()->user()->unreadNotifications->count() > 0)
+                                    @if (auth()->user() && auth()->user()->unreadNotifications->count() > 0)
                                         <span class="badge badge-sm badge-dot badge-circle badge-danger position-absolute absolute-top-right"></span>
                                     @endif
                                 </span>
@@ -219,6 +219,7 @@
                 </div>
             </div>
             <!-- User -->
+            @auth
             <div class="aiz-topbar-item">
                 <div class="align-items-stretch d-flex dropdown">
                     <!-- Image & Name -->
@@ -249,6 +250,7 @@
                     </div>
                 </div>
             </div><!-- .aiz-topbar-item -->
+            @endauth
         </div>
     </div>
 </div><!-- .aiz-topbar -->

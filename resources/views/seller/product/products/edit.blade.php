@@ -79,6 +79,23 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label class="col-md-3 col-from-label">{{ translate('Dimensions (L x W x H)') }}
+                            <small>({{ translate('In Cm') }})</small></label>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control" name="length" value="{{ $product->length }}" step="0.01" placeholder="{{ translate('Length') }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control" name="width" value="{{ $product->width }}" step="0.01" placeholder="{{ translate('Width') }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control" name="height" value="{{ $product->height }}" step="0.01" placeholder="{{ translate('Height') }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label class="col-lg-3 col-from-label">{{translate('Minimum Purchase Qty')}}</label>
                         <div class="col-lg-8">
                             <input type="number" lang="en" class="form-control" name="min_qty"
@@ -335,11 +352,18 @@
                                     placeholder="{{ translate('Choice Title') }}" disabled>
                             </div>
                             <div class="col-lg-8">
+                                @php
+                                    $attributeValues = \App\Models\AttributeValue::where('attribute_id', $choice_option->attribute_id)->get();
+                                    $savedLocalValues = collect($choice_option->values)->diff($attributeValues->pluck('value'));
+                                @endphp
                                 <select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_{{ $choice_option->attribute_id }}[]" multiple>
-                                    @foreach (\App\Models\AttributeValue::where('attribute_id', $choice_option->attribute_id)->get() as $row)
+                                    @foreach ($attributeValues as $row)
                                         <option value="{{ $row->value }}" @if( in_array($row->value, $choice_option->values)) selected @endif>
                                             {{ $row->value }}
                                         </option>
+                                    @endforeach
+                                    @foreach ($savedLocalValues as $savedLocalValue)
+                                        <option value="{{ $savedLocalValue }}" selected>{{ $savedLocalValue }}</option>
                                     @endforeach
                                 </select>
                                 {{-- <input type="text" class="form-control aiz-tag-input" name="choice_options_{{ $choice_option->attribute_id }}[]" placeholder="{{ translate('Enter choice values') }}" value="{{ implode(',', $choice_option->values) }}" data-on-change="update_sku"> --}}
@@ -407,7 +431,7 @@
                                 {{translate('SKU')}}
                             </label>
                             <div class="col-md-6">
-                                <input type="text" placeholder="{{ translate('SKU') }}" value="{{ optional($product->stocks->first())->sku ?? '' }}" name="sku" class="form-control">
+                                <input type="text" placeholder="{{ translate('SKU') }}" value="{{ optional($product->stocks->first())->sku ?: (new \App\Services\ProductSkuService())->next() }}" name="sku" class="form-control">
                             </div>
                         </div>
                     </div>
@@ -1033,7 +1057,7 @@
 
 @section('script')
 <!-- Treeview js -->
-<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}"></script>
+<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}?v={{ file_exists(public_path('assets/js/hummingbird-treeview.js')) ? filemtime(public_path('assets/js/hummingbird-treeview.js')) : time() }}"></script>
 
 <script type="text/javascript">
     $(document).ready(function (){
@@ -1260,11 +1284,11 @@
     function warrantySelection(){
         if($('input[name="has_warranty"]').is(':checked')) {
             $('.warranty_selection_div').removeClass('d-none');
-            $('#warranty_id').attr('required', true);
+            // $('#warranty_id').attr('required', true);
         }
         else {
             $('.warranty_selection_div').addClass('d-none');
-            $('#warranty_id').removeAttr('required');
+            // $('#warranty_id').removeAttr('required');
         }
     }
 

@@ -64,7 +64,7 @@ Route::group([ 'middleware' => ['isPreorder', ]], function () {
             Route::get('/delayed-final-orders-list', 'order_list')->name('delayed_final_orders.list');
             
             Route::get('/order/{id}', 'show')->name('preorder-order.show');
-            Route::get('/order/destroy/{id}', 'destroy')->name('preorder-order.destroy');
+            Route::delete('/order/destroy/{id}', 'destroy')->name('preorder-order.destroy');
             Route::post('/bulk-preorder-delete', 'bulkPreorderDelete')->name('bulk-preorder-delete');
             Route::put('/order/update/{id}', 'order_status_update')->name('preorder-order.status_update');
             Route::post('prepayment-final-preorder-reminder', 'prepaymentFinalPreorderReminder')->name('prepayment_final_preorder_reminder');
@@ -84,7 +84,7 @@ Route::group([ 'middleware' => ['isPreorder', ]], function () {
             Route::get('conversations', 'adminIndex')->name('preorder-conversations.admin_index');
             Route::get('conversations/{id}/show', 'adminShow')->name('preorder-conversations.admin_show');
             Route::post('conversations/message-reply', 'messageReply')->name('preorder-conversations.admin_reply');
-            Route::get('conversations/destroy/{id}', 'conversationDestroy')->name('preorder-conversations.destroy');
+            Route::delete('conversations/destroy/{id}', 'conversationDestroy')->name('preorder-conversations.destroy');
         });
 
         // FAQs
@@ -92,7 +92,7 @@ Route::group([ 'middleware' => ['isPreorder', ]], function () {
         Route::controller(FaqController::class)->group(function () {
             // Route::get('/faq/edit/{id}', 'edit')->name('faq.edit');
             Route::post('/faq/update-status', 'updateStatus')->name('faq.update-status');
-            // Route::get('/faq/destroy/{id}', 'destroy')->name('faq.destroy');
+            Route::delete('/faq/destroy/{id}', 'destroy')->name('faq.destroy');
         });
 
         // product Queries show on Admin panel
@@ -146,7 +146,7 @@ Route::group([ 'middleware' => ['isPreorder', ]], function () {
 
             // Route::get('order-list', 'index')->name('preorders.index');
             Route::get('/order/{id}', 'show')->name('preorder-order.show');
-            Route::get('/order/destroy/{id}', 'destroy')->name('preorder-order.destroy');
+            Route::delete('/order/destroy/{id}', 'destroy')->name('preorder-order.destroy');
             Route::post('/bulk-preorder-delete', 'bulkPreorderDelete')->name('bulk-preorder-delete');
             Route::put('/order/update/{id}', 'orderStatusUpdate')->name('preorder-order.status_update');
         });
@@ -173,7 +173,7 @@ Route::group([ 'middleware' => ['isPreorder', ]], function () {
             Route::get('conversations', 'index')->name('preorder-conversations.index');
             Route::get('conversations/{id}/show', 'show')->name('preorder-conversations.show');
             Route::post('conversations/message-reply', 'messageReply')->name('preorder-conversations.reply');
-            Route::get('conversations/destroy', 'messageReply')->name('preorder-conversations.destroy');
+            Route::post('conversations/destroy', 'messageReply')->name('preorder-conversations.destroy');
         });
     });
 

@@ -77,14 +77,16 @@
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-right dropdown-menu-xs">
                                                 @can('top_banner_edit')
-                                                    <a class="dropdown-item" href="{{route('top_banner.edit', ['id'=>$topBanner->id, 'lang'=>env('DEFAULT_LANGUAGE')])}}">
+                                                    <a class="dropdown-item" href="{{route('top_banner.edit', ['top_banner'=>$topBanner->id, 'lang'=>env('DEFAULT_LANGUAGE')])}}">
                                                         {{translate('Edit')}}
                                                     </a>
                                                 @endcan
                                                 @can('top_banner_delete')
-                                                    <a class="dropdown-item confirm-delete" href="javascript:void(0)" data-href="{{route('top_banner.delete', $topBanner->id)}}">
-                                                        {{translate('Delete')}}
-                                                    </a>
+                                                    <form action="{{ route('top_banner.delete', $topBanner->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="dropdown-item">{{ translate('Delete') }}</button>
+                                                    </form>
                                                 @endcan
                                             </div>
                                         </div>

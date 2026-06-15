@@ -17,10 +17,10 @@ class SearchProductCollection extends ResourceCollection
                     'base_discounted_price' => (double) home_discounted_base_price($data, false),
                     'rating' => (double) $data->rating,
                     'links' => [
-                        'details' => route('products.show', $data->id),
+                        'details' => route('api.products.show', $data->id),
                         'reviews' => route('api.reviews.index', $data->id),
-                        'related' => route('products.related', $data->id),
-                        'top_from_seller' => route('products.topFromSeller', $data->id)
+                        'related' => route('products.frequently_bought', $data->slug),
+                        'top_from_seller' => route('products.topFromSeller', $data->slug)
                     ]
                 ];
             })

@@ -332,7 +332,7 @@ $middleHeaderTextColor = get_setting('middle_header_text_color');
 
                 <div class="col-auto pl-0 pr-0 d-flex align-items-center">
                     <!-- Header Logo -->
-                    <a class="d-block py-20px mr-2" href="{{ route('home') }}">
+                    <a class="d-block py-20px mr-2" href="{{ route('home') }}" aria-label="{{ translate('Mayush home') }}">
                         @php
                         $header_logo = get_setting('header_logo');
                         @endphp
@@ -366,7 +366,7 @@ $middleHeaderTextColor = get_setting('middle_header_text_color');
                     <div class="container">
                         <div class="d-flex position-relative">
                             <div class="position-static">
-                                @include('frontend.' . get_setting('homepage_select') . '.partials.category_menu')
+                                @include('frontend.' . safe_homepage_select() . '.partials.category_menu')
                             </div>
                         </div>
                     </div>

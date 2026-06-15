@@ -28,6 +28,7 @@ return new class extends Migration
             Schema::create('commission_histories', function (Blueprint $table) {
                 $table->increments('id');
                 $table->integer('order_id');
+                $table->integer('order_detail_id')->nullable();
                 $table->integer('seller_id');
                 $table->double('admin_commission', 20, 2);
                 $table->double('seller_earning', 20, 2);
@@ -52,6 +53,8 @@ return new class extends Migration
                 $table->integer('pickup_point_id')->nullable();
                 $table->string('product_referral_code', 255)->nullable();
                 $table->double('earn_point', 20, 2)->default(0);
+                $table->integer('reviewed')->default(0);
+                $table->integer('refund_days')->default(0);
                 $table->timestamps();
             });
         }

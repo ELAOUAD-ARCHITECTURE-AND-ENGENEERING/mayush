@@ -98,7 +98,7 @@
                 </a>
             @else
                 <a class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-none d-sm-flex flex-column justify-content-center align-items-center @if (in_array($product->id, $cart_added)) active @endif"
-                    href="javascript:void(0)" @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCartSingleProduct({{ $product->id }})" @else onclick="showLoginModal()" @endif>
+                    href="javascript:void(0)" onclick="addToCartSingleProduct({{ $product->id }})">
                     <span class="cart-btn-text">
                         {{ translate('Add to Cart') }}
                     </span>

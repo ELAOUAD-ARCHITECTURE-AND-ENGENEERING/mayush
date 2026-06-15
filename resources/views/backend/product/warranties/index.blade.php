@@ -43,7 +43,7 @@
 		                        </td>
 		                        <td class="text-right">
 									@can('edit_product_warranty')
-										<a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('warranties.edit', ['id'=>$warranty->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}" title="{{ translate('Edit') }}">
+										<a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('warranties.edit', ['warranty'=>$warranty->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}" title="{{ translate('Edit') }}">
 											<i class="las la-edit"></i>
 										</a>
 									@endcan

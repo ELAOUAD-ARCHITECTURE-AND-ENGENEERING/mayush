@@ -38,6 +38,17 @@ class ShopController extends Controller
             $shop->meta_description = $request->meta_description;
             $shop->logo             = $request->logo;
         }
+        
+        if ($request->has('artisan_story') || $request->has('brand_philosophy') || $request->has('workshop_video_url') || $request->has('story_title')) {
+            $shop->artisan_story = $request->artisan_story;
+            $shop->brand_philosophy = $request->brand_philosophy;
+            $shop->workshop_video_url = $request->workshop_video_url;
+            $shop->story_title = $request->story_title;
+            $shop->story_content = $request->story_content;
+            $shop->hero_media_id = $request->hero_media_id;
+            $shop->artisan_quote = $request->artisan_quote;
+            $shop->gallery_json = $request->gallery_json;
+        }
 
         if ($request->has('delivery_pickup_longitude') && $request->has('delivery_pickup_latitude'))
         {
@@ -187,12 +198,16 @@ class ShopController extends Controller
         $shop = Auth::user()->shop;
         $shop->verification_info = json_encode($data);
         if ($shop->save()) {
-            $users = User::findMany([User::where('user_type', 'admin')->first()->id]);
-            $data = array();
-            $data['shop'] = $shop;
-            $data['status'] = 'submitted';
-            $data['notification_type_id'] = get_notification_type('shop_verify_request_submitted', 'type')->id;
-            Notification::send($users, new ShopVerificationNotification($data));
+            $users = User::where('user_type', 'admin')->get();
+            $notificationType = get_notification_type('shop_verify_request_submitted', 'type');
+            
+            if ($users->isNotEmpty() && $notificationType) {
+                $data = array();
+                $data['shop'] = $shop;
+                $data['status'] = 'submitted';
+                $data['notification_type_id'] = $notificationType->id;
+                Notification::send($users, new ShopVerificationNotification($data));
+            }
             
             flash(translate('Your shop verification request has been submitted successfully!'))->success();
             return redirect()->route('seller.dashboard');

@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Shop;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Utility\EmailUtility;
@@ -16,7 +16,7 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 class SellerRegistrationTest extends TestCase
 {
-    use WithFaker, DatabaseTransactions, WithoutMiddleware;
+    use WithFaker, RefreshDatabase, WithoutMiddleware;
 
     protected $admin;
 
@@ -30,6 +30,28 @@ class SellerRegistrationTest extends TestCase
             'password' => Hash::make('123456'),
             'user_type' => 'admin',
         ]);
+
+        \App\Models\BusinessSetting::updateOrCreate(['type' => 'site_name'], ['value' => 'Mayush']);
+        \App\Models\BusinessSetting::updateOrCreate(['type' => 'email_verification'], ['value' => '0']);
+        DB::table('email_templates')->insert([
+            [
+                'identifier' => 'registration_from_system_email_to_seller',
+                'subject' => 'Welcome [[seller_shop_name]]',
+                'content' => 'Welcome [[seller_name]]',
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'identifier' => 'seller_reg_email_to_admin',
+                'subject' => 'New seller [[seller_shop_name]]',
+                'content' => 'New seller [[seller_name]]',
+                'status' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+        \Cache::forget('business_settings');
     }
 
     /** @test */

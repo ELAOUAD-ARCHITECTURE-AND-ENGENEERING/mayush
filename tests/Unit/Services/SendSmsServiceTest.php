@@ -27,14 +27,14 @@ class SendSmsServiceTest extends TestCase
     }
 
     /** @test */
-    public function sms_service_references_utility(): void
+    public function sms_service_uses_otp_configuration(): void
     {
-        // Verify the service delegates to the utility
+        // Verify the service uses OtpConfiguration to determine gateway
         $source = file_get_contents(app_path('Services/SendSmsService.php'));
         $this->assertStringContainsString(
-            'SendSMSUtility',
+            'OtpConfiguration',
             $source,
-            'SendSmsService must delegate to SendSMSUtility'
+            'SendSmsService must use OtpConfiguration'
         );
     }
 

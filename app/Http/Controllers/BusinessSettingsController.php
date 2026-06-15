@@ -13,6 +13,9 @@ use App\Models\Product;
 use App\Models\ShippingSystem;
 use App\Models\State;
 use App\Models\Zone;
+use App\Services\HeroTitleSanitizerService;
+use App\Services\BannerTextSanitizerService;
+use App\Services\BannerTextVersionService;
 use Artisan;
 use CoreComponentRepository;
 use Illuminate\Support\Facades\Redirect;
@@ -43,20 +46,21 @@ class BusinessSettingsController extends Controller
         $this->middleware(['permission:google_map_setting'])->only('google_map');
         $this->middleware(['permission:google_firebase_setting'])->only('google_firebase');
         $this->middleware(['permission:shipping_configuration'])->only('shipping_configuration');
-        $this->middleware(['permission:business_settings'])->only('business_settings');
+        $this->middleware(['permission:business_settings'])->only('business_settings', 'invoice_config', 'shipping_label', 'thermal_printer');
+        $this->middleware(['permission:manage_ai_configuration'])->only('ai_config_update');
     }
 
     public function general_setting(Request $request)
     {
-        CoreComponentRepository::instantiateShopRepository();
-        CoreComponentRepository::initializeCache();
+        // CoreComponentRepository::instantiateShopRepository();
+        // CoreComponentRepository::initializeCache();
         return view('backend.setup_configurations.general_settings');
     }
 
     public function activation(Request $request)
     {
-        CoreComponentRepository::instantiateShopRepository();
-        CoreComponentRepository::initializeCache();
+        // CoreComponentRepository::instantiateShopRepository();
+        // CoreComponentRepository::initializeCache();
         return view('backend.setup_configurations.activation');
     }
 
@@ -462,7 +466,6 @@ class BusinessSettingsController extends Controller
 
     public function update(Request $request)
     {
-       // dd($request->all());
         $types = $request->types ?? [];
         $resetRefundData = in_array('refund_type', $types);
 
@@ -482,16 +485,28 @@ class BusinessSettingsController extends Controller
                     $business_settings = BusinessSetting::where('type', $type)->first();
                 }
 
+                $value = $this->businessSettingValue($request, $type);
+                $encodedValue = gettype($value) == 'array' ? json_encode($value) : $value;
+
                 if ($business_settings != null) {
-                    if (gettype($request[$type]) == 'array') {
-                        $business_settings->value = json_encode($request[$type]);
+                    if ($this->isChangedBannerTextSetting($type, $business_settings->value, $encodedValue)) {
+                        app(BannerTextVersionService::class)->snapshot(
+                            $type,
+                            $lang,
+                            $business_settings->value,
+                            auth()->id()
+                        );
+                    }
+
+                    if (gettype($value) == 'array') {
+                        $business_settings->value = $encodedValue;
                     } else {
-                        $business_settings->value = $request[$type];
-                        if ($type == "seller_commission_type"  && $request[$type] == "category_based") {
+                        $business_settings->value = $value;
+                        if ($type == "seller_commission_type"  && $value == "category_based") {
                             $business_settings2 = BusinessSetting::where('type', 'category_wise_commission')->first();
                             $business_settings2->value = 1;
                             $business_settings2->save();
-                        } elseif ($type == "seller_commission_type" && ($request[$type] == "seller_based" || $request[$type] == "fixed_rate")) {
+                        } elseif ($type == "seller_commission_type" && ($value == "seller_based" || $value == "fixed_rate")) {
                             $business_settings2 = BusinessSetting::where('type', 'category_wise_commission')->first();
                             $business_settings2->value = 0;
                             $business_settings2->save();
@@ -502,10 +517,10 @@ class BusinessSettingsController extends Controller
                 } else {
                     $business_settings = new BusinessSetting;
                     $business_settings->type = $type;
-                    if (gettype($request[$type]) == 'array') {
-                        $business_settings->value = json_encode($request[$type]);
+                    if (gettype($value) == 'array') {
+                        $business_settings->value = json_encode($value);
                     } else {
-                        $business_settings->value = $request[$type];
+                        $business_settings->value = $value;
                     }
                     $business_settings->lang = $lang;
                     $business_settings->save();
@@ -533,6 +548,27 @@ class BusinessSettingsController extends Controller
             return Redirect::to(URL::previous() . "#" . $request->tab);
         }
         return redirect()->back();
+    }
+
+    private function businessSettingValue(Request $request, string $type)
+    {
+        $value = $request[$type];
+
+        if ($type === 'home_slider_titles') {
+            return app(HeroTitleSanitizerService::class)->sanitizeArray($value);
+        }
+
+        if (app(BannerTextSanitizerService::class)->isBannerTextSetting($type)) {
+            return app(BannerTextSanitizerService::class)->sanitizeArray($value);
+        }
+
+        return $value;
+    }
+
+    private function isChangedBannerTextSetting(string $type, ?string $oldValue, $newValue): bool
+    {
+        return app(BannerTextSanitizerService::class)->isBannerTextSetting($type)
+            && $oldValue !== $newValue;
     }
 
 
@@ -742,6 +778,10 @@ class BusinessSettingsController extends Controller
 
     public function select_header(Request $request)
     {
+        $request->validate([
+            'header_element' => ['required', 'integer', 'exists:element_types,id'],
+        ]);
+
         $business_settings = BusinessSetting::where('type', 'header_element')->first();
         if (!$business_settings) {
             $business_settings = new BusinessSetting();
@@ -862,5 +902,200 @@ class BusinessSettingsController extends Controller
         flash(translate("Business info updated successfully"))->success();
 
         return back();
+    }
+
+    /**
+     * Show Facebook Chat settings page.
+     */
+    public function facebook_chat(Request $request)
+    {
+        return view('backend.setup_configurations.facebook_configuration.facebook_chat');
+    }
+
+    /**
+     * Update Facebook Chat settings.
+     */
+    public function facebook_chat_update(Request $request)
+    {
+        $business_settings = BusinessSetting::where('type', 'facebook_chat')->first();
+        if (!$business_settings) {
+            $business_settings = new BusinessSetting;
+            $business_settings->type = 'facebook_chat';
+        }
+        $business_settings->value = $request->has('facebook_chat') ? 1 : 0;
+        $business_settings->save();
+
+        Artisan::call('cache:clear');
+        flash(translate("Settings updated successfully"))->success();
+        return back();
+    }
+
+    /**
+     * Toggle smart bar status (AJAX).
+     */
+    public function smart_bar_status(Request $request)
+    {
+        $business_settings = BusinessSetting::where('type', 'smart_bar')->first();
+        if (!$business_settings) {
+            $business_settings = new BusinessSetting;
+            $business_settings->type = 'smart_bar';
+        }
+        $business_settings->value = $request->value ?? 0;
+        $business_settings->save();
+
+        Artisan::call('cache:clear');
+        return 1;
+    }
+
+    /**
+     * Update vendor commission settings.
+     */
+    public function vendor_commission_update(Request $request)
+    {
+        foreach ($request->types as $key => $type) {
+            $setting = BusinessSetting::where('type', $type)->first();
+            if ($setting) {
+                $setting->value = $request[$type];
+                $setting->save();
+            } else {
+                $setting = new BusinessSetting;
+                $setting->type = $type;
+                $setting->value = $request[$type];
+                $setting->save();
+            }
+        }
+
+        Artisan::call('cache:clear');
+        flash(translate("Commission settings updated successfully"))->success();
+        return back();
+    }
+
+    public function invoice_config()
+    {
+        return view('backend.setup_configurations.invoice_config');
+    }
+
+    public function shipping_label()
+    {
+        return view('backend.setup_configurations.shipping_label');
+    }
+
+    public function thermal_printer()
+    {
+        return view('backend.setup_configurations.thermal_printer');
+    }
+
+    public function ai_config_update(Request $request)
+    {
+        if ($request->has('types')) {
+            foreach ($request->types as $type) {
+                $this->overWriteEnvFile($type, $request[$type]);
+            }
+        }
+
+        BusinessSetting::updateOrCreate(
+            ['type' => 'ai_activation'],
+            ['value' => $request->has('ai_activation') ? 1 : 0]
+        );
+
+        BusinessSetting::updateOrCreate(
+            ['type' => 'gemini_model'],
+            ['value' => $request->gemini_model ?: 'gemini-2.0-flash-lite']
+        );
+
+        Artisan::call('cache:clear');
+        flash(translate('Settings updated successfully'))->success();
+        return back();
+    }
+
+    public function invoice_config_update(Request $request)
+    {
+        $businessInfo = json_decode(get_setting('business_info'), true) ?: [];
+        $data = json_decode(get_setting('invoice_config'), true) ?: [];
+
+        $data['invoice_title'] = $request->invoice_title;
+        $data['custom_invoice_title'] = $request->invoice_title === 'custom' ? $request->custom_invoice_title : null;
+        $data['company_name_and_address'] = $request->company_name_and_address;
+
+        if ($request->company_name_and_address === 'get_from_general_settings') {
+            $data['company_name'] = $businessInfo['company_name'] ?? '';
+            $data['address'] = $businessInfo['address'] ?? '';
+            $data['custom_company_name'] = null;
+            $data['custom_address'] = null;
+        } else {
+            $data['company_name'] = null;
+            $data['address'] = null;
+            $data['custom_company_name'] = $request->custom_company_name;
+            $data['custom_address'] = $request->custom_address;
+        }
+
+        $data['phone_email'] = $request->phone_email;
+        if ($request->phone_email === 'get_from_general_settings') {
+            $data['phone'] = $businessInfo['phone'] ?? '';
+            $data['email'] = $businessInfo['email'] ?? '';
+            $data['custom_phone'] = null;
+            $data['custom_email'] = null;
+        } else {
+            $data['phone'] = null;
+            $data['email'] = null;
+            $data['custom_phone'] = $request->custom_phone;
+            $data['custom_email'] = $request->custom_email;
+        }
+
+        $data['footer_text'] = $request->footer_text;
+        $data['generate_invoice_number'] = $request->has('generate_invoice_number') ? 1 : 0;
+        $data['barcode_type'] = $request->barcode_type;
+        $data['barcode_encode'] = $request->barcode_encode;
+        $data['custom_barcode_value'] = $request->barcode_encode === 'custom_value' ? $request->custom_barcode_value : null;
+        $data['show_human_readable_text_below_barcode'] = $request->has('show_human_readable_text_below_barcode') ? 1 : 0;
+        $data['show_qr_code_alongside_barcode'] = $request->barcode_encode === 'qrcode' ? 0 : ($request->has('show_qr_code_alongside_barcode') ? 1 : 0);
+        $data['fields'] = $request->fields ?? [];
+        $data['invoice_logo'] = $request->invoice_logo;
+
+        $this->updateJsonSetting('invoice_config', $data);
+
+        flash(translate('Invoice settings updated successfully'))->success();
+        return back();
+    }
+
+    public function shipping_label_update(Request $request)
+    {
+        $data = json_decode(get_setting('shipping_label'), true) ?: [];
+        $data['label_size_preset'] = $request->label_size_preset ?: '4x6';
+        $data['barcode_type'] = $request->barcode_type;
+        $data['barcode_encode'] = $request->barcode_encode;
+        $data['custom_barcode_value'] = $request->barcode_encode === 'custom_value' ? $request->custom_barcode_value : null;
+        $data['show_human_readable_text_below_barcode'] = $request->has('show_human_readable_text_below_barcode') ? 1 : 0;
+        $data['show_qr_code_alongside_barcode'] = $request->barcode_encode === 'qrcode' ? 0 : ($request->has('show_qr_code_alongside_barcode') ? 1 : 0);
+        $data['label_logo'] = $request->label_logo;
+        $data['fields'] = $request->fields ?? [];
+        $data['custom_footer_text'] = isset($data['fields']['custom_footer_text']) ? $request->custom_footer_text : null;
+
+        $this->updateJsonSetting('shipping_label', $data);
+
+        flash(translate('Shipping label settings updated successfully'))->success();
+        return back();
+    }
+
+    public function thermal_printer_update(Request $request)
+    {
+        $data = json_decode(get_setting('thermal_printer'), true) ?: [];
+        $data['generate_invoice_for_thermal_printer'] = $request->generate_invoice_for_thermal_printer;
+        $data['fields'] = $request->fields ?? [];
+
+        $this->updateJsonSetting('thermal_printer', $data);
+
+        flash(translate('Thermal printer settings updated successfully'))->success();
+        return back();
+    }
+
+    private function updateJsonSetting(string $type, array $data): void
+    {
+        BusinessSetting::updateOrCreate(
+            ['type' => $type],
+            ['value' => json_encode($data)]
+        );
+
+        Artisan::call('cache:clear');
     }
 }

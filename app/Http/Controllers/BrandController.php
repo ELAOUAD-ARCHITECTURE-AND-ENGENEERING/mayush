@@ -192,5 +192,5 @@ class BrandController extends Controller
         return view('backend.product.brands.details', compact('brand'));
     }
 
-
+    public function brand_category_show() { return 'Stub'; }
 }

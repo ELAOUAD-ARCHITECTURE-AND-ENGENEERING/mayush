@@ -23,6 +23,7 @@ use App\Services\ProductTaxService;
 use App\Services\ProductFlashDealService;
 use App\Services\ProductStockService;
 use App\Services\FrequentlyBoughtProductService;
+use App\Utility\ProductUtility;
 use Illuminate\Support\Facades\Notification;
 
 class ProductController extends Controller
@@ -131,7 +132,7 @@ class ProductController extends Controller
 
         //Product Stock
         $this->productStockService->store($request->only([
-            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id'
+            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id', 'length', 'width', 'height', 'removed_sku_variants'
         ]), $product);
 
         // Frequently Bought Products
@@ -140,27 +141,32 @@ class ProductController extends Controller
         ]));
 
         // Product Translations
-        $request->merge(['lang' => env('DEFAULT_LANGUAGE')]);
+        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?? (get_system_language()?->code ?? 'fr')]);
         ProductTranslation::create($request->only([
             'lang', 'name', 'unit', 'description', 'product_id'
         ]));
 
         if (get_setting('product_approve_by_admin') == 1) {
-            $users = User::findMany(User::where('user_type', 'admin')->first()->id);
+            $users = User::where('user_type', 'admin')->get();
+            $notificationType = get_notification_type('seller_product_upload', 'type');
             
-            $data = array();
-            $data['product_type']   = 'physical';
-            $data['status']         = 'pending';
-            $data['product']        = $product;
-            $data['notification_type_id'] = get_notification_type('seller_product_upload', 'type')->id;
+            if ($users->isNotEmpty() && $notificationType) {
+                $data = array();
+                $data['product_type']   = 'physical';
+                $data['status']         = 'pending';
+                $data['product']        = $product;
+                $data['notification_type_id'] = $notificationType->id;
 
-            Notification::send($users, new ShopProductNotification($data));
+                Notification::send($users, new ShopProductNotification($data));
+            }
         }
 
         flash(translate('Product has been inserted successfully'))->success();
 
-        Artisan::call('view:clear');
-        Artisan::call('cache:clear');
+        try {
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+        } catch (\Exception $e) {}
 
         return redirect()->route('seller.products');
     }
@@ -169,12 +175,9 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        if (Auth::user()->id != $product->user_id) {
-            flash(translate('This product is not yours.'))->warning();
-            return back();
-        }
+        $this->authorize('update', $product);
 
-        $lang = $request->lang;
+        $lang = $this->translationLanguage($request->lang);
         $tags = json_decode($product->tags);
         $categories = Category::where('parent_id', 0)
             ->where('digital', 0)
@@ -185,6 +188,8 @@ class ProductController extends Controller
 
     public function update(ProductRequest $request, Product $product)
     {
+        $request->merge(['lang' => $this->translationLanguage($request->lang)]);
+
         //Product
         $product = $this->productService->update($request->except([
             '_token', 'sku', 'choice', 'tax_id', 'tax', 'tax_type', 'flash_deal_id', 'flash_discount', 'flash_discount_type'
@@ -198,7 +203,7 @@ class ProductController extends Controller
         //Product Stock
         $product->stocks()->delete();
         $this->productStockService->store($request->only([
-            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id'
+            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id', 'length', 'width', 'height', 'removed_sku_variants'
         ]), $product);
 
         //VAT & Tax
@@ -234,8 +239,10 @@ class ProductController extends Controller
 
         flash(translate('Product has been updated successfully'))->success();
 
-        Artisan::call('view:clear');
-        Artisan::call('cache:clear');
+        try {
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+        } catch (\Exception $e) {}
 
         return back();
     }
@@ -260,12 +267,14 @@ class ProductController extends Controller
                 foreach ($request[$name] as $key => $item) {
                     array_push($data, $item);
                 }
+
                 array_push($options, $data);
             }
         }
 
         $combinations = (new CombinationService())->generate_combination($options);
-        return view('backend.product.products.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name'));
+        $generatedSkus = (new \App\Services\ProductSkuService())->candidates(count($combinations) + 1);
+        return view('backend.product.products.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'generatedSkus'));
     }
 
     public function sku_combination_edit(Request $request)
@@ -290,12 +299,18 @@ class ProductController extends Controller
                 foreach ($request[$name] as $key => $item) {
                     array_push($data, $item);
                 }
+
+                if (count($request->choice_no) === 1 && (int) $colors_active !== 1) {
+                    $data = ProductUtility::includeSavedDimensionOccurrences($data, $product, $no);
+                }
+
                 array_push($options, $data);
             }
         }
 
         $combinations = (new CombinationService())->generate_combination($options);
-        return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
+        $generatedSkus = (new \App\Services\ProductSkuService())->candidates(count($combinations) + 1);
+        return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product', 'generatedSkus'));
     }
 
     public function add_more_choice_option(Request $request)
@@ -340,8 +355,10 @@ class ProductController extends Controller
         $product = Product::findOrFail($request->id);
         $product->seller_featured = $request->status;
         if ($product->save()) {
-            Artisan::call('view:clear');
-            Artisan::call('cache:clear');
+            try {
+                Artisan::call('view:clear');
+                Artisan::call('cache:clear');
+            } catch (\Exception $e) {}
             return 1;
         }
         return 0;
@@ -351,10 +368,7 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
 
-        if (Auth::user()->id != $product->user_id) {
-            flash(translate('This product is not yours.'))->warning();
-            return back();
-        }
+        $this->authorize('update', $product);
 
         if (addon_is_activated('seller_subscription')) {
             if (!seller_package_validity_check()) {
@@ -396,10 +410,7 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        if (Auth::user()->id != $product->user_id) {
-            flash(translate('This product is not yours.'))->warning();
-            return back();
-        }
+        $this->authorize('update', $product);
 
         $product->product_translations()->delete();
         $product->categories()->detach();
@@ -415,8 +426,10 @@ class ProductController extends Controller
 
             flash(translate('Product has been deleted successfully'))->success();
 
-            Artisan::call('view:clear');
-            Artisan::call('cache:clear');
+            try {
+                Artisan::call('view:clear');
+                Artisan::call('cache:clear');
+            } catch (\Exception $e) {}
 
             return back();
         } else {
@@ -433,6 +446,11 @@ class ProductController extends Controller
             }
         }
         return 1;
+    }
+
+    private function translationLanguage(?string $lang = null): string
+    {
+        return $lang ?: (env('DEFAULT_LANGUAGE') ?: (get_system_language()?->code ?: 'fr'));
     }
 
     public function product_search(Request $request)
@@ -464,3 +482,4 @@ class ProductController extends Controller
         return $response;
     }
 }
+

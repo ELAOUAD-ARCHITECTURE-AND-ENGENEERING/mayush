@@ -45,7 +45,7 @@ class SellerWithdrawRequestController extends Controller
     public function store(Request $request)
     {
         $seller_withdraw_request = new SellerWithdrawRequest;
-        $seller_withdraw_request->user_id = Auth::user()->shop->id;
+        $seller_withdraw_request->user_id = Auth::user()->id;
         $seller_withdraw_request->amount = $request->amount;
         $seller_withdraw_request->message = $request->message;
         $seller_withdraw_request->status = '0';
@@ -90,7 +90,31 @@ class SellerWithdrawRequestController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $seller_withdraw_request = SellerWithdrawRequest::findOrFail($id);
+        
+        if ($request->status == 1) {
+            $user = $seller_withdraw_request->user;
+            $shop = $user->shop;
+
+            // Record Payment
+            $payment = new \App\Models\Payment;
+            $payment->seller_id = $user->id;
+            $payment->amount = $seller_withdraw_request->amount;
+            $payment->payment_method = $request->payment_method ?? 'Cash';
+            $payment->payment_details = $request->payment_details;
+            $payment->txn_code = $request->txn_code;
+            $payment->save();
+
+            // Update Shop Balance
+            $shop->admin_to_pay -= $seller_withdraw_request->amount;
+            $shop->save();
+        }
+
+        $seller_withdraw_request->status = $request->status;
+        $seller_withdraw_request->save();
+
+        flash(translate('Withdrawal request has been updated.'))->success();
+        return redirect()->route('withdraw_requests.index');
     }
 
     /**

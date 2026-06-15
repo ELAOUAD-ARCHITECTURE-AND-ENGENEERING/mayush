@@ -29,10 +29,9 @@
         </div>
     </div>
 
-    <!-- Dynamic Tab Content -->
     <div class="tab-content mt-4" id="orderTabContent">
         <div class="tab-pane fade show active" id="tab-content">
-            <!-- AJAX content will load here -->
+            @include('frontend.user.single_purchase_history', ['orders' => $orders])
         </div>
     </div>
 </div>
@@ -114,7 +113,7 @@
             }
 
         } else {
-            loadOrdersByStatus('all');
+            // loadOrdersByStatus('all'); // Already rendered by PHP
         }
     });
 

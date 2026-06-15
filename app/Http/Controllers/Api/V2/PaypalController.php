@@ -92,7 +92,6 @@ class PaypalController extends Controller
 
     public function getDone(Request $request)
     {
-        //dd($request->all());
         // Creating an environment
         $clientId = env('PAYPAL_CLIENT_ID');
         $clientSecret = env('PAYPAL_CLIENT_SECRET');

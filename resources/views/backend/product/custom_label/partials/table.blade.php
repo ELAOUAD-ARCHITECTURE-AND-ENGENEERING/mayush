@@ -36,14 +36,16 @@
                             </button>
                             <div class="dropdown-menu dropdown-menu-right dropdown-menu-xs">
                                 @can('custom_label_edit')
-                                    <a class="dropdown-item" href="{{route('custom_label.edit', ['id'=>$custom_label->id, 'lang'=>env('DEFAULT_LANGUAGE')])}}">
+                                    <a class="dropdown-item" href="{{route('custom_label.edit', ['custom_label'=>$custom_label->id, 'lang'=>env('DEFAULT_LANGUAGE')])}}">
                                         {{translate('Edit')}}
                                     </a>
                                 @endcan
                                 @can('custom_label_delete')
-                                    <a class="dropdown-item confirm-delete" href="javascript:void(0)" data-href="{{route('custom_label.delete', $custom_label->id)}}">
-                                        {{translate('Delete')}}
-                                    </a>
+                                    <form action="{{ route('custom_label.delete', $custom_label->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="dropdown-item">{{ translate('Delete') }}</button>
+                                    </form>
                                 @endcan
                             </div>
                         </div>

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V2;
 use App\Http\Resources\V2\NotificationCollection;
-use DB;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
@@ -24,31 +23,48 @@ class NotificationController extends Controller
 
     public function bulkDelete(Request $request){
         if($request->notification_ids != null){
-            $idsString = substr($request->notification_ids, strpos($request->notification_ids, '[') + 1, strpos($request->notification_ids, ']') - strpos($request->notification_ids, '[') - 1);
-            $idsString = str_replace(' ', '', $idsString);
-            $idsArray = explode(',', $idsString);
-            $idsArray = array_map('trim', $idsArray);
-            // dd($idsArray);
+            $idsArray = $this->notificationIds($request->notification_ids);
 
-            foreach($idsArray as $notificationId){
-                DB::table('notifications')->where('id',$notificationId)->delete();
-            }
+            auth()->user()->notifications()->whereIn('id', $idsArray)->delete();
             return $this->success(translate('Notification deleted successfully'));
         }
         return  $this->failed(translate('Something went wrong'));
     }
 
-    public function notificationMarkAsRead($notificationId) {
-        $notification = auth()->user()->unreadNotifications->where('id',$notificationId)->first();
+    public function notificationMarkAsRead(Request $request, $notificationId = null) {
+        $notificationId = $notificationId ?: $request->input('notification_id');
+        $notification = auth()->user()->notifications()->where('id', $notificationId)->first();
+
+        if (!$notification) {
+            return response()->json([
+                'result' => false,
+                'message' => translate('Notification not found'),
+            ], 404);
+        }
 
         // Notification mark as read
-        auth()->user()->unreadNotifications->where('id',$notificationId)->markAsRead();
+        $notification->markAsRead();
 
         return response()->json([
-            'result' => false,
+            'result' => true,
             'type' => $notification->type,
             'data' => $notification->data
         ]);
+    }
+
+    private function notificationIds($notificationIds): array
+    {
+        if (is_array($notificationIds)) {
+            return array_values(array_filter($notificationIds));
+        }
+
+        $decoded = json_decode($notificationIds, true);
+        if (is_array($decoded)) {
+            return array_values(array_filter($decoded));
+        }
+
+        $idsString = trim((string) $notificationIds, "[] \t\n\r\0\x0B");
+        return array_values(array_filter(array_map('trim', explode(',', $idsString))));
     }
 
 }

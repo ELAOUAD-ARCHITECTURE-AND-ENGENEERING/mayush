@@ -12,15 +12,25 @@
         <!-- Image -->
         <a href="{{ $product_url }}" class="d-block h-100 position-relative image-hover-effect">
             <img
-                class="lazyload mx-auto img-fit has-transition product-main-image"
-                src="{{ get_image($product->thumbnail, 'medium') }}"
-                alt="{{ $product->getTranslation('name') }}"
+                class="lazyload mx-auto img-fit has-transition product-main-image skeleton-shimmer"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                data-src="{{ get_image($product->thumbnail, 'card') }}"
+                width="480"
+                height="480"
+                loading="lazy"
+                decoding="async"
+                alt="{{ \App\Services\SeoService::productAltText($product) }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
             <img
-                class="lazyload mx-auto img-fit has-transition product-hover-image position-absolute"
-                src="{{ get_first_product_image($product->photos, $product->thumbnail, 'medium') }}"
-                alt="{{ $product->getTranslation('name') }}"
+                class="lazyload mx-auto img-fit has-transition product-hover-image position-absolute skeleton-shimmer"
+                src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                data-src="{{ get_first_product_image($product->photos, $product->thumbnail, 'card') }}"
+                width="480"
+                height="480"
+                loading="lazy"
+                decoding="async"
+                alt="{{ \App\Services\SeoService::productAltText($product, 'Photo detail - Livraison Maroc') }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
         </a>
@@ -59,7 +69,8 @@
         @if ($product->auction_product == 0)
             <!-- wishlisht & compare icons -->
             <div class="absolute-top-right aiz-p-hov-icon">
-                <a href="javascript:void(0)" class="hov-svg-white" onclick="addToWishList({{ $product->id }})"
+                <button type="button" class="hov-svg-white border-0 bg-transparent" onclick="addToWishList({{ $product->id }})"
+                    aria-label="{{ translate('Add to wishlist') }}"
                     data-toggle="tooltip" data-title="{{ translate('Add to wishlist') }}" data-placement="left">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14.4" viewBox="0 0 16 14.4">
                         <g id="_51a3dbe0e593ba390ac13cba118295e4" data-name="51a3dbe0e593ba390ac13cba118295e4"
@@ -72,15 +83,16 @@
                                 transform="translate(0 0)" fill="#919199" />
                         </g>
                     </svg>
-                </a>
-                <a href="javascript:void(0)" class="hov-svg-white" onclick="addToCompare({{ $product->id }})"
+                </button>
+                <button type="button" class="hov-svg-white border-0 bg-transparent" onclick="addToCompare({{ $product->id }})"
+                    aria-label="{{ translate('Add to compare') }}"
                     data-toggle="tooltip" data-title="{{ translate('Add to compare') }}" data-placement="left">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
                         <path id="_9f8e765afedd47ec9e49cea83c37dfea" data-name="9f8e765afedd47ec9e49cea83c37dfea"
                             d="M18.037,5.547v.8a.8.8,0,0,1-.8.8H7.221a.4.4,0,0,0-.4.4V9.216a.642.642,0,0,1-1.1.454L2.456,6.4a.643.643,0,0,1,0-.909L5.723,2.227a.642.642,0,0,1,1.1.454V4.342a.4.4,0,0,0,.4.4H17.234a.8.8,0,0,1,.8.8Zm-3.685,4.86a.642.642,0,0,0-1.1.454v1.661a.4.4,0,0,1-.4.4H2.84a.8.8,0,0,0-.8.8v.8a.8.8,0,0,0,.8.8H12.854a.4.4,0,0,1,.4.4V17.4a.642.642,0,0,0,1.1.454l3.267-3.268a.643.643,0,0,0,0-.909Z"
                             transform="translate(-2.037 -2.038)" fill="#919199" />
                     </svg>
-                </a>
+                </button>
             </div>
             <!-- add to cart -->
             @php
@@ -88,21 +100,21 @@
                 $attributes = is_string($product->attributes) ? json_decode($product->attributes, true) : $product->attributes;
             @endphp
 
-            @if ( (is_array($colors) && count($colors) > 0) || (is_array($attributes) && count($attributes) > 0) )                <a class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-none d-sm-flex flex-column justify-content-center align-items-center @if (in_array($product->id, $cart_added)) active @endif"
-                    href="javascript:void(0)" onclick="showAddToCartRightCanvas({{ $product->id }})">
+            @if ( (is_array($colors) && count($colors) > 0) || (is_array($attributes) && count($attributes) > 0) )                <button type="button" class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-none d-sm-flex flex-column justify-content-center align-items-center border-0 @if (in_array($product->id, $cart_added)) active @endif"
+                    onclick="showAddToCartRightCanvas({{ $product->id }})">
                     <span class="cart-btn-text">
                         {{ translate('Select Option') }}
                     </span>
                     <span><i class="las la-sliders-h" style="font-size: 1.4rem;"></i></span>
-                </a>
+                </button>
             @else
-                <a class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-none d-sm-flex flex-column justify-content-center align-items-center @if (in_array($product->id, $cart_added)) active @endif"
-                    href="javascript:void(0)" @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCartSingleProduct({{ $product->id }})" @else onclick="showLoginModal()" @endif>
+                <button type="button" class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-none d-sm-flex flex-column justify-content-center align-items-center border-0 @if (in_array($product->id, $cart_added)) active @endif"
+                    onclick="addToCartSingleProduct({{ $product->id }})">
                     <span class="cart-btn-text">
                         {{ translate('Add to Cart') }}
                     </span>
                     <span><i class="las la-2x la-shopping-cart"></i></span>
-                </a> 
+                </button>
             @endif
         @endif
         @if (
@@ -119,11 +131,11 @@
                 $min_bid_amount = $highest_bid != null ? $highest_bid + 1 : $product->starting_bid;
                 $gst_rate = gst_applicable_product_rate($product->id);
             @endphp
-            <a class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-flex flex-column justify-content-center align-items-center @if (in_array($product->id, $cart_added)) active @endif"
-                href="javascript:void(0)" onclick="bid_single_modal({{ $product->id }}, {{ $min_bid_amount }}, {{ $gst_rate }})">
+            <button type="button" class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-flex flex-column justify-content-center align-items-center border-0 @if (in_array($product->id, $cart_added)) active @endif"
+                onclick="bid_single_modal({{ $product->id }}, {{ $min_bid_amount }}, {{ $gst_rate }})">
                 <span class="cart-btn-text">{{ translate('Place Bid') }}</span>
                 <span><i class="las la-2x la-gavel"></i></span>
-            </a>
+            </button>
         @endif
     </div>
 

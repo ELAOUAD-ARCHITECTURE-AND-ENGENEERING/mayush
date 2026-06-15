@@ -38,6 +38,8 @@ class VerifyCsrfToken extends Middleware
         '/phonepe*',
         '/import-data',
         'cyber-source/*',
-        '/cmi/*'
+        '/cmi/callback',
+        'api/v2/analytics/*',
+        '/api/v2/analytics/*',
     ];
 }

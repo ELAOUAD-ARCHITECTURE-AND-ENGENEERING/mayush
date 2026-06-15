@@ -198,9 +198,16 @@
                                 {{ translate('Edit') }}
                             </a>
                             @if (!$address->set_default)
-                            <a class="dropdown-item" href="{{ route('seller.addresses.set_default', $address->id) }}">{{ translate('Make This Default') }}</a>
+                            <form action="{{ route('seller.addresses.set_default', $address->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item">{{ translate('Make This Default') }}</button>
+                            </form>
                             @endif
-                            <a class="dropdown-item" href="{{ route('seller.addresses.destroy', $address->id) }}">{{ translate('Delete') }}</a>
+                            <form action="{{ route('seller.addresses.destroy', $address->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="dropdown-item">{{ translate('Delete') }}</button>
+                            </form>
                         </div>
                     </div>
                 </div>

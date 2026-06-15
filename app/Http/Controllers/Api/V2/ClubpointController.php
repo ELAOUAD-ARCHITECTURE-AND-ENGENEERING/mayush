@@ -26,7 +26,7 @@ class ClubpointController extends Controller
 
             foreach ($club_point->club_point_details as $club_point_detail) {
                 if($club_point_detail->refunded == 0){
-                    $club_point_detail->converted_amount = floatval($club_point_detail->point / get_setting('club_point_convert_rate'));
+                    $club_point_detail->converted_amount = floatval($club_point_detail->points / get_setting('club_point_convert_rate'));
                     $club_point_detail->save();
                     $amount += $club_point_detail->converted_amount;
                 } 

@@ -51,7 +51,6 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->permissions);
         $role = Role::create(['name' => $request->name]);
         $role->givePermissionTo($request->permissions);
 
@@ -110,7 +109,6 @@ class RoleController extends Controller
 
         flash(translate('Role has been updated successfully'))->success();
         return back();
-        // return redirect()->route('roles.index');
     }
 
     /**

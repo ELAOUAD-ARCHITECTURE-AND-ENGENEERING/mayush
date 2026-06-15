@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <ul>
+        <li id="g_1">
+            Office Furniture
+        </li>
+        <li id="g_2">-
+            Office Desks
+        </li>
+    </ul>
+    <script>
+        $(document).ready(function() {
+            var items = $("li");
+            items.each(function() {
+                var text = $(this).text();
+                var match = text.match(/^-+/);
+                console.log("Text: ", JSON.stringify(text));
+                console.log("Match: ", match);
+            });
+        });
+    </script>
+</body>
+</html>

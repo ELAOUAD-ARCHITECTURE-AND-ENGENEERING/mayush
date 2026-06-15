@@ -4,12 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\PreventDemoModeChanges;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Address extends Model
 {
-    use PreventDemoModeChanges;
+    use PreventDemoModeChanges, HasFactory;
 
-    protected $fillable = ['set_default'];
+    protected $fillable = [
+        'user_id',
+        'address',
+        'country_id',
+        'state_id',
+        'city_id',
+        'postal_code',
+        'area_id',
+        'phone',
+        'set_default',
+        'set_billing',
+        'longitude',
+        'latitude'
+    ];
 
     public function user()
     {

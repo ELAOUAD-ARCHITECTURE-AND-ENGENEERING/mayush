@@ -1,30 +1,29 @@
 @extends('frontend.layouts.app')
 
-@section('meta_title'){{ $shop->meta_title }}@stop
+@php
+    $shopSeoTitle = \App\Services\SeoService::meaningfulText($shop->meta_title, \App\Services\SeoService::shopMetaTitle($shop), 70, 8);
+    $shopSeoDescription = \App\Services\SeoService::meaningfulText($shop->meta_description, \App\Services\SeoService::shopMetaDescription($shop), 170, 20);
+    $shopSeoImage = uploaded_asset($shop->meta_img ?: $shop->logo);
+    $shopPublishedProductCount = \App\Models\Product::where('user_id', $shop->user_id)->isApprovedPublished()->count();
+@endphp
 
-@section('meta_description'){{ $shop->meta_description }}@stop
+@section('meta_title'){{ $shopSeoTitle }}@stop
+@section('meta_description'){{ $shopSeoDescription }}@stop
+@section('meta_image'){{ $shopSeoImage }}@stop
+@section('canonical_url'){{ route('shop.visit', $shop->slug) }}@stop
 
 @section('meta')
-    <!-- Schema.org markup for Google+ -->
-    <meta itemprop="name" content="{{ $shop->meta_title }}">
-    <meta itemprop="description" content="{{ $shop->meta_description }}">
-    <meta itemprop="image" content="{{ uploaded_asset($shop->logo) }}">
-
-    <!-- Twitter Card data -->
-    <meta name="twitter:card" content="website">
-    <meta name="twitter:site" content="@publisher_handle">
-    <meta name="twitter:title" content="{{ $shop->meta_title }}">
-    <meta name="twitter:description" content="{{ $shop->meta_description }}">
-    <meta name="twitter:creator" content="@author_handle">
-    <meta name="twitter:image" content="{{ uploaded_asset($shop->meta_img) }}">
-
-    <!-- Open Graph data -->
-    <meta property="og:title" content="{{ $shop->meta_title }}" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ route('shop.visit', $shop->slug) }}" />
-    <meta property="og:image" content="{{ uploaded_asset($shop->logo) }}" />
-    <meta property="og:description" content="{{ $shop->meta_description }}" />
-    <meta property="og:site_name" content="{{ $shop->name }}" />
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
+        'title' => $shopSeoTitle,
+        'description' => $shopSeoDescription,
+        'canonical' => route('shop.visit', $shop->slug),
+    ])) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::shopSchema($shop)) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
+        ['name' => translate('Home'), 'url' => route('home')],
+        ['name' => translate('Sellers'), 'url' => route('sellers')],
+        ['name' => $shop->name, 'url' => route('shop.visit', $shop->slug)],
+    ])) !!}</script>
 @endsection
 
 @section('content')
@@ -50,6 +49,28 @@
         </div>
     </section>
 
+    <section class="py-3 bg-white border-bottom">
+        <div class="container">
+            <h1 class="fs-22 fw-700 text-dark mb-2">{{ $shop->name }} - vendeur Mayush au Maroc</h1>
+            <p class="fs-14 text-gray mb-2">
+                {{ $shopSeoDescription }}
+            </p>
+            <div class="d-flex flex-wrap align-items-center">
+                <span class="badge badge-inline badge-soft-primary mr-2 mb-2">
+                    {{ $shop->verification_status == 1 ? 'Vendeur verifie Mayush' : 'Vendeur reference Mayush' }}
+                </span>
+                <span class="badge badge-inline badge-soft-secondary mr-2 mb-2">
+                    {{ number_format($shopPublishedProductCount) }} produits publies
+                </span>
+                @if($shop->address)
+                    <span class="badge badge-inline badge-soft-secondary mr-2 mb-2">
+                        Localisation : {{ \App\Services\SeoService::cleanText($shop->address, 'Maroc', 80) }}
+                    </span>
+                @endif
+            </div>
+        </div>
+    </section>
+
     @php
         $followed_sellers = [];
         if (Auth::check()) {
@@ -64,7 +85,7 @@
                 <a href="{{ $shop->top_banner_link }}">
                     <img class="d-block lazyload h-100 img-fit"
                         src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
-                        data-src="{{ uploaded_asset($shop->top_banner_image) }}" alt="{{ env('APP_NAME') }} offer">
+                        data-src="{{ uploaded_asset($shop->top_banner_image) }}" alt="{{ $shop->name }} seller shop banner on Mayush">
                 </a>
             </section>
         @endif
@@ -83,6 +104,7 @@
                                 <img class="lazyload h-64px  mx-auto"
                                     src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                     data-src="{{ uploaded_asset($shop->logo) }}"
+                                    alt="{{ $shop->name }} seller shop logo on Mayush"
                                     onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                             </a>
                             <div class="ml-3">
@@ -135,7 +157,7 @@
                                             @if ($shop->facebook)
                                             <li class="list-inline-item mr-2">
                                                 <a href="{{ $shop->facebook }}" class="facebook"
-                                                    target="_blank">
+                                                    target="_blank" rel="noopener noreferrer">
                                                     <i class="lab la-facebook-f"></i>
                                                 </a>
                                             </li>
@@ -143,7 +165,7 @@
                                             @if ($shop->instagram)
                                             <li class="list-inline-item mr-2">
                                                 <a href="{{ $shop->instagram }}" class="instagram"
-                                                    target="_blank">
+                                                    target="_blank" rel="noopener noreferrer">
                                                     <i class="lab la-instagram"></i>
                                                 </a>
                                             </li>
@@ -151,7 +173,7 @@
                                             @if ($shop->google)
                                             <li class="list-inline-item mr-2">
                                                 <a href="{{ $shop->google }}" class="google"
-                                                    target="_blank">
+                                                    target="_blank" rel="noopener noreferrer">
                                                     <i class="lab la-google"></i>
                                                 </a>
                                             </li>
@@ -159,7 +181,7 @@
                                             @if ($shop->twitter)
                                             <li class="list-inline-item mr-2">
                                                 <a href="{{ $shop->twitter }}" class="x-twitter"
-                                                    target="_blank">
+                                                    target="_blank" rel="noopener noreferrer">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="#ffffff" viewBox="0 0 16 16" class="mb-1">
                                                         <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 
                                                         .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/>
@@ -170,7 +192,7 @@
                                             @if ($shop->youtube)
                                             <li class="list-inline-item">
                                                 <a href="{{ $shop->youtube }}" class="youtube"
-                                                    target="_blank">
+                                                    target="_blank" rel="noopener noreferrer">
                                                     <i class="lab la-youtube"></i>
                                                 </a>
                                             </li>
@@ -183,19 +205,27 @@
                             <div class="d-flex justify-content-md-end pl-lg-3 pt-3 pt-lg-0">
                                 @php $shopFollowers = count($shop->followers) + $shop->custom_followers; @endphp
                                 @if(in_array($shop->id, $followed_sellers))
-                                    <a href="{{ route("followed_seller.remove", ['id'=>$shop->id]) }}"  data-toggle="tooltip" data-title="{{ translate('Unfollow Seller') }}" data-placement="top"
+                                    <form method="POST" action="{{ route('followed_seller.remove') }}">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{ $shop->id }}">
+                                    <button type="submit" data-toggle="tooltip" data-title="{{ translate('Unfollow Seller') }}" data-placement="top"
                                         class="btn btn-success d-flex align-items-center justify-content-center fs-12 w-190px follow-btn followed"
                                         style="height: 40px; border-radius: 30px !important; justify-content: center;">
                                         <i class="las la-check fs-16 mr-2"></i>
                                         <span class="fw-700">{{ translate('Followed') }}</span> &nbsp; ({{ $shopFollowers }})
-                                    </a>
+                                    </button>
+                                    </form>
                                 @else
-                                    <a href="{{ route("followed_seller.store", ['id'=>$shop->id]) }}"
+                                    <form method="POST" action="{{ route('followed_seller.store') }}">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{ $shop->id }}">
+                                    <button type="submit"
                                         class="btn btn-primary d-flex align-items-center justify-content-center fs-12 w-190px follow-btn"
                                         style="height: 40px; border-radius: 30px !important; justify-content: center;">
                                         <i class="las la-plus fs-16 mr-2"></i>
                                         <span class="fw-700">{{ translate('Follow Seller') }}</span> &nbsp; ({{ $shopFollowers }})
-                                    </a>
+                                    </button>
+                                    </form>
                                 @endif
                             </div>
                         </div>
@@ -205,48 +235,9 @@
         </div>
     </section>
 
-    <!-- Elite Artisan Story Section -->
-    @if ($shop->isElite() && ($shop->story_title || $shop->story_content || $shop->hero_media_id))
-        <section class="mb-5 mt-4">
-            <div class="container">
-                <div class="row align-items-center bg-white p-4 rounded" style="box-shadow: 0px 5px 20px rgba(0,0,0,0.05);">
-                    @if ($shop->hero_media_id)
-                        <div class="col-lg-6 mb-4 mb-lg-0">
-                            @php
-                                $media = \App\Models\Upload::find($shop->hero_media_id);
-                            @endphp
-                            @if($media)
-                                @if(in_array($media->extension, ['mp4', 'webm', 'ogg']))
-                                    <video controls class="w-100 rounded shadow-sm" style="max-height: 400px; object-fit: cover;">
-                                        <source src="{{ uploaded_asset($media->id) }}" type="video/{{ $media->extension }}">
-                                        {{ translate('Your browser does not support the video tag.') }}
-                                    </video>
-                                @else
-                                    <img src="{{ uploaded_asset($media->id) }}" class="img-fluid rounded shadow-sm w-100" style="max-height: 400px; object-fit: cover;" alt="{{ $shop->name }}">
-                                @endif
-                            @endif
-                        </div>
-                    @endif
-                    <div class="col-lg-{{ $shop->hero_media_id ? '6' : '12' }}">
-                        <div class="p-lg-4 {{ !$shop->hero_media_id ? 'text-center' : '' }}">
-                            @if($shop->story_title)
-                                <h2 class="h3 fw-700 mb-3" style="color: #c9a13b;">
-                                    <i class="las la-crown mr-2"></i>{{ $shop->story_title }}
-                                </h2>
-                            @else
-                                <h2 class="h3 fw-700 mb-3" style="color: #c9a13b;">
-                                    <i class="las la-crown mr-2"></i>{{ translate('The Artisan Story') }}
-                                </h2>
-                            @endif
-                            
-                            <div class="fs-15 text-muted" style="line-height: 1.8;">
-                                {!! html_entity_decode($shop->story_content) !!}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <!-- Immersive Artisan Storytelling Section -->
+    @if ($shop->story_title || $shop->story_content || $shop->hero_media_id || $shop->artisan_story)
+        @include('frontend.partials.artisan_story', ['shop' => $shop])
     @endif
 
     @if (!isset($type))
@@ -299,7 +290,7 @@
                                     <img class="d-block lazyload h-100 img-fit" 
                                         src="{{ $slider ? my_asset($slider->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
-                                        alt="{{ $key }} offer">
+                                        alt="{{ $shop->name }} seller shop promotion {{ $key + 1 }}">
                                 </a>
                             </div>
                         @endforeach
@@ -354,7 +345,7 @@
                             <img class="d-block lazyload h-100 img-fit"
                                 src="{{ $banner ? my_asset($banner->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
-                                alt="{{ env('APP_NAME') }} banner">
+                                alt="{{ $shop->name }} seller shop banner on Mayush">
                         </a>
                     </div>
                 </section>
@@ -376,7 +367,7 @@
                                 <img class="d-block lazyload h-100 img-fit"
                                     src="{{ $banner ? my_asset($banner->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                     onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
-                                    alt="{{ env('APP_NAME') }} banner">
+                                    alt="{{ $shop->name }} seller shop banner on Mayush">
                             </a>
                         </div>
                     </div>
@@ -450,7 +441,7 @@
                                 <img class="d-block lazyload h-100 img-fit"
                                     src="{{ $banner ? my_asset($banner->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                     onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
-                                    alt="{{ env('APP_NAME') }} banner">
+                                    alt="{{ $shop->name }} seller shop banner on Mayush">
                             </a>
                         </div>
                     @endforeach
@@ -644,7 +635,7 @@
                                                                 name="brand" @isset($brand_id) @if ($brand_id == $brand->id) checked @endif @endisset>
                                                             <span class="d-block aiz-megabox-elem rounded-0 p-3 border-transparent hov-border-primary">
                                                                 <img src="{{ uploaded_asset($brand->logo) }}"
-                                                                    class="img-fit mb-2" alt="{{ $brand->getTranslation('name') }}">
+                                                                    class="img-fit mb-2" alt="{{ $brand->getTranslation('name') }} brand on Mayush">
                                                                 <span class="d-block text-center">
                                                                     <span
                                                                         class="d-block fw-400 fs-14">{{ $brand->getTranslation('name') }}</span>
@@ -667,9 +658,9 @@
                             <div class="text-left mb-2">
                                 <div class="row gutters-5 flex-wrap">
                                     <div class="col-lg col-10">
-                                        <h1 class="fs-20 fs-md-24 fw-700 text-dark">
+                                        <h2 class="fs-20 fs-md-24 fw-700 text-dark">
                                             {{ translate('All Products') }}
-                                        </h1>
+                                        </h2>
                                     </div>
                                     <div class="col-2 col-lg-auto d-xl-none mb-lg-3 text-right">
                                         <button type="button" class="btn btn-icon p-0" data-toggle="class-toggle" data-target=".aiz-filter-sidebar">
@@ -814,9 +805,9 @@
                             <div class="text-left mb-2">
                                 <div class="row gutters-5 flex-wrap">
                                     <div class="col-lg col-10">
-                                        <h1 class="fs-20 fs-md-24 fw-700 text-dark">
+                                        <h2 class="fs-20 fs-md-24 fw-700 text-dark">
                                             {{ translate('All Preorder Products') }}
-                                        </h1>
+                                        </h2>
                                     </div>
                                     <div class="col-2 col-lg-auto d-xl-none mb-lg-3 text-right">
                                         <button type="button" class="btn btn-icon p-0" data-toggle="class-toggle" data-target=".aiz-filter-sidebar">

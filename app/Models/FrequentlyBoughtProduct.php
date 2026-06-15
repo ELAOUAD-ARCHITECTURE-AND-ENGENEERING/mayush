@@ -10,7 +10,8 @@ class FrequentlyBoughtProduct extends Model
 {
     use HasFactory,PreventDemoModeChanges;
     
-    public $timestamps = false;
+    public $timestamps = true;
+    protected $fillable = ['product_id', 'frequently_bought_product_id', 'category_id', 'source', 'affinity_score'];
 
 
     public function product()

@@ -34,7 +34,7 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
 //FrontEnd
 Route::group(['middleware' => ['user', 'verified']], function(){
     Route::controller(ClubPointController::class)->group(function () {
-        Route::get('earning-points', 'userpoint_index')->name('earnng_point_for_user');
-        Route::post('convert-point-into-wallet', 'convert_point_into_wallet')->name('convert_point_into_wallet');
+        Route::get('earning-points', 'index')->name('earnng_point_for_user');
+        Route::post('convert-point-into-wallet', 'convert_into_wallet')->name('convert_point_into_wallet');
     });
 });

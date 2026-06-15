@@ -45,7 +45,6 @@ class NgeniusUtility
 
 
         $tokenResponse = json_decode($tokenResponse);
-        //dd($tokenResponse);
         $access_token = $tokenResponse->access_token;
 
 
@@ -81,7 +80,6 @@ class NgeniusUtility
 
         $orderCreateResponse = json_decode($orderCreateResponse);
 
-        //dd($callback_url,$orderCreateResponse);
 
         $paymentLink = $orderCreateResponse->_links->payment->href;     // the link to the payment page for redirection (either full-page redirect or iframe)
         $orderReference = $orderCreateResponse->reference;              // the reference to the order, which you should store in your records for future interaction with this order
@@ -124,7 +122,6 @@ class NgeniusUtility
 
             $payment = json_encode($orderStatusResponse);
             $paymentData = session()->get('payment_data');
-            //dd($payment_type, Session::get('order_id'),Session::get('payment_data'), $payment);
 
             if ($payment_type == 'cart_payment') {
                 $checkoutController = new CheckoutController;
@@ -174,34 +171,4 @@ class NgeniusUtility
 
     }
 
-    public static function initPayment(){
-        $data['url'] = $_SERVER['SERVER_NAME'];
-        $request_data_json = json_encode($data);
-        $gate = "https://activation.activeitzone.com/check_activation";
-
-        $header = array(
-            'Content-Type:application/json'
-        );
-
-        $stream = curl_init();
-
-        curl_setopt($stream, CURLOPT_URL, $gate);
-        curl_setopt($stream,CURLOPT_HTTPHEADER, $header);
-        curl_setopt($stream,CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($stream,CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($stream,CURLOPT_POSTFIELDS, $request_data_json);
-        curl_setopt($stream,CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($stream, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-
-        $rn = curl_exec($stream);
-        curl_close($stream);
-        
-        if($rn == "bad" && env('DEMO_MODE') != 'On') {
-            $user = User::where('user_type', 'admin')->first();
-            auth()->login($user);
-            return redirect()->route('admin.dashboard');
-        }
-
-        return redirect()->route('home');
-    }
 }

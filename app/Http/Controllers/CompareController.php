@@ -9,7 +9,6 @@ class CompareController extends Controller
 {
     public function index(Request $request)
     {
-        //dd($request->session()->get('compare'));
         $categories = Category::all();
         return view('frontend.view_compare', compact('categories'));
     }
@@ -24,6 +23,10 @@ class CompareController extends Controller
     //store comparing products ids in session
     public function addToCompare(Request $request)
     {
+        $request->validate([
+            'id' => ['required', 'integer', 'exists:products,id'],
+        ]);
+
         if($request->session()->has('compare')){
             $compare = $request->session()->get('compare', collect([]));
             if(!$compare->contains($request->id)){
@@ -46,6 +49,24 @@ class CompareController extends Controller
         }else{
             return view('frontend.partials.compare');
         }
+    }
+
+    //remove specific product id from session data for compare
+    public function removeFromCompare(Request $request)
+    {
+        $request->validate([
+            'id' => ['required', 'integer'],
+        ]);
+
+        if($request->session()->has('compare')){
+            $compare = $request->session()->get('compare', collect([]));
+            $compare = $compare->reject(function ($id) use ($request) {
+                return $id == $request->id;
+            });
+            $request->session()->put('compare', $compare->values());
+        }
+        
+        return back();
     }
 
     public function details($unique_identifier)

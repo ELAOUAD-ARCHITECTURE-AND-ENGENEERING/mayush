@@ -9,6 +9,8 @@ class Country extends Model
 {
     use PreventDemoModeChanges;
 
+    protected $guarded = [];
+
     /**
      * Get the Zone that owns the Country
      *

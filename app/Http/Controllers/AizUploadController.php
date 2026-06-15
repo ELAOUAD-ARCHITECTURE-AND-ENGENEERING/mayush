@@ -159,57 +159,7 @@ class AizUploadController extends Controller
                     }
                 }
 
-                if ($extension == 'webp') {
-                    $img = $request->file('aiz_file');
-
-                    $extension = $img->getClientOriginalExtension();
-                    $filename = Str::random(40) . '.' . $extension;
-
-                    $path = public_path('uploads/all');
-
-                    if (!file_exists($path)) {
-                        mkdir($path, 0777, true);
-                    }
-
-                    $fileSizeKB = round($img->getSize() / 1024, 2);
-
-
-                    $img->move($path, $filename);
-
-                    $upload->extension = $extension;
-                    $upload->file_name = 'uploads/all/' . $filename;
-                    $upload->user_id = Auth::user()->id;
-                    $upload->type = $type[$upload->extension];
-                    $upload->file_size = $fileSizeKB . ' kb';
-                    $upload->save();
-
-                    return '{}';
-                } elseif ($extension == 'gif') {
-                    $img = $request->file('aiz_file');
-
-                    $extension = $img->getClientOriginalExtension();
-                    $filename = Str::random(40) . '.' . $extension;
-
-                    $path = public_path('uploads/all');
-
-                    if (!file_exists($path)) {
-                        mkdir($path, 0777, true);
-                    }
-
-                    $fileSizeKB = round($img->getSize() / 1024, 2);
-
-
-                    $img->move($path, $filename);
-
-                    $upload->extension = $extension;
-                    $upload->file_name = 'uploads/all/' . $filename;
-                    $upload->user_id = Auth::user()->id;
-                    $upload->type = $type[$upload->extension];
-                    $upload->file_size = $fileSizeKB . ' kb';
-                    $upload->save();
-
-                    return '{}';
-                } elseif ($extension == 'svg') {
+                if ($extension == 'svg') {
                     $sanitizer = new Sanitizer();
                     // Load the dirty svg
                     $dirtySVG = file_get_contents($request->file('aiz_file'));
@@ -222,114 +172,15 @@ class AizUploadController extends Controller
                 }
 
                 $size = $request->file('aiz_file')->getSize();
+                $path = $request->file('aiz_file')->store('uploads/all', 'local');
 
-                if ($type[$extension] == 'image' && $extension != 'svg') {
-                    if (get_setting('uploaded_image_format') != "default") {
-                        $extension = get_setting('uploaded_image_format');
-                    }
-                    try {
-                        $quality = get_setting('image_quality', 80);
-                        $path = 'uploads/all/'. Str::random(40) . '.' .$extension;
-                        $img = Image::make($request->file('aiz_file')->getRealPath())->encode($extension, $quality);
-                        $height = $img->height();
-                        $width = $img->width();
-
-                        // watermark
-                        if (get_setting('use_image_watermark') == 'on') {
-                            $watermark_position = get_setting('watermark_position', 'top-left');
-                            // watermark Image
-                            if (get_setting('image_watermark_type') == "image") {
-                                $watermarkImg = Image::make(uploaded_asset(get_setting('watermark_image')));
-                                if ($width > $height) {
-                                    $wmarkHeight = $height / 2;
-                                    $watermarkImg->resize(null, $wmarkHeight, function ($constraint) {
-                                        $constraint->aspectRatio();
-                                    });
-                                } else {
-                                    $wmarkWidth = $width / 2;
-                                    $watermarkImg->resize(null, $wmarkWidth, function ($constraint) {
-                                        $constraint->aspectRatio();
-                                    });
-                                }
-                                $img->insert($watermarkImg, $watermark_position, 10, 10);
-
-                                // // --------watermark Image multiple times------
-                                // if ($width > 1999) {
-                                //     $watermark = 'watermark-2x.png';
-                                // } else {
-                                //     $watermark = 'watermark-1x.png';
-                                // }
-                                // $watermarkImg = Image::make('public/assets/img/'.$watermark);
-                                // $wmarkWidth=$watermarkImg->width();
-                                // $wmarkHeight=$watermarkImg->height();
-                                // $x=10;
-                                // $y=10;
-                                // while($y<=$height){
-                                //     $img->insert($watermarkImg,'top-left',$x,$y);
-                                //     $x+=$wmarkWidth+40;
-                                //     if($x>=$width){
-                                //         $x=0;
-                                //         $y+=$wmarkHeight+30;
-                                //     }
-                                // }
-
-                                // watermark Text
-                            } elseif (get_setting('image_watermark_type') == "text") {
-                                if ($watermark_position == 'center') {
-                                    $valign = 'middle';
-                                    $align = 'center';
-                                    $x = round($width / 2);
-                                    $y =  round($height / 2);
-                                } else {
-                                    $valign = explode('-', $watermark_position)[0];
-                                    $align = explode('-', $watermark_position)[1];
-                                    $x = ($align == 'right') ? ($width - 20) : 20;
-                                    $y =  ($valign == 'bottom') ? ($height - 20) : 20;
-                                }
-                                $img->text(get_setting('watermark_text', 'Watermark Text Here'), $x, $y, function ($font) use ($valign, $align) {
-                                    $font->file(base_path('public/assets/fonts/robotoMedium.ttf'));
-                                    $font->size(get_setting('watermark_text_size', 20));
-                                    $font->color(get_setting('watermark_text_color', '#e1e1e1'));
-                                    $font->align($align);
-                                    $font->valign($valign);
-                                });
-                            }
-                        }
-
-                        // Image optimization
-                        if (get_setting('disable_image_optimization') != 1 && get_setting('disable_image_optimization') != 'on') {
-                            $maxWidth = get_setting('image_max_width', 1500);
-                            if ($width > $maxWidth || $height > $maxWidth) {
-                                $img->resize($maxWidth, $maxWidth, function ($constraint) {
-                                    $constraint->aspectRatio();
-                                    $constraint->upsize();
-                                });
-                            }
-                        }
-
-                        $savedPath = base_path('public/') . $path;
-                        $img->save($savedPath);
-                        
-                        // Generate WebP and responsive thumbnails
-                        \App\Utility\ImageUtility::generateThumbnails($savedPath, $extension, $quality);
-                        \App\Utility\ImageUtility::convertToWebp($path, $quality);
-                        
-                        clearstatcache();
-                        $size = $img->filesize();
-                    } catch (\Exception $e) {
-                        //dd($e);
-                    }
-                } else {
-                    $path = $request->file('aiz_file')->store('uploads/all', 'local');
-                }
-
-                if (env('FILESYSTEM_DRIVER') != 'local') {
+                if (config('filesystems.default') != 'local') {
                     // Return MIME type ala mimetype extension
                     $finfo = finfo_open(FILEINFO_MIME_TYPE);
                     // Get the MIME type of the file
                     $file_mime = finfo_file($finfo, base_path('public/') . $path);
 
-                    Storage::disk(env('FILESYSTEM_DRIVER'))->put(
+                    Storage::disk(config('filesystems.default'))->put(
                         $path,
                         file_get_contents(base_path('public/') . $path),
                         [
@@ -386,10 +237,7 @@ class AizUploadController extends Controller
     {
         $upload = Upload::findOrFail($id);
 
-        if (auth()->user()->user_type == 'seller' && $upload->user_id != auth()->user()->id) {
-            flash(translate("You don't have permission for deleting this!"))->error();
-            return back();
-        }
+        $this->authorize('delete', $upload);
         try {
             if (env('FILESYSTEM_DRIVER') != 'local') {
                 Storage::disk(env('FILESYSTEM_DRIVER'))->delete($upload->file_name);
@@ -427,6 +275,107 @@ class AizUploadController extends Controller
         return back();
     }
 
+    public function trash(Request $request)
+    {
+        $all_uploads = Upload::onlyTrashed();
+        $search = $request->search;
+        $sort_by = $request->sort;
+
+        if (auth()->user()->user_type != 'admin') {
+            $all_uploads->where('user_id', auth()->user()->id);
+        }
+
+        if ($search != null) {
+            $all_uploads->where('file_original_name', 'like', '%' . $search . '%');
+        }
+
+        switch ($sort_by) {
+            case 'oldest':
+                $all_uploads->orderBy('deleted_at', 'asc');
+                break;
+            case 'smallest':
+                $all_uploads->orderBy('file_size', 'asc');
+                break;
+            case 'largest':
+                $all_uploads->orderBy('file_size', 'desc');
+                break;
+            default:
+                $sort_by = $sort_by ?: 'newest';
+                $all_uploads->orderBy('deleted_at', 'desc');
+                break;
+        }
+
+        $all_uploads = $all_uploads->paginate(60)->appends(request()->query());
+
+        return auth()->user()->user_type == 'seller'
+            ? view('seller.uploads.trash', compact('all_uploads', 'search', 'sort_by'))
+            : view('backend.uploaded_files.trash', compact('all_uploads', 'search', 'sort_by'));
+    }
+
+    public function restore(Request $request)
+    {
+        $ids = (array) $request->id;
+
+        if (empty($ids)) {
+            return 0;
+        }
+
+        $uploads = Upload::onlyTrashed()->whereIn('id', $ids);
+
+        if (auth()->user()->user_type != 'admin') {
+            $uploads->where('user_id', auth()->user()->id);
+        }
+
+        foreach ($uploads->get() as $upload) {
+            $upload->restore();
+        }
+
+        return 1;
+    }
+
+    public function bulk_force_delete(Request $request)
+    {
+        $ids = (array) $request->id;
+
+        if (empty($ids)) {
+            return 0;
+        }
+
+        $uploads = Upload::onlyTrashed()->whereIn('id', $ids);
+
+        if (auth()->user()->user_type != 'admin') {
+            $uploads->where('user_id', auth()->user()->id);
+        }
+
+        foreach ($uploads->get() as $upload) {
+            $this->deletePhysicalUploadFile($upload);
+            $upload->forceDelete();
+        }
+
+        return 1;
+    }
+
+    private function deletePhysicalUploadFile(Upload $upload)
+    {
+        if (!$upload->file_name) {
+            return;
+        }
+
+        if (env('FILESYSTEM_DRIVER') != 'local') {
+            Storage::disk(env('FILESYSTEM_DRIVER'))->delete($upload->file_name);
+            $local_path = public_path() . '/' . $upload->file_name;
+            if (file_exists($local_path)) {
+                unlink($local_path);
+            }
+            return;
+        }
+
+        $file_path = public_path() . '/' . $upload->file_name;
+        if (file_exists($file_path)) {
+            unlink($file_path);
+        }
+    }
+
 
     public function bulk_uploaded_files_delete(Request $request)
     {
@@ -436,8 +385,10 @@ class AizUploadController extends Controller
             foreach ($request->id as $file_id) {
                 $upload = Upload::find($file_id);
                 if ($upload) {
-                    // Authorization check
-                    if (auth()->user()->user_type == 'seller' && $upload->user_id != auth()->user()->id) {
+                    // Authorization check via strict Policy
+                    try {
+                        $this->authorize('delete', $upload);
+                    } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
                         $fail_count++;
                         continue;
                     }
@@ -500,7 +451,6 @@ class AizUploadController extends Controller
             }
             $new_file_array[] = $file;
         }
-        // dd($new_file_array);
         return $new_file_array;
         // return $files;
     }
@@ -547,6 +497,7 @@ class AizUploadController extends Controller
     public function file_info(Request $request)
     {
         $file = Upload::findOrFail($request['id']);
+        $this->authorize('view', $file);
 
         return (auth()->user()->user_type == 'seller')
             ? view('seller.uploads.info', compact('file'))

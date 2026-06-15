@@ -1,0 +1,129 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Order;
+use App\Models\OrderTrackingHistory;
+use App\Services\Logistics\CarrierTrackingManager;
+use Auth;
+use Throwable;
+
+class OrderTrackingController extends Controller
+{
+    /**
+     * Unified tracking handler supporting RBAC out of the box.
+     */
+    public function show($id)
+    {
+        $order = Order::findOrFail(decrypt($id));
+        $user = $this->authorizeOrderTrackingAccess($order);
+
+        // Fetch histories ordered by creation
+        $tracking_histories = $order->orderTrackingHistories()->orderBy('created_at', 'asc')->get();
+
+        if (in_array($user->user_type, ['admin', 'staff'])) {
+            return view('backend.sales.tracking', compact('order', 'tracking_histories'));
+        }
+
+        return view('frontend.tracking.show', compact('order', 'tracking_histories'));
+    }
+
+    /**
+     * Webhook endpoint for carriers to push status updates.
+     */
+    public function webhookUpdate(Request $request)
+    {
+        // Add basic security token/secret check here in a real scenario
+        $tracking_code = $request->input('tracking_code');
+        $order = Order::where('tracking_code', $tracking_code)->first();
+
+        if (!$order) {
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+
+        // Delegate parsing to a tracking manager or directly create a new entry
+        $manager = new CarrierTrackingManager();
+        try {
+            $carrier = $manager->resolveCarrier($order->carrier_id);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => translate('Tracking carrier is not configured.'),
+            ], 503);
+        }
+
+        // Fetch fresh info based on standard integration mapping
+        $info = $carrier->fetchTrackingInfo($tracking_code);
+
+        OrderTrackingHistory::create([
+            'order_id' => $order->id,
+            'status' => $info['status'] ?? 'processing',
+            'location_name' => $info['location_name'] ?? null,
+            'latitude' => $info['latitude'] ?? null,
+            'longitude' => $info['longitude'] ?? null,
+            'notes' => $info['notes'] ?? null,
+            'expected_delivery_date' => $info['expected_delivery_date'] ?? null,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Helper to manually sync an order's tracking status using external APIs
+     */
+    public function syncTracking($id)
+    {
+        $order = Order::findOrFail(decrypt($id));
+        $this->authorizeOrderTrackingAccess($order);
+
+        if (!$order->tracking_code) {
+             flash(translate('No active tracking code found for this order.'))->warning();
+             return back();
+        }
+
+        $manager = new CarrierTrackingManager();
+        try {
+            $carrier = $manager->resolveCarrier($order->carrier_id);
+        } catch (Throwable $e) {
+            flash(translate('Tracking carrier is not configured.'))->warning();
+            return back();
+        }
+        $info = $carrier->fetchTrackingInfo($order->tracking_code);
+
+        OrderTrackingHistory::create([
+            'order_id' => $order->id,
+            'status' => $info['status'] ?? 'processing',
+            'location_name' => $info['location_name'] ?? null,
+            'latitude' => $info['latitude'] ?? null,
+            'longitude' => $info['longitude'] ?? null,
+            'notes' => $info['notes'] ?? null,
+            'expected_delivery_date' => $info['expected_delivery_date'] ?? null,
+        ]);
+
+        flash(translate('Tracking data synced successfully.'))->success();
+        return back();
+    }
+
+    private function authorizeOrderTrackingAccess(Order $order)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403);
+        }
+
+        if ($user->user_type == 'customer' && $order->user_id == $user->id) {
+            return $user;
+        }
+
+        if ($user->user_type == 'seller' && $order->seller_id == $user->id) {
+            return $user;
+        }
+
+        if (in_array($user->user_type, ['admin', 'staff'])) {
+            return $user;
+        }
+
+        abort(403);
+    }
+}

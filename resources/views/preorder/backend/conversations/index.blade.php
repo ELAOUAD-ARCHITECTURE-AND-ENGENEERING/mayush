@@ -57,9 +57,13 @@
                                 </a>
                             @endcan
                             @can('delete_preorder_product_conversation')
-                                <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('preorder-conversations.destroy', encrypt($conversation->id))}}" title="{{ translate('Delete') }}">
-                                    <i class="las la-trash"></i>
-                                </a>
+                                <form action="{{ route('preorder-conversations.destroy', encrypt($conversation->id)) }}" method="POST" class="d-inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+                                        <i class="las la-trash"></i>
+                                    </button>
+                                </form>
                             @endcan
                         </td>
                     </tr>

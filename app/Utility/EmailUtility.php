@@ -101,6 +101,7 @@ class EmailUtility
         $shop = $user->shop;
         $emailSendTo = $emailIdentifier == 'seller_reg_email_to_admin' ? $admin->email : $user->email;
         $emailTemplate = EmailTemplate::whereIdentifier($emailIdentifier)->first();
+        if (!$emailTemplate || $emailTemplate->status == 0) return;
 
         $emailSubject = $emailTemplate->subject;
         $emailSubject = str_replace('[[shop_name]]', $shop->name, $emailSubject);
@@ -419,4 +420,76 @@ class EmailUtility
         });
     }
 
+    public static function seller_onboarding_request_email($shop)
+    {
+        $admin = get_admin();
+        $user = $shop->user;
+        $emailTemplate = EmailTemplate::whereIdentifier('seller_onboarding_documents_request')->first();
+
+        if (!$emailTemplate || $emailTemplate->status == 0) return;
+
+        $emailSubject = str_replace('[[store_name]]', get_setting('site_name'), $emailTemplate->subject);
+        $emailBody = $emailTemplate->default_text;
+        $emailBody = str_replace('[[store_name]]', get_setting('site_name'), $emailBody);
+        $emailBody = str_replace('[[seller_name]]', $user->name, $emailBody);
+        $emailBody = str_replace('[[admin_email]]', $admin->email, $emailBody);
+
+        $array['subject'] = $emailSubject;
+        $array['content'] = $emailBody;
+        Mail::to($user->email)->queue(new MailManager($array));
+    }
+
+    public static function seller_documents_received_admin($emailIdentifier, $shop)
+    {
+        $admin = get_admin();
+        $user = $shop->user;
+        $emailTemplate = EmailTemplate::whereIdentifier($emailIdentifier)->first();
+
+        if (!$emailTemplate || $emailTemplate->status == 0) return;
+
+        $emailSubject = str_replace('[[seller_shop_name]]', $shop->name, $emailTemplate->subject);
+
+        $emailBody = $emailTemplate->default_text;
+        $emailBody = str_replace('[[admin_name]]', $admin->name, $emailBody);
+        $emailBody = str_replace('[[seller_name]]', $user->name, $emailBody);
+        $emailBody = str_replace('[[seller_shop_name]]', $shop->name, $emailBody);
+        $emailBody = str_replace('[[seller_email]]', $user->email, $emailBody);
+        $emailBody = str_replace('[[date]]', $shop->documents_submitted_at ? $shop->documents_submitted_at->format('d-m-Y H:i') : now()->format('d-m-Y H:i'), $emailBody);
+        $emailBody = str_replace('[[resubmission_count]]', $shop->resubmission_count, $emailBody);
+        $emailBody = str_replace('[[admin_panel_url]]', route('sellers.registration_pending'), $emailBody);
+        $emailBody = str_replace('[[store_name]]', get_setting('site_name'), $emailBody);
+
+        $array['subject'] = $emailSubject;
+        $array['content'] = $emailBody;
+        Mail::to($admin->email)->queue(new MailManager($array));
+    }
+
+    public static function seller_application_status_email($shop, $status, $reason = null)
+    {
+        $admin = get_admin();
+        $user = $shop->user;
+        $identifier = $status === 'approved' ? 'seller_application_approved' : 'seller_application_rejected';
+        $emailTemplate = EmailTemplate::whereIdentifier($identifier)->first();
+
+        if (!$emailTemplate || $emailTemplate->status == 0) return;
+
+        $emailSubject = str_replace('[[store_name]]', get_setting('site_name'), $emailTemplate->subject);
+
+        $emailBody = $emailTemplate->default_text;
+        $emailBody = str_replace('[[seller_name]]', $user->name, $emailBody);
+        $emailBody = str_replace('[[seller_shop_name]]', $shop->name, $emailBody);
+        $emailBody = str_replace('[[store_name]]', get_setting('site_name'), $emailBody);
+        $emailBody = str_replace('[[admin_email]]', $admin->email, $emailBody);
+        $emailBody = str_replace('[[login_url]]', route('seller.login'), $emailBody);
+
+        if ($status === 'rejected') {
+            $emailBody = str_replace('[[rejection_reason]]', $reason ?? 'No specific reason provided.', $emailBody);
+            $attemptsRemaining = max(0, 10 - $shop->resubmission_count);
+            $emailBody = str_replace('[[resubmission_attempts_remaining]]', $attemptsRemaining, $emailBody);
+        }
+
+        $array['subject'] = $emailSubject;
+        $array['content'] = $emailBody;
+        Mail::to($user->email)->queue(new MailManager($array));
+    }
 }

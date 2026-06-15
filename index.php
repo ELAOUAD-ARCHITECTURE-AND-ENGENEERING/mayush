@@ -1,4 +1,3 @@
-
 <?php
 
 ini_set('serialize_precision', -1);

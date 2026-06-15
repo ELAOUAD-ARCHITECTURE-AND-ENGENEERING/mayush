@@ -17,9 +17,38 @@ class Category extends Model
 
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $category_translation = $this->category_translations->where('lang', $lang)->first();
-        return $category_translation != null ? $category_translation->$field : $this->$field;
+        $base_value = $this->$field;
+
+        if ($category_translation != null && $category_translation->$field !== null && trim((string) $category_translation->$field) !== '') {
+            $translated_value = $category_translation->$field;
+
+            if ($this->shouldUseGlobalTranslationFallback($field, $translated_value, $base_value)) {
+                return $this->translateBaseValue($base_value, $lang);
+            }
+
+            return $translated_value;
+        }
+
+        if (in_array($field, ['name', 'title'], true) && trim((string) $base_value) !== '') {
+            return $this->translateBaseValue($base_value, $lang);
+        }
+
+        return $base_value;
+    }
+
+    private function shouldUseGlobalTranslationFallback(string $field, $translated_value, $base_value): bool
+    {
+        return in_array($field, ['name', 'title'], true)
+            && trim((string) $translated_value) === trim((string) $base_value);
+    }
+
+    private function translateBaseValue($base_value, string $lang)
+    {
+        $translated_value = translate($base_value, $lang);
+
+        return trim((string) $translated_value) !== '' ? $translated_value : $base_value;
     }
 
     public function category_translations()
@@ -97,4 +126,22 @@ class Category extends Model
         return $this->hasMany(ProductCategory::class);
     }
 
+    public function descendantIds($ids = [])
+    {
+        foreach ($this->childrenCategories as $child) {
+            $ids[] = $child->id;
+            $ids = $child->descendantIds($ids);
+        }
+        return $ids;
+    }
+
+    public function getTotalProductCountAttribute()
+    {
+        $categoryIds = array_merge([$this->id], $this->descendantIds());
+
+        $directProductIds = \App\Models\Product::whereIn('category_id', $categoryIds)->pluck('id');
+        $pivotProductIds = \DB::table('product_categories')->whereIn('category_id', $categoryIds)->pluck('product_id');
+
+        return $directProductIds->merge($pivotProductIds)->unique()->count();
+    }
 }

@@ -18,6 +18,8 @@ class ProductMiniCollection extends ResourceCollection
                     'name' => $data->getTranslation('name'),
                     'slug' => $data->slug,
                     'thumbnail_image' => uploaded_asset($data->thumbnail_img),
+                    'base_price' => (float) home_base_price($data, false),
+                    'base_discounted_price' => (float) home_discounted_base_price($data, false),
                     'has_discount' => home_base_price($data, false) != home_discounted_base_price($data, false),
                     'discount' => "-" . discount_in_percentage($data) . "%",
                     'stroked_price' => home_base_price($data),
@@ -27,7 +29,7 @@ class ProductMiniCollection extends ResourceCollection
                     'sales' => (int) $data->num_of_sale,
                     'is_wholesale' => $wholesale_product,
                     'links' => [
-                        'details' => route('products.show', $data->id),
+                        'details' => route('api.products.show', $data->id),
                     ]
                 ];
             })

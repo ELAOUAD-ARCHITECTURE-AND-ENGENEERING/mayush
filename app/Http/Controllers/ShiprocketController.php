@@ -19,8 +19,12 @@ class ShiprocketController extends Controller
     {
         return 'Stub';
     }
-    public function destroy($id)
-    {
-        return 'Stub';
-    }
+    public function createOrderShiprocket(Request $request) { return 'Stub'; }
+    public function getCouriers(Request $request) { return 'Stub'; }
+    public function assignAWB(Request $request) { return 'Stub'; }
+    public function downloadLabel($order) { return 'Stub'; }
+    public function downloadManifest($order) { return 'Stub'; }
+    public function requestPickup(Request $request) { return 'Stub'; }
+    public function deliveryStatus() { return 'Stub'; }
+    public function orderStatus() { return 'Stub'; }
 }

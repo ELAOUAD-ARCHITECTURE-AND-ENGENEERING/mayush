@@ -66,9 +66,13 @@
 						@endif
 					@endcan
 					@if($page->type == 'custom_page' && auth()->user()->can('delete_website_page'))
-          				<a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{ route('custom-pages.destroy', $page->id)}} " title="{{ translate('Delete') }}">
-          					<i class="las la-trash"></i>
-          				</a>
+          				<form action="{{ route('custom-pages.destroy', $page->id) }}" method="POST" class="d-inline-block">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+              					<i class="las la-trash"></i>
+              				</button>
+                        </form>
 					@endif
         		</td>
         	</tr>

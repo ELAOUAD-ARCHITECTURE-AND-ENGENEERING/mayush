@@ -11,15 +11,30 @@ use Validator;
 
 class NoteController extends Controller
 {
-    public function __construct() {
-        $this->note_rules = [
+    private function noteRules()
+    {
+        return [
             'description' => ['required','max:900'],
         ];
+    }
 
-        $this->note_messages = [
+    private function noteMessages()
+    {
+        return [
             'description.required' => translate('Note description is required'),
             'description.max'  => translate('Max 900 character'),
         ];
+    }
+
+    private function visibleNotes()
+    {
+        return Note::where(function ($query) {
+            $query->where('user_id', auth()->id())
+                ->orWhere(function ($query) {
+                    $query->where('user_id', optional(get_admin())->id)
+                        ->where('seller_access', 1);
+                });
+        });
     }
 
     /**
@@ -28,11 +43,7 @@ class NoteController extends Controller
     public function index(Request $request)
     {
         $sort_search =null;
-        $notes =  Note::where('user_id', auth()->id())
-                        ->orWhere(function ($query){
-                            $query->where('user_id', get_admin()->id)
-                            ->where('seller_access', 1);
-                        });
+        $notes = $this->visibleNotes();
         if ($request->has('search')){
             $sort_search = $request->search;
             $notes = $notes->where('description', 'like', '%'.$sort_search.'%');
@@ -59,8 +70,8 @@ class NoteController extends Controller
      */
     public function store(Request $request)
     {
-        $rules      = $this->note_rules;
-        $messages   = $this->note_messages;
+        $rules      = $this->noteRules();
+        $messages   = $this->noteMessages();
         $validator  = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
@@ -87,7 +98,13 @@ class NoteController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $note = $this->visibleNotes()->findOrFail($id);
+
+        return response()->json([
+            'id' => $note->id,
+            'description' => $note->getTranslation('description'),
+            'html' => nl2br(e($note->getTranslation('description'))),
+        ]);
     }
 
     /**
@@ -97,7 +114,7 @@ class NoteController extends Controller
     {
         $lang   = $request->lang;
         $types = EnumsNoteType::cases();
-        $note  = Note::findOrFail($id);
+        $note  = Note::where('user_id', auth()->id())->findOrFail($id);
         return view('seller.note.edit', compact('note', 'types', 'lang'));
     }
 
@@ -106,8 +123,8 @@ class NoteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $rules      = $this->note_rules;
-        $messages   = $this->note_messages;
+        $rules      = $this->noteRules();
+        $messages   = $this->noteMessages();
         $validator  = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
@@ -115,7 +132,7 @@ class NoteController extends Controller
             return Redirect::back()->withErrors($validator);
         }
         
-        $note = Note::findOrFail($id);
+        $note = Note::where('user_id', auth()->id())->findOrFail($id);
         $note->note_type = $request->note_type;
         if($request->lang == env("DEFAULT_LANGUAGE")){
             $note->description = $request->description;
@@ -135,7 +152,7 @@ class NoteController extends Controller
      */
     public function destroy(Note $note)
     {   
-        $note = Note::findOrFail($note->id);
+        $note = Note::where('user_id', auth()->id())->findOrFail($note->id);
         $note->note_translations()->delete();
         $note->delete();
         flash(translate('Note has been deleted successfully!'))->success();

@@ -40,7 +40,7 @@
                         @endforeach
                         @foreach ($product->stocks as $key => $stock)
                             @if ($stock->image != null)
-                                <div class="carousel-box c-pointer border rounded-0" data-variation="{{ $stock->variant }}">
+                                <div class="carousel-box c-pointer border rounded-0" data-variation="{{ \App\Utility\ProductUtility::isDimensionOnlyChoiceProduct($product) && \App\Utility\ProductUtility::stockHasCustomerDimensions($stock) ? \App\Utility\ProductUtility::dimensionStockValue($stock) : $stock->variant }}">
                                     <img class="lazyload mw-100 size-50px mx-auto"
                                         src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                         data-src="{{ uploaded_asset($stock->image) }}"
@@ -141,17 +141,20 @@
                                         <div class="text-secondary fs-14 fw-400 mt-2 ">{{ get_single_attribute_name($choice->attribute_id) }}</div>
                                     </div>
                                     <div class="col-9">
+                                        @if (\App\Utility\ProductUtility::isDimensionAttribute($choice->attribute_id))
+                                            <p class="mb-2 fs-12 text-secondary">{{ translate('Dimensions are shown as Length x Width x Height.') }}</p>
+                                        @endif
                                         <div class="aiz-radio-inline">
-                                            @foreach ($choice->values as $key => $value)
+                                            @foreach (\App\Utility\ProductUtility::frontendChoiceValues($product, $choice) as $key => $choiceValue)
                                             <label class="aiz-megabox pl-0 mr-2 mb-0">
                                                 <input
                                                     type="radio"
                                                     name="attribute_id_{{ $choice->attribute_id }}"
-                                                    value="{{ $value }}"
+                                                    value="{{ $choiceValue['value'] }}"
                                                     @if($key == 0) checked @endif
                                                 >
                                                 <span class="aiz-megabox-elem rounded-0 d-flex align-items-center justify-content-center py-1 px-3">
-                                                    {{ $value }}
+                                                    {{ $choiceValue['label'] }}
                                                 </span>
                                             </label>
                                             @endforeach
@@ -239,7 +242,7 @@
                 <div class="mt-3">
                     @if ($product->digital == 1)
                         <button type="button" class="btn btn-primary rounded-0 buy-now fw-600 add-to-cart" 
-                            @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCart()" @else onclick="showLoginModal()" @endif
+                            onclick="addToCart()"
                         >
                             <i class="la la-shopping-cart"></i>
                             <span class="d-none d-md-inline-block">{{ translate('Add to cart')}}</span>
@@ -252,12 +255,60 @@
                             </a>
                         @else
                             <button type="button" class="btn btn-primary rounded-0 buy-now fw-600 add-to-cart" 
-                                @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCart()" @else onclick="showLoginModal()" @endif
+                                onclick="addToCart()"
                             >
                                 <i class="la la-shopping-cart"></i>
                                 <span class="d-none d-md-inline-block">{{ translate('Add to cart')}}</span>
                             </button>
                         @endif
+                    @endif
+                    @if (($product->digital == 1 || $qty > 0) && Auth::check() && $product->external_link == null)
+                        <button type="button" class="btn text-white fw-bold express-buy-btn rounded-0" onclick="expressBuy({{ $product->id }})" style="background-color: #ff9900;">
+                            ⚡ <span class="d-none d-md-inline-block">{{ translate('Express Buy')}}</span>
+                        </button>
+                        <script>
+                            function expressBuy(id) {
+                                $('#expressBuyModal').modal('show');
+                                $('#expressBuyLoading').removeClass('d-none');
+                                $('#expressBuyEligible').addClass('d-none');
+                                $('#expressBuyNotEligible').addClass('d-none');
+
+                                $.get('{{ route("express.check") }}', function(data) {
+                                    $('#expressBuyLoading').addClass('d-none');
+                                    
+                                    if(data.eligible) {
+                                        $('#expressBuyEligible').removeClass('d-none');
+                                        $('#eb_preferred_payment').text(data.preferred_payment);
+                                        if (data.default_address) {
+                                            $('#eb_address_name').text(data.default_address.name);
+                                            $('#eb_address_text').text(data.default_address.address);
+                                            $('#eb_address_phone').text(data.default_address.phone);
+                                        }
+                                        
+                                        $('#btnConfirmExpressBuy').off('click').on('click', function() {
+                                            const form = $('#option-choice-form');
+                                            
+                                            if (form.find('input[name="v_token"]').length == 0) {
+                                                form.append('<input type="hidden" name="v_token" value="' + data.v_token + '">');
+                                            } else {
+                                                form.find('input[name="v_token"]').val(data.v_token);
+                                            }
+
+                                            form.attr('action', '{{ url("express-buy") }}/' + id);
+                                            form.attr('method', 'POST');
+                                            form.submit();
+                                            
+                                            $(this).prop('disabled', true).html('<i class="las la-spinner la-spin"></i> {{ translate("Processing...") }}');
+                                        });
+                                    } else {
+                                        $('#expressBuyNotEligible').removeClass('d-none');
+                                    }
+                                }).fail(function() {
+                                    $('#expressBuyModal').modal('hide');
+                                    AIZ.plugins.notify('danger', '{{ translate("Failed to check eligibility.") }}');
+                                });
+                            }
+                        </script>
                     @endif
                     <button type="button" class="btn btn-secondary rounded-0 out-of-stock fw-600 d-none" disabled>
                         <i class="la la-cart-arrow-down"></i>{{ translate('Out of Stock')}}

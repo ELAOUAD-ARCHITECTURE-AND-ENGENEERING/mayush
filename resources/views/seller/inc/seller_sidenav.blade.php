@@ -1,3 +1,20 @@
+<style>
+/* Cyan Theme Sidenav Overrides */
+.aiz-sidebar { background: #083344 !important; }
+.aiz-sidebar .aiz-side-nav-wrap .aiz-side-nav-list .aiz-side-nav-item .aiz-side-nav-link { color: #CFFAFE !important; }
+.aiz-sidebar .aiz-side-nav-wrap .aiz-side-nav-list .aiz-side-nav-item .aiz-side-nav-link:hover,
+.aiz-sidebar .aiz-side-nav-wrap .aiz-side-nav-list .aiz-side-nav-item.mm-active > .aiz-side-nav-link,
+.aiz-sidebar .aiz-side-nav-wrap .aiz-side-nav-list .aiz-side-nav-item.active > .aiz-side-nav-link { 
+    background: #164E63 !important; 
+    color: #22D3EE !important; 
+}
+.aiz-sidebar .aiz-side-nav-icon, .aiz-sidebar .aiz-side-nav-arrow { color: #22D3EE !important; }
+.aiz-sidebar .text-primary { color: #22D3EE !important; }
+.aiz-side-nav-logo-wrap { 
+    background: transparent !important;
+    border-bottom: 1px solid rgba(34, 211, 238, 0.1) !important; 
+}
+</style>
 <div class="aiz-sidebar-wrap">
     <div class="aiz-sidebar left c-scrollbar">
         <div class="aiz-side-nav-logo-wrap">

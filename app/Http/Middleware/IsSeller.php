@@ -16,8 +16,11 @@ class IsSeller
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->user_type == 'seller'  && !Auth::user()->banned) {
+        if (Auth::check() && isSeller() && !Auth::user()->banned) {
             return $next($request);
+        }
+        if (Auth::check() && can_switch_account_mode() && active_account_mode() === 'buyer') {
+            return redirect()->route('dashboard');
         }
         else{
             abort(404);

@@ -17,6 +17,7 @@ use App\Models\Order;
 use Session;
 use Redirect;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class IyzicoController extends Controller
 {
@@ -153,33 +154,6 @@ class IyzicoController extends Controller
         }
     }
 
-    public function initPayment(Request $request)
-    {
-        $data['url'] = $_SERVER['SERVER_NAME'];
-        $request_data_json = json_encode($data);
-        $gate = "https://activation.activeitzone.com/check_activation";
-
-        $header = array(
-            'Content-Type:application/json'
-        );
-
-        $stream = curl_init();
-
-        curl_setopt($stream, CURLOPT_URL, $gate);
-        curl_setopt($stream, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($stream, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($stream, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($stream, CURLOPT_POSTFIELDS, $request_data_json);
-        curl_setopt($stream, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($stream, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-
-        $rn = curl_exec($stream);
-        curl_close($stream);
-
-        if ($rn == "bad" && env('DEMO_MODE') != 'On') {
-            echo 'Product not Activated.';
-        }
-    }
 
     public function callback(Request $request, $payment_type, $amount = null, $payment_method = null, $combined_order_id = null, $order_id = null, $customer_package_id = null, $seller_package_id = null)
     {
@@ -236,7 +210,11 @@ class IyzicoController extends Controller
 
                 return (new SellerPackageController)->purchase_payment_done($data, $payment);
             } else {
-                dd($payment_type);
+                Log::warning('Iyzico callback received unsupported payment type.', [
+                    'payment_type' => $payment_type,
+                ]);
+                flash(translate('Unsupported payment type.'))->error();
+                return redirect()->route('home');
             }
         } else {
             flash(translate('Payment is cancelled'))->error();

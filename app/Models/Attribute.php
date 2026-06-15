@@ -13,8 +13,12 @@ class Attribute extends Model
     protected $with = ['attribute_translations'];
 
     public function getTranslation($field = '', $lang = false){
-      $lang = $lang == false ? App::getLocale() : $lang;
+      $lang = $lang ?: App::getLocale();
       $attribute_translation = $this->attribute_translations->where('lang', $lang)->first();
+      if ($attribute_translation != null && $attribute_translation->$field !== null && $attribute_translation->$field !== $this->$field) {
+          return in_array($field, ['name', 'title']) ? translate($attribute_translation->$field, $lang) : $attribute_translation->$field;
+      }
+
       return $attribute_translation != null ? $attribute_translation->$field : $this->$field;
     }
 

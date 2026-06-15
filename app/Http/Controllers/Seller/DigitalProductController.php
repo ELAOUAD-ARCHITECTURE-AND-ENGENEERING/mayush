@@ -110,25 +110,31 @@ class DigitalProductController  extends Controller
         ]));
 
         // Product Translations
-        $request->merge(['lang' => env('DEFAULT_LANGUAGE')]);
+        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?? (get_system_language()?->code ?? 'fr')]);
         ProductTranslation::create($request->only([
             'lang', 'name', 'description', 'product_id'
         ]));
 
         if (get_setting('product_approve_by_admin') == 1) {
-            $users = User::findMany(User::where('user_type', 'admin')->first()->id);
-            $data = array();
-            $data['product_type']   = 'digital';
-            $data['status']         = 'pending';
-            $data['product']        = $product;
-            $data['notification_type_id'] = get_notification_type('seller_product_upload', 'type')->id;
+            $users = User::where('user_type', 'admin')->get();
+            $notificationType = get_notification_type('seller_product_upload', 'type');
+            
+            if ($users->isNotEmpty() && $notificationType) {
+                $data = array();
+                $data['product_type']   = 'digital';
+                $data['status']         = 'pending';
+                $data['product']        = $product;
+                $data['notification_type_id'] = $notificationType->id;
 
-            Notification::send($users, new ShopProductNotification($data));
+                Notification::send($users, new ShopProductNotification($data));
+            }
         }
 
         flash(translate('Digital Product has been inserted successfully'))->success();
-        Artisan::call('view:clear');
-        Artisan::call('cache:clear');
+        try {
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+        } catch (\Exception $e) {}
         return redirect()->route('seller.digitalproducts');
     }
 
@@ -197,8 +203,10 @@ class DigitalProductController  extends Controller
 
         flash(translate('Product has been updated successfully'))->success();
 
-        Artisan::call('view:clear');
-        Artisan::call('cache:clear');
+        try {
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+        } catch (\Exception $e) {}
 
         return back();
     }
@@ -211,11 +219,17 @@ class DigitalProductController  extends Controller
      */
     public function destroy($id)
     {
+        $product = Product::findOrFail($id);
+
+        $this->authorize('update', $product);
+
         (new ProductService)->destroy($id);
 
         flash(translate('Product has been deleted successfully'))->success();
-        Artisan::call('view:clear');
-        Artisan::call('cache:clear');
+        try {
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+        } catch (\Exception $e) {}
 
         return back();
     }
@@ -227,7 +241,7 @@ class DigitalProductController  extends Controller
         if (Auth::user()->id == $product->user_id) {
             $upload = Upload::findOrFail($product->file_name);
             if (env('FILESYSTEM_DRIVER') == "s3") {
-                return \Storage::disk('s3')->download($upload->file_name, $upload->file_original_name . "." . $upload->extension);
+                return \Storage::disk(config('filesystems.default'))->download($upload->file_name, $upload->file_original_name . "." . $upload->extension);
             } else {
                 if (file_exists(base_path('public/' . $upload->file_name))) {
                     return response()->download(base_path('public/' . $upload->file_name));
@@ -238,3 +252,4 @@ class DigitalProductController  extends Controller
         }
     }
 }
+

@@ -253,6 +253,40 @@
                 </div>
 
             </div>
+
+            {{-- Admin Order Confirmation --}}
+            <div class="row mt-3 mb-3">
+                <div class="col-12">
+                    <div id="order_confirmation_card" class="border rounded p-3 {{ $order->is_confirmed ? 'border-success bg-soft-success' : 'border-warning bg-soft-warning' }}">
+                        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
+                            <div class="pr-lg-4 mb-3 mb-lg-0 flex-grow-1">
+                                <h6 class="mb-2 fw-700 d-block">{{ translate('Order Confirmation') }}</h6>
+                                <span class="badge badge-inline badge-{{ $order->is_confirmed ? 'success' : 'warning' }} d-inline-block mb-2" id="confirmation_badge">
+                                    {{ $order->is_confirmed ? translate('Confirmed') : translate('Pending Confirmation') }}
+                                </span>
+                                <p class="text-muted fs-12 mb-0" id="confirmation_label">
+                                    {{ $order->is_confirmed ? translate('Confirmed - Shipping dispatched to ONESSTA') : translate('Confirm this order after verifying with the customer by phone. Shipping will be triggered automatically.') }}
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-lg-end flex-shrink-0 pt-2 pt-lg-0">
+                                <span class="fs-12 fw-600 text-muted mr-2" id="confirmation_toggle_text">
+                                    {{ $order->is_confirmed ? translate('Confirmed') : translate('Confirm order') }}
+                                </span>
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input
+                                        type="checkbox"
+                                        id="order_confirmation_toggle"
+                                        {{ $order->is_confirmed ? 'checked' : '' }}
+                                        onchange="updateOrderConfirmation(this, {{ $order->id }})"
+                                    >
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="mb-3 mt-3">
                 @php
                     $removedXML = '<' . '?xml version="1.0" encoding="UTF-8"?>';
@@ -325,6 +359,14 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td class="text-main text-bold">{{ translate('Logistics') }}</td>
+                                <td class="text-right">
+                                    <a href="{{ route('orders.tracking.show', encrypt($order->id)) }}" class="btn btn-soft-primary btn-xs fw-600" target="_blank">
+                                        <i class="las la-map-marker"></i> {{ translate('Track Real-Time') }}
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td class="text-main text-bold">{{ translate('Order Date') }} </td>
                                 <td class="text-right">{{ date('d-m-Y h:i A', $order->date) }}</td>
                             </tr>
@@ -339,7 +381,25 @@
                             <tr>
                                 <td class="text-main text-bold">{{ translate('Payment method') }}</td>
                                 <td class="text-right">
-                                    {{ translate(ucfirst(str_replace('_', ' ', $order->payment_type))) }}</td>
+                                    {{ translate(ucfirst(str_replace('_', ' ', $order->payment_type))) }}
+                                    @if($order->payment_type == 'cmi_vault' || $order->payment_type == 'cmi')
+                                        @php
+                                            $details = json_decode($order->payment_details, true);
+                                        @endphp
+                                        @if(isset($details['MaskedPan']))
+                                            <div class="small text-muted">
+                                                @php
+                                                    $firstChar = substr($details['MaskedPan'], 0, 1);
+                                                    $brand = 'Card';
+                                                    if ($firstChar === '4') $brand = 'Visa';
+                                                    elseif ($firstChar === '5') $brand = 'Mastercard';
+                                                    $last4 = substr($details['MaskedPan'], -4);
+                                                @endphp
+                                                {{ $brand }} •••• {{ $last4 }}
+                                            </div>
+                                        @endif
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
                                 <td class="text-main text-bold">{{ translate('Additional Info') }}</td>
@@ -415,7 +475,7 @@
                                             <br>
                                             <small>
                                                 @php
-                                                    $product_stock = $orderDetail->product->stocks->where('variant', $orderDetail->variation)->first();
+                                                    $product_stock = \App\Utility\CartUtility::find_product_stock($orderDetail->product, $orderDetail->variation);
                                                 @endphp
                                                 {{translate('SKU')}}: {{ $product_stock['sku'] ?? '' }}
                                             </small>
@@ -771,6 +831,88 @@
 
 @section('script')
     <script type="text/javascript">
+        function updateOrderConfirmation(checkbox, orderId) {
+            function shipmentNotification(response) {
+                var shipment = response.shipment || {};
+
+                if (!response.is_confirmed) {
+                    return {
+                        type: 'success',
+                        message: '{{ translate("Confirmation removed.") }}'
+                    };
+                }
+
+                if (shipment.status === 'created') {
+                    return {
+                        type: 'success',
+                        message: shipment.shipment_code
+                            ? '{{ translate("ONESSTA shipment created") }}: ' + shipment.shipment_code
+                            : '{{ translate("ONESSTA shipment created.") }}'
+                    };
+                }
+
+                if (shipment.status === 'exists') {
+                    return {
+                        type: 'info',
+                        message: shipment.shipment_code
+                            ? '{{ translate("ONESSTA shipment already exists") }}: ' + shipment.shipment_code
+                            : '{{ translate("ONESSTA shipment already exists.") }}'
+                    };
+                }
+
+                if (shipment.status === 'queued') {
+                    return {
+                        type: 'success',
+                        message: '{{ translate("ONESSTA shipment creation queued.") }}'
+                    };
+                }
+
+                if (shipment.status === 'failed') {
+                    return {
+                        type: 'danger',
+                        message: shipment.message || '{{ translate("ONESSTA shipment creation failed.") }}'
+                    };
+                }
+
+                return {
+                    type: 'warning',
+                    message: shipment.message || '{{ translate("Order confirmed, but ONESSTA shipment was not created.") }}'
+                };
+            }
+
+            $.post('{{ route("orders.confirm") }}', {
+                _token: '{{ csrf_token() }}',
+                order_id: orderId,
+                is_confirmed: checkbox.checked ? 1 : 0
+            }, function(response) {
+                if (response.success) {
+                    var label = document.getElementById('confirmation_label');
+                    var badge = document.getElementById('confirmation_badge');
+                    var toggleText = document.getElementById('confirmation_toggle_text');
+                    var wrapper = document.getElementById('order_confirmation_card');
+                    if (checkbox.checked) {
+                        label.textContent = '{{ translate("Confirmed - Shipping dispatched to ONESSTA") }}';
+                        badge.textContent = '{{ translate("Confirmed") }}';
+                        badge.className = 'badge badge-inline badge-success d-inline-block mb-2';
+                        toggleText.textContent = '{{ translate("Confirmed") }}';
+                        wrapper.className = wrapper.className.replace('border-warning', 'border-success').replace('bg-soft-warning', 'bg-soft-success');
+                    } else {
+                        label.textContent = '{{ translate("Confirm this order after verifying with the customer by phone. Shipping will be triggered automatically.") }}';
+                        badge.textContent = '{{ translate("Pending Confirmation") }}';
+                        badge.className = 'badge badge-inline badge-warning d-inline-block mb-2';
+                        toggleText.textContent = '{{ translate("Confirm order") }}';
+                        wrapper.className = wrapper.className.replace('border-success', 'border-warning').replace('bg-soft-success', 'bg-soft-warning');
+                    }
+
+                    var notification = shipmentNotification(response);
+                    AIZ.plugins.notify(notification.type, notification.message);
+                }
+            }).fail(function() {
+                checkbox.checked = !checkbox.checked;
+                AIZ.plugins.notify('danger', '{{ translate("Failed to update confirmation status.") }}');
+            });
+        }
+
         $('#assign_deliver_boy').on('change', function() {
             var order_id = {{ $order->id }};
             var delivery_boy = $('#assign_deliver_boy').val();

@@ -7,7 +7,11 @@
             <img
                 class="img-fit lazyload"
                 src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                data-src="{{ uploaded_asset($product->thumbnail_img) }}"
+                data-src="{{ uploaded_asset($product->thumbnail_img, 'card') }}"
+                width="480"
+                height="480"
+                loading="lazy"
+                decoding="async"
                 alt="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
             >

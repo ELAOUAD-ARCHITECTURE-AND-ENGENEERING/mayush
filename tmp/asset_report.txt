@@ -1,0 +1,37 @@
+=== DATABASE CHECK ===
+Products table OK: 485 rows
+Uploads table OK: 4413 rows
+
+=== FULL SCAN RESULTS ===
+Total local uploads: 4213
+Found on disk (direct path): 1175
+Found on disk (via fallback): 0
+Total found: 1175
+Missing from disk: 3038
+Missing rate: 72.1%
+
+Missing examples:
+  - [1] uploads/all/GcaNwCLBvqcXg1YIzLDTkxYPVNv2xSSsWbUtaV9e.webp
+  - [3] uploads/all/RkGnYaA7Nk6Ivt1X6vt6eYXG25Tx3REC6cwp9DDz.webp
+  - [4] uploads/all/hJqQ1sFexYN7PkAvK7Og0sOK3OYwdNFBmFoFtMDe.webp
+  - [21] uploads/all/VtGnHaHFTSR9JTfFznbdeHhcWvGrPHSqMystCTqs.webp
+  - [22] uploads/all/peBGyZmtL71Rs03s7spjqWgTeRm2WBSVNR4toOJV.webp
+  - [23] uploads/all/m2hAqZ6ffzsNWVV4ZZy1dRYQBj4J4p4HSMj6lbOZ.webp
+  - [24] uploads/all/cDMIVLxGJQTTwzhjQjyBeOprvkrvBRhSQw2CrpNw.webp
+  - [25] uploads/all/GHpd3VDaX72SccV7y8i9whiQdTPo2JMwLQIC3T27.webp
+  - [26] uploads/all/FvgSvUKTs6Q44yaP8AZfjPLbhgJcXHUw4z212Gf3.webp
+  - [29] uploads/all/TD87aWEi6s5AnbXLhsBmFPQt8NUwhvfUi2W4WaYe.webp
+  - [30] uploads/all/861JppYyMbrTW9IZckEdjM2N2eF5GGdOjLnVQmcL.webp
+  - [31] uploads/all/2seioGW5l0EkkKU25fFrL1XnMJQqW7j4fXfdFeKT.webp
+  - [32] uploads/all/1obIP8Rp40aS4UpgfRlUshwHhHzsBiYaamaFhrrc.webp
+  - [33] uploads/all/UMhwOj43kEbBaeZ7zoK1QwFlUDdSMnFTjwqjZrTS.webp
+  - [34] uploads/all/dTMgKtVsAojG3A8MPwGe4mRx5OdamRyNjpuI3EdH.webp
+
+=== PLACEHOLDER CHECK ===
+placeholder.jpg EXISTS
+
+=== FILE_NAME PATTERNS ===
+  uploads/all/...: 4213
+
+=== FILES ON DISK ===
+Files in uploads/all/: 7304

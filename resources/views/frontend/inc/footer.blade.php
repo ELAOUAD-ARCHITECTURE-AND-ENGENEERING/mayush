@@ -1,5 +1,5 @@
 <!-- Last Viewed Products  -->
-@if(get_setting('last_viewed_product_activation') == 1 && Auth::check() && auth()->user()->user_type == 'customer')
+@if(get_setting('last_viewed_product_activation') == 1 && Auth::check() && isCustomer())
 <div class="border-top" id="section_last_viewed_products" style="background-color: #fcfcfc;">
     @php
     $lastViewedProducts = getLastViewedProducts();
@@ -15,8 +15,8 @@
                     </h3>
                     <!-- Links -->
                     <div class="d-flex">
-                        <a type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2" onclick="clickToSlide('slick-prev','section_last_viewed_products')"><i class="las la-angle-left fs-20 fw-600"></i></a>
-                        <a type="button" class="arrow-next slide-arrow text-secondary ml-2" onclick="clickToSlide('slick-next','section_last_viewed_products')"><i class="las la-angle-right fs-20 fw-600"></i></a>
+                        <button type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2 border-0 bg-transparent" onclick="clickToSlide('slick-prev','section_last_viewed_products')" aria-label="{{ translate('Previous') }}"><i class="las la-angle-left fs-20 fw-600"></i></button>
+                        <button type="button" class="arrow-next slide-arrow text-secondary ml-2 border-0 bg-transparent" onclick="clickToSlide('slick-next','section_last_viewed_products')" aria-label="{{ translate('Next') }}"><i class="las la-angle-right fs-20 fw-600"></i></button>
                     </div>
                 </div>
                 <!-- Product Section -->
@@ -66,7 +66,7 @@
   font-size: 20px;
   flex-shrink: 0;
 }
-.global-trust-text h4 {
+.global-trust-text .global-trust-title {
   font-family: inherit;
   font-size: 13.5px;
   font-weight: 700;
@@ -93,10 +93,10 @@
 </style>
 <div class="global-trust-strip">
   <div class="global-trust-inner">
-    <div class="global-trust-item"><div class="global-trust-icon">🚚</div><div class="global-trust-text"><h4>{{ translate('Free Delivery') }}</h4><p>{{ translate('Orders over 500 Dhs Morocco-wide') }}</p></div></div>
-    <div class="global-trust-item"><div class="global-trust-icon">🔄</div><div class="global-trust-text"><h4>{{ translate('Easy Returns') }}</h4><p>{{ translate('14-day hassle-free policy') }}</p></div></div>
-    <div class="global-trust-item"><div class="global-trust-icon">🔒</div><div class="global-trust-text"><h4>{{ translate('Secure Payment') }}</h4><p>{{ translate('CMI, Visa, Mastercard, COD') }}</p></div></div>
-    <div class="global-trust-item"><div class="global-trust-icon">⭐</div><div class="global-trust-text"><h4>{{ translate('Verified Sellers') }}</h4><p>{{ translate('All vendors background-checked') }}</p></div></div>
+    <div class="global-trust-item"><div class="global-trust-icon">🚚</div><div class="global-trust-text"><p class="global-trust-title">{{ translate('Free Delivery') }}</p><p>{{ translate('Orders over 500 Dhs Morocco-wide') }}</p></div></div>
+    <div class="global-trust-item"><div class="global-trust-icon">🔄</div><div class="global-trust-text"><p class="global-trust-title">{{ translate('Easy Returns') }}</p><p>{{ translate('14-day hassle-free policy') }}</p></div></div>
+    <div class="global-trust-item"><div class="global-trust-icon">🔒</div><div class="global-trust-text"><p class="global-trust-title">{{ translate('Secure Payment') }}</p><p>{{ translate('CMI, Visa, Mastercard, COD') }}</p></div></div>
+    <div class="global-trust-item"><div class="global-trust-icon">⭐</div><div class="global-trust-text"><p class="global-trust-title">{{ translate('Verified Sellers') }}</p><p>{{ translate('All vendors background-checked') }}</p></div></div>
   </div>
 </div>
 
@@ -104,7 +104,7 @@
 @if (get_setting('footer_title') != null || get_setting('footer_description') != null)
     <section class="bg-light border-top border-bottom mt-auto">
         <div class="container py-32px">
-            <h1 class="fs-18 fw-700 text-gray-dark mb-3">{{ get_setting('footer_title', null, $system_language->code) }}</h1>
+            <h2 class="fs-18 fw-700 text-gray-dark mb-3">{{ get_setting('footer_title', null, $system_language->code) }}</h2>
             @php
                 $fullDescription = nl2br(get_setting('footer_description', null, $system_language->code));
             @endphp
@@ -115,9 +115,9 @@
                 </p>
                 <div class="text-control-btn mt-2 d-xl-none">
                     
-                    <a class="text-primary cursor-pointer toggle-btn" id="toggle-btn" >
+                    <button type="button" class="text-primary cursor-pointer toggle-btn border-0 bg-transparent p-0" id="toggle-btn">
                         Read More
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -134,7 +134,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="26.004" height="32" viewBox="0 0 26.004 32">
                         <path id="Union_8" data-name="Union 8" d="M-14508,18932v-.01a6.01,6.01,0,0,1-5.975-5.492h-.021v-14h1v13.5h0a4.961,4.961,0,0,0,4.908,4.994h.091v0h14v1Zm17-4v-1a2,2,0,0,0,2-2h1a3,3,0,0,1-2.927,3Zm-16,0a3,3,0,0,1-3-3h1a2,2,0,0,0,2,2h16v1Zm18-3v-16.994h-4v-1h3.6l-5.6-5.6v3.6h-.01a2.01,2.01,0,0,0,2,2v1a3.009,3.009,0,0,1-3-3h.01v-4h.6l0,0H-14507a2,2,0,0,0-2,2v22h-1v-22a3,3,0,0,1,3-3v0h12l0,0,7,7-.01.01V18925Zm-16-4.992v-1h12v1Zm0-4.006v-1h12v1Zm0-4v-1h12v1Z" transform="translate(14513.998 -18900.002)" fill="#919199"/>
                     </svg>
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Terms & conditions') }}</h4>
+                    <span class="text-dark fs-14 fw-700 mt-3 d-block">{{ translate('Terms & conditions') }}</span>
                 </a>
             </div>
 
@@ -144,7 +144,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32.001" height="23.971" viewBox="0 0 32.001 23.971">
                         <path id="Union_7" data-name="Union 7" d="M-14490,18922.967a6.972,6.972,0,0,0,4.949-2.051,6.944,6.944,0,0,0,2.052-4.943,7.008,7.008,0,0,0-7-7v0h-22.1l7.295,7.295-.707.707-7.779-7.779-.708-.707.708-.7,7.774-7.779.712.707-7.261,7.258H-14490v0a8.01,8.01,0,0,1,8,8,8.008,8.008,0,0,1-8,8Z" transform="translate(14514.001 -18900)" fill="#919199"/>
                     </svg>
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Return Policy') }}</h4>
+                    <span class="text-dark fs-14 fw-700 mt-3 d-block">{{ translate('Return Policy') }}</span>
                 </a>
             </div>
 
@@ -161,7 +161,7 @@
                         <path id="Intersection_1" data-name="Intersection 1" d="M-14508.5,18910a4.508,4.508,0,0,0,4.5-4.5h1a5.508,5.508,0,0,1-5.5,5.5Z" transform="translate(15646.004 -16482.5)" fill="#919199"/>
                         </g>
                     </svg>
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Support Policy') }}</h4>
+                    <span class="text-dark fs-14 fw-700 mt-3 d-block">{{ translate('Support Policy') }}</span>
                 </a>
             </div>
 
@@ -177,7 +177,7 @@
                         </g>
                         </g>
                     </svg>
-                    <h4 class="text-dark fs-14 fw-700 mt-3">{{ translate('Privacy Policy') }}</h4>
+                    <span class="text-dark fs-14 fw-700 mt-3 d-block">{{ translate('Privacy Policy') }}</span>
                 </a>
             </div>
         </div>
@@ -189,11 +189,11 @@
     <div class="container">
         <!-- footer logo -->
         <div class="mt-3 mb-4">
-            <a href="{{ route('home') }}" class="d-block">
+            <a href="{{ route('home') }}" class="d-block" aria-label="{{ translate('Mayush home') }}">
                 @if(get_setting('footer_logo') != null)
-                    <img class="lazyload h-45px" src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" data-src="{{ uploaded_asset(get_setting('footer_logo')) }}" alt="{{ env('APP_NAME') }}" height="45">
+                    <img class="lazyload h-45px" src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" data-src="{{ uploaded_asset(get_setting('footer_logo'), 'small') }}" alt="{{ env('APP_NAME') }}" width="160" height="45">
                 @else
-                    <img class="lazyload h-45px" src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" data-src="{{ static_asset('assets/img/logo.png') }}" alt="{{ env('APP_NAME') }}" height="45">
+                    <img class="lazyload h-45px" src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" data-src="{{ static_asset('assets/img/logo.png') }}" alt="{{ env('APP_NAME') }}" width="160" height="45">
                 @endif
             </a>
         </div>
@@ -232,13 +232,13 @@
                     <ul class="list-inline social colored mb-4">
                         @if (!empty(get_setting('facebook_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('facebook_link') }}" target="_blank"
+                                <a href="{{ get_setting('facebook_link') }}" target="_blank" rel="noopener noreferrer"
                                     class="facebook"><i class="lab la-facebook-f"></i></a>
                             </li>
                         @endif
                         @if (!empty(get_setting('twitter_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('twitter_link') }}" target="_blank"
+                                <a href="{{ get_setting('twitter_link') }}" target="_blank" rel="noopener noreferrer"
                                     class="x-twitter">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#ffffff" viewBox="0 0 16 16" class="mb-2 pb-1">
                                         <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 
@@ -249,19 +249,19 @@
                         @endif
                         @if (!empty(get_setting('instagram_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('instagram_link') }}" target="_blank"
+                                <a href="{{ get_setting('instagram_link') }}" target="_blank" rel="noopener noreferrer"
                                     class="instagram"><i class="lab la-instagram"></i></a>
                             </li>
                         @endif
                         @if (!empty(get_setting('youtube_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('youtube_link') }}" target="_blank"
+                                <a href="{{ get_setting('youtube_link') }}" target="_blank" rel="noopener noreferrer"
                                     class="youtube"><i class="lab la-youtube"></i></a>
                             </li>
                         @endif
                         @if (!empty(get_setting('linkedin_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('linkedin_link') }}" target="_blank"
+                                <a href="{{ get_setting('linkedin_link') }}" target="_blank" rel="noopener noreferrer"
                                     class="linkedin"><i class="lab la-linkedin-in"></i></a>
                             </li>
                         @endif
@@ -273,12 +273,12 @@
                     <h5 class="fs-14 fw-700 text-secondary text-uppercase mt-3">{{ translate('Mobile Apps') }}</h5>
                     <div class="d-flex mt-3">
                         <div class="">
-                            <a href="{{ get_setting('play_store_link') }}" target="_blank" class="mr-2 mb-2 overflow-hidden hov-scale-img">
+                            <a href="{{ get_setting('play_store_link') }}" target="_blank" rel="noopener noreferrer" class="mr-2 mb-2 overflow-hidden hov-scale-img">
                                 <img class="lazyload has-transition" src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" data-src="{{ static_asset('assets/img/play.png') }}" alt="{{ env('APP_NAME') }}" height="44">
                             </a>
                         </div>
                         <div class="">
-                            <a href="{{ get_setting('app_store_link') }}" target="_blank" class="overflow-hidden hov-scale-img">
+                            <a href="{{ get_setting('app_store_link') }}" target="_blank" rel="noopener noreferrer" class="overflow-hidden hov-scale-img">
                                 <img class="lazyload has-transition" src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" data-src="{{ static_asset('assets/img/app.png') }}" alt="{{ env('APP_NAME') }}" height="44">
                             </a>
                         </div>
@@ -381,7 +381,7 @@
                         </li>
                         @if (addon_is_activated('affiliate_system'))
                             <li class="mb-2">
-                                <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('affiliate.apply') }}">
+                                <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('affiliate.user.index') }}">
                                     {{ translate('Be an affiliate partner')}}
                                 </a>
                             </li>
@@ -414,7 +414,7 @@
                             @endguest
                             @if(get_setting('seller_app_link'))
                                 <li class="mb-2">
-                                    <a class="fs-13 text-soft-light animate-underline-white" target="_blank" href="{{ get_setting('seller_app_link')}}">
+                                    <a class="fs-13 text-soft-light animate-underline-white" target="_blank" rel="noopener noreferrer" href="{{ get_setting('seller_app_link')}}">
                                         {{ translate('Download Seller App') }}
                                     </a>
                                 </li>
@@ -436,7 +436,7 @@
 
                             @if(get_setting('delivery_boy_app_link'))
                                 <li class="mb-2">
-                                    <a class="fs-13 text-soft-light animate-underline-white" target="_blank" href="{{ get_setting('delivery_boy_app_link')}}">
+                                    <a class="fs-13 text-soft-light animate-underline-white" target="_blank" rel="noopener noreferrer" href="{{ get_setting('delivery_boy_app_link')}}">
                                         {{ translate('Download Delivery Boy App') }}
                                     </a>
                                 </li>
@@ -543,8 +543,8 @@
                             </a>
                         </li>
                         @if (addon_is_activated('affiliate_system'))
-                            <li class="mb-2 pb-2 {{ areActiveRoutes(['affiliate.apply'],' active')}}">
-                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('affiliate.apply') }}">
+                            <li class="mb-2 pb-2 {{ areActiveRoutes(['affiliate.user.index'],' active')}}">
+                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('affiliate.user.index') }}">
                                     {{ translate('Be an affiliate partner')}}
                                 </a>
                             </li>
@@ -578,7 +578,7 @@
                         @endguest
                         @if(get_setting('seller_app_link'))
                             <li class="mb-2 pb-2">
-                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" target="_blank" href="{{ get_setting('seller_app_link')}}">
+                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" target="_blank" rel="noopener noreferrer" href="{{ get_setting('seller_app_link')}}">
                                     {{ translate('Download Seller App') }}
                                 </a>
                             </li>
@@ -607,7 +607,7 @@
                         @endguest
                         @if(get_setting('delivery_boy_app_link'))
                             <li class="mb-2 pb-2">
-                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" target="_blank" href="{{ get_setting('delivery_boy_app_link')}}">
+                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" target="_blank" rel="noopener noreferrer" href="{{ get_setting('delivery_boy_app_link')}}">
                                     {{ translate('Download Delivery Boy App') }}
                                 </a>
                             </li>
@@ -632,7 +632,7 @@
                     <a href="{{ route('terms') }}" class="text-reset opacity-70 hov-opacity-100">{{ translate('Terms & conditions') }}</a>
                     <span class="mx-2 opacity-50">|</span>
                     <a href="{{ route('privacypolicy') }}" class="text-reset opacity-70 hov-opacity-100">{{ translate('Privacy Policy') }}</a>
-                    <img src="{{ static_asset('assets/img/cards/cmi.png') }}" height="24" class="ml-3 my-1 mw-100" style="max-height: 24px; filter: brightness(1.1);" alt="CMI Payment Gateway">
+                    <img src="{{ optimized_static_asset('assets/img/cards/cmi.png', 'small') }}" width="62" height="24" class="ml-3 my-1 mw-100" style="max-height: 24px; filter: brightness(1.1);" alt="CMI Payment Gateway">
                 </div>
             </div>
 
@@ -662,22 +662,22 @@
                     <div class="d-flex flex-wrap justify-content-center align-items-center opacity-80 hov-opacity-100 has-transition">
                         <!-- Security Logos -->
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/verified_by_visa.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="Verified by Visa">
+                            <img src="{{ optimized_static_asset('assets/img/cards/verified_by_visa.png', 'small') }}" width="79" height="35" class="mw-100" style="max-height: 35px" alt="Verified by Visa">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/secure_code.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="Mastercard SecureCode">
+                            <img src="{{ optimized_static_asset('assets/img/cards/secure_code.png', 'small') }}" width="76" height="35" class="mw-100" style="max-height: 35px" alt="Mastercard SecureCode">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/amex.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="American Express">
+                            <img src="{{ optimized_static_asset('assets/img/cards/amex.png', 'small') }}" width="35" height="35" class="mw-100" style="max-height: 35px" alt="American Express">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/cmi.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="CMI Payment Gateway">
+                            <img src="{{ optimized_static_asset('assets/img/cards/cmi.png', 'small') }}" width="44" height="35" class="mw-100" style="max-height: 35px" alt="CMI Payment Gateway">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/marocpay.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="MarocPay">
+                            <img src="{{ optimized_static_asset('assets/img/cards/marocpay.png', 'small') }}" width="41" height="35" class="mw-100" style="max-height: 35px" alt="MarocPay">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ static_asset('assets/img/cards/unionpay.png') }}" height="35" class="mw-100" style="max-height: 35px" alt="UnionPay">
+                            <img src="{{ optimized_static_asset('assets/img/cards/unionpay.png', 'small') }}" width="50" height="35" class="mw-100" style="max-height: 35px" alt="UnionPay">
                         </div>
                     </div>
                 </div>
@@ -752,7 +752,7 @@
             </a>
         </div>
 
-        @if (Auth::check() && auth()->user()->user_type == 'customer')
+        @if (Auth::check() && isCustomer())
             <!-- Notifications -->
             <div class="col">
                 <a href="{{ (Route::has('all-notifications') ? route('all-notifications') : '#') }}" class="text-secondary d-block text-center pb-2 pt-3 {{ areActiveRoutes(['all-notifications'],'svg-active')}}">
@@ -776,9 +776,9 @@
                     <a href="{{ route('admin.dashboard') }}" class="text-secondary d-block text-center pb-2 pt-3">
                         <span class="d-block mx-auto">
                             @if($user->avatar_original != null)
-                                <img src="{{ $user_avatar }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px">
+                                <img src="{{ $user_avatar }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px" width="20" height="20">
                             @else
-                                <img src="{{ static_asset('assets/img/avatar-place.png') }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px">
+                                <img src="{{ static_asset('assets/img/avatar-place.png') }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px" width="20" height="20">
                             @endif
                         </span>
                         <span class="d-block mt-1 fs-10 fw-600 text-reset">{{ translate('My Account') }}</span>
@@ -787,24 +787,24 @@
                     <a href="{{ route('dashboard') }}" class="text-secondary d-block text-center pb-2 pt-3">
                         <span class="d-block mx-auto">
                             @if($user->avatar_original != null)
-                                <img src="{{ $user_avatar }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px">
+                                <img src="{{ $user_avatar }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px" width="20" height="20">
                             @else
-                                <img src="{{ static_asset('assets/img/avatar-place.png') }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px">
+                                <img src="{{ static_asset('assets/img/avatar-place.png') }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px" width="20" height="20">
                             @endif
                         </span>
                         <span class="d-block mt-1 fs-10 fw-600 text-reset">{{ translate('My Account') }}</span>
                     </a>
                 @else
-                    <a href="javascript:void(0)" class="text-secondary d-block text-center pb-2 pt-3 mobile-side-nav-thumb" data-toggle="class-toggle" data-backdrop="static" data-target=".aiz-mobile-side-nav">
+                    <button type="button" class="text-secondary d-block text-center pb-2 pt-3 mobile-side-nav-thumb border-0 bg-transparent w-100" data-toggle="class-toggle" data-backdrop="static" data-target=".aiz-mobile-side-nav">
                         <span class="d-block mx-auto">
                             @if($user->avatar_original != null)
-                                <img src="{{ $user_avatar }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px">
+                                <img src="{{ $user_avatar }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px" width="20" height="20">
                             @else
-                                <img src="{{ static_asset('assets/img/avatar-place.png') }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px">
+                                <img src="{{ static_asset('assets/img/avatar-place.png') }}" alt="{{ translate('avatar') }}" class="rounded-circle size-20px" width="20" height="20">
                             @endif
                         </span>
                         <span class="d-block mt-1 fs-10 fw-600 text-reset">{{ translate('My Account') }}</span>
-                    </a>
+                    </button>
                 @endif
             @else
                 <a href="{{ route('user.login') }}" class="text-secondary d-block text-center pb-2 pt-3">
@@ -822,7 +822,7 @@
     </div>
 </div>
 
-@if (Auth::check() && auth()->user()->user_type == 'customer')
+@if (Auth::check() && isCustomer())
     <!-- User Side nav -->
     <div class="aiz-mobile-side-nav collapse-sidebar-wrap sidebar-xl d-xl-none z-1035">
         <div class="overlay dark c-pointer overlay-fixed" data-toggle="class-toggle" data-backdrop="static" data-target=".aiz-mobile-side-nav" data-same=".mobile-side-nav-thumb"></div>

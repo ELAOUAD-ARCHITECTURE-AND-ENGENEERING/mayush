@@ -231,4 +231,7 @@ class CustomLabelController extends Controller
         }
         return 0;
     }
+
+    /** Alias: route expects custom_label_products */
+    public function custom_label_products(Request $request) { return $this->products($request); }
 }

@@ -1,0 +1,31 @@
+Active theme: metro
+
+View base: C:\xampp\htdocs\mayush\resources\views/frontend/metro
+
+  partials.todays_deal: EXISTS
+  partials.newest_products_section: EXISTS
+  partials.featured_products_section: EXISTS
+  partials.best_selling_section: EXISTS
+  partials.home_categories_section: EXISTS
+  partials.best_sellers_section: EXISTS
+  partials.preorder_products_section: EXISTS
+
+  auction_products_section: MISSING
+  elite_artisans_section: EXISTS
+  index.blade.php: EXISTS
+
+Available partials in metro:
+  - best_sellers_section.blade.php
+  - best_selling_section.blade.php
+  - category_icon_navigation.blade.php
+  - category_menu.blade.php
+  - featured_products_section.blade.php
+  - home_categories_section.blade.php
+  - last_view_product_box_1.blade.php
+  - marketplace_banner.blade.php
+  - newest_products_section.blade.php
+  - preorder_products_section.blade.php
+  - product_box_1.blade.php
+  - product_box_2.blade.php
+  - product_placeholder_box.blade.php
+  - todays_deal.blade.php

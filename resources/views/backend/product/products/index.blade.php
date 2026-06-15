@@ -1,5 +1,33 @@
 @extends('backend.layouts.app')
 
+    @section('style')
+    <style>
+        /* Unpublished product row styling */
+        .unpublished-row {
+            background-color: #fffbf0 !important;
+            border-left: 3px solid #ffc107 !important;
+        }
+        .unpublished-row td:first-child {
+            border-left: 3px solid #ffc107;
+        }
+        /* Unpublished badge */
+        .badge-unpublished {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffc107;
+            margin-left: 6px;
+            vertical-align: middle;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+    </style>
+    @endsection
+
 @section('content')
     @php
         CoreComponentRepository::instantiateShopRepository();
@@ -146,6 +174,18 @@
                                     <input class="input-check" type="checkbox" id="low-stock">
                                     <label class="form-check-label fs-14 px-2" for="low-stock">Low Stock</label>
                                 </div>
+                                @can('product_edit')
+                                <div class="dropdown-divider my-1"></div>
+                                <div class="form-check hover-bg-light py-2 d-flex align-items-center">
+                                    <input class="input-check" type="checkbox" id="show-unpublished">
+                                    <label class="form-check-label fs-14 px-2" for="show-unpublished">
+                                        <span class="d-flex align-items-center gap-2">
+                                            {{ translate('Show Unpublished') }}
+                                            <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:#fff3cd;color:#856404;border:1px solid #ffc107;margin-left:4px;">DRAFT</span>
+                                        </span>
+                                    </label>
+                                </div>
+                                @endcan
                             </div>
                         </div>
                     </div>
@@ -341,7 +381,10 @@
         function single_delete(productId) {
             $.ajax({
                 url: "{{ route('products.destroy', ':id') }}".replace(':id', productId),
-                type: 'GET',
+                type: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 success: function(response) {
                     if (response == 1) {
                         AIZ.plugins.notify('success', '{{ translate('Selected item deleted successfully') }}');
@@ -531,11 +574,56 @@
             currentTab = slug;
             var slug = slug.replace(/-/g, '_');
             let keyword = $('#search_input').val();
-            $('#tab-content').html('<div class="footable-loader mt-5"><span class="fooicon fooicon-loader"></span></div>');
+            let show_unpublished = $('#show-unpublished').is(':checked') ? 1 : 0;
+            let skeletonRows = '';
+            for(let i=0; i<8; i++){
+                skeletonRows += `
+                <tr>
+                    <td class="align-middle"><div class="skeleton-shimmer h-20px w-20px rounded"></div></td>
+                    <td class="align-middle"><div class="skeleton-shimmer h-50px w-50px rounded"></div></td>
+                    <td class="align-middle">
+                        <div class="skeleton-shimmer h-15px w-100 mb-2 rounded"></div>
+                        <div class="skeleton-shimmer h-10px w-50 rounded"></div>
+                    </td>
+                    <td class="align-middle"><div class="skeleton-shimmer h-12px w-75 mb-2 rounded"></div><div class="skeleton-shimmer h-12px w-50 rounded"></div></td>
+                    <td class="align-middle"><div class="skeleton-shimmer h-15px w-80 rounded"></div></td>
+                    <td class="align-middle"><div class="skeleton-shimmer h-15px w-80 rounded"></div></td>
+                    <td class="align-middle"><div class="skeleton-shimmer h-15px w-80 rounded"></div></td>
+                    <td class="align-middle"><div class="skeleton-shimmer h-25px w-40px rounded-pill"></div></td>
+                    <td class="align-middle"><div class="skeleton-shimmer h-25px w-40px rounded-pill"></div></td>
+                    <td class="align-middle"><div class="skeleton-shimmer h-25px w-40px rounded-pill"></div></td>
+                </tr>`;
+            }
+            
+            let tableSkeleton = `
+            <div class="card-body">
+                <div style="overflow-x:auto;">
+                    <table class="table mb-0 w-100">
+                        <thead>
+                            <tr>
+                                <th><div class="skeleton-shimmer h-15px w-20px rounded"></div></th>
+                                <th><div class="skeleton-shimmer h-15px w-30px rounded"></div></th>
+                                <th><div class="skeleton-shimmer h-15px w-100px rounded"></div></th>
+                                <th><div class="skeleton-shimmer h-15px w-80px rounded"></div></th>
+                                <th><div class="skeleton-shimmer h-15px w-60px rounded"></div></th>
+                                <th><div class="skeleton-shimmer h-15px w-60px rounded"></div></th>
+                                <th><div class="skeleton-shimmer h-15px w-50px rounded"></div></th>
+                                <th><div class="skeleton-shimmer h-15px w-50px rounded"></div></th>
+                                <th><div class="skeleton-shimmer h-15px w-50px rounded"></div></th>
+                                <th><div class="skeleton-shimmer h-15px w-50px rounded"></div></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${skeletonRows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+            $('#tab-content').html(tableSkeleton);
             $.ajax({
                 url: `{{ route('products.filter' ) }}?page=${page}`,
                 method: 'GET',
-                data: { type: type, product_type: slug, search: keyword, seller_type: seller_type, selected_filter:selected_filter, user_id: user_id, brand_id: brand_id, category_id: category_id },
+                data: { type: type, product_type: slug, search: keyword, seller_type: seller_type, selected_filter:selected_filter, user_id: user_id, brand_id: brand_id, category_id: category_id, show_unpublished: show_unpublished },
                 success: function(response) {
                     $('#tab-content').html(response.html);
                     initFooTable();

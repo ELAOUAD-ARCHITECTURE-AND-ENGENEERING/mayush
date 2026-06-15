@@ -44,6 +44,8 @@
         }
     </style>
 
+    @include('frontend.partials.mayushseo_home_intro')
+
     <!-- Sliders -->
     <div class="home-banner-area mb-3">
         <div class="p-0 position-relative">
@@ -207,6 +209,9 @@
     @endif
 
     <!-- Featured Products -->
+
+
+
     <div id="section_featured" class="">
 
     </div>
@@ -599,5 +604,62 @@
         </div>
     </div>
 
+    <!-- Today's Deal Section -->
+    <div id="todays_deal"></div>
+
+    <!-- Elite Artisans Section -->
+    <div id="elite_artisans_section"></div>
+
 @endsection
+
+
+@section('script')
+    <script>
+        $(document).ready(function(){
+            $.post('{{ route('home.section.featured') }}', {_token:'{{ csrf_token() }}'}, function(data){
+                $('#section_featured').html(data);
+                AIZ.plugins.slickCarousel();
+                AIZ.extra.plusMinus();
+            });
+            $.post('{{ route('home.section.best_selling') }}', {_token:'{{ csrf_token() }}'}, function(data){
+                $('#section_best_selling').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+            $.post('{{ route('home.section.home_categories') }}', {_token:'{{ csrf_token() }}'}, function(data){
+                $('#section_home_categories').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+
+            @if (addon_is_activated('auction'))
+            $.post('{{ route('home.section.auction_products') }}', {_token:'{{ csrf_token() }}'}, function(data){
+                $('#auction_products').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+            @endif
+            
+            $.get('{{ route('home.section.todays_deal') }}', function(data){
+                $('#todays_deal').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+
+            $.get('{{ route('home.section.newest_products') }}', function(data){
+                $('#section_newest').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+
+            @if (addon_is_activated('preorder'))
+            $.get('{{ route('home.section.preorder_products') }}', function(data){
+                $('#section_featured_preorder_products').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+            @endif
+
+            $.post('{{ route('load-elite-artisans-section') }}', {_token:'{{ csrf_token() }}'}, function(data){
+                $('#elite_artisans_section').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+        });
+    </script>
+@endsection
+
 

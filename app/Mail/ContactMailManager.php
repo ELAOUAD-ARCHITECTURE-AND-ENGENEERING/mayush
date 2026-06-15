@@ -8,6 +8,9 @@ use Illuminate\Queue\SerializesModels;
 
 class ContactMailManager extends Mailable
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use Queueable, SerializesModels;
 
     /**
@@ -18,6 +21,7 @@ class ContactMailManager extends Mailable
     public $array;
     public function __construct($array)
     {
+        $this->onQueue('emails');
         $this->array = $array;
     }
 

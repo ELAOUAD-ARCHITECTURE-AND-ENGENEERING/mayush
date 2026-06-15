@@ -11,47 +11,71 @@
 @endif
 
 <head>
+    @php
+        $seo = \App\Services\SeoService::meta([
+            'title' => trim($__env->yieldContent('meta_title')),
+            'description' => trim($__env->yieldContent('meta_description')),
+            'keywords' => trim($__env->yieldContent('meta_keywords')),
+            'image' => trim($__env->yieldContent('meta_image')),
+            'type' => trim($__env->yieldContent('meta_type')) ?: 'website',
+            'canonical' => trim($__env->yieldContent('canonical_url')),
+        ]);
+    @endphp
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="app-url" content="{{ getBaseURL() }}">
+    <meta name="app-url" content="{{ url('/') }}">
     <meta name="file-base-url" content="{{ getFileBaseURL() }}">
 
-    <title>@yield('meta_title', get_setting('website_name') . ' | ' . get_setting('site_motto'))</title>
+    <title>{{ $seo['title'] }}</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="index, follow">
-    <meta name="description" content="@yield('meta_description', get_setting('meta_description'))" />
-    <meta name="keywords" content="@yield('meta_keywords', get_setting('meta_keywords'))">
+    <meta name="robots" content="{{ $seo['robots'] }}">
+    <link rel="canonical" href="{{ $seo['canonical'] }}">
+    <meta name="description" content="{{ $seo['description'] }}" />
+    @if($seo['keywords'] !== '')
+        <meta name="keywords" content="{{ $seo['keywords'] }}">
+    @endif
+
+    <meta itemprop="name" content="{{ $seo['title'] }}">
+    <meta itemprop="description" content="{{ $seo['description'] }}">
+    @if($seo['image'])
+        <meta itemprop="image" content="{{ $seo['image'] }}">
+    @endif
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seo['title'] }}">
+    <meta name="twitter:description" content="{{ $seo['description'] }}">
+    @if($seo['image'])
+        <meta name="twitter:image" content="{{ $seo['image'] }}">
+    @endif
+
+    <meta property="og:title" content="{{ $seo['title'] }}" />
+    <meta property="og:type" content="{{ $seo['type'] }}" />
+    <meta property="og:url" content="{{ $seo['canonical'] }}" />
+    <meta property="og:description" content="{{ $seo['description'] }}" />
+    <meta property="og:site_name" content="{{ $seo['site_name'] }}" />
+    @if($seo['image'])
+        <meta property="og:image" content="{{ $seo['image'] }}" />
+    @endif
+    <meta property="fb:app_id" content="{{ env('FACEBOOK_PIXEL_ID') }}">
+
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::organizationSchema($seo)) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::websiteSchema($seo)) !!}</script>
+    @if(request()->routeIs('home'))
+        @php
+            $homepageStatsService = app(\App\Services\SeoStatsService::class);
+        @endphp
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
+            'title' => $seo['title'],
+            'description' => $seo['description'],
+            'canonical' => route('home'),
+        ], \App\Services\SeoService::homepageTitle())) !!}</script>
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd($homepageStatsService->homepageFaqSchema()) !!}</script>
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd($homepageStatsService->homepageItemListSchema()) !!}</script>
+    @endif
 
     @yield('meta')
-
-    @if (!isset($detailedProduct) && !isset($customer_product) && !isset($shop) && !isset($page) && !isset($blog))
-        @php
-            $meta_image = uploaded_asset(get_setting('meta_image'));
-        @endphp
-        <!-- Schema.org markup for Google+ -->
-        <meta itemprop="name" content="{{ get_setting('meta_title') }}">
-        <meta itemprop="description" content="{{ get_setting('meta_description') }}">
-        <meta itemprop="image" content="{{ $meta_image }}">
-
-        <!-- Twitter Card data -->
-        <meta name="twitter:card" content="product">
-        <meta name="twitter:site" content="@publisher_handle">
-        <meta name="twitter:title" content="{{ get_setting('meta_title') }}">
-        <meta name="twitter:description" content="{{ get_setting('meta_description') }}">
-        <meta name="twitter:creator" content="@author_handle">
-        <meta name="twitter:image" content="{{ $meta_image }}">
-
-        <!-- Open Graph data -->
-        <meta property="og:title" content="{{ get_setting('meta_title') }}" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="{{ route('home') }}" />
-        <meta property="og:image" content="{{ $meta_image }}" />
-        <meta property="og:description" content="{{ get_setting('meta_description') }}" />
-        <meta property="og:site_name" content="{{ env('APP_NAME') }}" />
-        <meta property="fb:app_id" content="{{ env('FACEBOOK_PIXEL_ID') }}">
-    @endif
 
     <!-- Favicon -->
     @php
@@ -59,15 +83,40 @@
     @endphp
     <link rel="icon" href="{{ $site_icon }}">
     <link rel="apple-touch-icon" href="{{ $site_icon }}">
+    @yield('preload')
 
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="preload" as="style" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css"></noscript>
 
-    <!-- Vite Assets -->
-    @vite(['resources/js/analytics-tracker.js'])
+    <script defer src="{{ versioned_static_asset('js/storefront-bootstrap.js') }}"
+        data-analytics-src="{{ versioned_static_asset('js/analytics-tracker.js') }}"
+        data-defer-marketing="{{ config('storefront-performance.defer_marketing') ? '1' : '0' }}"
+        data-gtm-enabled="{{ get_setting('google_analytics') == 1 ? '1' : '0' }}"
+        data-gtm-id="{{ config('storefront-performance.gtm_id') }}"
+        data-facebook-enabled="{{ get_setting('facebook_pixel') == 1 ? '1' : '0' }}"
+        data-facebook-pixel-id="{{ config('storefront-performance.facebook_pixel_id') }}"
+        data-whatsapp-enabled="{{ get_setting('whatsapp_chat') == 1 ? '1' : '0' }}"
+        data-whatsapp-number="{{ env('WHATSAPP_NUMBER') }}"
+        data-whatsapp-label="{{ translate('Message us') }}"></script>
+    @if (config('storefront-performance.asset_profiles_enabled') && storefront_asset('core.js'))
+        <script type="module" src="{{ storefront_asset('core.js') }}"></script>
+        @if (request()->routeIs('home'))
+            <script type="module" src="{{ storefront_asset('home.js') }}"></script>
+        @elseif (request()->routeIs('products.category', 'search'))
+            <script type="module" src="{{ storefront_asset('listing.js') }}"></script>
+        @elseif (request()->routeIs('product'))
+            <script type="module" src="{{ storefront_asset('product.js') }}"></script>
+        @elseif (request()->routeIs('cart'))
+            <script type="module" src="{{ storefront_asset('cart.js') }}"></script>
+        @elseif (request()->routeIs('checkout*'))
+            <script type="module" src="{{ storefront_asset('checkout.js') }}"></script>
+        @endif
+    @endif
     @yield('styles')
     @yield('script_at_head')
 
@@ -76,15 +125,22 @@
     @if ($rtl == 1)
         <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
     @endif
-    <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css?v=') }}{{ rand(1000, 9999) }}">
-    <link rel="stylesheet" href="{{ static_asset('assets/css/semantic_search.css') }}">
+    <link rel="stylesheet" href="{{ versioned_static_asset('assets/css/aiz-core.css') }}">
+    @if(request()->routeIs('search', 'products.category'))
+        <link rel="stylesheet" href="{{ static_asset('assets/css/semantic_search.css') }}">
+    @endif
     <link rel="stylesheet" href="{{ static_asset('assets/css/custom-style.css') }}">
+
+    <!-- Mayush Design Tokens (Charte Graphique v1.0) -->
+    <link rel="stylesheet" href="{{ static_asset('assets/css/mayush-design-tokens.css') }}">
+    <link rel="stylesheet" href="{{ static_asset('assets/css/mayush-components.css') }}">
+
     @if(get_setting('homepage_select') == 'thecore')
     <link rel="stylesheet" href="{{ static_asset('assets/css/thecore.css') }}">
     @endif
-
-    @if (get_setting('cloudflare_turnstile') == 1)
-        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    
+    @if(request()->routeIs('shop.visit', 'shop.visit.type') || request()->is('*contact-us*'))
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
     @endif
 
     <script>
@@ -110,6 +166,11 @@
             complete: '{{ translate('Complete') }}',
             file: '{{ translate('File') }}',
             files: '{{ translate('Files') }}',
+            saving: '{{ translate('Saving') }}',
+            something_went_wrong: '{{translate('Something went wrong!')}}',
+            error_occured_while_processing: '{{translate('An error occurred while processing')}}',
+            saving_as_draft: '{{translate('Saving As Draft')}}',
+            upload_failed: '{{translate('Upload failed')}}',
         }
     </script>
 
@@ -137,9 +198,14 @@
             --primary: {{ get_setting('base_color', '#d43533') }};
             --hov-primary: {{ get_setting('base_hov_color', '#9d1b1a') }};
             --soft-primary: {{ hex2rgba(get_setting('base_color', '#d43533'), 0.15) }};
+            --white: #FFFFFF;
+            --red: #E53935;
+            --orange: #D97434;
+            --green: #00A86B;
+            --teal: #00A86B;
         }
         body{
-            font-family: {!! !empty(get_setting('system_font_family')) ? get_setting('system_font_family') : "'Public Sans', sans-serif" !!}, sans-serif;
+            font-family: var(--mayush-font-body), {!! !empty(get_setting('system_font_family')) ? get_setting('system_font_family') : "'Public Sans', sans-serif" !!}, sans-serif;
             font-weight: 400;
         }
 
@@ -189,40 +255,26 @@
         .home-category-banner::after {
             content: "{{ translate('View All') }}";
         }
+
+        /* Application-wide Skeleton CSS */
+        .skeleton-shimmer {
+            background: #e2e5e7 !important;
+            background: linear-gradient(90deg, #e2e5e7 8%, #f4f6f8 18%, #e2e5e7 33%) !important;
+            background-size: 200% 100% !important;
+            animation: placeholderShimmer 1.5s linear infinite !important;
+            display: block !important;
+        }
+        @keyframes placeholderShimmer {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+        
+        img.lazyloaded.skeleton-shimmer {
+            background: transparent !important;
+            animation: none !important;
+        }
     </style>
 
-
-@if (get_setting('google_analytics') == 1)
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ env('TRACKING_ID') }}"></script>
-
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', '{{ env('TRACKING_ID') }}');
-    </script>
-@endif
-
-@if (get_setting('facebook_pixel') == 1)
-    <!-- Facebook Pixel Code -->
-    <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '{{ env('FACEBOOK_PIXEL_ID') }}');
-        fbq('track', 'PageView');
-    </script>
-    <noscript>
-        <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ env('FACEBOOK_PIXEL_ID') }}&ev=PageView&noscript=1"/>
-    </noscript>
-    <!-- End Facebook Pixel Code -->
-@endif
 
 @php
     // echo get_setting('header_script');
@@ -242,19 +294,31 @@
 
             $system_language = get_system_language();
         @endphp
-        <!-- Header -->
-        @include('frontend.inc.nav')
+        @if (!trim($__env->yieldContent('hide_default_frontend_nav')))
+            <!-- Header -->
+            @include('frontend.inc.nav')
+        @endif
 
         @yield('content')
 
-        <!-- footer -->
-        @include('frontend.inc.footer')
+        @if (!trim($__env->yieldContent('hide_default_frontend_footer')))
+            <!-- footer -->
+            @include('frontend.inc.footer')
+        @endif
 
     </div>
 
-    @if(get_setting('use_floating_buttons') == 1)
+    @if(get_setting('use_floating_buttons') == 1 && !trim($__env->yieldContent('hide_default_frontend_nav')))
         <!-- Floating Buttons -->
         @include('frontend.inc.floating_buttons')
+    @endif
+
+    @if (get_setting('google_analytics') == 1 || get_setting('facebook_pixel') == 1)
+        <div id="marketing-consent-notice" class="position-fixed fixed-bottom bg-white border shadow-lg p-3 m-3" style="max-width: 420px; z-index: 1050;" hidden>
+            <p class="mb-2 fs-13 text-dark">{{ translate('Allow optional analytics and marketing cookies to help us improve your shopping experience?') }}</p>
+            <button type="button" id="marketing-consent-accept" class="btn btn-sm btn-primary mr-2">{{ translate('Allow') }}</button>
+            <button type="button" id="marketing-consent-reject" class="btn btn-sm btn-outline-secondary">{{ translate('Decline') }}</button>
+        </div>
     @endif
 
     <div class="aiz-refresh">
@@ -271,7 +335,7 @@
     @php
         $alert_location = get_setting('custom_alert_location');
         $order = in_array($alert_location, ['top-left', 'top-right']) ? 'asc' : 'desc';
-        $custom_alerts = App\Models\CustomAlert::where('status', 1)->orderBy('id', $order)->get();
+        $custom_alerts = app(\App\Services\StorefrontDataService::class)->customAlerts($order);
     @endphp
 
     <div class="aiz-custom-alert {{ get_setting('custom_alert_location') }}" id="aiz-custom-sale-alert">
@@ -325,7 +389,7 @@
 
     <!-- website popup -->
     @php
-        $dynamic_popups = App\Models\DynamicPopup::where('status', 1)->orderBy('id', 'asc')->get();
+        $dynamic_popups = app(\App\Services\StorefrontDataService::class)->dynamicPopups();
         use App\Models\Order;
         use App\Models\OrderDetail;
     @endphp
@@ -357,7 +421,7 @@
                             </div>
                         </div>
                         <div class="pb-5 pt-4 px-3 px-md-2rem">
-                            <h1 class="fs-30 fw-700 text-dark">{{ $dynamic_popup->title }}</h1>
+                            <h2 class="fs-30 fw-700 text-dark">{{ $dynamic_popup->title }}</h2>
                             <p class="fs-14 fw-400 mt-3 mb-4">{{ $dynamic_popup->summary }}</p>
                             @if ($dynamic_popup->show_subscribe_form == 'on')
                                 <form class="" method="POST" action="{{ route('subscribers.store') }}">
@@ -371,7 +435,7 @@
                                 </form>
                             @endif
                         </div>
-                        <button class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup" data-value="removed" data-parent=".website-popup">
+                        <button type="button" aria-label="{{ translate('Close popup') }}" class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup" data-value="removed" data-parent=".website-popup">
                             <i class="la la-close fs-20"></i>
                         </button>
                     </div>
@@ -389,13 +453,13 @@
                             </div>
                         </div>
                         <div class="pb-5 pt-4 px-3 px-md-2rem">
-                            <h1 class="fs-30 fw-700 text-dark">{{ $dynamic_popup->title }}</h1>
+                            <h2 class="fs-30 fw-700 text-dark">{{ $dynamic_popup->title }}</h2>
                             <p class="fs-14 fw-400 mt-3 mb-4">{{ $dynamic_popup->summary }}</p>
                             <a href="{{ $dynamic_popup->btn_link }}" class="btn btn-block mt-3 rounded-0 text-{{ $dynamic_popup->btn_text_color }} set-session" style="background: {{ $dynamic_popup->btn_background_color }};"data-key="website-popup-{{ $dynamic_popup->id }}" data-value="removed" data-parent=".website-popup">
                                 {{ $dynamic_popup->btn_text }}
                             </a>
                         </div>
-                        <button class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup-{{ $dynamic_popup->id }}" data-value="removed" data-parent=".website-popup">
+                        <button type="button" aria-label="{{ translate('Close popup') }}" class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup-{{ $dynamic_popup->id }}" data-value="removed" data-parent=".website-popup">
                             <i class="la la-close fs-20"></i>
                         </button>
                     </div>
@@ -410,6 +474,7 @@
     @include('frontend.partials.visual_search')
 
     @include('frontend.partials.account_delete_modal')
+    @include('frontend.partials.express_buy_modal')
 
     <div class="modal fade" id="addToCart">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-zoom product-modal" id="modal-size" role="document">
@@ -446,25 +511,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="{{ static_asset('assets/js/vendors.js') }}"></script>
-    <script src="{{ static_asset('assets/js/aiz-core.js?v=') }}{{ rand(1000, 9999) }}"></script>
-
-    {{-- WhatsaApp Chat --}}
-    @if (get_setting('whatsapp_chat') == 1)
-        <script type="text/javascript">
-            (function () {
-                var options = {
-                    whatsapp: "{{ env('WHATSAPP_NUMBER') }}",
-                    call_to_action: "{{ translate('Message us') }}",
-                    position: "right", // Position may be 'right' or 'left'
-                };
-                var proto = document.location.protocol, host = "getbutton.io", url = proto + "//static." + host;
-                var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = url + '/widget-send-button/js/init.js';
-                s.onload = function () { WhWidgetSendButton.init(host, proto, options); };
-                var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
-            })();
-        </script>
-    @endif
+    <script src="{{ versioned_static_asset('assets/js/vendors.js') }}"></script>
+    <script src="{{ versioned_static_asset('assets/js/aiz-core.js') }}"></script>
 
     <style>
     .sc-q8c6tt-3 {
@@ -484,11 +532,9 @@
     </script>
 
     <script>
-        @if (Route::currentRouteName() == 'home' || Route::currentRouteName() == '/')
+        @if ((Route::currentRouteName() == 'home' || Route::currentRouteName() == '/') && get_setting('homepage_select') != 'metro')
 
-            $.post('{{ route('home.section.featured') }}', {
-                _token: '{{ csrf_token() }}'
-            }, function(data) {
+            $.get('{{ route('home.section.featured') }}', function(data) {
                 $('#section_featured').html(data);
                 AIZ.plugins.slickCarousel();
             });
@@ -498,9 +544,7 @@
                 AIZ.plugins.slickCarousel();
             });
 
-            $.post('{{ route('home.section.best_selling') }}', {
-                _token: '{{ csrf_token() }}'
-            }, function(data) {
+            $.get('{{ route('home.section.best_selling') }}', function(data) {
                 $('#section_best_selling').html(data);
                 AIZ.plugins.slickCarousel();
             });
@@ -513,9 +557,7 @@
                 @endif
             });
 
-            $.post('{{ route('home.section.auction_products') }}', {
-                _token: '{{ csrf_token() }}'
-            }, function(data) {
+            $.get('{{ route('home.section.auction_products') }}', function(data) {
                 $('#auction_products').html(data);
                 AIZ.plugins.slickCarousel();
             });
@@ -529,9 +571,7 @@
                 });
             }
 
-            $.post('{{ route('home.section.home_categories') }}', {
-                _token: '{{ csrf_token() }}'
-            }, function(data) {
+            $.get('{{ route('home.section.home_categories') }}', function(data) {
                 $('#section_home_categories').html(data);
                 AIZ.plugins.slickCarousel();
             });
@@ -553,9 +593,9 @@
                 });
             });
 
-            if ($('#lang-change').length > 0) {
-                $('#lang-change .dropdown-menu a').each(function() {
-                    $(this).on('click', function(e){
+            if ($('.js-lang-change, #lang-change').length > 0) {
+                $('.js-lang-change .dropdown-menu a, #lang-change .dropdown-menu a').each(function() {
+                    $(this).off('click.headerSwitcher').on('click.headerSwitcher', function(e){
                         e.preventDefault();
                         var $this = $(this);
                         var locale = $this.data('flag');
@@ -567,9 +607,9 @@
                 });
             }
 
-            if ($('#currency-change').length > 0) {
-                $('#currency-change .dropdown-menu a').each(function() {
-                    $(this).on('click', function(e){
+            if ($('.js-currency-change, #currency-change').length > 0) {
+                $('.js-currency-change .dropdown-menu a, #currency-change .dropdown-menu a').each(function() {
+                    $(this).off('click.headerSwitcher').on('click.headerSwitcher', function(e){
                         e.preventDefault();
                         var $this = $(this);
                         var currency_code = $this.data('currency');
@@ -631,8 +671,10 @@
 
         function toggleAiMode() {
             const $toggle = $('#ai-mode-toggle');
+            const $wrap = $('.ai-mode-toggle-wrap');
             const $input = $('#search');
             $toggle.toggleClass('active');
+            $wrap.toggleClass('active');
             
             if ($toggle.hasClass('active')) {
                 $input.attr('placeholder', '{{ translate('Describe a vibe... (e.g. Warm Cozy Minimal)') }}');
@@ -658,7 +700,8 @@
 
         $(document).on("click", function(event){
             var $trigger = $("#category-menu-bar");
-            if($trigger !== event.target && !$trigger.has(event.target).length){
+            var $menu = $("#click-category-menu");
+            if(!$trigger.is(event.target) && !$trigger.has(event.target).length && !$menu.is(event.target) && !$menu.has(event.target).length){
                 $("#click-category-menu").slideUp("fast");;
                 $("#category-menu-bar-icon").removeClass('show');
             }
@@ -694,7 +737,7 @@
         }
 
         function addToWishList(id){
-            @if (Auth::check() && Auth::user()->user_type == 'customer')
+            @if (Auth::check() && isCustomer())
                 $.post('{{ route('wishlists.store') }}', {_token: AIZ.data.csrf, id:id}, function(data){
                     if(data != 0){
                         $('#wishlist').html(data);
@@ -704,7 +747,7 @@
                         AIZ.plugins.notify('warning', "{{ translate('Please login first') }}");
                     }
                 });
-            @elseif(Auth::check() && Auth::user()->user_type != 'customer')
+            @elseif(Auth::check() && !isCustomer())
                 AIZ.plugins.notify('warning', "{{ translate('Please Login as a customer to add products to the WishList.') }}");
             @else
                 AIZ.plugins.notify('warning', "{{ translate('Please login first') }}");
@@ -834,6 +877,18 @@
                         $('#option-choice-form #chosen_price_div #chosen_price').html(data.price);
                         $('#variant_sku_section #variant_sku').html(data.sku);
                         $('#option-choice-form #selected_variant').html(data.variation);
+
+                        // Dimensions update
+                        if (data.length || data.width || data.height) {
+                            $('#product-dimensions').removeClass('d-none');
+                            $('#p-length').html(data.length ? data.length : '-');
+                            $('#p-width').html(data.width ? data.width : '-');
+                            $('#p-height').html(data.height ? data.height : '-');
+                            $('#p-dimension-unit').html(data.dimension_unit ? data.dimension_unit : 'cm');
+                        } else {
+                            $('#product-dimensions').addClass('d-none');
+                        }
+
                         $('#available-quantity').html(data.quantity);
                         $('.input-number').prop('max', data.max_limit);
 
@@ -879,7 +934,7 @@
         }
 
         function addToCart(){
-            @if (Auth::check() && Auth::user()->user_type != 'customer')
+            @if (Auth::check() && !isCustomer())
                 AIZ.plugins.notify('warning', "{{ translate('Please Login as a customer to add products to the Cart.') }}");
                 return false;
             @endif
@@ -904,7 +959,7 @@
                     }
                 });
 
-                if ("{{ get_setting('facebook_pixel') }}" == 1){
+                if ("{{ get_setting('facebook_pixel') }}" == 1 && typeof fbq === 'function'){
                     // Facebook Pixel AddToCart Event
                     fbq('track', 'AddToCart', {content_type: 'product'});
                     // Facebook Pixel AddToCart Event
@@ -917,7 +972,7 @@
         }
 
         function addToCartSingleProduct(productId = null){
-            @if (Auth::check() && Auth::user()->user_type != 'customer')
+            @if (Auth::check() && !isCustomer())
                 AIZ.plugins.notify('warning', "{{ translate('Please Login as a customer to add products to the Cart.') }}");
                 return false;
             @endif
@@ -970,7 +1025,7 @@
                     }
                 });
 
-                if ("{{ get_setting('facebook_pixel') }}" == 1){
+                if ("{{ get_setting('facebook_pixel') }}" == 1 && typeof fbq === 'function'){
                     fbq('track', 'AddToCart', {content_type: 'product'});
                 }
             }
@@ -980,7 +1035,7 @@
         }
 
         function buyNow(){
-            @if (Auth::check() && Auth::user()->user_type != 'customer')
+            @if (Auth::check() && !isCustomer())
                 AIZ.plugins.notify('warning', "{{ translate('Please Login as a customer to add products to the Cart.') }}");
                 return false;
             @endif
@@ -1279,14 +1334,14 @@
             const html = `
                 <div class="alert  bg-white alert-dismissible rounded-0" role="alert" style="display: none;">
                     <div class="d-flex align-items-center">
-                        <img src="${randomProduct.image}" class="h-50px w-50px img-fit mr-2 rounded" alt="${randomProduct.title}">
+                        <img src="${randomProduct.image}" class="h-50px w-50px img-fit mr-2 rounded" width="50" height="50" alt="${randomProduct.title}">
                         <div>
                             <span class="text-truncate-2">
                                 <a href="${randomProduct.url}" class="text-dark font-weight-bold">${randomProduct.title}</a>
                             </span>
                              — {{ translate('ordered just now') }}!
                         </div>
-                        <button type="button" class="close ml-auto hov-text-primary set-session" data-parent=".alert">
+                        <button type="button" aria-label="{{ translate('Close notification') }}" class="close ml-auto hov-text-primary set-session" data-parent=".alert">
                             <i class="la la-close fs-20"></i>
                         </button>
                     </div>
@@ -1356,6 +1411,20 @@
                 var alertEl = document.getElementById('system-degraded-alert');
                 if (alertEl) alertEl.remove();
             }
+        </script>
+    @endif
+
+    @if(request()->routeIs('shop.visit', 'shop.visit.type') || request()->is('*contact-us*'))
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+        <script>
+            $(document).ready(function() {
+                AOS.init({
+                    duration: 1000,
+                    once: true,
+                    offset: 120,
+                    easing: 'ease-out-cubic'
+                });
+            });
         </script>
     @endif
 </body>

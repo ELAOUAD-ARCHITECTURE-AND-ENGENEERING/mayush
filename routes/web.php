@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\AccountModeController;
+use App\Http\Controllers\AgentDiscoveryController;
 use App\Http\Controllers\AizUploadController;
+use App\Http\Controllers\AuthorBlogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\BlogController;
@@ -12,14 +15,18 @@ use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\CustomerPackageController;
 use App\Http\Controllers\CustomerProductController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ProductCollectionController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\DigitalProductController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ExpressBuyController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PaymentInformationController;
 use App\Http\Controllers\PurchaseHistoryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
@@ -27,6 +34,9 @@ use App\Http\Controllers\VisualSearchController;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\ProductDetailsController;
+use App\Http\Controllers\FrontendShopController;
+use App\Http\Controllers\OTPVerificationController;
 
 use App\Http\Controllers\Payment\AamarpayController;
 use App\Http\Controllers\Payment\AuthorizenetController;
@@ -38,6 +48,7 @@ use App\Http\Controllers\Payment\PayhereController;
 use App\Http\Controllers\Payment\PaypalController;
 use App\Http\Controllers\Payment\PaystackController;
 use App\Http\Controllers\Payment\SslcommerzController;
+use App\Http\Controllers\Payment\TapController;
 use App\Http\Controllers\Payment\RazorpayController;
 use App\Http\Controllers\Payment\StripeController;
 use App\Http\Controllers\Payment\VoguepayController;
@@ -89,11 +100,12 @@ Route::middleware(['throttle:login'])->group(function () {
 // Login
 Route::controller(LoginController::class)->group(function () {
     Route::get('/logout', 'logout');
+    Route::get('/handle-demo-login', 'handle_demo_login')->name('handleDemoLogin');
     Route::get('/social-login/redirect/{provider}', 'redirectToProvider')->name('social.login');
     Route::get('/social-login/{provider}/callback', 'handleProviderCallback')->name('social.callback');
     //Apple Callback
     Route::post('/apple-callback', 'handleAppleCallback');
-    Route::get('/account-deletion', 'account_deletion')->name('account_delete');
+    Route::delete('/account-deletion', 'account_deletion')->name('account_delete');
 });
 
 Route::controller(VerificationController::class)->group(function () {
@@ -103,19 +115,26 @@ Route::controller(VerificationController::class)->group(function () {
     Route::get('/verification-confirmation/{code}', 'verification_confirmation')->name('email.verification.confirmation');
 });
 
-Route::controller(HomeController::class)->group(function () {
+Route::post('/contact', [ContactController::class, 'contact'])->middleware('throttle:contact-form')->name('contact.store');
+
+
+
+Route::controller(\App\Http\Controllers\Auth\CustomAuthController::class)->group(function () {
     Route::get('/email_change/callback', 'email_change_callback')->name('email_change.callback');
-    Route::post('/password/reset/email/submit', 'reset_password_with_code')->name('password.update.email');
-    Route::get('/users/login', 'login')->middleware(['throttle:login'])->name('user.login');
-    Route::get('/seller/login', 'login')->middleware(['throttle:login'])->name('seller.login');
-    Route::get('/deliveryboy/login', 'login')->middleware(['throttle:login'])->name('deliveryboy.login');
+    Route::post('/password/reset/email/submit', 'reset_password_with_code')->middleware('throttle:password-reset')->name('password.update.email');
+    Route::get('/users/login', 'login')->middleware(['throttle:auth-login'])->name('user.login');
+    Route::get('/seller/login', 'login')->middleware(['throttle:seller-login'])->name('seller.login');
+    Route::get('/deliveryboy/login', 'login')->middleware(['throttle:auth-login'])->name('deliveryboy.login');
     Route::get('/users/registration', 'registration')->name('user.registration');
-    Route::post('/users/login/cart', 'cart_login')->middleware(['throttle:login'])->name('cart.login.submit');
+    Route::post('/users/login/cart', 'cart_login')->middleware(['throttle:auth-login'])->name('cart.login.submit');
     // Route::get('/new-page', 'new_page')->name('new_page');
 
-    Route::post('/customer-reg/verification-code-send', 'sendRegVerificationCode')->name('customer-reg.verification_code_send');
+    Route::post('/customer-reg/verification-code-send', 'sendRegVerificationCode')->middleware('throttle:auth-register')->name('customer-reg.verification_code_send');
     Route::get('/customer-reg/verify-code/{id}', 'regVerifyCode')->name('customer-reg.verify_code');
     Route::post('/customer-reg/verify-code-confirmation', 'regVerifyCodeConfirmation')->name('customer-reg.verify_code_confirmation');
+});
+
+Route::controller(HomeController::class)->group(function () {
 
 
     // Visual Search
@@ -123,50 +142,69 @@ Route::controller(HomeController::class)->group(function () {
 
     //Home Page
     Route::get('/', 'index')->name('home');
+    Route::get('/mayush', 'index')->name('home.local_subdirectory');
 
-    Route::post('/home/section/featured', 'load_featured_section')->name('home.section.featured');
-    Route::post('/home/section/best_selling', 'load_best_selling_section')->name('home.section.best_selling');
-    Route::post('/home/section/home_categories', 'load_home_categories_section')->name('home.section.home_categories');
-    Route::post('/home/section/best_sellers', 'load_best_sellers_section')->name('home.section.best_sellers');
+    Route::match(['get', 'post'], '/home/section/featured', 'load_featured_section')->name('home.section.featured');
+    Route::match(['get', 'post'], '/home/section/best_selling', 'load_best_selling_section')->name('home.section.best_selling');
+    Route::match(['get', 'post'], '/home/section/home_categories', 'load_home_categories_section')->name('home.section.home_categories');
+    Route::match(['get', 'post'], '/home/section/best_sellers', 'load_best_sellers_section')->name('home.section.best_sellers');
+    Route::match(['get', 'post'], '/home/section/auction_products', 'load_auction_products_section')->name('home.section.auction_products');
     Route::get('/home/section/todays_deal', 'load_todays_deal_section')->name('home.section.todays_deal');
     Route::get('/home/section/newest_products', 'load_newest_product_section')->name('home.section.newest_products');
+    Route::get('/home/section/promoted_category', 'load_promoted_category_section')->name('home.section.promoted_category');
     Route::get('/home/section/preorder_products', 'load_preorder_featured_products_section')->name('home.section.preorder_products');
-    Route::post('/home/section/load-elite-artisans-section', 'load_elite_artisans_section')->name('load-elite-artisans-section');
+    Route::match(['get', 'post'], '/home/section/load-elite-artisans-section', 'load_elite_artisans_section')->name('load-elite-artisans-section');
 
     //category dropdown menu ajax call
     Route::post('/category/nav-element-list', 'get_category_items')->name('category.elements');
 
     //Flash Deal Details Page
-    Route::get('/flash-deals', 'all_flash_deals')->name('flash-deals');
-    Route::get('/flash-deals-grid', 'flash_deals_grid')->name('flash-deals-grid'); // AJAX only – returns product grid HTML
-    Route::get('/flash-deal/{slug}', 'flash_deal_details')->name('flash-deal-details');
-    Route::get('/flash-deal-details-grid/{slug}', 'flash_deal_details_grid')->name('flash-deal-details-grid'); // AJAX only
+    Route::controller(ProductDetailsController::class)->group(function () {
+        Route::get('/flash-deals', 'all_flash_deals')->name('flash-deals');
+        Route::get('/flash-deals-grid', 'flash_deals_grid')->name('flash-deals-grid'); // AJAX only – returns product grid HTML
+        Route::get('/flash-deal/{slug}', 'flash_deal_details')->name('flash-deal-details');
+        Route::get('/flash-deal-details-grid/{slug}', 'flash_deal_details_grid')->name('flash-deal-details-grid'); // AJAX only
 
-    Route::get('/product/{slug}', 'product')->name('product');
-    Route::post('/product/variant_price', 'variant_price')->name('products.variant_price');
-    Route::get('/shop/{slug}', 'shop')->name('shop.visit');
-    Route::get('/shop/{slug}/{type}', 'filter_shop')->name('shop.visit.type');
+        Route::get('/product/{slug}', 'product')->name('product');
+        Route::post('/product/variant_price', 'variant_price')->name('products.variant_price');
+        Route::get('/todays-deal', 'todays_deal')->name('todays-deal');
+        Route::get('/best-selling', 'best_selling')->name('best-selling');
+        Route::get('/featured-products', 'featured_products')->name('featured-products');
+        Route::get('/track-your-order', 'trackOrder')->name('orders.track');
+        Route::get('/product-reviews', 'product_reviews')->name('product.reviews');
+    });
+
+    Route::controller(FrontendShopController::class)->group(function () {
+        Route::get('/shop/{slug}', 'shop')->name('shop.visit');
+        Route::get('/shop/{slug}/{type}', 'filter_shop')->name('shop.visit.type');
+        Route::get('/sellers', 'all_seller')->name('sellers');
+    });
 
     Route::get('/customer-packages', 'premium_package_index')->name('customer_packages_list_show');
 
     Route::get('/brands', 'all_brands')->name('brands.all');
-    Route::get('/todays-deal', 'todays_deal')->name('todays-deal');
-    Route::get('/best-selling', 'best_selling')->name('best-selling');
-    Route::get('/featured-products', 'featured_products')->name('featured-products');
     Route::get('/categories', 'all_categories')->name('categories.all');
-    Route::get('/sellers', 'all_seller')->name('sellers');
     Route::get('/coupons', 'all_coupons')->name('coupons.all');
     Route::get('/inhouse', 'inhouse_products')->name('inhouse.all');
 
 
+    // Stock Alert (Public)
+    Route::post('/stock-alert/subscribe', [\App\Http\Controllers\StockAlertController::class, 'subscribe'])->name('stock.alert.subscribe');
+});
+
+
+Route::controller(\App\Http\Controllers\Frontend\PolicyController::class)->group(function () {
     // Policies
     Route::get('/seller-policy', 'sellerpolicy')->name('sellerpolicy');
     Route::get('/return-policy', 'returnpolicy')->name('returnpolicy');
     Route::get('/support-policy', 'supportpolicy')->name('supportpolicy');
     Route::get('/terms', 'terms')->name('terms');
     Route::get('/privacy-policy', 'privacypolicy')->name('privacypolicy');
+});
 
-    Route::get('/track-your-order', 'trackOrder')->name('orders.track');
+// Health check route for deploy script
+Route::get('/up', function () {
+    return response('OK', 200);
 });
 
 // Language Switch
@@ -185,8 +223,41 @@ Route::controller(AddressController::class)->group(function () {
 });
 
 
+Route::get('/robots.txt', function () {
+    $path = public_path('robots.txt');
+
+    if (!file_exists($path) || filesize($path) === 0) {
+        abort(404, 'Robots file is not available.');
+    }
+
+    return response(file_get_contents($path), 200, [
+        'Content-Type' => 'text/plain; charset=UTF-8',
+    ]);
+});
+
 Route::get('/sitemap.xml', function() {
-    return base_path('sitemap.xml');
+    $path = public_path('sitemap.xml');
+
+    if (!file_exists($path) || filesize($path) === 0) {
+        abort(404, 'Sitemap has not been generated yet.');
+    }
+
+    $contents = file_get_contents($path);
+    $contents = preg_replace('/^\xEF\xBB\xBF/', '', $contents);
+    $contents = ltrim($contents);
+
+    return response($contents, 200, [
+        'Content-Type' => 'application/xml; charset=UTF-8',
+    ]);
+});
+
+Route::controller(AgentDiscoveryController::class)->group(function () {
+    Route::get('/.well-known/api-catalog', 'apiCatalog');
+    Route::get('/openapi.json', 'openApi');
+    Route::get('/docs/api', 'apiDocs');
+    Route::get('/.well-known/agent-skills/index.json', 'agentSkillsIndex');
+    Route::get('/.well-known/agent-skills/{slug}.json', 'agentSkill')
+        ->where('slug', '[A-Za-z0-9_-]+');
 });
 
 // Classified Product
@@ -199,7 +270,7 @@ Route::controller(CustomerProductController::class)->group(function () {
 });
 
 // Search
-Route::controller(SearchController::class)->group(function () {
+Route::controller(SearchController::class)->middleware('throttle:search')->group(function () {
     Route::get('/search', 'index')->name('search');
     Route::get('/search?keyword={search}', 'index')->name('suggestion.search');
     Route::get('/search-v2', 'index2')->name('suggestion.search2');
@@ -233,10 +304,9 @@ Route::middleware(['throttle:payments'])->group(function () {
         Route::any('/mercadopago/payment/cancel', 'callback')->name('mercadopago.cancel');
     });
     //Mercadopago 
-
     // SSLCOMMERZ Start
     Route::controller(SslcommerzController::class)->group(function () {
-        Route::get('/sslcommerz/pay', 'index');
+        Route::get('/sslcommerz/pay', 'pay');
         Route::POST('/sslcommerz/success', 'success');
         Route::POST('/sslcommerz/fail', 'fail');
         Route::POST('/sslcommerz/cancel', 'cancel');
@@ -244,11 +314,11 @@ Route::middleware(['throttle:payments'])->group(function () {
     });
     //SSLCOMMERZ END
 
-    //Stipe Start
+    //Stripe Start
     Route::controller(StripeController::class)->group(function () {
-        Route::get('stripe', 'stripe');
+        Route::get('stripe', 'pay');
         Route::post('/stripe/create-checkout-session', 'create_checkout_session')->name('stripe.get_token');
-        Route::any('/stripe/payment/callback', 'callback')->name('stripe.callback');
+        Route::any('/stripe/payment/callback', 'success')->name('stripe.callback');
         Route::get('/stripe/success', 'success')->name('stripe.success');
         Route::get('/stripe/cancel', 'cancel')->name('stripe.cancel');
     });
@@ -258,7 +328,8 @@ Route::middleware(['throttle:payments'])->group(function () {
 // Compare
 Route::controller(CompareController::class)->group(function () {
     Route::get('/compare', 'index')->name('compare');
-    Route::get('/compare/reset', 'reset')->name('compare.reset');
+    Route::delete('/compare/reset', 'reset')->name('compare.reset');
+    Route::delete('/compare/remove', 'removeFromCompare')->name('compare.remove');
     Route::post('/compare/addToCompare', 'addToCompare')->name('compare.addToCompare');
 });
 
@@ -274,21 +345,53 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function() {
     Route::controller(HomeController::class)->group(function () {
         Route::get('/dashboard', 'dashboard')->name('dashboard');
         Route::get('/profile', 'profile')->name('profile');
-        Route::post('/new-user-verification', 'new_verify')->name('user.new.verify');
-        Route::post('/new-user-email', 'update_email')->name('user.change.email');
         Route::post('/user/update-profile', 'userProfileUpdate')->name('user.profile.update');
     });
+
+    Route::post('/account-mode/switch', [AccountModeController::class, 'switch'])->name('account-mode.switch');
+
+    Route::controller(\App\Http\Controllers\Auth\CustomAuthController::class)->group(function () {
+        Route::post('/new-user-verification', 'new_verify')->name('user.new.verify');
+        Route::post('/new-user-email', 'update_email')->name('user.change.email');
+    });
     
-    Route::get('/all-notifications', [NotificationController::class, 'index'])->name('all-notifications');
+    Route::get('/all-notifications', [NotificationController::class, 'customerIndex'])->name('all-notifications');
+    Route::post('/notifications/bulk-delete', [NotificationController::class, 'bulkDeleteCustomer'])->name('notifications.bulk_delete');
 
 });
 
-Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() {
+Route::middleware(['auth', 'verified', 'unbanned', 'user'])
+    ->controller(CustomerProductController::class)
+    ->group(function () {
+        Route::get('/customer_products/create', 'create')->name('customer_products.create');
+        Route::post('/customer_products', 'store')->name('customer_products.store');
+        Route::get('/customer_products/{id}/edit', 'edit')->name('customer_products.edit');
+        Route::post('/customer_products/update/{id}', 'update')->name('customer_products.update');
+        Route::delete('/customer_products/destroy/{id}', 'destroy')->name('customer_products.destroy');
+        Route::post('/customer_products/promote', 'store_promotion')->name('customer_products.promote');
+    });
 
+Route::middleware(['auth', 'verified', 'unbanned'])
+    ->controller(PaymentInformationController::class)
+    ->group(function () {
+        Route::post('/payment-informations/create', 'create')->name('payment-informations.create');
+        Route::post('/payment-informations/ajax-create', 'ajax_create')->name('payment-informations.ajax_create');
+        Route::post('/payment-informations/store', 'store')->name('payment-informations.store');
+        Route::post('/payment-informations/ajax-store', 'ajax_store')->name('payment-informations.ajax_store');
+        Route::post('/payment-informations/edit', 'edit')->name('payment-informations.edit');
+        Route::post('/payment-informations/ajax-edit', 'ajax_edit')->name('payment-informations.ajax_edit');
+        Route::post('/payment-informations/ajax-list', 'ajax_list')->name('payment-informations.ajax_list');
+        Route::post('/payment-informations/update', 'update')->name('payment-informations.update');
+        Route::post('/payment-informations/ajax-update', 'ajax_update')->name('payment-informations.ajax_update');
+        Route::delete('/payment-informations/{id}', 'destroy')->name('payment-informations.destroy');
+        Route::post('/payment-informations/{id}/default', 'set_default')->name('payment-informations.set_default');
+    });
+
+Route::middleware(['unbanned'])->group(function () {
     Route::get('/checkout-test', [CheckoutController::class, 'index']);
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.shipping_info');
     // Checkout Routes
-    Route::group(['prefix' => 'checkout', 'middleware' => ['throttle:payments']], function() {
+    Route::group(['prefix' => 'checkout', 'middleware' => ['throttle:checkout-submit']], function() {
         Route::controller(CheckoutController::class)->group(function () {
             Route::any('/delivery_info', 'store_shipping_info')->name('checkout.store_shipping_infostore');
             Route::post('/payment_select', 'store_delivery_info')->name('checkout.store_delivery_info');
@@ -296,30 +399,45 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
             Route::get('/order-confirmed', 'order_confirmed')->name('order_confirmed');
             Route::get('/order-confirmed/{combined_order_id}', 'order_confirmed')->name('order_confirmed_with_id');
             Route::post('/payment', 'checkout')->name('payment.checkout');
-            Route::get('/deliveryinfo', 'get_delivery_info')->name('checkout.get_delivery_info');
-            Route::post('/get_pick_up_points', 'get_pick_up_points')->name('shipping_info.get_pick_up_points');
-            Route::get('/payment-select', 'get_payment_info')->name('checkout.payment_info');
+            Route::get('/deliveryinfo', 'get_shipping_info')->name('checkout.get_delivery_info');
+            Route::post('/get_pick_up_points', 'get_shipping_info')->name('shipping_info.get_pick_up_points');
+            Route::get('/payment-select', 'get_shipping_info')->name('checkout.payment_info');
             Route::post('/apply_coupon_code', 'apply_coupon_code')->name('checkout.apply_coupon_code');
             Route::post('/remove_coupon_code', 'remove_coupon_code')->name('checkout.remove_coupon_code');
             //Club point
             Route::post('/apply-club-point', 'apply_club_point')->name('checkout.apply_club_point');
             Route::post('/remove-club-point', 'remove_club_point')->name('checkout.remove_club_point'); 
+            Route::post('/account-address', 'accountAddress')->name('checkout.account_address');
             Route::post('/update-delivery-address', 'updateDeliveryAddress')->name('checkout.updateDeliveryAddress');
             Route::post('/update-billing-address', 'updateBillingAddress')->name('checkout.updateBillingAddress');
             Route::post('/fast-purchase', 'fast_purchase')->name('checkout.fast_purchase');
         });
     });
+});
+
+Route::get('/collections/{slug}', [ProductCollectionController::class, 'show'])->name('product-collections.show');
+
+Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() {
 
     // Purchase History
-    Route::resource('purchase_history', PurchaseHistoryController::class);
+    Route::get('/purchase_history', [PurchaseHistoryController::class, 'index'])->name('purchase_history.index');
     Route::controller(PurchaseHistoryController::class)->group(function () {
+        Route::get('/purchase_history/filter', 'filterOrders')->name('purchase_history.filter');
         Route::get('/purchase_history/details/{id}', 'purchase_history_details')->name('purchase_history.details');
-        // Route::get('/purchase_history/destroy/{id}', 'order_cancel')->name('purchase_history.destroy');
+        Route::post('/purchase_history/destroy/{id}', 'order_cancel')->name('purchase_history.destroy');
+        Route::get('/purchase_history/re-order/{id}', 're_order')->name('re_order');
         Route::get('digital-purchase-history', 'digital_index')->name('digital_purchase_history.index');
         Route::get('/digital-products/download/{id}', 'download')->name('digital-products.download');
     });
 
     // Wishlist
+    // Payment Tokens (Vault)
+    Route::controller(\App\Http\Controllers\PaymentTokenController::class)->group(function () {
+        Route::get('/payment-methods', 'index')->name('payment_tokens.index');
+        Route::post('/payment-methods/{token}/default', 'setDefault')->name('payment_tokens.set_default');
+        Route::delete('/payment-methods/{token}', 'destroy')->name('payment_tokens.destroy');
+    });
+
     Route::resource('wishlists', WishlistController::class);
     Route::post('/wishlists/remove', [WishlistController::class, 'remove'])->name('wishlists.remove');
 
@@ -337,15 +455,10 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
     Route::post('/customer_packages/purchase',[CustomerPackageController::class, 'purchase_package'])->name('customer_packages.purchase');
 
     // Customer Product
-    Route::resource('customer_products', CustomerProductController::class)->except(['store', 'edit', 'update', 'destroy']);
+    Route::resource('customer_products', CustomerProductController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
     Route::controller(CustomerProductController::class)->group(function () {
-        Route::post('/customer_products', 'store')->name('customer_products.store')->withoutMiddleware(['customer']);
-        Route::get('/customer_products/{id}/edit', 'edit')->name('customer_products.edit')->withoutMiddleware(['customer'])->middleware(['user']);
-        Route::post('/customer_products/update/{id}', 'update')->name('customer_products.update')->withoutMiddleware(['customer'])->middleware(['user']);
-        Route::get('/customer_products/destroy/{id}', 'destroy')->name('customer_products.destroy')->withoutMiddleware(['customer'])->middleware(['user']);
         Route::post('/customer_products/published', 'updatePublished')->name('customer_products.published');
         Route::post('/customer_products/status', 'updateStatus')->name('customer_products.update.status');
-        Route::post('/customer_products/promote', 'store_promotion')->name('customer_products.promote')->withoutMiddleware(['customer']);
     });
 
     // Product Review
@@ -353,13 +466,17 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
     Route::controller(FollowSellerController::class)->group(function () {
         Route::get('/followed-seller', 'index')->name('followed_seller');
         Route::post('/followed-seller-store', 'store')->name('followed_seller.store');
-        Route::get('/followed-seller-remove', 'remove')->name('followed_seller.remove');
+        Route::post('/followed-seller-remove', 'remove')->name('followed_seller.remove');
     });
 });
 
 Route::group(['middleware' => ['auth']], function() {
     
     Route::get('invoice/{order_id}', [InvoiceController::class, 'invoice_download'])->name('invoice.download');
+
+    Route::get('/express-buy/check', [ExpressBuyController::class, 'eligibility'])->name('express.check');
+    Route::post('/express-buy/{product_id}', [ExpressBuyController::class, 'submit'])->middleware('throttle:express-buy')->name('express.buy');
+
 
     // Reviews
     Route::resource('/reviews', ReviewController::class);
@@ -372,7 +489,7 @@ Route::group(['middleware' => ['auth']], function() {
     });
     
     // Product Query
-    Route::resource('product-queries', ProductQueryController::class);
+    Route::resource('product-queries', ProductQueryController::class)->only(['index', 'show', 'store']);
 
     Route::resource('messages', MessageController::class);
 
@@ -382,12 +499,21 @@ Route::group(['middleware' => ['auth']], function() {
         // Helper routes moved to public section
         // Route::post('/addresses/update/{id}', 'update')->name('addresses.update');
         // Route::get('/addresses/destroy/{id}', 'destroy')->name('addresses.destroy');
-        Route::get('/addresses/set_default/{id}', 'set_default')->name('addresses.set_default');
-        Route::get('/addresses/set_billing/{id}', 'set_billing')->name('addresses.set_billing');
+        Route::post('/addresses/set_default/{id}', 'set_default')->name('addresses.set_default');
+        Route::post('/addresses/set_billing/{id}', 'set_billing')->name('addresses.set_billing');
     });
+
+    // Phase 4: Customer Loyalty Hub
+    Route::get('/loyalty', [\App\Http\Controllers\LoyaltyController::class, 'hub'])->name('loyalty.hub');
+
+    // Advanced Live Tracking (RBAC Unified)
+    Route::get('/dashboard/tracking/{id}', [\App\Http\Controllers\OrderTrackingController::class, 'show'])->name('orders.tracking.show');
+    Route::get('/dashboard/tracking/{id}/sync', [\App\Http\Controllers\OrderTrackingController::class, 'syncTracking'])->name('orders.tracking.sync');
+
 });
 
-Route::resource('shops', ShopController::class);
+Route::post('shops', [ShopController::class, 'store'])->middleware('throttle:seller-application')->name('shops.store');
+Route::resource('shops', ShopController::class)->except('store');
 Route::controller(ShopController::class)->group(function () {
     Route::get('/shop-reg/verification', 'verifyRegEmailorPhone')->name('shop-reg.verification');
     Route::post('/shop-reg/verification-code-send', 'sendRegVerificationCode')->name('shop-reg.verification_code_send');
@@ -441,6 +567,7 @@ Route::middleware(['throttle:payments'])->group(function () {
     //N-genius
     Route::controller(NgeniusController::class)->group(function () {
         Route::any('ngenius/cart_payment_callback', 'cart_payment_callback')->name('ngenius.cart_payment_callback');
+        Route::any('ngenius/order_re_payment_callback', 'order_re_payment_callback')->name('ngenius.order_re_payment_callback');
         Route::any('ngenius/wallet_payment_callback', 'wallet_payment_callback')->name('ngenius.wallet_payment_callback');
         Route::any('ngenius/customer_package_payment_callback', 'customer_package_payment_callback')->name('ngenius.customer_package_payment_callback');
         Route::any('ngenius/seller_package_payment_callback', 'seller_package_payment_callback')->name('ngenius.seller_package_payment_callback');
@@ -448,10 +575,14 @@ Route::middleware(['throttle:payments'])->group(function () {
 
     //bKash
     Route::controller(BkashController::class)->group(function () {
+        Route::get('/bkash/create-payment', 'create_payment')->name('bkash.create_payment');
+        Route::any('/bkash/callback', 'callback')->name('bkash.callback');
         Route::post('/bkash/createpayment', 'checkout')->name('bkash.checkout');
         Route::post('/bkash/executepayment', 'excecute')->name('bkash.excecute');
         Route::get('/bkash/success', 'success')->name('bkash.success');
     });
+
+    Route::any('/tap/callback', [TapController::class, 'callback'])->name('tap.callback');
 
     Route::get('/checkout-payment-detail', [StripeController::class, 'checkout_payment_detail']);
 
@@ -475,7 +606,14 @@ Route::middleware(['throttle:payments'])->group(function () {
 //Blog Section
 Route::controller(BlogController::class)->group(function () {
     Route::get('/blog', 'all_blog')->name('blog');
+    Route::post('/blog/subscribe', 'subscribe')->middleware('throttle:blog-lead')->name('blog.subscribe');
+    Route::get('/blog/products', [\App\Http\Controllers\Api\BlogApiController::class, 'products'])->name('blog.products');
+    Route::get('/blog/preview/{id}', 'preview')->middleware('auth')->name('blog.preview');
     Route::get('/blog/{slug}', 'blog_details')->name('blog.details');
+});
+
+Route::middleware(['auth'])->prefix('author')->name('author.')->group(function () {
+    Route::resource('blogs', AuthorBlogController::class)->parameters(['blogs' => 'id'])->except('show');
 });
 
 Route::controller(PageController::class)->group(function () {

@@ -17,7 +17,7 @@
                                 <div class="">
                                     <form class="form-default" role="form" action="{{ route('login') }}" method="POST">
                                         @csrf
-                                        @if (addon_is_activated('otp_system') && env("DEMO_MODE") != "On")
+                                        @if (get_setting('otp_system') == 1 && env("DEMO_MODE") != "On")
                                             <div class="form-group phone-form-group mb-1">
                                                 <input type="tel" id="phone-code" class="form-control{{ $errors->has('phone') ? ' is-invalid' : '' }}" value="{{ old('phone') }}" placeholder="" name="phone" autocomplete="off">
                                             </div>
@@ -80,7 +80,11 @@
                                                 </label>
                                             </div>
                                             <div class="col-6 text-right">
-                                                <a href="{{ route('password.request') }}" class="text-reset opacity-60 fs-14">{{ translate('Forgot password?')}}</a>
+                                                @if (get_setting('otp_system') == 1)
+                                                    <a href="{{ route('password.phone.form') }}" class="text-reset opacity-60 fs-14">{{ translate('Forgot password?')}}</a>
+                                                @else
+                                                    <a href="{{ route('password.request') }}" class="text-reset opacity-60 fs-14">{{ translate('Forgot password?')}}</a>
+                                                @endif
                                             </div>
                                         </div>
 

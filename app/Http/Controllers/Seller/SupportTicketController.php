@@ -60,7 +60,6 @@ class SupportTicketController extends Controller
         try {
             Mail::to(User::where('user_type', 'admin')->first()->email)->queue(new SupportMailManager($array));
         } catch (\Exception $e) {
-            // dd($e->getMessage());
         }
     }
 

@@ -147,7 +147,6 @@ class AuthorizenetController extends Controller
             $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::PRODUCTION);
         }
 
-        // dd($response);
         if ($response != null) {
             // Check to see if the API request was successfully received and acted upon
             if ($response->getMessages()->getResultCode() == "Ok") {

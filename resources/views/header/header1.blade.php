@@ -11,7 +11,8 @@
                 <ul class="list-inline d-flex justify-content-between justify-content-lg-start mb-0">
                     <!-- Language switcher -->
                     @if (get_setting('show_language_switcher') == 'on')
-                        <li class="list-inline-item dropdown mr-4 lang-visibility" id="lang-change">
+                        <li class="list-inline-item dropdown mr-4 lang-visibility js-lang-change mobile-header-switcher d-xl-none"
+                            id="mobile-lang-change">
 
                             <a href="javascript:void(0)" class="dropdown-toggle fs-12 py-2 top-text-color-visibility"
                                 style="color: {{ $topHeaderTextColor }}" data-toggle="dropdown"
@@ -36,7 +37,8 @@
 
                     <!-- Currency Switcher -->
                     @if (get_setting('show_currency_switcher') == 'on')
-                        <li class="list-inline-item dropdown ml-auto ml-lg-0 mr-0 currency-visibility" id="currency-change">
+                        <li class="list-inline-item dropdown ml-auto ml-lg-0 mr-0 currency-visibility js-currency-change mobile-header-switcher d-xl-none"
+                            id="mobile-currency-change">
                             @php
                                 $system_currency = get_system_currency();
                             @endphp
@@ -137,7 +139,7 @@
                 </button>
                 <!-- Header Logo -->
                 <div class="col-auto pl-0 pr-3 d-flex align-items-center">
-                    <a class="d-block py-20px mr-3 ml-0" href="{{ route('home') }}">
+                    <a class="d-block py-20px mr-3 ml-0" href="{{ route('home') }}" aria-label="{{ translate('Mayush home') }}">
                         @php
                             $header_logo = get_setting('header_logo');
                         @endphp
@@ -166,33 +168,30 @@
                                     <button class="btn px-2" type="button"><i
                                             class="la la-2x la-long-arrow-left"></i></button>
                                 </div>
-                                <div class="search-input-box">
-                                    <input type="text"
-                                        class="border border-soft-light form-control fs-14 hov-animate-outline"
-                                        id="search" name="keyword" @isset($query) value="{{ $query }}" @endisset
-                                        placeholder="{{ translate('I am shopping for...') }}" autocomplete="off">
-
-                                    <div class="ai-mode-toggle-wrap" data-toggle="tooltip" data-placement="bottom" title="{{ translate('Search by Vibe: Describe your room aesthetic (e.g., Warm Cozy Coastal) to find matching products!') }}">
-                                        <div class="ai-toggle-btn" id="ai-mode-toggle" onclick="toggleAiMode()"></div>
-                                        <div class="d-flex flex-column align-items-start">
-                                            <span class="ai-toggle-label">✨ AI</span>
-                                            <span class="ai-toggle-desc">{{ translate('Describe a vibe to find matches') }}</span>
-                                        </div>
+                                <div class="search-input-box d-flex align-items-center bg-white border border-soft-light rounded-pill overflow-hidden hov-animate-outline" style="height: 48px; flex: 1;">
+                                    <div class="ai-mode-toggle-wrap ml-3" data-toggle="tooltip" data-placement="bottom" title="{{ translate('AI Semantic Search') }}" onclick="toggleAiMode()">
+                                        <div class="ai-toggle-btn" id="ai-mode-toggle"></div>
+                                        <span class="ai-toggle-label">✨ AI</span>
                                     </div>
-                                    <svg id="Group_723" data-name="Group 723" xmlns="http://www.w3.org/2000/svg"
-                                        width="20.001" height="20" viewBox="0 0 20.001 20">
-                                        <path id="Path_3090" data-name="Path 3090"
-                                            d="M9.847,17.839a7.993,7.993,0,1,1,7.993-7.993A8,8,0,0,1,9.847,17.839Zm0-14.387a6.394,6.394,0,1,0,6.394,6.394A6.4,6.4,0,0,0,9.847,3.453Z"
-                                            transform="translate(-1.854 -1.854)" fill="#b5b5bf" />
-                                        <path id="Path_3091" data-name="Path 3091"
-                                            d="M24.4,25.2a.8.8,0,0,1-.565-.234l-6.15-6.15a.8.8,0,0,1,1.13-1.13l6.15,6.15A.8.8,0,0,1,24.4,25.2Z"
-                                            transform="translate(-5.2 -5.2)" fill="#b5b5bf" />
-                                    </svg>
+                                    
+                                    <input type="text"
+                                        class="border-0 shadow-none form-control fs-14 h-100 bg-transparent px-2"
+                                        id="search" name="keyword" @isset($query) value="{{ $query }}" @endisset
+                                        placeholder="{{ translate('I am shopping for...') }}" autocomplete="off" style="min-width: 0;">
 
-                                    {{-- Visual Search Camera Button --}}
-                                    <button type="button" class="btn visual-search-btn" onclick="document.getElementById('visual-search-input').click()" title="{{ translate('Search by Image') }}">
-                                        <i class="las la-camera la-lg"></i>
-                                    </button>
+                                    <div class="d-flex align-items-center pr-2 pl-2 border-left border-soft-light" style="gap: 4px; height: 32px;">
+                                        {{-- Visual Search Camera Button --}}
+                                        <button type="button" class="btn btn-sm btn-icon text-secondary hov-text-primary visual-search-btn" onclick="document.getElementById('visual-search-input').click()" title="{{ translate('Search by Image') }}">
+                                            <i class="las la-camera la-xl"></i>
+                                        </button>
+                                        
+                                        <button type="submit" class="btn btn-sm btn-icon text-secondary hov-text-primary p-2" title="{{ translate('Search') }}" style="background: none; border: none; outline: none; box-shadow: none;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20.001 20">
+                                                <path d="M9.847,17.839a7.993,7.993,0,1,1,7.993-7.993A8,8,0,0,1,9.847,17.839Zm0-14.387a6.394,6.394,0,1,0,6.394,6.394A6.4,6.4,0,0,0,9.847,3.453Z" transform="translate(-1.854 -1.854)" fill="currentColor" />
+                                                <path d="M24.4,25.2a.8.8,0,0,1-.565-.234l-6.15-6.15a.8.8,0,0,1,1.13-1.13l6.15,6.15A.8.8,0,0,1,24.4,25.2Z" transform="translate(-5.2 -5.2)" fill="currentColor" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -675,11 +674,12 @@
                     </div>
                 </div>
                 <!-- Cart -->
-                <div class="d-none d-xl-block align-self-stretch ml-5 mr-0 has-transition bg-black-10"
+                <div class="d-none d-xl-flex align-self-stretch align-items-center ml-5 mr-0 has-transition bg-black-10"
                     data-hover="dropdown">
                     <div class="nav-cart-box dropdown h-100" id="cart_items" style="width: max-content;">
                         @include('frontend.partials.cart.cart')
                     </div>
+                    @include('header.partials.cart_switchers', ['headerSwitcherColor' => $bottomHeaderTextColor])
                 </div>
             </div>
         </div>
@@ -689,7 +689,7 @@
             <div class="container">
                 <div class="d-flex position-relative">
                     <div class="position-static">
-                        @include('frontend.' . get_setting('homepage_select') . '.partials.category_menu')
+                        @include('frontend.' . safe_homepage_select() . '.partials.category_menu')
                     </div>
                 </div>
             </div>

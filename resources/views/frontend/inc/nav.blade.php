@@ -5,24 +5,24 @@
     $top_banner_image = get_setting('top_banner_image');
     $top_banner_image_for_tabs = get_setting('top_banner_image_for_tabs');
     $top_banner_image_for_mobile = get_setting('top_banner_image_for_mobile');
-    $topBanners = \App\Models\TopBanner::where('status', 1)->orderBy('id','desc')->get();
+    $topBanners = app(\App\Services\StorefrontDataService::class)->topBanners();
 @endphp 
-    @if (count($topBanners) > 0 || $top_banner_image != null)
+    @if (get_setting('top_banner_status') == 1 && (count($topBanners) > 0 || $top_banner_image != null))
     <div class="position-relative top-banner removable-session z-1035 d-none" 
          data-key="top-banner" data-value="removed" style="background-color: {{ $top_banner_background_color }}">
         <div class="d-block text-reset h-40px h-lg-60px position-relative overflow-hidden">
 
             @if($top_banner_image != null)
             <!-- For Large device -->
-            <img src="{{ uploaded_asset($top_banner_image)  }}"
+            <img src="{{ uploaded_asset($top_banner_image)  }}" width="1920" height="60"
                 class="d-none d-xl-block img-fit h-100 w-100" alt="{{ translate('top_banner') }}">
 
             <!-- For Medium device -->
-            <img src="{{ uploaded_asset($top_banner_image_for_tabs ?? $top_banner_image)  }}"
+            <img src="{{ uploaded_asset($top_banner_image_for_tabs ?? $top_banner_image)  }}" width="1024" height="60"
                 class="d-none d-md-block d-xl-none img-fit h-100 w-100" alt="{{ translate('top_banner') }}">
 
             <!-- For Small device -->
-            <img src="{{ uploaded_asset($top_banner_image_for_mobile ?? $top_banner_image) }}"
+            <img src="{{ uploaded_asset($top_banner_image_for_mobile ?? $top_banner_image) }}" width="480" height="40"
                 class="d-md-none img-fit h-100 w-100" alt="{{ translate('top_banner') }}">
             @endif
 
@@ -42,14 +42,14 @@
                 </div>
             </div>
         </div>
-        <button class="btn text-white h-100 absolute-top-right set-session" 
+        <button type="button" aria-label="{{ translate('Close banner') }}" class="btn text-white h-100 absolute-top-right set-session"
             data-key="top-banner" data-value="removed"
             data-toggle="remove-parent" data-parent=".top-banner">
             <i style="color: {{$top_banner_text_color}};" class="la la-close la-2x"></i>
         </button>
     </div>
     @endif
-	@include('header.' .get_element_type_by_id(get_setting('header_element')))
+	@include(safe_header_view())
 <!-- Top Menu Sidebar -->
 <div class="aiz-top-menu-sidebar collapse-sidebar-wrap sidebar-xl sidebar-left d-lg-none z-1035">
     <div class="overlay overlay-fixed dark c-pointer" data-toggle="class-toggle" data-target=".aiz-top-menu-sidebar"
@@ -64,10 +64,10 @@
                 <!-- Image -->
                 <span class="size-40px rounded-circle overflow-hidden border border-transparent nav-user-img">
                     @if ($user->avatar_original != null)
-                        <img src="{{ $user_avatar }}" class="img-fit h-100" alt="{{ translate('avatar') }}"
+                        <img src="{{ $user_avatar }}" class="img-fit h-100" width="40" height="40" alt="{{ translate('avatar') }}"
                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';">
                     @else
-                        <img src="{{ static_asset('assets/img/avatar-place.png') }}" class="image"
+                        <img src="{{ static_asset('assets/img/avatar-place.png') }}" class="image" width="40" height="40"
                             alt="{{ translate('avatar') }}"
                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';">
                     @endif

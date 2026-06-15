@@ -3,50 +3,7 @@
 @section('content')
 
     <!-- Steps -->
-    <section class="pt-5 mb-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-xl-8 mx-auto">
-                    <div class="row gutters-5 sm-gutters-10">
-                        <div class="col done">
-                            <div class="text-center border border-bottom-6px p-2 text-success">
-                                <i class="la-3x mb-2 las la-shopping-cart"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('1. My Cart') }}</h3>
-                            </div>
-                        </div>
-                        <div class="col done">
-                            <div class="text-center border border-bottom-6px p-2 text-success">
-                                <i class="la-3x mb-2 las la-map"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('2. Shipping info') }}
-                                </h3>
-                            </div>
-                        </div>
-                        <div class="col done">
-                            <div class="text-center border border-bottom-6px p-2 text-success">
-                                <i class="la-3x mb-2 las la-truck"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('3. Delivery info') }}
-                                </h3>
-                            </div>
-                        </div>
-                        <div class="col active">
-                            <div class="text-center border border-bottom-6px p-2 text-primary">
-                                <i class="la-3x mb-2 las la-credit-card cart-animate"
-                                    style="margin-right: -100px; transition: 2s;"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('4. Payment') }}</h3>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="text-center border border-bottom-6px p-2">
-                                <i class="la-3x mb-2 opacity-50 las la-check-circle"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block opacity-50">{{ translate('5. Confirmation') }}
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    @include('frontend.partials.checkout.stepper', ['step' => 4])
 
     <!-- Payment Info -->
     <section class="mb-4">
@@ -488,7 +445,6 @@
                                             </label>
                                         </div>
                                     @endif
-                                    <!-- CMI Payment -->
                                     @if (get_setting('cmi_payment') == 1)
                                         <div class="col-6 col-xl-3 col-md-4">
                                             <label class="aiz-megabox d-block mb-3">
@@ -503,7 +459,36 @@
                                                     </span>
                                                 </span>
                                             </label>
+                                            @if (Auth::check())
+                                                <div class="mt-2 text-left">
+                                                    <label class="aiz-checkbox">
+                                                        <input type="checkbox" name="save_card" value="1">
+                                                        <span class="aiz-square-check"></span>
+                                                        <span class="fs-12">{{ translate('Save card for future purchases') }}</span>
+                                                    </label>
+                                                </div>
+                                            @endif
                                         </div>
+                                    @endif
+
+                                    @if(Auth::check() && count($tokens) > 0)
+                                        @foreach($tokens as $token)
+                                            <div class="col-6 col-xl-3 col-md-4">
+                                                <label class="aiz-megabox d-block mb-3">
+                                                    <input value="cmi_vault" class="online_payment" type="radio"
+                                                        name="payment_option" data-token="{{ $token->id }}">
+                                                    <input type="hidden" name="payment_token_id" value="{{ $token->id }}" disabled>
+                                                    <span class="d-block aiz-megabox-elem rounded-0 p-3">
+                                                        <img src="{{ static_asset('assets/img/cards/cmi.png') }}"
+                                                            class="img-fit mb-2">
+                                                        <span class="d-block text-center">
+                                                            <span class="d-block fw-600 fs-15">{{ translate('Saved Card') }}</span>
+                                                            <small class="d-block text-muted">**** **** **** {{ $token->card_last_four }}</small>
+                                                        </span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        @endforeach
                                     @endif
                                     <!-- Cash Payment -->
                                     @if (get_setting('cash_payment') == 1)
@@ -587,12 +572,12 @@
                                     <div class="text-center mb-3">
                                         <h6 class="fs-14 fw-600 text-muted mb-3">{{ translate('Secured Payment Partners') }}</h6>
                                         <div class="d-flex justify-content-center align-items-center flex-wrap">
-                                            <img src="{{ static_asset('assets/img/cards/verified_by_visa.png') }}" height="25" class="mx-2 mb-2" alt="Verified by Visa" style="max-height: 25px;">
-                                            <img src="{{ static_asset('assets/img/cards/secure_code.png') }}" height="25" class="mx-2 mb-2" alt="Mastercard SecureCode" style="max-height: 25px;">
-                                            <img src="{{ static_asset('assets/img/cards/amex.png') }}" height="25" class="mx-2 mb-2" alt="American Express" style="max-height: 25px;">
-                                            <img src="{{ static_asset('assets/img/cards/cmi.png') }}" height="25" class="mx-2 mb-2" alt="CMI Payment Gateway" style="max-height: 25px;">
-                                            <img src="{{ static_asset('assets/img/cards/marocpay.png') }}" height="25" class="mx-2 mb-2" alt="MarocPay" style="max-height: 25px;">
-                                            <img src="{{ static_asset('assets/img/cards/unionpay.png') }}" height="25" class="mx-2 mb-2" alt="UnionPay" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/verified_by_visa.png', 'small') }}" width="56" height="25" class="mx-2 mb-2" alt="Verified by Visa" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/secure_code.png', 'small') }}" width="54" height="25" class="mx-2 mb-2" alt="Mastercard SecureCode" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/amex.png', 'small') }}" width="25" height="25" class="mx-2 mb-2" alt="American Express" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/cmi.png', 'small') }}" width="31" height="25" class="mx-2 mb-2" alt="CMI Payment Gateway" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/marocpay.png', 'small') }}" width="29" height="25" class="mx-2 mb-2" alt="MarocPay" style="max-height: 25px;">
+                                            <img src="{{ optimized_static_asset('assets/img/cards/unionpay.png', 'small') }}" width="36" height="25" class="mx-2 mb-2" alt="UnionPay" style="max-height: 25px;">
                                         </div>
                                     </div>
                                 </div>
@@ -702,6 +687,12 @@
         $(document).ready(function() {
             $(".online_payment").click(function() {
                 $('#manual_payment_description').parent().addClass('d-none');
+                
+                // Handle payment tokens
+                $('input[name="payment_token_id"]').prop('disabled', true);
+                if ($(this).val() == 'cmi_vault') {
+                    $(this).closest('label').find('input[name="payment_token_id"]').prop('disabled', false);
+                }
             });
             toggleManualPaymentData($('input[name=payment_option]:checked').data('id'));
         });

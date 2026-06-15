@@ -24,11 +24,11 @@
                     <input type="text" class="form-control rounded-0" placeholder="{{ translate('Your Name') }}" name="name" value="{{ Auth::user()->name }}">
                 </div>
             </div>
-            <!-- Phone-->
+            <!-- Phone/Email (Visually Email per client request) -->
             <div class="form-group row">
-                <label class="col-md-2 col-form-label fs-14">{{ translate('Your Phone') }}</label>
+                <label class="col-md-2 col-form-label fs-14">{{ translate('Your Email') }}</label>
                 <div class="col-md-10">
-                    <input type="text" class="form-control rounded-0" placeholder="{{ translate('Your Phone')}}" name="phone" value="{{ Auth::user()->phone }}">
+                    <input type="text" class="form-control rounded-0" placeholder="{{ translate('Your Email')}}" name="phone" value="{{ Auth::user()->phone }}">
                 </div>
             </div>
             <!-- Photo-->
@@ -60,6 +60,32 @@
                     <input type="password" class="form-control rounded-0" placeholder="{{ translate('Confirm Password') }}" name="confirm_password">
                 </div>
             </div>
+            <!-- Referral Link -->
+            @if (addon_is_activated('club_point'))
+            <div class="form-group row" id="referral">
+                <label class="col-md-2 col-form-label fs-14">{{ translate('Referral Link') }}</label>
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <input type="text" class="form-control rounded-0" readonly value="{{ route('home', ['referral_code' => Auth::user()->referral_code]) }}">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyReferralLink(this)">
+                                <i class="las la-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ translate('Share this link to earn points when your friends register!') }}</small>
+                </div>
+            </div>
+            <script>
+                function copyReferralLink(btn) {
+                    var input = btn.parentElement.previousElementSibling;
+                    input.select();
+                    input.setSelectionRange(0, 99999);
+                    document.execCommand("copy");
+                    AIZ.plugins.notify('success', '{{ translate('Referral link copied!') }}');
+                }
+            </script>
+            @endif
             <!-- Submit Button-->
             <div class="form-group mb-0 text-right">
                 <button type="submit" class="btn btn-primary rounded-0 w-150px mt-3">{{translate('Update Profile')}}</button>
@@ -128,12 +154,22 @@
                             {{ translate('Edit') }}
                         </a>
                         @if (!$address->set_default)
-                        <a class="dropdown-item" href="{{ route('addresses.set_default', $address->id) }}">{{ translate('Make This Default Shipping') }}</a>
+                        <form action="{{ route('addresses.set_default', $address->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item">{{ translate('Make This Default Shipping') }}</button>
+                        </form>
                         @endif
                          @if (!$address->set_billing)
-                        <a class="dropdown-item" href="{{ route('addresses.set_billing', $address->id) }}">{{ translate('Make This Default Billing') }}</a>
+                        <form action="{{ route('addresses.set_billing', $address->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item">{{ translate('Make This Default Billing') }}</button>
+                        </form>
                         @endif
-                        <a class="dropdown-item" href="{{ route('addresses.destroy', $address->id) }}">{{ translate('Delete') }}</a>
+                        <form action="{{ route('addresses.destroy', $address->id) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="dropdown-item">{{ translate('Delete') }}</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -234,11 +270,19 @@
             });
     });
 
+    @php
+        $activeCountries = get_active_countries();
+        $defaultCountry = is_array($activeCountries) ? ($activeCountries[0] ?? null) : $activeCountries->first();
+        $defaultCountryId = optional($defaultCountry)->id;
+    @endphp
+
     $(document).ready(function() {
-        @if(get_setting('has_state') == 1)
-            get_states(@json(get_active_countries()[0]->id));
-        @else
-            get_city_by_country(@json(get_active_countries()[0]->id));
+        @if($defaultCountryId)
+            @if(get_setting('has_state') == 1)
+                get_states(@json($defaultCountryId));
+            @else
+                get_city_by_country(@json($defaultCountryId));
+            @endif
         @endif
     });
 </script>

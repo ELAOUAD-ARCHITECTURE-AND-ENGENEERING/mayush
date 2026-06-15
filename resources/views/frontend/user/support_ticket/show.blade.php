@@ -67,7 +67,7 @@
                                 </div>
                             </div>
                             <div class="fs-14 fw-400">
-                                {!! $ticketreply->reply !!}
+                                {!! clean($ticketreply->reply) !!}
                                 <br>
                                 <br>
                                 @foreach ((explode(",",$ticketreply->files)) as $key => $file)
@@ -105,7 +105,7 @@
                             </div>
                         </div>
                         <div>
-                            {!! $ticket->details !!}
+                            {!! clean($ticket->details) !!}
                             <br>
                             <br>
                             @foreach ((explode(",",$ticket->files)) as $key => $file)

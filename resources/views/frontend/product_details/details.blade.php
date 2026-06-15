@@ -111,6 +111,17 @@
             </div>
         @endif
     </div>
+
+    <!-- Dimensions Start -->
+    <div id="product-dimensions" class="mt-3 {{ (!$detailedProduct->length && !$detailedProduct->width && !$detailedProduct->height) ? 'd-none' : '' }}">
+        <span class="fs-14 fw-400 text-gray">{{ translate('Dimensions (L x W x H)') }}:</span>
+        <span class="fs-14 fw-500 text-dark ml-2">
+            <span id="p-length">{{ $detailedProduct->length ?? '-' }}</span> x 
+            <span id="p-width">{{ $detailedProduct->width ?? '-' }}</span> x 
+            <span id="p-height">{{ $detailedProduct->height ?? '-' }}</span> <span id="p-dimension-unit">cm</span>
+        </span>
+    </div>
+    <!-- Dimensions End -->
     <!--Rating & SKU End-->
 
     <!--Watching Product Start-->
@@ -153,6 +164,8 @@
         @php
             $flashDealEndDate = get_product_active_flash_deal_end_date($detailedProduct->id, $detailedProduct->discount_end_date);
             $flashDealnotEnd = !is_null($flashDealEndDate);
+            $is_flash_deal = $flashDealnotEnd;
+            $total_stock = $detailedProduct->stocks->sum('qty');
         @endphp
         @if($flashDealnotEnd)
             <div id="flashSaleBox" class="flash-sale py-10px px-20px rounded-corner-8px d-flex flex-wrap align-items-center justify-content-between mt-2">
@@ -431,12 +444,15 @@
                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                         <p class="m-0 fs-14 fw-bold text-dark">{{ get_single_attribute_name($choice->attribute_id) }}</p>
                                     </div>
+                                    @if (\App\Utility\ProductUtility::isDimensionAttribute($choice->attribute_id))
+                                        <p class="mb-2 fs-12 fw-400 text-gray">{{ translate('Dimensions are shown as Length x Width x Height.') }}</p>
+                                    @endif
                                     <div class="variant-wrapper">
-                                        @foreach ($choice->values as $key => $value)
+                                        @foreach (\App\Utility\ProductUtility::frontendChoiceValues($detailedProduct, $choice) as $key => $choiceValue)
                                             <label class="rounded-1 bg-white cursor-pointer aiz-megabox mb-1">
-                                                <input type="radio" name="attribute_id_{{ $choice->attribute_id }}" value="{{ $value }}" @if ($key == 0) checked @endif>
+                                                <input type="radio" name="attribute_id_{{ $choice->attribute_id }}" value="{{ $choiceValue['value'] }}" @if ($key == 0) checked @endif>
                                                 <div class="variant-item-select aiz-megabox-elem px-10px">
-                                                    <span class="fs-14 fw-400 text-dark px-15px">{{ $value }}</span>
+                                                    <span class="fs-14 fw-400 text-dark px-15px">{{ $choiceValue['label'] }}</span>
                                                 </div>
                                             </label>
                                         @endforeach
@@ -605,22 +621,126 @@
                     <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
                         @if ($detailedProduct->digital == 1 || $total_qty > 0)
                             {{-- Show buttons only when stock is available or product is digital --}}
-                            <button type="button" @if (Auth::check() || get_Setting('guest_checkout_activation')==1) onclick="buyNow()" @else onclick="showLoginModal()" @endif
+                            <button type="button" onclick="buyNow()"
                                 class="buy-now buy-now-pulse text-white border-0 rounded-1 fs-14 fw-bold bg-black hov-opacity-70 has-transition py-20px px-20px d-block w-100 mb-2 mb-md-0 mr-0 mr-md-2">{{ translate('Buy Now') }}</button>
-                            <button type="button" id="added_to_cart_btn" @if (Auth::check() || get_Setting('guest_checkout_activation')==1) onclick="addToCart()" @else onclick="showLoginModal()" @endif
-                                class="add-to-cart text-blue border-0 rounded-1 fs-14 fw-bold bg-soft-blue hov-bg-blue hov-text-white py-20px px-20px d-block w-100">{{translate('Add to Cart')}} <span id="add_to_cart_count">(01)</span></button>
+                            <button type="button" id="added_to_cart_btn" onclick="addToCart()"
+                                class="add-to-cart text-blue border-0 rounded-1 fs-14 fw-bold bg-soft-blue hov-bg-blue hov-text-white py-20px px-20px d-block w-100 mb-2 mb-md-0">{{translate('Add to Cart')}} <span id="add_to_cart_count">(01)</span></button>
                         @else
                             {{-- Show out of stock message when stock is 0 --}}
-                            <div class="out-of-stock text-center w-100 py-20px px-20px border-2 rounded-2 bg-soft-danger text-danger fw-bold fs-16">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="15" y1="9" x2="9" y2="15"></line>
-                                    <line x1="9" y1="9" x2="15" y2="15"></line>
-                                </svg>
-                                {{ translate('Out of Stock') }}
+                            <div class="out-of-stock w-100 mb-2">
+                                <div class="text-center w-100 py-20px px-20px border-2 rounded-2 bg-soft-danger text-danger fw-bold fs-16 mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                                    </svg>
+                                    {{ translate('Out of Stock') }}
+                                </div>
+                                <form action="{{ route('stock.alert.subscribe') }}" method="POST" class="w-100 mt-2 stock-alert-form">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $detailedProduct->id }}">
+                                @if(Auth::check())
+                                    <button type="submit" class="btn btn-outline-warning w-100 py-15px rounded-1 fs-14 fw-bold stock-alert-submit">
+                                        <i class="las la-bell" style="font-size: 1.2rem;"></i> {{ translate('Notify me when back in stock') }}
+                                    </button>
+                                @else
+                                    <div class="input-group">
+                                        <input type="email" name="email" class="form-control rounded-left-1 border-warning fs-14" placeholder="{{ translate('Enter your email') }}" required>
+                                        <div class="input-group-append">
+                                            <button type="submit" class="btn btn-warning rounded-right-1 fs-14 fw-bold stock-alert-submit">
+                                                {{ translate('Notify Me') }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted mt-1 d-block">{{ translate('We\'ll email you as soon as this item returns.') }}</small>
+                                @endif
+                                </form>
+                                <script>
+                                    $(document).on('submit', '.stock-alert-form', function(e) {
+                                        e.preventDefault();
+                                        let $form = $(this);
+                                        let $btn = $form.find('.stock-alert-submit');
+                                        let originalHtml = $btn.html();
+                                        
+                                        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ' + '{{ translate("Subscribing...") }}');
+
+                                        $.ajax({
+                                            url: $form.attr('action'),
+                                            type: 'POST',
+                                            data: $form.serialize(),
+                                            success: function(response) {
+                                                if (response.status === 'success') {
+                                                    AIZ.plugins.notify('success', response.message);
+                                                    $btn.removeClass('btn-outline-warning').addClass('btn-success').html('<i class="las la-check"></i> ' + '{{ translate("Subscribed") }}');
+                                                } else {
+                                                    AIZ.plugins.notify('info', response.message);
+                                                    $btn.prop('disabled', false).html(originalHtml);
+                                                }
+                                            },
+                                            error: function(xhr) {
+                                                let message = '{{ translate("Something went wrong. Please try again.") }}';
+                                                if (xhr.status === 401) {
+                                                    showLoginModal();
+                                                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                                    message = xhr.responseJSON.message;
+                                                }
+                                                AIZ.plugins.notify('danger', message);
+                                                $btn.prop('disabled', false).html(originalHtml);
+                                            }
+                                        });
+                                    });
+                                </script>
                             </div>
                         @endif
                     </div>
+                    @if (($detailedProduct->digital == 1 || $total_qty > 0) && Auth::check())
+                        <div class="mt-2 w-100">
+                            <button type="button" onclick="expressBuy({{ $detailedProduct->id }})" class="btn text-white fw-bold d-block w-100 py-15px rounded-1" style="background-color: #ff9900;">⚡ {{ translate('Express Buy (1-Click)') }}</button>
+                        </div>
+                        <script>
+                            function expressBuy(id) {
+                                $('#expressBuyModal').modal('show');
+                                $('#expressBuyLoading').removeClass('d-none');
+                                $('#expressBuyEligible').addClass('d-none');
+                                $('#expressBuyNotEligible').addClass('d-none');
+
+                                $.get('{{ route("express.check") }}', function(data) {
+                                    $('#expressBuyLoading').addClass('d-none');
+                                    
+                                    if(data.eligible) {
+                                        $('#expressBuyEligible').removeClass('d-none');
+                                        $('#eb_preferred_payment').text(data.preferred_payment);
+                                        if (data.default_address) {
+                                            $('#eb_address_name').text(data.default_address.name);
+                                            $('#eb_address_text').text(data.default_address.address);
+                                            $('#eb_address_phone').text(data.default_address.phone);
+                                        }
+                                        
+                                        $('#btnConfirmExpressBuy').off('click').on('click', function() {
+                                            const form = $('#option-choice-form');
+                                            
+                                            if (form.find('input[name="v_token"]').length == 0) {
+                                                form.append('<input type="hidden" name="v_token" value="' + data.v_token + '">');
+                                            } else {
+                                                form.find('input[name="v_token"]').val(data.v_token);
+                                            }
+
+                                            form.attr('action', '{{ url("express-buy") }}/' + id);
+                                            form.attr('method', 'POST');
+                                            form.submit();
+                                            
+                                            $(this).prop('disabled', true).html('<i class="las la-spinner la-spin"></i> {{ translate("Processing...") }}');
+                                        });
+                                    } else {
+                                        $('#expressBuyNotEligible').removeClass('d-none');
+                                    }
+                                }).fail(function() {
+                                    $('#expressBuyModal').modal('hide');
+                                    AIZ.plugins.notify('danger', '{{ translate("Failed to check eligibility.") }}');
+                                });
+                            }
+                        </script>
+                    @endif
                     <!--Buttons End-->
                 </div>
             @endif

@@ -204,9 +204,13 @@
 
 
                                 @can('delete_seller')
-                                <a href="javascript:void();" class="dropdown-item confirm-delete" data-href="{{route('sellers.destroy', $shop->id)}}">
-                                    {{translate('Delete')}}
-                                </a>
+                                <form action="{{ route('sellers.destroy', $shop->id) }}" method="POST" class="m-0">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="dropdown-item">
+                                        {{translate('Delete')}}
+                                    </button>
+                                </form>
                                 @endcan
 
                             </div>
@@ -310,9 +314,13 @@
 
 
                                 @can('delete_seller')
-                                <a href="javascript:void();" class="dropdown-item text-danger confirm-delete" data-href="{{route('sellers.destroy', $shop->id)}}">
-                                    {{translate('Delete')}}
-                                </a>
+                                <form action="{{ route('sellers.destroy', $shop->id) }}" method="POST" class="m-0">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        {{translate('Delete')}}
+                                    </button>
+                                </form>
                                 @endcan
                         </div>
                     </div>

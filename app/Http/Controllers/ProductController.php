@@ -22,11 +22,13 @@ use Carbon\Carbon;
 use CoreComponentRepository;
 use Artisan;
 use Cache;
+use App\Services\AiService;
 use App\Services\ProductService;
 use App\Services\ProductTaxService;
 use App\Services\ProductFlashDealService;
 use App\Services\ProductStockService;
 use App\Services\FrequentlyBoughtProductService;
+use App\Utility\ProductUtility;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redirect;
@@ -40,19 +42,22 @@ class ProductController extends Controller
     protected $productFlashDealService;
     protected $productStockService;
     protected $frequentlyBoughtProductService;
+    protected $aiService;
 
     public function __construct(
         ProductService $productService,
         ProductTaxService $productTaxService,
         ProductFlashDealService $productFlashDealService,
         ProductStockService $productStockService,
-        FrequentlyBoughtProductService $frequentlyBoughtProductService
+        FrequentlyBoughtProductService $frequentlyBoughtProductService,
+        AiService $aiService
     ) {
         $this->productService = $productService;
         $this->productTaxService = $productTaxService;
         $this->productFlashDealService = $productFlashDealService;
         $this->productStockService = $productStockService;
         $this->frequentlyBoughtProductService = $frequentlyBoughtProductService;
+        $this->aiService = $aiService;
 
         // Staff Permission Check
         $this->middleware(['permission:add_new_product'])->only('create');
@@ -206,7 +211,16 @@ class ProductController extends Controller
             if (in_array('all-publish', $filters)) {
                 $products->where('published', 1);
             }
+            if (in_array('show-unpublished', $filters)) {
+                // Only show unpublished non-draft products
+                $products->where('published', 0);
+            }
         }
+        // No default published filter — admin backend shows all products by default.
+        // Use 'all-publish' to restrict to published, or 'show-unpublished' to see only hidden products.
+
+        $show_unpublished = in_array('show-unpublished', $filters);
+
         if ( $request->filled('brand_id')) {
             $products = $products->where('brand_id', $request->brand_id);
         } 
@@ -220,7 +234,7 @@ class ProductController extends Controller
         $type = $request->seller_type;
 
         $view = view('backend.product.products.products_table',
-            compact('products', 'type', 'col_name', 'query', 'sort_search')
+            compact('products', 'type', 'col_name', 'query', 'sort_search', 'show_unpublished')
         )->render();
 
         return response()->json(['html' => $view]);
@@ -262,6 +276,26 @@ class ProductController extends Controller
         }
 
         echo json_encode($html);
+    }
+
+    public function store_attribute_value_ajax(Request $request)
+    {
+        $attribute_id = $request->attribute_id;
+        $value = $request->value;
+
+        $attribute_value = AttributeValue::where('attribute_id', $attribute_id)->where('value', $value)->first();
+        if (!$attribute_value) {
+            $attribute_value = new AttributeValue;
+            $attribute_value->attribute_id = $attribute_id;
+            $attribute_value->value = $value;
+            $attribute_value->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'id' => $attribute_value->id,
+            'value' => $attribute_value->value
+        ]);
     }
 
     /**
@@ -318,7 +352,11 @@ class ProductController extends Controller
             'unit_price',
             'sku',
             'current_stock',
-            'product_id'
+            'product_id',
+            'length',
+            'width',
+            'height',
+            'removed_sku_variants'
         ]), $product);
 
         // Frequently Bought Products
@@ -330,7 +368,7 @@ class ProductController extends Controller
         ]));
 
         // Product Translations
-        $request->merge(['lang' => env('DEFAULT_LANGUAGE')]);
+        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?? (get_system_language()?->code ?? 'fr')]);
         ProductTranslation::create($request->only([
             'lang',
             'name',
@@ -424,7 +462,11 @@ class ProductController extends Controller
                 'unit_price',
                 'sku',
                 'current_stock',
-                'product_id'
+                'product_id',
+                'length',
+                'width',
+                'height',
+                'removed_sku_variants'
             ]), $product);
 
 
@@ -518,7 +560,7 @@ class ProductController extends Controller
             }
         }
 
-        $lang = $request->lang;
+        $lang = $this->translationLanguage($request->lang);
         $tags = json_decode($product->tags);
         $categories = Category::where('parent_id', 0)
             ->where('digital', 0)
@@ -550,7 +592,7 @@ class ProductController extends Controller
         if ($product->digital == 1) {
             return redirect('digitalproducts/' . $id . '/edit');
         }
-        $lang = $request->lang;
+        $lang = $this->translationLanguage($request->lang);
         $tags = json_decode($product->tags);
         // $categories = Category::all();
         $categories = Category::where('parent_id', 0)
@@ -570,6 +612,8 @@ class ProductController extends Controller
      */
     public function update(ProductRequest $request, Product $product)
     {
+        $request->merge(['lang' => $this->translationLanguage($request->lang)]);
+
         //Log::info('Product Update Request:', $request->all());
         //Product
         if (addon_is_activated('gst_system')) {
@@ -615,7 +659,11 @@ class ProductController extends Controller
             'unit_price',
             'sku',
             'current_stock',
-            'product_id'
+            'product_id',
+            'length',
+            'width',
+            'height',
+            'removed_sku_variants'
         ]), $product);
 
         //Flash Deal
@@ -800,6 +848,9 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($request->id);
         $product->todays_deal = $request->status;
+        if ((int) $request->status === 1) {
+            $product->promotional = 1;
+        }
         $product->save();
         Cache::forget('todays_deal_products');
         return 1;
@@ -814,6 +865,7 @@ class ProductController extends Controller
                     continue;
                 }
                 $product->todays_deal = 1;
+                $product->promotional = 1;
                 $product->save();
             }
             Cache::forget('todays_deal_products');
@@ -998,13 +1050,15 @@ class ProductController extends Controller
                         // array_push($data, $item->value);
                         array_push($data, $item);
                     }
+
                     array_push($options, $data);
                 }
             }
         }
 
         $combinations = (new CombinationService())->generate_combination($options);
-        return view('backend.product.products.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name'));
+        $generatedSkus = (new \App\Services\ProductSkuService())->candidates(count($combinations) + 1);
+        return view('backend.product.products.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'generatedSkus'));
     }
 
     public function sku_combination_edit(Request $request)
@@ -1032,13 +1086,19 @@ class ProductController extends Controller
                         // array_push($data, $item->value);
                         array_push($data, $item);
                     }
+
+                    if (count($request->choice_no) === 1 && (int) $colors_active !== 1) {
+                        $data = ProductUtility::includeSavedDimensionOccurrences($data, $product, $no);
+                    }
+
                     array_push($options, $data);
                 }
             }
         }
 
         $combinations = (new CombinationService())->generate_combination($options);
-        return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
+        $generatedSkus = (new \App\Services\ProductSkuService())->candidates(count($combinations) + 1);
+        return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product', 'generatedSkus'));
     }
 
     public function product_search(Request $request)
@@ -1073,7 +1133,6 @@ class ProductController extends Controller
 
     public function updateBusinessSettings(Request $request)
     {
-        // dd($request->all());
         $business_settings = BusinessSetting::where('type', $request->type)->first();
         if ($business_settings != null) {
             $business_settings->value = $request->value;
@@ -1127,4 +1186,19 @@ class ProductController extends Controller
         $single_select = $request->single_select ?? 0;
         return view('partials.product.multiPick_products', compact('products', 'single_select'));
     }
+
+    public function generateWithAI(Request $request)
+    {
+        return $this->aiService->productGenerateWithAI($request->all());
+    }
+
+    private function translationLanguage(?string $lang = null): string
+    {
+        return $lang ?: (env('DEFAULT_LANGUAGE') ?: (get_system_language()?->code ?: 'fr'));
+    }
+
+    public function get_products_by_subcategory() { return 'Stub'; }
+    public function search() { return 'Stub'; }
+    public function get_custom_review_product_by_category() { return 'Stub'; }
+    public function reviews() { return 'Stub'; }
 }

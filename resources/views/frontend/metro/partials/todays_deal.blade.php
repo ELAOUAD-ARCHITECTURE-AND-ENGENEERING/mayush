@@ -1,78 +1,270 @@
-<section class="">
-    <div class="container">
-        @php
-            $lang = get_system_language()->code;
-            $todays_deal_banner = get_setting('todays_deal_banner', null, $lang);
-            $todays_deal_banner_small = get_setting('todays_deal_banner_small', null, $lang);
-        @endphp
-        <!-- Banner -->
-        @if ($todays_deal_banner != null || $todays_deal_banner_small != null)
-            <div class="overflow-hidden d-none d-md-block">
-                <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" 
-                    data-src="{{ uploaded_asset($todays_deal_banner) }}" 
-                    alt="{{ env('APP_NAME') }} promo" class="lazyload img-fit h-100 has-transition" 
-                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
-            </div>
-            <div class="overflow-hidden d-md-none">
-                <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" 
-                    data-src="{{ $todays_deal_banner_small != null ? uploaded_asset($todays_deal_banner_small) : uploaded_asset($todays_deal_banner) }}" 
-                    alt="{{ env('APP_NAME') }} promo" class="lazyload img-fit h-100 has-transition" 
-                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
-            </div>
-        @endif
-        <!-- Products -->
-        @php
-            $todays_deal_banner_text_color =  ((get_setting('todays_deal_banner_text_color') == 'light') ||  (get_setting('todays_deal_banner_text_color') == null)) ? 'text-white' : 'text-dark';
-        @endphp
-        <div class="" style="background-color: {{ get_setting('todays_deal_bg_color', '#3d4666') }}">
-            <div class="text-right px-4 px-xl-5 pt-4 pt-md-3">
-                <a href="{{ route('todays-deal') }}" class="fs-12 fw-700 {{ $todays_deal_banner_text_color }} has-transition hov-text-secondary-base">{{ translate('View All') }}</a>
-            </div>
-            <div class="c-scrollbar-light overflow-hidden px-4 px-md-5 pb-3 pt-3 pt-md-3 pb-md-5">
-                <div class="h-100 d-flex flex-column justify-content-center">
-                    <div class="todays-deal aiz-carousel" data-items="7" data-xxl-items="7" data-xl-items="6" data-lg-items="5" data-md-items="4" data-sm-items="3" data-xs-items="2" data-arrows="true" data-dots="false" data-autoplay="true" data-infinite="true">
-                        @if (count($todays_deal_products) > 0)
-                            @foreach ($todays_deal_products as $key => $product)
-                                <div class="carousel-box h-100 px-3 px-lg-0">
-                                    <a href="{{ route('product', $product->slug) }}" class="h-100 overflow-hidden hov-scale-img mx-auto" title="{{  $product->getTranslation('name')  }}">
-                                        <!-- Image -->
-                                        <div class="img h-80px w-80px rounded-content overflow-hidden mx-auto">
-                                            <img class="lazyload img-fit m-auto has-transition"
-                                                src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                                                data-src="{{ get_image($product->thumbnail, 'medium') }}"
-                                                alt="{{ $product->getTranslation('name') }}"
-                                                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                        </div>
-                                        <!-- Price -->
-                                        <div class="fs-14 mt-3 text-center">
-                                            <span class="d-block {{ $todays_deal_banner_text_color }} fw-700">{{ home_discounted_base_price($product) }}</span>
-                                            @if(home_base_price($product) != home_discounted_base_price($product))
-                                                <del class="d-block text-secondary fw-400">{{ home_base_price($product) }}</del>
-                                            @endif
-                                        </div>
-                                    </a>
-                                </div>
-                            @endforeach
-                        @else
-                            @for ($i = 0; $i < 7; $i++)
-                                <div class="carousel-box h-100 px-3 px-lg-0 opacity-60">
-                                    <a href="javascript:void(0)" class="h-100 overflow-hidden mx-auto">
-                                        <!-- Image -->
-                                        <div class="img h-80px w-80px rounded-content overflow-hidden mx-auto">
-                                            <img class="img-fit m-auto has-transition"
-                                                src="{{ static_asset('assets/img/placeholder.jpg') }}">
-                                        </div>
-                                        <!-- Price -->
-                                        <div class="fs-14 mt-3 text-center">
-                                            <span class="d-block {{ $todays_deal_banner_text_color }} fw-700">{{ single_price(0) }}</span>
-                                        </div>
-                                    </a>
-                                </div>
-                            @endfor
-                        @endif
+@if (count($todays_deal_products) > 0)
+    <style>
+        .todays-deal-yellow-section {
+            background: #F5F1E8;
+            padding: 44px 22px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: none;
+            color: #111827;
+            text-align: center;
+        }
+        .todays-deal-yellow-section h2 {
+            font-size: 42px;
+            line-height: 1.12;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0;
+            margin-bottom: 8px;
+            color: #111827;
+            text-shadow: none;
+        }
+        .todays-deal-yellow-section .deal-btn {
+            background: white;
+            color: #92400e;
+            font-weight: 800;
+            padding: 9px 24px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            min-height: 42px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .todays-deal-urgency-copy {
+            max-width: 620px;
+            margin: 12px auto 0;
+            font-size: 16px;
+            line-height: 1.55;
+            font-weight: 600;
+            color: #111827;
+        }
+        .todays-deal-header-row {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+        .todays-deal-countdown {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 10px 13px;
+            border-radius: 8px;
+            background: #9a3412;
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(124, 45, 18, .24);
+        }
+        .todays-deal-countdown__unit {
+            min-width: 42px;
+            text-align: center;
+        }
+        .todays-deal-countdown__value {
+            display: block;
+            font-size: 20px;
+            line-height: 1;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+        .todays-deal-countdown__label {
+            display: block;
+            margin-top: 4px;
+            font-size: 10px;
+            line-height: 1;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .86);
+        }
+        .todays-deal-countdown__separator {
+            margin-top: -12px;
+            font-size: 20px;
+            font-weight: 900;
+            color: rgba(255, 255, 255, .72);
+        }
+        .todays-deal-carousel {
+            position: relative;
+            z-index: 1;
+            padding: 0 34px;
+        }
+        .todays-deal-carousel .slick-track {
+            display: flex;
+            align-items: stretch;
+        }
+        .todays-deal-carousel .slick-slide {
+            height: auto;
+        }
+        .todays-deal-carousel .slick-arrow {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .92);
+            color: #92400e;
+            box-shadow: 0 8px 20px rgba(124, 45, 18, .18);
+        }
+        .todays-deal-product-card {
+            display: block;
+            min-width: 0;
+            padding: 0 8px;
+            text-align: center;
+        }
+        .todays-deal-item-circle {
+            background: transparent;
+            border: 1px solid #f97316;
+            border-radius: 50%;
+            width: 118px;
+            height: 118px;
+            margin: 0 auto;
+            position: relative;
+            padding: 0;
+            overflow: hidden;
+        }
+        .todays-deal-product-title {
+            display: -webkit-box;
+            height: 38px;
+            max-width: 150px;
+            margin-right: auto;
+            margin-left: auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            color: #111827;
+            font-size: 13px;
+            line-height: 1.35;
+            font-weight: 800;
+            margin-top: 12px;
+            padding: 0 4px;
+        }
+        .todays-deal-product-price {
+            color: #7c2d12;
+            font-size: 15px;
+            font-weight: 900;
+            margin-top: 4px;
+        }
+        .todays-deal-illustration {
+            width: 300px;
+            height: 300px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 0;
+            opacity: 0.1;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+        }
+        .todays-deal-illustration.left { left: -5%; }
+        .todays-deal-illustration.right { right: -5%; }
+        @media (min-width: 1200px) {
+            .todays-deal-yellow-section {
+                padding: 54px 38px;
+            }
+        }
+        @media (max-width: 767px) {
+            .todays-deal-yellow-section {
+                padding: 28px 12px;
+                border-radius: 10px;
+            }
+            .todays-deal-yellow-section h2 {
+                font-size: 28px;
+            }
+            .todays-deal-header-row {
+                gap: 16px;
+                margin-bottom: 22px;
+            }
+            .todays-deal-urgency-copy {
+                font-size: 13px;
+            }
+            .todays-deal-countdown {
+                width: 100%;
+                max-width: 340px;
+            }
+            .todays-deal-countdown__unit {
+                min-width: 38px;
+            }
+            .todays-deal-countdown__value {
+                font-size: 18px;
+            }
+            .todays-deal-item-circle {
+                width: 104px;
+                height: 104px;
+            }
+            .todays-deal-carousel {
+                padding: 0 26px;
+            }
+            .todays-deal-product-card {
+                padding: 0 5px;
+            }
+            .todays-deal-product-title {
+                max-width: 126px;
+                height: 34px;
+                font-size: 12px;
+                line-height: 1.32;
+            }
+        }
+    </style>
+
+    <section class="mb-4">
+        <div class="container">
+            <div class="todays-deal-yellow-section has-transition">
+                <div class="todays-deal-illustration left d-none d-xl-block"></div>
+                <div class="todays-deal-illustration right d-none d-xl-block"></div>
+
+                <div class="todays-deal-header-row">
+                    <div>
+                        <h2 class="mb-0">{{ get_setting('todays_deal_title', translate('Specially Made For U')) }}</h2>
+                        <div class="deal-btn mt-3">{{ get_setting('todays_deal_subtitle', translate("Today's Deal")) }}</div>
+                        <p class="todays-deal-urgency-copy">
+                            {{ get_setting('todays_deal_description', translate('Featured products selected for today only. The countdown resets every night at midnight.')) }}
+                        </p>
                     </div>
+
+                    <div class="todays-deal-countdown mx-auto mt-3 mt-md-0" data-metro-todays-countdown aria-label="{{ translate('Time remaining before today\'s deals reset') }}">
+                        <span class="todays-deal-countdown__unit">
+                            <span class="todays-deal-countdown__value" data-countdown-part="days">00</span>
+                            <span class="todays-deal-countdown__label">{{ translate('JJ') }}</span>
+                        </span>
+                        <span class="todays-deal-countdown__separator">:</span>
+                        <span class="todays-deal-countdown__unit">
+                            <span class="todays-deal-countdown__value" data-countdown-part="hours">00</span>
+                            <span class="todays-deal-countdown__label">{{ translate('HH') }}</span>
+                        </span>
+                        <span class="todays-deal-countdown__separator">:</span>
+                        <span class="todays-deal-countdown__unit">
+                            <span class="todays-deal-countdown__value" data-countdown-part="minutes">00</span>
+                            <span class="todays-deal-countdown__label">{{ translate('MM') }}</span>
+                        </span>
+                        <span class="todays-deal-countdown__separator">:</span>
+                        <span class="todays-deal-countdown__unit">
+                            <span class="todays-deal-countdown__value" data-countdown-part="seconds">00</span>
+                            <span class="todays-deal-countdown__label">{{ translate('SS') }}</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="todays-deal-carousel aiz-carousel dots-white"
+                    data-items="6" data-xxl-items="8" data-xl-items="6" data-lg-items="5" data-md-items="4"
+                    data-sm-items="3" data-xs-items="2" data-autoplay="true" data-infinite="true"
+                    data-dots="false" data-arrows="true">
+                    @foreach ($todays_deal_products->take(16) as $product)
+                        <div class="carousel-box">
+                            <a href="{{ route('product', $product->slug) }}" class="todays-deal-product-card text-reset">
+                                <div class="todays-deal-item-circle hov-scale-img has-transition">
+                                    <img src="{{ get_image($product->thumbnail, 'small') }}" class="img-fit h-100 w-100 rounded-circle" width="160" height="160" loading="lazy" decoding="async" alt="{{ $product->getTranslation('name') }}" onerror="this.src='{{ static_asset('assets/img/placeholder.jpg') }}'">
+                                </div>
+                                <span class="todays-deal-product-title">{{ $product->getTranslation('name') }}</span>
+                                <div class="todays-deal-product-price">{{ home_discounted_base_price($product) }}</div>
+                            </a>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+@endif

@@ -23,11 +23,13 @@ use CoreComponentRepository;
 use App\Utility\SmsUtility;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
+use Mayush\Shipping\Onessta\Services\OrderShipmentDispatchService;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\OrderNotification;
 use App\Utility\EmailUtility;
 use App\Models\ProductStock;
 use App\Models\InventoryLog;
+use App\Utility\CartUtility;
 use DB;
 
 class OrderController extends Controller
@@ -118,7 +120,11 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::findOrFail(decrypt($id));
+        try {
+            $order = Order::findOrFail(decrypt($id));
+        } catch (\Exception $e) {
+            abort(404);
+        }
         
         $order_shipping_address = json_decode($order->shipping_address);
         $delivery_boys = User::where('city', $order_shipping_address->city)
@@ -248,7 +254,7 @@ class OrderController extends Controller
 
                 // Use the same stock lookup logic as CartController for consistency
                 if ($product->digital != 1) {
-                    $product_stock = $product->stocks->where('variant', $product_variation)->first();
+                    $product_stock = CartUtility::find_product_stock($product, $product_variation);
                     
                     // If no exact variant match, try to get the first stock record
                     if (!$product_stock) {
@@ -297,6 +303,7 @@ class OrderController extends Controller
                 $order_detail->order_id = $order->id;
                 $order_detail->seller_id = $product->user_id;
                 $order_detail->product_id = $product->id;
+                $order_detail->product_name = $product->getTranslation('name');
                 $order_detail->variation = $product_variation;
                 $order_detail->price = cart_product_price($cartItem, $product, false, false) * $cartItem['quantity'];
                 $order_detail->tax = cart_product_tax($cartItem, $product, false) * $cartItem['quantity'];
@@ -662,6 +669,33 @@ class OrderController extends Controller
         return 1;
     }
 
+    public function confirm_order(Request $request)
+    {
+        $validated = $request->validate([
+            'order_id' => ['required', 'integer', 'exists:orders,id'],
+            'is_confirmed' => ['required', 'boolean'],
+        ]);
+
+        $order = Order::findOrFail($validated['order_id']);
+        $order->is_confirmed = $request->boolean('is_confirmed');
+        Order::withoutEvents(function () use ($order) {
+            $order->save();
+        });
+
+        $shipmentResult = $order->is_confirmed
+            ? app(OrderShipmentDispatchService::class)->ensureForOrder($order->fresh())
+            : [
+                'status' => 'not_confirmed',
+                'message' => 'Order confirmation removed.',
+            ];
+
+        return response()->json([
+            'success' => true,
+            'is_confirmed' => $order->is_confirmed,
+            'shipment' => $shipmentResult,
+        ]);
+    }
+
     public function assign_delivery_boy(Request $request)
     {
         if (addon_is_activated('delivery_boy')) {
@@ -739,5 +773,22 @@ class OrderController extends Controller
             flash(translate('Something went wrong!.'))->warning();
         }
         return back();
+    }
+
+    /**
+     * Bulk update order statuses.
+     */
+    public function bulk_order_status(Request $request)
+    {
+        if ($request->id) {
+            foreach ($request->id as $order_id) {
+                $order = Order::find($order_id);
+                if ($order) {
+                    $order->delivery_status = $request->status ?? $order->delivery_status;
+                    $order->save();
+                }
+            }
+        }
+        return 1;
     }
 }

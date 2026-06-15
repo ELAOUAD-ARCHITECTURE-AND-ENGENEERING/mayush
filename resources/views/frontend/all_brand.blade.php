@@ -1,5 +1,26 @@
 @extends('frontend.layouts.app')
 
+@php
+    $brandListingTitle = translate('All Furniture and Decor Brands on Mayush');
+    $brandListingDescription = translate('Browse furniture, decor, lighting and home-material brands available on Mayush.');
+@endphp
+
+@section('meta_title'){{ $brandListingTitle }}@stop
+@section('meta_description'){{ $brandListingDescription }}@stop
+@section('canonical_url'){{ route('brands.all') }}@stop
+
+@section('meta')
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
+        'title' => $brandListingTitle,
+        'description' => $brandListingDescription,
+        'canonical' => route('brands.all'),
+    ])) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
+        ['name' => translate('Home'), 'url' => route('home')],
+        ['name' => translate('All Brands'), 'url' => route('brands.all')],
+    ])) !!}</script>
+@endsection
+
 @section('content')
     <!-- Breadcrumb -->
     <section class="mb-4 pt-4">
@@ -30,7 +51,7 @@
                         <div class="col text-center border-right border-bottom hov-scale-img has-transition hov-shadow-out z-1">
                             <a href="{{ route('products.brand', $brand->slug) }}" class="d-block p-sm-3">
                                 <img src="{{ uploaded_asset($brand->logo) }}" class="lazyload h-md-100px mx-auto has-transition p-2 p-sm-4 mw-100"
-                                    alt="{{ $brand->getTranslation('name') }}">
+                                    alt="{{ $brand->getTranslation('name') }} brand on Mayush">
                                 <p class="text-center text-dark fs-14 fw-700 mt-2">{{ $brand->getTranslation('name') }}</p>
                             </a>
                         </div>

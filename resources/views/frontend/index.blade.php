@@ -1,6 +1,30 @@
 @extends('frontend.layouts.app')
 
+@php
+    $homepageSeoTitle = \App\Services\SeoService::homepageTitle();
+    $homepageSeoDescription = \App\Services\SeoService::homepageDescription();
+    $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
+    $firstHomeHero = app(\App\Services\StorefrontHeroImageService::class)->firstValidHero();
+    $firstHomeSliderImage = $firstHomeHero ? uploaded_asset($firstHomeHero, 'large') : null;
+    $featured_categories = $featured_categories ?? collect();
+    $hot_categories = $hot_categories ?? collect();
+    $todays_deal_products = $todays_deal_products ?? collect();
+    $newest_products = $newest_products ?? collect();
+@endphp
+
+@section('meta_title'){{ $homepageSeoTitle }}@stop
+@section('meta_description'){{ $homepageSeoDescription }}@stop
+@section('meta_image'){{ $homepageSeoImage }}@stop
+@section('canonical_url'){{ route('home') }}@stop
+
+@if($firstHomeSliderImage)
+    @section('preload')
+        <link rel="preload" as="image" href="{{ $firstHomeSliderImage }}">
+    @endsection
+@endif
+
 @section('content')
+    @include('frontend.partials.mayushseo_home_intro')
     {{-- Categories , Sliders . Today's deal --}}
     <div class="home-banner-area mb-4 pt-3">
         <div class="container">
@@ -14,21 +38,27 @@
                 @endphp
 
                 <div class="@if($num_todays_deal > 0) col-lg-7 @else col-lg-9 @endif">
-                    @if (get_setting('home_slider_images') != null)
+                    @if (get_setting('home_slider_status') == 1 && get_setting('home_slider_images') != null)
                         <div class="aiz-carousel dots-inside-bottom mobile-img-auto-height" data-items="1" data-xl-items="1" data-lg-items="1" data-md-items="1" data-sm-items="1" data-arrows="true" data-dots="true" data-autoplay="true">
-                            @php $slider_images = json_decode(get_setting('home_slider_images'), true);  @endphp
-                            @foreach ($slider_images as $key => $value)
+                            @php
+                                $slider_images = json_decode(get_setting('home_slider_images'), true);
+                                $sliders = get_slider_images($slider_images);
+                                $home_slider_links = json_decode(get_setting('home_slider_links'), true) ?: [];
+                            @endphp
+                            @foreach ($sliders as $key => $slider)
                                 <div class="carousel-box">
-                                    <a href="{{ json_decode(get_setting('home_slider_links'), true)[$key] }}">
+                                    <a href="{{ $home_slider_links[$key] ?? '#' }}">
                                         <img
                                             class="d-block mw-100 img-fit rounded shadow-sm overflow-hidden"
-                                            src="{{ uploaded_asset($slider_images[$key]) }}"
+                                            src="{{ uploaded_asset($slider, 'large') }}"
                                             alt="{{ env('APP_NAME')}} promo"
                                             @if(count($featured_categories) == 0)
                                             height="457"
                                             @else
                                             height="315"
                                             @endif
+                                            loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                                            @if($loop->first) fetchpriority="high" @endif
                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
                                         >
                                     </a>
@@ -44,7 +74,7 @@
                                         <img
                                             src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                             data-src="{{ uploaded_asset($category->banner) }}"
-                                            alt="{{ $category->getTranslation('name') }}"
+                                            alt="{{ $category->getTranslation('name') }} furniture and decor on Mayush"
                                             class="lazyload img-fit"
                                             height="78"
                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
@@ -57,7 +87,7 @@
                     @endif
                 </div>
 
-                @if($num_todays_deal > 0)
+                @if(get_setting('todays_deal_status') == 1 && $num_todays_deal > 0)
                 <div class="col-lg-2 order-3 mt-3 mt-lg-0">
                     <div class="bg-white rounded shadow-sm">
                         <div class="bg-soft-primary rounded-top p-3 d-flex align-items-center justify-content-center">
@@ -79,7 +109,7 @@
                                                         class="lazyload img-fit h-140px h-lg-80px"
                                                         src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                                         data-src="{{ uploaded_asset($product->thumbnail_img) }}"
-                                                        alt="{{ $product->getTranslation('name') }}"
+                                                        alt="{{ $product->getTranslation('name') }} - Mayush"
                                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
                                                     >
                                                 </div>
@@ -109,7 +139,7 @@
 
 
     {{-- Banner section 1 --}}
-    @if (get_setting('home_banner1_images') != null)
+    @if (get_setting('home_banner1_status') == 1 && get_setting('home_banner1_images') != null)
     <div class="mb-4">
         <div class="container">
             <div class="row gutters-10">
@@ -196,27 +226,64 @@
         @endif
     </div>
 
-    {{-- Featured Section --}}
-    <div id="section_featured">
+    @include('frontend.partials.promoted_category_section')
 
+    @include('frontend.partials.home_blog_section')
+
+    {{-- Featured Section --}}
+
+
+
+    <div id="section_featured">
+        <section class="mb-4">
+            <div class="container">
+                <div class="px-2 py-4 px-md-4 py-md-3 bg-white shadow-sm rounded">
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                        @for ($i=0; $i<5; $i++)
+                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     {{-- Best Selling  --}}
     <div id="section_best_selling">
-
+        <section class="mb-4">
+            <div class="container">
+                <div class="px-2 py-4 px-md-4 py-md-3 bg-white shadow-sm rounded">
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                        @for ($i=0; $i<5; $i++)
+                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- Auction Product -->
     @if(addon_is_activated('auction'))
         <div id="auction_products">
-
+            <section class="mb-4">
+                <div class="container">
+                    <div class="px-2 py-4 px-md-4 py-md-3 bg-white shadow-sm rounded">
+                        <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                            @for ($i=0; $i<5; $i++)
+                                <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                            @endfor
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     @endif
 
 
 
     {{-- Banner Section 2 --}}
-    @if (get_setting('home_banner2_images') != null)
+    @if (get_setting('home_banner2_status') == 1 && get_setting('home_banner2_images') != null)
     <div class="mb-4">
         <div class="container">
             <div class="row gutters-10">
@@ -237,7 +304,17 @@
 
     {{-- Category wise Products --}}
     <div id="section_home_categories">
-
+        <section class="mb-4">
+            <div class="container">
+                <div class="px-2 py-4 px-md-4 py-md-3 bg-white shadow-sm rounded">
+                    <div class="row gutters-10 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+                        @for ($i=0; $i<5; $i++)
+                            <div class="col mb-3">@include('frontend.metro.partials.product_placeholder_box')</div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     {{-- Classified Product Redesign (Phase 4) --}}
@@ -298,8 +375,8 @@
         @endif
     @endif
 
-    {{-- Banner Section 2 --}}
-    @if (get_setting('home_banner3_images') != null)
+    {{-- Banner Section 3 --}}
+    @if (get_setting('home_banner3_status') == 1 && get_setting('home_banner3_images') != null)
     <div class="mb-4">
         <div class="container">
             <div class="row gutters-10">
@@ -320,19 +397,27 @@
 
     {{-- Best Seller --}}
     <div id="section_best_sellers">
-
+        <section class="mb-4">
+            <div class="container">
+                <div class="skeleton-shimmer h-150px w-100 rounded"></div>
+            </div>
+        </section>
     </div>
 
     {{-- Elite Artisans --}}
     <div id="load-elite-artisans-section">
-
+        <section class="mb-4">
+            <div class="container text-center">
+                <div class="skeleton-shimmer h-150px w-100 rounded"></div>
+            </div>
+        </section>
     </div>
 
-    {{-- Top 10 categories and Brands --}}
-    @if (get_setting('top10_categories') != null || get_setting('top10_brands') != null)
+    {{-- Top 10 categories --}}
+    @if (get_setting('top10_categories') != null)
     @php
-        $col_section = (get_setting('top10_categories') != null && get_setting('top10_brands') != null) ? 'col-lg-6' : 'col-lg-12';
-        $col_block = (get_setting('top10_categories') != null && get_setting('top10_brands') != null) ? 'col-sm-6' : 'col-xl-3 col-lg-4 col-sm-6';
+        $col_section = 'col-lg-12';
+        $col_block = 'col-xl-3 col-lg-4 col-sm-6';
     @endphp
     <section class="mb-4">
         <div class="container">
@@ -357,7 +442,7 @@
                                                     <img
                                                         src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                                         data-src="{{ uploaded_asset($category->banner) }}"
-                                                        alt="{{ $category->getTranslation('name') }}"
+                                                        alt="{{ $category->getTranslation('name') }} furniture and decor on Mayush"
                                                         class="img-fluid img lazyload h-60px"
                                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
                                                     >
@@ -376,50 +461,65 @@
                         </div>
                     </div>
                 @endif
-                @if (get_setting('top10_brands') != null)
-                    <div class="{{ $col_section }}">
-                        <div class="d-flex mb-3 align-items-baseline border-bottom">
-                            <h3 class="h5 fw-700 mb-0">
-                                <span class="border-bottom border-primary border-width-2 pb-3 d-inline-block">{{ translate('Top 10 Brands') }}</span>
-                            </h3>
-                            <a href="{{ route('brands.all') }}" class="ml-auto mr-0 btn btn-primary btn-sm shadow-md">{{ translate('View All Brands') }}</a>
-                        </div>
-                        <div class="row gutters-5 d-flex flex-wrap">
-                            @php $top10_brands = json_decode(get_setting('top10_brands')); @endphp
-                            @foreach ($top10_brands as $key => $value)
-                                @php $brand = \App\Models\Brand::find($value); @endphp
-                                @if ($brand != null)
-                                    <div class="{{ $col_block }}">
-                                        <a href="{{ route('products.brand', $brand->slug) }}" class="bg-white border d-block text-reset rounded p-2 hov-shadow-md mb-2">
-                                            <div class="row align-items-center no-gutters">
-                                                <div class="col-4 text-center">
-                                                    <img
-                                                        src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                                                        data-src="{{ uploaded_asset($brand->logo) }}"
-                                                        alt="{{ $brand->getTranslation('name') }}"
-                                                        class="img-fluid img lazyload h-60px"
-                                                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
-                                                    >
-                                                </div>
-                                                <div class="col-6">
-                                                    <div class="text-truncate-2 pl-3 fs-14 fw-600 text-left">{{ $brand->getTranslation('name') }}</div>
-                                                </div>
-                                                <div class="col-2 text-center">
-                                                    <i class="la la-angle-right text-primary"></i>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                @endif
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
     </section>
     @endif
 
+    {{-- SEO Authority Section --}}
+    <section class="mb-5 py-5 bg-light border-top border-bottom">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 mx-auto text-center">
+                    <h2 class="h3 fw-700 text-dark mb-4">Mayush : marketplace furniture and interior design in Morocco</h2>
+                    <div class="fs-16 text-gray fw-400 lh-1-8">
+                        <p class="mb-4">
+                            <strong>Mayush connects customers with furniture, decor, lighting and home-material sellers in Morocco.</strong>
+                            The marketplace helps buyers compare products, discover seller shops and plan interiors with practical product information.
+                        </p>
+                        <div class="row gutters-15 mt-5">
+                            <div class="col-md-4 mb-4 mb-md-0">
+                                <div class="p-3 bg-white rounded shadow-sm h-100">
+                                    <h4 class="fs-18 fw-700 text-primary">Product selection</h4>
+                                    <p class="fs-14 m-0">
+                                        @if ($homepageStats['published_products'] !== null)
+                                            Explore {{ number_format($homepageStats['published_products']) }} approved published products on Mayush.
+                                        @else
+                                            Explore approved furniture, decor and interior design products on Mayush.
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4 mb-md-0">
+                                <div class="p-3 bg-white rounded shadow-sm h-100">
+                                    <h4 class="fs-18 fw-700 text-primary">Verified sellers</h4>
+                                    <p class="fs-14 m-0">
+                                        @if ($homepageStats['verified_sellers'] !== null)
+                                            Shop from {{ number_format($homepageStats['verified_sellers']) }} verified sellers across the marketplace.
+                                        @else
+                                            Shop from sellers listed on the Mayush marketplace.
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-white rounded shadow-sm h-100">
+                                    <h4 class="fs-18 fw-700 text-primary">Delivery confidence</h4>
+                                    <p class="fs-14 m-0">
+                                        @if ($homepageStats['delivery_success_rate'] !== null)
+                                            Recent delivered-order rate: {{ $homepageStats['delivery_success_rate'] }}% over the last 180 days.
+                                        @else
+                                            Delivery information is handled by the seller and order workflow for each purchase.
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 @endsection
 
 @section('script')

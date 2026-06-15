@@ -27,7 +27,7 @@ class ClamavService
      */
     public function scan($file)
     {
-        if (env('DISABLE_CLAMAV', true)) {
+        if (env('DISABLE_CLAMAV', false)) {
             return true;
         }
 
@@ -101,19 +101,23 @@ class ClamavService
     {
         Log::critical('ClamAV Failure: ' . $errorContext . ' - ' . $errorMessage);
         
-        // Cache the degraded state flag for 10 minutes so frontend can show maintenance popups continuously 
-        // without burning DB resources polling it.
-        \Illuminate\Support\Facades\Cache::put('system_degraded', [
-            'component' => 'Malware Scanner (ClamAV)',
-            'timestamp' => now()->toDateTimeString()
-        ], now()->addMinutes(10));
+        try {
+            // Cache the degraded state flag for 10 minutes so frontend can show maintenance popups continuously 
+            // without burning DB resources polling it.
+            \Illuminate\Support\Facades\Cache::put('system_degraded', [
+                'component' => 'Malware Scanner (ClamAV)',
+                'timestamp' => now()->toDateTimeString()
+            ], now()->addMinutes(10));
 
-        // Fire comprehensive critical alert
-        event(new \App\Events\CriticalSystemError(
-            'ClamAV Scanner',
-            $errorMessage,
-            ['context' => $errorContext, 'host' => $this->host, 'port' => $this->port],
-            'critical'
-        ));
+            // Fire comprehensive critical alert
+            event(new \App\Events\CriticalSystemError(
+                'ClamAV Scanner',
+                $errorMessage,
+                ['context' => $errorContext, 'host' => $this->host, 'port' => $this->port],
+                'critical'
+            ));
+        } catch (\Exception $e) {
+            Log::error('Failed to dispatch ClamAV degraded state: ' . $e->getMessage());
+        }
     }
 }

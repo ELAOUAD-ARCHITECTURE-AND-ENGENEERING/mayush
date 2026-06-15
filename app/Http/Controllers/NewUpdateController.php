@@ -29,10 +29,6 @@ class NewUpdateController extends Controller
             flash(translate('This action is disabled in demo mode'))->error();
             return back();
         }        
-        if (\App\Utility\CategoryUtility::create_initial_category($request->purchase_code) == false) {
-            flash("Sorry! The purchase code you have provided is not valid.")->error();
-            return back();
-        }
         $current_version= get_setting('current_version');
         if (version_compare($current_version, '10.0.0', '<')) {
             flash(translate('Could not update. Please check the compatible version'))->error();
@@ -111,10 +107,6 @@ class NewUpdateController extends Controller
                 $this->updatePermission();
                 $updated_version = get_setting('current_version');
                 $purchase_code_set = $request->purchase_code.'=--='.str_replace('.','-',$updated_version);
-                if (\App\Utility\CategoryUtility::create_initial_category($purchase_code_set) == false) {
-                    flash("Sorry! The purchase code you have provided is not valid.")->error();
-                    return back();
-                }
 
                 flash(translate('Version updated to: '.$updated_version))->success();
                 return redirect()->route('admin.dashboard');

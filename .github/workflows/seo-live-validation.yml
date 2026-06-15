@@ -1,0 +1,23 @@
+name: Live SEO GEO Validation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 3 * * *"
+
+jobs:
+  live-seo-geo:
+    name: Audit live production SEO/GEO
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run live SEO/GEO audit
+        run: python3 SEO/audit.py https://mayushdesign.com --timeout 20

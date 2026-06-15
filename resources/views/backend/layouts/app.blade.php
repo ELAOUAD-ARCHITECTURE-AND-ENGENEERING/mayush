@@ -1,11 +1,21 @@
 <!doctype html>
-@if (\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
+@php $layoutLanguage = get_system_language(); @endphp
+@if (($layoutLanguage->rtl ?? 0) == 1)
     <html dir="rtl" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 @else
     <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 @endif
 
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-D5PZ73508T"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-D5PZ73508T');
+    </script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="app-url" content="{{ getBaseURL() }}">
     <meta name="file-base-url" content="{{ getFileBaseURL() }}">
@@ -31,7 +41,7 @@
 
     <!-- aiz core css -->
     <link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
-    @if (\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
+    @if (($layoutLanguage->rtl ?? 0) == 1)
         <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
     @endif
     <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css?v=') }}{{ rand(1000,9999) }}">
@@ -96,6 +106,19 @@
             border-top-right-radius: 4px !important;
             border-bottom-right-radius: 4px !important;
         }
+
+        /* Application-wide Skeleton CSS */
+        .skeleton-shimmer {
+            background: #e2e5e7 !important;
+            background: linear-gradient(90deg, #e2e5e7 8%, #f4f6f8 18%, #e2e5e7 33%) !important;
+            background-size: 200% 100% !important;
+            animation: placeholderShimmer 1.5s linear infinite !important;
+            display: block !important;
+        }
+        @keyframes placeholderShimmer {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
     </style>
     <script>
         var AIZ = AIZ || {};
@@ -124,6 +147,7 @@
             something_went_wrong: '{{translate('Something went wrong!')}}',
             error_occured_while_processing: '{{translate('An error occurred while processing')}}',
             saving_as_draft: '{{translate('Saving As Draft')}}',
+            upload_failed: '{{translate('Upload failed')}}',
         }
     </script>
 

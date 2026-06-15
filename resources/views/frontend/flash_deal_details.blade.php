@@ -47,7 +47,7 @@
                         </div>
                     @else
                         <div class="text-center text-dark">
-                            <h1 class="h3 my-4">{{ $flash_deal->title }}</h1>
+                            <h2 class="h3 my-4">{{ $flash_deal->title }}</h2>
                             <p class="h4">{{  translate('This offer has been expired.') }}</p>
                         </div>
                     @endif

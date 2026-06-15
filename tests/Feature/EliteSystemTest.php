@@ -89,7 +89,7 @@ class EliteSystemTest extends TestCase
         BusinessSetting::updateOrCreate(['type' => 'elite_system_active'], ['value' => '0']);
 
         // Clear cache if needed (if settings are cached)
-        \Cache::forget('elite_system_active');
+        \Cache::forget('business_settings');
 
         // Now should be false
         $this->assertFalse($shop->isElite());
@@ -124,9 +124,12 @@ class EliteSystemTest extends TestCase
         // Mock session and auth
         $this->actingAs($user);
         
-        // Mock basic business settings for CMI
-        BusinessSetting::updateOrCreate(['type' => 'cmi_merchant_id'], ['value' => 'TEST_MERCHANT']);
-        BusinessSetting::updateOrCreate(['type' => 'cmi_store_key'], ['value' => 'TEST_KEY']);
+        // CMI credentials are read through config/cmi.php, not BusinessSetting rows.
+        config([
+            'cmi.merchant_id' => 'validmerchant123',
+            'cmi.secret_key' => 'valid-secret-key-16chars',
+            'cmi.gateway_url' => 'https://test-attijari.cmi.co.ma/fim/est3Dgate',
+        ]);
 
         // 1. Initiate processPayment to set session
         $response = $this->post(route('seller.elite.process_payment'), [

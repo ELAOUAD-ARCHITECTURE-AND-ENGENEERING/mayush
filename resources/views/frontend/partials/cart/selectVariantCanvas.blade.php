@@ -137,16 +137,19 @@
                                                 {{ get_single_attribute_name($choice->attribute_id) }}</div>
                                         </div>
                                         <div class="col-12">
+                                            @if (\App\Utility\ProductUtility::isDimensionAttribute($choice->attribute_id))
+                                                <p class="mb-2 fs-12 text-gray">{{ translate('Dimensions are shown as Length x Width x Height.') }}</p>
+                                            @endif
                                             <div class="aiz-radio-inline">
-                                                @foreach ($choice->values as $key => $value)
+                                                @foreach (\App\Utility\ProductUtility::frontendChoiceValues($product, $choice) as $key => $choiceValue)
                                                     <label class="aiz-megabox pl-0 mr-2 my-1">
                                                         <input type="radio"
                                                             name="attribute_id_{{ $choice->attribute_id }}"
-                                                            value="{{ $value }}"
+                                                            value="{{ $choiceValue['value'] }}"
                                                             @if ($key == 0) checked @endif>
                                                         <span
                                                             class="aiz-megabox-elem rounded-0 d-flex align-items-center justify-content-center py-1 px-3 rounded-1">
-                                                            {{ $value }}
+                                                            {{ $choiceValue['label'] }}
                                                         </span>
                                                     </label>
                                                 @endforeach
@@ -276,7 +279,7 @@
                         @if (($product->added_by == 'seller' && get_setting('whatsapp_order_seller_prods') == 1) || ($product->added_by == 'admin'))
 
                         <div class="order-via-whatsapp mt-2">
-                            <a href="{{ $whatsappUrl }}" target="_blank"class="d-inline-flex align-items-center  animate-underline-green has-transition">
+                            <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="d-inline-flex align-items-center  animate-underline-green has-transition">
                                 <i class="lab la-whatsapp fs-20"></i>
                                 <span class="fs-14 fw-400 pl-1">{{ translate('Order Via WhatsApp') }}</span>
                             </a>
@@ -309,8 +312,8 @@
 
 <div class="w-100 px-30px  position-absolute bottom-0 bg-white right-offcavas-footer pt-20px pb-20px border-top border-soft-light" style="box-shadow: none!important;">
     <div class="d-flex flex-wrap flex-md-nowrap align-items-center mb-2">
-        <button type="button" @if (Auth::check() || get_Setting('guest_checkout_activation')==1) onclick="buyNow()" @else onclick="showLoginModal()" @endif class="text-white border-0 rounded-1 fs-14 fw-bold bg-black hov-opacity-70 has-transition py-15px px-20px d-block w-100 mb-2 mb-md-0 mr-0 mr-md-2">Buy Now</button>
-        <button id="added_to_cart_btn" type="button" @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCart()" @else onclick="showLoginModal()" @endif class="text-blue border-0 rounded-1 fs-14 fw-bold bg-soft-blue hov-bg-blue hov-text-white py-15px px-20px d-block w-100">{{ translate('Add to cart') }} <span id="add_to_cart_count"></span></button>
+        <button type="button" onclick="buyNow()" class="text-white border-0 rounded-1 fs-14 fw-bold bg-black hov-opacity-70 has-transition py-15px px-20px d-block w-100 mb-2 mb-md-0 mr-0 mr-md-2">Buy Now</button>
+        <button id="added_to_cart_btn" type="button" onclick="addToCart()" class="text-blue border-0 rounded-1 fs-14 fw-bold bg-soft-blue hov-bg-blue hov-text-white py-15px px-20px d-block w-100">{{ translate('Add to cart') }} <span id="add_to_cart_count"></span></button>
     </div>
     <div class="text-right">
         <a href="{{route('product', $product->slug)}}" class="fs-14 fw-400 text-gray hov-text-blue animate-underline-blue has-transition border-0 py-1">

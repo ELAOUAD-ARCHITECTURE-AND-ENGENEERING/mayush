@@ -12,6 +12,7 @@ use App\Http\Controllers\SellerPackageController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\CheckoutController;
 use App\Models\Order;
+use Illuminate\Support\Facades\Log;
 use Session;
 
 class NagadController
@@ -150,7 +151,12 @@ class NagadController
                             echo json_encode($Result_Data_Order);
                         }
                     } catch (\Exception $e) {
-                        dd($Result_Data_Order);
+                        Log::error('Nagad order completion failed.', [
+                            'exception' => $e->getMessage(),
+                            'status' => $Result_Data_Order['status'] ?? null,
+                        ]);
+                        flash(translate('Payment could not be initialized.'))->error();
+                        return redirect()->route('home');
                     }
                 } else {
                     echo json_encode($PlainResponse);

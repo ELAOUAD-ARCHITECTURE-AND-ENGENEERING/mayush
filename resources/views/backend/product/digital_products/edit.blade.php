@@ -18,7 +18,7 @@
                     <ul class="nav nav-tabs nav-fill language-bar">
                         @foreach (get_all_active_language() as $key => $language)
                         <li class="nav-item">
-                            <a class="nav-link text-reset @if ($language->code == $lang) active @endif py-3" href="{{ route('digitalproducts.edit', ['id' => $product->id, 'lang' => $language->code]) }}">
+                            <a class="nav-link text-reset @if ($language->code == $lang) active @endif py-3" href="{{ route('digitalproducts.edit', ['digitalproduct' => $product->id, 'lang' => $language->code]) }}">
                                 <img src="{{ static_asset('assets/img/flags/'.$language->code.'.png') }}" height="11" class="mr-1">
                                 <span>{{$language->name}}</span>
                             </a>
@@ -436,7 +436,7 @@
 
 @section('script')
 <!-- Treeview js -->
-<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}"></script>
+<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}?v={{ file_exists(public_path('assets/js/hummingbird-treeview.js')) ? filemtime(public_path('assets/js/hummingbird-treeview.js')) : time() }}"></script>
 <script type="text/javascript">
 
     $(document).ready(function() {

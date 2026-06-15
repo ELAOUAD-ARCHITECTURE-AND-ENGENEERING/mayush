@@ -17,15 +17,29 @@ use App\Http\Resources\V2\ProductDetailCollection;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Http\Resources\V2\Seller\BrandCollection;
+use App\Utility\CartUtility;
 class ProductController extends Controller
 {
     public function index()
     {
         return new ProductMiniCollection(Product::latest()->paginate(10));
     }
-    public function show()
+    public function show($id)
     {
-        return new ProductMiniCollection(Product::latest()->paginate(10));
+        $product = Product::where('id', $id)
+            ->where('published', 1)
+            ->where('approved', 1)
+            ->get();
+
+        if ($product->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'status' => 404,
+                'message' => translate('Product not found'),
+            ], 404);
+        }
+
+        return new ProductDetailCollection($product);
     }
 
     public function product_details($slug, $user_id)
@@ -65,7 +79,11 @@ class ProductController extends Controller
             $str .= $temp_str;
         }
 
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = CartUtility::find_product_stock($product, $str);
+        if (!$product_stock) {
+            return response()->json(['result' => false, 'message' => translate('Variant not found')], 404);
+        }
+
         $price = $product_stock->price;
 
 

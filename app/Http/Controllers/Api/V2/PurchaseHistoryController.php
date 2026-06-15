@@ -75,7 +75,6 @@ class PurchaseHistoryController extends Controller
         //     ->where('digital', 1)
         //     ->paginate(15);
 
-        // dd($order_detail_products);
 
         return PurchasedResource::collection($order_detail_products);
     }
@@ -129,7 +128,7 @@ class PurchaseHistoryController extends Controller
                 'product_id' => $product->id
             ]);
 
-            $product_stock = $product->stocks->where('variant', $orderDetail->variation)->first();
+                $product_stock = \App\Utility\CartUtility::find_product_stock($product, $orderDetail->variation);
             if ($product_stock) {
                 $quantity = 1;
 

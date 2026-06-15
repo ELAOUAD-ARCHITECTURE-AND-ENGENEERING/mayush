@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\v2;
+namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V2\BlogCollection;
@@ -15,7 +15,7 @@ class BlogController extends Controller
 
         $selected_categories = array();
         $search = null;
-        $blogs = Blog::query();
+        $blogs = Blog::published();
 
         if ($request->has('search')) {
             $search = $request->search;;
@@ -29,11 +29,11 @@ class BlogController extends Controller
             $case1 = $search . '%';
             $case2 = '%' . $search . '%';
 
-            $blogs->orderByRaw("CASE 
-                WHEN title LIKE '$case1' THEN 1 
-                WHEN title LIKE '$case2' THEN 2 
-                ELSE 3 
-                END");
+            $blogs->orderByRaw("CASE
+                WHEN title LIKE ? THEN 1
+                WHEN title LIKE ? THEN 2
+                ELSE 3
+                END", [$case1, $case2]);
         }
 
         if ($request->has('selected_categories')) {
@@ -43,9 +43,9 @@ class BlogController extends Controller
             $blogs->whereIn('category_id', $blog_categories);
         }
 
-        $blogs = $blogs->where('status', 1)->orderBy('created_at', 'desc')->paginate(12);
+        $blogs = $blogs->orderBy('created_at', 'desc')->paginate(12);
 
-        $recent_blogs = Blog::where('status', 1)->orderBy('created_at', 'desc')->limit(9)->get();
+        $recent_blogs = Blog::published()->orderBy('created_at', 'desc')->limit(9)->get();
         return response()->json([
             'result' => true,
             'blogs' => new BlogCollection($blogs),
@@ -57,8 +57,16 @@ class BlogController extends Controller
 
     public function blog_details($slug)
     {
-        $blog = Blog::where('slug', $slug)->first();
-        $recent_blogs = Blog::where('status', 1)->orderBy('created_at', 'desc')->limit(9)->get();
+        $blog = Blog::published()->where('slug', $slug)->first();
+
+        if (!$blog) {
+            return response()->json([
+                'result' => false,
+                'message' => translate('Blog post not found'),
+            ], 404);
+        }
+
+        $recent_blogs = Blog::published()->orderBy('created_at', 'desc')->limit(9)->get();
         return response()->json([
             'result' => true,
             'blog' => $blog,

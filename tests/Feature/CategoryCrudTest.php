@@ -83,7 +83,7 @@ class CategoryCrudTest extends CrudTestCase
 
         $response = $this->profileBlock(function () use ($category) {
             return $this->actingAs($this->adminUser)
-                ->get(route('categories.destroy', $category->id));
+                ->delete(route('categories.destroy', $category->id));
         });
 
         $response['result']->assertStatus(200);

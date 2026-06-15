@@ -26,8 +26,8 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
         Route::get('/affiliate/users', 'users')->name('affiliate.users');
         Route::get('/affiliate/verification/{id}', 'show_verification_request')->name('affiliate_users.show_verification_request');
 
-        Route::get('/affiliate/approve/{id}', 'approve_user')->name('affiliate_user.approve');
-        Route::get('/affiliate/reject/{id}', 'reject_user')->name('affiliate_user.reject');
+        Route::post('/affiliate/approve/{id}', 'approve_user')->name('affiliate_user.approve');
+        Route::post('/affiliate/reject/{id}', 'reject_user')->name('affiliate_user.reject');
 
         Route::post('/affiliate/approved', 'updateApproved')->name('affiliate_user.approved');
 
@@ -41,7 +41,7 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
         Route::get('/affiliate/withdraw_requests', 'affiliate_withdraw_requests')->name('affiliate.withdraw_requests');
         Route::post('/affiliate/affiliate_withdraw_modal', 'affiliate_withdraw_modal')->name('affiliate_withdraw_modal');
         Route::post('/affiliate/withdraw_request/payment_store', 'withdraw_request_payment_store')->name('withdraw_request.payment_store');
-        Route::get('/affiliate/withdraw_request/reject/{id}', 'reject_withdraw_request')->name('affiliate.withdraw_request.reject');
+        Route::post('/affiliate/withdraw_request/reject/{id}', 'reject_withdraw_request')->name('affiliate.withdraw_request.reject');
 
         Route::get('/affiliate/logs', 'affiliate_logs_admin')->name('affiliate.logs.admin');
 
@@ -50,13 +50,14 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
 
 //FrontEnd
 Route::controller(AffiliateController::class)->group(function () {
-    Route::get('/affiliate', 'apply_for_affiliate')->name('affiliate.apply');
-    Route::post('/affiliate/store', 'store_affiliate_user')->name('affiliate.store_affiliate_user');
+    Route::get('/affiliate', 'index')->middleware('auth')->name('affiliate.dashboard');
+    Route::post('/affiliate/apply', 'apply')->middleware('auth')->name('affiliate.apply');
+    Route::post('/affiliate/store', 'apply')->middleware('auth')->name('affiliate.store_affiliate_user');
 });
 
 Route::group(['middleware' => ['auth']], function(){
     Route::controller(AffiliateController::class)->group(function () {
-        Route::get('/affiliate/user', 'user_index')->name('affiliate.user.index');
+        Route::get('/affiliate/user', 'index')->name('affiliate.user.index');
         Route::get('/affiliate/user/payment_history', 'user_payment_history')->name('affiliate.user.payment_history');
         Route::get('/affiliate/user/withdraw_request_history', 'user_withdraw_request_history')->name('affiliate.user.withdraw_request_history');
 

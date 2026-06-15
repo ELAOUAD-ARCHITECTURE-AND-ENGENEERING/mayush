@@ -10,22 +10,35 @@ use App\Models\Order;
 use App\Models\CombinedOrder;
 use App\Models\User;
 use App\Models\EliteSubscription;
+use App\Models\PaymentAttempt;
+use App\Models\CmiCallbackLog;
+use App\Services\PaymentStateService;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\CustomerPackageController;
 use App\Http\Controllers\SellerPackageController;
 use App\Http\Controllers\Seller\SellerEliteController;
-use App\Models\BusinessSetting;
+use App\Http\Requests\CmiCallbackRequest;
+use App\Models\Address;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\View;
+use App\Services\Payment\CmiConfigValidatorInterface;
 
 class CmiController extends Controller
 {
+    protected CmiConfigValidatorInterface $configValidator;
+    protected PaymentStateService $paymentStateService;
+
+    public function __construct(CmiConfigValidatorInterface $configValidator, PaymentStateService $paymentStateService)
+    {
+        $this->configValidator = $configValidator;
+        $this->paymentStateService = $paymentStateService;
+    }
+
     public function pay(Request $request)
     {
-        // Debugging: Log entry
-        Log::info('CMI Payment Initiated', ['user_id' => Auth::id(), 'session_data' => Session::all()]);
+        Log::info('CMI Payment Initiated', ['user_id' => Auth::id(), 'payment_type' => Session::get('payment_type')]);
 
         if (!Session::has('combined_order_id')) {
             $paymentType = Session::get('payment_type');
@@ -42,7 +55,6 @@ class CmiController extends Controller
             $data = [];
             $user = Auth::user();
             
-            // Check if user is authenticated
             if (!$user) {
                 Log::error('CMI Payment Error: User not authenticated.');
                 Session::flash('error', translate('Please login to continue with payment.'));
@@ -59,7 +71,7 @@ class CmiController extends Controller
                 if ($paymentType == 'cart_payment') {
                     $combined_order = CombinedOrder::findOrFail(Session::get('combined_order_id'));
                     $amount = round($combined_order->grand_total, 2);
-                    $oid = 'CO-' . $combined_order->id . '-' . time(); // Unique Order ID
+                    $oid = 'CO-' . $combined_order->id . '-' . time();
                     $shipping_info = json_decode($combined_order->shipping_address, true) ?? [];
                 } elseif ($paymentType == 'order_re_payment') {
                     $order = Order::findOrFail($paymentData['order_id']);
@@ -69,129 +81,91 @@ class CmiController extends Controller
                 } elseif ($paymentType == 'wallet_payment') {
                     $amount = round($paymentData['amount'], 2);
                     $oid = 'W-' . Auth::id() . '-' . time();
-                    $shipping_info = [
-                        'name' => $user->name ?? 'Guest',
-                        'email' => $user->email ?? 'email@domain.com',
-                        'phone' => $user->phone ?? '0000000000'
-                    ];
+                    \Cache::put('cmi_wallet_amount_' . $oid, $amount, 3600);
+                    $shipping_info = ['name' => $user->name, 'email' => $user->email, 'phone' => $user->phone];
                 } elseif ($paymentType == 'customer_package_payment') {
                     $customer_package = \App\Models\CustomerPackage::findOrFail($paymentData['customer_package_id']);
                     $amount = round($customer_package->amount, 2);
                     $oid = 'CP-' . $customer_package->id . '-' . time();
-                     $shipping_info = [
-                        'name' => $user->name ?? 'Guest',
-                        'email' => $user->email ?? 'email@domain.com',
-                        'phone' => $user->phone ?? '0000000000'
-                    ];
+                    $shipping_info = ['name' => $user->name, 'email' => $user->email, 'phone' => $user->phone];
                 } elseif ($paymentType == 'seller_package_payment') {
                     $seller_package = \App\Models\SellerPackage::findOrFail($paymentData['seller_package_id']);
                     $amount = round($seller_package->amount, 2);
                     $oid = 'SP-' . $seller_package->id . '-' . time();
-                     $shipping_info = [
-                        'name' => $user->name ?? 'Guest',
-                        'email' => $user->email ?? 'email@domain.com',
-                        'phone' => $user->phone ?? '0000000000'
-                    ];
+                    $shipping_info = ['name' => $user->name, 'email' => $user->email, 'phone' => $user->phone];
                 } elseif ($paymentType == 'elite_payment') {
                     $eliteSub = EliteSubscription::findOrFail($paymentData['subscription_id']);
                     $amount = round($eliteSub->amount_paid, 2);
                     $oid = 'EA-' . $eliteSub->id . '-' . time();
-                    $shipping_info = [
-                        'name' => $user->name ?? 'Guest',
-                        'email' => $user->email ?? 'email@domain.com',
-                        'phone' => $user->phone ?? '0000000000'
-                    ];
+                    $shipping_info = ['name' => $user->name, 'email' => $user->email, 'phone' => $user->phone];
                 }
     
-                // Ensure shipping_info is always an array
-                if (!is_array($shipping_info)) {
-                    $shipping_info = [];
+                if (!is_array($shipping_info)) $shipping_info = [];
+    
+                $validationResult = $this->configValidator->validate();
+                if (!$validationResult->isValid) {
+                    Log::critical('CMI Configuration Validation Failed', ['errors' => $validationResult->errors]);
+                    Session::flash('error', translate('Payment gateway is not available. Please contact support.'));
+                    return redirect()->route('home');
                 }
     
-                // CMI Credentials & Config from Config File
                 $clientId = config('cmi.merchant_id');
                 $storeKey = config('cmi.secret_key');
                 $storeType = config('cmi.store_type');
-                
-                // Database Settings Override (priority over config)
-                $dbClientId = BusinessSetting::where('type', 'cmi_client_id')->first();
-                if($dbClientId && $dbClientId->value) $clientId = $dbClientId->value;
-                
-                $dbMerchantId = BusinessSetting::where('type', 'cmi_merchant_id')->first();
-                if($dbMerchantId && $dbMerchantId->value) $clientId = $dbMerchantId->value;
-    
-                $dbStoreKey = BusinessSetting::where('type', 'cmi_store_key')->first();
-                if($dbStoreKey && $dbStoreKey->value) $storeKey = $dbStoreKey->value;
-    
-                $dbSecretKey = BusinessSetting::where('type', 'cmi_secret_key')->first();
-                if($dbSecretKey && $dbSecretKey->value) $storeKey = $dbSecretKey->value;
-    
-                // Validate Credentials
-                if (empty($clientId) || empty($storeKey)) {
-                     Log::critical('CMI Setup Error: Missing Merchant ID or Secret Key.');
-                     Session::flash('error', translate('Payment gateway configuration error. Please contact support.'));
-                     return redirect()->route('home');
-                }
 
                 $data['clientid'] = $clientId;
                 $data['amount'] = $amount;
-                
-                // URL Configuration
                 $data['okUrl'] = config('cmi.ok_url') ?: route('cmi.success');
                 $data['failUrl'] = config('cmi.fail_url') ?: route('cmi.fail');
                 $data['callbackUrl'] = config('cmi.callback_url') ?: route('cmi.callback');
-                
                 $data['TranType'] = "PreAuth";
                 $data['shopurl'] = route('home');
-                $data['currency'] = "504"; // MAD ISO Code
+                $data['currency'] = "504";
                 $data['rnd'] = microtime();
                 $data['storetype'] = $storeType;
                 $data['hashAlgorithm'] = "ver3";
                 $data['lang'] = Session::get('locale', 'fr');
                 $data['refreshtime'] = "5";
                 
-                // Safely extract shipping info with fallbacks
-                $billToName = $shipping_info['name'] ?? $user->name ?? 'Guest';
-                $billToCompany = $shipping_info['company'] ?? $user->name ?? '';
-                $billToStreet = $shipping_info['address'] ?? '';
-                $billToCity = $shipping_info['city'] ?? '';
-                $billToState = $shipping_info['state'] ?? '';
-                $billToPostalCode = $shipping_info['postal_code'] ?? '';
-                $billToCountry = $shipping_info['country'] ?? '504';
-                $email = $shipping_info['email'] ?? $user->email ?? 'email@domain.com';
-                $phone = $shipping_info['phone'] ?? $user->phone ?? '0000000000';
-                
-                // Populate BillTo Fields with accent removal and mandatory fallbacks
-                $data['BillToName'] = $this->str_without_accents($billToName) ?: 'Customer';
-                $data['BillToCompany'] = $this->str_without_accents($billToCompany);
-                $data['BillToStreet1'] = $this->str_without_accents($billToStreet);
-                $data['BillToCity'] = $this->str_without_accents($billToCity);
-                $data['BillToStateProv'] = $this->str_without_accents($billToState);
-                $data['BillToPostalCode'] = $this->str_without_accents($billToPostalCode);
-                $data['BillToCountry'] = $this->str_without_accents($billToCountry);
-                
-                $data['email'] = $email;
-                $data['tel'] = $this->str_without_accents($phone);
-                
+                $data['BillToName'] = $this->str_without_accents($shipping_info['name'] ?? $user->name ?? 'Customer');
+                $data['BillToCompany'] = $this->str_without_accents($shipping_info['company'] ?? '');
+                $data['BillToStreet1'] = $this->str_without_accents($shipping_info['address'] ?? '');
+                $data['BillToCity'] = $this->str_without_accents($shipping_info['city'] ?? '');
+                $data['BillToStateProv'] = $this->str_without_accents($shipping_info['state'] ?? '');
+                $data['BillToPostalCode'] = $this->str_without_accents($shipping_info['postal_code'] ?? '');
+                $data['BillToCountry'] = $this->str_without_accents($shipping_info['country'] ?? '504');
+                $data['email'] = $shipping_info['email'] ?? $user->email ?? 'email@domain.com';
+                $data['tel'] = $this->str_without_accents($shipping_info['phone'] ?? $user->phone ?? '0000000000');
                 $data['oid'] = $oid;
                 $data['encoding'] = "UTF-8";
     
-                // Hash Calculation
+                if (isset($paymentData['save_card']) && $paymentData['save_card']) {
+                    \Cache::put('cmi_save_card_' . $oid, true, 3600);
+                }
+
                 $data['hash'] = $this->generateHash($data, $storeKey);
     
-                // Gateway URL
-                $actionUrl = config('cmi.gateway_url');
-                
-                Log::info('CMI Form Data Generated', ['oid' => $oid, 'amount' => $amount]);
+                $actionUrl = $this->configValidator->getGatewayUrl();
+
+                PaymentAttempt::create([
+                    'user_id' => $user->id,
+                    'combined_order_id' => $paymentType == 'cart_payment' ? Session::get('combined_order_id') : null,
+                    'order_id' => $paymentType == 'order_re_payment' ? $paymentData['order_id'] : null,
+                    'payment_method' => $paymentType,
+                    'gateway' => 'cmi',
+                    'merchant_reference' => $oid,
+                    'amount' => $amount,
+                    'currency' => 'MAD',
+                    'status' => 'initiated',
+                    'initiated_at' => now(),
+                    'request_payload_hash' => hash('sha256', json_encode($data))
+                ]);
 
                 return view('frontend.payment.cmi', compact('data', 'actionUrl'));
-            } else {
-                Log::error('CMI Setup Error: No payment_type in session.');
             }
         } catch (\Exception $e) {
             Log::error('CMI Payment Critical Error: ' . $e->getMessage());
-            Log::error($e->getTraceAsString());
-            Session::flash('error', translate('Something went wrong with the payment gateway configuration.'));
+            Session::flash('error', translate('Something went wrong with the payment gateway.'));
             return redirect()->route('home');
         }
         
@@ -199,42 +173,39 @@ class CmiController extends Controller
         return redirect()->route('home');
     }
 
-    public function callback(Request $request)
+    public function callback(CmiCallbackRequest $request)
     {
         $input = $request->all();
-        
-        Log::info('CMI Callback: Request received', [
-            'oid' => $input['oid'] ?? 'unknown',
-            'amount' => $input['amount'] ?? 'missing',
-            'ProcReturnCode' => $input['ProcReturnCode'] ?? 'missing',
-            'method' => $request->method(),
-            'clientIp' => $request->ip()
+        $payloadHash = hash('sha256', json_encode($input));
+
+        $callbackLog = CmiCallbackLog::create([
+            'gateway' => 'cmi',
+            'merchant_reference' => $input['oid'] ?? null,
+            'gateway_reference' => $input['TransId'] ?? null,
+            'payload_hash' => $payloadHash,
+            'raw_payload' => $input,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'received_at' => now(),
+            'processing_status' => 'received'
         ]);
-        
+
         try {
-            // Config key
             $storeKey = config('cmi.secret_key');
-            
-            $dbStoreKey = BusinessSetting::where('type', 'cmi_store_key')->first();
-            if($dbStoreKey && $dbStoreKey->value) $storeKey = $dbStoreKey->value;
-
-            $dbSecretKey = BusinessSetting::where('type', 'cmi_secret_key')->first();
-            if($dbSecretKey && $dbSecretKey->value) $storeKey = $dbSecretKey->value;
-
-            // 1. Verify Hash
             $actualHash = $this->generateHash($input, $storeKey);
             $retrievedHash = $input["HASH"] ?? '';
 
             if ($retrievedHash !== $actualHash) {
-                Log::error('CMI Callback: Hash Mismatch', [
-                    'oid' => $input['oid'] ?? 'unknown',
-                    'calculated' => $actualHash, 
-                    'received' => $retrievedHash
+                $callbackLog->update([
+                    'processing_status' => 'rejected',
+                    'error_message' => 'Hash Mismatch',
+                    'processed_at' => now()
                 ]);
                 return response('FAILURE')->header('Content-Type', 'text/plain'); 
             }
 
-            // 2. Identify and Validate Order Amount
+            $callbackLog->update(['signature_valid' => true]);
+
             if (isset($input['oid'])) {
                 $parts = explode('-', $input['oid']);
                 if (count($parts) >= 2) {
@@ -244,6 +215,21 @@ class CmiController extends Controller
                     $order = null;
                     $db_amount = 0;
 
+                    // Idempotency DB check
+                    $existingProcessedLog = CmiCallbackLog::where('gateway_reference', $input['TransId'] ?? $input['oid'])
+                        ->where('processing_status', 'processed')
+                        ->where('signature_valid', true)
+                        ->first();
+                        
+                    if ($existingProcessedLog) {
+                        $callbackLog->update([
+                            'is_duplicate' => true,
+                            'processing_status' => 'duplicate',
+                            'processed_at' => now()
+                        ]);
+                        return response('ACTION=POSTAUTH')->header('Content-Type', 'text/plain');
+                    }
+
                     if ($type == 'CO') {
                         $order = CombinedOrder::find($id);
                         $db_amount = $order ? (float)$order->grand_total : 0;
@@ -251,91 +237,92 @@ class CmiController extends Controller
                         $order = Order::find($id);
                         $db_amount = $order ? (float)$order->grand_total : 0;
                     } elseif ($type == 'W') {
-                         // Wallet amount check (Wallet uses the 'amount' from input as the source of truth usually, 
-                         // but for safety in callback we assume it's valid if user_id $id exists)
                          $order = User::find($id);
-                         $db_amount = $amount_received; 
+                         $cached_amount = \Cache::get('cmi_wallet_amount_' . $input['oid']);
+                         if ($cached_amount) {
+                             $db_amount = (float) $cached_amount;
+                         } else {
+                             $callbackLog->update(['processing_status' => 'rejected', 'error_message' => 'Wallet cache missing', 'processed_at' => now()]);
+                             return response('FAILURE')->header('Content-Type', 'text/plain');
+                         }
                     } elseif ($type == 'EA') {
                          $order = EliteSubscription::find($id);
                          $db_amount = $order ? (float) $order->amount_paid : 0;
                     }
 
                     if (!$order) {
-                        Log::error('CMI Callback: Order not found', ['oid' => $input['oid']]);
+                        $callbackLog->update(['processing_status' => 'rejected', 'error_message' => 'Order not found', 'processed_at' => now()]);
                         return response('FAILURE')->header('Content-Type', 'text/plain');
                     }
 
-                    // 3. Amount Validation (Merchant Control per V2.0 docs)
                     if (abs($db_amount - $amount_received) > 0.01) {
-                        Log::error('CMI Callback: Amount Mismatch', [
-                            'oid' => $input['oid'],
-                            'db_amount' => $db_amount,
-                            'received_amount' => $amount_received
-                        ]);
+                        $callbackLog->update(['processing_status' => 'rejected', 'error_message' => 'Amount Mismatch', 'processed_at' => now()]);
                         return response('FAILURE')->header('Content-Type', 'text/plain');
                     }
 
-                    // 4. Check ProcReturnCode
                     if (isset($input["ProcReturnCode"]) && $input["ProcReturnCode"] == "00") {
-                        Log::info('CMI Callback: Success authorization (00)', ['oid' => $input['oid']]);
                         
-                        $payment_details = json_encode($input);
+                        $paymentDetails = $input;
                         
-                        // Update Order Status
-                        if ($type == 'CO' && $order instanceof CombinedOrder) {
-                            foreach ($order->orders as $subOrder) {
-                                $subOrder->payment_status = 'paid';
-                                $subOrder->payment_details = $payment_details;
-                                $subOrder->save();
-                                
-                                // Specific checkout_done logic is usually in success() but we update status here
-                            }
-                        } elseif ($type == 'OR' && $order instanceof Order) {
-                            $order->payment_status = 'paid';
-                            $order->payment_details = $payment_details;
-                            $order->save();
-                        } elseif ($type == 'W' && $order instanceof User) {
-                            $user = $order;
-                            $user->balance += $amount_received;
-                            $user->save();
-
-                            $wallet = new \App\Models\Wallet;
-                            $wallet->user_id = $user->id;
-                            $wallet->amount = $amount_received;
-                            $wallet->payment_method = 'cmi';
-                            $wallet->payment_details = $payment_details;
-                            $wallet->save();
-                        } elseif ($type == 'EA' && $order instanceof EliteSubscription) {
-                            // Activate Elite subscription via dedicated handler
-                            $txnId = $input['TransId'] ?? $input['oid'] ?? null;
-                            SellerEliteController::activateSubscription($order->id, $payment_details, $txnId);
-                            Log::info('CMI Callback: Elite subscription activated', ['subscription_id' => $order->id]);
+                        // Safe State Transition using row locks
+                        $wasChanged = $this->paymentStateService->markOrderPaidSafely($order, $paymentDetails);
+                        
+                        if (!$wasChanged) {
+                            $callbackLog->update([
+                                'is_duplicate' => true,
+                                'processing_status' => 'duplicate',
+                                'error_message' => 'Order already paid',
+                                'processed_at' => now()
+                            ]);
+                            return response('ACTION=POSTAUTH')->header('Content-Type', 'text/plain');
                         }
 
-                        Log::info('CMI Callback: Returning ACTION=POSTAUTH');
+                        // Capture CMI Vault Token
+                        if ($type == 'CO' && isset($input['TransId'])) {
+                            $userId = $order->user_id ?? ($order->orders->first()->user_id ?? null);
+                            $optIn = \Cache::get('cmi_save_card_' . $input['oid']);
+                            if ($userId && $optIn) {
+                                \App\Services\PaymentVaultService::storeToken($userId, $input);
+                                \Cache::forget('cmi_save_card_' . $input['oid']);
+                            }
+                        } elseif ($type == 'W' && $order instanceof User) {
+                            $user = $order;
+                            app(\App\Services\WalletService::class)->credit($user, $amount_received, 'cmi', json_encode($paymentDetails));
+                        } elseif ($type == 'EA' && $order instanceof EliteSubscription) {
+                            $txnId = $input['TransId'] ?? $input['oid'] ?? null;
+                            SellerEliteController::activateSubscription($order->id, json_encode($paymentDetails), $txnId);
+                        }
+
+                        PaymentAttempt::where('merchant_reference', $input['oid'])
+                            ->update(['status' => 'paid', 'completed_at' => now(), 'response_payload_hash' => $payloadHash]);
+
+                        $callbackLog->update([
+                            'processing_status' => 'processed',
+                            'processed_at' => now()
+                        ]);
+
+                        if ($type == 'W') \Cache::forget('cmi_wallet_amount_' . $input['oid']);
+
                         return response('ACTION=POSTAUTH')->header('Content-Type', 'text/plain');
                     } else {
-                        // V2.0 Documentation: If ProcReturnCode <> 00, it's a failure.
-                        // Do not change status. Return "APPROVED" to acknowledge.
-                        Log::warning('CMI Callback: Payment Rejected/Failed', [
-                            'oid' => $input['oid'],
-                            'ProcReturnCode' => $input['ProcReturnCode'] ?? 'missing'
+                        PaymentAttempt::where('merchant_reference', $input['oid'])
+                            ->update(['status' => 'failed', 'failed_at' => now(), 'response_payload_hash' => $payloadHash]);
+                            
+                        $callbackLog->update([
+                            'processing_status' => 'failed',
+                            'error_message' => 'ProcReturnCode != 00',
+                            'processed_at' => now()
                         ]);
-                        
                         return response('APPROVED')->header('Content-Type', 'text/plain');
                     }
                 }
             }
 
-            Log::error('CMI Callback: Invalid OID format');
+            $callbackLog->update(['processing_status' => 'rejected', 'error_message' => 'Invalid OID Format', 'processed_at' => now()]);
             return response('FAILURE')->header('Content-Type', 'text/plain');
 
         } catch (\Exception $e) {
-            Log::critical('CMI Callback: Internal Error', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            // Emergency fallback for CMI - return FAILURE string to bypass empty response
+            $callbackLog->update(['processing_status' => 'failed', 'error_message' => $e->getMessage(), 'processed_at' => now()]);
             return response('FAILURE')->header('Content-Type', 'text/plain');
         }
     }
@@ -343,41 +330,23 @@ class CmiController extends Controller
     public function success(Request $request)
     {
         $storeKey = config('cmi.secret_key');
-        
-        $dbStoreKey = BusinessSetting::where('type', 'cmi_store_key')->first();
-        if($dbStoreKey && $dbStoreKey->value) $storeKey = $dbStoreKey->value;
-
-        $dbSecretKey = BusinessSetting::where('type', 'cmi_secret_key')->first();
-        if($dbSecretKey && $dbSecretKey->value) $storeKey = $dbSecretKey->value;
-        
         $input = $request->all();
 
         if ($request->isMethod('get') && !isset($input['HASH'])) {
-            if (Session::has('combined_order_id')) {
-                return redirect()->route('order_confirmed');
-            }
+            if (Session::has('combined_order_id')) return redirect()->route('order_confirmed');
             return redirect()->route('home');
         }
         
-         $actualHash = $this->generateHash($input, $storeKey);
-         $retrievedHash = $input["HASH"] ?? '';
+        $actualHash = $this->generateHash($input, $storeKey);
+        $retrievedHash = $input["HASH"] ?? '';
 
-         if ($retrievedHash != $actualHash) {
-             Log::error('CMI Success Page Hash Mismatch', ['calculated' => $actualHash, 'received' => $retrievedHash, 'method' => $request->method()]);
+        if ($retrievedHash != $actualHash) {
              Session::put('payment_error', translate("Payment security verification failed."));
              return redirect()->route('payment.failed');
-         }
+        }
         
         if (isset($input["ProcReturnCode"]) && $input["ProcReturnCode"] == "00") {
              Session::flash('success', translate("Payment successful"));
-             
-             Log::info('CMI Payment Success - Processing', [
-                 'ProcReturnCode' => $input["ProcReturnCode"],
-                 'oid' => $input['oid'] ?? 'unknown',
-                 'session_data' => Session::all(),
-                 'has_payment_type' => Session::has('payment_type')
-             ]);
-             
              if (Session::has('payment_type')) {
                 $paymentType = Session::get('payment_type');
                 $paymentData = Session::get('payment_data');
@@ -385,25 +354,15 @@ class CmiController extends Controller
                 
                 if ($paymentType == 'cart_payment') {
                     $combined_order_id = Session::get('combined_order_id');
-                    if (!$combined_order_id) {
-                        Log::error('CMI Payment: combined_order_id not found in session');
-                        // Try to extract from payment data
-                        if (isset($input['oid'])) {
-                            $parts = explode('-', $input['oid']);
-                            if (count($parts) >= 2 && $parts[0] == 'CO') {
-                                $combined_order_id = $parts[1];
-                                Session::put('combined_order_id', $combined_order_id);
-                                Log::info('CMI Payment: Restored combined_order_id from oid', ['combined_order_id' => $combined_order_id]);
-                            }
+                    if (!$combined_order_id && isset($input['oid'])) {
+                        $parts = explode('-', $input['oid']);
+                        if (count($parts) >= 2 && $parts[0] == 'CO') {
+                            $combined_order_id = $parts[1];
+                            Session::put('combined_order_id', $combined_order_id);
                         }
                     }
-                    
                     if ($combined_order_id) {
                         return (new CheckoutController)->checkout_done($combined_order_id, $paymentDetails);
-                    } else {
-                        Log::error('CMI Payment: Unable to determine combined_order_id');
-                        Session::put('payment_error', translate('Order information not found.'));
-                        return redirect()->route('payment.failed');
                     }
                 } elseif ($paymentType == 'order_re_payment') {
                     return (new CheckoutController)->orderRePaymentDone($paymentData, $paymentDetails);
@@ -417,19 +376,14 @@ class CmiController extends Controller
                     return redirect()->route('seller.elite.payment.success');
                 }
              }
-             
-             // Fallback: try to redirect with order ID if available
              if (isset($input['oid'])) {
                  $parts = explode('-', $input['oid']);
                  if (count($parts) >= 2 && $parts[0] == 'CO') {
-                     $combined_order_id = $parts[1];
-                     return redirect()->route('order_confirmed_with_id', ['combined_order_id' => $combined_order_id]);
+                     return redirect()->route('order_confirmed_with_id', ['combined_order_id' => $parts[1]]);
                  }
              }
-             
              return redirect()->route('order_confirmed');
         } else {
-            // Restore session if lost
             if (isset($input['oid'])) {
                 $parts = explode('-', $input['oid']);
                 if (count($parts) >= 2) {
@@ -442,8 +396,7 @@ class CmiController extends Controller
                     }
                 }
             }
-            $errorMsg = $input['ErrMsg'] ?? translate("Your payment was not successful.");
-            Session::put('payment_error', $errorMsg);
+            Session::put('payment_error', $input['ErrMsg'] ?? translate("Your payment was not successful."));
             return redirect()->route('payment.failed');
         }
     }
@@ -451,21 +404,23 @@ class CmiController extends Controller
     public function fail(Request $request)
     {
         $input = $request->all();
-        // Restore session if lost
-        if (isset($input['oid'])) {
-            $parts = explode('-', $input['oid']);
-            if (count($parts) >= 2) {
-                if ($parts[0] == 'CO') {
-                    Session::put('combined_order_id', $parts[1]);
-                    Session::put('payment_type', 'cart_payment');
-                } elseif ($parts[0] == 'OR') {
-                    Session::put('payment_type', 'order_re_payment');
-                    Session::put('payment_data', ['order_id' => $parts[1]]);
+        $storeKey = config('cmi.secret_key');
+        if (isset($input['HASH'])) {
+            $actualHash = $this->generateHash($input, $storeKey);
+            if ($input['HASH'] === $actualHash && isset($input['oid'])) {
+                $parts = explode('-', $input['oid']);
+                if (count($parts) >= 2) {
+                    if ($parts[0] == 'CO') {
+                        Session::put('combined_order_id', $parts[1]);
+                        Session::put('payment_type', 'cart_payment');
+                    } elseif ($parts[0] == 'OR') {
+                        Session::put('payment_type', 'order_re_payment');
+                        Session::put('payment_data', ['order_id' => $parts[1]]);
+                    }
                 }
             }
         }
-        $errorMsg = $input['ErrMsg'] ?? translate("Payment was cancelled or failed.");
-        Session::put('payment_error', $errorMsg);
+        Session::put('payment_error', $input['ErrMsg'] ?? translate("Payment was cancelled or failed."));
         return redirect()->route('payment.failed');
     }
 
@@ -478,10 +433,7 @@ class CmiController extends Controller
         foreach ($postParams as $param){
             $paramValue = $data[$param];
             $paramValue = html_entity_decode(preg_replace("/\n$/","", $paramValue), ENT_QUOTES, 'UTF-8');
-            
-            // CMI V2.0 Rule: replace any character after "document" with a dot "."
             $paramValue = preg_replace('/document./i', 'document.', $paramValue);
-            
             $escapedParamValue = str_replace("|", "\\|", str_replace("\\", "\\\\", $paramValue)); 
             
             $lowerParam = strtolower($param);
@@ -492,7 +444,6 @@ class CmiController extends Controller
 
         $escapedStoreKey = str_replace("|", "\\|", str_replace("\\", "\\\\", $storeKey));
         $hashval = $hashval . $escapedStoreKey;
-
         $calculatedHashValue = hash('sha512', $hashval);
         return base64_encode(pack('H*', $calculatedHashValue));
     }
@@ -505,5 +456,78 @@ class CmiController extends Controller
         $str = preg_replace('#&[^;]+;#', '', $str);
         $str = preg_replace('/[^a-zA-Z0-9_ -]/s','',$str);
         return trim($str);
+    }
+
+    public function expressCharge($combinedOrderId, $tokenObj)
+    {
+        try {
+            $combined_order = CombinedOrder::findOrFail($combinedOrderId);
+            $amount = round($combined_order->grand_total, 2);
+            $oid = 'CO-' . $combined_order->id . '-' . time();
+            $user = Auth::user();
+
+            $clientId = config('cmi.merchant_id');
+            $storeKey = config('cmi.secret_key');
+            $storeType = config('cmi.store_type');
+            
+            $data = [];
+            $data['clientid'] = $clientId;
+            $data['amount'] = $amount;
+            $data['oid'] = $oid;
+            $data['TranType'] = "PreAuth";
+            $data['isRecurring'] = "true";
+            $data['recurringTrxnRef'] = $tokenObj->token;
+            $data['currency'] = "504";
+            $data['rnd'] = microtime();
+            $data['storetype'] = $storeType;
+            $data['hashAlgorithm'] = "ver3";
+            $data['lang'] = Session::get('locale', 'fr');
+            $data['encoding'] = "UTF-8";
+            $address = Address::where('user_id', $user->id)->where('set_default', 1)->first();
+            
+            $data['email'] = $user->email ?? 'email@domain.com';
+            $data['tel'] = $this->str_without_accents($user->phone ?? '0000000000');
+            $data['BillToName'] = $this->str_without_accents($user->name ?: 'Customer');
+            if ($address) {
+                $data['BillToStreet1'] = $this->str_without_accents($address->address);
+                $data['BillToCity'] = $this->str_without_accents($address->city ? $address->city->name : '');
+                $data['BillToStateProv'] = $this->str_without_accents($address->state ? $address->state->name : '');
+                $data['BillToPostalCode'] = $this->str_without_accents($address->postal_code);
+                $data['BillToCountry'] = $this->str_without_accents($address->country ? $address->country->name : '504');
+            }
+            
+            $data['okUrl'] = config('cmi.ok_url') ?: route('cmi.success');
+            $data['failUrl'] = config('cmi.fail_url') ?: route('cmi.fail');
+            $data['callbackUrl'] = config('cmi.callback_url') ?: route('cmi.callback');
+
+            $data['hash'] = $this->generateHash($data, $storeKey);
+            $actionUrl = config('cmi.gateway_url');
+
+            PaymentAttempt::create([
+                'user_id' => $user->id,
+                'combined_order_id' => $combinedOrderId,
+                'payment_method' => 'express_buy_cmi_vault',
+                'gateway' => 'cmi',
+                'merchant_reference' => $oid,
+                'amount' => $amount,
+                'currency' => 'MAD',
+                'status' => 'initiated',
+                'initiated_at' => now(),
+                'request_payload_hash' => hash('sha256', json_encode($data))
+            ]);
+
+            return view('frontend.payment.cmi', compact('data', 'actionUrl'));
+
+        } catch (\Exception $e) {
+            $combined_order = CombinedOrder::find($combinedOrderId);
+            if ($combined_order) {
+                foreach ($combined_order->orders as $subOrder) {
+                    $subOrder->delete();
+                }
+                $combined_order->delete();
+            }
+            Session::flash('error', translate('Failed to process Express Buy setup.'));
+            return redirect()->route('home');
+        }
     }
 }

@@ -74,6 +74,23 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label class="col-md-3 col-from-label">{{ translate('Dimensions (L x W x H)') }}
+                                    <small>({{ translate('In Cm') }})</small></label>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <input type="number" class="form-control" name="length" step="0.01" placeholder="{{ translate('Length') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="number" class="form-control" name="width" step="0.01" placeholder="{{ translate('Width') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="number" class="form-control" name="height" step="0.01" placeholder="{{ translate('Height') }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label class="col-md-3 col-from-label">{{ translate('Minimum Purchase Qty') }} <span class="text-danger">*</span></label>
                                 <div class="col-md-8">
                                     <input type="number" lang="en" class="form-control" name="min_qty" value="1"
@@ -346,7 +363,7 @@
                                     </label>
                                     <div class="col-md-6">
                                         <input type="text" placeholder="{{ translate('SKU') }}" name="sku"
-                                            class="form-control">
+                                            value="{{ old('sku', (new \App\Services\ProductSkuService())->next()) }}" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -867,7 +884,7 @@
 
 @section('script')
 <!-- Treeview js -->
-<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}"></script>
+<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}?v={{ file_exists(public_path('assets/js/hummingbird-treeview.js')) ? filemtime(public_path('assets/js/hummingbird-treeview.js')) : time() }}"></script>
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -1037,11 +1054,11 @@
     function warrantySelection(){
         if($('input[name="has_warranty"]').is(':checked')) {
             $('.warranty_selection_div').removeClass('d-none');
-            $('#warranty_id').attr('required', true);
+            // $('#warranty_id').attr('required', true);
         }
         else {
             $('.warranty_selection_div').addClass('d-none');
-            $('#warranty_id').removeAttr('required');
+            // $('#warranty_id').removeAttr('required');
         }
     }
 

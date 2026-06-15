@@ -13,9 +13,14 @@
 /storage/*.key
 /storage/debugbar/
 /.phpunit.result.cache
+/.phpunit.cache/
 /temp/
 updates/
 *.zip
+*.sql
+*.sql.gz
+/storage/app/backups/
+/sqlbackups/
 npm-debug.log
 yarn-error.log
 
@@ -27,7 +32,7 @@ Homestead.json
 Homestead.yaml
 .DS_Store
 /nbproject/
-
+/MayushSEO
 ### Public Directory (Safe Handling) ###
 # DO NOT ignore the whole public folder!
 # Only ignore user uploads, generated storage symlinks, and temp dumps:
@@ -35,3 +40,19 @@ Homestead.yaml
 /public/uploads/
 /public/all/
 /public/app-translations/
+
+### AI Agent Knowledge Base & Supplementary Files (never push to GitHub) ###
+/additional-files/
+
+### Local Trello sync artifacts ###
+.trello-synced
+/scripts/trello/
+
+### AI Agent Skills & Tooling (local only) ###
+.agent/
+.agents/
+.claude/
+.kiro/
+.qodo/
+.claude-flow/
+skills-lock.json

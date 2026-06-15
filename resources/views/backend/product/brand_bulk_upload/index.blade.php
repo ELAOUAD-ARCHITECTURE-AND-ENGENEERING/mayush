@@ -25,16 +25,19 @@
             <h5 class="mb-0 h6"><strong>{{translate('Upload Brand File')}}</strong></h5>
         </div>
         <div class="card-body">
-            <form class="form-horizontal" action="{{ route('brand_bulk_upload') }}" method="POST" enctype="multipart/form-data">
+            <form class="form-horizontal" action="{{ route('brand_bulk_upload.upload') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group row">
                     <div class="col-sm-9">
                         <div class="custom-file">
     						<label class="custom-file-label">
-    							<input type="file" name="bulk_file" class="custom-file-input" required>
+    							<input type="file" name="bulk_file" class="custom-file-input" accept=".xlsx,.xls,.csv" required>
     							<span class="custom-file-name">{{ translate('Choose File')}}</span>
     						</label>
     					</div>
+                        @error('bulk_file')
+                            <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
                 <div class="form-group mb-0">

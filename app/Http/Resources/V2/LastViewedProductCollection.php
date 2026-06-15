@@ -25,7 +25,7 @@ class LastViewedProductCollection extends ResourceCollection
                     'sales' => (int) $product->num_of_sale,
                     'is_wholesale' => $wholesale_product,
                     'links' => [
-                        'details' => route('products.show', $product->id),
+                        'details' => route('api.products.show', $product->id),
                     ]
                 ];
             })
