@@ -3597,3 +3597,30 @@ $(document).ready(function() {
     });
 
 });
+
+// ==========================================================================
+// Premium Global Loader Setup
+// ==========================================================================
+$(document).ready(function() {
+    // Append the loader to the body if it doesn't exist
+    if ($('#premium-ajax-loader').length === 0) {
+        $('body').append('<div id="premium-ajax-loader" class="premium-global-loader"><div class="premium-spinner"></div></div>');
+    }
+
+    // Global AJAX hooks (exclude silent background requests by adding .silent-ajax class or handling logic if needed)
+    $(document).ajaxStart(function() {
+        $('#premium-ajax-loader').addClass('active');
+    });
+
+    $(document).ajaxStop(function() {
+        $('#premium-ajax-loader').removeClass('active');
+    });
+
+    // Hook into regular form submissions
+    $(document).on('submit', 'form:not(.no-loader)', function() {
+        // Prevent showing loader for forms targeting new tabs
+        if ($(this).attr('target') !== '_blank') {
+            $('#premium-ajax-loader').addClass('active');
+        }
+    });
+});
