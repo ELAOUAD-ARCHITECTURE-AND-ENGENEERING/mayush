@@ -27,8 +27,8 @@
         .fs-22, .fs-28 {
             font-family: var(--mayush-font-heading) !important;
             font-weight: 700 !important;
-            letter-spacing: 0.5px !important;
-            color: #12192A !important; /* Midnight Navy */
+            letter-spacing: 0 !important;
+            color: var(--mayush-black) !important;
         }
 
         /* Banner headings must stay white — separate from the dark heading rule above */
@@ -36,8 +36,8 @@
         .metro-marketplace-split-title {
             font-family: var(--mayush-font-heading) !important;
             font-weight: 700 !important;
-            letter-spacing: 0.5px !important;
-            color: #ffffff !important;
+            letter-spacing: 0 !important;
+            color: var(--mayush-white) !important;
         }
 
         body, p, span, a, input, button, select, textarea,
@@ -51,22 +51,22 @@
 
         /* Color-mapping rules */
         .text-dark {
-            color: #12192A !important;
+            color: var(--mayush-black) !important;
         }
         .text-primary, .hov-text-primary:hover {
-            color: #8A5A12 !important; /* Accessible warm accent for text */
+            color: var(--mayush-orange) !important;
         }
         .text-secondary {
-            color: #5F6368 !important;
+            color: var(--mayush-text-muted) !important;
         }
         .btn-outline-primary {
-            color: #D6A24E !important;
-            border-color: #D6A24E !important;
+            color: var(--mayush-orange) !important;
+            border-color: var(--mayush-orange) !important;
         }
         .btn-outline-primary:hover {
-            background-color: #D6A24E !important;
-            border-color: #D6A24E !important;
-            color: #ffffff !important;
+            background-color: var(--mayush-orange) !important;
+            border-color: var(--mayush-orange) !important;
+            color: var(--mayush-white) !important;
         }
 
         /* Liquid Glass Container Overrides */
@@ -210,54 +210,116 @@
             border-color: rgba(214, 162, 78, 0.15) !important;
         }
 
-        .metro-hero-content {
-            background: transparent !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            border: none !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-            text-shadow: 0 2px 16px rgba(0, 0, 0, .45) !important;
+        /* Metro hero - aligned to Mayush Design Charte Graphique v1.0 */
+        .metro-hero-slide {
+            position: relative;
+            overflow: hidden;
+            background: var(--mayush-beige);
         }
-        .metro-hero-title,
-        .metro-hero-title * {
-            color: #ffffff !important;
+        .metro-hero-slide img {
+            filter: saturate(.96) contrast(1.02);
+        }
+        .metro-hero-slide.has-content::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background:
+                linear-gradient(90deg, rgba(26, 26, 26, .74) 0%, rgba(26, 26, 26, .48) 48%, rgba(26, 26, 26, .12) 100%),
+                linear-gradient(0deg, rgba(217, 116, 52, .18) 0%, rgba(245, 241, 232, .02) 48%);
+            pointer-events: none;
+        }
+        .metro-hero-content {
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            left: max(0px, calc((100vw - var(--mayush-container-max)) / 2));
+            width: min(700px, 100%);
+            box-sizing: border-box;
+            transform: translateY(-50%);
+            padding: var(--mayush-hero-padding);
+            color: var(--mayush-white);
+            text-shadow: 0 2px 16px rgba(26, 26, 26, .45);
         }
         .metro-hero-title {
-            font-size: 48px !important;
-            line-height: 1.15 !important;
+            max-width: 700px;
+            margin-bottom: 16px;
+            color: var(--mayush-white) !important;
+            font-family: var(--mayush-font-heading) !important;
+            font-size: 56px !important;
             font-weight: 700 !important;
-            letter-spacing: 0.5px !important;
-            margin-bottom: 14px;
-            text-shadow: 0 2px 16px rgba(0, 0, 0, .45) !important;
+            line-height: 1.12 !important;
+            letter-spacing: 0 !important;
+            text-wrap: balance;
+            overflow-wrap: normal;
+            text-shadow: 0 2px 16px rgba(26, 26, 26, .45);
+        }
+        .metro-hero-title span,
+        .metro-hero-title strong,
+        .metro-hero-title b,
+        .metro-hero-title em,
+        .metro-hero-title i,
+        .metro-hero-title u {
+            font-family: var(--mayush-font-heading) !important;
+            line-height: inherit;
         }
         .metro-hero-description {
-            font-size: 16px !important;
-            line-height: 1.6 !important;
-            color: rgba(255, 255, 255, 0.85) !important;
+            max-width: 560px;
+            margin-bottom: 24px;
+            color: rgba(255, 255, 255, .92) !important;
+            font-family: var(--mayush-font-body) !important;
+            font-size: 18px !important;
+            line-height: 1.7 !important;
+            text-shadow: 0 2px 14px rgba(26, 26, 26, .38);
         }
         .metro-hero-cta {
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            min-height: 46px !important;
-            padding: 12px 32px !important;
-            border-radius: 30px !important;
-            font-weight: 600 !important;
-            text-shadow: none !important;
-            letter-spacing: 1px !important;
-            text-transform: uppercase !important;
-            background: linear-gradient(135deg, #D6A24E 0%, #C98446 100%) !important; /* Warm Gold to Soft Orange */
+            min-height: 48px !important;
+            padding: 14px 32px !important;
             border: none !important;
-            color: #ffffff !important;
-            box-shadow: 0 10px 20px rgba(201, 132, 70, 0.3) !important;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            border-radius: var(--mayush-radius-md) !important;
+            background: var(--mayush-orange) !important;
+            box-shadow: var(--mayush-shadow-cta) !important;
+            color: var(--mayush-white) !important;
+            font-family: var(--mayush-font-body) !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            line-height: 1.35 !important;
+            letter-spacing: 0 !important;
+            text-shadow: none !important;
+            text-transform: none !important;
+            transition: background var(--mayush-transition-base), box-shadow var(--mayush-transition-base), transform var(--mayush-transition-base) !important;
         }
         .metro-hero-cta:hover {
+            background: var(--mayush-orange-hover) !important;
+            box-shadow: var(--mayush-shadow-cta-hover) !important;
+            color: var(--mayush-white) !important;
             transform: translateY(-2px) !important;
-            box-shadow: 0 15px 30px rgba(201, 132, 70, 0.5) !important;
-            filter: brightness(1.1) !important;
-            color: #ffffff !important;
+        }
+        .metro-hero-cta:focus-visible {
+            outline: 2px solid var(--mayush-white) !important;
+            outline-offset: 3px !important;
+        }
+        @media (max-width: 991px) {
+            .floating-buttons-section {
+                top: auto !important;
+                bottom: 96px !important;
+                transform: none !important;
+            }
+            .floating-buttons-section-control {
+                background: var(--mayush-orange) !important;
+                box-shadow: var(--mayush-shadow-cta) !important;
+            }
+            .floating-buttons-section-control:focus-visible {
+                outline: 2px solid var(--mayush-white) !important;
+                outline-offset: 2px !important;
+            }
+            .aiz-floating-button a .circle,
+            .aiz-floating-button a .circle span {
+                background: var(--mayush-orange) !important;
+            }
         }
 
         #section_featured .slick-slider .slick-list{
@@ -270,51 +332,6 @@
             #section_featured .slick-slider .slick-list .slick-slide {
                 margin-bottom: -4px;
             }
-        }
-        .metro-hero-slide {
-            position: relative;
-            overflow: hidden;
-            background: #111;
-        }
-        .metro-hero-slide.has-content::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            background: linear-gradient(90deg, rgba(0, 0, 0, .66) 0%, rgba(0, 0, 0, .42) 46%, rgba(0, 0, 0, .08) 100%);
-            pointer-events: none;
-        }
-        .metro-hero-content {
-            position: absolute;
-            z-index: 2;
-            top: 50%;
-            left: 7%;
-            width: min(620px, 86%);
-            transform: translateY(-50%);
-            color: #fff;
-            text-shadow: 0 2px 16px rgba(0, 0, 0, .35);
-        }
-        .metro-hero-title {
-            font-size: 48px;
-            line-height: 1.15;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            margin-bottom: 14px;
-        }
-        .metro-hero-title span,
-        .metro-hero-title strong,
-        .metro-hero-title b,
-        .metro-hero-title em,
-        .metro-hero-title i,
-        .metro-hero-title u {
-            line-height: inherit;
-        }
-        .metro-hero-description {
-            max-width: 560px;
-            font-size: 17px;
-            line-height: 1.65;
-            margin-bottom: 22px;
-            color: #ffffff !important;
         }
         .metro-marketplace-split {
             display: grid;
@@ -588,76 +605,67 @@
                 padding: 0 5px;
             }
         }
-        .metro-hero-cta {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 46px;
-            padding: 12px 24px;
-            border-radius: 4px;
-            font-weight: 700;
-            text-shadow: none;
-            box-shadow: 0 10px 24px rgba(0, 0, 0, .22);
-        }
         @media (min-width: 1200px) {
             .metro-hero-title {
-                font-size: 56px;
+                font-size: 64px !important;
             }
         }
         @media (max-width: 767px) {
             .home-slider .metro-hero-slide {
-                height: 300px !important;
-                min-height: 300px;
+                height: 360px !important;
+                min-height: 360px;
             }
             .metro-hero-slide.has-content::after {
-                background: linear-gradient(0deg, rgba(0, 0, 0, .72) 0%, rgba(0, 0, 0, .42) 62%, rgba(0, 0, 0, .08) 100%);
+                background:
+                    linear-gradient(0deg, rgba(26, 26, 26, .78) 0%, rgba(26, 26, 26, .52) 64%, rgba(26, 26, 26, .10) 100%),
+                    linear-gradient(0deg, rgba(217, 116, 52, .18) 0%, rgba(245, 241, 232, .02) 55%);
             }
             .metro-hero-content {
                 top: auto;
-                bottom: 20px;
-                left: 18px;
-                right: 18px;
-                width: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                box-sizing: border-box;
                 transform: none;
+                padding: 40px 20px 28px;
             }
             .metro-hero-title {
-                max-width: 92%;
-                font-size: 22px;
-                line-height: 1.18;
-                margin-bottom: 8px;
+                max-width: 100%;
+                font-size: 32px !important;
+                line-height: 1.15 !important;
+                margin-bottom: 10px;
             }
             .metro-hero-description {
-                max-width: 94%;
-                font-size: 13px;
-                line-height: 1.42;
-                margin-bottom: 12px;
+                max-width: 100%;
+                font-size: 15px !important;
+                line-height: 1.55 !important;
+                margin-bottom: 16px;
             }
             .metro-hero-cta {
                 max-width: 100%;
-                min-height: 38px;
-                padding: 8px 14px;
-                font-size: 12px;
+                min-height: 42px !important;
+                padding: 10px 18px !important;
+                font-size: 14px !important;
                 white-space: normal;
                 text-align: center;
             }
         }
         @media (max-width: 420px) {
             .home-slider .metro-hero-slide {
-                height: 280px !important;
-                min-height: 280px;
+                height: 340px !important;
+                min-height: 340px;
             }
             .metro-hero-content {
-                bottom: 16px;
-                left: 16px;
-                right: 16px;
+                padding: 34px 18px 24px;
             }
             .metro-hero-title {
-                font-size: 20px;
-                line-height: 1.16;
+                font-size: 28px !important;
+                line-height: 1.15 !important;
             }
             .metro-hero-description {
-                font-size: 12px;
-                line-height: 1.38;
+                font-size: 15px !important;
+                line-height: 1.5 !important;
             }
         }
         .metro-deferred-section {

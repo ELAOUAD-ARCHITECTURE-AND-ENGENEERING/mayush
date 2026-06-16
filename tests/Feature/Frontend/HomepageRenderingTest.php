@@ -139,6 +139,27 @@ class HomepageRenderingTest extends TestCase
             ->assertSee('href="' . route('search') . '"', false);
     }
 
+    public function test_metro_hero_uses_mayush_graphic_chart_tokens(): void
+    {
+        $this->setting('homepage_select', 'metro');
+        Cache::flush();
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('padding: var(--mayush-hero-padding);', false)
+            ->assertSee('font-size: 64px !important;', false)
+            ->assertSee('max-width: 700px;', false)
+            ->assertSee('text-wrap: balance;', false)
+            ->assertSee('background: var(--mayush-orange) !important;', false)
+            ->assertSee('border-radius: var(--mayush-radius-md) !important;', false)
+            ->assertSee('rgba(217, 116, 52, .18)', false)
+            ->assertSee('rgba(26, 26, 26, .74)', false)
+            ->assertSee('.metro-hero-title span,', false)
+            ->assertSee('font-family: var(--mayush-font-heading) !important;', false)
+            ->assertSee('.floating-buttons-section-control', false)
+            ->assertSee('bottom: 96px !important;', false);
+    }
+
     public function test_metro_featured_categories_appear_directly_after_hero_with_h2_heading(): void
     {
         $this->setting('homepage_select', 'metro');
