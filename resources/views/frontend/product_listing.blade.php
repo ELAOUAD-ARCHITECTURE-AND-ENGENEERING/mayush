@@ -71,31 +71,6 @@
 
     <section class="mb-1">
         <div class="container sm-px-0 pt-1">
-            @if(isset($category_id) && $category)
-                @php
-                    $categoryVisibleProductCount = method_exists($products, 'total') ? $products->total() : 0;
-                    $categoryFaqItems = \App\Services\SeoService::categoryFaqItems($category, $categoryVisibleProductCount, app(\App\Services\SeoStatsService::class)->verifiedSellerCount());
-                @endphp
-                <section class="py-3 px-3 px-md-0">
-                    <h1 class="fs-24 fs-md-28 fw-700 text-dark mb-2">{{ $category->getTranslation('name') }} au Maroc</h1>
-                    <p class="fs-12 text-gray mb-2">{{ \App\Services\SeoService::categoryFreshnessLabel() }}</p>
-                    <p class="fs-14 fs-md-15 text-gray mb-0">
-                        Comparez {{ number_format($categoryVisibleProductCount) }} references {{ $category->getTranslation('name') }}
-                        sur Mayush Marketplace avec vendeurs verifies, prix, dimensions et options de livraison au Maroc.
-                    </p>
-                    <blockquote class="geo-expert-note mt-3 mb-0 p-3 bg-light border-left border-primary fs-14 text-dark">
-                        {{ \App\Services\SeoService::categoryExpertNote($category) }}
-                    </blockquote>
-                    <div class="geo-category-faq mt-3">
-                        @foreach($categoryFaqItems as $faqItem)
-                            <details class="mb-2">
-                                <summary class="fw-700 fs-14 text-dark">{{ $faqItem['question'] }}</summary>
-                                <p class="fs-13 text-gray mt-2 mb-0">{{ $faqItem['answer'] }}</p>
-                            </details>
-                        @endforeach
-                    </div>
-                </section>
-            @endif
             <form class="" id="search-form" action="" method="GET">
                 <div class="row">
 
@@ -604,6 +579,11 @@
                                     </style>
                                 </div>
                             </div>
+                            @if (isset($category_id))
+                                <p class="fs-13 text-secondary mb-0 mt-2 pt-2">
+                                    {{ translate('Explorez une sélection Mayush vérifiée pour comparer les styles, les prix et les options de livraison au Maroc.') }}
+                                </p>
+                            @endif
                         </div>
 
                         <!-- Products -->
