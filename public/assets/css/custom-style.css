@@ -3071,7 +3071,7 @@ select.form-control.mo-custom-select {
 }
 
 /* ==========================================================================
-   Premium Global Loader Overlay
+   Premium Global Loader
    ========================================================================== */
 
 .premium-global-loader {
@@ -3080,9 +3080,9 @@ select.form-control.mo-custom-select {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(8px); /* Glassmorphism effect */
-    -webkit-backdrop-filter: blur(8px);
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     z-index: 999999;
     display: flex;
     justify-content: center;
@@ -3117,7 +3117,7 @@ select.form-control.mo-custom-select {
 /* Dark mode support if applicable */
 [data-theme="dark"] .premium-global-loader,
 body.dark-mode .premium-global-loader {
-    background: rgba(30, 30, 30, 0.7);
+    background: transparent;
 }
 
 
