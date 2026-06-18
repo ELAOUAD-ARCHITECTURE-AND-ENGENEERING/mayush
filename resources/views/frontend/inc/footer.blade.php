@@ -201,24 +201,34 @@
             <!-- about & subscription -->
             
             <div class="col-xl-6 col-lg-7">
-                <div class="mb-4 text-secondary text-justify">
+                <div class="mb-4 text-light opacity-80 text-justify fs-14 footer-about-text" style="line-height: 1.6;">
                     {!! get_setting('about_us_description',null,App::getLocale()) !!}
                 </div>
+                <style>
+                    .footer-about-text,
+                    .footer-about-text * {
+                        color: rgba(255, 255, 255, 0.85) !important;
+                    }
+                </style>
                 @if(get_setting('newsletter_activation'))
                     <h5 class="fs-14 fw-700 text-soft-light mt-1 mb-3">{{ translate('Subscribe to our newsletter for regular updates about Offers, Coupons & more') }}</h5>
-                    <div class="mb-3">
-                        <form method="POST" action="{{ route('subscribers.store') }}">
-                            @csrf
-                            <div class="row gutters-10">
-                                <div class="col-8">
-                                    <input type="email" class="form-control border-secondary rounded-0 text-white w-100 bg-transparent" placeholder="{{ translate('Your Email Address') }}" name="email" required>
-                                </div>
-                                <div class="col-4">
-                                    <button type="submit" class="btn btn-primary rounded-0 w-100">{{ translate('Subscribe') }}</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                      <div class="mb-3">
+                          <form method="POST" action="{{ route('subscribers.store') }}" class="m-0">
+                              @csrf
+                              <div class="d-flex align-items-stretch overflow-hidden" style="border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; background: rgba(255,255,255,0.03); transition: all 0.3s ease;" 
+                                  onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" 
+                                  onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">
+                                  <input type="email" class="form-control text-white px-4 bg-transparent border-0 shadow-none m-0 flex-grow-1" 
+                                      style="height: 48px; font-size: 14px; outline: none !important; border-radius: 0 !important;" 
+                                      placeholder="{{ translate('Your Email Address') }}" name="email" required autocomplete="off">
+                                  <button type="submit" class="btn text-white px-4 fw-700 cursor-pointer border-0 shadow-none m-0" 
+                                      style="background: #F97316; height: 48px; white-space: nowrap; transition: background 0.2s ease; border-radius: 0 !important; outline: none !important;" 
+                                      onmouseover="this.style.background='#EA580C'" onmouseout="this.style.background='#F97316'">
+                                      {{ translate('Subscribe') }}
+                                  </button>
+                              </div>
+                          </form>
+                      </div>           
                 @endif
             </div>
 

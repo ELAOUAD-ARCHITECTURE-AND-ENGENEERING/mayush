@@ -15,7 +15,7 @@
             --market-header-accent: #d97434;
             --market-header-accent-hover: #bf5f21;
             --market-header-text: #ffffff;
-            --market-header-muted: rgba(255, 255, 255, 0.72);
+            --market-header-muted: rgba(255, 255, 255, 0.95);
             background: var(--market-header-bg);
             color: var(--market-header-text);
         }
@@ -312,21 +312,21 @@
                 </a>
 
                 @if (get_setting('show_language_switcher') == 'on')
-                    <div class="dropdown market-switcher lang-visibility js-lang-change ml-2 mr-2" id="lang-change">
-                        <button type="button" class="dropdown-toggle border-0 bg-transparent p-0" data-toggle="dropdown" data-display="static">
+                    <div class="dropdown market-switcher lang-visibility js-lang-change ml-2 mr-2" id="lang-change" style="z-index: 1050;">
+                        <button type="button" class="dropdown-toggle border-0 bg-transparent p-0 text-white" data-toggle="dropdown" data-display="static">
                             <img src="{{ static_asset('assets/img/flags/' . $system_language->code . '.png') }}" class="mr-1" alt="{{ $system_language->name }}" height="11">
                             <span class="text-capitalize">{{ $system_language->code }}</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
+                        <ul class="dropdown-menu dropdown-menu-right" style="z-index: 1060; min-width: 120px;">
                             @foreach (get_all_active_language() as $language)
                                 <li>
-                                    <button type="button" data-flag="{{ $language->code }}"
+                                    <a href="javascript:void(0)" data-flag="{{ $language->code }}"
                                         class="dropdown-item text-dark w-100 text-left @if ($system_language->code == $language->code) active @endif">
                                         <img src="{{ static_asset('assets/img/placeholder.jpg') }}"
                                             data-src="{{ static_asset('assets/img/flags/' . $language->code . '.png') }}"
                                             class="mr-1 lazyload" alt="{{ $language->name }}" height="11">
                                         <span class="language">{{ $language->name }}</span>
-                                    </button>
+                                    </a>
                                 </li>
                             @endforeach
                         </ul>
@@ -379,12 +379,21 @@
                     </div>
                 </div>
 
-                <div class="dropdown d-none d-lg-block ml-3">
+                <!-- Become Seller (Vendor) - Placed here to be on extreme left in RTL -->
+                @if (get_setting('vendor_system_activation') == 1)
+                    <div class="d-none d-lg-block ml-3">
+                        <a href="{{ route(get_setting('seller_registration_verify') === '1' ? 'shop-reg.verification' : 'shops.create') }}" class="market-nav-link text-warning fw-700 p-0" style="background: rgba(255,166,0,0.1); padding: 8px 12px !important; border-radius: 6px; border: 1px solid rgba(255,166,0,0.3);">
+                            <i class="las la-store mr-1"></i>{{ translate('Become a Seller') }}
+                        </a>
+                    </div>
+                @endif
+
+                <div class="dropdown d-none d-lg-block ml-3" style="z-index: 1050;">
                     <button type="button" class="market-action-link d-flex flex-column justify-content-center border-0 bg-transparent text-left" data-toggle="dropdown">
                         <span class="label">{{ Auth::check() ? translate('Hello') . ', ' . \Illuminate\Support\Str::limit($user->name, 12) : translate('Hello, sign in') }}</span>
                         <span class="value">{{ translate('Account & Lists') }}</span>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-right py-0">
+                    <div class="dropdown-menu dropdown-menu-right py-0" style="z-index: 1060;">
                         @auth
                             <a class="dropdown-item py-2" href="{{ isAdmin() ? route('admin.dashboard') : route('dashboard') }}">{{ translate('Dashboard') }}</a>
                             @if (isCustomer())
@@ -443,7 +452,7 @@
             <div class="d-flex align-items-center h-100 justify-content-between">
                 
                 <!-- Left Section: Category Toggler & Navigation links -->
-                <div class="d-flex align-items-center overflow-hidden">
+                <div class="d-flex align-items-center overflow-hidden flex-grow-1">
                     <button type="button" class="btn market-menu-trigger d-flex align-items-center mr-3" id="category-menu-bar" style="cursor: pointer;">
                         <i class="las la-bars la-lg mr-1" id="category-menu-bar-icon"></i>
                         {{ translate('All') }}
@@ -460,23 +469,9 @@
                         @else
                             <a href="{{ route('categories.all') }}" class="market-nav-link">{{ translate('Categories') }}</a>
                             <a href="{{ route('search') }}" class="market-nav-link">{{ translate("Today's Deals") }}</a>
-                            @if (get_setting('vendor_system_activation') == 1)
-                                <a href="{{ route(get_setting('seller_registration_verify') === '1' ? 'shop-reg.verification' : 'shops.create') }}"
-                                    class="market-nav-link">{{ translate('Sell') }}</a>
-                            @endif
                             <a href="{{ route('contact') }}" class="market-nav-link">{{ translate('Customer Service') }}</a>
                         @endif
                     </div>
-                </div>
-
-                <!-- Right Section: Relocated switchers/actions block -->
-                <div class="d-flex align-items-center ml-auto">
-                    <!-- Become Seller button (always show if vendor system activated) -->
-                    @if (get_setting('vendor_system_activation') == 1)
-                        <a href="{{ route(get_setting('seller_registration_verify') === '1' ? 'shop-reg.verification' : 'shops.create') }}" class="market-nav-link text-warning ml-3 fw-700">
-                            <i class="las la-store mr-1"></i>{{ translate('Become a Seller') }}
-                        </a>
-                    @endif
                 </div>
 
             </div>
