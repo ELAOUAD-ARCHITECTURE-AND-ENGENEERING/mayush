@@ -271,9 +271,9 @@
                             <span class="fw-bold text-blue">{{ translate('Inhouse product') }}</span>
                         </p>
                     @endif
-                    @if (get_setting('conversation_system') == 1)
+                    {{-- @if (get_setting('conversation_system') == 1)
                         <a href="javascript:void();" onclick="show_chat_modal()" class="fs-14 fw-400 text-blue animate-underline-blue has-transition">{{ translate('Message Seller') }}</a>
-                    @endif
+                    @endif --}}
                 </div>
             </div>
             @if ($detailedProduct->brand != null)
@@ -767,9 +767,9 @@
                                 <span class="fw-bold text-dark">{{ translate('Inhouse product') }}</span>
                             </p>
                         @endif
-                        @if (get_setting('conversation_system') == 1)
+                        {{-- @if (get_setting('conversation_system') == 1)
                             <a href="javascript:void();" onclick="show_chat_modal()" class="fs-14 fw-400 text-blue animate-underline-blue has-transition">{{ translate('Message Seller') }}</a>
-                        @endif
+                        @endif --}}
                     </div>
                 </div>
                 @if ($detailedProduct->brand != null)
