@@ -278,8 +278,90 @@
     // echo get_setting('header_script');
 @endphp
 
+    <style id="mayush-preloader-style">
+        /* Global Preloader */
+        #global-preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #global-preloader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .preloader-logo {
+            width: 160px;
+            max-width: 60vw;
+            height: auto;
+            animation: preloaderPulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes preloaderPulse {
+            0% { transform: scale(0.95); opacity: 0.6; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.6; }
+        }
+        /* Disable scroll while loading */
+        body.preloader-active {
+            overflow: hidden !important;
+        }
+    </style>
 </head>
-<body>
+<body class="preloader-active">
+    <!-- Global Preloader -->
+    <div id="global-preloader">
+        <img src="{{ uploaded_asset(get_setting('header_logo')) }}" alt="Mayush Loading" class="preloader-logo" onerror="this.onerror=null;this.style.display='none';">
+    </div>
+
+    <script>
+        // Preloader Logic
+        (function() {
+            var preloader = document.getElementById('global-preloader');
+            var minDisplayTime = 500; // ms
+            var startTime = new Date().getTime();
+
+            function hidePreloader() {
+                var elapsed = new Date().getTime() - startTime;
+                var remaining = Math.max(0, minDisplayTime - elapsed);
+                
+                setTimeout(function() {
+                    if (preloader) {
+                        preloader.classList.add('fade-out');
+                        document.body.classList.remove('preloader-active');
+                        // Remove from DOM after transition
+                        setTimeout(function() {
+                            if (preloader.parentNode) {
+                                preloader.parentNode.removeChild(preloader);
+                            }
+                            var style = document.getElementById('mayush-preloader-style');
+                            if (style && style.parentNode) {
+                                style.parentNode.removeChild(style);
+                            }
+                        }, 600);
+                    }
+                }, remaining);
+            }
+
+            // Ensure it only runs once
+            var handled = false;
+            function triggerHide() {
+                if (!handled) {
+                    handled = true;
+                    hidePreloader();
+                }
+            }
+
+            window.addEventListener('load', triggerHide);
+            
+            // Fallback just in case 'load' doesn't fire or takes way too long (e.g. 8s max wait)
+            setTimeout(triggerHide, 8000);
+        })();
+    </script>
+
     <!-- aiz-main-wrapper -->
     <div class="aiz-main-wrapper d-flex flex-column bg-white aiz-{{ get_setting('homepage_select') }}">
         @php

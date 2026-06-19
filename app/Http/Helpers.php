@@ -1341,7 +1341,13 @@ if (!function_exists('uploaded_asset')) {
         if (is_object($id) && $id instanceof \App\Models\Upload) {
             $asset = $id;
         } else {
-            $asset = Upload::find($id);
+            $idInt = (int)$id;
+            if (!$idInt) {
+                return static_asset('assets/img/placeholder.jpg');
+            }
+            $asset = \Illuminate\Support\Facades\Cache::store('array')->remember('upload_model_' . $idInt, 3600, function () use ($idInt) {
+                return Upload::find($idInt);
+            });
         }
 
         if ($asset instanceof \Illuminate\Database\Eloquent\Collection || $asset instanceof \Illuminate\Support\Collection) {
@@ -1381,7 +1387,17 @@ if (!function_exists('uploaded_asset')) {
 if (!function_exists('uploaded_asset_srcset')) {
     function uploaded_asset_srcset($id, array $variants = []): string
     {
-        $asset = $id instanceof Upload ? $id : Upload::find($id);
+        if (is_object($id) && $id instanceof Upload) {
+            $asset = $id;
+        } else {
+            $idInt = (int)$id;
+            if (!$idInt) {
+                return '';
+            }
+            $asset = \Illuminate\Support\Facades\Cache::store('array')->remember('upload_model_' . $idInt, 3600, function () use ($idInt) {
+                return Upload::find($idInt);
+            });
+        }
 
         if (!$asset || $asset->external_link || !str_contains((string) $asset->type, 'image')) {
             return '';
@@ -2537,16 +2553,19 @@ if (!function_exists('get_single_attribute_name')) {
 if (!function_exists('get_user_cart')) {
     function get_user_cart()
     {
-        $cart = [];
-        if (auth()->user() != null) {
-            $cart = Cart::where('user_id', Auth::user()->id)->get();
-        } else {
-            $temp_user_id = Session()->get('temp_user_id');
-            if ($temp_user_id) {
-                $cart = Cart::where('temp_user_id', $temp_user_id)->get();
+        $cacheKey = 'user_cart_' . (auth()->check() ? auth()->id() : 'guest_' . session()->get('temp_user_id'));
+        return \Illuminate\Support\Facades\Cache::store('array')->remember($cacheKey, 60, function () {
+            $cart = [];
+            if (auth()->user() != null) {
+                $cart = Cart::where('user_id', Auth::user()->id)->get();
+            } else {
+                $temp_user_id = Session()->get('temp_user_id');
+                if ($temp_user_id) {
+                    $cart = Cart::where('temp_user_id', $temp_user_id)->get();
+                }
             }
-        }
-        return $cart;
+            return $cart;
+        });
     }
 }
 
@@ -2967,11 +2986,12 @@ if (!function_exists('get_first_product_image')) {
         
         foreach ($photosArray as $photoId) {
             if (!empty($photoId)) {
-                $asset = \App\Models\Upload::find($photoId);
+                $idInt = (int)$photoId;
+                $asset = \Illuminate\Support\Facades\Cache::store('array')->remember('upload_model_' . $idInt, 3600, function () use ($idInt) {
+                    return \App\Models\Upload::find($idInt);
+                });
                 if ($asset) {
-                    // Try to return the asset if it exists in the database
-                    // Removing the file_exists(public_path()) check as it can fail on Windows cross-slashes or cloud storage
-                    return uploaded_asset($photoId, $size);
+                    return uploaded_asset($asset, $size);
                 }
             }
         }

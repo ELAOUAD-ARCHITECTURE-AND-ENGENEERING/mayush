@@ -221,12 +221,18 @@ class Product extends Model
 
     public function getFlashDealAttribute()
     {
-        return $this->flash_deal_products()
-            ->whereHas('flash_deal', function ($q) {
-                $q->active();
-            })
-            ->with('flash_deal')
-            ->first()?->flash_deal;
+        $productId = $this->id;
+        if (!$productId) {
+            return null;
+        }
+        return \Illuminate\Support\Facades\Cache::store('array')->remember("product_flash_deal_{$productId}", 3600, function() {
+            return $this->flash_deal_products()
+                ->whereHas('flash_deal', function ($q) {
+                    $q->active();
+                })
+                ->with('flash_deal')
+                ->first()?->flash_deal;
+        });
     }
 
     public function getIsInFlashDealAttribute()
