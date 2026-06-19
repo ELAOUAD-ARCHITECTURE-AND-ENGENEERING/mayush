@@ -759,6 +759,7 @@
     @include('frontend.metro.partials.featured_categories_section')
 
     <!-- 3. Today's Deal -->
+    @if (get_setting('todays_deal_section_status', '1') == '1')
     <div id="todays_deal_section" class="metro-deferred-section" data-section-url="{{ route('home.section.todays_deal') }}">
         <section class="mb-4">
             <div class="container">
@@ -772,6 +773,7 @@
             </div>
         </section>
     </div>
+    @endif
 
     <!-- 14. Promotional Category (Moved Below Hero - Direct Include for local stability) -->
     @include('frontend.partials.promoted_category_section')
@@ -817,6 +819,7 @@
     @endif
 
     <!-- 7. Featured Products -->
+    @if (get_setting('featured_products_section_status', '1') == '1')
     <div id="section_featured" class="metro-deferred-section" data-section-url="{{ route('home.section.featured') }}">
         <section class="mb-4">
             <div class="container">
@@ -830,6 +833,7 @@
             </div>
         </section>
     </div>
+    @endif
 
     <!-- 8. Marketplace Banner -->
     @include('frontend.metro.partials.marketplace_banner')
@@ -878,7 +882,9 @@
     @include('frontend.metro.partials.banner_section', ['banner_key' => 'home_banner1'])
 
     <!-- 16. Top Sellers (Hidden by default, loaded via AJAX only if criteria met) -->
+    @if (get_setting('vendor_system_activation') == 1)
     <div id="section_best_sellers" class="metro-deferred-section" data-section-url="{{ route('home.section.best_sellers') }}"></div>
+    @endif
 
     <!-- 17. Top Brands (Hidden as requested) -->
     {{-- @include('frontend.metro.partials.top_brands_section') --}}
@@ -887,7 +893,9 @@
     @include('frontend.metro.partials.inspiration_articles_section')
 
     <!-- 18. Classifieds -->
-    @include('frontend.metro.partials.classifieds_section')
+    @if (get_setting('classifieds_section_status', '1') == '1')
+        @include('frontend.metro.partials.classifieds_section')
+    @endif
 
 @endsection
 
