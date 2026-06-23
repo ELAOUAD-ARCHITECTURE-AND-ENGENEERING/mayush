@@ -2368,6 +2368,16 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
             });
         },
         showSessionPopup: function () {
+            var hydrateDeferredPopupImages = function ($root) {
+                $root.find("img[data-popup-src]").each(function () {
+                    var src = this.getAttribute("data-popup-src");
+                    if (src && this.getAttribute("src") !== src) {
+                        this.setAttribute("src", src);
+                    }
+                    this.removeAttribute("data-popup-src");
+                });
+            };
+
             $(".removable-session").each(function () {
                 var $this = $(this);
                 var key = $this.data("key");
@@ -2382,6 +2392,7 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
                     typeof item.expiry == "undefined" ||
                     now.getTime() > item.expiry
                 ) {
+                    hydrateDeferredPopupImages($this);
                     $this.removeClass("d-none");
                 }
             });
@@ -2828,6 +2839,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const imageCounter = document.getElementById("imageCounter");
 
     const galleryImgs = document.querySelectorAll(".lightbox-item img.lightbox-source");
+    if (!galleryImgs.length) return;
 
     let currentIndex = 0;
     let scale = 1;
