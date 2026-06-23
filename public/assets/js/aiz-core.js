@@ -2364,6 +2364,7 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
 
                 $this.on("click", function () {
                     localStorage.setItem(key, JSON.stringify(item));
+                    sessionStorage.setItem(key + '_session_shown', 'true');
                 });
             });
         },
@@ -2381,11 +2382,20 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
             $(".removable-session").each(function () {
                 var $this = $(this);
                 var key = $this.data("key");
+
+                // If already shown or dismissed in the current session, do not show again
+                if (sessionStorage.getItem(key + '_session_shown')) {
+                    return;
+                }
+
                 var value = $this.data("value");
                 var item = {};
                 if (localStorage.getItem(key)) {
-                    item = localStorage.getItem(key);
-                    item = JSON.parse(item);
+                    try {
+                        item = JSON.parse(localStorage.getItem(key));
+                    } catch (e) {
+                        item = {};
+                    }
                 }
                 const now = new Date();
                 if (
@@ -2394,6 +2404,9 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
                 ) {
                     hydrateDeferredPopupImages($this);
                     $this.removeClass("d-none");
+                    
+                    // Mark as shown immediately so that navigating or refreshing prevents it from popping up again
+                    sessionStorage.setItem(key + '_session_shown', 'true');
                 }
             });
         },

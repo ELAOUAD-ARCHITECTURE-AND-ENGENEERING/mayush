@@ -119,9 +119,6 @@
                                                                 <li d-item="{{ $category->products_count }}"
                                                                     id="generel_{{ $category->id }}">
                                                                     {{ $category->getTranslation('name') }}
-                                                                    @if ($category->products_count > 0)
-                                                                        {{ '   (' . $category->products_count . ')' }}
-                                                                    @endif
                                                                 </li>
                                                                 {{-- @endif --}}
                                                                 @foreach ($category->childrenCategories as $childCategory)
@@ -145,7 +142,7 @@
                                                                 @if ($category->products_count > 0)
                                                                     <li d-item="{{ $category->products_count }}"
                                                                         id="preorder_{{ $category->id }}">
-                                                                        {{ $category->getTranslation('name') }}{{ '   (' . $category->products_count . ')' }}
+                                                                        {{ $category->getTranslation('name') }}
                                                                     </li>
                                                                 @endif
                                                                 @foreach ($category->childrenCategories as $childCategory)

@@ -7,9 +7,6 @@
 
 <li  d-item="{{ $childCategory->products_count }}" id="preorder_{{ $childCategory->id }}">{{ $value }}
     {{ $childCategory->getTranslation('name') }}
-    @if($childCategory->products_count > 0)
-        {{ "   (". $childCategory->products_count . ")" }}
-    @endif
 </li>
 
 @if ($child_category->childrenCategories)
