@@ -3120,4 +3120,96 @@ body.dark-mode .premium-global-loader {
     background: transparent;
 }
 
+/* ==========================================================================
+   Phase 4 frontend performance stability
+   ========================================================================== */
+
+.website-popup .mayush-deferred-popup-image {
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    background: #f4f5f7;
+}
+
+.mayush-listing-toolbar {
+    min-height: 116px;
+}
+
+.mayush-listing-results {
+    min-height: 720px;
+}
+
+.mayush-listing-grid {
+    align-items: stretch;
+    min-height: 680px;
+}
+
+.mayush-listing-grid > .col {
+    display: flex;
+}
+
+.mayush-listing-grid .aiz-card-box {
+    width: 100%;
+    min-height: 316px;
+}
+
+.mayush-listing-grid .img-fit.overflow-hidden,
+.mayush-listing-grid .image-hover-effect {
+    aspect-ratio: 1 / 1;
+    min-height: 140px;
+}
+
+.mayush-listing-grid .product-main-image,
+.mayush-listing-grid .product-hover-image {
+    aspect-ratio: 1 / 1;
+    height: 100%;
+    object-fit: contain;
+    width: 100%;
+}
+
+.mayush-listing-skeleton {
+    min-height: 316px;
+}
+
+.mayush-listing-skeleton-media {
+    aspect-ratio: 1 / 1;
+    min-height: 140px;
+}
+
+.mayush-listing-skeleton-footer {
+    min-height: 30px;
+}
+
+.main-slider .lightbox-source,
+.thumb-slider img {
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+}
+
+@media (min-width: 768px) {
+    .mayush-listing-toolbar {
+        min-height: 92px;
+    }
+
+    .mayush-listing-grid .aiz-card-box,
+    .mayush-listing-skeleton {
+        min-height: 386px;
+    }
+
+    .mayush-listing-grid .img-fit.overflow-hidden,
+    .mayush-listing-grid .image-hover-effect,
+    .mayush-listing-skeleton-media {
+        min-height: 210px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .mayush-listing-results {
+        min-height: 620px;
+    }
+
+    .mayush-listing-grid {
+        min-height: 580px;
+    }
+}
+
 

@@ -69,9 +69,9 @@
 
 @section('content')
 
-    <section class="mb-1">
+    <section class="mb-1 mayush-listing-page">
         <div class="container sm-px-0 pt-1">
-            <form class="" id="search-form" action="" method="GET">
+            <form class="mayush-listing-search-form" id="search-form" action="" method="GET">
                 <div class="row">
 
                     <!-- Sidebar Filters -->
@@ -496,7 +496,7 @@
 
                         <!-- Top Filters -->
                         <!-- Top Filters -->
-                        <div class="text-left mb-4">
+                        <div class="text-left mb-4 mayush-listing-toolbar">
                             <div class="d-flex flex-column flex-xl-row justify-content-between align-items-start align-items-xl-center">
                                 <!-- Left: Title, Count, AI Button -->
                                 <div class="mb-3 mb-xl-0">
@@ -587,9 +587,9 @@
                         </div>
 
                         <!-- Products -->
-                        <div class="px-3">
+                        <div class="px-3 mayush-listing-results">
 
-                            <div class="row gutters-16 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2 border-top border-left"
+                            <div class="row gutters-16 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2 border-top border-left mayush-listing-grid"
                                 id="products-row">
                                 {{-- @foreach ($products as $key => $product)
                                     <div class="col border-right border-bottom has-transition hov-shadow-out z-1 ">
@@ -621,6 +621,7 @@
         let category_page_first_time = true;
         let brand_page_first_time = true;
         let session_data_first_time = true;
+        let listing_first_render = true;
 
         function filter(e) {
             // alert("working or not")
@@ -667,11 +668,11 @@
             let skeletonHtml = '';
             for (let i = 0; i < 8; i++) {
                 skeletonHtml += `
-                <div class="col border-right border-bottom p-3">
-                    <div class="skeleton-shimmer h-200px w-100 mb-2 rounded"></div>
+                <div class="col border-right border-bottom p-3 mayush-listing-skeleton">
+                    <div class="skeleton-shimmer mayush-listing-skeleton-media w-100 mb-2 rounded"></div>
                     <div class="skeleton-shimmer h-15px w-75 mb-2 rounded"></div>
                     <div class="skeleton-shimmer h-15px w-50 mb-3 rounded"></div>
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center mayush-listing-skeleton-footer">
                         <div class="skeleton-shimmer h-20px w-40px rounded"></div>
                         <div class="skeleton-shimmer h-30px w-30px rounded-circle"></div>
                     </div>
@@ -757,10 +758,13 @@
                     $('#pagination').html(response.pagination_html);
                     $('#total_product_count').text(response.total_product_count);
 
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
+                    if (!listing_first_render) {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    }
+                    listing_first_render = false;
                 },
                 error: function(xhr, status, error) {
                     console.error('Error:', error);

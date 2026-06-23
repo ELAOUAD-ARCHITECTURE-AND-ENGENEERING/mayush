@@ -497,7 +497,15 @@
                     <div class="modal-content position-relative border-0 rounded-0">
                         <div class="aiz-editor-data">
                             <div class="d-block">
-                                <img class="w-100" src="{{ uploaded_asset($dynamic_popup->banner) }}" alt="dynamic_popup">
+                                <img
+                                    class="w-100 mayush-deferred-popup-image"
+                                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+                                    data-popup-src="{{ uploaded_asset($dynamic_popup->banner) }}"
+                                    alt="dynamic_popup"
+                                    width="720"
+                                    height="480"
+                                    loading="lazy"
+                                    decoding="async">
                             </div>
                         </div>
                         <div class="pb-5 pt-4 px-3 px-md-2rem">
@@ -529,7 +537,15 @@
                     <div class="modal-content position-relative border-0 rounded-0">
                         <div class="aiz-editor-data">
                             <div class="d-block">
-                                <img class="w-100" src="{{ uploaded_asset($dynamic_popup->banner) }}" alt="dynamic_popup">
+                                <img
+                                    class="w-100 mayush-deferred-popup-image"
+                                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+                                    data-popup-src="{{ uploaded_asset($dynamic_popup->banner) }}"
+                                    alt="dynamic_popup"
+                                    width="720"
+                                    height="480"
+                                    loading="lazy"
+                                    decoding="async">
                             </div>
                         </div>
                         <div class="pb-5 pt-4 px-3 px-md-2rem">
