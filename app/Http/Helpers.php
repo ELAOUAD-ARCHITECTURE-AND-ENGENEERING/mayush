@@ -1355,16 +1355,6 @@ if (!function_exists('uploaded_asset')) {
             });
         }
 
-            static $assets = [];
-            $key = (string) $id;
-
-            if (! array_key_exists($key, $assets)) {
-                $assets[$key] = Upload::find($id);
-            }
-
-            $asset = $assets[$key];
-        }
-
         if ($asset != null) {
             static $resolvedUrls = [];
             $resolvedKey = $asset->getKey().':'.($size ?: 'original');

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1c544291f3e76debef19de7bb3784c7a",
+    "content-hash": "357f0d7a6814435dc3c9a064f93448a6",
     "packages": [
         {
             "name": "aiz-packages/color-code-converter",
