@@ -10,6 +10,9 @@ use Illuminate\Notifications\Notification;
 
 class ProductRestockedNotification extends Notification implements ShouldQueue
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use Queueable;
 
     public $product;
@@ -19,6 +22,7 @@ class ProductRestockedNotification extends Notification implements ShouldQueue
      */
     public function __construct(Product $product)
     {
+        $this->onQueue('notifications');
         $this->product = $product;
     }
 

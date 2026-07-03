@@ -14,12 +14,16 @@ use Carbon\Carbon;
 
 class AggregateMarketingMetricsJob implements ShouldQueue
 {
+    public $tries = 1;
+    public $timeout = 300;
+
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected ?string $dateToAggregate;
 
     public function __construct(?string $dateToAggregate = null)
     {
+        $this->onQueue('reports');
         $this->dateToAggregate = $dateToAggregate;
     }
 

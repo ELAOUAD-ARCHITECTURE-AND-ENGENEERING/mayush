@@ -93,6 +93,42 @@ return [
             'level' => 'info',
             'days' => 180,
         ],
+
+        'payments' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/payments.log'),
+            'days' => 14,
+        ],
+
+        'shipping' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/shipping.log'),
+            'days' => 14,
+        ],
+
+        'queues' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/queues.log'),
+            'days' => 7,
+        ],
+
+        'search' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/search.log'),
+            'days' => 7,
+        ],
+
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'days' => 14,
+        ],
+
+        'performance' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/performance.log'),
+            'days' => 7,
+        ],
     ],
 
 ];

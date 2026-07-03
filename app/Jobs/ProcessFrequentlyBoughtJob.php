@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\DB;
 
 class ProcessFrequentlyBoughtJob implements ShouldQueue
 {
+    public $tries = 2;
+    public $timeout = 300;
+
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
@@ -22,6 +25,7 @@ class ProcessFrequentlyBoughtJob implements ShouldQueue
 
     public function __construct($threshold = 2)
     {
+        $this->onQueue('search');
         $this->threshold = $threshold;
     }
 

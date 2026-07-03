@@ -11,6 +11,9 @@ use Illuminate\Queue\SerializesModels;
 
 class StockAlertMail extends Mailable
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use Queueable, SerializesModels;
 
     public $product;
@@ -23,6 +26,7 @@ class StockAlertMail extends Mailable
      */
     public function __construct($product, $user)
     {
+        $this->onQueue('emails');
         $this->product = $product;
         $this->user = $user;
     }
