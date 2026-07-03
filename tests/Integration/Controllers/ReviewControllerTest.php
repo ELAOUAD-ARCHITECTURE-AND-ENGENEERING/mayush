@@ -98,8 +98,6 @@ class ReviewControllerTest extends TestCase
         ]);
     }
 
-    // ─── Admin Endpoints ─────────────────────────────────────────────────────
-
     /** @test */
     public function admin_can_view_reviews_index_with_permission(): void
     {

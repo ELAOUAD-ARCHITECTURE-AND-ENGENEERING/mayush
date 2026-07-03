@@ -189,11 +189,6 @@ class CoreSchemaRepair extends Migration
                 $table->mediumText('comment')->nullable();
                 $table->integer('status')->default(1);
                 $table->integer('viewed')->default(0);
-                $table->string('type')->default('real');
-                $table->string('custom_reviewer_name')->nullable();
-                $table->string('custom_reviewer_image')->nullable();
-                $table->text('photos')->nullable();
-                $table->boolean('created_at_is_custom')->default(0);
                 $table->timestamps();
             });
         }
