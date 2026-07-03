@@ -184,6 +184,11 @@
                                                 <div class="h-400px overflow-auto c-scrollbar-light">
                                                     @php
                                                         $old_categories = $product->categories()->pluck('category_id')->toArray();
+                                                        if ($product->category_id && !in_array($product->category_id, $old_categories)) {
+                                                            $old_categories[] = $product->category_id;
+                                                        }
+                                                        $existingCategoryIds = \App\Models\Category::whereIn('id', $old_categories)->pluck('id')->toArray();
+                                                        $missingSavedCategoryIds = array_values(array_diff($old_categories, $existingCategoryIds));
                                                     @endphp
                                                     <ul class="hummingbird-treeview-converter list-unstyled" data-checkbox-name="category_ids[]" data-radio-name="category_id">
                                                         @foreach ($categories as $category)
@@ -196,6 +201,11 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        @if(!empty($missingSavedCategoryIds))
+                                            <div class="alert alert-warning py-2 px-3 mt-2 mb-0">
+                                                {{ translate('Saved category') }} #{{ implode(', #', $missingSavedCategoryIds) }} {{ translate('is no longer available. Please select an active category before saving.') }}
+                                            </div>
+                                        @endif
                                          <div id="category-tree-table-error"></div>
                                     </div>
                                 </div>
@@ -576,19 +586,23 @@
                                         <input type="text" class="form-control" value="{{translate('Colors')}}" disabled>
                                     </div>
                                     <div class="col-md-8">
-                                        <select class="form-control aiz-selectpicker" data-live-search="true" data-selected-text-format="count" name="colors[]" id="colors" multiple <?php if (count(json_decode($product->colors) ?: []) < 1) echo "disabled"; ?>>
+                                        @php
+                                            $decodedProductColors = json_decode($product->colors, true);
+                                            $productColors = is_array($decodedProductColors) ? $decodedProductColors : [];
+                                        @endphp
+                                        <select class="form-control aiz-selectpicker" data-live-search="true" data-selected-text-format="count" name="colors[]" id="colors" multiple @disabled(count($productColors) < 1)>
                                             @foreach (\App\Models\Color::orderBy('name', 'asc')->get() as $key => $color)
                                             <option
                                                 value="{{ $color->code }}"
                                                 data-content="<span><span class='size-15px d-inline-block mr-2 rounded border' style='background:{{ $color->code }}'></span><span>{{ $color->name }}</span></span>"
-                                                <?php if (in_array($color->code, json_decode($product->colors))) echo 'selected' ?>
+                                                @selected(in_array($color->code, $productColors, true))
                                                 ></option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="col-md-1">
                                         <label class="aiz-switch aiz-switch-success mb-0">
-                                            <input value="1" type="checkbox" name="colors_active" <?php if (count(json_decode($product->colors) ?: []) > 0) echo "checked"; ?> >
+                                            <input value="1" type="checkbox" name="colors_active" @checked(count($productColors) > 0) >
                                             <span></span>
                                         </label>
                                     </div>
@@ -620,11 +634,18 @@
                                             <input type="text" class="form-control" name="choice[]" value="{{ optional(\App\Models\Attribute::find($choice_option->attribute_id))->getTranslation('name') }}" placeholder="{{ translate('Choice Title') }}" disabled>
                                         </div>
                                         <div class="col-lg-8">
+                                            @php
+                                                $attributeValues = \App\Models\AttributeValue::where('attribute_id', $choice_option->attribute_id)->get();
+                                                $savedLocalValues = collect($choice_option->values)->diff($attributeValues->pluck('value'));
+                                            @endphp
                                             <select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_{{ $choice_option->attribute_id }}[]" data-selected-text-format="count" multiple required>
-                                                @foreach (\App\Models\AttributeValue::where('attribute_id', $choice_option->attribute_id)->get() as $row)
+                                                @foreach ($attributeValues as $row)
                                                 <option value="{{ $row->value }}" @if( in_array($row->value, $choice_option->values)) selected @endif>
                                                     {{ $row->value }}
                                                 </option>
+                                                @endforeach
+                                                @foreach ($savedLocalValues as $savedLocalValue)
+                                                <option value="{{ $savedLocalValue }}" selected>{{ $savedLocalValue }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -684,7 +705,7 @@
                                         <label class="col-from-label">
                                             {{translate('SKU')}}
                                         </label>
-                                        <input type="text" placeholder="{{ translate('SKU') }}" value="{{ optional($product->stocks->first())->sku }}" name="sku" class="form-control">
+                                        <input type="text" placeholder="{{ translate('SKU') }}" value="{{ optional($product->stocks->first())->sku ?: (new \App\Services\ProductSkuService())->next() }}" name="sku" class="form-control">
                                     </div>
                                 </div>
                                 <!-- External link -->
@@ -1098,43 +1119,60 @@
 
 @section('script')
 <!-- Treeview js -->
-<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}?v={{ filemtime(public_path('assets/js/hummingbird-treeview.js')) }}"></script>
+<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}?v={{ file_exists(public_path('assets/js/hummingbird-treeview.js')) ? filemtime(public_path('assets/js/hummingbird-treeview.js')) : time() }}"></script>
 
 <script type="text/javascript">
     $(document).ready(function (){
         show_hide_shipping_div();
 
         $("#treeview").hummingbird();
-        var main_id = '{{ $product->category_id != null ? $product->category_id : 0 }}';
-        var selected_ids = '{{ implode(",",$old_categories) }}';
-        if (selected_ids != '') {
-            const myArray = selected_ids.split(",");
-            for (let i = 0; i < myArray.length; i++) {
-                const element = myArray[i];
-                $('#treeview input:checkbox#'+element).prop('checked',true);
-                if(i < myArray.length - 1){
-                    const $checkbox = $('#treeview input:checkbox#'+element);
+        var main_id = @json($product->category_id != null ? (string) $product->category_id : '');
+        var selected_ids = @json(array_map('strval', $old_categories));
+
+        function categoryCheckbox(categoryId) {
+            return $('#treeview input:checkbox').filter(function () {
+                return String(this.value) === String(categoryId);
+            }).first();
+        }
+
+        function categoryRadio(categoryId) {
+            return $('#treeview input:radio').filter(function () {
+                return String(this.value) === String(categoryId);
+            }).first();
+        }
+
+        if (selected_ids.length > 0) {
+            for (let i = 0; i < selected_ids.length; i++) {
+                const element = selected_ids[i];
+                const $checkbox = categoryCheckbox(element);
+                if (!$checkbox.length) {
+                    continue;
+                }
+
+                $checkbox.prop('checked', true);
+                if(i < selected_ids.length - 1){
 
                     $checkbox.attr('onclick', 'cursor_not_allowed(event)');
                     $checkbox.css('cursor', 'not-allowed');
                     $checkbox.closest('label').css('cursor', 'not-allowed');
                 } else {
-                    const $checkbox = $('#treeview input:checkbox#'+element);
                     $checkbox.closest('ul').find('input[type="checkbox"]').removeAttr('onclick');
                     $checkbox.closest('ul').find('input[type="checkbox"]').css('cursor', '');
                     $checkbox.closest('ul').find('label').css('cursor', '');
                 }
-                $('#treeview input:checkbox#'+element).parents( "ul" ).css( "display", "block" );
-                $('#treeview input:checkbox#'+element).parents( "li" ).children('.las').removeClass( "la-plus" ).addClass('la-minus');
+                $checkbox.parents( "ul" ).css( "display", "block" );
+                $checkbox.parents( "li" ).children('.las').removeClass( "la-plus" ).addClass('la-minus');
             }
         }
-        $radio = $('#treeview input:radio[value='+main_id+']');
-        $radio.prop('checked',true);
-        $prev_label = $radio.prev('label');
-        $prev_label.css('cursor', 'not-allowed');
-        $prev_label.find('input[type="checkbox"]').css('cursor', 'not-allowed');
-        $prev_label.find('input[type="checkbox"]').attr('onclick', 'cursor_not_allowed(event)');
-        $('#treeview input:radio[value=' + main_id + ']').next('ul').css("display", "block");
+        $radio = categoryRadio(main_id);
+        if ($radio.length) {
+            $radio.prop('checked',true);
+            $prev_label = $radio.prev('label');
+            $prev_label.css('cursor', 'not-allowed');
+            $prev_label.find('input[type="checkbox"]').css('cursor', 'not-allowed');
+            $prev_label.find('input[type="checkbox"]').attr('onclick', 'cursor_not_allowed(event)');
+            $radio.next('ul').css("display", "block");
+        }
 
         fq_bought_product_selection_type();
 

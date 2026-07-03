@@ -11,13 +11,13 @@
             </h3>
             <!-- Links -->
             <div class="d-flex">
-                <a type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2" onclick="clickToSlide('slick-prev','section_featured')"><i class="las la-angle-left fs-20 fw-600"></i></a>
-                <a type="button" class="arrow-next slide-arrow text-secondary ml-2" onclick="clickToSlide('slick-next','section_featured')"><i class="las la-angle-right fs-20 fw-600"></i></a>
+                <button type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2 border-0 bg-transparent" onclick="clickToSlide('slick-prev','section_featured')" aria-label="{{ translate('Previous') }}"><i class="las la-angle-left fs-20 fw-600"></i></button>
+                <button type="button" class="arrow-next slide-arrow text-secondary ml-2 border-0 bg-transparent" onclick="clickToSlide('slick-next','section_featured')" aria-label="{{ translate('Next') }}"><i class="las la-angle-right fs-20 fw-600"></i></button>
             </div>
         </div>
         <!-- Products Section -->
         <div class="px-sm-3">
-            <div class="aiz-carousel sm-gutters-16 arrow-inactive-none" data-items="6" data-xxl-items="6" data-xl-items="6" data-lg-items="4" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='false' data-autoplay='true'>
+            <div class="aiz-carousel sm-gutters-16 arrow-inactive-none" data-items="4" data-xxl-items="4" data-xl-items="4" data-lg-items="4" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='false' data-autoplay='true'>
                 @if (count($featured_products) > 0)
                     @foreach ($featured_products as $key => $product)
                     <div class="carousel-box position-relative px-0 has-transition hov-animate-outline border-right border-top border-bottom @if($key == 0) border-left @endif">

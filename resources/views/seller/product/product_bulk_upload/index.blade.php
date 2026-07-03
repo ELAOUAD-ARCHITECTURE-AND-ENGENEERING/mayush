@@ -39,6 +39,12 @@
                 <tr >
                     <td>{{ translate('2. You can download the pdf to get Category and Brand id.')}}:</td>
                 </tr>
+                <tr>
+                    <td>{{ translate('3. The uploaded file must use valid existing category and brand IDs, numeric price and stock values, unique SKU values, and valid image URLs.')}}:</td>
+                </tr>
+                <tr>
+                    <td>{{ translate('4. Brand ID is optional. Leave it empty if the product has no brand.')}}</td>
+                </tr>
             </table>
             <a href="{{ route('seller.pdf.download_category') }}"><button class="btn btn-primary mt-2">{{ translate('Download Category')}}</button></a>
             <a href="{{ route('seller.pdf.download_brand') }}"><button class="btn btn-primary mt-2">{{ translate('Download Brand')}}</button></a>
@@ -59,10 +65,13 @@
                     <div class="col-sm-10">
                         <div class="custom-file">
     						<label class="custom-file-label">
-    							<input type="file" name="bulk_file" class="custom-file-input" required>
+    							<input type="file" name="bulk_file" class="custom-file-input" accept=".xlsx,.xls,.csv" required>
     							<span class="custom-file-name">{{ translate('Choose File')}}</span>
     						</label>
     					</div>
+                        @error('bulk_file')
+                            <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
                 <div class="form-group mb-0 text-right">

@@ -13,8 +13,12 @@ class SellerPackage extends Model
     protected $guarded = [];
 
     public function getTranslation($field = '', $lang = false){
-        $lang = $lang == false ? App::getLocale() : $lang;
-        $seller_package_translation = $this->hasMany(SellerPackageTranslation::class)->where('lang', $lang)->first();
+        $lang = $lang ?: App::getLocale();
+        $seller_package_translation = $this->seller_package_translations->where('lang', $lang)->first();
+        if ($seller_package_translation != null && $seller_package_translation->$field !== null && $seller_package_translation->$field !== $this->$field) {
+            return in_array($field, ['name', 'title']) ? translate($seller_package_translation->$field, $lang) : $seller_package_translation->$field;
+        }
+
         return $seller_package_translation != null ? $seller_package_translation->$field : $this->$field;
     }
 

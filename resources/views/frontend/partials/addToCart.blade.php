@@ -45,7 +45,7 @@
                         @endforeach
                         @foreach ($product->stocks as $key => $stock)
                             @if ($stock->image != null)
-                                <div class="carousel-box c-pointer border p-1 rounded" data-variation="{{ $stock->variant }}">
+                                <div class="carousel-box c-pointer border p-1 rounded" data-variation="{{ \App\Utility\ProductUtility::isDimensionOnlyChoiceProduct($product) && \App\Utility\ProductUtility::stockHasCustomerDimensions($stock) ? \App\Utility\ProductUtility::dimensionStockValue($stock) : $stock->variant }}">
                                     <img
                                         class="lazyload mw-100 size-50px mx-auto"
                                         src="{{ static_asset('assets/img/placeholder.jpg') }}"
@@ -150,17 +150,20 @@
                                         <div class="opacity-50 mt-2 ">{{ \App\Models\Attribute::find($choice->attribute_id)->getTranslation('name') }}:</div>
                                     </div>
                                     <div class="col-10">
+                                        @if (\App\Utility\ProductUtility::isDimensionAttribute($choice->attribute_id))
+                                            <p class="mb-2 fs-12 text-secondary">{{ translate('Dimensions are shown as Length x Width x Height.') }}</p>
+                                        @endif
                                         <div class="aiz-radio-inline">
-                                            @foreach ($choice->values as $key => $value)
+                                            @foreach (\App\Utility\ProductUtility::frontendChoiceValues($product, $choice) as $key => $choiceValue)
                                             <label class="aiz-megabox pl-0 mr-2">
                                                 <input
                                                     type="radio"
                                                     name="attribute_id_{{ $choice->attribute_id }}"
-                                                    value="{{ $value }}"
+                                                    value="{{ $choiceValue['value'] }}"
                                                     @if($key == 0) checked @endif
                                                 >
                                                 <span class="aiz-megabox-elem rounded d-flex align-items-center justify-content-center py-2 px-3 mb-2">
-                                                    {{ $value }}
+                                                    {{ $choiceValue['label'] }}
                                                 </span>
                                             </label>
                                             @endforeach
@@ -296,6 +299,20 @@
                     <button type="button" class="btn btn-secondary out-of-stock fw-600 d-none" disabled>
                         <i class="la la-cart-arrow-down"></i>{{ translate('Out of Stock')}}
                     </button>
+                    @if ($product->digital != 1 && $qty <= 0)
+                        <div class="stock-alert-box mt-3">
+                            <form id="stock-alert-form" class="form-inline" method="POST" action="{{ route('stock.alert.subscribe') }}">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                @guest
+                                    <input type="email" name="email" class="form-control rounded-0 mr-2 mb-2" placeholder="{{ translate('Enter your email') }}" required>
+                                @endguest
+                                <button type="submit" class="btn btn-outline-primary fw-600 mb-2">
+                                    {{ translate('Notify me when available') }}
+                                </button>
+                            </form>
+                        </div>
+                    @endif
                 </div>
 
             </div>
@@ -306,5 +323,21 @@
 <script type="text/javascript">
     $('#option-choice-form input').on('change', function () {
         getVariantPrice();
+    });
+
+    $('#stock-alert-form').on('submit', function (event) {
+        event.preventDefault();
+        var form = $(this);
+
+        $.post(form.attr('action'), form.serialize())
+            .done(function (data) {
+                AIZ.plugins.notify(data.status === 'success' ? 'success' : 'info', data.message);
+            })
+            .fail(function (xhr) {
+                var message = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : '{{ translate('Something went wrong.') }}';
+                AIZ.plugins.notify('danger', message);
+            });
     });
 </script>

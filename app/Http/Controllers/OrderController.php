@@ -29,6 +29,7 @@ use App\Notifications\OrderNotification;
 use App\Utility\EmailUtility;
 use App\Models\ProductStock;
 use App\Models\InventoryLog;
+use App\Utility\CartUtility;
 use DB;
 
 class OrderController extends Controller
@@ -253,7 +254,7 @@ class OrderController extends Controller
 
                 // Use the same stock lookup logic as CartController for consistency
                 if ($product->digital != 1) {
-                    $product_stock = $product->stocks->where('variant', $product_variation)->first();
+                    $product_stock = CartUtility::find_product_stock($product, $product_variation);
                     
                     // If no exact variant match, try to get the first stock record
                     if (!$product_stock) {
@@ -302,6 +303,7 @@ class OrderController extends Controller
                 $order_detail->order_id = $order->id;
                 $order_detail->seller_id = $product->user_id;
                 $order_detail->product_id = $product->id;
+                $order_detail->product_name = $product->getTranslation('name');
                 $order_detail->variation = $product_variation;
                 $order_detail->price = cart_product_price($cartItem, $product, false, false) * $cartItem['quantity'];
                 $order_detail->tax = cart_product_tax($cartItem, $product, false) * $cartItem['quantity'];
@@ -771,5 +773,22 @@ class OrderController extends Controller
             flash(translate('Something went wrong!.'))->warning();
         }
         return back();
+    }
+
+    /**
+     * Bulk update order statuses.
+     */
+    public function bulk_order_status(Request $request)
+    {
+        if ($request->id) {
+            foreach ($request->id as $order_id) {
+                $order = Order::find($order_id);
+                if ($order) {
+                    $order->delivery_status = $request->status ?? $order->delivery_status;
+                    $order->save();
+                }
+            }
+        }
+        return 1;
     }
 }

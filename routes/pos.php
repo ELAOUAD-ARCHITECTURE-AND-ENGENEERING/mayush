@@ -24,7 +24,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     //pos
     Route::controller(PosController::class)->group(function () {
         Route::get('/pos', 'index')->name('poin-of-sales.index');
-        Route::get('/pos/products', 'search')->name('pos.search_product');
+        Route::get('/pos/products', 'search_product')->name('pos.search_product');
         Route::post('/add-to-cart-pos', 'addToCart')->name('pos.addToCart');
         Route::post('/update-quantity-cart-pos', 'updateQuantity')->name('pos.updateQuantity');
         Route::post('/remove-from-cart-pos', 'removeFromCart')->name('pos.removeFromCart');
@@ -34,7 +34,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
         Route::post('/setShipping', 'setShipping')->name('pos.setShipping');
         Route::post('/set-shipping-address', 'set_shipping_address')->name('pos.set-shipping-address');
         Route::post('/pos-order-summary', 'get_order_summary')->name('pos.getOrderSummary');
-        Route::post('/pos-order', 'order_store')->name('pos.order_place');
+        Route::post('/pos-order', 'order_place')->name('pos.order_place');
         Route::get('/pos-activation', 'configuration')->name('poin-of-sales.activation');
         Route::get('/pos/thermal-printer/{order_id}', 'invoice')->name('admin.invoice.thermal_printer');
     });
@@ -44,7 +44,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
 Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified']], function () {
     Route::controller(SellerPosController::class)->group(function () {
         Route::get('/pos', 'index')->name('poin-of-sales.seller_index');
-        Route::get('/pos/products', 'search')->name('pos.search_seller_product');
+        Route::get('/pos/products', 'search_product')->name('pos.search_seller_product');
         Route::post('/add-to-cart-pos', 'addToCart')->name('seller.pos.addToCart');
         Route::post('/update-quantity-cart-pos', 'updateQuantity')->name('seller.pos.updateQuantity');
         Route::post('/remove-from-cart-pos', 'removeFromCart')->name('seller.pos.removeFromCart');
@@ -54,7 +54,7 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified']], fun
         Route::post('/setShipping', 'setShipping')->name('seller.pos.setShipping');
         Route::post('/set-shipping-address', 'set_shipping_address')->name('seller.pos.set-shipping-address');
         Route::post('/pos-order-summary', 'get_order_summary')->name('seller.pos.getOrderSummary');
-        Route::post('/pos-order', 'order_store')->name('seller.pos.order_place');
+        Route::post('/pos-order', 'order_place')->name('seller.pos.order_place');
         Route::get('/pos-configuration', 'configuration')->name('pos.configuration');
         Route::post('/pos-configuration/update', 'posConfigurationUpdate')->name('pos_configuration.update');
         Route::get('/pos/thermal-printer/{order_id}', 'invoice')->name('seller.invoice.thermal_printer');

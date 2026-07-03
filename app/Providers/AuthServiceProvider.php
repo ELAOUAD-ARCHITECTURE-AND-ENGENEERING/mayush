@@ -27,9 +27,29 @@ class AuthServiceProvider extends ServiceProvider
   {
     $this->registerPolicies();
 
-    // Implicitly grant "Super Admin" role all permissions
+    // Implicitly grant "Super Admin" role all permissions.
+    // Blog admins also get the full editorial surface without changing user_type.
     Gate::before(function ($user, $ability) {
-      return $user->hasRole('Super Admin') ? true : null;
+      if ($user->hasRole('Super Admin')) {
+        return true;
+      }
+
+      $blogSuperAbilities = [
+        'blog_super_admin',
+        'manage_blog_authors',
+        'view_blogs',
+        'add_blog',
+        'edit_blog',
+        'delete_blog',
+        'publish_blog',
+        'review_blog',
+      ];
+
+      if (($user->user_type === 'admin' || $user->hasRole('blog_super_admin')) && in_array($ability, $blogSuperAbilities, true)) {
+        return true;
+      }
+
+      return null;
     });
   }
 }

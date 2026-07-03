@@ -1,0 +1,66 @@
+name: Mayush Restoration Guardrails
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  guardrails:
+    name: Static and Laravel guardrails
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: bcmath, curl, dom, fileinfo, gd, intl, mbstring, pdo_sqlite, redis, sqlite3, xml, zip
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Prepare Laravel environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate --ansi
+          php artisan optimize:clear
+
+      - name: Lint PHP files
+        run: |
+          git ls-files '*.php' | while read -r file; do
+            php -l "$file" >/dev/null
+          done
+
+      - name: Validate route registration
+        run: php artisan route:list
+
+      - name: Validate preflight command boots
+        env:
+          QUEUE_CONNECTION: sync
+        run: php artisan app:preflight-restore --skip-db --no-ansi
+
+      - name: Configure guardrail diff base
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "GUARDRAIL_BASE=origin/${{ github.base_ref }}" >> "$GITHUB_ENV"
+          else
+            echo "GUARDRAIL_BASE=${{ github.event.before }}" >> "$GITHUB_ENV"
+          fi
+          echo "GUARDRAIL_HEAD=HEAD" >> "$GITHUB_ENV"
+
+      - name: Run automated operational guardrails
+        run: php scripts/ci/check-operational-guardrails.php
+
+      - name: Check for unsafe dynamic view selectors
+        run: |
+          ! grep -R -F "include('header.' .get_element_type_by_id(get_setting('header_element')))" resources/views
+          ! grep -R -F "auth.'.get_setting('authentication_layout_select')" resources/views
+          ! grep -R -F "frontend.' . get_setting('homepage_select')" app/Http/Controllers resources/views

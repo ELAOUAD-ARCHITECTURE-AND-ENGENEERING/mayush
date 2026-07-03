@@ -76,7 +76,7 @@ class DigitalProductController extends Controller
         ]));
 
         // Product Translations
-        $request->merge(['lang' => env('DEFAULT_LANGUAGE')]);
+        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr')]);
         ProductTranslation::create($request->only([
             'lang', 'name', 'unit', 'description', 'product_id'
         ]));
@@ -160,7 +160,7 @@ class DigitalProductController extends Controller
 
         $upload = Upload::findOrFail($product->file_name);
         if (env('FILESYSTEM_DRIVER') == "s3") {
-            return \Storage::disk('s3')->download($upload->file_name, $upload->file_original_name . "." . $upload->extension);
+            return \Storage::disk(config('filesystems.default'))->download($upload->file_name, $upload->file_original_name . "." . $upload->extension);
         } else {
             if (file_exists(base_path('public/' . $upload->file_name))) {
                 $file = public_path() . "/$upload->file_name";

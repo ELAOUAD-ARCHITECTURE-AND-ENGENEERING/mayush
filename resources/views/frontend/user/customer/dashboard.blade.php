@@ -184,9 +184,9 @@
                         <ul class="list-unstyled mb-5">
                             <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->address }},</span></li>
                             <li class="fs-14 fw-400 text-derk pb-1"><span> {{ $address->area ? $address->area->name . ',' : '' }}</span></li>
-                            <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->postal_code }} - {{ $address->city->name }},</span></li>
+                            <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->postal_code }} - {{ optional($address->city)->name }},</span></li>
                             <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->state ? $address->state->name : '' }}</span></li>
-                            <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->country->name }}.</span></li>
+                            <li class="fs-14 fw-400 text-derk pb-1"><span>{{ optional($address->country)->name }}.</span></li>
                             <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->phone }}</span></li>
                         </ul>
                     @endif
@@ -210,9 +210,9 @@
                         <ul class="list-unstyled mb-5">
                             <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->address }},</span></li>
                             <li class="fs-14 fw-400 text-derk pb-1"><span> {{ $address->area ? $address->area->name . ',' : '' }}</span></li>
-                            <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->postal_code }} - {{ $address->city->name }},</span></li>
+                            <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->postal_code }} - {{ optional($address->city)->name }},</span></li>
                             <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->state ? $address->state->name : '' }}</span></li>
-                            <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->country->name }}.</span></li>
+                            <li class="fs-14 fw-400 text-derk pb-1"><span>{{ optional($address->country)->name }}.</span></li>
                             <li class="fs-14 fw-400 text-derk pb-1"><span>{{ $address->phone }}</span></li>
                         </ul>
                     @endif
@@ -300,7 +300,7 @@
                                 </a>
                             @else
                                 <a class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-none d-sm-flex flex-column justify-content-center align-items-center"
-                                    href="javascript:void(0)" @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCartSingleProduct({{ $wishlist->product->id }})" @else onclick="showLoginModal()" @endif>
+                                    href="javascript:void(0)" onclick="addToCartSingleProduct({{ $wishlist->product->id }})">
                                     <span class="cart-btn-text">
                                         {{ translate('Add to Cart') }}
                                     </span>

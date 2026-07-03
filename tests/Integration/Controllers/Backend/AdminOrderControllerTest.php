@@ -170,8 +170,8 @@ class AdminOrderControllerTest extends TestCase
     {
         $order = Order::factory()->create();
 
-        // The route is actually GET for destroy in this app
-        $response = $this->actingAs($this->adminUser)->get(route('orders.destroy', $order->id));
+        // Use DELETE method as defined in the routes
+        $response = $this->actingAs($this->adminUser)->delete(route('orders.destroy', $order->id));
 
         $response->assertRedirect();
         

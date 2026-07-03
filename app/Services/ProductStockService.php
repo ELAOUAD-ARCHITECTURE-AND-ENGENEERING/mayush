@@ -27,21 +27,45 @@ class ProductStockService
         if (count($combinations) > 0) {
             $product->variant_product = 1;
             $product->save();
+
+            $indexMap = [];
             foreach ($combinations as $key => $combination) {
                 $str = ProductUtility::get_combination_string($combination, $collection);
+
+                $normalized = strtolower((string) preg_replace('/\s+/', '', trim($str)));
+                if (!isset($indexMap[$normalized])) {
+                    $indexMap[$normalized] = 0;
+                } else {
+                    $indexMap[$normalized]++;
+                }
+                $occurrenceIndex = $indexMap[$normalized];
+
+                $suffix = str_replace('.', '_', $str);
+
+                $prices = request()['price_' . $suffix];
+                $skus = request()->input('sku_' . $suffix);
+                $qtys = request()['qty_' . $suffix];
+                $images = request()['img_' . $suffix];
+                $lengths = request()['length_' . $suffix];
+                $widths = request()['width_' . $suffix];
+                $heights = request()['height_' . $suffix];
+                $units = request()['unit_' . $suffix];
+
                 $product_stock = new ProductStock();
                 $product_stock->product_id = $product->id;
                 $product_stock->variant = $str;
-                $product_stock->price = request()['price_' . str_replace('.', '_', $str)];
-                $product_stock->sku = request()['sku_' . str_replace('.', '_', $str)];
-                $product_stock->qty = request()['qty_' . str_replace('.', '_', $str)];
-                $product_stock->image = request()['img_' . str_replace('.', '_', $str)];
+
+                $product_stock->price = is_array($prices) ? ($prices[$occurrenceIndex] ?? 0) : $prices;
+                $submittedSku = is_array($skus) ? ($skus[$occurrenceIndex] ?? '') : $skus;
+                $product_stock->sku = $this->sku($submittedSku);
+                $product_stock->qty = is_array($qtys) ? ($qtys[$occurrenceIndex] ?? 0) : $qtys;
+                $product_stock->image = is_array($images) ? ($images[$occurrenceIndex] ?? null) : $images;
 
                 // Variant-specific dimensions
-                $product_stock->length = request()['length_' . str_replace('.', '_', $str)] ?? 0;
-                $product_stock->width = request()['width_' . str_replace('.', '_', $str)] ?? 0;
-                $product_stock->height = request()['height_' . str_replace('.', '_', $str)] ?? 0;
-                $product_stock->dimension_unit = request()['unit_' . str_replace('.', '_', $str)] ?? 'cm';
+                $product_stock->length = is_array($lengths) ? ($lengths[$occurrenceIndex] ?? 0) : ($lengths ?? 0);
+                $product_stock->width = is_array($widths) ? ($widths[$occurrenceIndex] ?? 0) : ($widths ?? 0);
+                $product_stock->height = is_array($heights) ? ($heights[$occurrenceIndex] ?? 0) : ($heights ?? 0);
+                $product_stock->dimension_unit = is_array($units) ? ($units[$occurrenceIndex] ?? 'cm') : ($units ?? 'cm');
 
                 // Parse dimensions from variant string if applicable (fallback)
                 if ($product_stock->length == 0 && $product_stock->width == 0 && $product_stock->height == 0) {
@@ -76,6 +100,8 @@ class ProductStockService
             unset($collection['current_stock']);
 
             $data = $collection->merge(compact('variant', 'qty', 'price'))->toArray();
+            $data['product_id'] = $product->id;
+            $data['sku'] = $this->sku($data['sku'] ?? null);
             
             // Add dimensions to base stock tracking if variant-less
             $data['length'] = $collection['length'] ?? null;
@@ -83,7 +109,7 @@ class ProductStockService
             $data['height'] = $collection['height'] ?? null;
             $data['dimension_unit'] = $collection['dimension_unit'] ?? 'cm';
             
-            unset($data['colors_active'], $data['choice_no'], $data['unit_price'], $data['sku'], $data['current_stock'], $data['colors']);
+            unset($data['colors_active'], $data['choice_no'], $data['unit_price'], $data['current_stock'], $data['colors']);
 
             $product_stock = ProductStock::create($data);
 
@@ -112,7 +138,7 @@ class ProductStockService
             $product_stock->product_id  = $product_new->id;
             $product_stock->variant     = $stock->variant;
             $product_stock->price       = $stock->price;
-            $product_stock->sku         = null;
+            $product_stock->sku         = $this->sku(null);
             $product_stock->qty         = $stock->qty;
             $product_stock->length      = $stock->length;
             $product_stock->width       = $stock->width;
@@ -120,5 +146,10 @@ class ProductStockService
             $product_stock->dimension_unit = $stock->dimension_unit;
             $product_stock->save();
         }
+    }
+
+    private function sku($submittedSku): string
+    {
+        return (new ProductSkuService())->available($submittedSku);
     }
 }

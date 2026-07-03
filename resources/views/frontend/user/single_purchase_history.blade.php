@@ -1,4 +1,4 @@
-  @foreach($orders as $order)
+  @forelse($orders as $order)
   <div class="mb-4">
       <div class="d-flex justify-content-between align-items-center mb-2">
           <div>
@@ -8,7 +8,7 @@
 
           <!-- Mobile-only buttons -->
           <div class="d-flex gap-2 d-md-none">
-              <a type="button" href="{{ (Route::has('re_order') ? route('re_order', encrypt($order->id) : '#')) }}" class="btn btn-sm border  rounded px-4 py-1 text-muted reorder-btn">
+              <a type="button" href="{{ Route::has('re_order') ? route('re_order', encrypt($order->id)) : '#' }}" class="btn btn-sm border  rounded px-4 py-1 text-muted reorder-btn">
                   {{ translate('Reorder') }}
               </a>
 
@@ -22,7 +22,10 @@
                       <a class="dropdown-item text-secondary dropdown-bg-hover" href="{{route('purchase_history.details', encrypt($order->id))}}"><i class="las la-eye mr-2"></i>{{ translate('View') }}</a>
                       <a class="dropdown-item text-secondary dropdown-bg-hover" href="{{ route('invoice.download', $order->id) }}"><i class="las la-download mr-2"></i>{{ translate('Invoice') }}</a>
                       @if ($order->delivery_status == 'pending' && $order->payment_status == 'unpaid')
-                        <a href="javascript:void(0)"  class="dropdown-item text-secondary dropdown-bg-hover confirm-delete" data-href="{{route('purchase_history.destroy', $order->id)}}"><i class="las la-trash mr-2"></i> {{ translate('Cancel') }}</a>
+                        <form action="{{ route('purchase_history.destroy', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-secondary dropdown-bg-hover text-left"><i class="las la-trash mr-2"></i> {{ translate('Cancel') }}</button>
+                        </form>
                       @endif
                   </div>
               </div>
@@ -43,7 +46,7 @@
               </div>
           </div>
           <div class="col-md-6 text-right">
-              <a type="button" class="btn btn-sm border rounded px-4 py-1 text-muted reorder-btn" href="{{ (Route::has('re_order') ? route('re_order', encrypt($order->id) : '#')) }}">
+              <a type="button" class="btn btn-sm border rounded px-4 py-1 text-muted reorder-btn" href="{{ Route::has('re_order') ? route('re_order', encrypt($order->id)) : '#' }}">
                   {{ translate('Reorder') }}
               </a>
 
@@ -58,7 +61,10 @@
                       <a class="dropdown-item text-secondary dropdown-bg-hover" href="{{route('purchase_history.details', encrypt($order->id))}}"><i class="las la-eye mr-2"></i>{{ translate('View') }}</a>
                       <a class="dropdown-item text-secondary dropdown-bg-hover" href="{{ route('invoice.download', $order->id) }}"><i class="las la-download mr-2"></i>{{ translate('Invoice') }}</a>
                       @if ($order->delivery_status == 'pending' && $order->payment_status == 'unpaid')
-                      <a href="javascript:void(0)"  class="dropdown-item text-secondary dropdown-bg-hover confirm-delete" data-href="{{route('purchase_history.destroy', $order->id)}}"><i class="las la-trash mr-2"></i> {{ translate('Cancel') }}</a>
+                      <form action="{{ route('purchase_history.destroy', $order->id) }}" method="POST">
+                          @csrf
+                          <button type="submit" class="dropdown-item text-secondary dropdown-bg-hover text-left"><i class="las la-trash mr-2"></i> {{ translate('Cancel') }}</button>
+                      </form>
                       @endif
                   </div>
               </div>
@@ -91,18 +97,22 @@
 
           <div class="col-md-9">
               @foreach($order->orderDetails as $orderDetail)
+              @php
+                  $product = $orderDetail->product;
+                  $productName = $product ? $product->getTranslation('name') : translate('Product unavailable');
+              @endphp
               @if (!$loop->first)
               <hr class="hr-split">
               @endif
               <div class="row">
                   <div class="col-md-8 d-flex align-items-center">
-                      <img src="{{ uploaded_asset($orderDetail->product->thumbnail_img) }}"
+                      <img src="{{ $product ? uploaded_asset($product->thumbnail_img) : static_asset('assets/img/placeholder.jpg') }}"
                           class="img-fluid mr-3 product-history-img">
 
                       <div class="w-300px text-wrap">
                           <div class="font-weight-semibold fs-14 product-name-color mobile-title-shift text-truncate-2"
-                              title="{{ $orderDetail->product->getTranslation('name') }}">
-                              {{ $orderDetail->product->getTranslation('name') }}
+                              title="{{ $productName }}">
+                              {{ $productName }}
                           </div>
                           <div class="text-muted small mb-2 mobile-title-shift">{{ $orderDetail->variation }}</div>
                       </div>
@@ -148,7 +158,11 @@
 
   </div>
 
-  @endforeach
+  @empty
+  <div class="text-center p-4 text-muted" id="purchase-history-empty-state">
+      {{ translate('No purchase history found.') }}
+  </div>
+  @endforelse
 
   <div class="aiz-pagination mt-4" id="pagination">
       {{ $orders->links() }}

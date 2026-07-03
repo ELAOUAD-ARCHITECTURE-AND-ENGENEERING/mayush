@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Wallet;
+use App\Services\WalletService;
 use App\Utility\EmailUtility;
 use Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Session;
 
 class WalletController extends Controller
@@ -24,33 +27,40 @@ class WalletController extends Controller
 
     public function recharge(Request $request)
     {
-        $data['amount'] = $request->amount;
-        $data['payment_method'] = $request->payment_option;
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'min:1'],
+            'payment_option' => ['required', 'string', 'max:100'],
+        ]);
+
+        $data['amount'] = $validated['amount'];
+        $data['payment_method'] = $validated['payment_option'];
 
         $request->session()->put('payment_type', 'wallet_payment');
         $request->session()->put('payment_data', $data);
 
         $decorator = __NAMESPACE__ . '\\Payment\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $request->payment_option))) . "Controller";
         if (class_exists($decorator)) {
-            return (new $decorator)->pay($request);
+            $payment_controller = app($decorator);
+            if (method_exists($payment_controller, 'pay')) {
+                return $payment_controller->pay($request);
+            } else {
+                \Illuminate\Support\Facades\Log::error("Payment controller 'pay' method missing for method: " . $request->payment_option);
+            }
+        } else {
+            \Illuminate\Support\Facades\Log::error("Payment controller class not found for method: " . $request->payment_option);
         }
+        
+        flash(translate('Selected payment method is currently unavailable. Please contact support.'))->error();
+        return back();
     }
 
     public function wallet_payment_done($payment_data, $payment_details)
     {
         $user = Auth::user();
-        $user->balance = $user->balance + $payment_data['amount'];
-        $user->save();
-
-        $wallet = new Wallet;
-        $wallet->user_id = $user->id;
-        $wallet->amount = $payment_data['amount'];
-        $wallet->payment_method = $payment_data['payment_method'];
-        $wallet->payment_details = $payment_details;
-        $wallet->save();
+        app(WalletService::class)->credit($user, $payment_data['amount'], $payment_data['payment_method'], $payment_details);
 
         // customer Account Opening Email to Admin
-        if ( $user != null && (get_email_template_data('wallet_recharge_email_to_customer', 'status') == 1)) {
+        if ($this->walletRechargeEmailEnabled($user)) {
             try {
                 EmailUtility::wallet_recharge_email('wallet_recharge_email_to_customer', $user, $payment_data['amount'], $payment_data['payment_method']);
             } catch (\Exception $e) {}
@@ -66,18 +76,10 @@ class WalletController extends Controller
     public function wallet_payment_done1($payment_data, $payment_details)
     {
         $user = Auth::user();
-        $user->balance = $user->balance + $payment_data['amount'];
-        $user->save();
-
-        $wallet = new Wallet;
-        $wallet->user_id = $user->id;
-        $wallet->amount = $payment_data['amount'];
-        $wallet->payment_method = $payment_data['payment_method'];
-        $wallet->payment_details = $payment_details;
-        $wallet->save();
+        app(WalletService::class)->credit($user, $payment_data['amount'], $payment_data['payment_method'], $payment_details);
         
         // customer Account Opening Email to Admin
-        if ( $user != null && (get_email_template_data('wallet_recharge_email_to_customer', 'status') == 1)) {
+        if ($this->walletRechargeEmailEnabled($user)) {
             try {
                 EmailUtility::wallet_recharge_email('wallet_recharge_email_to_customer', $user, $payment_data['amount'], $payment_data['payment_method']);
             } catch (\Exception $e) {}
@@ -96,6 +98,13 @@ class WalletController extends Controller
     
     public function offline_recharge(Request $request)
     {
+        $request->validate([
+            'amount' => ['required', 'numeric', 'min:1'],
+            'payment_option' => ['required', 'string', 'max:100'],
+            'trx_id' => ['nullable', 'string', 'max:255'],
+            'photo' => ['nullable', 'string', 'max:255'],
+        ]);
+
         $wallet = new Wallet;
         $wallet->user_id = Auth::user()->id;
         $wallet->amount = $request->amount;
@@ -123,20 +132,49 @@ class WalletController extends Controller
 
     public function updateApproved(Request $request)
     {
-        $wallet = Wallet::findOrFail($request->id);
-        $wallet->approval = $request->status;
-        if ($request->status == 1) {
-            $user = $wallet->user;
-            $user->balance = $user->balance + $wallet->amount;
-            $user->save();
-        } else {
-            $user = $wallet->user;
-            $user->balance = $user->balance - $wallet->amount;
-            $user->save();
-        }
-        if ($wallet->save()) {
+        $request->validate([
+            'id' => ['required', 'exists:wallets,id'],
+            'status' => ['required', 'integer', 'in:0,1,2'],
+        ]);
+
+        return DB::transaction(function () use ($request) {
+            $wallet = Wallet::whereKey($request->id)->lockForUpdate()->firstOrFail();
+
+            if (!$wallet->offline_payment) {
+                throw ValidationException::withMessages([
+                    'id' => translate('Only offline wallet recharge requests can be approved manually.'),
+                ]);
+            }
+
+            $previousStatus = (int) $wallet->approval;
+            $newStatus = (int) $request->status;
+            $user = $wallet->user()->lockForUpdate()->firstOrFail();
+
+            if ($previousStatus !== 1 && $newStatus === 1) {
+                $user->balance = (float) $user->balance + (float) $wallet->amount;
+                $user->save();
+            } elseif ($previousStatus === 1 && $newStatus !== 1) {
+                $user->balance = max(0, (float) $user->balance - (float) $wallet->amount);
+                $user->save();
+            }
+
+            $wallet->approval = $newStatus;
+            $wallet->save();
+
             return 1;
+        });
+    }
+
+    private function walletRechargeEmailEnabled($user): bool
+    {
+        if ($user == null) {
+            return false;
         }
-        return 0;
+
+        try {
+            return (int) get_email_template_data('wallet_recharge_email_to_customer', 'status') === 1;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 }

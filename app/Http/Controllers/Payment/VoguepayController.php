@@ -46,7 +46,6 @@ class VoguepayController extends Controller
 
         if ($obj->response_message == 'Approved') {
             $payment_detalis = json_encode($obj);
-            // dd($payment_detalis);
             if (Session::has('payment_type')) {
                 $paymentType = Session::get('payment_type');
                 $paymentData = Session::get('payment_data');

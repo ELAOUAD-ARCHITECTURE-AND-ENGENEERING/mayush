@@ -23,7 +23,13 @@ class PurchaseHistoryController extends Controller
      */
     public function index(Request $request)
     {
-     return view('frontend.user.purchase_history');
+        $orders = Order::with(['orderDetails.product'])
+            ->where('user_id', Auth::id())
+            ->orderBy('code', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+            
+        return view('frontend.user.purchase_history', compact('orders'));
     }
 
     public function digital_index()
@@ -71,7 +77,7 @@ class PurchaseHistoryController extends Controller
         if ($downloadable) {
             $upload = Upload::findOrFail($product->file_name);
             if (env('FILESYSTEM_DRIVER') == "s3") {
-                return \Storage::disk('s3')->download($upload->file_name, $upload->file_original_name . "." . $upload->extension);
+                return \Storage::disk(config('filesystems.default'))->download($upload->file_name, $upload->file_original_name . "." . $upload->extension);
             } else {
                 if (file_exists(base_path('public/' . $upload->file_name))) {
                     return response()->download(base_path('public/' . $upload->file_name));
@@ -90,8 +96,9 @@ class PurchaseHistoryController extends Controller
      */
     public function order_cancel($id)
     {
-        $order = Order::where('id', $id)->where('user_id', auth()->user()->id)->first();
-        if ($order && ($order->delivery_status == 'pending' && $order->payment_status == 'unpaid')) {
+        $order = Order::where('id', $id)->where('user_id', auth()->user()->id)->firstOrFail();
+
+        if ($order->delivery_status == 'pending' && $order->payment_status == 'unpaid') {
             $order->delivery_status = 'cancelled';
             $order->save();
 
@@ -155,7 +162,7 @@ class PurchaseHistoryController extends Controller
                     'product_id' => $product->id
                 ]);
 
-                $product_stock = $product->stocks->where('variant', $orderDetail->variation)->first();
+                $product_stock = CartUtility::find_product_stock($product, $orderDetail->variation);
                 if ($product_stock) {
                     $quantity = 1;
                     if ($product->digital != 1) {
@@ -198,7 +205,7 @@ class PurchaseHistoryController extends Controller
     public function filterOrders(Request $request)
     {
         $tab = $request->tab;
-        $query = Order::with('orderDetails')
+        $query = Order::with(['orderDetails.product'])
             ->where('user_id', Auth::id())
             ->orderBy('code', 'desc');
 

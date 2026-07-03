@@ -11,23 +11,6 @@
 @endif
 
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-D5PZ73508T"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-D5PZ73508T');
-    </script>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-KSHLDCWK');</script>
-    <!-- End Google Tag Manager -->
-
     @php
         $seo = \App\Services\SeoService::meta([
             'title' => trim($__env->yieldContent('meta_title')),
@@ -79,6 +62,18 @@
 
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::organizationSchema($seo)) !!}</script>
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::websiteSchema($seo)) !!}</script>
+    @if(request()->routeIs('home'))
+        @php
+            $homepageStatsService = app(\App\Services\SeoStatsService::class);
+        @endphp
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::webPageSchema([
+            'title' => $seo['title'],
+            'description' => $seo['description'],
+            'canonical' => route('home'),
+        ], \App\Services\SeoService::homepageTitle())) !!}</script>
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd($homepageStatsService->homepageFaqSchema()) !!}</script>
+        <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd($homepageStatsService->homepageItemListSchema()) !!}</script>
+    @endif
 
     @yield('meta')
 
@@ -88,14 +83,40 @@
     @endphp
     <link rel="icon" href="{{ $site_icon }}">
     <link rel="apple-touch-icon" href="{{ $site_icon }}">
+    @yield('preload')
 
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="preload" as="style" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css"></noscript>
 
-    <script defer src="{{ static_asset('js/analytics-tracker.js') }}"></script>
+    <script defer src="{{ versioned_static_asset('js/storefront-bootstrap.js') }}"
+        data-analytics-src="{{ versioned_static_asset('js/analytics-tracker.js') }}"
+        data-defer-marketing="{{ config('storefront-performance.defer_marketing') ? '1' : '0' }}"
+        data-gtm-enabled="{{ get_setting('google_analytics') == 1 ? '1' : '0' }}"
+        data-gtm-id="{{ config('storefront-performance.gtm_id') }}"
+        data-facebook-enabled="{{ get_setting('facebook_pixel') == 1 ? '1' : '0' }}"
+        data-facebook-pixel-id="{{ config('storefront-performance.facebook_pixel_id') }}"
+        data-whatsapp-enabled="{{ get_setting('whatsapp_chat') == 1 ? '1' : '0' }}"
+        data-whatsapp-number="{{ env('WHATSAPP_NUMBER') }}"
+        data-whatsapp-label="{{ translate('Message us') }}"></script>
+    @if (config('storefront-performance.asset_profiles_enabled') && storefront_asset('core.js'))
+        <script type="module" src="{{ storefront_asset('core.js') }}"></script>
+        @if (request()->routeIs('home'))
+            <script type="module" src="{{ storefront_asset('home.js') }}"></script>
+        @elseif (request()->routeIs('products.category', 'search'))
+            <script type="module" src="{{ storefront_asset('listing.js') }}"></script>
+        @elseif (request()->routeIs('product'))
+            <script type="module" src="{{ storefront_asset('product.js') }}"></script>
+        @elseif (request()->routeIs('cart'))
+            <script type="module" src="{{ storefront_asset('cart.js') }}"></script>
+        @elseif (request()->routeIs('checkout*'))
+            <script type="module" src="{{ storefront_asset('checkout.js') }}"></script>
+        @endif
+    @endif
     @yield('styles')
     @yield('script_at_head')
 
@@ -104,18 +125,20 @@
     @if ($rtl == 1)
         <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
     @endif
-    <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css?v=') }}{{ rand(1000, 9999) }}">
+    <link rel="stylesheet" href="{{ versioned_static_asset('assets/css/aiz-core.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/semantic_search.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/custom-style.css') }}">
+
+    <!-- Mayush Design Tokens (Charte Graphique v1.0) -->
+    <link rel="stylesheet" href="{{ static_asset('assets/css/mayush-design-tokens.css') }}">
+    <link rel="stylesheet" href="{{ static_asset('assets/css/mayush-components.css') }}">
+
     @if(get_setting('homepage_select') == 'thecore')
     <link rel="stylesheet" href="{{ static_asset('assets/css/thecore.css') }}">
     @endif
     
-    <!-- AOS Animations -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
-
-    @if (get_setting('cloudflare_turnstile') == 1)
-        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @if(request()->routeIs('shop.visit', 'shop.visit.type') || request()->is('*contact-us*'))
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
     @endif
 
     <script>
@@ -141,6 +164,11 @@
             complete: '{{ translate('Complete') }}',
             file: '{{ translate('File') }}',
             files: '{{ translate('Files') }}',
+            saving: '{{ translate('Saving') }}',
+            something_went_wrong: '{{translate('Something went wrong!')}}',
+            error_occured_while_processing: '{{translate('An error occurred while processing')}}',
+            saving_as_draft: '{{translate('Saving As Draft')}}',
+            upload_failed: '{{translate('Upload failed')}}',
         }
     </script>
 
@@ -168,9 +196,14 @@
             --primary: {{ get_setting('base_color', '#d43533') }};
             --hov-primary: {{ get_setting('base_hov_color', '#9d1b1a') }};
             --soft-primary: {{ hex2rgba(get_setting('base_color', '#d43533'), 0.15) }};
+            --white: #FFFFFF;
+            --red: #E53935;
+            --orange: #D97434;
+            --green: #00A86B;
+            --teal: #00A86B;
         }
         body{
-            font-family: {!! !empty(get_setting('system_font_family')) ? get_setting('system_font_family') : "'Public Sans', sans-serif" !!}, sans-serif;
+            font-family: var(--mayush-font-body), {!! !empty(get_setting('system_font_family')) ? get_setting('system_font_family') : "'Public Sans', sans-serif" !!}, sans-serif;
             font-weight: 400;
         }
 
@@ -241,48 +274,93 @@
     </style>
 
 
-@if (get_setting('google_analytics') == 1)
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ env('TRACKING_ID') }}"></script>
-
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', '{{ env('TRACKING_ID') }}');
-    </script>
-@endif
-
-@if (get_setting('facebook_pixel') == 1)
-    <!-- Facebook Pixel Code -->
-    <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '{{ env('FACEBOOK_PIXEL_ID') }}');
-        fbq('track', 'PageView');
-    </script>
-    <noscript>
-        <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ env('FACEBOOK_PIXEL_ID') }}&ev=PageView&noscript=1"/>
-    </noscript>
-    <!-- End Facebook Pixel Code -->
-@endif
-
 @php
     // echo get_setting('header_script');
 @endphp
 
+    <style id="mayush-preloader-style">
+        /* Global Preloader */
+        #global-preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #global-preloader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .preloader-logo {
+            width: 160px;
+            max-width: 60vw;
+            height: auto;
+            animation: preloaderPulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes preloaderPulse {
+            0% { transform: scale(0.95); opacity: 0.6; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.6; }
+        }
+        /* Disable scroll while loading */
+        body.preloader-active {
+            overflow: hidden !important;
+        }
+    </style>
 </head>
-<body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KSHLDCWK"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
+<body class="preloader-active">
+    <!-- Global Preloader -->
+    <div id="global-preloader">
+        <img src="{{ uploaded_asset(get_setting('header_logo')) }}" alt="Mayush Loading" class="preloader-logo" onerror="this.onerror=null;this.style.display='none';">
+    </div>
+
+    <script>
+        // Preloader Logic
+        (function() {
+            var preloader = document.getElementById('global-preloader');
+            var minDisplayTime = 500; // ms
+            var startTime = new Date().getTime();
+
+            function hidePreloader() {
+                var elapsed = new Date().getTime() - startTime;
+                var remaining = Math.max(0, minDisplayTime - elapsed);
+                
+                setTimeout(function() {
+                    if (preloader) {
+                        preloader.classList.add('fade-out');
+                        document.body.classList.remove('preloader-active');
+                        // Remove from DOM after transition
+                        setTimeout(function() {
+                            if (preloader.parentNode) {
+                                preloader.parentNode.removeChild(preloader);
+                            }
+                            var style = document.getElementById('mayush-preloader-style');
+                            if (style && style.parentNode) {
+                                style.parentNode.removeChild(style);
+                            }
+                        }, 600);
+                    }
+                }, remaining);
+            }
+
+            // Ensure it only runs once
+            var handled = false;
+            function triggerHide() {
+                if (!handled) {
+                    handled = true;
+                    hidePreloader();
+                }
+            }
+
+            window.addEventListener('load', triggerHide);
+            
+            // Fallback just in case 'load' doesn't fire or takes way too long (e.g. 8s max wait)
+            setTimeout(triggerHide, 8000);
+        })();
+    </script>
 
     <!-- aiz-main-wrapper -->
     <div class="aiz-main-wrapper d-flex flex-column bg-white aiz-{{ get_setting('homepage_select') }}">
@@ -296,19 +374,31 @@
 
             $system_language = get_system_language();
         @endphp
-        <!-- Header -->
-        @include('frontend.inc.nav')
+        @if (!trim($__env->yieldContent('hide_default_frontend_nav')))
+            <!-- Header -->
+            @include('frontend.inc.nav')
+        @endif
 
         @yield('content')
 
-        <!-- footer -->
-        @include('frontend.inc.footer')
+        @if (!trim($__env->yieldContent('hide_default_frontend_footer')))
+            <!-- footer -->
+            @include('frontend.inc.footer')
+        @endif
 
     </div>
 
-    @if(get_setting('use_floating_buttons') == 1)
+    @if(get_setting('use_floating_buttons') == 1 && !trim($__env->yieldContent('hide_default_frontend_nav')))
         <!-- Floating Buttons -->
         @include('frontend.inc.floating_buttons')
+    @endif
+
+    @if (get_setting('google_analytics') == 1 || get_setting('facebook_pixel') == 1)
+        <div id="marketing-consent-notice" class="position-fixed fixed-bottom bg-white border shadow-lg p-3 m-3" style="max-width: 420px; z-index: 1050;" hidden>
+            <p class="mb-2 fs-13 text-dark">{{ translate('Allow optional analytics and marketing cookies to help us improve your shopping experience?') }}</p>
+            <button type="button" id="marketing-consent-accept" class="btn btn-sm btn-primary mr-2">{{ translate('Allow') }}</button>
+            <button type="button" id="marketing-consent-reject" class="btn btn-sm btn-outline-secondary">{{ translate('Decline') }}</button>
+        </div>
     @endif
 
     <div class="aiz-refresh">
@@ -325,7 +415,7 @@
     @php
         $alert_location = get_setting('custom_alert_location');
         $order = in_array($alert_location, ['top-left', 'top-right']) ? 'asc' : 'desc';
-        $custom_alerts = App\Models\CustomAlert::where('status', 1)->orderBy('id', $order)->get();
+        $custom_alerts = app(\App\Services\StorefrontDataService::class)->customAlerts($order);
     @endphp
 
     <div class="aiz-custom-alert {{ get_setting('custom_alert_location') }}" id="aiz-custom-sale-alert">
@@ -379,7 +469,7 @@
 
     <!-- website popup -->
     @php
-        $dynamic_popups = App\Models\DynamicPopup::where('status', 1)->orderBy('id', 'asc')->get();
+        $dynamic_popups = app(\App\Services\StorefrontDataService::class)->dynamicPopups();
         use App\Models\Order;
         use App\Models\OrderDetail;
     @endphp
@@ -407,7 +497,15 @@
                     <div class="modal-content position-relative border-0 rounded-0">
                         <div class="aiz-editor-data">
                             <div class="d-block">
-                                <img class="w-100" src="{{ uploaded_asset($dynamic_popup->banner) }}" alt="dynamic_popup">
+                                <img
+                                    class="w-100 mayush-deferred-popup-image"
+                                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+                                    data-popup-src="{{ uploaded_asset($dynamic_popup->banner) }}"
+                                    alt="dynamic_popup"
+                                    width="720"
+                                    height="480"
+                                    loading="lazy"
+                                    decoding="async">
                             </div>
                         </div>
                         <div class="pb-5 pt-4 px-3 px-md-2rem">
@@ -425,7 +523,7 @@
                                 </form>
                             @endif
                         </div>
-                        <button class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup" data-value="removed" data-parent=".website-popup">
+                        <button type="button" aria-label="{{ translate('Close popup') }}" class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup" data-value="removed" data-parent=".website-popup">
                             <i class="la la-close fs-20"></i>
                         </button>
                     </div>
@@ -439,7 +537,15 @@
                     <div class="modal-content position-relative border-0 rounded-0">
                         <div class="aiz-editor-data">
                             <div class="d-block">
-                                <img class="w-100" src="{{ uploaded_asset($dynamic_popup->banner) }}" alt="dynamic_popup">
+                                <img
+                                    class="w-100 mayush-deferred-popup-image"
+                                    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+                                    data-popup-src="{{ uploaded_asset($dynamic_popup->banner) }}"
+                                    alt="dynamic_popup"
+                                    width="720"
+                                    height="480"
+                                    loading="lazy"
+                                    decoding="async">
                             </div>
                         </div>
                         <div class="pb-5 pt-4 px-3 px-md-2rem">
@@ -449,7 +555,7 @@
                                 {{ $dynamic_popup->btn_text }}
                             </a>
                         </div>
-                        <button class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup-{{ $dynamic_popup->id }}" data-value="removed" data-parent=".website-popup">
+                        <button type="button" aria-label="{{ translate('Close popup') }}" class="absolute-top-right bg-white shadow-lg btn btn-circle btn-icon mr-n3 mt-n3 set-session" data-key="website-popup-{{ $dynamic_popup->id }}" data-value="removed" data-parent=".website-popup">
                             <i class="la la-close fs-20"></i>
                         </button>
                     </div>
@@ -501,25 +607,8 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="{{ static_asset('assets/js/vendors.js') }}"></script>
-    <script src="{{ static_asset('assets/js/aiz-core.js?v=') }}{{ rand(1000, 9999) }}"></script>
-
-    {{-- WhatsaApp Chat --}}
-    @if (get_setting('whatsapp_chat') == 1)
-        <script type="text/javascript">
-            (function () {
-                var options = {
-                    whatsapp: "{{ env('WHATSAPP_NUMBER') }}",
-                    call_to_action: "{{ translate('Message us') }}",
-                    position: "right", // Position may be 'right' or 'left'
-                };
-                var proto = document.location.protocol, host = "getbutton.io", url = proto + "//static." + host;
-                var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = url + '/widget-send-button/js/init.js';
-                s.onload = function () { WhWidgetSendButton.init(host, proto, options); };
-                var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
-            })();
-        </script>
-    @endif
+    <script src="{{ versioned_static_asset('assets/js/vendors.js') }}"></script>
+    <script src="{{ versioned_static_asset('assets/js/aiz-core.js') }}"></script>
 
     <style>
     .sc-q8c6tt-3 {
@@ -539,7 +628,7 @@
     </script>
 
     <script>
-        @if (Route::currentRouteName() == 'home' || Route::currentRouteName() == '/')
+        @if ((Route::currentRouteName() == 'home' || Route::currentRouteName() == '/') && get_setting('homepage_select') != 'metro')
 
             $.get('{{ route('home.section.featured') }}', function(data) {
                 $('#section_featured').html(data);
@@ -600,9 +689,9 @@
                 });
             });
 
-            if ($('#lang-change').length > 0) {
-                $('#lang-change .dropdown-menu a').each(function() {
-                    $(this).on('click', function(e){
+            if ($('.js-lang-change, #lang-change').length > 0) {
+                $('.js-lang-change .dropdown-menu a, #lang-change .dropdown-menu a').each(function() {
+                    $(this).off('click.headerSwitcher').on('click.headerSwitcher', function(e){
                         e.preventDefault();
                         var $this = $(this);
                         var locale = $this.data('flag');
@@ -614,9 +703,9 @@
                 });
             }
 
-            if ($('#currency-change').length > 0) {
-                $('#currency-change .dropdown-menu a').each(function() {
-                    $(this).on('click', function(e){
+            if ($('.js-currency-change, #currency-change').length > 0) {
+                $('.js-currency-change .dropdown-menu a, #currency-change .dropdown-menu a').each(function() {
+                    $(this).off('click.headerSwitcher').on('click.headerSwitcher', function(e){
                         e.preventDefault();
                         var $this = $(this);
                         var currency_code = $this.data('currency');
@@ -707,7 +796,8 @@
 
         $(document).on("click", function(event){
             var $trigger = $("#category-menu-bar");
-            if($trigger !== event.target && !$trigger.has(event.target).length){
+            var $menu = $("#click-category-menu");
+            if(!$trigger.is(event.target) && !$trigger.has(event.target).length && !$menu.is(event.target) && !$menu.has(event.target).length){
                 $("#click-category-menu").slideUp("fast");;
                 $("#category-menu-bar-icon").removeClass('show');
             }
@@ -743,7 +833,7 @@
         }
 
         function addToWishList(id){
-            @if (Auth::check() && Auth::user()->user_type == 'customer')
+            @if (Auth::check() && isCustomer())
                 $.post('{{ route('wishlists.store') }}', {_token: AIZ.data.csrf, id:id}, function(data){
                     if(data != 0){
                         $('#wishlist').html(data);
@@ -753,7 +843,7 @@
                         AIZ.plugins.notify('warning', "{{ translate('Please login first') }}");
                     }
                 });
-            @elseif(Auth::check() && Auth::user()->user_type != 'customer')
+            @elseif(Auth::check() && !isCustomer())
                 AIZ.plugins.notify('warning', "{{ translate('Please Login as a customer to add products to the WishList.') }}");
             @else
                 AIZ.plugins.notify('warning', "{{ translate('Please login first') }}");
@@ -890,6 +980,7 @@
                             $('#p-length').html(data.length ? data.length : '-');
                             $('#p-width').html(data.width ? data.width : '-');
                             $('#p-height').html(data.height ? data.height : '-');
+                            $('#p-dimension-unit').html(data.dimension_unit ? data.dimension_unit : 'cm');
                         } else {
                             $('#product-dimensions').addClass('d-none');
                         }
@@ -939,7 +1030,7 @@
         }
 
         function addToCart(){
-            @if (Auth::check() && Auth::user()->user_type != 'customer')
+            @if (Auth::check() && !isCustomer())
                 AIZ.plugins.notify('warning', "{{ translate('Please Login as a customer to add products to the Cart.') }}");
                 return false;
             @endif
@@ -964,7 +1055,7 @@
                     }
                 });
 
-                if ("{{ get_setting('facebook_pixel') }}" == 1){
+                if ("{{ get_setting('facebook_pixel') }}" == 1 && typeof fbq === 'function'){
                     // Facebook Pixel AddToCart Event
                     fbq('track', 'AddToCart', {content_type: 'product'});
                     // Facebook Pixel AddToCart Event
@@ -977,7 +1068,7 @@
         }
 
         function addToCartSingleProduct(productId = null){
-            @if (Auth::check() && Auth::user()->user_type != 'customer')
+            @if (Auth::check() && !isCustomer())
                 AIZ.plugins.notify('warning', "{{ translate('Please Login as a customer to add products to the Cart.') }}");
                 return false;
             @endif
@@ -1030,7 +1121,7 @@
                     }
                 });
 
-                if ("{{ get_setting('facebook_pixel') }}" == 1){
+                if ("{{ get_setting('facebook_pixel') }}" == 1 && typeof fbq === 'function'){
                     fbq('track', 'AddToCart', {content_type: 'product'});
                 }
             }
@@ -1040,7 +1131,7 @@
         }
 
         function buyNow(){
-            @if (Auth::check() && Auth::user()->user_type != 'customer')
+            @if (Auth::check() && !isCustomer())
                 AIZ.plugins.notify('warning', "{{ translate('Please Login as a customer to add products to the Cart.') }}");
                 return false;
             @endif
@@ -1339,14 +1430,14 @@
             const html = `
                 <div class="alert  bg-white alert-dismissible rounded-0" role="alert" style="display: none;">
                     <div class="d-flex align-items-center">
-                        <img src="${randomProduct.image}" class="h-50px w-50px img-fit mr-2 rounded" alt="${randomProduct.title}">
+                        <img src="${randomProduct.image}" class="h-50px w-50px img-fit mr-2 rounded" width="50" height="50" alt="${randomProduct.title}">
                         <div>
                             <span class="text-truncate-2">
                                 <a href="${randomProduct.url}" class="text-dark font-weight-bold">${randomProduct.title}</a>
                             </span>
                              — {{ translate('ordered just now') }}!
                         </div>
-                        <button type="button" class="close ml-auto hov-text-primary set-session" data-parent=".alert">
+                        <button type="button" aria-label="{{ translate('Close notification') }}" class="close ml-auto hov-text-primary set-session" data-parent=".alert">
                             <i class="la la-close fs-20"></i>
                         </button>
                     </div>
@@ -1419,17 +1510,18 @@
         </script>
     @endif
 
-    <!-- AOS Initialization -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script>
-        $(document).ready(function() {
-            AOS.init({
-                duration: 1000,
-                once: true,
-                offset: 120,
-                easing: 'ease-out-cubic'
+    @if(request()->routeIs('shop.visit', 'shop.visit.type') || request()->is('*contact-us*'))
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+        <script>
+            $(document).ready(function() {
+                AOS.init({
+                    duration: 1000,
+                    once: true,
+                    offset: 120,
+                    easing: 'ease-out-cubic'
+                });
             });
-        });
-    </script>
+        </script>
+    @endif
 </body>
 </html>

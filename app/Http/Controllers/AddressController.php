@@ -104,7 +104,7 @@ class AddressController extends Controller
      */
     public function edit($id)
     {
-        $data['address_data'] = Address::findOrFail($id);
+        $data['address_data'] = $this->authorizedAddress($id);
         $data['states'] = State::where('status', 1)->where('country_id', $data['address_data']->country_id)->get();
         $data['cities'] = City::where('status', 1)
             ->where(get_setting('has_state') == 1 ? 'state_id' : 'country_id', get_setting('has_state') == 1 ? $data['address_data']->state_id : (get_active_countries()->count() == 1 ? get_active_countries()->first()->id : $data['address_data']->country_id))
@@ -118,7 +118,7 @@ class AddressController extends Controller
 
     public function edit_billing($id)
     {
-        $data['address_data'] = Address::findOrFail($id);
+        $data['address_data'] = $this->authorizedAddress($id);
         $data['states'] = State::where('status', 1)->where('country_id', $data['address_data']->country_id)->get();
         $data['cities'] = City::where('status', 1)
             ->where(get_setting('has_state') == 1 ? 'state_id' : 'country_id', get_setting('has_state') == 1 ? $data['address_data']->state_id : (get_active_countries()->count() == 1 ? get_active_countries()->first()->id : $data['address_data']->country_id))
@@ -139,7 +139,7 @@ class AddressController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $address = Address::findOrFail($id);
+        $address = $this->authorizedAddress($id);
         $address->address       = $request->address;
         if (!$request->state_id && ($request->country_id != $address->country_id)) {
             $address->state_id = null;
@@ -160,7 +160,7 @@ class AddressController extends Controller
 
     public function billing_update(Request $request, $id)
     {
-        $address = Address::findOrFail($id);
+        $address = $this->authorizedAddress($id);
         $address->address       = $request->address;
         if (!$request->state_id && ($request->country_id != $address->country_id)) {
             $address->state_id = null;
@@ -189,7 +189,7 @@ class AddressController extends Controller
      */
     public function destroy($id)
     {
-        $address = Address::findOrFail($id);
+        $address = $this->authorizedAddress($id);
         if (!$address->set_default && !$address->set_billing) {
             $address->delete();
             return back();
@@ -238,26 +238,28 @@ class AddressController extends Controller
 
     public function set_default($id)
     {
+        $targetAddress = $this->authorizedAddress($id);
+
         foreach (Auth::user()->addresses as $key => $address) {
             $address->set_default = 0;
             $address->save();
         }
-        $address = Address::findOrFail($id);
-        $address->set_default = 1;
-        $address->save();
+        $targetAddress->set_default = 1;
+        $targetAddress->save();
 
         return back();
     }
 
     public function set_billing($id)
     {
+        $targetAddress = $this->authorizedAddress($id);
+
         foreach (Auth::user()->addresses as $key => $address) {
             $address->set_billing = 0;
             $address->save();
         }
-        $address = Address::findOrFail($id);
-        $address->set_billing = 1;
-        $address->save();
+        $targetAddress->set_billing = 1;
+        $targetAddress->save();
 
         return back();
     }
@@ -272,5 +274,16 @@ class AddressController extends Controller
         }
 
         return response()->json($html);
+    }
+
+    private function authorizedAddress($id): Address
+    {
+        $address = Address::findOrFail($id);
+
+        if ((int) $address->user_id !== (int) Auth::id() && !in_array(Auth::user()->user_type, ['admin', 'staff'], true)) {
+            abort(403);
+        }
+
+        return $address;
     }
 }

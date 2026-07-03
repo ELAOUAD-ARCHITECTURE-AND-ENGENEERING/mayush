@@ -587,7 +587,7 @@
                                     <!-- SKU -->
                                     <div class="form-group">
                                         <label class="col-from-label">{{translate('SKU')}}</label>
-                                        <input type="text" placeholder="{{ translate('SKU') }}" name="sku" value="{{ old('sku') }}" class="form-control">
+                                        <input type="text" placeholder="{{ translate('SKU') }}" name="sku" value="{{ old('sku', (new \App\Services\ProductSkuService())->next()) }}" class="form-control">
                                     </div>
                                 </div>
                                 <!-- External link -->
@@ -924,7 +924,7 @@
 @section('script')
 
 <!-- Treeview js -->
-<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}?v={{ filemtime(public_path('assets/js/hummingbird-treeview.js')) }}"></script>
+<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}?v={{ file_exists(public_path('assets/js/hummingbird-treeview.js')) ? filemtime(public_path('assets/js/hummingbird-treeview.js')) : time() }}"></script>
 
 <script type="text/javascript">
 

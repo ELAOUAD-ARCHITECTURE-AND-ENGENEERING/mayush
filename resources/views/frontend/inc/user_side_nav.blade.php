@@ -1,428 +1,741 @@
-<div class="aiz-user-sidenav-wrap position-relative z-1 rounded-0">
-    <div class="aiz-user-sidenav overflow-auto c-scrollbar-light px-4 pb-4">
-        <!-- Close button -->
-        <div class="d-xl-none">
-            <button class="btn btn-sm p-2 " data-toggle="class-toggle" data-backdrop="static"
-                data-target=".aiz-mobile-side-nav" data-same=".mobile-side-nav-thumb">
-                <i class="las la-times la-2x"></i>
-            </button>
-        </div>
-        @php
-            $user = auth()->user();
-            $user_avatar = null;
-            $carts = [];
-            if ($user && $user->avatar_original != null) {
-                $user_avatar = uploaded_asset($user->avatar_original);
-            }
-        @endphp
-        <!-- Customer info -->
-        <div class="p-4 text-center mb-4 border-bottom position-relative">
-            <!-- Image -->
-            <span class="avatar avatar-md mb-3">
-                @if ($user->avatar_original != null)
-                    <img src="{{ $user_avatar }}"
-                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';">
-                @else
-                    <img src="{{ static_asset('assets/img/avatar-place.png') }}" class="image rounded-circle"
-                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';">
-                @endif
+{{-- ═══════════════════════════════════════════════════════════════════════════
+     BUYER DASHBOARD — PRO SIDEBAR NAVIGATION
+     Design system: Data-Dense Dashboard (ui-ux-pro-max)
+     Typography: Poppins 600/700 headings, Open Sans 400/600 body
+     Colors: #111827 nav bg, brand primary active state, #F9FAFB surface
+     ═══════════════════════════════════════════════════════════════════════════ --}}
+<aside class="bdash-sidebar" id="buyerSidebar" aria-label="{{ translate('Buyer account navigation') }}">
+
+    {{-- ─── User Profile Block ─────────────────────────────────────────────── --}}
+    @php
+        $sideUser   = auth()->user();
+        $sideAvatar = $sideUser && $sideUser->avatar_original
+                        ? uploaded_asset($sideUser->avatar_original)
+                        : static_asset('assets/img/avatar-place.png');
+
+        $delivery_viewed        = get_count_by_delivery_viewed();
+        $payment_status_viewed  = get_count_by_payment_status_viewed();
+        $order_badge            = ($delivery_viewed + $payment_status_viewed) > 0
+                                    ? ($delivery_viewed + $payment_status_viewed)
+                                    : 0;
+
+        $support_ticket_count = DB::table('tickets')
+            ->where('client_viewed', 0)
+            ->where('user_id', Auth::user()->id)
+            ->count();
+    @endphp
+
+    <div class="bdash-profile">
+        <span class="bdash-profile__avatar">
+            <img
+                src="{{ $sideAvatar }}"
+                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';"
+                alt="{{ translate('Profile picture') }}"
+            >
+        </span>
+        <div class="bdash-profile__info">
+            <span class="bdash-profile__name">{{ $sideUser->name }}</span>
+            <span class="bdash-profile__role">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="10" height="10" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M5 3.25a.75.75 0 0 1 1.5 0V4h3V3.25a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 14 6.75v6.5A2.75 2.75 0 0 1 11.25 16H4.75A2.75 2.75 0 0 1 2 13.25v-6.5A2.75 2.75 0 0 1 4.75 4H5V3.25Zm-1 4.5v-.25c0-.138.112-.25.25-.25h7.5c.138 0 .25.112.25.25v.25H4Z" clip-rule="evenodd"/>
+                </svg>
+                {{ translate('Buyer Account') }}
             </span>
-            <!-- Name -->
-            <h4 class="h5 fs-14 mb-1 fw-700 text-dark">{{ $user->name }}</h4>
-            <!-- Phone -->
-            @if ($user->phone != null)
-                <div class="text-truncate opacity-60 fs-12">{{ $user->phone }}</div>
-            <!-- Email -->
-            @else
-                <div class="text-truncate opacity-60 fs-12">{{ $user->email }}</div>
+        </div>
+        {{-- Mobile close --}}
+        <button
+            class="bdash-sidebar__close d-xl-none"
+            data-toggle="class-toggle"
+            data-target=".aiz-mobile-side-nav"
+            data-same=".mobile-side-nav-thumb"
+            aria-label="{{ translate('Close navigation') }}"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/>
+            </svg>
+        </button>
+    </div>
+
+    {{-- ─── Navigation ─────────────────────────────────────────────────────── --}}
+    <nav class="bdash-nav" data-toggle="aiz-side-menu">
+
+        {{-- ── Group: Shopping ─────────────────────────────────────────────── --}}
+        <div class="bdash-nav__group">
+            <span class="bdash-nav__label">{{ translate('Shopping') }}</span>
+
+            {{-- Dashboard --}}
+            <a href="{{ route('dashboard') }}"
+               class="bdash-nav__item {{ areActiveRoutes(['dashboard'], 'is-active') }}"
+               aria-current="{{ request()->routeIs('dashboard') ? 'page' : 'false' }}"
+            >
+                <span class="bdash-nav__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                        <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z" clip-rule="evenodd"/>
+                    </svg>
+                </span>
+                <span class="bdash-nav__text">{{ translate('Overview') }}</span>
+            </a>
+
+            {{-- Purchase History --}}
+            <a href="{{ route('purchase_history.index') }}"
+               class="bdash-nav__item {{ areActiveRoutes(['purchase_history.index', 'purchase_history.details'], 'is-active') }}"
+               aria-current="{{ request()->routeIs('purchase_history.index', 'purchase_history.details') ? 'page' : 'false' }}"
+            >
+                <span class="bdash-nav__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                        <path fill-rule="evenodd" d="M6 5v1H4.667a1.75 1.75 0 0 0-1.743 1.598l-.826 9.5A1.75 1.75 0 0 0 3.84 19H16.16a1.75 1.75 0 0 0 1.743-1.902l-.826-9.5A1.75 1.75 0 0 0 15.333 6H14V5a4 4 0 0 0-8 0Zm4-2.5A2.5 2.5 0 0 0 7.5 5v1h5V5A2.5 2.5 0 0 0 10 2.5ZM7.5 10a2.5 2.5 0 0 0 5 0V8.75a.75.75 0 0 1 1.5 0V10a4 4 0 0 1-8 0V8.75a.75.75 0 0 1 1.5 0V10Z" clip-rule="evenodd"/>
+                    </svg>
+                </span>
+                <span class="bdash-nav__text">{{ translate('Purchase History') }}</span>
+                @if ($order_badge > 0)
+                    <span class="bdash-nav__badge" aria-label="{{ $order_badge }} {{ translate('new updates') }}">{{ $order_badge }}</span>
+                @endif
+            </a>
+
+            {{-- Downloads --}}
+            <a href="{{ route('digital_purchase_history.index') }}"
+               class="bdash-nav__item {{ areActiveRoutes(['digital_purchase_history.index'], 'is-active') }}"
+            >
+                <span class="bdash-nav__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                        <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z"/>
+                        <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/>
+                    </svg>
+                </span>
+                <span class="bdash-nav__text">{{ translate('Downloads') }}</span>
+            </a>
+
+            {{-- Wishlist --}}
+            <a href="{{ route('wishlists.index') }}"
+               class="bdash-nav__item {{ areActiveRoutes(['wishlists.index'], 'is-active') }}"
+            >
+                <span class="bdash-nav__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                        <path d="m9.653 16.915-.005-.003-.019-.01a20.759 20.759 0 0 1-1.162-.682 22.045 22.045 0 0 1-2.582-2.09c-1.06-1.07-2.135-2.52-2.635-4.148-.504-1.643-.314-3.556 1.138-4.887C5.696 4.33 7.03 4 8.208 4c.93 0 1.82.276 2.588.79a5.27 5.27 0 0 1 2.592-.79c1.177 0 2.512.33 3.82 1.095 1.452 1.33 1.642 3.244 1.138 4.887-.5 1.627-1.575 3.079-2.635 4.148a22.048 22.048 0 0 1-2.582 2.09 20.764 20.764 0 0 1-1.181.692l-.005.003-.002.001a.752.752 0 0 1-.704 0l-.002-.001Z"/>
+                    </svg>
+                </span>
+                <span class="bdash-nav__text">{{ translate('Wishlist') }}</span>
+            </a>
+
+            {{-- Compare --}}
+            <a href="{{ route('compare') }}"
+               class="bdash-nav__item {{ areActiveRoutes(['compare'], 'is-active') }}"
+            >
+                <span class="bdash-nav__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                        <path fill-rule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clip-rule="evenodd"/>
+                    </svg>
+                </span>
+                <span class="bdash-nav__text">{{ translate('Compare') }}</span>
+            </a>
+
+            {{-- Preorder --}}
+            @if (addon_is_activated('preorder'))
+                <div class="bdash-nav__sub-wrap" data-sub-nav>
+                    <button class="bdash-nav__item bdash-nav__item--toggle" aria-expanded="false" aria-controls="sub-preorder">
+                        <span class="bdash-nav__icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z" clip-rule="evenodd"/>
+                            </svg>
+                        </span>
+                        <span class="bdash-nav__text">{{ translate('Preorder') }}</span>
+                        <span class="bdash-nav__arrow" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="12" height="12">
+                                <path fill-rule="evenodd" d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>
+                            </svg>
+                        </span>
+                    </button>
+                    <div class="bdash-nav__sub" id="sub-preorder">
+                        <a href="{{ route('preorder.order_list') }}" class="bdash-nav__sub-item {{ areActiveRoutes(['preorder.order_list'], 'is-active') }}">
+                            {{ translate('Preorder List') }}
+                        </a>
+                        @if (get_setting('conversation_system') == 1)
+                            @php $preorderConversation = get_non_viewed_preorder_conversations(); @endphp
+                            <a href="{{ route('preorder-conversations.customer-index') }}" class="bdash-nav__sub-item {{ areActiveRoutes(['preorder-conversations.customer-show'], 'is-active') }}">
+                                {{ translate('Preorder Conversations') }}
+                                @if ($preorderConversation > 0)
+                                    <span class="bdash-nav__badge">{{ $preorderConversation }}</span>
+                                @endif
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            {{-- Auction --}}
+            @if (addon_is_activated('auction'))
+                <div class="bdash-nav__sub-wrap" data-sub-nav>
+                    <button class="bdash-nav__item bdash-nav__item--toggle" aria-expanded="false" aria-controls="sub-auction">
+                        <span class="bdash-nav__icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                                <path fill-rule="evenodd" d="M9.664 1.319a.75.75 0 0 1 .672 0 41.059 41.059 0 0 1 8.198 5.424.75.75 0 0 1-.254 1.285 31.372 31.372 0 0 0-7.86 3.83.75.75 0 0 1-.84 0 31.508 31.508 0 0 0-2.08-1.287V9.394c0-.244.116-.463.302-.592a35.504 35.504 0 0 1 3.305-2.033.75.75 0 0 0-.714-1.319 37 37 0 0 0-3.446 2.12A2.216 2.216 0 0 0 6 9.393v.38a31.293 31.293 0 0 0-4.28-1.746.75.75 0 0 1-.254-1.285 41.059 41.059 0 0 1 8.198-5.424ZM6 11.459a29.848 29.848 0 0 0-2.455-1.158 41.029 41.029 0 0 0-.39 3.114.75.75 0 0 0 .419.74c.528.256 1.046.53 1.554.82-.21.324-.455.63-.739.914a.75.75 0 1 0 1.06 1.06c.37-.369.69-.77.96-1.193a26.61 26.61 0 0 1 3.095 2.348.75.75 0 0 0 .992 0 26.547 26.547 0 0 1 5.93-3.95.75.75 0 0 0 .42-.739 41.053 41.053 0 0 0-.39-3.114 29.925 29.925 0 0 0-5.199 2.801 2.25 2.25 0 0 1-2.514 0c-.41-.275-.826-.541-1.247-.797Z" clip-rule="evenodd"/>
+                                <path fill-rule="evenodd" d="M5.453 16.91a.75.75 0 0 0 .818-1.26c-.08-.052-.16-.105-.24-.157a26.585 26.585 0 0 1-.818 1.417Z" clip-rule="evenodd"/>
+                            </svg>
+                        </span>
+                        <span class="bdash-nav__text">{{ translate('Auction') }}</span>
+                        <span class="bdash-nav__arrow" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="12" height="12">
+                                <path fill-rule="evenodd" d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>
+                            </svg>
+                        </span>
+                    </button>
+                    <div class="bdash-nav__sub" id="sub-auction">
+                        <a href="{{ route('auction_product_bids.index') }}" class="bdash-nav__sub-item">{{ translate('Bidded Products') }}</a>
+                        <a href="{{ route('auction_product.purchase_history') }}" class="bdash-nav__sub-item">{{ translate('Purchase History') }}</a>
+                    </div>
+                </div>
             @endif
         </div>
 
-        <!-- Menus -->
-        <div class="sidemnenu">
-            <ul class="aiz-side-nav-list mb-3 pb-3 border-bottom" data-toggle="aiz-side-menu">
+        {{-- ── Group: Finance ───────────────────────────────────────────────── --}}
+        <div class="bdash-nav__group">
+            <span class="bdash-nav__label">{{ translate('Finance') }}</span>
 
-                <!-- Dashboard -->
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('dashboard') }}" class="aiz-side-nav-link {{ areActiveRoutes(['dashboard']) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                            <g id="Group_24768" data-name="Group 24768" transform="translate(3495.144 -602)">
-                              <path id="Path_2916" data-name="Path 2916" d="M15.3,5.4,9.561.481A2,2,0,0,0,8.26,0H7.74a2,2,0,0,0-1.3.481L.7,5.4A2,2,0,0,0,0,6.92V14a2,2,0,0,0,2,2H14a2,2,0,0,0,2-2V6.92A2,2,0,0,0,15.3,5.4M10,15H6V9A1,1,0,0,1,7,8H9a1,1,0,0,1,1,1Zm5-1a1,1,0,0,1-1,1H11V9A2,2,0,0,0,9,7H7A2,2,0,0,0,5,9v6H2a1,1,0,0,1-1-1V6.92a1,1,0,0,1,.349-.76l5.74-4.92A1,1,0,0,1,7.74,1h.52a1,1,0,0,1,.651.24l5.74,4.92A1,1,0,0,1,15,6.92Z" transform="translate(-3495.144 602)" fill="#b5b5bf"/>
-                            </g>
+            @if (get_setting('wallet_system') == 1)
+                <a href="{{ route('wallet.index') }}"
+                   class="bdash-nav__item {{ areActiveRoutes(['wallet.index'], 'is-active') }}"
+                >
+                    <span class="bdash-nav__icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                            <path d="M1 4.25a3.733 3.733 0 0 1 2.25-.75h13.5c.844 0 1.623.279 2.25.75A2.25 2.25 0 0 0 16.75 2H3.25A2.25 2.25 0 0 0 1 4.25ZM1 7.25a3.733 3.733 0 0 1 2.25-.75h13.5c.844 0 1.623.279 2.25.75A2.25 2.25 0 0 0 16.75 5H3.25A2.25 2.25 0 0 0 1 7.25ZM7 8a1 1 0 0 0-1 1 8 8 0 0 0 8 8 1 1 0 0 0 0-2 6 6 0 0 1-6-6 1 1 0 0 0-1-1Zm4 0a1 1 0 0 0 0 2 4 4 0 0 1 4 4 1 1 0 0 0 2 0 6 6 0 0 0-6-6Z"/>
                         </svg>
-                        <span class="aiz-side-nav-text ml-3">{{ translate('Dashboard') }}</span>
-                    </a>
-                </li>
+                    </span>
+                    <span class="bdash-nav__text">{{ translate('My Wallet') }}</span>
+                </a>
+            @endif
 
-                @php
-                    $delivery_viewed = get_count_by_delivery_viewed();
-                    $payment_status_viewed = get_count_by_payment_status_viewed();
-                @endphp
+            <a href="{{ route('payment_tokens.index') }}"
+               class="bdash-nav__item {{ areActiveRoutes(['payment_tokens.index'], 'is-active') }}"
+            >
+                <span class="bdash-nav__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                        <path fill-rule="evenodd" d="M2.5 4A1.5 1.5 0 0 0 1 5.5V6h18v-.5A1.5 1.5 0 0 0 17.5 4h-15ZM19 8.5H1v6A1.5 1.5 0 0 0 2.5 16h15a1.5 1.5 0 0 0 1.5-1.5v-6ZM3 13.25a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm4.75-.75a.75.75 0 0 0 0 1.5h3.5a.75.75 0 0 0 0-1.5h-3.5Z" clip-rule="evenodd"/>
+                    </svg>
+                </span>
+                <span class="bdash-nav__text">{{ translate('Saved Cards') }}</span>
+            </a>
 
-                <!-- Purchase History -->
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('purchase_history.index') }}"
-                        class="aiz-side-nav-link {{ areActiveRoutes(['purchase_history.index', 'purchase_history.details']) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                            <g id="Group_8109" data-name="Group 8109" transform="translate(-27.466 -542.963)">
-                                <path id="Path_2953" data-name="Path 2953" d="M14.5,5.963h-4a1.5,1.5,0,0,0,0,3h4a1.5,1.5,0,0,0,0-3m0,2h-4a.5.5,0,0,1,0-1h4a.5.5,0,0,1,0,1" transform="translate(22.966 537)" fill="#b5b5bf"/>
-                                <path id="Path_2954" data-name="Path 2954" d="M12.991,8.963a.5.5,0,0,1,0-1H13.5a2.5,2.5,0,0,1,2.5,2.5v10a2.5,2.5,0,0,1-2.5,2.5H2.5a2.5,2.5,0,0,1-2.5-2.5v-10a2.5,2.5,0,0,1,2.5-2.5h.509a.5.5,0,0,1,0,1H2.5a1.5,1.5,0,0,0-1.5,1.5v10a1.5,1.5,0,0,0,1.5,1.5h11a1.5,1.5,0,0,0,1.5-1.5v-10a1.5,1.5,0,0,0-1.5-1.5Z" transform="translate(27.466 536)" fill="#b5b5bf"/>
-                                <path id="Path_2955" data-name="Path 2955" d="M7.5,15.963h1a.5.5,0,0,1,.5.5v1a.5.5,0,0,1-.5.5h-1a.5.5,0,0,1-.5-.5v-1a.5.5,0,0,1,.5-.5" transform="translate(23.966 532)" fill="#b5b5bf"/>
-                                <path id="Path_2956" data-name="Path 2956" d="M7.5,21.963h1a.5.5,0,0,1,.5.5v1a.5.5,0,0,1-.5.5h-1a.5.5,0,0,1-.5-.5v-1a.5.5,0,0,1,.5-.5" transform="translate(23.966 529)" fill="#b5b5bf"/>
-                                <path id="Path_2957" data-name="Path 2957" d="M7.5,27.963h1a.5.5,0,0,1,.5.5v1a.5.5,0,0,1-.5.5h-1a.5.5,0,0,1-.5-.5v-1a.5.5,0,0,1,.5-.5" transform="translate(23.966 526)" fill="#b5b5bf"/>
-                                <path id="Path_2958" data-name="Path 2958" d="M13.5,16.963h5a.5.5,0,0,1,0,1h-5a.5.5,0,0,1,0-1" transform="translate(20.966 531.5)" fill="#b5b5bf"/>
-                                <path id="Path_2959" data-name="Path 2959" d="M13.5,22.963h5a.5.5,0,0,1,0,1h-5a.5.5,0,0,1,0-1" transform="translate(20.966 528.5)" fill="#b5b5bf"/>
-                                <path id="Path_2960" data-name="Path 2960" d="M13.5,28.963h5a.5.5,0,0,1,0,1h-5a.5.5,0,0,1,0-1" transform="translate(20.966 525.5)" fill="#b5b5bf"/>
-                            </g>
+            @if (addon_is_activated('refund_request'))
+                <a href="{{ route('customer_refund_request') }}"
+                   class="bdash-nav__item {{ areActiveRoutes(['customer_refund_request'], 'is-active') }}"
+                >
+                    <span class="bdash-nav__icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                            <path fill-rule="evenodd" d="M2.293 7.293a1 1 0 0 1 1.414 0L5 8.586l1.293-1.293a1 1 0 1 1 1.414 1.414L6.414 10l1.293 1.293a1 1 0 0 1-1.414 1.414L5 11.414l-1.293 1.293a1 1 0 0 1-1.414-1.414L3.586 10 2.293 8.707a1 1 0 0 1 0-1.414ZM9.5 5.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5Zm0 9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5ZM9 10a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8A.5.5 0 0 1 9 10Z" clip-rule="evenodd"/>
                         </svg>
-                        <span class="aiz-side-nav-text ml-3">{{ translate('Purchase History') }}</span>
-                        @if ($delivery_viewed > 0 || $payment_status_viewed > 0)
-                            <span class="badge badge-inline badge-success">{{ translate('New') }}</span>
-                        @endif
-                    </a>
-                </li>
-
-                <!-- Preorder -->
-                @if (addon_is_activated('preorder'))
-                    <li class="aiz-side-nav-item">
-                        <a href="javascript:void(0);" class="aiz-side-nav-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16.002" viewBox="0 0 16 16.002">
-                                <path id="Union_63" data-name="Union 63" d="M14072,894a8,8,0,1,1,8,8A8.011,8.011,0,0,1,14072,894Zm1,0a7,7,0,1,0,7-7A7.007,7.007,0,0,0,14073,894Zm10.652,3.674-3.2-2.781a1,1,0,0,1-.953-1.756V889.5a.5.5,0,1,1,1,0v3.634a1,1,0,0,1,.5.863c0,.015,0,.029,0,.044l3.311,2.876a.5.5,0,0,1,.05.7.5.5,0,0,1-.708.049Z" transform="translate(-14072 -885.998)" fill="#b5b5bf"/>
-                            </svg>
-                            <span class="aiz-side-nav-text ml-3">{{ translate('Preorder') }}</span>
-                            <span class="aiz-side-nav-arrow"></span>
-                        </a>
-                        <ul class="aiz-side-nav-list level-2">
-                            <li class="aiz-side-nav-item">
-                                <a href="{{ route('preorder.order_list') }}" class="aiz-side-nav-link {{ areActiveRoutes(['preorder.order_list', 'purchase_history.details']) }}">
-                                    <span class="aiz-side-nav-text">{{ translate('Preorder List') }}</span>
-                                </a>
-                            </li>
-                            @if (get_setting('conversation_system') == 1) 
-                                @php
-                                    $preorderConversation = get_non_viewed_preorder_conversations();
-                                @endphp    
-                                <li class="aiz-side-nav-item">
-                                    <a href="{{ route('preorder-conversations.customer-index') }}"
-                                        class="aiz-side-nav-link {{ areActiveRoutes(['preorder-conversations.customer-show']) }}">
-                                        <span class="aiz-side-nav-text">{{ translate('Preorder Conversations') }}</span>
-                                        @if ($preorderConversation > 0)
-                                            <span class="badge badge-danger">({{ $preorderConversation }})</span>
-                                        @endif
-                                    </a>
-                                </li>
-                            @endif
-                        </ul>
-                    </li>
-                @endif
-
-                <!-- Downloads -->
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('digital_purchase_history.index') }}"
-                        class="aiz-side-nav-link {{ areActiveRoutes(['digital_purchase_history.index']) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16.001" height="16" viewBox="0 0 16.001 16">
-                            <g id="Group_8110" data-name="Group 8110" transform="translate(-1388.154 -562.604)">
-                                <path id="Path_2963" data-name="Path 2963" d="M77.864,98.69V92.1a.5.5,0,1,0-1,0V98.69l-1.437-1.437a.5.5,0,0,0-.707.707l1.851,1.852a1,1,0,0,0,.707.293h.172a1,1,0,0,0,.707-.293l1.851-1.852a.5.5,0,0,0-.7-.713Z" transform="translate(1318.79 478.5)" fill="#b5b5bf"/>
-                                <path id="Path_2964" data-name="Path 2964" d="M67.155,88.6a3,3,0,0,1-.474-5.963q-.009-.089-.015-.179a5.5,5.5,0,0,1,10.977-.718,3.5,3.5,0,0,1-.989,6.859h-1.5a.5.5,0,0,1,0-1l1.5,0a2.5,2.5,0,0,0,.417-4.967.5.5,0,0,1-.417-.5,4.5,4.5,0,1,0-8.908.866.512.512,0,0,1,.009.121.5.5,0,0,1-.52.479,2,2,0,1,0-.162,4l.081,0h2a.5.5,0,0,1,0,1Z" transform="translate(1324 486)" fill="#b5b5bf"/>
-                            </g>
-                        </svg>
-                        <span class="aiz-side-nav-text ml-3">{{ translate('Downloads') }}</span>
-                    </a>
-                </li>
-
-                <!-- Refund Requests -->
-                @if (addon_is_activated('refund_request'))
-                    <li class="aiz-side-nav-item">
-                        <a href="{{ route('customer_refund_request') }}"
-                            class="aiz-side-nav-link {{ areActiveRoutes(['customer_refund_request']) }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                                <g id="Group_8107" data-name="Group 8107" transform="translate(-134.153 -539.823)">
-                                    <path id="Path_2951" data-name="Path 2951" d="M119.549,4.47h2.033a.5.5,0,0,0,0-1h-3.24a.5.5,0,0,0-.5.5v3.24a.5.5,0,0,0,1,0V5.189a7,7,0,1,1-4.155-1.366.5.5,0,0,0,0-1,8,8,0,1,0,4.862,1.647" transform="translate(27.466 537)" fill="#b5b5bf"/>
-                                    <path id="Path_2952" data-name="Path 2952" d="M120.688,9.323v-1a.5.5,0,0,0-1,0v1a2,2,0,0,0-2,2v.5a2,2,0,0,0,2,2h1a1,1,0,0,1,1,1v.5a1,1,0,0,1-1,1h-1a1,1,0,0,1-1-1,.5.5,0,1,0-1,0,2,2,0,0,0,2,2v1a.5.5,0,0,0,1,0v-1a2,2,0,0,0,2-2v-.5a2,2,0,0,0-2-2h-1a1,1,0,0,1-1-1v-.5a1,1,0,0,1,1-1h1a1,1,0,0,1,1,1,.5.5,0,0,0,1,0,2,2,0,0,0-2-2" transform="translate(21.965 534.5)" fill="#b5b5bf"/>
-                                </g>
-                            </svg>
-                            <span class="aiz-side-nav-text ml-3">{{ translate('Refund Requests') }}</span>
-                        </a>
-                    </li>
-                @endif
-
-                <!-- Wishlist -->
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('wishlists.index') }}"
-                        class="aiz-side-nav-link {{ areActiveRoutes(['wishlists.index']) }}">
-                        <svg id="Group_8116" data-name="Group 8116" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="14" viewBox="0 0 16 14">
-                            <defs>
-                                <clipPath id="clip-path">
-                                <rect id="Rectangle_1391" data-name="Rectangle 1391" width="16" height="14" fill="#b5b5bf"/>
-                                </clipPath>
-                            </defs>
-                            <g id="Group_8115" data-name="Group 8115" clip-path="url(#clip-path)">
-                                <path id="Path_2981" data-name="Path 2981" d="M14.682,1.318a4.5,4.5,0,0,0-6.364,0L8,1.636l-.318-.318A4.5,4.5,0,0,0,1.318,7.682l6.046,6.054a.9.9,0,0,0,1.273,0l6.045-6.054a4.5,4.5,0,0,0,0-6.364m-.707,5.657L8,12.959,2.025,6.975a3.5,3.5,0,0,1,4.95-4.95l.389.389a.9.9,0,0,0,1.273,0l.388-.389a3.5,3.5,0,0,1,4.95,4.95" transform="translate(0 0)" fill="#b5b5bf"/>
-                            </g>
-                        </svg>
-                        <span class="aiz-side-nav-text ml-3">{{ translate('Wishlist') }}</span>
-                    </a>
-                </li>
-
-                <!-- Compare -->
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('compare') }}" class="aiz-side-nav-link {{ areActiveRoutes(['compare']) }}">
-                        <svg id="Group_22071" data-name="Group 22071" xmlns="http://www.w3.org/2000/svg" width="14.6" height="16" viewBox="0 0 14.6 16">
-                            <g id="LWPOLYLINE" transform="translate(0.158)">
-                                <path id="Path_25677" data-name="Path 25677" d="M304.755,426.408v-2.032a.5.5,0,1,1,.993,0v3.239a.5.5,0,0,1-.5.5h-3.216a.5.5,0,0,1,0-1h2.006a6.924,6.924,0,0,0-11.8,1,.5.5,0,0,1-.666.221.5.5,0,0,1-.219-.672,7.913,7.913,0,0,1,13.4-1.256Z" transform="translate(-291.306 -423.268)" fill="#b5b5bf"/>
-                            </g>
-                            <g id="LWPOLYLINE-2" data-name="LWPOLYLINE" transform="translate(0 10.879)">
-                                <path id="Path_25678" data-name="Path 25678" d="M292.141,414.371V416.4a.5.5,0,1,1-.993,0v-3.238a.5.5,0,0,1,.5-.5h3.216a.5.5,0,0,1,0,1h-2.006a6.924,6.924,0,0,0,11.8-1,.493.493,0,0,1,.666-.221.5.5,0,0,1,.219.671,7.913,7.913,0,0,1-13.4,1.256Z" transform="translate(-291.148 -412.39)" fill="#b5b5bf"/>
-                            </g>
-                        </svg>
-                        <span class="aiz-side-nav-text ml-3">{{ translate('Compare') }}</span>
-                    </a>
-                </li>
-
-                @if (get_setting('vendor_system_activation') == 1)
-                <!-- Followed Sellers -->
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('followed_seller') }}" class="aiz-side-nav-link {{ areActiveRoutes(['followed_seller']) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                            <g id="Group_8114" data-name="Group 8114" transform="translate(-1501.679 -486)">
-                                <path id="Path_2977" data-name="Path 2977" d="M193.408,3.756,192.05.862A1.5,1.5,0,0,0,190.692,0H180.666a1.5,1.5,0,0,0-1.357.862L177.95,3.756l.029-.062A3,3,0,0,0,179.373,7.7a3.091,3.091,0,0,0,.306.128V16h12V9.5a.5.5,0,0,0-1,0V15h-3V10.5a.5.5,0,0,0-.5-.5h-3a.5.5,0,0,0-.5.5V15h-3V8a3,3,0,0,0,2.5-1.342,3,3,0,0,0,5,0,3,3,0,0,0,5.229-2.9M184.679,11h2v4h-2Zm6.4-4.041A2,2,0,0,1,188.719,5.4a.5.5,0,0,0-.49-.4h-.1a.5.5,0,0,0-.49.4,2,2,0,0,1-3.919,0,.5.5,0,0,0-.49-.4h-.1a.5.5,0,0,0-.49.4,2,2,0,1,1-3.781-1.225l1.357-2.888A.5.5,0,0,1,180.666,1h10.025a.5.5,0,0,1,.452.288L192.5,4.175a2,2,0,0,1-1.422,2.784" transform="translate(1324 486)" fill="#b5b5bf"/>
-                            </g>
-                        </svg>
-                        <span class="aiz-side-nav-text ml-3">{{ translate('Followed Sellers') }}</span>
-                    </a>
-                </li>
-                @endif
-
-                <!-- Saved Cards (Payment Vault) -->
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('payment.tokens') }}"
-                        class="aiz-side-nav-link {{ areActiveRoutes(['payment.tokens']) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                            <g fill="#b5b5bf">
-                                <path d="M14,2H2A2,2,0,0,0,0,4v8a2,2,0,0,0,2,2H14a2,2,0,0,0,2-2V4A2,2,0,0,0,14,2M1,6H15v2H1ZM2,3H14a1,1,0,0,1,1,1V5H1V4A1,1,0,0,1,2,3m12,10H2a1,1,0,0,1-1-1V9H15v3A1,1,0,0,1,14,13"/>
-                                <rect x="2" y="10" width="4" height="1" rx="0.5"/>
-                            </g>
-                        </svg>
-                        <span class="aiz-side-nav-text ml-3">{{ translate('Saved Cards') }}</span>
-                    </a>
-                </li>
-
-                <!-- Classified Products -->
-                {{-- 
-                @if (get_setting('classified_product') == 1)
-                    <li class="aiz-side-nav-item">
-                        <a href="{{ route('customer_products.index') }}"
-                            class="aiz-side-nav-link {{ areActiveRoutes(['customer_products.index', 'customer_products.create', 'customer_products.edit']) }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16.002" height="16.001" viewBox="0 0 16.002 16.001">
-                                <g id="Group_24750" data-name="Group 24750" transform="translate(-242.999 -1172.998)">
-                                    <g id="Group_24748" data-name="Group 24748" transform="translate(85 -22)">
-                                    <path id="Subtraction_183" data-name="Subtraction 183" d="M16260.5,1270h-5a1.5,1.5,0,0,1,0-3h5a1.5,1.5,0,1,1,0,3Zm-5-2a.5.5,0,0,0,0,1h5a.5.5,0,1,0,0-1Z" transform="translate(-16096 -67)" fill="#b5b5bf"/>
-                                    <path id="Subtraction_180" data-name="Subtraction 180" d="M16256,1271a2,2,0,1,1,2-2A2,2,0,0,1,16256,1271Zm0-3a1,1,0,1,0,1,1A1,1,0,0,0,16256,1268Z" transform="translate(-16094 -72)" fill="#b5b5bf"/>
-                                    </g>
-                                    <g id="Group_24749" data-name="Group 24749" transform="translate(93 -14)">
-                                    <path id="Subtraction_182" data-name="Subtraction 182" d="M16252.5,1262h-5a1.5,1.5,0,1,1,0-3h5a1.5,1.5,0,1,1,0,3Zm-5-2a.5.5,0,0,0,0,1h5a.5.5,0,0,0,0-1Z" transform="translate(-16088 -59)" fill="#b5b5bf"/>
-                                    <path id="Subtraction_181" data-name="Subtraction 181" d="M16248,1263a2,2,0,1,1,2-2A2,2,0,0,1,16248,1263Zm0-3a1,1,0,1,0,1,1A1,1,0,0,0,16248,1260Z" transform="translate(-16086 -64)" fill="#b5b5bf"/>
-                                    </g>
-                                    <path id="Subtraction_174" data-name="Subtraction 174" d="M16418,892h-1v-1a4,4,0,0,0-4-4h-1v-1h1a5.006,5.006,0,0,1,5,5v1Z" transform="translate(-16159 287)" fill="#b5b5bf"/>
-                                    <path id="Subtraction_176" data-name="Subtraction 176" d="M6,6H5V5A4,4,0,0,0,1,1H0V0H1A5.005,5.005,0,0,1,6,5V6Z" transform="translate(249 1188.963) rotate(180)" fill="#b5b5bf"/>
-                                </g>
-                            </svg>
-                            <span class="aiz-side-nav-text ml-3">{{ translate('Classified Products') }}</span>
-                        </a>
-                    </li>
-                @endif 
-                --}}
-
-                <!-- Auction -->
-                @if (addon_is_activated('auction'))
-                    <li class="aiz-side-nav-item">
-                        <a href="javascript:void(0);" class="aiz-side-nav-link">
-                            <svg id="Group_8142" data-name="Group 8142" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16">
-                                <defs>
-                                    <clipPath id="clip-path">
-                                    <rect id="Rectangle_1420" data-name="Rectangle 1420" width="16" height="16" fill="#b5b5bf"/>
-                                    </clipPath>
-                                </defs>
-                                <g id="Group_8141" data-name="Group 8141" clip-path="url(#clip-path)">
-                                    <path id="Path_3023" data-name="Path 3023" d="M5.3,13.642,11.217,5.2,9.58,4.059a.5.5,0,0,1-.819-.573L11.055.213a.5.5,0,0,1,.819.573L17.607,4.8a.5.5,0,0,1,.819.573L16.131,8.643a.5.5,0,0,1-.819-.573L13.675,6.924,7.762,15.361A1.5,1.5,0,0,1,5.3,13.642M15.886,7.251l1.147-1.637L11.3,1.6,10.153,3.241ZM6.246,14.91a.5.5,0,0,0,.7-.122l5.913-8.437-.819-.573L6.123,14.215a.5.5,0,0,0,.123.7" transform="translate(-5.033 0)" fill="#b5b5bf"/>
-                                    <path id="Path_3024" data-name="Path 3024" d="M3,30.472a.5.5,0,0,0,.5.5h7a.5.5,0,1,0,0-1h-7a.5.5,0,0,0-.5.5" transform="translate(3.5 -14.986)" fill="#b5b5bf"/>
-                                    <path id="Path_3025" data-name="Path 3025" d="M6.5,24.976h4a.5.5,0,0,1,.5.5v2H10v-1.5H7v1.5H6v-2a.5.5,0,0,1,.5-.5" transform="translate(2 -12.488)" fill="#b5b5bf"/>
-                                    <path id="Path_3026" data-name="Path 3026" d="M0,24.478H0a.5.5,0,0,0,.5.5h1a.5.5,0,1,0,0-1H.5a.5.5,0,0,0-.5.5" transform="translate(14 -11.989)" fill="#b5b5bf"/>
-                                    <path id="Path_3027" data-name="Path 3027" d="M4.439,19.007a.5.5,0,0,0-.707,0l-.707.706a.5.5,0,0,0,.707.706l.707-.706a.5.5,0,0,0,0-.706" transform="translate(9.975 -9.431)" fill="#b5b5bf"/>
-                                </g>
-                            </svg>
-                            <span class="aiz-side-nav-text ml-3">{{ translate('Auction') }}</span>
-                            <span class="aiz-side-nav-arrow"></span>
-                        </a>
-                        <ul class="aiz-side-nav-list level-2">
-                            <li class="aiz-side-nav-item">
-                                <a href="{{ route('auction_product_bids.index') }}" class="aiz-side-nav-link">
-                                    <span class="aiz-side-nav-text">{{ translate('Bidded Products') }}</span>
-                                </a>
-                            </li>
-                            <li class="aiz-side-nav-item">
-                                <a href="{{ route('auction_product.purchase_history') }}"
-                                    class="aiz-side-nav-link">
-                                    <span class="aiz-side-nav-text">{{ translate('Purchase History') }}</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                @endif
-
-                <!-- Conversations -->
-                @if (get_setting('conversation_system') == 1)
-                    @php
-                        $conversation = get_non_viewed_conversations();
-                    @endphp
-                    <li class="aiz-side-nav-item">
-                        <a href="{{ route('conversations.index') }}"
-                            class="aiz-side-nav-link {{ areActiveRoutes(['conversations.index', 'conversations.show']) }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                                <g id="Group_8134" data-name="Group 8134" transform="translate(1053.151 256.688)">
-                                    <path id="Path_3012" data-name="Path 3012" d="M134.849,88.312h-8a2,2,0,0,0-2,2v5a2,2,0,0,0,2,2v3l2.4-3h5.6a2,2,0,0,0,2-2v-5a2,2,0,0,0-2-2m1,7a1,1,0,0,1-1,1h-8a1,1,0,0,1-1-1v-5a1,1,0,0,1,1-1h8a1,1,0,0,1,1,1Z" transform="translate(-1178 -341)" fill="#b5b5bf"/>
-                                    <path id="Path_3013" data-name="Path 3013" d="M134.849,81.312h8a1,1,0,0,1,1,1v5a1,1,0,0,1-1,1h-.5a.5.5,0,0,0,0,1h.5a2,2,0,0,0,2-2v-5a2,2,0,0,0-2-2h-8a2,2,0,0,0-2,2v.5a.5.5,0,0,0,1,0v-.5a1,1,0,0,1,1-1" transform="translate(-1182 -337)" fill="#b5b5bf"/>
-                                    <path id="Path_3014" data-name="Path 3014" d="M131.349,93.312h5a.5.5,0,0,1,0,1h-5a.5.5,0,0,1,0-1" transform="translate(-1181 -343.5)" fill="#b5b5bf"/>
-                                    <path id="Path_3015" data-name="Path 3015" d="M131.349,99.312h5a.5.5,0,1,1,0,1h-5a.5.5,0,1,1,0-1" transform="translate(-1181 -346.5)" fill="#b5b5bf"/>
-                                </g>
-                            </svg>
-                            <span class="aiz-side-nav-text ml-3">{{ translate('Conversations') }}</span>
-                            @if (count($conversation) > 0)
-                                <span class="badge badge-success">({{ count($conversation) }})</span>
-                            @endif
-                        </a>
-                    </li>
-                @endif
-
-                <!-- My Wallet -->
-                @if (get_setting('wallet_system') == 1)
-                    <li class="aiz-side-nav-item">
-                        <a href="{{ route('wallet.index') }}"
-                            class="aiz-side-nav-link {{ areActiveRoutes(['wallet.index']) }}">
-                            <svg id="Group_8103" data-name="Group 8103" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16">
-                                <defs>
-                                    <clipPath id="clip-path">
-                                    <rect id="Rectangle_1386" data-name="Rectangle 1386" width="16" height="16" fill="#b5b5bf"/>
-                                    </clipPath>
-                                </defs>
-                                <g id="Group_8102" data-name="Group 8102" clip-path="url(#clip-path)">
-                                    <path id="Path_2936" data-name="Path 2936" d="M13.5,4H13V2.5A2.5,2.5,0,0,0,10.5,0h-8A2.5,2.5,0,0,0,0,2.5v11A2.5,2.5,0,0,0,2.5,16h11A2.5,2.5,0,0,0,16,13.5v-7A2.5,2.5,0,0,0,13.5,4M2.5,1h8A1.5,1.5,0,0,1,12,2.5V4H2.5a1.5,1.5,0,0,1,0-3M15,11H10a1,1,0,0,1,0-2h5Zm0-3H10a2,2,0,0,0,0,4h5v1.5A1.5,1.5,0,0,1,13.5,15H2.5A1.5,1.5,0,0,1,1,13.5v-9A2.5,2.5,0,0,0,2.5,5h11A1.5,1.5,0,0,1,15,6.5Z" fill="#b5b5bf"/>
-                                </g>
-                            </svg>
-                            <span class="aiz-side-nav-text ml-3">{{ translate('My Wallet') }}</span>
-                        </a>
-                    </li>
-                @endif
-
-
-
-                <!-- Phase 4: Loyalty Lounge -->
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('loyalty.hub') }}"
-                        class="aiz-side-nav-link {{ areActiveRoutes(['loyalty.hub']) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                            <g fill="#b5b5bf">
-                                <path d="M8,0 L10.5,5.5 L16,6.5 L12,10.5 L13,16 L8,13 L3,16 L4,10.5 L0,6.5 L5.5,5.5 Z M8,2.5 L6.2,6.2 L2.2,6.9 L5.1,9.8 L4.4,13.8 L8,11.8 L11.6,13.8 L10.9,9.8 L13.8,6.9 L9.8,6.2 Z"/>
-                            </g>
-                        </svg>
-                        <span class="aiz-side-nav-text ml-3">{{ translate('Loyalty Lounge') }}</span>
-                    </a>
-                </li>
-
-                <!-- Affiliate -->
-                @if (addon_is_activated('affiliate_system'))
-                    <li class="aiz-side-nav-item">
-                        <a href="javascript:void(0);"
-                            class="aiz-side-nav-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="19.998" height="19.998" viewBox="0 0 19.998 19.998">
-                                <g id="Group_25000" data-name="Group 25000" transform="translate(-298 -935.05)">
-                                    <path id="Union_13" data-name="Union 13" d="M8.931,6.946h.993a.5.5,0,1,1-.993,0ZM0,6.946V4.962a4.962,4.962,0,0,1,9.923,0V6.945H8.932V4.962a3.969,3.969,0,0,0-7.939,0V6.946h0a.5.5,0,1,1-.993,0Z" transform="translate(310.981 935.05) rotate(45)" fill="#b5b5bf"/>
-                                    <path id="Union_14" data-name="Union 14" d="M0,2.48V.5A.5.5,0,0,1,.993.5h0V2.48a3.969,3.969,0,1,0,7.939,0V.5h.992V2.48A4.962,4.962,0,0,1,0,2.48ZM8.931.5a.5.5,0,0,1,.993,0Z" transform="translate(303.263 942.769) rotate(45)" fill="#b5b5bf"/>
-                                    <rect id="Rectangle_18625" data-name="Rectangle 18625" width="0.992" height="7.939" rx="0.496" transform="translate(309.93 942.417) rotate(45)" fill="#b5b5bf"/>
-                                </g>
-                            </svg>
-                            <span class="aiz-side-nav-text ml-3">{{ translate('Affiliate') }}</span>
-                            <span class="aiz-side-nav-arrow"></span>
-                        </a>
-                        <ul class="aiz-side-nav-list level-2">
-                            <li class="aiz-side-nav-item">
-                                <a href="{{ route('affiliate.user.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['affiliate.user.index','affiliate.payment_settings']) }}">
-                                    <span class="aiz-side-nav-text">{{ translate('Affiliate System') }}</span>
-                                </a>
-                            </li>
-                            <li class="aiz-side-nav-item">
-                                <a href="{{ route('affiliate.user.payment_history') }}"
-                                    class="aiz-side-nav-link">
-                                    <span class="aiz-side-nav-text">{{ translate('Payment History') }}</span>
-                                </a>
-                            </li>
-                            <li class="aiz-side-nav-item">
-                                <a href="{{ route('affiliate.user.withdraw_request_history') }}"
-                                    class="aiz-side-nav-link">
-                                    <span
-                                        class="aiz-side-nav-text">{{ translate('Withdraw request history') }}</span>
-                                </a>
-                            </li>
-
-                        </ul>
-                    </li>
-                @endif
-
-                @php
-                    $support_ticket = DB::table('tickets')
-                        ->where('client_viewed', 0)
-                        ->where('user_id', Auth::user()->id)
-                        ->count();
-                @endphp
-
-                <!-- Support Ticket -->
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('support_ticket.index') }}"
-                        class="aiz-side-nav-link {{ areActiveRoutes(['support_ticket.index', 'support_ticket.show']) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16.001" viewBox="0 0 16 16.001">
-                            <g id="Group_24764" data-name="Group 24764" transform="translate(-316 -1066)">
-                                <path id="Subtraction_184" data-name="Subtraction 184" d="M16427.109,902H16420a8.015,8.015,0,1,1,8-8,8.278,8.278,0,0,1-1.422,4.535l1.244,2.132a.81.81,0,0,1,0,.891A.791.791,0,0,1,16427.109,902ZM16420,887a7,7,0,1,0,0,14h6.283c.275,0,.414,0,.549-.111s-.209-.574-.34-.748l0,0-.018-.022-1.064-1.6A6.829,6.829,0,0,0,16427,894a6.964,6.964,0,0,0-7-7Z" transform="translate(-16096 180)" fill="#b5b5bf"/>
-                                <path id="Union_12" data-name="Union 12" d="M16414,895a1,1,0,1,1,1,1A1,1,0,0,1,16414,895Zm.5-2.5V891h.5a2,2,0,1,0-2-2h-1a3,3,0,1,1,3.5,2.958v.54a.5.5,0,1,1-1,0Zm-2.5-3.5h1a.5.5,0,1,1-1,0Z" transform="translate(-16090.998 183.001)" fill="#b5b5bf"/>
-                            </g>
-                        </svg>
-                        <span class="aiz-side-nav-text ml-3">{{ translate('Support Ticket') }}</span>
-                        @if ($support_ticket > 0)
-                            <span class="badge badge-inline badge-success">{{ $support_ticket }}</span>
-                        @endif
-                    </a>
-                </li>
-
-                <!-- Manage Profile -->
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('profile') }}" class="aiz-side-nav-link {{ areActiveRoutes(['profile']) }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                            <g id="Group_8094" data-name="Group 8094" transform="translate(3176 -602)">
-                              <path id="Path_2924" data-name="Path 2924" d="M331.144,0a4,4,0,1,0,4,4,4,4,0,0,0-4-4m0,7a3,3,0,1,1,3-3,3,3,0,0,1-3,3" transform="translate(-3499.144 602)" fill="#b5b5bf"/>
-                              <path id="Path_2925" data-name="Path 2925" d="M332.144,20h-10a3,3,0,0,0,0,6h10a3,3,0,0,0,0-6m0,5h-10a2,2,0,0,1,0-4h10a2,2,0,0,1,0,4" transform="translate(-3495.144 592)" fill="#b5b5bf"/>
-                            </g>
-                        </svg>
-                        <span class="aiz-side-nav-text ml-3">{{ translate('Manage Profile') }}</span>
-                    </a>
-                </li>
-
-                <!-- Delete My Account -->
-                <li class="aiz-side-nav-item">
-                    <a href="javascript:void(0)" onclick="account_delete_confirm_modal('{{ route('account_delete') }}')" class="aiz-side-nav-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                            <g id="Group_25000" data-name="Group 25000" transform="translate(-240.535 -537)">
-                            <path id="Path_2961" data-name="Path 2961" d="M221.069,0a8,8,0,1,0,8,8,8,8,0,0,0-8-8m0,15a7,7,0,1,1,7-7,7,7,0,0,1-7,7" transform="translate(27.466 537)" fill="#b5b5bf"/>
-                            <rect id="Rectangle_18942" data-name="Rectangle 18942" width="8" height="1" rx="0.5" transform="translate(244.535 544.5)" fill="#b5b5bf"/>
-                            </g>
-                        </svg>
-                        <span class="aiz-side-nav-text ml-3">{{ translate('Delete My Account') }}</span>
-                    </a>
-                </li>
-
-            </ul>
-
-            <!-- logout -->
-            <a href="{{ route('logout') }}" class="btn btn-primary btn-block fs-14 fw-700 mb-5 mb-md-0" style="border-radius: 25px;">{{ translate('Sign Out') }}</a>
+                    </span>
+                    <span class="bdash-nav__text">{{ translate('Refund Requests') }}</span>
+                </a>
+            @endif
         </div>
 
-    </div>
-</div>
+        {{-- ── Group: Discover ──────────────────────────────────────────────── --}}
+        @if (get_setting('vendor_system_activation') == 1 || addon_is_activated('affiliate_system'))
+        <div class="bdash-nav__group">
+            <span class="bdash-nav__label">{{ translate('Discover') }}</span>
+
+            @if (get_setting('vendor_system_activation') == 1)
+                <a href="{{ route('followed_seller') }}"
+                   class="bdash-nav__item {{ areActiveRoutes(['followed_seller'], 'is-active') }}"
+                >
+                    <span class="bdash-nav__icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                            <path d="M1 1.75A.75.75 0 0 1 1.75 1h1.628a1.75 1.75 0 0 1 1.734 1.51L5.17 3h9.58a1.75 1.75 0 0 1 1.698 2.186l-1.087 4.5a1.75 1.75 0 0 1-1.698 1.314H6.18l.5 2.668V14c0 .414-.336.75-.75.75H4.463a.75.75 0 0 1-.741-.637L2.17 2.5H1.75A.75.75 0 0 1 1 1.75ZM6 16.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM15.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
+                        </svg>
+                    </span>
+                    <span class="bdash-nav__text">{{ translate('Followed Sellers') }}</span>
+                </a>
+            @endif
+
+            @if (addon_is_activated('affiliate_system'))
+                <div class="bdash-nav__sub-wrap" data-sub-nav>
+                    <button class="bdash-nav__item bdash-nav__item--toggle" aria-expanded="false" aria-controls="sub-affiliate">
+                        <span class="bdash-nav__icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                                <path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM1.49 15.326a.78.78 0 0 1-.358-.442 3 3 0 0 1 4.308-3.516 6.484 6.484 0 0 0-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 0 1-2.07-.655ZM16.44 15.98a4.97 4.97 0 0 0 2.07-.654.78.78 0 0 0 .357-.442 3 3 0 0 0-4.308-3.517 6.484 6.484 0 0 1 1.907 3.96 2.32 2.32 0 0 1-.026.654ZM18 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5.304 16.19a.844.844 0 0 1-.277-.71 5 5 0 0 1 9.947 0 .843.843 0 0 1-.277.71A6.975 6.975 0 0 1 10 18a6.974 6.974 0 0 1-4.696-1.81Z"/>
+                            </svg>
+                        </span>
+                        <span class="bdash-nav__text">{{ translate('Affiliate') }}</span>
+                        <span class="bdash-nav__arrow" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="12" height="12">
+                                <path fill-rule="evenodd" d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>
+                            </svg>
+                        </span>
+                    </button>
+                    <div class="bdash-nav__sub" id="sub-affiliate">
+                        <a href="{{ route('affiliate.user.index') }}" class="bdash-nav__sub-item {{ areActiveRoutes(['affiliate.user.index','affiliate.payment_settings'], 'is-active') }}">{{ translate('Affiliate System') }}</a>
+                        <a href="{{ route('affiliate.user.payment_history') }}" class="bdash-nav__sub-item">{{ translate('Payment History') }}</a>
+                        <a href="{{ route('affiliate.user.withdraw_request_history') }}" class="bdash-nav__sub-item">{{ translate('Withdraw History') }}</a>
+                    </div>
+                </div>
+            @endif
+        </div>
+        @endif
+
+        {{-- ── Group: Account ───────────────────────────────────────────────── --}}
+        <div class="bdash-nav__group">
+            <span class="bdash-nav__label">{{ translate('Account') }}</span>
+
+            {{-- Loyalty Lounge --}}
+            <a href="{{ route('loyalty.hub') }}"
+               class="bdash-nav__item {{ areActiveRoutes(['loyalty.hub'], 'is-active') }}"
+            >
+                <span class="bdash-nav__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                        <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd"/>
+                    </svg>
+                </span>
+                <span class="bdash-nav__text">{{ translate('Loyalty Lounge') }}</span>
+            </a>
+
+            {{-- Conversations --}}
+            @if (get_setting('conversation_system') == 1)
+                @php $conversation = get_non_viewed_conversations(); @endphp
+                <a href="{{ route('conversations.index') }}"
+                   class="bdash-nav__item {{ areActiveRoutes(['conversations.index', 'conversations.show'], 'is-active') }}"
+                >
+                    <span class="bdash-nav__icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                            <path fill-rule="evenodd" d="M10 2c-2.236 0-4.43.18-6.57.524C1.993 2.755 1 4.014 1 5.426v5.148c0 1.413.993 2.67 2.43 2.902.848.137 1.705.248 2.57.331v3.443a.75.75 0 0 0 1.28.53l3.58-3.579a.78.78 0 0 1 .527-.224 41.202 41.202 0 0 0 5.183-.5c1.437-.232 2.43-1.49 2.43-2.903V5.426c0-1.413-.993-2.67-2.43-2.902A41.289 41.289 0 0 0 10 2Zm0 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM8 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm5 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>
+                        </svg>
+                    </span>
+                    <span class="bdash-nav__text">{{ translate('Conversations') }}</span>
+                    @if (count($conversation) > 0)
+                        <span class="bdash-nav__badge">{{ count($conversation) }}</span>
+                    @endif
+                </a>
+            @endif
+
+            {{-- Support Ticket --}}
+            <a href="{{ route('support_ticket.index') }}"
+               class="bdash-nav__item {{ areActiveRoutes(['support_ticket.index', 'support_ticket.show'], 'is-active') }}"
+            >
+                <span class="bdash-nav__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>
+                    </svg>
+                </span>
+                <span class="bdash-nav__text">{{ translate('Support') }}</span>
+                @if ($support_ticket_count > 0)
+                    <span class="bdash-nav__badge">{{ $support_ticket_count }}</span>
+                @endif
+            </a>
+
+            {{-- Manage Profile --}}
+            <a href="{{ route('profile') }}"
+               class="bdash-nav__item {{ areActiveRoutes(['profile'], 'is-active') }}"
+            >
+                <span class="bdash-nav__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/>
+                    </svg>
+                </span>
+                <span class="bdash-nav__text">{{ translate('Manage Profile') }}</span>
+            </a>
+
+            {{-- Delete Account --}}
+            <button
+                type="button"
+                class="bdash-nav__item bdash-nav__item--danger"
+                onclick="account_delete_confirm_modal('{{ route('account_delete') }}')"
+            >
+                <span class="bdash-nav__icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                        <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"/>
+                    </svg>
+                </span>
+                <span class="bdash-nav__text">{{ translate('Delete My Account') }}</span>
+            </button>
+        </div>
+
+        {{-- ── Sign Out ──────────────────────────────────────────────────────── --}}
+        <div class="bdash-nav__signout">
+            <a href="{{ route('logout') }}" class="bdash-signout-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 0 1 5.25 2h5.5A2.25 2.25 0 0 1 13 4.25v2a.75.75 0 0 1-1.5 0v-2a.75.75 0 0 0-.75-.75h-5.5a.75.75 0 0 0-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 0 0 .75-.75v-2a.75.75 0 0 1 1.5 0v2A2.25 2.25 0 0 1 10.75 18h-5.5A2.25 2.25 0 0 1 3 15.75V4.25Z" clip-rule="evenodd"/>
+                    <path fill-rule="evenodd" d="M19 10a.75.75 0 0 0-.75-.75H8.704l1.048-1.08a.75.75 0 1 0-1.004-1.11l-2.5 2.5a.75.75 0 0 0 0 1.08l2.5 2.5a.75.75 0 1 0 1.004-1.108L8.704 10.75H18.25A.75.75 0 0 0 19 10Z" clip-rule="evenodd"/>
+                </svg>
+                {{ translate('Sign Out') }}
+            </a>
+        </div>
+
+    </nav>
+</aside>
+
+{{-- ─── Sidebar Styles ──────────────────────────────────────────────────────── --}}
+<style>
+/* ── Fonts ──────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+
+/* ── Variables ──────────────────────────────────────────────────────────── */
+:root {
+    --bdash-sidebar-w: 252px;
+    --bdash-sidebar-bg: #FFFFFF;
+    --bdash-sidebar-border: #E9EFF5;
+    --bdash-nav-label-color: #94A3B8;
+    --bdash-nav-item-color: #374151;
+    --bdash-nav-item-color-hover: #111827;
+    --bdash-nav-item-bg-hover: #F1F5F9;
+    --bdash-nav-active-color: #0F766E;       /* teal-700 — premium, commerce-trust */
+    --bdash-nav-active-bg: #F0FDFA;          /* teal-50 */
+    --bdash-nav-active-border: #14B8A6;      /* teal-400 */
+    --bdash-icon-color: #9CA3AF;
+    --bdash-icon-active: #0F766E;
+    --bdash-badge-bg: #DC2626;
+    --bdash-badge-color: #FFFFFF;
+    --bdash-font-body: var(--mayush-font-body);
+    --bdash-font-head: var(--mayush-font-heading);
+    --bdash-transition: 160ms ease;
+}
+
+/* ── Sidebar Container ──────────────────────────────────────────────────── */
+.bdash-sidebar {
+    background: var(--bdash-sidebar-bg);
+    border: 1px solid var(--bdash-sidebar-border);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    font-family: var(--bdash-font-body);
+    overflow: hidden;
+    position: sticky;
+    top: 88px; /* below the dark top navbar */
+    width: var(--bdash-sidebar-w);
+}
+
+/* ── Profile Block ──────────────────────────────────────────────────────── */
+.bdash-profile {
+    align-items: center;
+    border-bottom: 1px solid var(--bdash-sidebar-border);
+    display: flex;
+    gap: 10px;
+    padding: 16px 16px 14px;
+    position: relative;
+}
+
+.bdash-profile__avatar {
+    border: 2px solid #E0F2F1;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(20, 184, 166, 0.18);
+    display: block;
+    flex-shrink: 0;
+    height: 44px;
+    overflow: hidden;
+    width: 44px;
+}
+
+.bdash-profile__avatar img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.bdash-profile__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.bdash-profile__name {
+    color: #111827;
+    display: block;
+    font-family: var(--bdash-font-head);
+    font-size: 13px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bdash-profile__role {
+    align-items: center;
+    color: var(--bdash-nav-active-color);
+    display: inline-flex;
+    font-size: 10.5px;
+    font-weight: 600;
+    gap: 3px;
+    letter-spacing: 0.01em;
+    margin-top: 2px;
+}
+
+.bdash-sidebar__close {
+    background: none;
+    border: none;
+    border-radius: 6px;
+    color: #6B7280;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 4px;
+    transition: background var(--bdash-transition), color var(--bdash-transition);
+}
+
+.bdash-sidebar__close:hover { background: #F3F4F6; color: #111827; }
+
+/* ── Navigation ─────────────────────────────────────────────────────────── */
+.bdash-nav {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px 0 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #E2E8F0 transparent;
+}
+
+.bdash-nav::-webkit-scrollbar { width: 4px; }
+.bdash-nav::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 4px; }
+
+/* ── Group ───────────────────────────────────────────────────────────────── */
+.bdash-nav__group {
+    margin-bottom: 4px;
+    padding: 0 10px;
+}
+
+.bdash-nav__label {
+    color: var(--bdash-nav-label-color);
+    display: block;
+    font-family: var(--bdash-font-head);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 10px 6px 5px;
+    text-transform: uppercase;
+    user-select: none;
+}
+
+/* ── Nav Item ────────────────────────────────────────────────────────────── */
+.bdash-nav__item {
+    align-items: center;
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    border-radius: 0 8px 8px 0;
+    color: var(--bdash-nav-item-color);
+    cursor: pointer;
+    display: flex;
+    font-family: var(--bdash-font-body);
+    font-size: 13px;
+    font-weight: 500;
+    gap: 10px;
+    margin-left: -10px; /* extend to sidebar edge for border-left */
+    min-height: 40px;
+    padding: 9px 10px 9px 13px;
+    text-align: left;
+    text-decoration: none;
+    transition:
+        background var(--bdash-transition),
+        border-color var(--bdash-transition),
+        color var(--bdash-transition),
+        transform var(--bdash-transition);
+    width: calc(100% + 10px);
+}
+
+.bdash-nav__item:hover {
+    background: var(--bdash-nav-item-bg-hover);
+    color: var(--bdash-nav-item-color-hover);
+    text-decoration: none;
+    transform: translateX(2px);
+}
+
+.bdash-nav__item.is-active {
+    background: var(--bdash-nav-active-bg);
+    border-left-color: var(--bdash-nav-active-border);
+    color: var(--bdash-nav-active-color);
+    font-weight: 600;
+}
+
+.bdash-nav__item.is-active .bdash-nav__icon {
+    color: var(--bdash-icon-active);
+}
+
+.bdash-nav__item--toggle {
+    width: 100%;
+}
+
+.bdash-nav__item--danger {
+    color: #DC2626;
+    width: 100%;
+}
+
+.bdash-nav__item--danger:hover {
+    background: #FEF2F2;
+    color: #991B1B;
+}
+
+.bdash-nav__item--danger .bdash-nav__icon { color: #DC2626; }
+
+/* ── Icon ────────────────────────────────────────────────────────────────── */
+.bdash-nav__icon {
+    align-items: center;
+    color: var(--bdash-icon-color);
+    display: inline-flex;
+    flex-shrink: 0;
+    height: 18px;
+    justify-content: center;
+    transition: color var(--bdash-transition);
+    width: 18px;
+}
+
+.bdash-nav__item:hover .bdash-nav__icon {
+    color: var(--bdash-nav-item-color-hover);
+}
+
+/* ── Text ────────────────────────────────────────────────────────────────── */
+.bdash-nav__text {
+    flex: 1;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Badge ───────────────────────────────────────────────────────────────── */
+.bdash-nav__badge {
+    background: var(--bdash-badge-bg);
+    border-radius: 20px;
+    color: var(--bdash-badge-color);
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    min-width: 18px;
+    padding: 3px 5px;
+    text-align: center;
+}
+
+/* ── Arrow (sub-nav toggle) ──────────────────────────────────────────────── */
+.bdash-nav__arrow {
+    color: #CBD5E1;
+    display: inline-flex;
+    flex-shrink: 0;
+    margin-left: auto;
+    transition: transform 220ms ease, color var(--bdash-transition);
+}
+
+.bdash-nav__item--toggle[aria-expanded="true"] .bdash-nav__arrow {
+    transform: rotate(180deg);
+    color: #94A3B8;
+}
+
+/* ── Sub-nav ─────────────────────────────────────────────────────────────── */
+.bdash-nav__sub-wrap { }
+
+.bdash-nav__sub {
+    display: none;
+    padding: 2px 0 4px 28px;
+}
+
+.bdash-nav__sub.is-open { display: block; }
+
+.bdash-nav__sub-item {
+    align-items: center;
+    border-left: 1px solid #E2E8F0;
+    color: #64748B;
+    display: flex;
+    font-size: 12px;
+    font-weight: 500;
+    gap: 6px;
+    min-height: 34px;
+    padding: 7px 8px;
+    text-decoration: none;
+    transition: color var(--bdash-transition), border-color var(--bdash-transition);
+}
+
+.bdash-nav__sub-item:hover {
+    border-left-color: var(--bdash-nav-active-border);
+    color: var(--bdash-nav-active-color);
+    text-decoration: none;
+}
+
+.bdash-nav__sub-item.is-active {
+    border-left-color: var(--bdash-nav-active-border);
+    color: var(--bdash-nav-active-color);
+    font-weight: 600;
+}
+
+/* ── Sign Out ────────────────────────────────────────────────────────────── */
+.bdash-nav__signout {
+    border-top: 1px solid var(--bdash-sidebar-border);
+    padding: 10px;
+}
+
+.bdash-signout-btn {
+    align-items: center;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    color: #374151;
+    cursor: pointer;
+    display: flex;
+    font-family: var(--bdash-font-body);
+    font-size: 13px;
+    font-weight: 600;
+    gap: 8px;
+    justify-content: center;
+    padding: 9px 12px;
+    text-decoration: none;
+    transition: background var(--bdash-transition), border-color var(--bdash-transition), color var(--bdash-transition);
+    width: 100%;
+}
+
+.bdash-signout-btn:hover {
+    background: #FEF2F2;
+    border-color: #FECACA;
+    color: #DC2626;
+    text-decoration: none;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 1199.98px) {
+    .bdash-sidebar {
+        position: fixed;
+        top: 0;
+        left: -280px;
+        bottom: 0;
+        z-index: 1050;
+        border-radius: 0;
+        width: 260px;
+        transition: left 260ms cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: none;
+    }
+
+    .bdash-sidebar.is-open {
+        left: 0;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+    }
+
+    .aiz-mobile-side-nav .bdash-sidebar { left: 0; box-shadow: 4px 0 24px rgba(0,0,0,0.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bdash-nav__item,
+    .bdash-nav__arrow,
+    .bdash-sidebar { transition: none !important; }
+}
+</style>
+
+{{-- ─── Sub-nav JS (no jQuery dependency) ─────────────────────────────────── --}}
+<script>
+(function () {
+    'use strict';
+
+    document.querySelectorAll('[data-sub-nav] .bdash-nav__item--toggle').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var expanded = this.getAttribute('aria-expanded') === 'true';
+            var targetId = this.getAttribute('aria-controls');
+            var target   = document.getElementById(targetId);
+
+            this.setAttribute('aria-expanded', String(!expanded));
+            if (target) target.classList.toggle('is-open', !expanded);
+        });
+
+        // Auto-expand if a child is active
+        var wrap  = btn.closest('[data-sub-nav]');
+        var sub   = wrap && wrap.querySelector('.bdash-nav__sub');
+        if (sub && sub.querySelector('.is-active')) {
+            btn.setAttribute('aria-expanded', 'true');
+            sub.classList.add('is-open');
+        }
+    });
+}());
+</script>

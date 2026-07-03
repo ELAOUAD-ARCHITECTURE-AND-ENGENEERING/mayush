@@ -16,5 +16,7 @@ class DatabaseMigrationTest extends TestCase
         $this->assertTrue(Schema::hasTable('users'));
         $this->assertTrue(Schema::hasTable('languages'));
         $this->assertTrue(Schema::hasTable('uploads'));
+        $this->assertTrue(Schema::hasTable('image_optimization_states'));
+        $this->assertTrue(Schema::hasColumn('image_optimization_states', 'upload_id'));
     }
 }

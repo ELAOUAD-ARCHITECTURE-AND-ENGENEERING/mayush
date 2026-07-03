@@ -36,7 +36,6 @@ class Recaptcha implements Rule
             $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', $data);
 
             $recaptchaData = $response->json();
-            //dd($recaptchaData);
             return ($recaptchaData['success'] ?? false) && ($recaptchaData['score'] ?? 0) >= (float) env('RECAPTCHA_SCORE_THRESHOLD', 0.5);
         } catch (\Exception $e) {
             return false;

@@ -54,8 +54,10 @@ class CustomerProductController extends Controller
      */
     public function create()
     {
+        $user = Auth::user()->fresh();
+
         // Access Control: Deny Customers
-        if (Auth::user()->user_type == 'customer') {
+        if ($user->user_type == 'customer') {
             flash(translate('Access Denied. Customers cannot create classified products.'))->error();
             return redirect()->route('dashboard');
         }
@@ -65,13 +67,11 @@ class CustomerProductController extends Controller
             ->with('childrenCategories')
             ->get();
 
-        if (Auth::user()->user_type == "seller" && Auth::user()->remaining_uploads > 0) {
+        if ($user->user_type == "seller") {
             return view('frontend.user.customer.product_upload', compact('categories'));
         }
-        else{
-            flash(translate('Your classified product upload limit has been reached. Please buy a package.'))->error();
-            return redirect()->route('customer_packages_list_show');
-        }
+
+        abort(403);
     }
 
     /**
@@ -87,6 +87,13 @@ class CustomerProductController extends Controller
             abort(403, 'Access Denied. Customers cannot store classified products.');
         }
 
+        if (Auth::user()->user_type == 'seller' && (int) Auth::user()->remaining_uploads <= 0) {
+            flash(translate('Your classified product upload limit has been reached. Please buy a package.'))->error();
+            return back()->withInput();
+        }
+
+        $request->validate($this->productRules());
+
         $customer_product                       = new CustomerProduct;
         $customer_product->name                 = $request->name;
         $customer_product->added_by             = $request->added_by;
@@ -99,14 +106,7 @@ class CustomerProductController extends Controller
         $customer_product->thumbnail_img        = $request->thumbnail_img;
         $customer_product->unit                 = $request->unit;
 
-        $tags = array();
-        if($request->tags[0] != null){
-            foreach (json_decode($request->tags[0]) as $key => $tag) {
-                array_push($tags, $tag->value);
-            }
-        }
-
-        $customer_product->tags                 = implode(',', $tags);
+        $customer_product->tags                 = implode(',', $this->tagsFromRequest($request));
         $customer_product->description          = $request->description;
         $customer_product->video_provider       = $request->video_provider;
         $customer_product->video_link           = $request->video_link;
@@ -241,6 +241,8 @@ class CustomerProductController extends Controller
             abort(403, 'Access Denied. You can only update your own products.');
         }
 
+        $request->validate($this->productRules(false));
+
         if($request->lang == env("DEFAULT_LANGUAGE")){
             $customer_product->name             = $request->name;
             $customer_product->unit             = $request->unit;
@@ -254,14 +256,7 @@ class CustomerProductController extends Controller
         $customer_product->photos               = $request->photos;
         $customer_product->thumbnail_img        = $request->thumbnail_img;
 
-        $tags = array();
-        if($request->tags[0] != null){
-            foreach (json_decode($request->tags[0]) as $key => $tag) {
-                array_push($tags, $tag->value);
-            }
-        }
-
-        $customer_product->tags                 = implode(',', $tags);
+        $customer_product->tags                 = implode(',', $this->tagsFromRequest($request));
         $customer_product->video_provider       = $request->video_provider;
         $customer_product->video_link           = $request->video_link;
         $customer_product->unit_price           = $request->unit_price;
@@ -535,5 +530,51 @@ class CustomerProductController extends Controller
             return redirect()->route('seller.promoted_products');
         }
         return back();
+    }
+
+    private function productRules(bool $creating = true): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:200'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'brand_id' => ['nullable', 'integer', 'exists:brands,id'],
+            'conditon' => ['required', 'in:new,used'],
+            'location' => ['required', 'string', 'max:255'],
+            'unit' => ['required', 'string', 'max:50'],
+            'unit_price' => ['required', 'numeric', 'min:0'],
+            'description' => ['required', 'string'],
+            'tags' => ['nullable', 'array'],
+            'photos' => ['nullable', 'string'],
+            'thumbnail_img' => ['nullable', 'string'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string'],
+            'meta_img' => ['nullable', 'string'],
+            'pdf' => ['nullable', 'string'],
+            'video_provider' => ['nullable', 'in:youtube,dailymotion,vimeo'],
+            'video_link' => ['nullable', 'string', 'max:255'],
+            'promotion_start_date' => ['nullable', 'date'],
+            'promotion_end_date' => ['nullable', 'date', 'after:promotion_start_date'],
+        ];
+    }
+
+    private function tagsFromRequest(Request $request): array
+    {
+        $tagPayload = $request->input('tags.0');
+
+        if (empty($tagPayload)) {
+            return [];
+        }
+
+        $decodedTags = json_decode($tagPayload);
+
+        if (!is_array($decodedTags)) {
+            return [];
+        }
+
+        return collect($decodedTags)
+            ->pluck('value')
+            ->filter()
+            ->values()
+            ->all();
     }
 }

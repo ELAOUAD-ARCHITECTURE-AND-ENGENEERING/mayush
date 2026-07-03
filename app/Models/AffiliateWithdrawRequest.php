@@ -9,6 +9,12 @@ class AffiliateWithdrawRequest extends Model
 {
     use PreventDemoModeChanges;
 
+    protected $fillable = [
+        'user_id',
+        'amount',
+        'status',
+    ];
+
     public function user(){
     	return $this->belongsTo(User::class);
     }

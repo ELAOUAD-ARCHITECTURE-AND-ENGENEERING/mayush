@@ -159,7 +159,6 @@ class ShopController extends Controller
 
     public function info()
     {
-        // dd(auth()->user()->shop);
         return new ShopDetailsCollection(auth()->user()->shop);
     }
 

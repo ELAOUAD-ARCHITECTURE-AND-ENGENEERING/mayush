@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Language;
 use App\Models\BusinessSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\SeedsAppConfigs;
 
 /**
  * SearchControllerTest
@@ -15,21 +16,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
  */
 class SearchControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsAppConfigs;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        Language::updateOrCreate(
-            ['code' => 'en'],
-            ['name' => 'English', 'app_lang_code' => 'en', 'rtl' => 0]
-        );
-
-        BusinessSetting::updateOrCreate(['type' => 'site_name'], ['value' => 'MayushTest']);
-        BusinessSetting::updateOrCreate(['type' => 'language'], ['value' => 'en']);
-        BusinessSetting::updateOrCreate(['type' => 'color_scheme'], ['value' => 'default']);
-        BusinessSetting::updateOrCreate(['type' => 'google_recaptcha'], ['value' => '0']);
+        $this->seedConfigs();
     }
 
     /** @test */

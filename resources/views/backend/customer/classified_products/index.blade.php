@@ -48,9 +48,13 @@
                                 <i class="las la-eye"></i>
                             </a>
                             @can('delete_classified_product')
-                                <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('classified_products.destroy', $product->id)}}}}" title="{{ translate('Delete') }}">
-                                    <i class="las la-trash"></i>
-                                </a>
+                                <form action="{{ route('classified_products.destroy', $product->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+                                        <i class="las la-trash"></i>
+                                    </button>
+                                </form>
                             @endcan
                         </td>
                     </tr>
@@ -69,7 +73,7 @@
 @endsection
 
 @section('script')
-    <script type="text/javascript">s
+    <script type="text/javascript">
 
         function update_published(el){
 

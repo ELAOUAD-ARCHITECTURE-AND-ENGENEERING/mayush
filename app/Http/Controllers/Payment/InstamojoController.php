@@ -90,7 +90,6 @@ class InstamojoController extends Controller
                             "redirect_url" => url('instamojo/payment/pay-success')
                         ));
                         return redirect($response['longurl']);
-                        // dd($response);
                     } catch (\Exception $e) {
                         return back();
                     }

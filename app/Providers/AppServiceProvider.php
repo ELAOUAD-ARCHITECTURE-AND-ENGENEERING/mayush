@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Pagination\Paginator;
 use App\Models\Order;
 use Mayush\Shipping\Onessta\Observers\OrderObserver;
+use App\Services\Payment\CmiConfigValidatorInterface;
+use App\Services\Payment\CmiConfigValidator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,9 +29,23 @@ class AppServiceProvider extends ServiceProvider
       ) {
           \URL::forceScheme('https');
       }
-      // \App\Models\Upload::observe(\App\Observers\UploadObserver::class);
+      \App\Models\Upload::observe(\App\Observers\UploadObserver::class);
       \App\Models\Product::observe(\App\Observers\ProductObserver::class);
       \App\Models\ProductStock::observe(\App\Observers\ProductStockObserver::class);
+      \App\Models\BusinessSetting::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\Category::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\Blog::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\FlashDeal::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\FlashDealProduct::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\ProductCollection::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\TopBanner::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\TopBannerTranslation::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\DynamicPopup::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\CustomAlert::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\CustomSaleAlert::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\Language::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\Currency::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\CustomLabel::observe(\App\Observers\StorefrontCacheObserver::class);
 
       // ONESSTA 3PL Shipping Integration
       if (config('onessta.enabled', false)) {
@@ -44,6 +60,9 @@ class AppServiceProvider extends ServiceProvider
    */
   public function register()
   {
+    // Bind CMI Configuration Validator interface
+    $this->app->bind(CmiConfigValidatorInterface::class, CmiConfigValidator::class);
+
     if (!$this->app->environment('production')) {
         if (class_exists('Barryvdh\\Debugbar\\ServiceProvider')) {
             $this->app->register('Barryvdh\\Debugbar\\ServiceProvider');

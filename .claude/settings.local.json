@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(docker compose:*)",
+      "Bash(python -m pytest backend/tests --collect-only -q)",
+      "Bash(python -m pytest backend/tests/test_main.py -q)",
+      "Bash(python -m pytest backend/tests/test_analytics.py -q)",
+      "Bash(python -m pytest backend/tests/test_anomalies.py -q)",
+      "Bash(python -m pytest mcp-server/tests -q)"
+    ]
+  }
+}

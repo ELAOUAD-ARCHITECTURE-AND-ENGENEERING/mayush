@@ -22,6 +22,8 @@
                 <strong>{{translate('Step 2')}}:</strong>
                 <p>1. {{translate('Category and Brand should be in numerical id')}}.</p>
                 <p>2. {{translate('You can download the pdf to get Category and Brand id')}}.</p>
+                <p>3. {{translate('The uploaded file must use valid existing category and brand IDs, numeric price and stock values, unique SKU values, and valid image URLs.')}}</p>
+                <p>4. {{translate('Brand ID is optional. Leave it empty if the product has no brand.')}}</p>
             </div>
             <br>
             <div class="">
@@ -43,10 +45,13 @@
                     <div class="col-sm-9">
                         <div class="custom-file">
     						<label class="custom-file-label">
-    							<input type="file" name="bulk_file" class="custom-file-input" required>
+    							<input type="file" name="bulk_file" class="custom-file-input" accept=".xlsx,.xls,.csv" required>
     							<span class="custom-file-name">{{ translate('Choose File')}}</span>
     						</label>
     					</div>
+                        @error('bulk_file')
+                            <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
                 <div class="form-group mb-0">

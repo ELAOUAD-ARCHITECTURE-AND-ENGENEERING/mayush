@@ -94,6 +94,11 @@
             complete: '{{ translate('Complete') }}',
             file: '{{ translate('File') }}',
             files: '{{ translate('Files') }}',
+            saving: '{{ translate('Saving') }}',
+            something_went_wrong: '{{translate('Something went wrong!')}}',
+            error_occured_while_processing: '{{translate('An error occurred while processing')}}',
+            saving_as_draft: '{{translate('Saving As Draft')}}',
+            upload_failed: '{{translate('Upload failed')}}',
         }
 	</script>
 
@@ -116,11 +121,41 @@
 	</div><!-- .aiz-main-wrapper -->
 
     @include('modals.bulk_action_modal')
+    <div id="rightOffcanvas" class="right-offcanvas-md position-fixed top-0 fullscreen bg-white py-20px z-1045"></div>
+    <div id="rightOffcanvasOverlay" class="position-fixed top-0 left-0 h-100 w-100"></div>
     @yield('modal')
 
 
 	<script src="{{ static_asset('assets/js/vendors.js') }}" ></script>
 	<script src="{{ static_asset('assets/js/aiz-core.js') }}" ></script>
+
+    <script>
+        function closeRightcanvas() {
+            var rightOffcanvas = document.getElementById('rightOffcanvas');
+            var overlay = document.getElementById('rightOffcanvasOverlay');
+
+            if (rightOffcanvas) {
+                rightOffcanvas.classList.remove('active');
+            }
+
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+
+            document.body.classList.remove('body-no-scroll');
+        }
+
+        function closeOffcanvas() {
+            closeRightcanvas();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var overlay = document.getElementById('rightOffcanvasOverlay');
+            if (overlay) {
+                overlay.addEventListener('click', closeRightcanvas);
+            }
+        });
+    </script>
 
     @yield('script')
 

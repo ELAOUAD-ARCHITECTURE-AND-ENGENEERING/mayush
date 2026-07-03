@@ -1,53 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit backupGlobals="false"
-         backupStaticAttributes="false"
-         bootstrap="vendor/autoload.php"
-         colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false">
-    <testsuites>
-        <testsuite name="Unit">
-            <directory suffix="Test.php">./tests/Unit</directory>
-        </testsuite>
-
-        <testsuite name="Integration">
-            <directory suffix="Test.php">./tests/Integration</directory>
-        </testsuite>
-
-        <testsuite name="Feature">
-            <directory suffix="Test.php">./tests/Feature</directory>
-        </testsuite>
-
-        <testsuite name="Security">
-            <directory suffix="Test.php">./tests/Security</directory>
-        </testsuite>
-    </testsuites>
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./app</directory>
-        </whitelist>
-    </filter>
-    <php>
-        <env name="APP_ENV" value="testing"/>
-        <env name="APP_URL" value="http://localhost"/>
-        <env name="BCRYPT_ROUNDS" value="4"/>
-        <env name="CACHE_DRIVER" value="array"/>
-        <env name="SESSION_DRIVER" value="array"/>
-        <env name="QUEUE_CONNECTION" value="sync"/>
-        <env name="MAIL_DRIVER" value="array"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
-        <env name="DB_DATABASE" value=":memory:"/>
-        <env name="DISABLE_CLAMAV" value="false"/>
-        <server name="DEFAULT_LANGUAGE" value="en"/>
-        <server name="DEMO_MODE" value="Off"/>
-        <server name="FORCE_HTTPS" value="Off"/>
-        <server name="SESSION_DRIVER" value="array"/>
-        <server name="CACHE_DRIVER" value="array"/>
-        <server name="SERVER_NAME" value="localhost"/>
-        <env name="APP_KEY" value="base64:u8699vGscI/7Wps+x5xXAnQpS60n54v8H3x19yY56w4="/>
-        <env name="ONESSTA_ENABLED" value="false"/>
-    </php>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" bootstrap="tests/bootstrap.php" colors="true" processIsolation="false" stopOnFailure="false" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" cacheDirectory=".phpunit.cache" backupStaticProperties="false">
+  <testsuites>
+    <testsuite name="Unit">
+      <directory suffix="Test.php">./tests/Unit</directory>
+    </testsuite>
+    <testsuite name="Integration">
+      <directory suffix="Test.php">./tests/Integration</directory>
+      <exclude>./tests/Integration/PaymentGateways</exclude>
+    </testsuite>
+    <testsuite name="PaymentGateways">
+      <directory suffix="Test.php">./tests/Integration/PaymentGateways</directory>
+    </testsuite>
+    <testsuite name="Feature">
+      <directory suffix="Test.php">./tests/Feature</directory>
+    </testsuite>
+    <testsuite name="Security">
+      <directory suffix="Test.php">./tests/Security</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <env name="APP_ENV" value="testing"/>
+    <env name="APP_URL" value="http://localhost"/>
+    <env name="BCRYPT_ROUNDS" value="4"/>
+    <env name="CACHE_DRIVER" value="array"/>
+    <env name="SESSION_DRIVER" value="array"/>
+    <env name="QUEUE_CONNECTION" value="sync"/>
+    <env name="MAIL_DRIVER" value="array"/>
+    <env name="DB_CONNECTION" value="sqlite"/>
+    <env name="DB_DATABASE" value=":memory:"/>
+    <env name="APP_PACKAGES_CACHE" value="bootstrap/cache/testing_packages.php"/>
+    <env name="APP_SERVICES_CACHE" value="bootstrap/cache/testing_services.php"/>
+    <env name="VIEW_COMPILED_PATH" value="storage/framework/testing"/>
+    <env name="DISABLE_CLAMAV" value="false"/>
+    <server name="DEFAULT_LANGUAGE" value="en"/>
+    <server name="DEMO_MODE" value="Off"/>
+    <server name="FORCE_HTTPS" value="Off"/>
+    <server name="SESSION_DRIVER" value="array"/>
+    <server name="CACHE_DRIVER" value="array"/>
+    <server name="SERVER_NAME" value="localhost"/>
+    <env name="APP_KEY" value="base64:u8699vGscI/7Wps+x5xXAnQpS60n54v8H3x19yY56w4="/>
+    <env name="ONESSTA_ENABLED" value="false"/>
+  </php>
+  <source>
+    <include>
+      <directory suffix=".php">./app</directory>
+    </include>
+  </source>
 </phpunit>

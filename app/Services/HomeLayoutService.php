@@ -2,19 +2,94 @@
 
 namespace App\Services;
 
+use App\Models\Blog;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\PreorderProduct;
-use App\Models\Shop;
 use Cache;
 
 class HomeLayoutService
 {
+    public function __construct(private readonly StorefrontDataService $storefrontData)
+    {
+    }
+
+    /**
+     * Assemble data required by the homepage shell.
+     */
+    public function getHomepageData(): array
+    {
+        $lang = get_system_language() ? get_system_language()->code : null;
+
+        return [
+            'featured_categories' => Cache::rememberForever('featured_categories', function () {
+                return Category::with('bannerImage')->where('featured', 1)->get();
+            }),
+            'hot_categories' => Cache::rememberForever('hot_categories', function () {
+                return Category::with('bannerImage')->where('hot_category', '1')->get();
+            }),
+            'latest_blogs' => Cache::remember('home_latest_blogs', 900, function () {
+                return Blog::published()
+                    ->with(['category', 'translations'])
+                    ->orderBy('published_at', 'desc')
+                    ->orderBy('created_at', 'desc')
+                    ->take(3)
+                    ->get();
+            }),
+            'inspiration_blogs' => $this->getHomepageInspirationBlogs(),
+            'lang' => $lang,
+        ];
+    }
+
+    public function getHomepageInspirationBlogs()
+    {
+        if (get_setting('home_inspiration_section_status', '1') != '1') {
+            return collect();
+        }
+
+        $selectedIds = json_decode(get_setting('home_inspiration_blog_ids'), true) ?: [];
+        $selectedIds = array_values(array_filter(array_map('intval', $selectedIds)));
+
+        if ($selectedIds !== []) {
+            return Blog::published()
+                ->with(['category', 'translations'])
+                ->whereIn('id', $selectedIds)
+                ->get()
+                ->sortBy(function ($blog) use ($selectedIds) {
+                    return array_search((int) $blog->id, $selectedIds, true);
+                })
+                ->take(6)
+                ->values();
+        }
+
+        return Cache::remember('home_inspiration_blogs', 900, function () {
+            return Blog::published()
+                ->with(['category', 'translations'])
+                ->orderBy('published_at', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->take(6)
+                ->get();
+        });
+    }
+
+    /**
+     * Get active portfolio posts for the portfolio landing fallback.
+     */
+    public function getPortfolioGoingOns()
+    {
+        return Blog::where('status', 1)->where('going_on', 1)->latest()->get();
+    }
+
     /**
      * Get Today's Deal products with optimized querying.
      */
     public function getTodaysDealProducts()
     {
-        return filter_products(Product::where('todays_deal', '1'))->orderBy('id', 'desc')->get();
+        return Cache::remember('todays_deal_products', 900, function () {
+            return filter_products(Product::where('todays_deal', '1'))
+                ->orderBy('id', 'desc')
+                ->get();
+        });
     }
 
     /**
@@ -43,7 +118,7 @@ class HomeLayoutService
      */
     public function getPreorderFeaturedProducts()
     {
-        return PreorderProduct::where('is_published', 1)->where('is_featured', 1)
+        return Cache::remember('home_preorder_featured_products', 300, fn () => PreorderProduct::where('is_published', 1)->where('is_featured', 1)
             ->where(function ($query) {
                 $query->whereHas('user', function ($q) {
                     $q->where('user_type', 'admin');
@@ -53,7 +128,7 @@ class HomeLayoutService
             })
             ->latest()
             ->limit(12)
-            ->get();
+            ->get());
     }
 
     /**
@@ -61,8 +136,11 @@ class HomeLayoutService
      */
     public function getEliteArtisans()
     {
-        return Shop::whereHas('activeEliteSubscription')
-            ->where('verification_status', 1)
-            ->get();
+        return $this->storefrontData->eliteArtisans();
+    }
+
+    public function getRecentBestSellers()
+    {
+        return $this->storefrontData->recentBestSellers();
     }
 }

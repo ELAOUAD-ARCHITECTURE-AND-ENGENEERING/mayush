@@ -13,6 +13,7 @@ use App\Models\ProductStock;
 use App\Models\InventoryLog;
 use App\Utility\EmailUtility;
 use App\Utility\NotificationUtility;
+use App\Utility\CartUtility;
 use Auth;
 use DB;
 use Illuminate\Support\Facades\Log;
@@ -95,6 +96,12 @@ class ExpressBuyController extends Controller
                     $product_stock_query->where('variant', $request->variant);
                 }
                 $product_stock = $product_stock_query->lockForUpdate()->first();
+                if (!$product_stock && $request->has('variant')) {
+                    $dimensionStock = CartUtility::find_product_stock($product, $request->variant);
+                    $product_stock = $dimensionStock
+                        ? $product->stocks()->whereKey($dimensionStock->id)->lockForUpdate()->first()
+                        : null;
+                }
 
                 if (!$product_stock) {
                     $product_stock = $product->stocks()->lockForUpdate()->first();
@@ -188,6 +195,7 @@ class ExpressBuyController extends Controller
             $order_detail->order_id = $order->id;
             $order_detail->seller_id = $product->user_id;
             $order_detail->product_id = $product->id;
+            $order_detail->product_name = $product->getTranslation('name');
             $order_detail->variation = $product_stock ? $product_stock->variant : null;
             $order_detail->price = $finalPrice * $quantity;
             $order_detail->tax = $tax * $quantity;
@@ -229,8 +237,12 @@ class ExpressBuyController extends Controller
             DB::commit();
 
             // 5. Send Notifications
-            EmailUtility::order_email($order, $order->delivery_status);
-            NotificationUtility::sendNotification($order, $order->delivery_status);
+            try {
+                EmailUtility::order_email($order, $order->delivery_status);
+                NotificationUtility::sendNotification($order, $order->delivery_status);
+            } catch (\Exception $mailErr) {
+                Log::warning('Express Buy: Notification failed.', ['error' => $mailErr->getMessage()]);
+            }
 
             $request->session()->put('combined_order_id', $combined_order->id);
 

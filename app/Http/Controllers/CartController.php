@@ -37,21 +37,7 @@ class CartController extends Controller
             $carts = ($temp_user_id != null) ? Cart::where('temp_user_id', $temp_user_id)->get() : [];
         }
         if (count($carts) > 0) {
-            foreach ($carts as $cartItem) {
-                $product = $cartItem->product;
-                if ($product && $product->digital == 0 && $product->auction_product == 0) {
-                    $product_stock = $product->stocks->where('variant', $cartItem->variation)->first();
-                    if ($product_stock) {
-                        if ($product_stock->qty <= 0) {
-                            $cartItem->status = 0;
-                            $cartItem->quantity = 0;
-                        } elseif ($product_stock->qty < $cartItem->quantity) {
-                            $cartItem->quantity = $product_stock->qty;
-                        }
-                        $cartItem->save();
-                    }
-                }
-            }
+            CartUtility::sync_cart_stock_statuses($carts);
             $carts->toQuery()->update(['shipping_cost' => 0]);
             $carts = $carts->fresh();
         }
@@ -122,7 +108,7 @@ class CartController extends Controller
 
         //check the color enabled or disabled for the product
         $str = CartUtility::create_cart_variant($product, $request->all());
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = CartUtility::find_product_stock($product, $str);
         
         // If variant not found (e.g. Quick Add without attributes), pick first available stock
         if (!$product_stock && $product->stocks->count() > 0) {
@@ -223,7 +209,21 @@ class CartController extends Controller
 
         if ($cartItem['id'] == $request->id) {
             $product = Product::find($cartItem['product_id']);
-            $product_stock = $product->stocks->where('variant', $cartItem['variation'])->first();
+            $product_stock = CartUtility::product_stock($product, $cartItem['variation']);
+            if (!$product_stock || $product_stock->qty <= 0) {
+                $cartItem->status = 0;
+                $cartItem->save();
+
+                $carts = auth()->user() != null
+                    ? Cart::where('user_id', Auth::user()->id)->get()
+                    : Cart::where('temp_user_id', $request->session()->get('temp_user_id'))->get();
+
+                return array(
+                    'cart_count' => count($carts),
+                    'cart_view' => view('frontend.partials.cart.cart_details', compact('carts'))->render(),
+                    'nav_cart_view' => view('frontend.partials.cart.cart')->render(),
+                );
+            }
             $quantity = $product_stock->qty;
             $price = $product_stock->price;
 
@@ -308,8 +308,13 @@ class CartController extends Controller
 
         $carts->toQuery()->update(['status' => 0]);
         if($product_ids != null){
+            $availableProductIds = $carts->filter(function ($cartItem) use ($product_ids) {
+                return in_array($cartItem->product_id, $product_ids)
+                    && CartUtility::is_cart_item_available($cartItem, $cartItem->product);
+            })->pluck('product_id')->all();
+
             if($coupon_applied != null){
-                $active_user_carts = $user_carts->toQuery()->whereIn('product_id', $product_ids)->get();
+                $active_user_carts = $user_carts->toQuery()->whereIn('product_id', $availableProductIds)->get();
                 if (count($active_user_carts) > 0) {
                     $active_user_carts->toQuery()->update(
                         [
@@ -321,7 +326,7 @@ class CartController extends Controller
                 }
             }
 
-            $carts->toQuery()->whereIn('product_id', $product_ids)->update(['status' => 1]);
+            $carts->toQuery()->whereIn('product_id', $availableProductIds)->update(['status' => 1]);
         }
         $carts = $carts->fresh();
 
@@ -331,10 +336,34 @@ class CartController extends Controller
     public function buyNow(Request $request)
     {
         $authUser = auth()->user();
+
+        $request->validate([
+            'id' => ['required', 'integer', 'exists:products,id'],
+            'quantity' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $product = Product::findOrFail($request->id);
+        
+        $quantity = (int) ($request->quantity ?? $product->min_qty);
+        if ($quantity < $product->min_qty) {
+            $quantity = $product->min_qty;
+        }
+
+        $str = CartUtility::create_cart_variant($product, $request->all());
+        $product_stock = CartUtility::find_product_stock($product, $str);
+        
+        if (!$product_stock && $product->stocks->count() > 0) {
+            $product_stock = $product->stocks->first();
+            $str = $product_stock->variant;
+        }
+
+        if (!$product_stock || ($product->digital != 1 && $product_stock->qty < $quantity)) {
+            flash(translate('The requested quantity is not available for ') . $product->getTranslation('name'))->warning();
+            return back();
+        }
+
         if ($authUser != null) {
-            $user_id = $authUser->id;
-            // Clear existing cart for a clean Buy Now experience
-            Cart::where('user_id', $user_id)->delete();
+            Cart::where('user_id', $authUser->id)->delete();
         } else {
             if ($request->session()->get('temp_user_id')) {
                 $temp_user_id = $request->session()->get('temp_user_id');
@@ -343,22 +372,6 @@ class CartController extends Controller
                 $temp_user_id = bin2hex(random_bytes(10));
                 $request->session()->put('temp_user_id', $temp_user_id);
             }
-        }
-
-        // Reuse addToCart logic but without returning array
-        $product = Product::findOrFail($request->id);
-        
-        $quantity = $request->quantity ?? $product->min_qty;
-        if ($quantity < $product->min_qty) {
-            $quantity = $product->min_qty;
-        }
-
-        $str = CartUtility::create_cart_variant($product, $request->all());
-        $product_stock = $product->stocks->where('variant', $str)->first();
-        
-        if (!$product_stock && $product->stocks->count() > 0) {
-            $product_stock = $product->stocks->first();
-            $str = $product_stock->variant;
         }
 
         $cart = new Cart();

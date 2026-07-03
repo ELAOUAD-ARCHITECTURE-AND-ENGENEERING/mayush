@@ -1,0 +1,9 @@
+{
+  "core.js": "build/storefront/core-CZO7ADWT.js",
+  "home.js": "build/storefront/home-UDSJPI5S.js",
+  "listing.js": "build/storefront/listing-3VD7D45Y.js",
+  "product.js": "build/storefront/product-OMCSFETH.js",
+  "cart.js": "build/storefront/cart-GZYJFD6I.js",
+  "checkout.js": "build/storefront/checkout-NMUXCMYN.js",
+  "carousel.js": "build/storefront/carousel-HURSVEYT.js"
+}

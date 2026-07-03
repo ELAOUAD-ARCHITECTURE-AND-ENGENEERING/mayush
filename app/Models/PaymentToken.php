@@ -15,6 +15,7 @@ class PaymentToken extends Model
         'token',
         'card_last_four',
         'card_brand',
+        'card_fingerprint',
         'card_expiry_month',
         'card_expiry_year',
         'is_default',

@@ -152,7 +152,7 @@
                                     </div>
                                 </div>
                                 <!-- Messase to seller -->
-                                @if (get_setting('conversation_system') == 1)
+                                {{-- @if (get_setting('conversation_system') == 1)
                                     <div class="col-md-4 text-md-right mb-3">
                                         <button class="btn btn-sm btn-soft-secondary-base rounded-0 hov-svg-white hov-text-white"
                                             onclick="show_chat_modal()">
@@ -168,7 +168,7 @@
                                             {{ translate('Message Seller') }}
                                         </button>
                                     </div>
-                                @endif
+                                @endif --}}
                                 <!-- Brand Logo & Name -->
                                 @if ($detailedProduct->brand != null)
                                     <div class="col-md-4 fs-14 fw-700 mb-3">
@@ -294,7 +294,7 @@
 
                             <!-- Add to cart & Buy now Buttons -->
                             <div class="mt-3">
-                                <button type="button" class="btn btn-secondary-base mr-2 add-to-cart fw-600 w-150px rounded-0 text-white" @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
+                                <button type="button" class="btn btn-secondary-base mr-2 add-to-cart fw-600 w-150px rounded-0 text-white" onclick="addToCart()">
                                     <i class="las la-shopping-bag"></i>
                                     <span class="d-none d-md-inline-block"> {{ translate('Add to cart')}}</span>
                                 </button>

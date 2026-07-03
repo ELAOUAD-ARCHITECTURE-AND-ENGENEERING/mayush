@@ -1,0 +1,71 @@
+<?php
+
+return [
+    'disk' => env('IMAGE_OPTIMIZATION_DISK', config('filesystems.default')),
+    'static_disk' => env('IMAGE_OPTIMIZATION_STATIC_DISK', 'local'),
+    'queue' => env('IMAGE_OPTIMIZATION_QUEUE', 'images'),
+    'quality' => (int) env('IMAGE_OPTIMIZATION_QUALITY', 80),
+    'max_width' => (int) env('IMAGE_OPTIMIZATION_MAX_WIDTH', 1500),
+    'recipe_version' => env('IMAGE_OPTIMIZATION_RECIPE_VERSION', '2'),
+    'audit_limit' => (int) env('IMAGE_OPTIMIZATION_AUDIT_LIMIT', 500),
+    'variants' => [
+        'small' => 160,
+        'thumb' => 300,
+        'card' => 480,
+        'medium' => 600,
+        'large' => 1200,
+    ],
+    'profiles' => [
+        'hero' => [
+            'variant' => 'large',
+            'variants' => ['medium', 'large'],
+            'width' => 1600,
+            'height' => 720,
+            'sizes' => '100vw',
+        ],
+        'category' => [
+            'variant' => 'thumb',
+            'variants' => ['small', 'thumb', 'card'],
+            'width' => 300,
+            'height' => 300,
+            'sizes' => '(max-width: 767px) 40vw, 180px',
+        ],
+        'product-card' => [
+            'variant' => 'card',
+            'variants' => ['thumb', 'card', 'medium'],
+            'width' => 480,
+            'height' => 480,
+            'sizes' => '(max-width: 767px) 50vw, 240px',
+        ],
+        'deal-circle' => [
+            'variant' => 'small',
+            'variants' => ['small', 'thumb'],
+            'width' => 160,
+            'height' => 160,
+            'sizes' => '102px',
+        ],
+        'logo' => [
+            'variant' => 'small',
+            'variants' => ['small', 'thumb'],
+            'width' => 160,
+            'height' => 80,
+            'sizes' => '160px',
+        ],
+        'payment-mark' => [
+            'variant' => 'small',
+            'variants' => ['small'],
+            'width' => 80,
+            'height' => 48,
+            'sizes' => '80px',
+        ],
+    ],
+    'static_assets' => [
+        'assets/img/office_furniture_4k.png',
+        'assets/img/cards/verified_by_visa.png',
+        'assets/img/cards/secure_code.png',
+        'assets/img/cards/amex.png',
+        'assets/img/cards/cmi.png',
+        'assets/img/cards/marocpay.png',
+        'assets/img/cards/unionpay.png',
+    ],
+];

@@ -3,9 +3,9 @@
         <div class="container">
             <div class="bg-white">
                 <div class="d-flex mt-2 mt-md-3 mb-2 mb-md-3 align-items-baseline justify-content-between">
-                    <h3 class="fs-16 fs-md-20 fw-700 mb-2 mb-sm-0">
+                    <h2 class="fs-16 fs-md-20 fw-700 mb-2 mb-sm-0">
                         <span class="">{{ translate('Featured Categories') }}</span>
-                    </h3>
+                    </h2>
                 </div>
             </div>
             <div class="bg-white px-sm-3">
@@ -18,7 +18,7 @@
                             <div class="h-200px h-sm-250px h-md-340px">
                                 <div class="h-100 w-100 w-xl-auto position-relative hov-scale-img overflow-hidden">
                                     <div class="position-absolute h-100 w-100 overflow-hidden">
-                                        <img src="{{ uploaded_asset($category->cover_image, 'medium') }}" alt="{{ $category_name }}" class="img-fit h-100 has-transition" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                                        <img src="{{ uploaded_asset($category->cover_image, 'thumb') }}" alt="{{ $category_name }}" class="img-fit h-100 has-transition" width="300" height="300" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                                     </div>
                                     <div class="pb-4 px-4 absolute-bottom-left has-transition h-50 w-100 d-flex flex-column align-items-center justify-content-end" style="background: linear-gradient(to top, rgba(0,0,0,0.5) 50%,rgba(0,0,0,0) 100%) !important;">
                                         <div class="w-100">

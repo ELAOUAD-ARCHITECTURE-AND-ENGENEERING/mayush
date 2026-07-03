@@ -32,7 +32,7 @@
                                 <!-- Reset password form -->
                                 <div class="pt-3 pt-lg-4 bg-white">
                                     <div class="">
-                                        <form class="form-default" role="form" action="{{ route('password.update') }}" method="POST">
+                                        <form class="form-default" role="form" action="{{ route('password.update.email') }}" method="POST">
                                             @csrf
                                             
                                             <!-- Email -->
@@ -71,7 +71,7 @@
                                             <!-- Password Confirmation-->
                 
                                             <div class="form-group">
-                                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" placeholder="{{ translate('Reset Password') }}" required>
+                                            <input id="password-confirm" type="password" class="form-control" name="password_confirmation" placeholder="{{ translate('Confirm Password') }}" required>
                                             </div>
 
                                             <!-- Submit Button -->

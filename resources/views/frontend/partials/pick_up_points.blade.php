@@ -17,7 +17,6 @@
             $seller_products[get_single_product($cartItem['id'])->user_id] = $product_ids;
         }
     }
-    // dd($seller_products);
 @endphp
 @if (!empty($admin_products))
     @foreach ($pick_up_points as $key => $pick_up_point)

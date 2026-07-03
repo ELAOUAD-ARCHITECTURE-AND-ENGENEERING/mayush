@@ -13,7 +13,7 @@
             <div class="aiz-carousel gutters-10 half-outside-arrow" data-items="4" data-xl-items="4" data-lg-items="3" data-md-items="2" data-sm-items="1" data-xs-items="1" data-arrows='true'>
                 @foreach ($elite_shops as $shop)
                     <div class="carousel-box">
-                        <div class="aiz-card-box border border-light rounded hov-shadow-md mt-1 mb-2 has-transition bg-white">
+                        <div class="aiz-card-box rounded hov-shadow-md mt-1 mb-2 has-transition bg-white">
                             <div class="position-relative">
                                 <a href="{{ route('shop.visit', $shop->slug) }}" class="d-block">
                                     <img

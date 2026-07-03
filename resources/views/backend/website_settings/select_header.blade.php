@@ -11,16 +11,35 @@
 
                         <div class="mx-1 header-card">
                             @foreach ($element_types as $key => $element_type)
+                                @php
+                                    $header_number = preg_replace('/[^0-9]/', '', $element_type->name);
+                                    $header_preview = 'assets/img/headers/header' . $header_number . '.webp';
+                                    $has_header_preview = $header_number && file_exists(public_path($header_preview));
+                                @endphp
                                 
                                     <div class="card text-center px-2 py-3 w-100" data-header="{{$element_type->name}}">
                                         <input type="radio" hidden 
-                                               id="element_type_{{ $key }}" 
+                                               id="element_type_{{ $element_type->id }}" 
                                                name="header_element"
-                                               value="{{ $key+1 }}" 
-                                               @if(get_setting('header_element') == $key+1) checked @endif>
+                                               value="{{ $element_type->id }}" 
+                                               @if(get_setting('header_element') == $element_type->id) checked @endif>
 
-                                        <img src="{{ static_asset('assets/img/headers/header' . ($key+1) . '.webp') }}"
-                                             class="card-img-top mx-auto" alt="header layout">
+                                        @if ($has_header_preview)
+                                            <img src="{{ static_asset($header_preview) }}"
+                                                class="card-img-top mx-auto" alt="header layout">
+                                        @else
+                                            <div class="header-layout-preview header-layout-preview-marketplace mx-auto">
+                                                <div class="preview-top-row">
+                                                    <span class="preview-logo">Mayush</span>
+                                                    <span class="preview-location"></span>
+                                                    <span class="preview-search"></span>
+                                                    <span class="preview-cta"></span>
+                                                </div>
+                                                <div class="preview-bottom-row">
+                                                    <span></span><span></span><span></span><span></span>
+                                                </div>
+                                            </div>
+                                        @endif
 
                                         <p class="mt-2 mb-0 font-weight-bold">
                                             {{ $element_type->name }}
@@ -52,6 +71,72 @@
 @endsection
 
 @section('script')
+<style>
+    .header-layout-preview {
+        width: 100%;
+        max-width: 420px;
+        height: 94px;
+        border-radius: 4px;
+        overflow: hidden;
+        background: #111827;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+    }
+    .header-layout-preview .preview-top-row {
+        height: 58px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px;
+    }
+    .header-layout-preview .preview-logo {
+        color: #fff;
+        font-weight: 800;
+        font-size: 15px;
+        line-height: 1;
+    }
+    .header-layout-preview .preview-location {
+        width: 42px;
+        height: 20px;
+        border-radius: 3px;
+        background: rgba(255,255,255,0.22);
+    }
+    .header-layout-preview .preview-search {
+        flex: 1;
+        height: 28px;
+        border-radius: 3px;
+        background: #fff;
+        position: relative;
+    }
+    .header-layout-preview .preview-search::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 36px;
+        height: 100%;
+        background: #d97434;
+    }
+    .header-layout-preview .preview-cta {
+        width: 40px;
+        height: 24px;
+        border-radius: 3px;
+        background: rgba(255,255,255,0.22);
+    }
+    .header-layout-preview .preview-bottom-row {
+        height: 36px;
+        background: #243244;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 0 10px;
+    }
+    .header-layout-preview .preview-bottom-row span {
+        width: 48px;
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.72);
+    }
+</style>
 <script>
     // make whole card clickable
     $('.header-card .card').click(function(e) {

@@ -184,4 +184,13 @@ class NotificationTypeController extends Controller
     public function getDefaulText(Request $request){
         return NotificationType::where('id',$request->id)->first()->getTranslation('default_text');
     }
+
+    /** Alias: route expects get_default_text */
+    public function get_default_text(Request $request) { return $this->getDefaulText($request); }
+
+    /** Alias: route expects update_status */
+    public function update_status(Request $request) { return $this->updateStatus($request); }
+
+    /** Alias: route expects bulk_delete */
+    public function bulk_delete(Request $request) { return $this->bulkDelete($request); }
 }

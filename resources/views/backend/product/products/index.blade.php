@@ -381,7 +381,10 @@
         function single_delete(productId) {
             $.ajax({
                 url: "{{ route('products.destroy', ':id') }}".replace(':id', productId),
-                type: 'GET',
+                type: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 success: function(response) {
                     if (response == 1) {
                         AIZ.plugins.notify('success', '{{ translate('Selected item deleted successfully') }}');

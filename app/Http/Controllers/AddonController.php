@@ -16,6 +16,7 @@ use Cache;
 use DB;
 use Artisan;
 use Redirect;
+use Illuminate\Support\Facades\Log;
 
 class AddonController extends Controller
 {
@@ -87,13 +88,25 @@ class AddonController extends Controller
                     $res = $zip->extractTo(base_path('temp/' . $random_dir . '/addons'));
                     $zip->close();
                 } else {
-                    dd('could not open');
+                    Log::warning('Addon upload could not be opened as a zip archive.', [
+                        'filename' => $zipped_file_name,
+                    ]);
+                    flash(translate('Could not open addon archive.'))->error();
+                    return redirect()->route('addons.index');
                 }
 
-                $str = file_get_contents(base_path('temp/' . $random_dir . '/addons/' . $dir . '/config.json'));
+                $configPath = base_path('temp/' . $random_dir . '/addons/' . $dir . '/config.json');
+                if (!is_file($configPath)) {
+                    Log::warning('Addon upload did not contain a config.json file.', [
+                        'filename' => $zipped_file_name,
+                    ]);
+                    flash(translate('Addon archive is missing config.json.'))->error();
+                    return redirect()->route('addons.index');
+                }
+
+                $str = file_get_contents($configPath);
                 $json = json_decode($str, true);
 
-                //dd($random_dir, $json);
 
                 if (version_compare( BusinessSetting::where('type', 'current_version')->first()->value,$json['minimum_item_version'], '>=')){
                     if (count(Addon::where('unique_identifier', $json['unique_identifier'])->get()) == 0) {
@@ -108,7 +121,6 @@ class AddonController extends Controller
 
                         // Create new directories.
                         if (!empty($json['directory'])) {
-                            //dd($json['directory'][0]['name']);
                             foreach ($json['directory'][0]['name'] as $directory) {
                                 if (is_dir(base_path($directory)) == false) {
                                     mkdir(base_path($directory), 0777, true);
@@ -160,7 +172,6 @@ class AddonController extends Controller
 
                         // Create new directories.
                         if (!empty($json['directory'])) {
-                            //dd($json['directory'][0]['name']);
                             foreach ($json['directory'][0]['name'] as $directory) {
                                 if (is_dir(base_path($directory)) == false) {
                                     mkdir(base_path($directory), 0777, true);

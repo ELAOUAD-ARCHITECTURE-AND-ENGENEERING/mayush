@@ -17,6 +17,7 @@ use App\Http\Resources\V2\ProductDetailCollection;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Http\Resources\V2\Seller\BrandCollection;
+use App\Utility\CartUtility;
 class ProductController extends Controller
 {
     public function index()
@@ -78,7 +79,11 @@ class ProductController extends Controller
             $str .= $temp_str;
         }
 
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = CartUtility::find_product_stock($product, $str);
+        if (!$product_stock) {
+            return response()->json(['result' => false, 'message' => translate('Variant not found')], 404);
+        }
+
         $price = $product_stock->price;
 
 

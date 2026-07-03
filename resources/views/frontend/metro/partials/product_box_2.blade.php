@@ -1,8 +1,13 @@
 @php
     $cart_added = [];
+    $carts = get_user_cart();
+    if ($carts && count($carts) > 0) {
+        $cart_added = $carts->pluck('product_id')->toArray();
+    }
 @endphp
-<div class="aiz-card-box h-auto bg-white hov-scale-img">
-    <div class="position-relative h-140px h-md-170px img-fit overflow-hidden">
+<div class="aiz-card-box h-auto border-0 bg-transparent hov-scale-img position-relative group" style="transition: all 0.3s ease;">
+    <!-- Image Container with 4:3 Aspect Ratio -->
+    <div class="position-relative overflow-hidden shadow-sm" style="border-radius: 14px; aspect-ratio: 4/3; background: #f8f9fa;">
         @php
             $product_url = route('product', $product->slug);
             if ($product->auction_product == 1) {
@@ -10,149 +15,131 @@
             }
         @endphp
         <!-- Image -->
-        <a href="{{ $product_url }}" class="d-block h-100 position-relative image-hover-effect">
-            <img
-                class="lazyload mx-auto img-fit has-transition product-main-image skeleton-shimmer"
+        <a href="{{ $product_url }}" class="d-block w-100 h-100 position-relative image-hover-effect">
+            <img class="lazyload w-100 h-100 product-main-image skeleton-shimmer"
+                style="object-fit: cover; transition: transform 0.5s ease;"
                 src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                data-src="{{ get_image($product->thumbnail, 'medium') }}"
-                alt="{{ $product->getTranslation('name') }}"
+                data-src="{{ get_image($product->thumbnail, 'card') }}"
+                alt="{{ \App\Services\SeoService::productAltText($product) }}"
                 title="{{ $product->getTranslation('name') }}"
-                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-            <img
-                class="lazyload mx-auto img-fit has-transition product-hover-image position-absolute skeleton-shimmer"
+                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
+                onmouseover="this.style.transform='scale(1.05)'"
+                onmouseout="this.style.transform='scale(1)'">
+            <img class="lazyload w-100 h-100 product-hover-image position-absolute skeleton-shimmer"
+                style="top:0; left:0; object-fit: cover; opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease;"
                 src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                data-src="{{ get_first_product_image($product->photos, $product->thumbnail, 'medium') }}"
-                alt="{{ $product->getTranslation('name') }}"
+                data-src="{{ get_first_product_image($product->photos, $product->thumbnail, 'card') }}"
+                alt="{{ \App\Services\SeoService::productAltText($product, 'Photo detail - Livraison Maroc') }}"
                 title="{{ $product->getTranslation('name') }}"
-                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
+                onmouseover="this.style.opacity='1'; this.style.transform='scale(1.05)'"
+                onmouseout="this.style.opacity='0'; this.style.transform='scale(1)'">
         </a>
-        @php
-            $badgeIndex = 0;
-        @endphp
-        <!-- Discount percentage tag -->
-        @if (discount_in_percentage($product) > 0)
-            <span class="absolute-top-left rounded rounded-4 bg-primary ml-1 mt-1 fs-11 fw-700 text-white w-35px text-center"
-                style="padding-top:2px;padding-bottom:2px; top:{{ 25 * $badgeIndex }}px;">-{{ discount_in_percentage($product) }}%</span>
-            @php $badgeIndex++; @endphp
-        @endif
-        <!-- Wholesale tag -->
-        @if ($product->wholesale_product)
-            <span class="absolute-top-left rounded rounded-4 fs-11 text-white fw-700 px-2 lh-1-8 ml-1 mt-1"
-                style="background-color: #455a64; @if (discount_in_percentage($product) > 0) top:{{ 25 * $badgeIndex }}px; @endif">
-                {{ translate('Wholesale') }}
-            </span>
-            @php $badgeIndex++; @endphp
-        @endif
-        <!-- Custom Label -->
-        @php
-            $customLabels = get_custom_labels($product->custom_label_id);
-        @endphp
-        @if ($customLabels)
-            @foreach ($customLabels as $key => $customLabel)
-                <span class="absolute-top-left rounded rounded-4 fs-11 fw-700 px-2 lh-1-8 ml-1 mt-1"
-                    style="background-color:{{ $customLabel->background_color }};
-                        color:{{ $customLabel->text_color }};
-                        top:{{ 25 * $badgeIndex }}px;">
-                    {{ $customLabel->text }}
-                </span>
-                @php $badgeIndex++; @endphp
-            @endforeach
-        @endif
-        @if ($product->auction_product == 0)
-            <!-- wishlisht & compare icons -->
-            <div class="absolute-top-right aiz-p-hov-icon">
-                <a href="javascript:void(0)" class="hov-svg-white" onclick="addToWishList({{ $product->id }})"
-                    data-toggle="tooltip" data-title="{{ translate('Add to wishlist') }}" data-placement="left">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14.4" viewBox="0 0 16 14.4">
-                        <g id="_51a3dbe0e593ba390ac13cba118295e4" data-name="51a3dbe0e593ba390ac13cba118295e4"
-                            transform="translate(-3.05 -4.178)">
-                            <path id="Path_32649" data-name="Path 32649"
-                                d="M11.3,5.507l-.247.246L10.8,5.506A4.538,4.538,0,1,0,4.38,11.919l.247.247,6.422,6.412,6.422-6.412.247-.247A4.538,4.538,0,1,0,11.3,5.507Z"
-                                transform="translate(0 0)" fill="#919199" />
-                            <path id="Path_32650" data-name="Path 32650"
-                                d="M11.3,5.507l-.247.246L10.8,5.506A4.538,4.538,0,1,0,4.38,11.919l.247.247,6.422,6.412,6.422-6.412.247-.247A4.538,4.538,0,1,0,11.3,5.507Z"
-                                transform="translate(0 0)" fill="#919199" />
-                        </g>
-                    </svg>
-                </a>
-                <a href="javascript:void(0)" class="hov-svg-white" onclick="addToCompare({{ $product->id }})"
-                    data-toggle="tooltip" data-title="{{ translate('Add to compare') }}" data-placement="left">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                        <path id="_9f8e765afedd47ec9e49cea83c37dfea" data-name="9f8e765afedd47ec9e49cea83c37dfea"
-                            d="M18.037,5.547v.8a.8.8,0,0,1-.8.8H7.221a.4.4,0,0,0-.4.4V9.216a.642.642,0,0,1-1.1.454L2.456,6.4a.643.643,0,0,1,0-.909L5.723,2.227a.642.642,0,0,1,1.1.454V4.342a.4.4,0,0,0,.4.4H17.234a.8.8,0,0,1,.8.8Zm-3.685,4.86a.642.642,0,0,0-1.1.454v1.661a.4.4,0,0,1-.4.4H2.84a.8.8,0,0,0-.8.8v.8a.8.8,0,0,0,.8.8H12.854a.4.4,0,0,1,.4.4V17.4a.642.642,0,0,0,1.1.454l3.267-3.268a.643.643,0,0,0,0-.909Z"
-                            transform="translate(-2.037 -2.038)" fill="#919199" />
-                    </svg>
-                </a>
-            </div>
-            <!-- add to cart -->
-            @php
-                $colors = is_string($product->colors) ? json_decode($product->colors, true) : $product->colors;
-                $attributes = is_string($product->attributes) ? json_decode($product->attributes, true) : $product->attributes;
-            @endphp
-
-            @if ( (is_array($colors) && count($colors) > 0) || (is_array($attributes) && count($attributes) > 0) )                <a class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-none d-sm-flex flex-column justify-content-center align-items-center @if (in_array($product->id, $cart_added)) active @endif"
-                    href="javascript:void(0)" onclick="showAddToCartRightCanvas({{ $product->id }})">
-                    <span class="cart-btn-text">
-                        {{ translate('Select Option') }}
-                    </span>
-                    <span><i class="las la-sliders-h" style="font-size: 1.4rem;"></i></span>
-                </a>
-            @else
-                <a class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-none d-sm-flex flex-column justify-content-center align-items-center @if (in_array($product->id, $cart_added)) active @endif"
-                    href="javascript:void(0)" @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCartSingleProduct({{ $product->id }})" @else onclick="showLoginModal()" @endif>
-                    <span class="cart-btn-text">
-                        {{ translate('Add to Cart') }}
-                    </span>
-                    <span><i class="las la-2x la-shopping-cart"></i></span>
-                </a> 
+        
+        <!-- Vertical Action Icons (Hidden by default, show on hover) -->
+        <div class="position-absolute d-flex flex-column align-items-center" 
+             style="top: 10px; right: 10px; z-index: 10; gap: 8px; opacity: 0; visibility: hidden; transform: translateX(10px); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);"
+             onmouseover="this.style.opacity='1'; this.style.visibility='visible'; this.style.transform='translateX(0)';"
+             onmouseout="this.parentElement.onmouseover ? null : (this.style.opacity='0', this.style.visibility='hidden', this.style.transform='translateX(10px)')">
+            <!-- Wishlist -->
+            <button type="button" class="btn btn-icon btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" 
+                onclick="addToWishList({{ $product->id }})" 
+                data-toggle="tooltip" data-title="{{ translate('Add to wishlist') }}" data-placement="left" 
+                style="width: 32px; height: 32px; border: none; background: rgba(255, 255, 255, 0.9); color: #1E293B; transition: all 0.2s; padding: 0;"
+                onmouseover="this.style.background='#F97316'; this.style.color='#fff';"
+                onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.color='#1E293B';">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            </button>
+            
+            <!-- Compare -->
+            <button type="button" class="btn btn-icon btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" 
+                onclick="addToCompare({{ $product->id }})" 
+                data-toggle="tooltip" data-title="{{ translate('Add to compare') }}" data-placement="left" 
+                style="width: 32px; height: 32px; border: none; background: rgba(255, 255, 255, 0.9); color: #1E293B; transition: all 0.2s; padding: 0;"
+                onmouseover="this.style.background='#F97316'; this.style.color='#fff';"
+                onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.color='#1E293B';">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            </button>
+            
+            <!-- Cart / Options -->
+            @if ($product->auction_product == 0)
+                @php
+                    $colors = is_string($product->colors) ? json_decode($product->colors, true) : $product->colors;
+                    $attributes = is_string($product->attributes) ? json_decode($product->attributes, true) : $product->attributes;
+                @endphp
+                @if ( (is_array($colors) && count($colors) > 0) || (is_array($attributes) && count($attributes) > 0) )
+                    <button type="button" class="btn btn-icon btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" 
+                        onclick="showAddToCartRightCanvas({{ $product->id }})" 
+                        data-toggle="tooltip" data-title="{{ translate('Select Option') }}" data-placement="left" 
+                        style="width: 32px; height: 32px; border: none; background: rgba(255, 255, 255, 0.9); color: #1E293B; transition: all 0.2s; padding: 0;"
+                        onmouseover="this.style.background='#F97316'; this.style.color='#fff';"
+                        onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.color='#1E293B';">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                    </button>
+                @else
+                    <button type="button" class="btn btn-icon btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" 
+                        onclick="addToCartSingleProduct({{ $product->id }})" 
+                        data-toggle="tooltip" data-title="{{ translate('Add to Cart') }}" data-placement="left" 
+                        style="width: 32px; height: 32px; border: none; background: rgba(255, 255, 255, 0.9); color: #1E293B; transition: all 0.2s; padding: 0;"
+                        onmouseover="this.style.background='#F97316'; this.style.color='#fff';"
+                        onmouseout="this.style.background='rgba(255, 255, 255, 0.9)'; this.style.color='#1E293B';">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                    </button>
+                @endif
             @endif
-        @endif
-        @if (
-            $product->auction_product == 1 &&
-                $product->auction_start_date <= strtotime('now') &&
-                $product->auction_end_date >= strtotime('now'))
-            <!-- Place Bid -->
-            @php
-                $carts = get_user_cart();
-                if (count($carts) > 0) {
-                    $cart_added = $carts->pluck('product_id')->toArray();
+        </div>
+        
+        <!-- JavaScript to handle showing icons on parent hover -->
+        <script>
+            document.currentScript.parentElement.onmouseover = function() {
+                var icons = this.querySelector('.position-absolute.d-flex.flex-column');
+                if (icons) {
+                    icons.style.opacity = '1';
+                    icons.style.visibility = 'visible';
+                    icons.style.transform = 'translateX(0)';
                 }
-                $highest_bid = $product->bids->max('amount');
-                $min_bid_amount = $highest_bid != null ? $highest_bid + 1 : $product->starting_bid;
-                $gst_rate = gst_applicable_product_rate($product->id);
-            @endphp
-            <a class="cart-btn absolute-bottom-left w-100 h-35px aiz-p-hov-icon text-white fs-13 fw-700 d-flex flex-column justify-content-center align-items-center @if (in_array($product->id, $cart_added)) active @endif"
-                href="javascript:void(0)" onclick="bid_single_modal({{ $product->id }}, {{ $min_bid_amount }}, {{ $gst_rate }})">
-                <span class="cart-btn-text">{{ translate('Place Bid') }}</span>
-                <span><i class="las la-2x la-gavel"></i></span>
-            </a>
+            };
+            document.currentScript.parentElement.onmouseout = function() {
+                var icons = this.querySelector('.position-absolute.d-flex.flex-column');
+                if (icons) {
+                    icons.style.opacity = '0';
+                    icons.style.visibility = 'hidden';
+                    icons.style.transform = 'translateX(10px)';
+                }
+            };
+        </script>
+
+        <!-- Discount Badge -->
+        @if (discount_in_percentage($product) > 0)
+            <span class="position-absolute rounded shadow-sm fw-700 text-white"
+                style="top: 10px; left: 10px; background-color: #F97316; padding: 4px 8px; font-size: 11px; z-index: 10;">
+                -{{ discount_in_percentage($product) }}%
+            </span>
         @endif
     </div>
 
-    <div class="p-2 text-left">
+    <!-- Product Info (Centered below image) -->
+    <div class="pt-3 pb-2 text-center">
         <!-- Product name -->
-        <h3 class="fw-400 fs-13 text-truncate-2 lh-1-4 mb-0 h-40px text-center pt-1">
-            <a href="{{ $product_url }}" class="d-block text-reset hov-text-primary"
-                title="{{ $product->getTranslation('name') }}">{{ $product->getTranslation('name') }}</a>
+        <h3 class="fw-600 fs-14 mb-1 lh-1-4">
+            <a href="{{ $product_url }}" class="d-block text-reset text-decoration-none"
+               style="color: #1E293B; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.2s;"
+               onmouseover="this.style.color='#F97316'" onmouseout="this.style.color='#1E293B'"
+               title="{{ $product->getTranslation('name') }}">
+                {{ $product->getTranslation('name') }}
+            </a>
         </h3>
-        <div class="fs-14 d-flex justify-content-center mt-2">
+        
+        <!-- Price -->
+        <div class="fs-15 d-flex justify-content-center align-items-center mt-2">
             @if ($product->auction_product == 0)
-                <!-- Previous price -->
                 @if (home_base_price($product) != home_discounted_base_price($product))
-                    <div class="disc-amount has-transition">
-                        <del class="fw-400 text-secondary mr-1">{{ home_base_price($product) }}</del>
-                    </div>
+                    <del class="fw-500 mr-2" style="color: #94A3B8; font-size: 13px;">{{ home_base_price($product) }}</del>
                 @endif
-                <!-- price -->
-                <div class="">
-                    <span class="fw-700 text-primary">{{ home_discounted_base_price($product) }}</span>
-                </div>
+                <span class="fw-800" style="color: #F97316;">{{ home_discounted_base_price($product) }}</span>
             @endif
             @if ($product->auction_product == 1)
-                <!-- Bid Amount -->
-                <div class="">
-                    <span class="fw-700 text-primary">{{ single_price($product->starting_bid) }}</span>
-                </div>
+                <span class="fw-800" style="color: #F97316;">{{ single_price($product->starting_bid) }}</span>
             @endif
         </div>
     </div>

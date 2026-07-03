@@ -69,7 +69,7 @@ class AuthService
      */
     public function getLoginView($routeName)
     {
-        $layout = get_setting('authentication_layout_select');
+        $layout = safe_auth_layout_select();
         
         if ($routeName == 'seller.login' && get_setting('vendor_system_activation') == 1) {
             return 'auth.' . $layout . '.seller_login';
@@ -87,7 +87,7 @@ class AuthService
      */
     public function getDashboardRedirect(User $user)
     {
-        if ($user->user_type == 'seller') {
+        if ($user->user_type == 'seller' && active_account_mode() === 'seller') {
             return 'seller.dashboard';
         } 
         

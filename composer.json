@@ -11,8 +11,8 @@
         "anandsiddharth/laravel-paytm-wallet": "^2.0",
         "authorizenet/authorizenet": "^2.0",
         "enshrined/svg-sanitize": "0.22.0",
-        "genealabs/laravel-sign-in-with-apple": "*",
-        "genealabs/laravel-socialiter": "*",
+        "genealabs/laravel-sign-in-with-apple": "^12.0",
+        "genealabs/laravel-socialiter": "^12.0",
         "guzzlehttp/guzzle": "^7.5",
         "instamojo/instamojo-php": "^0.4.0",
         "intervention/image": "^2.5",
@@ -31,6 +31,7 @@
         "maatwebsite/excel": "^3.1",
         "mehedi-iitdu/core-component-repository": "^2.2",
         "mercadopago/dx-php": "^2.5",
+        "mews/purifier": "^3.4",
         "mpdf/mpdf": "^8.1",
         "niklasravnsborg/laravel-pdf": "^4.1",
         "paypal/paypal-checkout-sdk": "dev-master",
@@ -93,6 +94,9 @@
         }
     },
     "scripts": {
+        "test-prepare": [
+            "@php artisan optimize:clear"
+        ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
@@ -103,12 +107,23 @@
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi",
             "@php artisan app:patch-vendor --ansi"
+        ],
+        "preflight": [
+            "@php artisan app:preflight-restore"
+        ],
+        "guardrails": [
+            "@php scripts/ci/check-operational-guardrails.php"
         ]
     },
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
         "optimize-autoloader": true,
+        "audit": {
+            "ignore": {
+                "PKSA-mdq4-51ck-6kdq": "Laravel 10 is retained pending a framework major upgrade; CVE-2026-48019 is tracked separately and CI should continue to fail on any new advisories."
+            }
+        },
         "allow-plugins": {
             "symfony/thanks": true
         }

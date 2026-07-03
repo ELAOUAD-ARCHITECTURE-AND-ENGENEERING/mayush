@@ -6,10 +6,17 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\SeedsAppConfigs;
 
 class SqlInjectionTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsAppConfigs;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seedConfigs();
+    }
 
     /** @test */
     public function search_query_is_safe_from_basic_sqli()

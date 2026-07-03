@@ -114,7 +114,7 @@ class ReviewController extends Controller
         }
         $review->rating     = $request->rating;
         $review->comment    = $request->comment;
-        $review->photos     = implode(',', $request->photos);
+        $review->photos     = implode(',', $request->photos ?? []);
         $review->viewed     = '0';
         if(($request->review_date_type == "custom") && $request->custom_date != null){
             $review->created_at = $request->custom_date;
@@ -168,7 +168,7 @@ class ReviewController extends Controller
 
                         $clubPoint = ClubPoint::create([
                             'user_id' => Auth::id(),
-                            'points' => $reviewPoint
+                            'points' => $reviewPoint,
                         ]);
                 
                         ClubPointDetail::create([
@@ -204,7 +204,7 @@ class ReviewController extends Controller
         
         $review->rating     = $request->rating;
         $review->comment    = $request->comment;
-        $review->photos     = implode(',', $request->photos);
+        $review->photos     = implode(',', $request->photos ?? []);
         if(isset($request->custom_date) && $request->custom_date != null){
             $review->created_at = $request->custom_date;
             $review->created_at_is_custom = 1;

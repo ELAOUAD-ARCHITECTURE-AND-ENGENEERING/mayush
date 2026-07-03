@@ -1,9 +1,18 @@
 @extends('frontend.layouts.app')
 
 @php
-    $productSeoTitle = \App\Services\SeoService::cleanText($detailedProduct->meta_title ?: $detailedProduct->getTranslation('name'), $detailedProduct->getTranslation('name'), 70);
-    $productSeoDescription = \App\Services\SeoService::cleanText($detailedProduct->meta_description ?: $detailedProduct->description, $productSeoTitle, 170);
+    $productSeoTitle = \App\Services\SeoService::meaningfulText($detailedProduct->meta_title, \App\Services\SeoService::productMetaTitle($detailedProduct), 70, 8);
+    $productSeoDescription = \App\Services\SeoService::meaningfulText($detailedProduct->meta_description, \App\Services\SeoService::productMetaDescription($detailedProduct), 170, 20);
     $productSeoImage = uploaded_asset($detailedProduct->meta_img ?: $detailedProduct->thumbnail_img);
+    $productPreloadImage = $productSeoImage ?: uploaded_asset($detailedProduct->thumbnail_img);
+    $productGeoQty = $detailedProduct->variant_product
+        ? $detailedProduct->stocks->sum('qty')
+        : optional($detailedProduct->stocks->first())->qty;
+    $productGeoAvailability = $productGeoQty > 0 ? 'InStock' : 'OutOfStock';
+    $productGeoAvailabilityLabel = $productGeoQty > 0 ? 'En stock' : 'Rupture de stock';
+    $productGeoAnswer = \App\Services\SeoService::productDirectAnswer($detailedProduct, $productGeoAvailabilityLabel);
+    $productGeoSpecRows = \App\Services\SeoService::productSpecRows($detailedProduct, $productGeoAvailabilityLabel);
+    $productGeoExpertNote = \App\Services\SeoService::productExpertNote($detailedProduct);
 @endphp
 
 @section('meta_title'){{ $productSeoTitle }}@stop
@@ -15,22 +24,15 @@
 
 @section('canonical_url'){{ route('product', $detailedProduct->slug) }}@stop
 
+@if($productPreloadImage)
+    @section('preload')
+        <link rel="preload" as="image" href="{{ $productPreloadImage }}" fetchpriority="high">
+    @endsection
+@endif
+
 @section('meta')
     @php
-        $availability = "OutOfStock";
-        $qty = 0;
-        if($detailedProduct->variant_product) {
-            foreach ($detailedProduct->stocks as $key => $stock) {
-                $qty += $stock->qty;
-            }
-        }
-        else {
-            $qty = optional($detailedProduct->stocks->first())->qty;
-        }
-        if($qty > 0){
-            $availability = "InStock";
-        }
-        $productSchema = \App\Services\SeoService::productSchema($detailedProduct, $availability);
+        $productSchema = \App\Services\SeoService::productSchema($detailedProduct, $productGeoAvailability);
     @endphp
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd($productSchema) !!}</script>
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
@@ -121,6 +123,26 @@
                 <!--DESCRIPTION SECTION START-->
                 <section id="description">
                     <div class="py-30px px-30px border  bg-white border-light-gray rounded-2">
+                        <article class="geo-product-summary mb-4">
+                            <p class="geo-direct-answer fs-15 text-dark mb-3">{{ $productGeoAnswer }}</p>
+                            @if(count($productGeoSpecRows) > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-bordered geo-specs-table mb-3">
+                                        <tbody>
+                                            @foreach($productGeoSpecRows as $label => $value)
+                                                <tr>
+                                                    <th scope="row" class="w-35 fs-13 text-dark">{{ $label }}</th>
+                                                    <td class="fs-13 text-gray">{{ $value }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
+                            <blockquote class="expert-note geo-expert-note bg-light p-3 border-left border-primary fs-14 text-dark mb-0">
+                                {{ $productGeoExpertNote }}
+                            </blockquote>
+                        </article>
                         <div class="mw-100 overflow-hidden text-left aiz-editor-data">
                             <?php echo $detailedProduct->getTranslation('description'); ?>
                         </div>
@@ -409,6 +431,11 @@
     <!-- ======================== Product Swipper Slide Start ================== -->
     <script type="text/javascript">
         document.addEventListener("DOMContentLoaded", function () {
+            if (!document.querySelector(".thumb-slider") || !document.querySelector(".main-slider")) {
+                return;
+            }
+
+            var initProductGallerySwipers = function () {
             /*------ Thumbnails Swiper ------*/
             var thumbSwiper = new Swiper(".thumb-slider", {
                 direction: "vertical",
@@ -478,7 +505,9 @@
                     updateThumbButtons(this);
                 });
             }
+            };
 
+            window.requestAnimationFrame(initProductGallerySwipers);
         });
     </script>
     <!-- ======================== Product Swipper Slide End ================== -->

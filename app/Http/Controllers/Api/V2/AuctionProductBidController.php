@@ -34,7 +34,6 @@ class AuctionProductBidController extends Controller
                     try {
                         Mail::to($secound_max_bid->user->email)->queue(new AuctionBidMailManager($array));
                     } catch (\Exception $e) {
-                        //dd($e->getMessage());
                     }
                 }
             }

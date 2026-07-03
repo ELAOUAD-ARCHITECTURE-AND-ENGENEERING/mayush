@@ -168,9 +168,7 @@ if (!function_exists('filter_products')) {
 if (!function_exists('get_cached_products')) {
     function get_cached_products($category_id = null)
     {
-        return Cache::remember('products-category-' . $category_id, 86400, function () use ($category_id) {
-            return filter_products(Product::where('category_id', $category_id))->latest()->take(5)->get();
-        });
+        return app(\App\Services\StorefrontDataService::class)->categoryProducts((int) $category_id, 5);
     }
 }
 
@@ -215,10 +213,9 @@ if (!function_exists('get_system_default_currency')) {
         return Cache::remember('system_default_currency', 86400, function () {
             $currency_id = get_setting('system_default_currency');
             $currency = $currency_id ? Currency::find($currency_id) : null;
-            if (!$currency && app()->runningUnitTests()) {
-                return (object)['code' => 'USD', 'symbol' => '$', 'exchange_rate' => 1];
-            }
-            return $currency ?: Currency::findOrFail($currency_id);
+            return $currency
+                ?: Currency::where('status', 1)->first()
+                ?: (object)['code' => 'MAD', 'symbol' => 'MAD', 'exchange_rate' => 1];
         });
     }
 }
@@ -322,7 +319,7 @@ if (!function_exists('cart_product_price')) {
                 $str = $cart_product['variation'];
             }
             $price = 0;
-            $product_stock = $product->stocks->where('variant', $str)->first();
+            $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
             if ($product_stock) {
                 $price = $product_stock->price;
             }
@@ -384,7 +381,7 @@ if (!function_exists('cart_product_tax')) {
         if ($cart_product['variation'] != null) {
             $str = $cart_product['variation'];
         }
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         $price = $product_stock->price;
 
         //discount calculation
@@ -439,7 +436,7 @@ if (!function_exists('cart_product_gst')) {
         // $price = $product_stock->price;
 
         $price = 0;
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         if ($product_stock) {
             $price = $product_stock->price * $cart_product['quantity'];
         }
@@ -499,7 +496,7 @@ if (!function_exists('cart_product_discount')) {
         if ($cart_product['variation'] != null) {
             $str = $cart_product['variation'];
         }
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         $price = $product_stock->price;
 
         //discount calculation
@@ -542,7 +539,7 @@ if (!function_exists('carts_product_discount')) {
             if ($cart_product['variation'] != null) {
                 $str = $cart_product['variation'];
             }
-            $product_stock = $product->stocks->where('variant', $str)->first();
+            $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
             $price = $product_stock->price;
 
             //discount calculation
@@ -1344,7 +1341,13 @@ if (!function_exists('uploaded_asset')) {
         if (is_object($id) && $id instanceof \App\Models\Upload) {
             $asset = $id;
         } else {
-            $asset = Upload::find($id);
+            $idInt = (int)$id;
+            if (!$idInt) {
+                return static_asset('assets/img/placeholder.jpg');
+            }
+            $asset = \Illuminate\Support\Facades\Cache::store('array')->remember('upload_model_' . $idInt, 3600, function () use ($idInt) {
+                return Upload::find($idInt);
+            });
         }
 
         if ($asset instanceof \Illuminate\Database\Eloquent\Collection || $asset instanceof \Illuminate\Support\Collection) {
@@ -1352,53 +1355,96 @@ if (!function_exists('uploaded_asset')) {
         }
 
         if ($asset != null) {
-            $file_name = $asset->file_name;
-            $info = pathinfo($file_name);
-            $extension = isset($info['extension']) ? strtolower($info['extension']) : '';
-
-            $dirname = isset($info['dirname']) ? $info['dirname'] : '';
-            $filename = isset($info['filename']) ? $info['filename'] : '';
-
-            // Handle Specific Sizes (Thumb/Medium)
-            if ($size && in_array($size, ['thumb', 'medium'])) {
-                $suffix = '_' . $size;
-                $size_file_name = ($dirname ? $dirname . '/' : '') . $filename . $suffix . ($extension ? '.' . $extension : '');
-                $size_file_name = str_replace('\\', '/', $size_file_name);
-                if (file_exists(public_path($size_file_name))) {
-                    $file_name = $size_file_name;
-                }
+            if ($asset->external_link != null) {
+                return $asset->external_link;
             }
 
-            $file_name = str_replace('\\', '/', $file_name);
+            $optimizer = app(\App\Services\ImageOptimizationService::class);
+            $file_name = str_replace('\\', '/', $asset->file_name);
+            $variant = array_key_exists((string) $size, (array) config('image-optimization.variants', [])) ? $size : null;
 
-            // Prefer WebP if it's an image and not already webp
-            if (str_contains($asset->type, 'image') && $extension !== 'webp') {
-                $webp_file = ($dirname ? $dirname . '/' : '') . $filename . '.webp';
-                // If we requested a size, check for the size-specific webp
-                if ($size && in_array($size, ['thumb', 'medium'])) {
-                    $webp_file = ($dirname ? $dirname . '/' : '') . $filename . '_' . $size . '.webp';    
-                }
-
-                $webp_file = str_replace(['\\', '//'], '/', $webp_file);
-                if (file_exists(public_path($webp_file))) {
-                    $file_name = $webp_file;
-                }
+            if (str_contains((string) $asset->type, 'image')) {
+                $file_name = $optimizer->resolveUploadDerivative($asset, $variant);
             }
 
-            // If local file is missing, try adding uploads/all/ prefix if not present
-            if ($asset->external_link == null && !file_exists(public_path($file_name))) {
+            // If the configured disk is missing the file, try the legacy uploads/all prefix.
+            if (!$optimizer->exists($file_name)) {
                 $basename = basename($file_name);
                 $prefixed_path = 'uploads/all/' . $basename;
-                if (file_exists(public_path($prefixed_path))) {
+                if ($optimizer->exists($prefixed_path)) {
                     $file_name = $prefixed_path;
                 } else {
                     return static_asset('assets/img/placeholder.jpg');
                 }
             }
 
-            return $asset->external_link == null ? my_asset($file_name) : $asset->external_link;
+            return my_asset($file_name);
         }
         return static_asset('assets/img/placeholder.jpg');
+    }
+}
+
+if (!function_exists('uploaded_asset_srcset')) {
+    function uploaded_asset_srcset($id, array $variants = []): string
+    {
+        if (is_object($id) && $id instanceof Upload) {
+            $asset = $id;
+        } else {
+            $idInt = (int)$id;
+            if (!$idInt) {
+                return '';
+            }
+            $asset = \Illuminate\Support\Facades\Cache::store('array')->remember('upload_model_' . $idInt, 3600, function () use ($idInt) {
+                return Upload::find($idInt);
+            });
+        }
+
+        if (!$asset || $asset->external_link || !str_contains((string) $asset->type, 'image')) {
+            return '';
+        }
+
+        $optimizer = app(\App\Services\ImageOptimizationService::class);
+        $configuredVariants = (array) config('image-optimization.variants', []);
+        $sources = [];
+
+        foreach ($optimizer->existingUploadDerivatives($asset, $variants) as $variant => $path) {
+            $url = my_asset($path);
+            $sources[$url] = $url.' '.$configuredVariants[$variant].'w';
+        }
+
+        return implode(', ', array_values($sources));
+    }
+}
+
+if (!function_exists('responsive_image')) {
+    function responsive_image($upload, string $profile = 'product-card', array $attributes = []): string
+    {
+        $profile = (array) config('image-optimization.profiles.'.$profile, []);
+        $attributes = array_merge([
+            'src' => uploaded_asset($upload, $profile['variant'] ?? null),
+            'srcset' => uploaded_asset_srcset($upload, $profile['variants'] ?? []),
+            'sizes' => $profile['sizes'] ?? null,
+            'width' => $profile['width'] ?? null,
+            'height' => $profile['height'] ?? null,
+            'loading' => 'lazy',
+            'decoding' => 'async',
+        ], $attributes);
+
+        $htmlAttributes = [];
+        foreach ($attributes as $name => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            if ($value === true) {
+                $htmlAttributes[] = e($name);
+                continue;
+            }
+
+            $htmlAttributes[] = e($name).'="'.e((string) $value).'"';
+        }
+
+        return '<img '.implode(' ', $htmlAttributes).'>';
     }
 }
 
@@ -1421,7 +1467,7 @@ if (!function_exists('my_asset')) {
             $path = substr($path, 1);
         }
 
-        return rtrim(getBaseURL(), '/') . '/public/' . $path;
+        return rtrim(getBaseURL(), '/') . public_asset_url_prefix() . '/' . $path;
     }
 }
 
@@ -1436,7 +1482,55 @@ if (!function_exists('static_asset')) {
     function static_asset($path, $secure = null)
     {
         $path = ltrim($path, '/');
-        return rtrim(getBaseURL(), '/') . '/public/' . $path;
+        return rtrim(getBaseURL(), '/') . public_asset_url_prefix() . '/' . $path;
+    }
+}
+
+if (!function_exists('versioned_static_asset')) {
+    function versioned_static_asset($path): string
+    {
+        $path = ltrim($path, '/');
+        $fullPath = public_path($path);
+        $version = file_exists($fullPath) ? filemtime($fullPath) : null;
+
+        return static_asset($path).($version ? '?v='.$version : '');
+    }
+}
+
+if (!function_exists('storefront_asset')) {
+    function storefront_asset(string $entry): ?string
+    {
+        $manifestPath = public_path('build/storefront/manifest.json');
+
+        if (!file_exists($manifestPath)) {
+            return null;
+        }
+
+        $manifest = json_decode((string) file_get_contents($manifestPath), true);
+        $path = is_array($manifest) ? ($manifest[$entry] ?? null) : null;
+
+        return is_string($path) ? static_asset($path) : null;
+    }
+}
+
+if (!function_exists('optimized_static_asset')) {
+    function optimized_static_asset($path, $size = null): string
+    {
+        $optimizer = app(\App\Services\ImageOptimizationService::class);
+        $variant = array_key_exists((string) $size, (array) config('image-optimization.variants', [])) ? $size : null;
+        $candidate = $optimizer->derivativePath($path, $variant);
+
+        return static_asset($optimizer->exists($candidate, 'static') ? $candidate : $path);
+    }
+}
+
+if (!function_exists('public_asset_url_prefix')) {
+    function public_asset_url_prefix()
+    {
+        $documentRoot = isset($_SERVER['DOCUMENT_ROOT']) ? realpath($_SERVER['DOCUMENT_ROOT']) : false;
+        $publicPath = realpath(public_path());
+
+        return $documentRoot && $publicPath && $documentRoot === $publicPath ? '' : '/public';
     }
 }
 
@@ -1530,7 +1624,7 @@ if (!function_exists('isAdmin')) {
 if (!function_exists('isSeller')) {
     function isSeller()
     {
-        if (Auth::check() && Auth::user()->user_type == 'seller') {
+        if (Auth::check() && Auth::user()->user_type == 'seller' && active_account_mode() == 'seller') {
             return true;
         }
         return false;
@@ -1540,10 +1634,63 @@ if (!function_exists('isSeller')) {
 if (!function_exists('isCustomer')) {
     function isCustomer()
     {
-        if (Auth::check() && Auth::user()->user_type == 'customer') {
+        if (Auth::check() && (
+            Auth::user()->user_type == 'customer' ||
+            (Auth::user()->user_type == 'seller' && active_account_mode() == 'buyer')
+        )) {
             return true;
         }
         return false;
+    }
+}
+
+if (!function_exists('has_seller_account')) {
+    function has_seller_account($user = null)
+    {
+        $user = $user ?: Auth::user();
+
+        if (!$user || $user->user_type !== 'seller' || $user->banned) {
+            return false;
+        }
+
+        return $user->shop !== null;
+    }
+}
+
+if (!function_exists('can_switch_account_mode')) {
+    function can_switch_account_mode($user = null)
+    {
+        $user = $user ?: Auth::user();
+
+        if (!has_seller_account($user) || $user->email_verified_at === null) {
+            return false;
+        }
+
+        $shop = $user->shop;
+        $shopVerified = (int) ($shop->verification_status ?? 0) === 1;
+        $shopApproved = $shop->approval_status === 'approved' || (int) ($shop->registration_approval ?? 0) === 1;
+
+        return $shopVerified || $shopApproved;
+    }
+}
+
+if (!function_exists('active_account_mode')) {
+    function active_account_mode()
+    {
+        if (!Auth::check()) {
+            return 'guest';
+        }
+
+        $sessionMode = session('account_mode');
+        if (can_switch_account_mode() && in_array($sessionMode, ['seller', 'buyer'], true)) {
+            return $sessionMode;
+        }
+
+        if (Auth::user()->user_type === 'seller') {
+            return 'seller';
+        }
+
+        return 'buyer';
     }
 }
 
@@ -1660,15 +1807,11 @@ if (!function_exists('wallet_payment_done')) {
     function wallet_payment_done($user_id, $amount, $payment_method, $payment_details)
     {
         $user = \App\Models\User::find($user_id);
-        $user->balance = $user->balance + $amount;
-        $user->save();
+        if (!$user) {
+            return null;
+        }
 
-        $wallet = new Wallet;
-        $wallet->user_id = $user->id;
-        $wallet->amount = $amount;
-        $wallet->payment_method = $payment_method;
-        $wallet->payment_details = $payment_details;
-        $wallet->save();
+        return app(\App\Services\WalletService::class)->credit($user, $amount, $payment_method, $payment_details);
     }
 }
 
@@ -1793,6 +1936,7 @@ if (!function_exists('calculateCommissionAffilationClubPoint')) {
         }
 
         $order->commission_calculated = 1;
+        \Log::info("Final save for order id {$order->id} with payment_status: {$order->payment_status}");
         $order->save();
     }
 }
@@ -1868,8 +2012,7 @@ if (!function_exists('get_url_params')) {
 if (!function_exists('get_admin')) {
     function get_admin()
     {
-        $admin_query = User::query();
-        return $admin_query->where('user_type', 'admin')->first();
+        return \App\Models\User::where('user_type', 'admin')->first();
     }
 }
 
@@ -1877,45 +2020,28 @@ if (!function_exists('get_admin')) {
 if (!function_exists('get_slider_images')) {
     function get_slider_images($ids)
     {
-        $slider_query = Upload::query();
-        $sliders = $slider_query->whereIn('id', $ids);
-        foreach ($ids as $id) {
-            $sliders->orderByRaw("id!=?", [$id]);
-        }
-        return $sliders->get();
+        return app(\App\Services\StorefrontDataService::class)->sliderImages((array) $ids);
     }
 }
 
 if (!function_exists('get_featured_flash_deal')) {
     function get_featured_flash_deal()
     {
-        $flash_deal_query = FlashDeal::query();
-        $featured_flash_deal = $flash_deal_query->isActiveAndFeatured()
-            ->where('start_date', '<=', strtotime(date('Y-m-d H:i:s')))
-            ->where('end_date', '>=', strtotime(date('Y-m-d H:i:s')))
-            ->first();
-
-        return $featured_flash_deal;
+        return app(\App\Services\StorefrontDataService::class)->featuredFlashDeal();
     }
 }
 
 if (!function_exists('get_flash_deal_products')) {
     function get_flash_deal_products($flash_deal_id)
     {
-        $flash_deal_product_query = FlashDealProduct::query();
-        $flash_deal_product_query->where('flash_deal_id', $flash_deal_id);
-        $flash_deal_products = $flash_deal_product_query->with('product')->orderBy('id', 'desc')->limit(10)->get();
-
-        return $flash_deal_products;
+        return app(\App\Services\StorefrontDataService::class)->flashDealProducts((int) $flash_deal_id, 10);
     }
 }
 
 if (!function_exists('get_active_flash_deals')) {
     function get_active_flash_deals()
     {
-        return \App\Models\FlashDeal::active()
-            ->has('flash_deal_products')
-            ->get();
+        return app(\App\Services\StorefrontDataService::class)->activeFlashDeals();
     }
 }
 
@@ -1972,10 +2098,11 @@ if (!function_exists('get_system_language')) {
 if (!function_exists('get_all_active_language')) {
     function get_all_active_language()
     {
-        $language_query = Language::query();
-        $language_query->where('status', 1);
+        $revision = app(\App\Services\StorefrontCacheService::class)->revision();
 
-        return $language_query->get();
+        return Cache::remember("storefront:v{$revision}:active-languages", 900, function () {
+            return Language::query()->where('status', 1)->get();
+        });
     }
 }
 
@@ -1983,8 +2110,11 @@ if (!function_exists('get_all_active_language')) {
 if (!function_exists('get_session_language')) {
     function get_session_language()
     {
-        $language_query = Language::query();
-        $lang = $language_query->where('code', Session::get('locale', Config::get('app.locale')))->first();
+        $code = Session::get('locale', Config::get('app.locale'));
+        $revision = app(\App\Services\StorefrontCacheService::class)->revision();
+        $lang = Cache::remember("storefront:v{$revision}:session-language:{$code}", 900, function () use ($code) {
+            return Language::query()->where('code', $code)->first();
+        });
         if (!$lang && app()->runningUnitTests()) {
             return (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
         }
@@ -1995,14 +2125,18 @@ if (!function_exists('get_session_language')) {
 if (!function_exists('get_system_currency')) {
     function get_system_currency()
     {
-        $currency_query = Currency::query();
+        $revision = app(\App\Services\StorefrontCacheService::class)->revision();
         if (Session::has('currency_code')) {
-            $currency_query->where('code', Session::get('currency_code'));
+            $currencyKey = 'code:'.Session::get('currency_code');
+            $currency = Cache::remember("storefront:v{$revision}:system-currency:{$currencyKey}", 900, function () {
+                return Currency::query()->where('code', Session::get('currency_code'))->first();
+            });
         } else {
-            $currency_query = $currency_query->where('id', get_setting('system_default_currency'));
+            $currencyId = get_setting('system_default_currency');
+            $currency = Cache::remember("storefront:v{$revision}:system-currency:id:{$currencyId}", 900, function () use ($currencyId) {
+                return Currency::query()->where('id', $currencyId)->first();
+            });
         }
-
-        $currency = $currency_query->first();
         if (!$currency && app()->runningUnitTests()) {
             return (object)['code' => 'USD', 'symbol' => '$', 'exchange_rate' => 1];
         }
@@ -2013,10 +2147,11 @@ if (!function_exists('get_system_currency')) {
 if (!function_exists('get_all_active_currency')) {
     function get_all_active_currency()
     {
-        $currency_query = Currency::query();
-        $currency_query->where('status', 1);
+        $revision = app(\App\Services\StorefrontCacheService::class)->revision();
 
-        return $currency_query->get();
+        return Cache::remember("storefront:v{$revision}:active-currencies", 900, function () {
+            return Currency::query()->where('status', 1)->get();
+        });
     }
 }
 
@@ -2352,13 +2487,7 @@ if (!function_exists('get_brands_by_products')) {
 if (!function_exists('get_category')) {
     function get_category($category_ids)
     {
-        $category_query = Category::query();
-        $category_query->with('coverImage');
-
-        $category_query->whereIn('id', $category_ids);
-
-        $categories = $category_query->get();
-        return $categories;
+        return app(\App\Services\StorefrontDataService::class)->categories((array) $category_ids);
     }
 }
 
@@ -2375,8 +2504,7 @@ if (!function_exists('get_single_category')) {
 if (!function_exists('get_level_zero_categories')) {
     function get_level_zero_categories()
     {
-        $categories_query = Category::query()->with(['coverImage', 'catIcon']);
-        return $categories_query->where('level', 0)->orderBy('order_level', 'desc')->get();
+        return app(\App\Services\StorefrontDataService::class)->levelZeroCategories();
     }
 }
 
@@ -2425,16 +2553,19 @@ if (!function_exists('get_single_attribute_name')) {
 if (!function_exists('get_user_cart')) {
     function get_user_cart()
     {
-        $cart = [];
-        if (auth()->user() != null) {
-            $cart = Cart::where('user_id', Auth::user()->id)->get();
-        } else {
-            $temp_user_id = Session()->get('temp_user_id');
-            if ($temp_user_id) {
-                $cart = Cart::where('temp_user_id', $temp_user_id)->get();
+        $cacheKey = 'user_cart_' . (auth()->check() ? auth()->id() : 'guest_' . session()->get('temp_user_id'));
+        return \Illuminate\Support\Facades\Cache::store('array')->remember($cacheKey, 60, function () {
+            $cart = [];
+            if (auth()->user() != null) {
+                $cart = Cart::where('user_id', Auth::user()->id)->get();
+            } else {
+                $temp_user_id = Session()->get('temp_user_id');
+                if ($temp_user_id) {
+                    $cart = Cart::where('temp_user_id', $temp_user_id)->get();
+                }
             }
-        }
-        return $cart;
+            return $cart;
+        });
     }
 }
 
@@ -2683,6 +2814,14 @@ if (!function_exists('get_shop_by_user_id')) {
 if (!function_exists('get_coupons')) {
     function get_coupons($user_id = null, $paginate = null)
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('coupons')) {
+            if ($paginate) {
+                return new \Illuminate\Pagination\LengthAwarePaginator([], 0, $paginate);
+            }
+
+            return collect();
+        }
+
         $coupon_query = Coupon::query();
         $coupon_query = $coupon_query->where('start_date', '<=', strtotime(date('d-m-Y')))->where('end_date', '>=', strtotime(date('d-m-Y')));
         if ($user_id) {
@@ -2761,6 +2900,13 @@ if (!function_exists('get_Affiliate_onfig_value')) {
 if (!function_exists('offerUserWelcomeCoupon')) {
     function offerUserWelcomeCoupon()
     {
+        if (
+            !\Illuminate\Support\Facades\Schema::hasTable('coupons') ||
+            !\Illuminate\Support\Facades\Schema::hasTable('user_coupons')
+        ) {
+            return;
+        }
+
         $coupon = Coupon::where('type', 'welcome_base')->where('status', 1)->first();
         if ($coupon) {
 
@@ -2784,10 +2930,29 @@ if (!function_exists('offerUserWelcomeCoupon')) {
 if (!function_exists('ifUserHasWelcomeCouponAndNotUsed')) {
     function ifUserHasWelcomeCouponAndNotUsed()
     {
+        if (
+            !\Illuminate\Support\Facades\Schema::hasTable('coupons') ||
+            !\Illuminate\Support\Facades\Schema::hasTable('user_coupons')
+        ) {
+            return false;
+        }
+
         $user = auth()->user();
+        if (!$user) {
+            return false;
+        }
+
         $userCoupon = $user->userCoupon;
         if($userCoupon){
             if($userCoupon->expiry_date >=strtotime(date('d-m-Y H:i:s'))){
+                if (!$userCoupon->coupon) {
+                    return false;
+                }
+
+                if (!\Illuminate\Support\Facades\Schema::hasTable('coupon_usages')) {
+                    return $userCoupon;
+                }
+
                 $couponUse = $userCoupon->coupon->couponUsages->where('user_id',$user->id)->first();
                 if(!$couponUse){
                     return $userCoupon;
@@ -2821,11 +2986,12 @@ if (!function_exists('get_first_product_image')) {
         
         foreach ($photosArray as $photoId) {
             if (!empty($photoId)) {
-                $asset = \App\Models\Upload::find($photoId);
+                $idInt = (int)$photoId;
+                $asset = \Illuminate\Support\Facades\Cache::store('array')->remember('upload_model_' . $idInt, 3600, function () use ($idInt) {
+                    return \App\Models\Upload::find($idInt);
+                });
                 if ($asset) {
-                    // Try to return the asset if it exists in the database
-                    // Removing the file_exists(public_path()) check as it can fail on Windows cross-slashes or cloud storage
-                    return uploaded_asset($photoId, $size);
+                    return uploaded_asset($asset, $size);
                 }
             }
         }
@@ -2917,6 +3083,10 @@ if (!function_exists('get_notification_type')) {
 if (!function_exists('get_activate_payment_methods')) {
     function get_activate_payment_methods()
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('payment_methods')) {
+            return collect();
+        }
+
         $payment_methods = PaymentMethod::where('active', 1)
                                         ->Where(function($query){
                                             $query->whereNull('addon_identifier')
@@ -2996,8 +3166,8 @@ if (!function_exists('get_wishlists')) {
 if (!function_exists('get_email_template_data')) {
     function get_email_template_data($identifier, $colmn_name = null)
     {
-        $value = EmailTemplate::where('identifier', $identifier)->first()->$colmn_name;
-        return $value;
+        $template = EmailTemplate::where('identifier', $identifier)->first();
+        return $template ? $template->$colmn_name : null;
     }
 }
 
@@ -3410,10 +3580,32 @@ if (!function_exists('get_element_type_by_id')) {
     function get_element_type_by_id($id)
     {
         $elementType = ElementType::find($id);
-        if (!$elementType && app()->runningUnitTests()) {
-            return 'header1';
-        }
-        return $elementType ? strtolower(str_replace(' ', '', $elementType->name)) : null;
+        return $elementType ? strtolower(str_replace(' ', '', $elementType->name)) : 'header1';
+    }
+}
+
+if (!function_exists('safe_homepage_select')) {
+    function safe_homepage_select()
+    {
+        $homepage = get_setting('homepage_select') ?: 'classic';
+        return view()->exists("frontend.{$homepage}.index") ? $homepage : 'classic';
+    }
+}
+
+if (!function_exists('safe_auth_layout_select')) {
+    function safe_auth_layout_select()
+    {
+        $layout = get_setting('authentication_layout_select') ?: 'boxed';
+        return view()->exists("auth.{$layout}.admin_login") ? $layout : 'boxed';
+    }
+}
+
+if (!function_exists('safe_header_view')) {
+    function safe_header_view()
+    {
+        $header = get_element_type_by_id(get_setting('header_element'));
+        $view = 'header.'.$header;
+        return view()->exists($view) ? $view : 'header.header1';
     }
 }
 
@@ -3464,34 +3656,36 @@ function youtubeVideoId($url)
 }
 
 if (!function_exists('get_all_sale_alert_products')) {
-    function get_all_sale_alert_products() {
-        return CustomSaleAlert::with('product')->get()->map(function($alert) {
-            if (!$alert->product) return null; 
-
-            return [
-                'id' => $alert->product->id,
-                'title' => $alert->product->getTranslation('name'),
-                'image' => uploaded_asset($alert->product->thumbnail_img),
-                'url'  => route('product',  $alert->product->slug),
-            ];
-        })->filter();
+    function get_all_sale_alert_products()
+    {
+        return app(\App\Services\StorefrontDataService::class)->saleAlertProducts();
     }
 }
 
 //get products label
 if (!function_exists('get_custom_labels')) {
-    function get_custom_labels($labels) {
-        $labels_array = [];
-        if($labels){
-            $labels = explode(',',$labels);
-            foreach($labels as $label){
-                $label_data = CustomLabel::where('id',$label)->first();
-                if($label_data){
-                    $labels_array[] = $label_data;
-                }
+    function get_custom_labels($labels)
+    {
+        $revision = app(\App\Services\StorefrontCacheService::class)->revision();
+
+        return Cache::remember("storefront:v{$revision}:custom-labels:".md5((string) $labels), 900, function () use ($labels) {
+            $labelIds = collect(explode(',', (string) $labels))
+                ->map(fn ($label) => (int) trim($label))
+                ->filter()
+                ->values();
+
+            if ($labelIds->isEmpty()) {
+                return [];
             }
-        }
-        return $labels_array;
+
+            $labelsById = CustomLabel::whereIn('id', $labelIds)->get()->keyBy('id');
+
+            return $labelIds
+                ->map(fn ($labelId) => $labelsById->get($labelId))
+                ->filter()
+                ->values()
+                ->all();
+        });
     }
 }
 
@@ -3666,7 +3860,7 @@ if (!function_exists('pos_cart_product_gst')) {
         // $price = $product_stock->price;
 
         $price = 0;
-        $product_stock = $product->stocks->where('variant', $str)->first();
+        $product_stock = \App\Utility\CartUtility::find_product_stock($product, $str);
         if ($product_stock) {
             $price = $product_stock->price * $cart_product['quantity'];
         }
@@ -3730,7 +3924,6 @@ if (!function_exists('same_state_shipping_pos')) {
         if(Auth::user()->user_type=='seller'){
             $auth_user= Auth::user();
            if (empty($auth_user->shop) || empty($auth_user->shop->business_info)) {
-            dd("sdc");
                 return false;
             }
 

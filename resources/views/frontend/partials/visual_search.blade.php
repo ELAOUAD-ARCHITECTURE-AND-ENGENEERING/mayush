@@ -1,7 +1,7 @@
 {{-- Visual Search Hidden Form --}}
 <form id="visual-search-form" action="{{ route('search.visual') }}" method="POST" enctype="multipart/form-data" style="display:none;">
     @csrf
-    <input type="file" id="visual-search-input" name="image" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" onchange="handleVisualSearch(this)">
+    <input type="file" id="visual-search-input" name="visual_image" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" onchange="handleVisualSearch(this)">
 </form>
 
 {{-- Visual Search Loading Overlay --}}

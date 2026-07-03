@@ -14,7 +14,6 @@ class ProductReviewCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-       // dd($this);
         return [
             "data"=>$this->collection->map( function ($data){
                 return [

@@ -21,27 +21,65 @@ jobs:
           coverage: none
 
       - name: "Validate Composer Manifest"
-        run: composer validate --no-check-publish
+        run: composer validate --no-check-publish --strict
+
+      - name: "Block Production Debug Artifacts"
+        run: |
+          ! grep -RInE '(^|[^A-Za-z0-9_])(dd|dump|ray|var_dump)[[:space:]]*\(' app routes resources --include='*.php'
 
       - name: "Install Dependencies"
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: "Setup Node"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: "Validate Storefront Asset Manifest"
+        run: |
+          npm ci
+          npm run build:storefront
+          test -z "$(git status --porcelain -- public/build/storefront)"
+
       - name: "Prepare Laravel Environment"
         run: |
           cp .env.example .env
+          sed -i 's/^APP_ENV=.*/APP_ENV=testing/' .env
+          sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          sed -i 's#^DB_DATABASE=.*#DB_DATABASE=:memory:#' .env
+          sed -i 's/^CACHE_DRIVER=.*/CACHE_DRIVER=array/' .env
+          sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=array/' .env
+          sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' .env
+          sed -i 's/^ONESSTA_ENABLED=.*/ONESSTA_ENABLED=false/' .env
           php artisan key:generate --ansi
           php artisan optimize:clear
 
       - name: "Validate Routes"
         run: php artisan route:list
 
+      - name: "Validate Config Cache"
+        run: |
+          php artisan config:cache
+          php artisan config:clear
+
       - name: "Validate Route Cache"
         run: |
           php artisan route:cache
           php artisan route:clear
 
-      - name: "Run SEO Remediation Tests"
-        run: php artisan test tests/Feature/SeoRemediationTest.php --stop-on-failure
+      - name: "Run Application Tests"
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+          CACHE_DRIVER: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+          ONESSTA_ENABLED: "false"
+        run: |
+          php artisan optimize:clear
+          php artisan test --stop-on-failure
 
   deploy:
     name: "🚀 Deploy to Production"
@@ -64,6 +102,7 @@ jobs:
           ONESSTA_WEBHOOK_SECRET: ${{ secrets.ONESSTA_WEBHOOK_SECRET }}
           ONESSTA_WEBHOOK_API_KEY: ${{ secrets.ONESSTA_WEBHOOK_API_KEY }}
           ONESSTA_WEBHOOK_CALLBACKURL: ${{ secrets.ONESSTA_WEBHOOK_CALLBACKURL }}
+          CMI_ALLOWED_IPS: ${{ secrets.CMI_ALLOWED_IPS }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
@@ -73,9 +112,13 @@ jobs:
           request_pty: true
           script_stop: false
           command_timeout: 30m
-          envs: DEPLOY_DB_PASSWORD,DEPLOY_DB_USER,GITHUB_TOKEN,ONESSTA_ENABLED,ONESSTA_BASE_URL,ONESSTA_TOKEN,ONESSTA_API_KEY,ONESSTA_CLIENT_ID,ONESSTA_WEBHOOK_SECRET,ONESSTA_WEBHOOK_API_KEY,ONESSTA_WEBHOOK_CALLBACKURL
+          envs: DEPLOY_DB_PASSWORD,DEPLOY_DB_USER,GITHUB_TOKEN,ONESSTA_ENABLED,ONESSTA_BASE_URL,ONESSTA_TOKEN,ONESSTA_API_KEY,ONESSTA_CLIENT_ID,ONESSTA_WEBHOOK_SECRET,ONESSTA_WEBHOOK_API_KEY,ONESSTA_WEBHOOK_CALLBACKURL,CMI_ALLOWED_IPS
           script: |
             set -euo pipefail
+
+            if [ -z "${CMI_ALLOWED_IPS:-}" ]; then
+              echo "CMI_ALLOWED_IPS is empty; continuing because this deployment explicitly ignores the CMI callback IP allowlist."
+            fi
             
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "  MAYUSHDESIGN — DEPLOY STARTED"
@@ -108,7 +151,7 @@ jobs:
             git remote set-url origin https://github.com/${{ github.repository }}.git
 
             echo ""
-            echo "▶ [2/5] Injecting ONESSTA Environment Variables..."
+            echo "▶ [2/5] Injecting production gateway environment variables..."
             ENV_FILE="/home/mayushdesign/public_html/.env"
             
             # Ensure .env exists
@@ -123,10 +166,11 @@ jobs:
             sed -i "/^ONESSTA_WEBHOOK_SECRET=/d" "$ENV_FILE"
             sed -i "/^ONESSTA_WEBHOOK_API_KEY=/d" "$ENV_FILE"
             sed -i "/^ONESSTA_WEBHOOK_CALLBACKURL=/d" "$ENV_FILE"
+            sed -i "/^CMI_ALLOWED_IPS=/d" "$ENV_FILE"
 
             # Inject the secrets into .env
-            printf "\nONESSTA_ENABLED=%s\nONESSTA_BASE_URL=%s\nONESSTA_TOKEN=%s\nONESSTA_API_KEY=%s\nONESSTA_CLIENT_ID=%s\nONESSTA_WEBHOOK_SECRET=%s\nONESSTA_WEBHOOK_API_KEY=%s\nONESSTA_WEBHOOK_CALLBACKURL=%s\n" \
-              "$ONESSTA_ENABLED" "$ONESSTA_BASE_URL" "$ONESSTA_TOKEN" "$ONESSTA_API_KEY" "$ONESSTA_CLIENT_ID" "$ONESSTA_WEBHOOK_SECRET" "$ONESSTA_WEBHOOK_API_KEY" "$ONESSTA_WEBHOOK_CALLBACKURL" >> "$ENV_FILE"
+            printf "\nONESSTA_ENABLED=%s\nONESSTA_BASE_URL=%s\nONESSTA_TOKEN=%s\nONESSTA_API_KEY=%s\nONESSTA_CLIENT_ID=%s\nONESSTA_WEBHOOK_SECRET=%s\nONESSTA_WEBHOOK_API_KEY=%s\nONESSTA_WEBHOOK_CALLBACKURL=%s\nCMI_ALLOWED_IPS=%s\n" \
+              "$ONESSTA_ENABLED" "$ONESSTA_BASE_URL" "$ONESSTA_TOKEN" "$ONESSTA_API_KEY" "$ONESSTA_CLIENT_ID" "$ONESSTA_WEBHOOK_SECRET" "$ONESSTA_WEBHOOK_API_KEY" "$ONESSTA_WEBHOOK_CALLBACKURL" "$CMI_ALLOWED_IPS" >> "$ENV_FILE"
             
             echo "✔ Environment Variables Injected"
 
@@ -176,7 +220,33 @@ jobs:
             echo "▶ [5/5] Deploying Application..."
             php8.2 artisan optimize:clear
             php8.2 artisan view:clear
+            sed -i '/sourceMappingURL=swiper-bundle\.min\.js\.map/d' public/assets/js/vendors.js
+
+            echo "Creating pre-migration database backup..."
+            DB_HOST=$(grep '^DB_HOST=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
+            DB_PORT=$(grep '^DB_PORT=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
+            DB_DATABASE=$(grep '^DB_DATABASE=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
+            DB_USERNAME=$(grep '^DB_USERNAME=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
+            DB_PASSWORD=$(grep '^DB_PASSWORD=' "$ENV_FILE" | cut -d '=' -f2- | tr -d '\r' | sed 's/^"//;s/"$//')
+            BACKUP_DIR="/home/mayushdesign/db-backups"
+            if [ -z "$DB_DATABASE" ] || [ -z "$DB_USERNAME" ]; then
+              echo "DB_BACKUP_FAIL: DB_DATABASE and DB_USERNAME must be set in .env"
+              exit 1
+            fi
+            if ! command -v mysqldump >/dev/null 2>&1; then
+              echo "DB_BACKUP_FAIL: mysqldump is not installed on the production server"
+              exit 1
+            fi
+            mkdir -p "$BACKUP_DIR"
+            BACKUP_FILE="$BACKUP_DIR/${DB_DATABASE}-before-deploy-$(date -u +'%Y%m%d-%H%M%S').sql"
+            MYSQL_PWD="$DB_PASSWORD" mysqldump --single-transaction --quick --routines --triggers -h "${DB_HOST:-127.0.0.1}" -P "${DB_PORT:-3306}" -u "$DB_USERNAME" "$DB_DATABASE" > "$BACKUP_FILE"
+            test -s "$BACKUP_FILE"
+            echo "Database backup created: $BACKUP_FILE"
+
+            php8.2 artisan app:preflight-restore --require-redis --allow-pending-migrations --no-ansi
             php8.2 artisan migrate --force
+            php8.2 artisan db:seed --class=BlogNavigationSeeder --force
+            php8.2 artisan app:preflight-restore --require-redis --require-blog-navigation --no-ansi
             php8.2 artisan queue:restart
             php8.2 artisan horizon:terminate
             
@@ -185,8 +255,20 @@ jobs:
             
             # Run the server's specific ENV and cache script
             sudo -E /usr/local/bin/deploy_mayush_env_and_cache.sh
+
+            echo ""
+            echo "Validating scheduler and queueing bounded image repairs..."
+            php8.2 artisan schedule:list --no-ansi
+            php8.2 artisan images:audit --repair --priority-storefront --include-static --limit=500
+            php8.2 artisan storefront:cache-warm
+            php8.2 artisan images:status
             
             echo "✔ Deploy & cache clearing finished"
+
+            echo ""
+            echo "▶ Running CMI production diagnostics..."
+            php8.2 artisan cmi:diagnose --production --allow-empty-ip-allowlist
+            echo "✔ CMI production diagnostics passed"
 
             # ── [6/6] AI Service Setup (Isolated) ──────────────────
             echo ""

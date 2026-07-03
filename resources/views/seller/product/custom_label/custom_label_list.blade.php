@@ -51,10 +51,11 @@
                                                 {{translate('Edit')}}
                                             </a>
                                             @if($custom_label->user->user_type == 'seller')
-                                            <a class="dropdown-item confirm-delete" href="javascript:void(0)"
-                                                data-href="{{route('seller.custom_label.delete', $custom_label->id)}}">
-                                                {{translate('Delete')}}
-                                            </a>
+                                            <form action="{{ route('seller.custom_label.delete', $custom_label->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item">{{ translate('Delete') }}</button>
+                                            </form>
                                             @endif
                                         </div>
                                     </div>

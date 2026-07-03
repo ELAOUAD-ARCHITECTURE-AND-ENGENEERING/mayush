@@ -23,4 +23,9 @@ class Upload extends Model
     {
     	return $this->belongsTo(User::class);
     }
+
+    public function imageOptimizationState()
+    {
+        return $this->hasOne(ImageOptimizationState::class);
+    }
 }

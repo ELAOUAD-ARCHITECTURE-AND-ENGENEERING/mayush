@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../resources/js/storefront/core.js"],
+  "sourcesContent": ["document.documentElement.classList.add('storefront-profile-core');\n"],
+  "mappings": "AAAA,SAAS,gBAAgB,UAAU,IAAI,yBAAyB",
+  "names": []
+}

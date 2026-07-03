@@ -70,8 +70,8 @@ class SemanticUtility
     {
         $text = "";
         if (method_exists($model, 'getTranslation')) {
-            $text .= $model->getTranslation('name') . ". ";
-            $text .= strip_tags($model->getTranslation('description')) . ". ";
+            $text .= (string) $model->getTranslation('name') . ". ";
+            $text .= strip_tags((string) $model->getTranslation('description')) . ". ";
         } else {
             $text .= ($model->name ?? '') . ". ";
             $text .= strip_tags($model->description ?? '') . ". ";

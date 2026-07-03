@@ -13,8 +13,12 @@ class City extends Model
     protected $guarded = [];
 
     public function getTranslation($field = '', $lang = false){
-        $lang = $lang == false ? App::getLocale() : $lang;
-        $city_translation = $this->hasMany(CityTranslation::class)->where('lang', $lang)->first();
+        $lang = $lang ?: App::getLocale();
+        $city_translation = $this->city_translations->where('lang', $lang)->first();
+        if ($city_translation != null && $city_translation->$field !== null && $city_translation->$field !== $this->$field) {
+            return in_array($field, ['name', 'title']) ? translate($city_translation->$field, $lang) : $city_translation->$field;
+        }
+
         return $city_translation != null ? $city_translation->$field : $this->$field;
     }
 

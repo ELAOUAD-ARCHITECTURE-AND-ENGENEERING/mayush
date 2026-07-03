@@ -17,8 +17,12 @@ class Brand extends Model
     
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $brand_translation = $this->brand_translations->where('lang', $lang)->first();
+        if ($brand_translation != null && $brand_translation->$field !== null && $brand_translation->$field !== $this->$field) {
+            return in_array($field, ['name', 'title']) ? translate($brand_translation->$field, $lang) : $brand_translation->$field;
+        }
+
         return $brand_translation != null ? $brand_translation->$field : $this->$field;
     }
 

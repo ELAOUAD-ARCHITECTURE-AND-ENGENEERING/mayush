@@ -60,6 +60,7 @@
 			$shipping = json_decode($order->shipping_address);
 			$billing = json_decode($order->billing_address) ?? $shipping;
 			$first_order = $order->orderDetails->first();
+			$seller_shop = $order->shop;
 		@endphp
 
 
@@ -136,6 +137,15 @@
 							</span>
 						</td>
 					</tr>
+					@if($seller_shop != null)
+					<tr>
+						<td class="gry-color small"></td>
+						<td class="text-right small">
+							<span class="gry-color small">{{ translate('Seller') }}:</span>
+							<span class="strong">{{ $seller_shop->name }}</span>
+						</td>
+					</tr>
+					@endif
 				</table>
 			</div>
 		</div>
@@ -150,7 +160,7 @@
 							<!-- LEFT COLUMN -->
 							<td width="50%" valign="top">
 								<table width="100%">
-									<tr><td class="strong small gry-color">{{ translate('Bill to') }}:</td></tr>
+									<tr><td class="strong small gry-color">{{ translate('Client / Billing address') }}:</td></tr>
 									<tr><td class="strong">{{ $billing->name }}</td></tr>
 									<tr>
 										<td class="gry-color small">
@@ -169,7 +179,7 @@
 							<!-- RIGHT COLUMN -->
 							<td width="50%" valign="top">
 								<table width="100%">
-									<tr><td class="strong small gry-color">{{ translate('Ship to') }}:</td></tr>
+									<tr><td class="strong small gry-color">{{ translate('Shipping address') }}:</td></tr>
 									<tr><td class="strong">{{ $shipping->name }}</td></tr>
 									<tr>
 										<td class="gry-color small">
@@ -222,19 +232,19 @@
 						</thead>
 						<tbody class="strong">
 							@foreach ($order->orderDetails as $key => $orderDetail)
-								@if ($orderDetail->product != null)
-									<tr class="">
-										<td>
-											{{ $orderDetail->product->name }} 
-											@if($orderDetail->variation != null) ({{ $orderDetail->variation }}) @endif
-											<br>
-											<small>
-												@php
-													$product_stock = json_decode($orderDetail->product->stocks->first(), true);
-												@endphp
-												{{translate('SKU')}}: {{ $product_stock['sku'] ?? 'N/A' }}
-											</small>
-										</td>
+								<tr class="">
+									<td>
+										{{ $orderDetail->invoice_product_name }}
+										@if($orderDetail->variation != null) ({{ $orderDetail->variation }}) @endif
+										<br>
+										<small>
+											@php
+												$product_stock = $orderDetail->product ? $orderDetail->product->stocks->first() : null;
+												$sku = $product_stock ? ($product_stock->sku ?? 'N/A') : 'N/A';
+											@endphp
+											{{translate('SKU')}}: {{ $sku }}
+										</small>
+									</td>
 										<td class="">{{ $orderDetail->quantity }}</td>
 
 										@if(is_numeric($first_order->gst_amount))
@@ -312,7 +322,6 @@
 										<td class="border-top-0 border-bottom pr-0 text-right">{{ single_price($orderDetail->shipping_cost + (($orderDetail->shipping_cost* $orderDetail->gst_rate)/100)) }}
 										</td>
 									</tr>
-									@endif
 								@endif
 							@endforeach
 						</tbody>

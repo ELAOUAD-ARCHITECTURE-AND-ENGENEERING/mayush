@@ -97,13 +97,16 @@ class PaymentVaultService
             if ($firstChar === '4') $brand = 'Visa';
             elseif ($firstChar === '5') $brand = 'Mastercard';
         }
+        $fingerprint = self::cardFingerprint($brand, $last4);
 
-        $existingToken = \App\Models\PaymentToken::where('user_id', $userId)
-            ->where('gateway', 'cmi')
-            ->where('card_last_four', $last4)
-            ->where('card_brand', $brand)
-            ->where('is_active', true)
-            ->first();
+        $existingToken = null;
+        if ($fingerprint) {
+            $existingToken = \App\Models\PaymentToken::where('user_id', $userId)
+                ->where('gateway', 'cmi')
+                ->where('card_fingerprint', $fingerprint)
+                ->where('is_active', true)
+                ->first();
+        }
 
         if ($existingToken) {
             $token = $existingToken;
@@ -120,6 +123,7 @@ class PaymentVaultService
         $token->token = $cmiCallbackData['TransId'];
         $token->card_last_four = $last4;
         $token->card_brand = $brand;
+        $token->card_fingerprint = $fingerprint;
 
         // Parse card expiry from CMI callback (ExpDate format: YYMM)
         if (!empty($cmiCallbackData['ExpDate'])) {
@@ -167,5 +171,14 @@ class PaymentVaultService
                 ->limit($tokensToDeactivate)
                 ->update(['is_active' => false]);
         }
+    }
+
+    private static function cardFingerprint(?string $brand, ?string $last4): ?string
+    {
+        if (!$last4) {
+            return null;
+        }
+
+        return hash('sha256', strtolower((string) $brand) . '|' . $last4);
     }
 }

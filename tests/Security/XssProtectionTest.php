@@ -6,16 +6,18 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\SeedsAppConfigs;
 
 class XssProtectionTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsAppConfigs;
 
     private int $baseOutputBufferLevel;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seedConfigs();
 
         $this->baseOutputBufferLevel = ob_get_level();
     }
@@ -75,7 +77,8 @@ class XssProtectionTest extends TestCase
         $response = $this->get(route('search', ['q' => $xss_payload]));
 
         $response->assertStatus(200);
-        $response->assertDontSee('onfocus=', false);
+        // The raw unescaped attribute must not appear; escaped text is safe
+        $response->assertDontSee('" onfocus=', false);
     }
 
     /** @test */

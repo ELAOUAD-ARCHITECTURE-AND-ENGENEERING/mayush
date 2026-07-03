@@ -9,7 +9,6 @@ class ConversationResource extends JsonResource
 
     public function toArray($request)
     {
-        //dd(uploaded_asset($this->sender->avatar_original));
         $image="";
         $name="";
         if (auth()->user()->id == $this->sender_id) {

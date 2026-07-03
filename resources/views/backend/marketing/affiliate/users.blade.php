@@ -42,9 +42,12 @@
                             <td>{{single_price($affiliate_user->balance)}}</td>
                             <td class="text-right">
                                 @if($affiliate_user->status == 0)
-                                    <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('affiliate.users.approve', $affiliate_user->id)}}" title="{{ translate('Approve') }}">
-                                        <i class="las la-check-circle"></i>
-                                    </a>
+                                    <form action="{{ route('admin.affiliate.users.approve', $affiliate_user->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button class="btn btn-soft-primary btn-icon btn-circle btn-sm" type="submit" title="{{ translate('Approve') }}">
+                                            <i class="las la-check-circle"></i>
+                                        </button>
+                                    </form>
                                 @endif
                             </td>
                         </tr>

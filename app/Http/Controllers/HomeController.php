@@ -7,7 +7,6 @@ use Hash;
 use Cache;
 use Cookie;
 use App\Models\Page;
-use App\Models\Shop;
 use App\Models\User;
 use App\Models\Brand;
 use App\Models\Order;
@@ -39,7 +38,6 @@ use DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\URL;
 use ZipArchive;
-use Carbon\Carbon;
 use Session;
 use App\Models\LastViewedProduct;
 use App\Services\HomeLayoutService;
@@ -64,51 +62,54 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, HomeLayoutService $layoutService)
     {
-        $lang = get_system_language() ? get_system_language()->code : null;
-        $featured_categories = Cache::rememberForever('featured_categories', function () {
-            return Category::with('bannerImage')->where('featured', 1)->get();
-        });
-        $hot_categories = Cache::rememberForever('hot_categories', function () {
-            return Category::with('bannerImage')->where('hot_category', '1')->get();
-        });
+        $this->authService->processRegistrationReferral($request);
+
+        $homepageData = $layoutService->getHomepageData();
 
         $authUser = Auth::user();
         if (get_setting('portfolio_landing')) {
-            $goingons = Blog::where('status', 1)->where('going_on', 1)->latest()->get();
+            $goingons = $layoutService->getPortfolioGoingOns();
             if (!auth()->check()) {
-                return view('frontend.portfolio.index', compact('lang','goingons'));
+                return view('frontend.portfolio.index', $homepageData + compact('goingons'));
             }
-            //dd($authUser->shop);
             if (($authUser->verification_status == 0) ||( $authUser->shop && $authUser->shop->verification_status == 0)) {
-                return view('frontend.portfolio.index', compact('lang','goingons'));
+                return view('frontend.portfolio.index', $homepageData + compact('goingons'));
             }
         }
 
-        return view('frontend.' . get_setting('homepage_select') . '.index', compact('featured_categories','hot_categories', 'lang'));
+        return view('frontend.' . safe_homepage_select() . '.index', $homepageData);
     }
 
     public function load_todays_deal_section(HomeLayoutService $layoutService)
     {
+        if (get_setting('todays_deal_section_status', '1') != '1') {
+            return response('');
+        }
+
         $todays_deal_products = $layoutService->getTodaysDealProducts();
-        return view('frontend.' . get_setting('homepage_select') . '.partials.todays_deal', compact('todays_deal_products'));
+        return view('frontend.' . safe_homepage_select() . '.partials.todays_deal', compact('todays_deal_products'));
     }
 
     public function load_newest_product_section(Request $request, HomeLayoutService $layoutService)
     {
         $newest_products = $layoutService->getNewestProducts(12, $request->page);
-        return view('frontend.' . get_setting('homepage_select') . '.partials.newest_products_section', compact('newest_products'));
+        return view('frontend.' . safe_homepage_select() . '.partials.newest_products_section', compact('newest_products'));
     }
 
     public function load_featured_section()
     {
-        return view('frontend.' . get_setting('homepage_select') . '.partials.featured_products_section');
+        if (get_setting('featured_products_section_status', '1') != '1') {
+            return response('');
+        }
+
+        return view('frontend.' . safe_homepage_select() . '.partials.featured_products_section');
     }
 
     public function load_best_selling_section()
     {
-        return view('frontend.' . get_setting('homepage_select') . '.partials.best_selling_section');
+        return view('frontend.' . safe_homepage_select() . '.partials.best_selling_section');
     }
 
     public function load_auction_products_section()
@@ -117,36 +118,27 @@ class HomeController extends Controller
             return;
         }
         $lang = get_system_language() ? get_system_language()->code : null;
-        return view('auction.frontend.' . get_setting('homepage_select') . '.auction_products_section', compact('lang'));
+        return view('auction.frontend.' . safe_homepage_select() . '.auction_products_section', compact('lang'));
     }
 
     public function load_home_categories_section()
     {
-        return view('frontend.' . get_setting('homepage_select') . '.partials.home_categories_section');
+        if (get_setting('home_categories_section_status', '1') != '1') {
+            return response('');
+        }
+
+        return view('frontend.' . safe_homepage_select() . '.partials.home_categories_section');
     }
 
-    public function load_best_sellers_section()
+    public function load_best_sellers_section(HomeLayoutService $layoutService)
     {
-        $sellers = Shop::where('verification_status', 1)
-            ->whereHas('user', function ($query) {
-                $query->where('is_intern', 0);
-            })
-            ->whereIn('user_id', function ($query) {
-                $query->select('seller_id')
-                    ->from('order_details')
-                    ->where('created_at', '>=', Carbon::now()->subDays(3))
-                    ->groupBy('seller_id')
-                    ->havingRaw('COUNT(*) > 10');
-            })
-            ->orderBy('num_of_sale', 'desc')
-            ->take(20)
-            ->get();
+        $sellers = $layoutService->getRecentBestSellers();
 
         if ($sellers->isEmpty()) {
             return "";
         }
 
-        return view('frontend.' . get_setting('homepage_select') . '.partials.best_sellers_section', compact('sellers'));
+        return view('frontend.' . safe_homepage_select() . '.partials.best_sellers_section', compact('sellers'));
     }
 
     public function load_promoted_category_section()
@@ -156,7 +148,7 @@ class HomeController extends Controller
     public function load_preorder_featured_products_section(HomeLayoutService $layoutService)
     {
         $preorder_products = $layoutService->getPreorderFeaturedProducts();
-        return view('frontend.' . get_setting('homepage_select') . '.partials.preorder_products_section', compact('preorder_products'));
+        return view('frontend.' . safe_homepage_select() . '.partials.preorder_products_section', compact('preorder_products'));
     }
 
     public function load_elite_artisans_section(HomeLayoutService $layoutService)
@@ -164,7 +156,6 @@ class HomeController extends Controller
         $elite_shops = $layoutService->getEliteArtisans();
         return view('frontend.partials.elite_artisans_section', compact('elite_shops'));
     }
-
 
 
     /**
@@ -185,7 +176,7 @@ class HomeController extends Controller
             return view('delivery_boys.dashboard');
         }
 
-        if ($user->user_type == 'customer') {
+        if ($user->user_type == 'customer' || ($user->user_type == 'seller' && active_account_mode() === 'buyer')) {
             $users_cart = Cart::where('user_id', $user->id)->first();
             if ($users_cart) {
                 flash(translate('You had placed your items in the shopping cart. Try to order before the product quantity runs out.'))->warning();
@@ -198,7 +189,7 @@ class HomeController extends Controller
 
     public function profile(Request $request)
     {
-        if (Auth::user()->user_type == 'seller') {
+        if (Auth::user()->user_type == 'seller' && active_account_mode() === 'seller') {
             return redirect()->route('seller.profile.index');
         } elseif (Auth::user()->user_type == 'delivery_boy') {
             return view('delivery_boys.profile');
@@ -241,7 +232,6 @@ class HomeController extends Controller
     {
         $categories = Category::with('childrenCategories')->where('parent_id', 0)->orderBy('order_level', 'desc')->get();
 
-        // dd($categories);
         return view('frontend.all_category', compact('categories'));
     }
 

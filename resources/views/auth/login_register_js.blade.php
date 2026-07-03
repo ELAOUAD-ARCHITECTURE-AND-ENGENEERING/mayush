@@ -62,12 +62,12 @@
     });
 </script>
 
-@if (addon_is_activated('otp_system'))
-    <script type="text/javascript">
-        // Country Code
-        var isPhoneShown = true,
-            countryData = window.intlTelInputGlobals.getCountryData(),
-            input = document.querySelector("#phone-code");
+<script type="text/javascript">
+    var input = document.querySelector("#phone-code");
+    var isPhoneShown = !$('.phone-form-group').hasClass('d-none');
+
+    if (input && window.intlTelInputGlobals && typeof intlTelInput === 'function') {
+        var countryData = window.intlTelInputGlobals.getCountryData();
 
         for (var i = 0; i < countryData.length; i++) {
             var country = countryData[i];
@@ -89,57 +89,53 @@
         });
 
         var country = iti.getSelectedCountryData();
-        $('input[name=country_code]').val(country.dialCode);
+        if (!$('input[name=country_code]').val()) {
+            $('input[name=country_code]').val(country.dialCode);
+        }
 
         input.addEventListener("countrychange", function(e) {
-            // var currentMask = e.currentTarget.placeholder;
             var country = iti.getSelectedCountryData();
             $('input[name=country_code]').val(country.dialCode);
-
         });
+    }
 
-        function toggleEmailPhone(el) {
-            if (isPhoneShown) {
-                $('.phone-form-group').addClass('d-none');
-                $('.email-form-group').removeClass('d-none');
-                $('input[name=phone]').val(null);
-                $('#verification_method').val('email');
-                $('#verified_registration_code').val('');
-                $('#verification_code').val('').prop('readonly', false);
-                isPhoneShown = false;
-                $(el).html('*{{ translate('Use Phone Number Instead') }}');
+    function toggleEmailPhone(el) {
+        if (isPhoneShown) {
+            $('.phone-form-group').addClass('d-none');
+            $('.email-form-group').removeClass('d-none');
+            $('input[name=phone]').val(null);
+            $('#verification_method').val('email');
+            isPhoneShown = false;
+            $(el).html('*{{ translate('Use Phone Number Instead') }}');
 
-                $('.toggle-login-with-otp').addClass('d-none');
+            $('.toggle-login-with-otp').addClass('d-none');
 
-            } else {
-                $('.phone-form-group').removeClass('d-none');
-                $('.email-form-group').addClass('d-none');
-                $('input[name=email]').val(null);
-                $('#verification_method').val('phone');
-                $('#verified_registration_code').val('');
-                $('#verification_code').val('').prop('readonly', false);
-                isPhoneShown = true;
-                $(el).html('<i>*{{ translate('Use Email Instead') }}</i>');
+        } else {
+            $('.phone-form-group').removeClass('d-none');
+            $('.email-form-group').addClass('d-none');
+            $('input[name=email]').val(null);
+            $('#verification_method').val('phone');
+            isPhoneShown = true;
+            $(el).html('<i>*{{ translate('Use Email Instead') }}</i>');
 
-                $('.toggle-login-with-otp').removeClass('d-none');
-            }
-            
-            $('.submit-button').html('{{ translate('Login') }}');
-            $('.password-login-block').removeClass('d-none');
-            
-            var url = '{{ route('login') }}';
-            $('.loginForm').attr('action', url);
+            $('.toggle-login-with-otp').removeClass('d-none');
         }
 
-        function toggleLoginPassOTP() {
-            $('.password-login-block').addClass('d-none');
-            $('.submit-button').html('{{ translate('Login With OTP') }}');
+        $('.submit-button').html('{{ translate('Login') }}');
+        $('.password-login-block').removeClass('d-none');
 
-            var url = '{{ route('send-otp') }}';
-            $('.loginForm').attr('action', url);
-        }
-    </script> 
-@endif
+        var url = '{{ route('login') }}';
+        $('.loginForm').attr('action', url);
+    }
+
+    function toggleLoginPassOTP() {
+        $('.password-login-block').addClass('d-none');
+        $('.submit-button').html('{{ translate('Login With OTP') }}');
+
+        var url = '{{ route('send-otp') }}';
+        $('.loginForm').attr('action', url);
+    }
+</script>
 
 <script>
     function showError(input, message) {

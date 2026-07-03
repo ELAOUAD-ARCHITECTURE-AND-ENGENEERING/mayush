@@ -19,8 +19,6 @@ class SteadfastController extends Controller
     {
         return 'Stub';
     }
-    public function destroy($id)
-    {
-        return 'Stub';
-    }
+    public function createOrderSteadfast(Request $request) { return 'Stub'; }
+    public function deliveryStatus() { return 'Stub'; }
 }

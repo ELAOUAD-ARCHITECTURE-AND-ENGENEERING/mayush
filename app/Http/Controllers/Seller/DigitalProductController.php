@@ -110,7 +110,7 @@ class DigitalProductController  extends Controller
         ]));
 
         // Product Translations
-        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?? (get_system_language()?->code ?? 'fr')]);
+        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr')]);
         ProductTranslation::create($request->only([
             'lang', 'name', 'description', 'product_id'
         ]));
@@ -219,6 +219,12 @@ class DigitalProductController  extends Controller
      */
     public function destroy($id)
     {
+        $product = Product::findOrFail($id);
+
+        if ((int) $product->user_id !== (int) Auth::id()) {
+            abort(403);
+        }
+
         (new ProductService)->destroy($id);
 
         flash(translate('Product has been deleted successfully'))->success();
@@ -237,7 +243,7 @@ class DigitalProductController  extends Controller
         if (Auth::user()->id == $product->user_id) {
             $upload = Upload::findOrFail($product->file_name);
             if (env('FILESYSTEM_DRIVER') == "s3") {
-                return \Storage::disk('s3')->download($upload->file_name, $upload->file_original_name . "." . $upload->extension);
+                return \Storage::disk(config('filesystems.default'))->download($upload->file_name, $upload->file_original_name . "." . $upload->extension);
             } else {
                 if (file_exists(base_path('public/' . $upload->file_name))) {
                     return response()->download(base_path('public/' . $upload->file_name));

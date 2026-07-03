@@ -49,6 +49,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\CheckForMaintenanceMode::class,
             \App\Http\Middleware\MarkdownForAgents::class,
             \App\Http\Middleware\AgentDiscoveryHeaders::class,
+            \App\Http\Middleware\StorefrontServerTiming::class,
         ],
 
         'api' => [
@@ -93,6 +94,8 @@ class Kernel extends HttpKernel
         'prevent-back-history' => \App\Http\Middleware\PreventBackHistory::class,
         'handle-demo-login' => \App\Http\Middleware\HandleDemoLogin::class,
         'portfolio-view' => \App\Http\Middleware\PortfolioView::class,
+        'seller.approved' => \App\Http\Middleware\SellerApproved::class,
+        'cmi.ip-whitelist' => \App\Http\Middleware\CmiIpWhitelist::class,
     ];
 
     /**
