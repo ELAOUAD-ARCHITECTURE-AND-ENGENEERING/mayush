@@ -67,6 +67,16 @@
                     </a>
                 </li>
 
+                {{-- System Health --}}
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('admin.system.health') }}" class="aiz-side-nav-link {{ areActiveRoutes(['admin.system.health']) }}">
+                        <div class="aiz-side-nav-icon">
+                            <i class="las la-heartbeat"></i>
+                        </div>
+                        <span class="aiz-side-nav-text" style="color: #2ecc71; font-weight: bold;">{{translate('System Health')}}</span>
+                    </a>
+                </li>
+
                 {{-- Security Overview --}}
                 <li class="aiz-side-nav-item">
                     <a href="{{ route('admin.security_dashboard') }}" class="aiz-side-nav-link">

@@ -137,7 +137,7 @@
                 </button>
                 <!-- Header Logo -->
                 <div class="col-auto pl-0 pr-3 d-flex align-items-center">
-                    <a class="d-block py-20px mr-3 ml-0" href="{{ route('home') }}">
+                    <a class="d-block py-20px mr-3 ml-0" href="{{ route('home') }}" aria-label="{{ translate('Mayush home') }}">
                         @php
                             $header_logo = get_setting('header_logo');
                         @endphp

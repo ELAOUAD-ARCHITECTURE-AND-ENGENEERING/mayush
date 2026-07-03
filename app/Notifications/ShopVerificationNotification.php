@@ -6,10 +6,12 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Bus\Queueable as BusQueueable;
+use Illuminate\Queue\SerializesModels;
 
-class ShopVerificationNotification extends Notification
+class ShopVerificationNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use BusQueueable, SerializesModels;
 
     public $data;
     public $className;
@@ -20,8 +22,11 @@ class ShopVerificationNotification extends Notification
      */
     public function __construct($data)
     {
+        $this->onQueue('notifications');
+        $this->afterCommit = true;
+
         $this->data = $data;
-        $this->className= ShopVerificationNotification::class;
+        $this->className = 'app\Notifications\ShopVerificationNotification';
     }
 
     /**

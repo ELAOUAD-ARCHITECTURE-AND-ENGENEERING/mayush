@@ -21,6 +21,7 @@
         "laracasts/flash": "^3.2",
         "laravel/framework": "^10.0",
         "laravel/horizon": "^5.45",
+        "laravel/pulse": "^1.7",
         "laravel/sanctum": "^3.2",
         "laravel/socialite": "^5.6",
         "laravel/tinker": "^2.8",

@@ -18,6 +18,7 @@ class StorefrontCacheService
         'home_latest_blogs',
         'home_inspiration_blogs',
         'featured_products',
+        'best_selling_products',
         'newest_products',
         'todays_deal_products',
         'best_selers',

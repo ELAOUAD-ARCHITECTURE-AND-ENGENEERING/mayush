@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Log;
 
 class SyncSemanticEmbeddingJob implements ShouldQueue
 {
+    public $tries = 3;
+    public $timeout = 120;
+
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $product;
@@ -21,7 +24,6 @@ class SyncSemanticEmbeddingJob implements ShouldQueue
      * The number of times the job may be attempted.
      * We want to retry in case the Gemini API throws rate limits or timeouts.
      */
-    public $tries = 3;
 
     /**
      * The number of seconds to wait before retrying the job.
@@ -33,6 +35,7 @@ class SyncSemanticEmbeddingJob implements ShouldQueue
      */
     public function __construct(Product $product)
     {
+        $this->onQueue('embeddings');
         $this->product = $product;
     }
 

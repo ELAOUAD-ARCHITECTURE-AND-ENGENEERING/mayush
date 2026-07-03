@@ -15,6 +15,7 @@ use App\Models\TopBanner;
 use App\Models\Upload;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 
 class StorefrontDataService
@@ -89,12 +90,64 @@ class StorefrontDataService
     public function flashDealProducts(int $flashDealId, int $limit = 10)
     {
         return $this->remember('flash-deal-products', 300, fn () =>
-            FlashDealProduct::with('product')
+            FlashDealProduct::with(['product' => fn ($query) => $this->withProductCardRelations($query)])
                 ->where('flash_deal_id', $flashDealId)
                 ->orderBy('id', 'desc')
                 ->limit($limit)
                 ->get(),
             [$flashDealId, $limit]
+        );
+    }
+
+    public function featuredProducts(int $limit = 12)
+    {
+        return $this->remember('featured-products', 900, fn () =>
+            $this->withProductCardRelations(filter_products(Product::query()->where('featured', '1')))
+                ->latest()
+                ->limit($limit)
+                ->get(),
+            [$limit]
+        );
+    }
+
+    public function bestSellingProducts(int $limit = 20, ?int $userId = null)
+    {
+        return $this->remember('best-selling-products', 900, function () use ($limit, $userId) {
+            $query = Product::query();
+
+            if ($userId) {
+                $query->where('user_id', $userId);
+            }
+
+            return $this->withProductCardRelations(filter_products($query->orderBy('num_of_sale', 'desc')))
+                ->limit($limit)
+                ->get();
+        }, [$limit, $userId]);
+    }
+
+    public function todaysDealProducts(int $limit = 20, ?int $userId = null)
+    {
+        return $this->remember('todays-deal-products', 900, function () use ($limit, $userId) {
+            $query = Product::query()->where('todays_deal', '1');
+
+            if ($userId) {
+                $query->where('user_id', $userId);
+            }
+
+            return $this->withProductCardRelations(filter_products($query))
+                ->orderBy('id', 'desc')
+                ->limit($limit)
+                ->get();
+        }, [$limit, $userId]);
+    }
+
+    public function newestProducts(int $limit = 12)
+    {
+        return $this->remember('newest-products', 900, fn () =>
+            $this->withProductCardRelations(filter_products(Product::query()->latest()))
+                ->take($limit)
+                ->get(),
+            [$limit]
         );
     }
 
@@ -160,7 +213,7 @@ class StorefrontDataService
     public function categoryProducts(int $categoryId, int $limit = 5)
     {
         return $this->remember('category-products', 900, fn () =>
-            filter_products(Product::where('category_id', $categoryId))
+            $this->withProductCardRelations(filter_products(Product::where('category_id', $categoryId)))
                 ->latest()
                 ->take($limit)
                 ->get(),
@@ -177,7 +230,7 @@ class StorefrontDataService
         }
 
         return $this->remember('promoted-category-products', 900, function () use ($categoryIds, $limit) {
-            $discounted = Product::whereIn('category_id', $categoryIds)
+            $discounted = $this->withProductCardRelations(Product::whereIn('category_id', $categoryIds))
                 ->where('published', 1)
                 ->where('approved', 1)
                 ->where('discount', '>', 0)
@@ -189,7 +242,7 @@ class StorefrontDataService
                 return $discounted;
             }
 
-            return Product::whereIn('category_id', $categoryIds)
+            return $this->withProductCardRelations(Product::whereIn('category_id', $categoryIds))
                 ->where('published', 1)
                 ->where('approved', 1)
                 ->latest()
@@ -230,6 +283,20 @@ class StorefrontDataService
     private function remember(string $name, int $ttlSeconds, callable $callback, array $parts = [])
     {
         return Cache::remember($this->key($name, $parts), $ttlSeconds, $callback);
+    }
+
+    private function withProductCardRelations($query)
+    {
+        $relations = ['stocks'];
+
+        static $hasAuctionBidsTable = null;
+        $hasAuctionBidsTable ??= Schema::hasTable('auction_product_bids');
+
+        if ($hasAuctionBidsTable) {
+            $relations['bids'] = fn ($bidQuery) => $bidQuery->select('id', 'product_id', 'amount');
+        }
+
+        return $query->with($relations);
     }
 
     private function key(string $name, array $parts = []): string

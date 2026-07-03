@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\PreorderProduct;
 use Cache;
+use Illuminate\Support\Facades\Schema;
 
 class HomeLayoutService
 {
@@ -20,13 +21,18 @@ class HomeLayoutService
     public function getHomepageData(): array
     {
         $lang = get_system_language() ? get_system_language()->code : null;
+        $revision = app(StorefrontCacheService::class)->revision();
 
         return [
-            'featured_categories' => Cache::rememberForever('featured_categories', function () {
-                return Category::with('bannerImage')->where('featured', 1)->get();
+            'featured_categories' => Cache::remember("storefront:v{$revision}:featured-categories", 900, function () {
+                return Category::with([
+                    'bannerImage',
+                    'coverImage',
+                    'childrenCategories',
+                ])->where('featured', 1)->get();
             }),
-            'hot_categories' => Cache::rememberForever('hot_categories', function () {
-                return Category::with('bannerImage')->where('hot_category', '1')->get();
+            'hot_categories' => Cache::remember("storefront:v{$revision}:hot-categories", 900, function () {
+                return Category::with(['bannerImage', 'coverImage', 'catIcon'])->where('hot_category', '1')->get();
             }),
             'latest_blogs' => Cache::remember('home_latest_blogs', 900, function () {
                 return Blog::published()
@@ -47,7 +53,7 @@ class HomeLayoutService
             return collect();
         }
 
-        $selectedIds = json_decode(get_setting('home_inspiration_blog_ids'), true) ?: [];
+        $selectedIds = json_decode(get_setting('home_inspiration_blog_ids') ?: '[]', true) ?: [];
         $selectedIds = array_values(array_filter(array_map('intval', $selectedIds)));
 
         if ($selectedIds !== []) {
@@ -85,11 +91,7 @@ class HomeLayoutService
      */
     public function getTodaysDealProducts()
     {
-        return Cache::remember('todays_deal_products', 900, function () {
-            return filter_products(Product::where('todays_deal', '1'))
-                ->orderBy('id', 'desc')
-                ->get();
-        });
+        return $this->storefrontData->todaysDealProducts(20);
     }
 
     /**
@@ -108,9 +110,7 @@ class HomeLayoutService
                 ->get();
         }
 
-        return Cache::remember('newest_products', 3600, function () use ($limit) {
-            return filter_products(Product::latest())->take($limit)->get();
-        });
+        return $this->storefrontData->newestProducts($limit);
     }
 
     /**
@@ -118,6 +118,14 @@ class HomeLayoutService
      */
     public function getPreorderFeaturedProducts()
     {
+        if (
+            ! Schema::hasTable('preorder_products')
+            || ! Schema::hasColumn('preorder_products', 'is_published')
+            || ! Schema::hasColumn('preorder_products', 'is_featured')
+        ) {
+            return collect();
+        }
+
         return Cache::remember('home_preorder_featured_products', 300, fn () => PreorderProduct::where('is_published', 1)->where('is_featured', 1)
             ->where(function ($query) {
                 $query->whereHas('user', function ($q) {

@@ -295,7 +295,7 @@
                     <i class="las la-bars la-2x"></i>
                 </button>
 
-                <a class="market-logo-link d-flex align-items-center py-2" href="{{ route('home') }}">
+                <a class="market-logo-link d-flex align-items-center py-2" href="{{ route('home') }}" aria-label="{{ translate('Mayush home') }}">
                     @if ($headerLogo != null)
                         <img id="header-logo-preview" src="{{ uploaded_asset($headerLogo) }}" alt="{{ env('APP_NAME') }}">
                     @else

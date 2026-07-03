@@ -11,8 +11,10 @@ use App\Models\Product;
 use App\Models\Upload;
 use App\Services\HomeLayoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class HomepageRenderingTest extends TestCase
@@ -24,6 +26,11 @@ class HomepageRenderingTest extends TestCase
         parent::setUp();
 
         Cache::flush();
+        Storage::fake('local');
+        config([
+            'filesystems.default' => 'local',
+            'image-optimization.disk' => 'local',
+        ]);
         $this->setting('homepage_select', 'classic');
         $this->setting('vendor_system_activation', '0');
         $this->setting('best_selling', '0');
@@ -82,13 +89,7 @@ class HomepageRenderingTest extends TestCase
 
     public function test_metro_homepage_renders_admin_configured_hero_overlay(): void
     {
-        $upload = Upload::create([
-            'file_original_name' => 'hero.jpg',
-            'file_name' => 'uploads/test-hero.jpg',
-            'extension' => 'jpg',
-            'type' => 'image',
-            'file_size' => 1024,
-        ]);
+        $upload = $this->fakeHeroUpload('hero.jpg');
 
         $this->setting('homepage_select', 'metro');
         $this->setting('home_slider_images', json_encode([$upload->id]));
@@ -115,13 +116,7 @@ class HomepageRenderingTest extends TestCase
 
     public function test_metro_homepage_cta_button_falls_back_to_search_when_link_is_empty(): void
     {
-        $upload = Upload::create([
-            'file_original_name' => 'hero.jpg',
-            'file_name' => 'uploads/test-hero.jpg',
-            'extension' => 'jpg',
-            'type' => 'image',
-            'file_size' => 1024,
-        ]);
+        $upload = $this->fakeHeroUpload('hero.jpg');
 
         $this->setting('homepage_select', 'metro');
         $this->setting('home_slider_images', json_encode([$upload->id]));
@@ -418,5 +413,19 @@ class HomepageRenderingTest extends TestCase
     private function setting(string $type, string $value): void
     {
         BusinessSetting::updateOrCreate(['type' => $type], ['value' => $value]);
+    }
+
+    private function fakeHeroUpload(string $name): Upload
+    {
+        $path = 'uploads/all/'.uniqid('hero_', true).'.jpg';
+        Storage::disk('local')->put($path, UploadedFile::fake()->image($name, 1600, 720)->getContent());
+
+        return Upload::create([
+            'file_original_name' => pathinfo($name, PATHINFO_FILENAME),
+            'file_name' => $path,
+            'extension' => 'jpg',
+            'type' => 'image',
+            'file_size' => 1024,
+        ]);
     }
 }

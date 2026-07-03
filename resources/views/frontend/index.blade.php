@@ -4,8 +4,8 @@
     $homepageSeoTitle = \App\Services\SeoService::homepageTitle();
     $homepageSeoDescription = \App\Services\SeoService::homepageDescription();
     $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
-    $homeSliderImages = get_setting('home_slider_images') != null ? json_decode(get_setting('home_slider_images'), true) : [];
-    $firstHomeSliderImage = is_array($homeSliderImages) && count($homeSliderImages) > 0 ? uploaded_asset($homeSliderImages[0]) : null;
+    $firstHomeHero = app(\App\Services\StorefrontHeroImageService::class)->firstValidHero();
+    $firstHomeSliderImage = $firstHomeHero ? uploaded_asset($firstHomeHero, 'large') : null;
     $featured_categories = $featured_categories ?? collect();
     $hot_categories = $hot_categories ?? collect();
     $todays_deal_products = $todays_deal_products ?? collect();
@@ -40,13 +40,17 @@
                 <div class="@if($num_todays_deal > 0) col-lg-7 @else col-lg-9 @endif">
                     @if (get_setting('home_slider_status') == 1 && get_setting('home_slider_images') != null)
                         <div class="aiz-carousel dots-inside-bottom mobile-img-auto-height" data-items="1" data-xl-items="1" data-lg-items="1" data-md-items="1" data-sm-items="1" data-arrows="true" data-dots="true" data-autoplay="true">
-                            @php $slider_images = json_decode(get_setting('home_slider_images'), true);  @endphp
-                            @foreach ($slider_images as $key => $value)
+                            @php
+                                $slider_images = json_decode(get_setting('home_slider_images'), true);
+                                $sliders = get_slider_images($slider_images);
+                                $home_slider_links = json_decode(get_setting('home_slider_links'), true) ?: [];
+                            @endphp
+                            @foreach ($sliders as $key => $slider)
                                 <div class="carousel-box">
-                                    <a href="{{ json_decode(get_setting('home_slider_links'), true)[$key] }}">
+                                    <a href="{{ $home_slider_links[$key] ?? '#' }}">
                                         <img
                                             class="d-block mw-100 img-fit rounded shadow-sm overflow-hidden"
-                                            src="{{ uploaded_asset($slider_images[$key]) }}"
+                                            src="{{ uploaded_asset($slider, 'large') }}"
                                             alt="{{ env('APP_NAME')}} promo"
                                             width="1200"
                                             @if(count($featured_categories) == 0)
@@ -54,7 +58,8 @@
                                             @else
                                             height="315"
                                             @endif
-                                            @if($key === 0) fetchpriority="high" @endif
+                                            loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                                            @if($loop->first) fetchpriority="high" @endif
                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
                                         >
                                     </a>

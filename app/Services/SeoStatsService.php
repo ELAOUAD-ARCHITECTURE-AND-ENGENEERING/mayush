@@ -6,16 +6,17 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Shop;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class SeoStatsService
 {
     public function homepageStats(): array
     {
-        return [
+        return Cache::remember('homepage_seo_stats', 900, fn () => [
             'verified_sellers' => $this->verifiedSellerCount(),
             'published_products' => $this->publishedProductCount(),
             'delivery_success_rate' => $this->deliverySuccessRate(),
-        ];
+        ]);
     }
 
     public function verifiedSellerCount(): int
@@ -94,12 +95,16 @@ class SeoStatsService
 
     public function homepageItemListSchema(int $limit = 8): array
     {
-        $products = Product::isApprovedPublished()
-            ->latest('updated_at')
-            ->take($limit)
-            ->get();
+        $locale = app()->getLocale();
 
-        return [
+        return Cache::remember("homepage_seo_item_list:{$locale}:{$limit}", 900, function () use ($limit) {
+            $products = Product::isApprovedPublished()
+                ->with('thumbnail')
+                ->latest('updated_at')
+                ->take($limit)
+                ->get();
+
+            return [
             '@context' => 'https://schema.org',
             '@type' => 'ItemList',
             '@id' => route('home') . '#featured-products',
@@ -113,10 +118,11 @@ class SeoStatsService
                         '@type' => 'Product',
                         'name' => SeoService::cleanText($product->getTranslation('name'), $product->name, 120),
                         'url' => route('product', $product->slug),
-                        'image' => SeoService::absoluteUrl(uploaded_asset($product->thumbnail_img)),
+                        'image' => SeoService::absoluteUrl(uploaded_asset($product->thumbnail ?: $product->thumbnail_img)),
                     ],
                 ];
             })->all(),
-        ];
+            ];
+        });
     }
 }

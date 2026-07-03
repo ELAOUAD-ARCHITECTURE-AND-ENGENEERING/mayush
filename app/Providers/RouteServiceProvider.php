@@ -414,6 +414,69 @@ class RouteServiceProvider extends ServiceProvider
    */
   protected function configureRateLimiting()
   {
+    RateLimiter::for('auth-login', function (Request $request) {
+        $key = $request->input('email') ?: $request->input('phone');
+        return Limit::perMinute(5)->by($request->ip() . '|' . md5($key));
+    });
+
+    RateLimiter::for('auth-register', function (Request $request) {
+        return Limit::perMinute(3)->by($request->ip());
+    });
+
+    RateLimiter::for('password-reset', function (Request $request) {
+        return Limit::perMinute(3)->by($request->ip());
+    });
+
+    RateLimiter::for('admin-login', function (Request $request) {
+        $key = $request->input('email') ?: $request->input('phone');
+        return Limit::perMinute(3)->by($request->ip() . '|' . md5($key));
+    });
+
+    RateLimiter::for('seller-login', function (Request $request) {
+        $key = $request->input('email') ?: $request->input('phone');
+        return Limit::perMinute(5)->by($request->ip() . '|' . md5($key));
+    });
+
+    RateLimiter::for('checkout-submit', function (Request $request) {
+        return Limit::perMinute(10)->by(optional($request->user())->id ?: $request->ip());
+    });
+
+    RateLimiter::for('express-buy', function (Request $request) {
+        return Limit::perMinute(3)->by(optional($request->user())->id ?: $request->ip());
+    });
+
+    RateLimiter::for('cmi-webhook', function (Request $request) {
+        return Limit::perMinute(30)->by($request->ip());
+    });
+
+    RateLimiter::for('onessta-webhook', function (Request $request) {
+        return Limit::perMinute(30)->by($request->ip());
+    });
+
+    RateLimiter::for('search', function (Request $request) {
+        return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
+    });
+
+    RateLimiter::for('search-semantic', function (Request $request) {
+        return Limit::perMinute(20)->by(optional($request->user())->id ?: $request->ip());
+    });
+
+    RateLimiter::for('blog-lead', function (Request $request) {
+        return Limit::perMinute(3)->by($request->ip());
+    });
+
+    RateLimiter::for('contact-form', function (Request $request) {
+        return Limit::perMinute(3)->by($request->ip());
+    });
+
+    RateLimiter::for('seller-application', function (Request $request) {
+        return Limit::perMinute(2)->by($request->ip());
+    });
+
+    RateLimiter::for('file-upload', function (Request $request) {
+        return Limit::perMinute(20)->by(optional($request->user())->id ?: $request->ip());
+    });
+
     RateLimiter::for('api', function (Request $request) {
       return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
     });

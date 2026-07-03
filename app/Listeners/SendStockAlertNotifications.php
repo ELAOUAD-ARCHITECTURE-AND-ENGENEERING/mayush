@@ -11,7 +11,12 @@ use Illuminate\Support\Facades\Notification;
 
 class SendStockAlertNotifications implements ShouldQueue
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use InteractsWithQueue;
+
+    public $queue = 'notifications';
 
     /**
      * Create the event listener.

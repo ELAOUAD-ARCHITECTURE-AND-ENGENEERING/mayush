@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Jobs\OptimizeStaticImageJob;
 use App\Jobs\OptimizeUploadedImageJob;
+use App\Models\BusinessSetting;
 use App\Models\ImageOptimizationState;
 use App\Models\Upload;
 use App\Services\ImageOptimizationService;
@@ -162,5 +163,59 @@ class ImageOptimizationPipelineTest extends TestCase
 
         $this->assertStringContainsString('hero_medium.webp', $srcset);
         $this->assertStringNotContainsString('hero.png 1200w', $srcset);
+    }
+
+    /** @test */
+    public function image_status_passes_with_one_valid_hero_and_ignores_stale_slider_ids(): void
+    {
+        Storage::disk('local')->put('uploads/all/valid-hero.png', UploadedFile::fake()->image('valid-hero.png', 1600, 720)->getContent());
+        Storage::disk('local')->put('uploads/all/valid-hero_medium.webp', 'medium');
+        $valid = Upload::withoutEvents(fn () => Upload::create([
+            'file_original_name' => 'valid hero',
+            'file_name' => 'uploads/all/valid-hero.png',
+            'extension' => 'png',
+            'type' => 'image',
+            'file_size' => 123,
+        ]));
+        $stale = Upload::withoutEvents(fn () => Upload::create([
+            'file_original_name' => 'stale hero',
+            'file_name' => 'uploads/all/stale-hero.png',
+            'extension' => 'png',
+            'type' => 'image',
+            'file_size' => 123,
+        ]));
+
+        BusinessSetting::updateOrCreate([
+            'type' => 'home_slider_images',
+        ], [
+            'value' => json_encode([999999, $stale->id, $valid->id]),
+        ]);
+
+        $this->artisan('images:status', ['--fail-on-hero-missing' => true])
+            ->expectsOutputToContain((string) $valid->id)
+            ->expectsOutputToContain('999999, '.$stale->id)
+            ->assertSuccessful();
+    }
+
+    /** @test */
+    public function image_status_fails_when_no_valid_active_hero_exists(): void
+    {
+        $stale = Upload::withoutEvents(fn () => Upload::create([
+            'file_original_name' => 'stale hero',
+            'file_name' => 'uploads/all/stale-hero.png',
+            'extension' => 'png',
+            'type' => 'image',
+            'file_size' => 123,
+        ]));
+
+        BusinessSetting::updateOrCreate([
+            'type' => 'home_slider_images',
+        ], [
+            'value' => json_encode([$stale->id]),
+        ]);
+
+        $this->artisan('images:status', ['--fail-on-hero-missing' => true])
+            ->expectsOutputToContain('no valid active hero image exists')
+            ->assertFailed();
     }
 }
