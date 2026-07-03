@@ -6,6 +6,9 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\CategoryTranslation;
+use App\Models\Language;
+use App\Models\Translation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 
@@ -151,5 +154,195 @@ class PromotedCategoryTest extends TestCase
         $response = $this->get('/');
 
         $response->assertSee('promoted-category-section');
+    }
+
+    /** @test */
+    public function promoted_section_renders_category_title_as_h2_and_configured_subtitle_as_h3()
+    {
+        $this->category->update([
+            'name' => 'Mobilier de Bureau',
+            'slug' => 'mobilier-de-bureau',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $this->category->id,
+            'published' => 1,
+            'approved' => 1,
+            'unit_price' => 100,
+            'discount' => 15,
+            'discount_type' => 'percent',
+        ]);
+
+        $subtitle = 'Des espaces inspirants pour plus d’efficacité Découvrez notre sélection exclusive de mobilier de bureau alliant design, confort et fonctionnalité.';
+
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'homepage_select'],
+            ['value' => 'metro']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_status'],
+            ['value' => '1']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_id'],
+            ['value' => $this->category->id]
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_subtitle', 'lang' => 'en'],
+            ['value' => $subtitle]
+        );
+        Cache::forget('business_settings');
+
+        $response = $this->get('/');
+
+        $response->assertSee('<h2 class="promoted-category-title', false);
+        $response->assertSee('Mobilier de Bureau');
+        $response->assertSee('<h3 class="promoted-category-subtitle', false);
+        $response->assertSee($subtitle);
+        $this->assertLessThan(
+            strpos($response->getContent(), '<h3 class="promoted-category-subtitle'),
+            strpos($response->getContent(), '<h2 class="promoted-category-title')
+        );
+    }
+
+    /** @test */
+    public function promoted_section_uses_selected_language_category_translation_instead_of_english_base_name()
+    {
+        $this->category->update([
+            'name' => 'Office Furniture',
+            'slug' => 'office-furniture',
+        ]);
+
+        Language::create([
+            'name' => 'French',
+            'code' => 'fr',
+            'rtl' => 0,
+            'status' => 1,
+        ]);
+
+        CategoryTranslation::create([
+            'category_id' => $this->category->id,
+            'lang' => 'fr',
+            'name' => 'Mobilier de Bureau',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $this->category->id,
+            'published' => 1,
+            'approved' => 1,
+            'unit_price' => 100,
+            'discount' => 15,
+            'discount_type' => 'percent',
+        ]);
+
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'homepage_select'],
+            ['value' => 'metro']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_status'],
+            ['value' => '1']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_id'],
+            ['value' => $this->category->id]
+        );
+        Cache::forget('business_settings');
+
+        $this->withSession(['locale' => 'fr'])
+            ->get('/')
+            ->assertOk()
+            ->assertSee('Mobilier de Bureau')
+            ->assertDontSee('Office Furniture');
+    }
+
+    /** @test */
+    public function promoted_section_uses_ui_translation_when_category_translation_repeats_base_english_name()
+    {
+        $this->category->update([
+            'name' => 'Office Furniture',
+            'slug' => 'office-furniture',
+        ]);
+
+        Language::create([
+            'name' => 'French',
+            'code' => 'fr',
+            'rtl' => 0,
+            'status' => 1,
+        ]);
+
+        CategoryTranslation::create([
+            'category_id' => $this->category->id,
+            'lang' => 'fr',
+            'name' => 'Office Furniture',
+        ]);
+
+        Translation::create([
+            'lang' => 'fr',
+            'lang_key' => 'office_furniture',
+            'lang_value' => 'Mobilier de bureau',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $this->category->id,
+            'published' => 1,
+            'approved' => 1,
+            'unit_price' => 100,
+            'discount' => 15,
+            'discount_type' => 'percent',
+        ]);
+
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'homepage_select'],
+            ['value' => 'metro']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_status'],
+            ['value' => '1']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_id'],
+            ['value' => $this->category->id]
+        );
+        Cache::forget('business_settings');
+        Cache::forget('translations-fr');
+
+        $this->withSession(['locale' => 'fr'])
+            ->get('/')
+            ->assertOk()
+            ->assertSee('Mobilier de bureau')
+            ->assertDontSee('Office Furniture');
+    }
+
+    /** @test */
+    public function promoted_section_uses_default_h3_subtitle_when_admin_has_not_saved_one()
+    {
+        Product::factory()->create([
+            'category_id' => $this->category->id,
+            'published' => 1,
+            'approved' => 1,
+            'unit_price' => 100,
+            'discount' => 15,
+            'discount_type' => 'percent',
+        ]);
+
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'homepage_select'],
+            ['value' => 'metro']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_status'],
+            ['value' => '1']
+        );
+        \App\Models\BusinessSetting::updateOrCreate(
+            ['type' => 'promoted_category_id'],
+            ['value' => $this->category->id]
+        );
+        Cache::forget('business_settings');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('<h3 class="promoted-category-subtitle', false)
+            ->assertSee('Des espaces inspirants pour plus d’efficacité');
     }
 }

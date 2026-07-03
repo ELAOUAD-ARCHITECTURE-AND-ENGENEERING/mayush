@@ -2,7 +2,7 @@
     function account_delete_confirm_modal(delete_url)
     {
         jQuery('#account_delete_confirm').modal('show', {backdrop: 'static'});
-        document.getElementById('account_delete_link').setAttribute('href' , delete_url);
+        document.getElementById('account_delete_form').setAttribute('action' , delete_url);
     }
 </script>
 
@@ -49,7 +49,11 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary rounded-0 w-150px" data-dismiss="modal">{{ translate('Cancel')}}</button>
-                <a id="account_delete_link" class="btn btn-danger rounded-0 w-150px">{{ translate('Delete Account')}}</a>
+                <form id="account_delete_form" method="POST" class="d-inline-block">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger rounded-0 w-150px">{{ translate('Delete Account')}}</button>
+                </form>
             </div>
         </div>
     </div>

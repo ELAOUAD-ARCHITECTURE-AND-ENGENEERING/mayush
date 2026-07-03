@@ -18,10 +18,6 @@ class OrderShipmentDispatchService
             return $this->skip('addon_disabled', 'ONESSTA addon is disabled.');
         }
 
-        if (!$order->is_confirmed) {
-            return $this->skip('not_confirmed', 'Order is not confirmed.');
-        }
-
         $shippingMethod = $this->getShippingMethod($order);
         $allowedMethods = ['onessta', 'home_delivery'];
         if (!in_array($shippingMethod, $allowedMethods) && !in_array($order->shipping_type, $allowedMethods)) {
@@ -59,7 +55,7 @@ class OrderShipmentDispatchService
                 CreateShipmentJob::dispatchSync($order->id, $shipmentData);
                 $shipment = OnesstaShipment::where('order_id', $order->id)->latest('id')->first();
 
-                Log::info('ONESSTA: Shipment created synchronously after order confirmation', [
+                Log::info('ONESSTA: Shipment created synchronously for order', [
                     'order_id' => $order->id,
                     'shipment_code' => $shipment?->code,
                 ]);
@@ -71,6 +67,25 @@ class OrderShipmentDispatchService
                 ];
             }
 
+            $queuedShipment = OnesstaShipment::updateOrCreate(
+                ['code' => $shipmentData['code']],
+                [
+                    'order_id' => $order->id,
+                    'receiver' => $shipmentData['receiver'],
+                    'phone' => $shipmentData['phone'],
+                    'address' => $shipmentData['address'],
+                    'city_id' => $shipmentData['city_id'] ?? null,
+                    'price' => $shipmentData['price'],
+                    'sku' => $shipmentData['sku'],
+                    'note' => $shipmentData['note'],
+                    'product_nature' => $shipmentData['product_nature'],
+                    'is_cod' => $shipmentData['is_cod'],
+                    'payment_situation' => $shipmentData['is_cod'] ? 'cod_awaiting' : 'pending',
+                    'status' => 'QUEUED',
+                    'raw_request' => $shipmentData,
+                ]
+            );
+
             CreateShipmentJob::dispatch($order->id, $shipmentData)
                 ->onConnection($connection)
                 ->onQueue($queue);
@@ -78,6 +93,7 @@ class OrderShipmentDispatchService
             Log::info('ONESSTA: CreateShipmentJob dispatched', [
                 'order_id' => $order->id,
                 'code' => $shipmentData['code'],
+                'shipment_id' => $queuedShipment->id,
                 'is_cod' => $shipmentData['is_cod'],
                 'queue_connection' => $connection,
                 'queue' => $queue,

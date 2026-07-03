@@ -21,7 +21,7 @@
                             @foreach ($carts as $key => $cartItem)
                                 @php
                                     $product = get_single_product($cartItem['product_id']);
-                                    $product_stock = $product->stocks->where('variant', $cartItem['variation'])->first();
+                                    $product_stock = \App\Utility\CartUtility::find_product_stock($product, $cartItem['variation']);
                                     // $total = $total + ($cartItem['price']  + $cartItem['tax']) * $cartItem['quantity'];
                                     $total = $total + cart_product_price($cartItem, $product, false) * $cartItem['quantity'];
                                     $product_name_with_choice = $product->getTranslation('name');
@@ -111,13 +111,9 @@
                         <!-- Continue to Shipping -->
                         <div class="col-md-6 text-center text-md-right">
 
-                            @if(get_setting('guest_checkout_activation') == 1 || Auth::check())
-                                <a href="{{ route('checkout.shipping_info') }}" class="btn btn-primary fs-14 fw-700 rounded-0 px-4">
-                                    {{ translate('Continue to Shipping')}}
-                                </a>
-                            @else
-                                <button class="btn btn-primary fs-14 fw-700 rounded-0 px-4" onclick="showLoginModal()">{{ translate('Continue to Shipping')}}</button>
-                            @endif
+                            <a href="{{ route('checkout.shipping_info') }}" class="btn btn-primary fs-14 fw-700 rounded-0 px-4">
+                                {{ translate('Continue to Shipping')}}
+                            </a>
                         </div>
                     </div>
                 </div>

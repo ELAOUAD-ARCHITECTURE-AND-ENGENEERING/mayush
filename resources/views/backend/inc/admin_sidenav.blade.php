@@ -533,6 +533,44 @@
                     @endcan
                 @endif
 
+                <!-- Promotion & Offers -->
+                @canany(['view_promotion_and_offers_dashboard', 'view_promotional_product', 'add_promotional_products'])
+                    <li class="aiz-side-nav-item">
+                        <a href="#" class="aiz-side-nav-link">
+                            <div class="aiz-side-nav-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                                    <path d="M2 3.5A1.5 1.5 0 0 1 3.5 2h9A1.5 1.5 0 0 1 14 3.5v2.1a1.5 1.5 0 0 0 0 2.8v2.1a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 10.5V8.4a1.5 1.5 0 0 0 0-2.8V3.5Zm5 1a.5.5 0 0 0-1 0v1a.5.5 0 0 0 1 0v-1Zm0 3a.5.5 0 0 0-1 0v1a.5.5 0 0 0 1 0v-1Zm0 3a.5.5 0 0 0-1 0v1a.5.5 0 0 0 1 0v-1Z" fill="#575b6a"/>
+                                </svg>
+                            </div>
+                            <span class="aiz-side-nav-text">{{ translate('Promotion & Offers') }}</span>
+                            <span class="aiz-side-nav-arrow"></span>
+                        </a>
+                        <ul class="aiz-side-nav-list level-2">
+                            @can('view_promotion_and_offers_dashboard')
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{ route('promotion_and_offers.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['promotion_and_offers.index']) }}">
+                                        <span class="aiz-side-nav-text">{{ translate('Dashboard') }}</span>
+                                    </a>
+                                </li>
+                            @endcan
+                            @can('view_promotional_product')
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{ route('promotional_products.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['promotional_products.index']) }}">
+                                        <span class="aiz-side-nav-text">{{ translate('Promotional Products') }}</span>
+                                    </a>
+                                </li>
+                            @endcan
+                            @can('view_promotional_product')
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{ route('todays_deal_products.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['todays_deal_products.index']) }}">
+                                        <span class="aiz-side-nav-text">{{ translate("Today's Deal Products") }}</span>
+                                    </a>
+                                </li>
+                            @endcan
+                        </ul>
+                    </li>
+                @endcanany
+
                 <!-- Note  -->
                 @canany(['view_notes', 'add_note'])
                     <li class="aiz-side-nav-item">
@@ -1219,7 +1257,7 @@
                 <!--Blog System-->
                 @canany(['view_blogs','view_blog_categories'])
                 <li class="aiz-side-nav-item">
-                    <a href="#" class="aiz-side-nav-link">
+                    <a href="#" class="aiz-side-nav-link {{ areActiveRoutes(['blog.index', 'blog.create', 'blog.edit', 'blog-category.index', 'blog-category.create', 'blog-category.edit', 'blog.conversion-settings', 'blog.conversion-subscribers']) }}">
                         <div class="aiz-side-nav-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
                                 <path id="Path_40771" data-name="Path 40771"
@@ -1234,16 +1272,46 @@
                         @can('view_blogs')
                         <li class="aiz-side-nav-item">
                             <a href="{{ route('blog.index') }}"
-                                class="aiz-side-nav-link {{ areActiveRoutes(['blog.create', 'blog.edit'])}}">
-                                <span class="aiz-side-nav-text">{{ translate('All Posts') }}</span>
+                                class="aiz-side-nav-link {{ areActiveRoutes(['blog.index', 'blog.create', 'blog.edit'])}}">
+                                <span class="aiz-side-nav-text">{{ translate('All Articles') }}</span>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('add_blog')
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('blog.create') }}"
+                                class="aiz-side-nav-link {{ areActiveRoutes(['blog.create'])}}">
+                                <span class="aiz-side-nav-text">{{ translate('Add New Article') }}</span>
+                                <span class="badge badge-inline badge-success">{{ translate('SEO') }}</span>
                             </a>
                         </li>
                         @endcan
                         @can('view_blog_categories')
                         <li class="aiz-side-nav-item">
                             <a href="{{ route('blog-category.index') }}"
-                                class="aiz-side-nav-link {{ areActiveRoutes(['blog-category.create', 'blog-category.edit'])}}">
+                                class="aiz-side-nav-link {{ areActiveRoutes(['blog-category.index', 'blog-category.create', 'blog-category.edit'])}}">
                                 <span class="aiz-side-nav-text">{{ translate('Categories') }}</span>
+                            </a>
+                        </li>
+                        @endcan
+                        @can('view_blogs')
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('blog.conversion-settings') }}"
+                                class="aiz-side-nav-link {{ areActiveRoutes(['blog.conversion-settings'])}}">
+                                <span class="aiz-side-nav-text">{{ translate('Conversion Setup') }}</span>
+                                <span class="badge badge-inline badge-info">{{ translate('New') }}</span>
+                            </a>
+                        </li>
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('blog.conversion-subscribers') }}"
+                                class="aiz-side-nav-link {{ areActiveRoutes(['blog.conversion-subscribers'])}}">
+                                <span class="aiz-side-nav-text">{{ translate('Subscriber Logs') }}</span>
+                            </a>
+                        </li>
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('blog') }}" target="_blank" class="aiz-side-nav-link">
+                                <span class="aiz-side-nav-text">{{ translate('View Public Blog') }}</span>
+                                <i class="las la-external-link-alt fs-12 ml-1"></i>
                             </a>
                         </li>
                         @endcan
@@ -2187,7 +2255,8 @@
                 @canany(['general_settings','features_activation','language_setup','currency_setup','vat_&_tax_setup',
                 'pickup_point_setup','smtp_settings','payment_methods_configurations','order_configuration','file_system_&_cache_configuration',
                 'social_media_logins','facebook_chat','facebook_comment','analytics_tools_configuration','google_recaptcha_configuration','google_map_setting',
-                'google_firebase_setting','shipping_configuration','shipping_country_setting','manage_shipping_states','manage_shipping_cities','manage_zones','manage_carriers','select_shipping_methods'])
+                'google_firebase_setting','shipping_configuration','shipping_country_setting','manage_shipping_states','manage_shipping_cities','manage_zones','manage_carriers','select_shipping_methods',
+                'business_settings','manage_ai_configuration'])
                 <li class="aiz-side-nav-item">
                     <a href="#" class="aiz-side-nav-link">
                         <div class="aiz-side-nav-icon">
@@ -2207,6 +2276,52 @@
                             <a href="{{route('business_settings.index')}}" class="aiz-side-nav-link">
                                 <span class="aiz-side-nav-text">{{translate('Business Settings')}}</span>
                             </a>
+                        </li>
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('invoice.config') }}" class="aiz-side-nav-link {{ areActiveRoutes(['invoice.config']) }}">
+                                <span class="aiz-side-nav-text">{{ translate('Invoice Configuration') }}</span>
+                            </a>
+                        </li>
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('shipping.label') }}" class="aiz-side-nav-link {{ areActiveRoutes(['shipping.label']) }}">
+                                <span class="aiz-side-nav-text">{{ translate('Shipping Label') }}</span>
+                            </a>
+                        </li>
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('thermal.printer') }}" class="aiz-side-nav-link {{ areActiveRoutes(['thermal.printer']) }}">
+                                <span class="aiz-side-nav-text">{{ translate('Thermal Printer') }}</span>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('manage_ai_configuration')
+                        <li class="aiz-side-nav-item">
+                            <a href="javascript:void(0);" class="aiz-side-nav-link">
+                                <span class="aiz-side-nav-text">{{ translate('AI Configuration') }}</span>
+                                <span class="aiz-side-nav-arrow"></span>
+                            </a>
+                            <ul class="aiz-side-nav-list level-3">
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{ route('ai-config') }}" class="aiz-side-nav-link {{ areActiveRoutes(['ai-config']) }}">
+                                        <span class="aiz-side-nav-text">{{ translate('Settings') }}</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{ route('ai-prompt-templates') }}" class="aiz-side-nav-link {{ areActiveRoutes(['ai-prompt-templates']) }}">
+                                        <span class="aiz-side-nav-text">{{ translate('Prompt Templates') }}</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{ route('ai-product-generation') }}" class="aiz-side-nav-link {{ areActiveRoutes(['ai-product-generation']) }}">
+                                        <span class="aiz-side-nav-text">{{ translate('Product Generation') }}</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{ route('ai-token-usage') }}" class="aiz-side-nav-link {{ areActiveRoutes(['ai-token-usage']) }}">
+                                        <span class="aiz-side-nav-text">{{ translate('Token Usage') }}</span>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         @endcan
 

@@ -65,11 +65,13 @@
                                         </a>
                                     @endcan
                                     @can('delete_color')
-                                        <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
-                                            data-href="{{ route('colors.destroy', $color->id) }}"
-                                            title="{{ translate('Delete') }}">
-                                            <i class="las la-trash"></i>
-                                        </a>
+                                        <form action="{{ route('colors.destroy', $color->id) }}" method="POST" class="d-inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+                                                <i class="las la-trash"></i>
+                                            </button>
+                                        </form>
                                     @endcan
                                 </td>
                             </tr>

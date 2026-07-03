@@ -2,16 +2,16 @@
 
 namespace Tests\Integration\Controllers;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Product;
-use App\Models\Review;
+use App\Models\BusinessSetting;
 use App\Models\Order;
 use App\Models\OrderDetail;
-use App\Models\BusinessSetting;
+use App\Models\Product;
+use App\Models\Review;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 use Tests\Traits\SeedsAppConfigs;
 
 /**
@@ -30,39 +30,79 @@ class ReviewControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
         $this->seedConfigs();
 
-        // Seed domain-specific settings
         BusinessSetting::updateOrCreate(
             ['type' => 'set_point_for_product_review'],
             ['value' => 10]
         );
     }
 
-    /**
-     * Helper to create an admin aligned with production authorization gates.
-     * Assigning the 'Super Admin' role ensures the user passes the Gate::before 
-     * check defined in AuthServiceProvider, reflecting the production-privileged 
-     * access level required for review moderation.
-     */
     protected function createAdminWithPermission(string $permissionName): User
     {
         Permission::findOrCreate($permissionName, 'web');
         $role = Role::findOrCreate('Super Admin', 'web');
+
         $admin = User::factory()->admin()->create();
         $admin->givePermissionTo($permissionName);
         $admin->assignRole($role);
+
         return $admin;
     }
 
-    // ─── Admin Endpoints ─────────────────────────────────────────────────────
+    /** @test */
+    public function guest_cannot_submit_review(): void
+    {
+        $product = Product::factory()->create();
+
+        $response = $this->post(route('reviews.store'), [
+            'product_id' => $product->id,
+            'rating' => 5,
+            'comment' => 'Great product!',
+        ]);
+
+        $response->assertRedirect();
+    }
 
     /** @test */
-    public function admin_can_view_reviews_index_with_permission()
+    public function customer_can_submit_review(): void
+    {
+        $customer = User::factory()->customer()->create();
+        $product = Product::factory()->create();
+        $order = Order::factory()->create(['user_id' => $customer->id]);
+        OrderDetail::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'reviewed' => 0,
+        ]);
+
+        $response = $this->actingAs($customer)->post(route('reviews.store'), [
+            'product_id' => $product->id,
+            'rating' => 4,
+            'comment' => 'Very good!',
+            'photos' => [],
+            'order_id' => $order->id,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('reviews', [
+            'product_id' => $product->id,
+            'user_id' => $customer->id,
+            'rating' => 4,
+        ]);
+        $this->assertDatabaseHas('order_details', [
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'reviewed' => 1,
+        ]);
+    }
+
+    /** @test */
+    public function admin_can_view_reviews_index_with_permission(): void
     {
         $admin = $this->createAdminWithPermission('view_product_reviews');
-        Product::factory()->create(); // Ensure at least one product exists
+        Product::factory()->create();
 
         $response = $this->actingAs($admin)->get(route('reviews.index'));
 
@@ -71,37 +111,34 @@ class ReviewControllerTest extends TestCase
     }
 
     /** @test */
-    public function admin_cannot_view_reviews_index_without_permission()
+    public function admin_without_permission_cannot_view_reviews_index(): void
     {
-        $admin = User::factory()->admin()->create(); // No Spatie permissions assigned
+        $admin = User::factory()->admin()->create();
 
-        $response = $this->actingAs($admin)->get(route('reviews.index'));
-
-        // Spatie middleware blocks it (usually 403)
-        $response->assertStatus(403);
+        $this->actingAs($admin)->get(route('reviews.index'))->assertStatus(403);
     }
 
     /** @test */
-    public function admin_can_update_review_published_status()
+    public function admin_can_update_review_published_status(): void
     {
         $admin = $this->createAdminWithPermission('publish_product_review');
         $review = Review::factory()->create(['status' => 0]);
 
         $response = $this->actingAs($admin)->post(route('reviews.published'), [
             'id' => $review->id,
-            'status' => 1
+            'status' => 1,
         ]);
 
         $response->assertStatus(200);
-        $this->assertEquals(1, $response->getContent());
+        $this->assertEquals('1', $response->getContent());
         $this->assertDatabaseHas('reviews', [
             'id' => $review->id,
-            'status' => 1
+            'status' => 1,
         ]);
     }
 
     /** @test */
-    public function admin_can_create_custom_review()
+    public function admin_can_create_custom_review(): void
     {
         $admin = $this->createAdminWithPermission('add_custom_review');
         $product = Product::factory()->create();
@@ -120,46 +157,6 @@ class ReviewControllerTest extends TestCase
             'type' => 'custom',
             'custom_reviewer_name' => 'John Custom',
             'rating' => 5,
-        ]);
-    }
-
-    // ─── Customer Endpoints ──────────────────────────────────────────────────
-
-    /** @test */
-    public function customer_can_submit_review()
-    {
-        $customer = User::factory()->customer()->create();
-        $product = Product::factory()->create();
-        
-        // Mock an order so the controller marks the order detail as reviewed
-        $order = Order::factory()->create(['user_id' => $customer->id]);
-        OrderDetail::factory()->create([
-            'order_id' => $order->id,
-            'product_id' => $product->id,
-            'reviewed' => 0
-        ]);
-
-        $response = $this->actingAs($customer)->post(route('reviews.store'), [
-            'product_id' => $product->id,
-            'rating' => 4,
-            'comment' => 'Very good!',
-            'photos' => [],
-            'order_id' => $order->id,
-        ]);
-
-        $response->assertRedirect();
-        
-        $this->assertDatabaseHas('reviews', [
-            'product_id' => $product->id,
-            'user_id' => $customer->id,
-            'rating' => 4,
-        ]);
-        
-        // Ensure order detail is marked as reviewed
-        $this->assertDatabaseHas('order_details', [
-            'order_id' => $order->id,
-            'product_id' => $product->id,
-            'reviewed' => 1
         ]);
     }
 }

@@ -10,7 +10,7 @@
 		</div>
 	</div>
 
-	@include('header.' .get_element_type_by_id(get_setting('header_element')))
+	@include(safe_header_view())
 	<br>
 
 	<div class="row">
@@ -390,7 +390,7 @@
 					previousFileId = fileId;
 
 					$.ajax({
-						url: 'get-upload-file-name',
+						url: '{{ route('website.get-upload-file-name') }}',
 						method: 'POST',
 						data: {
 							_token: '{{ csrf_token() }}',
@@ -398,20 +398,15 @@
 						},
 						success: function (res) {
 							if (res.success) {
-								// Full image path with domain + public
-								let imagePath = '{{ url('public') }}/' + res.file_name;
-
-								// Set to preview image
+								let imagePath = res.url || ('{{ url('public') }}/' + res.file_name);
 								$('#header-logo-preview').attr('src', imagePath);
-
-								console.log("Live Image Path:", imagePath);
 							}
 							else {
-								alert(res.message);
+								console.warn(res.message);
 							}
 						},
 						error: function () {
-							alert("Something went wrong.");
+							console.warn('Unable to refresh header logo preview.');
 						}
 					});
 				}

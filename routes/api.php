@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Api\V2;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Middleware\EnsureSystemKey;
+use App\Http\Middleware\VerifyCsrfToken;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Illuminate\Support\Facades\Route;
+
+Route::get('blog/products', [\App\Http\Controllers\Api\BlogApiController::class, 'products'])->middleware('throttle:60,1');
 
 
 
@@ -235,7 +239,7 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
             Route::get('all-notification', 'allNotification')->middleware('auth:sanctum');
             Route::get('unread-notifications', 'unreadNotifications')->middleware('auth:sanctum');
             Route::post('notifications/bulk-delete', 'bulkDelete')->middleware('auth:sanctum');
-            Route::get('notifications/mark-as-read', 'notificationMarkAsRead')->middleware('auth:sanctum');
+            Route::get('notifications/mark-as-read/{notificationId?}', 'notificationMarkAsRead')->middleware('auth:sanctum');
         });
 
         Route::get('products/last-viewed', [ProductController::class, 'lastViewedProducts'])->middleware('auth:sanctum');
@@ -301,7 +305,7 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
     Route::get('products/todays-deal', 'App\Http\Controllers\Api\V2\ProductController@todaysDeal');
     Route::get('products/featured', 'App\Http\Controllers\Api\V2\ProductController@featured');
     Route::get('products/best-seller', 'App\Http\Controllers\Api\V2\ProductController@bestSeller');
-    Route::get('products/top-from-seller/{slug}', 'App\Http\Controllers\Api\V2\ProductController@topFromSeller');
+    Route::get('products/top-from-seller/{slug}', 'App\Http\Controllers\Api\V2\ProductController@topFromSeller')->name('products.topFromSeller');
     Route::get('products/frequently-bought/{slug}', 'App\Http\Controllers\Api\V2\ProductController@frequentlyBought')->name('products.frequently_bought');
 
     Route::get('products/featured-from-seller/{id}', 'App\Http\Controllers\Api\V2\ProductController@newFromSeller')->name('products.featuredromSeller');
@@ -475,7 +479,7 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
         });
         //Payfast routes <ends>
 
-        // Route::get('/myfatoorah/callback', 'App\Http\Controllers\Api\V2\MyfatoorahController@callback')->name('api.myfatoorah.callback');
+        Route::get('/myfatoorah/callback', 'App\Http\Controllers\Api\V2\MyfatoorahController@callback')->name('api.myfatoorah.callback');
 
 
         Route::any('/phonepe/redirecturl', 'App\Http\Controllers\Api\V2\PhonepeController@phonepe_redirecturl')->name('api.phonepe.redirecturl');
@@ -491,8 +495,10 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
 
     // Analytics Routes
     Route::prefix('analytics')->group(function () {
-        Route::post('track-visit', [AnalyticsController::class, 'trackVisit'])->withoutMiddleware([\App\Http\Middleware\EnsureSystemKey::class]);
-        Route::post('track-health', [AnalyticsController::class, 'trackHealth'])->withoutMiddleware([\App\Http\Middleware\EnsureSystemKey::class]);
+        Route::post('track-visit', [AnalyticsController::class, 'trackVisit'])
+            ->withoutMiddleware([EnsureSystemKey::class, EnsureFrontendRequestsAreStateful::class, VerifyCsrfToken::class]);
+        Route::post('track-health', [AnalyticsController::class, 'trackHealth'])
+            ->withoutMiddleware([EnsureSystemKey::class, EnsureFrontendRequestsAreStateful::class, VerifyCsrfToken::class]);
     });
 });
 

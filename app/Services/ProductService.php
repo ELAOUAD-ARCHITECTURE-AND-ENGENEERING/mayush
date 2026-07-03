@@ -120,6 +120,7 @@ class ProductService
 
         unset($collection['colors_active']);
 
+        $removed_sku_variants = $this->normalizedRemovedSkuVariants($collection);
         $choice_options = array();
         if (isset($collection['choice_no']) && $collection['choice_no']) {
             $str = '';
@@ -131,7 +132,9 @@ class ProductService
                 
                 if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
                     foreach ($collection[$str] as $key => $eachValue) {
-                        array_push($attribute_data, $eachValue);
+                        if (!in_array($this->normalizeSkuVariant($eachValue), $removed_sku_variants, true)) {
+                            array_push($attribute_data, $eachValue);
+                        }
                     }
                 }
                 unset($collection[$str]);
@@ -149,6 +152,7 @@ class ProductService
         } else {
             $attributes = json_encode(array());
         }
+        unset($collection['removed_sku_variants']);
 
         $published = 1;
         if ($collection->get('button') == 'unpublish' || $collection->get('button') == 'draft') {
@@ -253,7 +257,8 @@ class ProductService
             $collection['meta_img'] = $collection['thumbnail_img'];
         }
 
-        if (isset($collection['lang']) && $collection['lang'] != env('DEFAULT_LANGUAGE')) {
+        $default_language = env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr');
+        if (isset($collection['lang']) && $collection['lang'] != $default_language) {
             unset($collection['name']);
             unset($collection['unit']);
             unset($collection['description']);
@@ -297,6 +302,7 @@ class ProductService
 
         unset($collection['colors_active']);
 
+        $removed_sku_variants = $this->normalizedRemovedSkuVariants($collection);
         $choice_options = array();
         if (isset($collection['choice_no']) && $collection['choice_no']) {
             $str = '';
@@ -308,7 +314,9 @@ class ProductService
                 
                 if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
                     foreach ($collection[$str] as $key => $eachValue) {
-                        array_push($attribute_data, $eachValue);
+                        if (!in_array($this->normalizeSkuVariant($eachValue), $removed_sku_variants, true)) {
+                            array_push($attribute_data, $eachValue);
+                        }
                     }
                 }
                 unset($collection[$str]);
@@ -326,6 +334,7 @@ class ProductService
         } else {
             $attributes = json_encode(array());
         }
+        unset($collection['removed_sku_variants']);
 
         $published = 1;
         if (isset($collection['button']) && ($collection['button'] == 'unpublish' || $collection['button'] == 'draft')) {
@@ -627,6 +636,7 @@ class ProductService
         }
         unset($collection['colors_active']);
 
+        $removed_sku_variants = $this->normalizedRemovedSkuVariants($collection);
         $choice_options = array();
         if (isset($collection['choice_no']) && $collection['choice_no']) {
             $item = array();
@@ -637,7 +647,9 @@ class ProductService
                 
                 if (isset($collection[$str]) && (is_array($collection[$str]) || is_object($collection[$str]))) {
                     foreach ($collection[$str] as $eachValue) {
-                        array_push($attribute_data, $eachValue);
+                        if (!in_array($this->normalizeSkuVariant($eachValue), $removed_sku_variants, true)) {
+                            array_push($attribute_data, $eachValue);
+                        }
                     }
                 }
                 unset($collection[$str]);
@@ -650,6 +662,7 @@ class ProductService
 
         $attributes = isset($collection['choice_no']) ? json_encode($collection['choice_no']) : json_encode(array());
         unset($collection['choice_no']);
+        unset($collection['removed_sku_variants']);
 
        
         $collection['has_warranty'] = isset($collection['has_warranty']) ? 1 : 0;
@@ -721,6 +734,78 @@ class ProductService
         }    
 
         return $products->get();
+    }
+
+    public function promotional_products_search(array $data, int $promotional = 1)
+    {
+        return $this->promotionSearchQuery($data)
+            ->where('promotional', $promotional)
+            ->limit(20)
+            ->get();
+    }
+
+    public function todays_deal_products_search(array $data, int $todaysDeal = 1)
+    {
+        return $this->promotionSearchQuery($data)
+            ->where('todays_deal', $todaysDeal)
+            ->limit(20)
+            ->get();
+    }
+
+    private function promotionSearchQuery(array $data)
+    {
+        $collection = collect($data);
+        $products = Product::query()
+            ->where('published', 1)
+            ->where('auction_product', 0)
+            ->where('approved', 1);
+
+        if ($collection->get('category')) {
+            $category = Category::with('childrenCategories')->find($collection->get('category'));
+            if ($category) {
+                $products = $category->products()
+                    ->where('products.published', 1)
+                    ->where('products.auction_product', 0)
+                    ->where('products.approved', 1);
+            }
+        }
+
+        if (auth()->check() && auth()->user()->user_type === 'seller') {
+            $products->where('products.user_id', auth()->id());
+        }
+
+        $productType = $collection->get('product_type');
+        if ($productType === 'physical') {
+            $products->where('digital', 0)->where('wholesale_product', 0);
+        } elseif ($productType === 'digital') {
+            $products->where('digital', 1);
+        } elseif ($productType === 'wholesale') {
+            $products->where('wholesale_product', 1);
+        }
+
+        if ($collection->get('product_id')) {
+            $products->where('products.id', '!=', $collection->get('product_id'));
+        }
+
+        if ($collection->get('search_key')) {
+            $products->where('products.name', 'like', '%' . $collection->get('search_key') . '%');
+        }
+
+        return $products;
+    }
+
+    private function normalizedRemovedSkuVariants($collection): array
+    {
+        return collect($collection->get('removed_sku_variants', []))
+            ->map(fn ($variant) => $this->normalizeSkuVariant($variant))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function normalizeSkuVariant($variant): string
+    {
+        return strtolower((string) preg_replace('/\s+/', '', trim((string) $variant)));
     }
 
     

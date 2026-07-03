@@ -197,8 +197,11 @@
                 return;
             }
             $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 url: "{{ route('categories.destroy', ':id') }}".replace(':id', categoryId),
-                type: 'GET',
+                type: 'DELETE',
                 success: function(response) {
                     if (response == 1) {
                         AIZ.plugins.notify('success', '{{ translate('Selected item deleted successfully') }}');

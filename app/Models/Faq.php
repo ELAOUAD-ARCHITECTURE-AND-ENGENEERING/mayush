@@ -13,8 +13,12 @@ class Faq extends Model
     
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $faq_translation = $this->faq_translations->where('lang', $lang)->first();
+        if ($faq_translation != null && $faq_translation->$field !== null && $faq_translation->$field !== $this->$field) {
+            return in_array($field, ['name', 'title']) ? translate($faq_translation->$field, $lang) : $faq_translation->$field;
+        }
+
         return $faq_translation != null ? $faq_translation->$field : $this->$field;
     }
 

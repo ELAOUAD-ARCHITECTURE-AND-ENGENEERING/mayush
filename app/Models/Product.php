@@ -21,10 +21,12 @@ class Product extends Model
         'name', 'added_by', 'user_id', 'category_id', 'brand_id', 'video_provider', 'video_link', 
         'unit_price', 'purchase_price', 'tax', 'tax_type', 'discount', 'discount_type', 
         'current_stock', 'unit', 'min_qty', 'low_stock_quantity', 'slug', 'colors', 
-        'choice_options', 'attributes', 'published', 'featured', 'todays_deal', 'weight', 
+        'choice_options', 'attributes', 'published', 'featured', 'todays_deal', 'promotional', 'draft', 'pos', 'weight',
         'length', 'width', 'height', 'shipping_type', 'shipping_cost', 'is_quantity_multiplied', 
         'est_shipping_days', 'cash_on_delivery', 'meta_title', 'meta_description', 
-        'meta_img', 'pdf', 'digital', 'auction_product', 'wholesale_product', 'rating', 'num_of_sale'
+        'meta_img', 'pdf', 'digital', 'auction_product', 'wholesale_product', 'rating', 'num_of_sale',
+        'photos', 'thumbnail_img', 'description', 'tags', 'show_estimated_shipping_time', 'shipping_note_id',
+        'show_shipping_note', 'show_warranty_note', 'delivery_note_id', 'show_delivery_notes'
     ];
 
     protected $with = ['product_translations', 'taxes', 'thumbnail'];
@@ -36,9 +38,13 @@ class Product extends Model
 
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
-        $product_translations = $this->product_translations->where('lang', $lang)->first();
-        return $product_translations != null ? $product_translations->$field : $this->$field;
+        $lang = $lang ?: App::getLocale();
+        $product_translation = $this->product_translations->where('lang', $lang)->first();
+        if ($product_translation != null && $product_translation->$field !== null && $product_translation->$field !== $this->$field) {
+            return in_array($field, ['name', 'title']) ? translate($product_translation->$field, $lang) : $product_translation->$field;
+        }
+
+        return $product_translation != null ? $product_translation->$field : $this->$field;
     }
 
     public function product_translations()
@@ -114,6 +120,13 @@ class Product extends Model
     public function bids()
     {
         return $this->hasMany(AuctionProductBid::class);
+    }
+
+    public function blogs()
+    {
+        return $this->belongsToMany(Blog::class, 'blog_product')
+            ->withPivot(['placement', 'sort_order'])
+            ->withTimestamps();
     }
 
     public function thumbnail()
@@ -208,12 +221,18 @@ class Product extends Model
 
     public function getFlashDealAttribute()
     {
-        return $this->flash_deal_products()
-            ->whereHas('flash_deal', function ($q) {
-                $q->active();
-            })
-            ->with('flash_deal')
-            ->first()?->flash_deal;
+        $productId = $this->id;
+        if (!$productId) {
+            return null;
+        }
+        return \Illuminate\Support\Facades\Cache::store('array')->remember("product_flash_deal_{$productId}", 3600, function() {
+            return $this->flash_deal_products()
+                ->whereHas('flash_deal', function ($q) {
+                    $q->active();
+                })
+                ->with('flash_deal')
+                ->first()?->flash_deal;
+        });
     }
 
     public function getIsInFlashDealAttribute()

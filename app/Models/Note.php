@@ -13,8 +13,12 @@ class Note extends Model
 
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $note_translation = $this->note_translations->where('lang', $lang)->first();
+        if ($note_translation != null && $note_translation->$field !== null && $note_translation->$field !== $this->$field) {
+            return in_array($field, ['name', 'title']) ? translate($note_translation->$field, $lang) : $note_translation->$field;
+        }
+
         return $note_translation != null ? $note_translation->$field : $this->$field;
     }
     

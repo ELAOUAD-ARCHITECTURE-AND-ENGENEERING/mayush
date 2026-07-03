@@ -36,19 +36,7 @@ class OrderConfirmationWorkflowTest extends TestCase
         Order::observe(OrderObserver::class);
     }
 
-    public function test_order_creation_does_not_dispatch_onessta_shipment(): void
-    {
-        Queue::fake();
-
-        Order::factory()->create([
-            'shipping_type' => 'home_delivery',
-            'is_confirmed' => false,
-        ]);
-
-        Queue::assertNotPushed(CreateShipmentJob::class);
-    }
-
-    public function test_admin_confirmation_dispatches_onessta_shipment_once(): void
+    public function test_order_creation_dispatches_onessta_shipment(): void
     {
         Queue::fake();
 
@@ -57,13 +45,29 @@ class OrderConfirmationWorkflowTest extends TestCase
             'is_confirmed' => false,
         ]);
 
-        $order->forceFill(['is_confirmed' => true])->save();
-
         Queue::assertPushed(CreateShipmentJob::class, 1);
         Queue::assertPushed(CreateShipmentJob::class, function (CreateShipmentJob $job) use ($order) {
             return $job->orderId === $order->id
                 && $job->shipmentData['code'] === 'ORD-' . $order->code;
         });
+
+        $this->assertDatabaseHas('onessta_shipments', [
+            'order_id' => $order->id,
+            'code' => 'ORD-' . $order->code,
+            'status' => 'QUEUED',
+        ]);
+    }
+
+    public function test_admin_confirmation_does_not_duplicate_creation_time_shipment(): void
+    {
+        Queue::fake();
+
+        $order = Order::factory()->create([
+            'shipping_type' => 'home_delivery',
+            'is_confirmed' => false,
+        ]);
+
+        Queue::assertPushed(CreateShipmentJob::class, 1);
 
         $order->forceFill(['is_confirmed' => true])->save();
 
@@ -74,10 +78,10 @@ class OrderConfirmationWorkflowTest extends TestCase
     {
         Queue::fake();
 
-        $order = Order::factory()->create([
+        $order = Order::withoutEvents(fn () => Order::factory()->create([
             'shipping_type' => 'home_delivery',
             'is_confirmed' => false,
-        ]);
+        ]));
 
         OnesstaShipment::query()->create([
             'order_id' => $order->id,
@@ -89,8 +93,6 @@ class OrderConfirmationWorkflowTest extends TestCase
             'price' => $order->grand_total,
             'status' => 'WAITING_PICKUP',
         ]);
-
-        $order->forceFill(['is_confirmed' => true])->save();
 
         Queue::assertNotPushed(CreateShipmentJob::class);
     }
@@ -105,6 +107,8 @@ class OrderConfirmationWorkflowTest extends TestCase
             'is_confirmed' => false,
         ]);
 
+        Queue::assertPushed(CreateShipmentJob::class, 1);
+
         $this->actingAs($admin)
             ->postJson(route('orders.confirm'), [
                 'order_id' => $order->id,
@@ -115,7 +119,7 @@ class OrderConfirmationWorkflowTest extends TestCase
                 'success' => true,
                 'is_confirmed' => true,
                 'shipment' => [
-                    'status' => 'queued',
+                    'status' => 'exists',
                 ],
             ]);
 
@@ -136,10 +140,10 @@ class OrderConfirmationWorkflowTest extends TestCase
         Queue::fake();
 
         $admin = User::factory()->admin()->create();
-        $order = Order::factory()->create([
+        $order = Order::withoutEvents(fn () => Order::factory()->create([
             'shipping_type' => 'home_delivery',
             'is_confirmed' => true,
-        ]);
+        ]));
 
         $this->actingAs($admin)
             ->postJson(route('orders.confirm'), [
@@ -160,6 +164,8 @@ class OrderConfirmationWorkflowTest extends TestCase
 
     public function test_non_admin_cannot_confirm_orders(): void
     {
+        Queue::fake();
+
         $customer = User::factory()->customer()->create();
         $order = Order::factory()->create(['is_confirmed' => false]);
 

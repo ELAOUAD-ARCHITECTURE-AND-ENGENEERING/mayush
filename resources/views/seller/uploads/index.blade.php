@@ -83,10 +83,14 @@
 										<i class="las la-clipboard mr-2"></i>
 										<span>{{ translate('Copy Link') }}</span>
 									</a>
-									<a href="javascript:void(0)" class="dropdown-item confirm-delete" data-href="{{ route('seller.my_uploads.destroy', $file->id ) }}" data-target="#delete-modal">
-										<i class="las la-trash mr-2"></i>
-										<span>{{ translate('Delete') }}</span>
-									</a>
+									<form action="{{ route('seller.my_uploads.destroy', $file->id) }}" method="POST">
+										@csrf
+										@method('DELETE')
+										<button type="submit" class="dropdown-item">
+											<i class="las la-trash mr-2"></i>
+											<span>{{ translate('Delete') }}</span>
+										</button>
+									</form>
 								</div>
 							</div>
 

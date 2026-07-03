@@ -65,7 +65,7 @@ class ShopController extends Controller
             }
         } else {
             
-            return view('auth.'.get_setting('authentication_layout_select').'.seller_registration', compact('email','phone'));
+            return view('auth.'.safe_auth_layout_select().'.seller_registration', compact('email','phone'));
         }
     }
 
@@ -120,16 +120,21 @@ class ShopController extends Controller
             // Account Opening Email to Seller
             if ((get_email_template_data('registration_email_to_seller', 'status') == 1)) {
                 try {
-                    EmailUtility::selelr_registration_email('registration_email_to_seller', $user, null);
+                    EmailUtility::seller_registration_email('registration_email_to_seller', $user, null);
                 } catch (\Exception $e) {}
             }
 
             // Seller Account Opening Email to Admin
             if ((get_email_template_data('seller_reg_email_to_admin', 'status') == 1)) {
                 try {
-                    EmailUtility::selelr_registration_email('seller_reg_email_to_admin', $user, null);
+                    EmailUtility::seller_registration_email('seller_reg_email_to_admin', $user, null);
                 } catch (\Exception $e) {}
             }
+
+            // Queue onboarding documents request email
+            try {
+                EmailUtility::seller_onboarding_request_email($shop);
+            } catch (\Exception $e) {}
 
             if(get_setting('portfolio_landing')){
                 auth()->login($user, true);
@@ -161,7 +166,7 @@ class ShopController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function update(Request $request, $id)
     {
         //
     }
@@ -183,7 +188,7 @@ class ShopController extends Controller
                 return back();
             }
         } else {
-            return view('auth.'.get_setting('authentication_layout_select').'.reg_verification', compact('type'));
+            return view('auth.'.safe_auth_layout_select().'.reg_verification', compact('type'));
         }
     }
 
@@ -240,7 +245,7 @@ class ShopController extends Controller
     public function regVerifyCode($id){
         // $sellerVerification = $id;
         $sellerVerification = RegistrationVerificationCode::whereId(decrypt($id))->first();
-        return view('auth.'.get_setting('authentication_layout_select').'.seller_verify_confirmation', compact('sellerVerification'));
+        return view('auth.'.safe_auth_layout_select().'.seller_verify_confirmation', compact('sellerVerification'));
     }
 
     public function regVerifyCodeConfirmation(Request $request){
@@ -259,7 +264,16 @@ class ShopController extends Controller
         else {
             $sellerVerification->is_verified = 1;
             $sellerVerification->save();
-                return view('auth.'.get_setting('authentication_layout_select').'.seller_registration', compact('sellerVerification','email','phone'));
+                return view('auth.'.safe_auth_layout_select().'.seller_registration', compact('sellerVerification','email','phone'));
         }
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id)
+    {
+        $shop = Shop::findOrFail($id);
+        return view('seller.shop', compact('shop'));
     }
 }

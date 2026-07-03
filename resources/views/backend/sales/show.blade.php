@@ -475,7 +475,7 @@
                                             <br>
                                             <small>
                                                 @php
-                                                    $product_stock = $orderDetail->product->stocks->where('variant', $orderDetail->variation)->first();
+                                                    $product_stock = \App\Utility\CartUtility::find_product_stock($orderDetail->product, $orderDetail->variation);
                                                 @endphp
                                                 {{translate('SKU')}}: {{ $product_stock['sku'] ?? '' }}
                                             </small>

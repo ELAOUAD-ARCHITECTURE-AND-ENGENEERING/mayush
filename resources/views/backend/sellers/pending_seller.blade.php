@@ -60,26 +60,28 @@
                                 </label>
                             </td>
                             <td>
-                             @if(get_setting('portfolio_landing') !=1)
-                            <span class="badge badge-inline badge-warning">{{ translate('Pending') }}</span>
-                             @else
-                                @if ($shop->verification_status != 1 && $shop->business_info != null)
-                                @php 
-                                $verification_docs = json_decode($shop->business_info);
-                                @endphp
-                                <span class="badge badge-inline badge-success">{{translate('Submitted')}}</span> <br>
-                                <a href="javascript:void(0)" class="badge badge-inline badge-info border border-info" onclick="showDocsInModal('{{ json_encode($verification_docs) }}', '{{ $shop->id }}')"> {{translate('View Info') }}</a>
-
+                                @if($shop->approval_status === 'under_review')
+                                    <span class="badge badge-inline badge-warning">{{ translate('Under Review') }}</span>
+                                @elseif($shop->approval_status === 'rejected')
+                                    <span class="badge badge-inline badge-danger">{{ translate('Rejected') }}</span>
                                 @else
-                                    <span class="badge badge-inline badge-secondary"> {{ translate('Not Submitted') }}</span>
+                                    <span class="badge badge-inline badge-secondary">{{ translate('Pending Documents') }}</span>
                                 @endif
-                            @endif
                             </td>
                             <td>
-                                @can('delete_seller')
-                                    <a href="javascript:void();" class="badge badge-inline badge-danger confirm-delete" data-href="{{route('sellers.destroy', $shop->id)}}">
-                                        {{translate('Delete')}}
+                                @if($shop->approval_status === 'under_review')
+                                    <a href="javascript:void(0)" onclick="showReviewModal({{ $shop->id }})" class="btn btn-sm btn-primary btn-icon btn-circle" title="{{ translate('Review Application') }}">
+                                        <i class="las la-file-signature"></i>
                                     </a>
+                                @endif
+                                @can('delete_seller')
+                                    <form action="{{ route('sellers.destroy', $shop->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-soft-danger btn-icon btn-circle" title="{{ translate('Delete') }}">
+                                            <i class="las la-trash"></i>
+                                        </button>
+                                    </form>
                                 @endcan
                             </td>
                 
@@ -100,25 +102,10 @@
 @section('modal')
     @include('modals.delete_modal')
 
-    <div class="modal fade" id="docsPreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{translate('Customer Documents')}}</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body" style="min-height: 500px;">
-                    
-                    <div id="filePreviewContainer" class="text-center"></div>
-                </div>
-
-                <div class="d-flex align-items-center justify-content-between w-100 px-3 px-lg-5 pb-5 mb-3">
-                    <button type="button" id="back-btn"
-                        class="bg-transparent border-2 border-gray-400 fs-14 fw-700 rounded-2 py-15px text-success d-block mr-2 w-100"
-                        data-dismiss="modal">{{translate('No')}}</button>
-                    <a href="javascript:void(0)" id="conform-yes-btn"
-                        class="bg-transparent text-center border border-2 border-gray-400 rounded-2 fs-14 fw-700 py-15px text-danger d-block w-100">{{translate('Approved')}}</a>
-                </div>
+            <div class="modal-content" id="review-modal-content">
+                <!-- Content loaded via AJAX -->
             </div>
         </div>
     </div>
@@ -154,82 +141,12 @@
     }
 
 
-    function update_registration_verification_approval(shop_id){
-        if ('{{ env('DEMO_MODE') }}' === 'On') {
-            AIZ.plugins.notify('info', '{{ translate('Data can not change in demo mode.') }}');
-            return;
-        }
-        $.post('{{ (Route::has('sellers.registration.approved') ? route('sellers.registration.approved') : '#') }}', {
-            _token: '{{ csrf_token() }}',
-            id: shop_id,
-            registration_approval: 1,
-            verification_status : 1
-        }, function (data) {
-            if (data == 1) {
-                AIZ.plugins.notify('success', '{{ translate('Unverified sellers Verified successfully') }}');
-                $('#docsPreviewModal').modal('hide');
-                setTimeout(() => {
-                    location.reload();
-                }, 800);
-            } else {
-                AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
-            }
+    function showReviewModal(shop_id) {
+        $.get('{{ url('admin/sellers') }}/' + shop_id + '/documents', function(data) {
+            $('#review-modal-content').html(data.html);
+            $('#reviewModal').modal('show');
         });
     }
-
-    function showDocsInModal(customer_docs_json, shop_id) {
-
-        const docs = JSON.parse(customer_docs_json);
-        const container = $('#filePreviewContainer').empty();
-
-        const baseUrl = "{{ my_asset('') }}/";
-        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        const docList = [
-            { key: 'certificate', label: '{{ translate("Tax Identification Document") }}' },
-            { key: 'id_card', label: '{{ translate("ID Card") }}' },
-            { key: 'seller_photo', label: '{{ translate("Seller Photo") }}' },
-            { key: 'seller_selfie', label: '{{ translate("Seller Selfie") }}' }
-            
-        ];
-
-        if(docs['certificate_number']) {
-            container.append(`
-                <div class="mb-4">
-                    <h5 class="mb-2">{{ translate('Tax Identification Number') }}:</h5>
-                    <p>${docs['certificate_number']}</p>
-                </div>
-            `);
-        }
-
-        docList.forEach(({ key, label }) => {
-
-            if (!docs[key]) return;
-
-            const fileUrl = baseUrl + docs[key];
-            const ext = docs[key].split('.').pop().toLowerCase();
-
-            let previewHtml = `<p class="text-danger">Unsupported file format.</p>`;
-
-            if (imageExts.includes(ext)) {
-                previewHtml = `<img src="${fileUrl}" style="max-width:100%; max-height:600px;">`;
-            } else if (ext === 'pdf') {
-                previewHtml = `<iframe src="${fileUrl}" style="width:100%; height:600px;" frameborder="0"></iframe>`;
-            }
-
-            container.append(`
-                <div class="mb-4">
-                    <h5 class="mb-2">${label}:</h5>
-                    ${previewHtml}
-                </div>
-            `);
-        });
-        $('#docsPreviewModal').data('shop-id', shop_id).modal('show');
-    }
-
-    $(document).on('click', '#conform-yes-btn', function () {
-        const shop_id = $('#docsPreviewModal').data('shop-id');
-        update_registration_verification_approval(shop_id);
-    });
 
 </script>
 @endsection

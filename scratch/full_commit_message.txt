@@ -1,0 +1,159 @@
+feat: comprehensive stabilization, seller onboarding, translation globalization & test hardening
+
+This commit aggregates all development work from May 5-7, 2026 across
+265 files (218 modified, 47 new), covering 6 major areas of the Mayush
+Design marketplace platform.
+
+## 1. Seller Onboarding & Approval Workflow [NEW FEATURE]
+
+Implemented a complete multi-stage seller onboarding system with
+document verification and admin approval controls.
+
+- NEW: OnboardingController (document upload, contract download, resubmit)
+- NEW: SellerApproved middleware (gates product management to approved sellers)
+- NEW: SellerDocument model with shop relationship
+- NEW: Onboarding view (seller/onboarding/index.blade.php) with drag-drop upload
+- NEW: Admin documents review modal (backend/sellers/documents_modal.blade.php)
+- NEW: 3 database migrations:
+  - add_seller_onboarding_fields_to_shops_table (approval_status enum,
+    rejection_reason, documents_submitted_at, reviewed_at, reviewed_by,
+    resubmission_count)
+  - create_seller_documents_table (shop_id, document_type enum, file_path,
+    original_name, mime_type, file_size)
+  - seed_seller_onboarding_email_templates (5 email templates for all
+    workflow stages: document request, received, approved, rejected, resubmit)
+- Updated: seller dashboard, seller index, pending sellers, verification views
+- Updated: routes/seller.php with onboarding routes
+
+## 2. CMI Payment Flow Fix [BUGFIX]
+
+- Fixed MethodNotAllowedHttpException on /cmi/success route
+- Route now accepts both GET and POST methods for CMI gateway callbacks
+- Added CMI callback URLs to VerifyCsrfToken exclusion list
+- Environment variables for CMI_OK_URL, CMI_FAIL_URL, CMI_CALLBACK_URL
+
+## 3. Routing & Middleware Stabilization [BUGFIX]
+
+- Fixed TrustProxies middleware crash (IpUtils::checkIp4 null REMOTE_ADDR)
+  that caused blank homepage on localhost/XAMPP environments
+- Added environment-aware proxy detection in TrustProxies constructor
+- Constrained 14 admin + 2 seller Route::resource declarations to ->only()
+  for implemented methods only
+- Fixed root URL 404 by ensuring HomeController@index mapping is stable
+- Updated routes/web.php (60 lines), routes/seller.php (133 lines),
+  routes/admin.php (13 lines)
+- Added missing named routes for seller orders, affiliate, and admin sections
+
+## 4. Translation & Globalization [ENHANCEMENT]
+
+- Globalized getTranslation() fallback in 20+ core models to use static
+  translations table via translate() helper when model-specific records missing
+- Models updated: AffiliateStats, AffiliateWithdrawRequest, Area, Attribute,
+  Blog, Brand, BrandsImport, Category, City, CustomLabel, CustomerPackage,
+  CustomerProduct, Element, Faq, FlashDeal, Note, NotificationType,
+  OrderDetail, Page, PickupPoint, PreorderProduct, Product, ProductsExport,
+  ProductsImport, Role, SellerPackage, Shop, TopBanner, Wallet, Warranty
+- Ensures consistent multilingual display (Arabic/French/English) across
+  the entire marketplace
+
+## 5. Database Schema Stabilization [MIGRATIONS]
+
+New migrations for missing tables and columns:
+- stabilize_contact_follow_and_notes_tables (adds missing columns to
+  contacts, follows, notes tables)
+- create_searches_table (search analytics)
+- create_customer_product_translations_table (i18n for customer products)
+- add_product_name_to_order_details_table (denormalized product name for invoices)
+- create_affiliate_withdraw_requests_table
+- add_referral_columns_to_users_table (referral_code, referred_by)
+- seed_editorial_blog_categories
+- add_status_to_blog_categories
+- add_notification_type_id_to_notifications_table
+- create_notification_type_translations_table
+- dedupe_product_category_sync_pivot
+- add_card_fingerprint_to_payment_tokens_table
+
+## 6. Blog Conversion System [FEATURE COMPLETION]
+
+Completed the blog-to-commerce conversion system:
+- Product embed system with safe filtering (excludes unpublished/unapproved)
+- Content sanitizer (XSS protection for blog HTML)
+- Table of contents with stable heading IDs
+- Email subscription with honeypot spam protection
+- Webhook, Mailchimp, and Klaviyo email provider integrations
+- Vendor spotlight section and social share bar
+- Admin conversion settings page with subscriber log export to CSV
+- Product schema (JSON-LD) for SEO
+- Blog listing and detail page redesign with conversion assets
+- BlogSettingsService with encrypted credential storage
+- BlogProductMatcherService for safe product matching
+- 21 integration tests (all passing)
+
+## 7. Test Suite Expansion & Stabilization [QA]
+
+Expanded test suite from ~60 to 111 test files with 539+ test methods:
+
+New test files (47):
+- SellerApprovalWorkflowTest, OnesstaIntegrationTest
+- Admin/: AdminButtonRouteContractTest, BrandBulkImportTest,
+  CategoryProductSyncDeduplicationTest, InvoiceRenderingTest,
+  ProductBulkImportExportTest, TechnicalAnalyticsRepositoryTest
+- Affiliate/: AffiliateFlowTest
+- Auth/: PasswordRegistrationValidationTest, PasswordResetFlowTest
+- Checkout/: BuyNowFlowTest
+- Customer/: CustomerNotificationTest, PurchaseHistoryRegressionTest
+- DevOps/: CiAndOpsReadinessTest
+- Frontend/: CartModalCtaTest, CompareFlowTest, ContactFormTest,
+  FollowSellerTest, HomepageRenderingTest, SearchFilterRegressionTest,
+  StockAlertCommandTest, StockAlertSubscriptionTest, AffiliateControllerTest,
+  BlogConversionFoundationTest, BlogPlatformTest, HomeControllerTest,
+  SearchControllerTest, CartControllerTest, CheckoutControllerTest
+- Payment/: PaymentVaultRegressionTest
+- Security/: ClamavUploadTest, ExpressBuySecurityTest, RouteHardeningTest,
+  RouteMethodSecurityTest, RemainingDestructiveRouteContractTest,
+  SellerDestructiveRouteSecurityTest
+- Seller/: ClassifiedProductPathTest, ProductImageUpdateTest,
+  ProductVariantStockTest, SellerAnalyticsDashboardTest, SellerNoteTest,
+  SellerProductControllerTest
+- Seo/: SitemapSeoTest
+- Wallet/: WalletPaymentFlowTest
+- Unit/: CarrierTrackingManagerTest
+
+Stabilization:
+- Added SeedsAppConfigs trait for consistent test database setup
+- Fixed output buffer leak in blog tests
+- Isolated non-payment tests, replaced hardcoded URLs with named routes
+- RouteContractTest (7 tests), CsrfMiddlewareTest (3 tests),
+  RoleMiddlewareTest all passing
+
+## 8. Admin & Seller Dashboard Updates [UI]
+
+- Updated admin sidebar navigation with blog conversion entry points
+- Task Dashboard controller with blog editorial commerce section
+- Seller dashboard status badges for approval workflow
+- Admin seller management views updated for document review
+- Updated invoice rendering for COD product names
+- Updated affiliate views (payment_history, withdraw_request_history)
+
+## 9. DevOps & Documentation [INFRASTRUCTURE]
+
+- NEW: .github/workflows/main.yml (CI pipeline)
+- NEW: config/logistics.php (carrier configuration)
+- NEW: WalletService for payment abstraction
+- NEW: docs/browser-qa-plan.md, browser-qa-execution-report.md
+- NEW: docs/mayush-stabilization-checklist.md
+- NEW: docs/scheduler-queue-readiness.md
+- Updated: docs/comprehensive_issue_analysis.md (64 issues tracked)
+- Updated: docs/operational-safety-runbook.md
+- Updated: composer.json, composer.lock (dependency updates)
+
+## 10. Security & Error Handling [HARDENING]
+
+- Guard admin nav against null Auth::user()
+- CSRF token expiry graceful handling in Exception Handler
+- Payment token card fingerprint deduplication
+- Category-product sync pivot deduplication migration
+- Notification type translations for i18n compliance
+
+---
+Files: 218 modified, 47 new | Insertions: ~3,428 | Deletions: ~1,291

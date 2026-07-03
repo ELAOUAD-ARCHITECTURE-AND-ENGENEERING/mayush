@@ -16,6 +16,7 @@ use DB;
 use \App\Utility\NotificationUtility;
 use App\Models\CombinedOrder;
 use App\Http\Controllers\AffiliateController;
+use App\Utility\CartUtility;
 
 class OrderController extends Controller
 {
@@ -121,7 +122,7 @@ class OrderController extends Controller
 
                 $product_variation = $cartItem['variation'];
 
-                $product_stock = $product->stocks->where('variant', $product_variation)->first();
+                $product_stock = CartUtility::find_product_stock($product, $product_variation);
                 if ($product->digital != 1 && $cartItem['quantity'] > $product_stock->qty) {
                     $order->delete();
                     $combined_order->delete();
@@ -139,6 +140,7 @@ class OrderController extends Controller
                 $order_detail->order_id = $order->id;
                 $order_detail->seller_id = $product->user_id;
                 $order_detail->product_id = $product->id;
+                $order_detail->product_name = $product->getTranslation('name');
                 $order_detail->variation = $product_variation;
                 $order_detail->price = cart_product_price($cartItem, $product, false, false) * $cartItem['quantity'];
                 $order_detail->tax = cart_product_tax($cartItem, $product, false) * $cartItem['quantity'];

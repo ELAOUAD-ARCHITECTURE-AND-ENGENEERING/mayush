@@ -1,9 +1,10 @@
 @extends('frontend.layouts.app')
 
 @php
-    $shopSeoTitle = \App\Services\SeoService::cleanText($shop->meta_title ?: $shop->name, $shop->name, 70);
-    $shopSeoDescription = \App\Services\SeoService::cleanText($shop->meta_description ?: ($shop->name . ' seller shop on Mayush'), $shop->name . ' seller shop on Mayush', 170);
+    $shopSeoTitle = \App\Services\SeoService::meaningfulText($shop->meta_title, \App\Services\SeoService::shopMetaTitle($shop), 70, 8);
+    $shopSeoDescription = \App\Services\SeoService::meaningfulText($shop->meta_description, \App\Services\SeoService::shopMetaDescription($shop), 170, 20);
     $shopSeoImage = uploaded_asset($shop->meta_img ?: $shop->logo);
+    $shopPublishedProductCount = \App\Models\Product::where('user_id', $shop->user_id)->isApprovedPublished()->count();
 @endphp
 
 @section('meta_title'){{ $shopSeoTitle }}@stop
@@ -17,6 +18,7 @@
         'description' => $shopSeoDescription,
         'canonical' => route('shop.visit', $shop->slug),
     ])) !!}</script>
+    <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::shopSchema($shop)) !!}</script>
     <script type="application/ld+json">{!! \App\Services\SeoService::jsonLd(\App\Services\SeoService::breadcrumbSchema([
         ['name' => translate('Home'), 'url' => route('home')],
         ['name' => translate('Sellers'), 'url' => route('sellers')],
@@ -42,6 +44,28 @@
                 @if(addon_is_activated('preorder'))
                 <a class="fw-700 fs-11 fs-md-13 mr-3 mr-sm-4 mr-md-5 text-dark opacity-60 hov-opacity-100 @if(isset($type) && $type == 'all-preorder-products') opacity-100 @endif"
                         href="{{ route('shop.visit.type', ['slug'=>$shop->slug, 'type'=>'all-preorder-products']) }}">{{ translate('All Preorder Products')}}</a>
+                @endif
+            </div>
+        </div>
+    </section>
+
+    <section class="py-3 bg-white border-bottom">
+        <div class="container">
+            <h1 class="fs-22 fw-700 text-dark mb-2">{{ $shop->name }} - vendeur Mayush au Maroc</h1>
+            <p class="fs-14 text-gray mb-2">
+                {{ $shopSeoDescription }}
+            </p>
+            <div class="d-flex flex-wrap align-items-center">
+                <span class="badge badge-inline badge-soft-primary mr-2 mb-2">
+                    {{ $shop->verification_status == 1 ? 'Vendeur verifie Mayush' : 'Vendeur reference Mayush' }}
+                </span>
+                <span class="badge badge-inline badge-soft-secondary mr-2 mb-2">
+                    {{ number_format($shopPublishedProductCount) }} produits publies
+                </span>
+                @if($shop->address)
+                    <span class="badge badge-inline badge-soft-secondary mr-2 mb-2">
+                        Localisation : {{ \App\Services\SeoService::cleanText($shop->address, 'Maroc', 80) }}
+                    </span>
                 @endif
             </div>
         </div>
@@ -133,7 +157,7 @@
                                             @if ($shop->facebook)
                                             <li class="list-inline-item mr-2">
                                                 <a href="{{ $shop->facebook }}" class="facebook"
-                                                    target="_blank">
+                                                    target="_blank" rel="noopener noreferrer">
                                                     <i class="lab la-facebook-f"></i>
                                                 </a>
                                             </li>
@@ -141,7 +165,7 @@
                                             @if ($shop->instagram)
                                             <li class="list-inline-item mr-2">
                                                 <a href="{{ $shop->instagram }}" class="instagram"
-                                                    target="_blank">
+                                                    target="_blank" rel="noopener noreferrer">
                                                     <i class="lab la-instagram"></i>
                                                 </a>
                                             </li>
@@ -149,7 +173,7 @@
                                             @if ($shop->google)
                                             <li class="list-inline-item mr-2">
                                                 <a href="{{ $shop->google }}" class="google"
-                                                    target="_blank">
+                                                    target="_blank" rel="noopener noreferrer">
                                                     <i class="lab la-google"></i>
                                                 </a>
                                             </li>
@@ -157,7 +181,7 @@
                                             @if ($shop->twitter)
                                             <li class="list-inline-item mr-2">
                                                 <a href="{{ $shop->twitter }}" class="x-twitter"
-                                                    target="_blank">
+                                                    target="_blank" rel="noopener noreferrer">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="#ffffff" viewBox="0 0 16 16" class="mb-1">
                                                         <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 
                                                         .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/>
@@ -168,7 +192,7 @@
                                             @if ($shop->youtube)
                                             <li class="list-inline-item">
                                                 <a href="{{ $shop->youtube }}" class="youtube"
-                                                    target="_blank">
+                                                    target="_blank" rel="noopener noreferrer">
                                                     <i class="lab la-youtube"></i>
                                                 </a>
                                             </li>
@@ -181,19 +205,27 @@
                             <div class="d-flex justify-content-md-end pl-lg-3 pt-3 pt-lg-0">
                                 @php $shopFollowers = count($shop->followers) + $shop->custom_followers; @endphp
                                 @if(in_array($shop->id, $followed_sellers))
-                                    <a href="{{ route("followed_seller.remove", ['id'=>$shop->id]) }}"  data-toggle="tooltip" data-title="{{ translate('Unfollow Seller') }}" data-placement="top"
+                                    <form method="POST" action="{{ route('followed_seller.remove') }}">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{ $shop->id }}">
+                                    <button type="submit" data-toggle="tooltip" data-title="{{ translate('Unfollow Seller') }}" data-placement="top"
                                         class="btn btn-success d-flex align-items-center justify-content-center fs-12 w-190px follow-btn followed"
                                         style="height: 40px; border-radius: 30px !important; justify-content: center;">
                                         <i class="las la-check fs-16 mr-2"></i>
                                         <span class="fw-700">{{ translate('Followed') }}</span> &nbsp; ({{ $shopFollowers }})
-                                    </a>
+                                    </button>
+                                    </form>
                                 @else
-                                    <a href="{{ route("followed_seller.store", ['id'=>$shop->id]) }}"
+                                    <form method="POST" action="{{ route('followed_seller.store') }}">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{ $shop->id }}">
+                                    <button type="submit"
                                         class="btn btn-primary d-flex align-items-center justify-content-center fs-12 w-190px follow-btn"
                                         style="height: 40px; border-radius: 30px !important; justify-content: center;">
                                         <i class="las la-plus fs-16 mr-2"></i>
                                         <span class="fw-700">{{ translate('Follow Seller') }}</span> &nbsp; ({{ $shopFollowers }})
-                                    </a>
+                                    </button>
+                                    </form>
                                 @endif
                             </div>
                         </div>

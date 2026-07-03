@@ -157,6 +157,16 @@
 
 							<div class="bg-white p-3 p-sm-2rem">
 								<div class="w-100">
+                                    <div class="form-group row">
+                                        <label class="col-md-2 col-from-label">{{translate('Activation')}}</label>
+                                        <div class="col-md-10">
+                                            <label class="aiz-switch aiz-switch-success mb-0">
+                                                <input type="hidden" name="types[][{{ $lang }}]" value="home_slider_status">
+                                                <input type="checkbox" name="home_slider_status" value="1" @if(get_setting('home_slider_status', null, $lang) == 1) checked @endif>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
 									<!-- Information -->
 									<div class="fs-11 d-flex mb-2rem">
 										<div>
@@ -276,6 +286,16 @@
 							@csrf
 							<input type="hidden" name="tab" value="todays_deal">
 							<div class="bg-white p-3 p-sm-2rem">
+                                <div class="form-group row">
+                                    <label class="col-md-2 col-from-label">{{translate('Activation')}}</label>
+                                    <div class="col-md-10">
+                                        <label class="aiz-switch aiz-switch-success mb-0">
+                                            <input type="hidden" name="types[][{{ $lang }}]" value="todays_deal_status">
+                                            <input type="checkbox" name="todays_deal_status" value="1" @if(get_setting('todays_deal_status', null, $lang) == 1) checked @endif>
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
 								<div class="row">
 									<!-- Large Banner -->
 									<div class="col-lg-6">
@@ -366,6 +386,16 @@
 
 							<div class="bg-white p-3 p-sm-2rem">
 								<div class="w-100">
+                                    <div class="form-group row">
+                                        <label class="col-md-2 col-from-label">{{translate('Activation')}}</label>
+                                        <div class="col-md-10">
+                                            <label class="aiz-switch aiz-switch-success mb-0">
+                                                <input type="hidden" name="types[][{{ $lang }}]" value="home_banner1_status">
+                                                <input type="checkbox" name="home_banner1_status" value="1" @if(get_setting('home_banner1_status', null, $lang) == 1) checked @endif>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
 									<label class="col-from-label fs-13 fw-500 mb-0">{{ translate('Banner & Links (Max 3)') }}</label>
                                     <div class="small text-muted mb-3">{{ translate("Minimum dimensions required: 436px width X 436px height.") }}</div>
 
@@ -476,6 +506,16 @@
 
 							<div class="bg-white p-3 p-sm-2rem">
 								<div class="w-100">
+                                    <div class="form-group row">
+                                        <label class="col-md-2 col-from-label">{{translate('Activation')}}</label>
+                                        <div class="col-md-10">
+                                            <label class="aiz-switch aiz-switch-success mb-0">
+                                                <input type="hidden" name="types[][{{ $lang }}]" value="preorder_banner_1_status">
+                                                <input type="checkbox" name="preorder_banner_1_status" value="1" @if(get_setting('preorder_banner_1_status', null, $lang) == 1) checked @endif>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
 									<label class="col-from-label fs-13 fw-500 mb-0">{{ translate('Banner & Links (Max 3)') }}</label>
 									<div class="small text-muted mb-3">{{ translate("Minimum dimensions required: 1370px width X 360px height (If use a single banner).") }}</div>
 
@@ -586,6 +626,16 @@
 
 							<div class="bg-white p-3 p-sm-2rem">
 								<div class="w-100">
+                                    <div class="form-group row">
+                                        <label class="col-md-2 col-from-label">{{translate('Activation')}}</label>
+                                        <div class="col-md-10">
+                                            <label class="aiz-switch aiz-switch-success mb-0">
+                                                <input type="hidden" name="types[][{{ $lang }}]" value="home_banner2_status">
+                                                <input type="checkbox" name="home_banner2_status" value="1" @if(get_setting('home_banner2_status', null, $lang) == 1) checked @endif>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
 									<label class="col-from-label fs-13 fw-500 mb-0">{{ translate('Banner & Links (Max 3)') }}</label>
                                     <div class="small text-muted mb-3">{{ translate("Minimum dimensions required: 1370px width X 420px height (If use a single banner).") }}</div>
 
@@ -696,6 +746,16 @@
 
 							<div class="bg-white p-3 p-sm-2rem">
 								<div class="w-100">
+                                    <div class="form-group row">
+                                        <label class="col-md-2 col-from-label">{{translate('Activation')}}</label>
+                                        <div class="col-md-10">
+                                            <label class="aiz-switch aiz-switch-success mb-0">
+                                                <input type="hidden" name="types[][{{ $lang }}]" value="home_banner3_status">
+                                                <input type="checkbox" name="home_banner3_status" value="1" @if(get_setting('home_banner3_status', null, $lang) == 1) checked @endif>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
 									<label class="col-from-label fs-13 fw-500 mb-0">{{ translate('Banner & Links (Max 3)') }}</label>
                                     <div class="small text-muted mb-3">{{ translate("Minimum dimensions required: 436px width X 436px height.") }}</div>
 

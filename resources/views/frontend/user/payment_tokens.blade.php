@@ -98,9 +98,13 @@
                                                     </button>
                                                 </form>
                                             @endif
-                                            <a href="javascript:void(0)" class="btn btn-soft-danger btn-icon btn-circle btn-sm hov-bg-danger hov-text-white mx-1 confirm-delete" data-href="{{ route('payment_tokens.destroy', $token->id) }}" title="{{ translate('Remove Card') }}">
-                                                <i class="las la-trash-alt"></i>
-                                            </a>
+                                            <form action="{{ route('payment_tokens.destroy', $token->id) }}" method="POST" class="d-inline-block">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm hov-bg-danger hov-text-white mx-1" title="{{ translate('Remove Card') }}">
+                                                    <i class="las la-trash-alt"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

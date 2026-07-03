@@ -97,7 +97,6 @@ class ChatController extends Controller
         try {
             Mail::to($conversation->receiver->email)->queue(new ConversationMailManager($array));
         } catch (\Exception $e) {
-            //dd($e->getMessage());
         }
 
     }

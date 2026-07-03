@@ -34,11 +34,11 @@ class CheckoutControllerTest extends TestCase
     }
 
     /** @test */
-    public function guest_is_redirected_from_checkout(): void
+    public function guest_checkout_no_longer_redirects_to_login_gate(): void
     {
         $response = $this->get('/checkout');
-        // Unauthenticated → redirect to login
         $response->assertRedirect();
+        $this->assertNotEquals(route('user.login'), $response->headers->get('Location'));
     }
 
     /** @test */
@@ -51,11 +51,10 @@ class CheckoutControllerTest extends TestCase
     }
 
     /** @test */
-    public function checkout_page_not_accessible_without_auth(): void
+    public function checkout_page_does_not_use_login_route_as_guest_gate(): void
     {
         $response = $this->get('/checkout');
-        // Must not return 200
-        $this->assertNotEquals(200, $response->status());
+        $this->assertNotEquals(route('user.login'), $response->headers->get('Location'));
     }
 
     /** @test */

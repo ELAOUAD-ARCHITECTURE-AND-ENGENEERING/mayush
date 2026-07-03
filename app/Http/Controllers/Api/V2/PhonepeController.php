@@ -113,7 +113,6 @@ class PhonepeController extends Controller
     {
         $payment_type = explode("-", $request['transactionId']);
         // auth()->login(User::findOrFail($payment_type[2]));
-        // dd($payment_type[0], $payment_type[1], $request['merchantId'], $request['transactionId'], $request->all());
 
         if ($request['code'] == 'PAYMENT_SUCCESS') {
             return response()->json(['result' => true, 'message' => translate("Payment is successful")]);

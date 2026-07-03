@@ -158,9 +158,13 @@
                                 <a href="{{route('seller.products.duplicate', $product->id)}}" class="btn btn-soft-success btn-icon btn-circle btn-sm"  title="{{ translate('Duplicate') }}">
                                     <i class="las la-copy"></i>
                                 </a>
-                                <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('seller.products.destroy', $product->id)}}" title="{{ translate('Delete') }}">
-                                    <i class="las la-trash"></i>
-                                </a>
+                                <form action="{{ route('seller.products.destroy', $product->id) }}" method="POST" class="d-inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+                                        <i class="las la-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                             </tr>
                         @endforeach

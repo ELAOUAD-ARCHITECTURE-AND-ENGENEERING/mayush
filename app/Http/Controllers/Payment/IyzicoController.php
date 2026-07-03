@@ -17,6 +17,7 @@ use App\Models\Order;
 use Session;
 use Redirect;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class IyzicoController extends Controller
 {
@@ -209,7 +210,11 @@ class IyzicoController extends Controller
 
                 return (new SellerPackageController)->purchase_payment_done($data, $payment);
             } else {
-                dd($payment_type);
+                Log::warning('Iyzico callback received unsupported payment type.', [
+                    'payment_type' => $payment_type,
+                ]);
+                flash(translate('Unsupported payment type.'))->error();
+                return redirect()->route('home');
             }
         } else {
             flash(translate('Payment is cancelled'))->error();

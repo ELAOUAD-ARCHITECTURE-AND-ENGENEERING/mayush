@@ -37,11 +37,14 @@ if (auth()->user() != null) {
             @foreach ($cart as $key => $cartItem)
                 @php
                     $product = \App\Models\Product::find($cartItem['product_id']);
-                    // $total = $total + ($cartItem['price'] + $cartItem['tax']) * $cartItem['quantity'];
-                    $total = $total + cart_product_price($cartItem, $product, false) * $cartItem['quantity'];
+                    $availability = \App\Utility\CartUtility::cart_item_availability($cartItem, $product);
+                    $isUnavailable = !$availability['available'];
+                    if (!$isUnavailable && $cartItem->status == 1) {
+                        $total = $total + cart_product_price($cartItem, $product, false) * $cartItem['quantity'];
+                    }
                 @endphp
                 @if ($product != null)
-                    <li class="list-group-item">
+                    <li class="list-group-item" @if($isUnavailable) style="opacity: .58; filter: grayscale(1);" @endif>
                         <span class="d-flex align-items-center">
                             <a href="{{ route('product', $product->slug) }}"
                                 class="text-reset d-flex align-items-center flex-grow-1">
@@ -53,10 +56,13 @@ if (auth()->user() != null) {
                                     <span class="fw-600 mb-1 text-truncate-2">
                                         {{ $product->getTranslation('name') }}
                                     </span>
+                                    @if ($isUnavailable)
+                                        <span class="fs-12 fw-700 text-danger d-block">{{ translate('Out of Stock') }}</span>
+                                    @endif
                                     <span class="">{{ $cartItem['quantity'] }}x</span>
                                     {{-- <span
                                         class="">{{ single_price($cartItem['price'] + $cartItem['tax']) }}</span> --}}
-                                    <span class="">{{ cart_product_price($cartItem, $product) }}</span>
+                                    <span class="{{ $isUnavailable ? 'text-danger fw-700' : '' }}">{{ $isUnavailable ? translate('Unavailable') : cart_product_price($cartItem, $product) }}</span>
                                 </span>
                             </a>
                             <span class="">

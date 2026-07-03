@@ -1,4 +1,4 @@
-<div class="aiz-card-box h-auto bg-white py-3 border border-light rounded shadow-sm">
+<div class="aiz-card-box h-auto bg-white py-3 rounded shadow-sm">
     <div class="position-relative h-140px h-md-200px w-100 overflow-hidden px-3">
         <!-- Placeholder Image Skeleton -->
         <div class="skeleton-shimmer h-100 w-100 rounded"></div>

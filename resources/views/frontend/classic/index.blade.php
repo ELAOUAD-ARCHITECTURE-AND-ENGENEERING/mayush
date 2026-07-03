@@ -9,12 +9,13 @@
     }
 </style>
 @php $lang = get_system_language()->code; @endphp
+@include('frontend.partials.mayushseo_home_intro')
 <!-- Sliders -->
 <div class="home-banner-area mb-3">
     <div class="container">
         <div class="d-flex flex-wrap position-relative">
             <div class="position-static d-none d-xl-block">
-                @include('frontend.' . get_setting('homepage_select') . '.partials.category_menu')
+                @include('frontend.' . safe_homepage_select() . '.partials.category_menu')
             </div>
 
             <!-- Sliders -->
@@ -281,9 +282,9 @@ $flash_deal = get_featured_flash_deal();
 
 @if (addon_is_activated('preorder'))
 
-<!-- Preorder Banner 1 -->
-@php $homepreorder_banner_1Images = get_setting('home_preorder_banner_1_images', null, $lang); @endphp
-@if ($homepreorder_banner_1Images != null)
+    {{-- Preorder Banner section 1 --}}
+    @php $homepreorder_banner_1Images = get_setting('home_preorder_banner_1_images', null, $lang); @endphp
+    @if (get_setting('preorder_banner_1_status') == 1 && $homepreorder_banner_1Images != null)
 <div class="mb-2 mb-md-3 mt-2 mt-md-3">
     <div class="container">
         @php
@@ -494,6 +495,8 @@ $flash_deal = get_featured_flash_deal();
 <!-- Newest Preorder Products -->
 @include('preorder.frontend.home_page.newest_preorder')
 @endif
+
+@include('frontend.partials.promoted_category_section')
 
 <!-- Classified Product -->
 @if (get_setting('classified_product') == 1)
@@ -809,6 +812,10 @@ $best_selers = get_best_sellers(10);
         </div>
     </div>
 </section>
+@endif
+
+@include('frontend.partials.home_blog_section')
+
     <!-- Elite Artisans Section -->
     <div id="elite_artisans_section" class="mb-2 mb-md-3 mt-2 mt-md-3"></div>
 

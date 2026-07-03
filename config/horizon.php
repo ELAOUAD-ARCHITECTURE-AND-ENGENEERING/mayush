@@ -210,6 +210,18 @@ return [
             'timeout' => 60,
             'nice' => 0,
         ],
+        'supervisor-images' => [
+            'connection' => 'redis',
+            'queue' => ['images'],
+            'balance' => 'simple',
+            'maxProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 256,
+            'tries' => 3,
+            'timeout' => 180,
+            'nice' => 5,
+        ],
     ],
 
     'environments' => [
@@ -218,6 +230,9 @@ return [
                 'maxProcesses' => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
+            ],
+            'supervisor-images' => [
+                'maxProcesses' => 2,
             ],
         ],
 

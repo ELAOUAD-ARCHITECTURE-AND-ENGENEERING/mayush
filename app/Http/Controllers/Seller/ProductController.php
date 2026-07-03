@@ -23,6 +23,7 @@ use App\Services\ProductTaxService;
 use App\Services\ProductFlashDealService;
 use App\Services\ProductStockService;
 use App\Services\FrequentlyBoughtProductService;
+use App\Utility\ProductUtility;
 use Illuminate\Support\Facades\Notification;
 
 class ProductController extends Controller
@@ -131,7 +132,7 @@ class ProductController extends Controller
 
         //Product Stock
         $this->productStockService->store($request->only([
-            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id', 'length', 'width', 'height'
+            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id', 'length', 'width', 'height', 'removed_sku_variants'
         ]), $product);
 
         // Frequently Bought Products
@@ -140,7 +141,7 @@ class ProductController extends Controller
         ]));
 
         // Product Translations
-        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?? (get_system_language()?->code ?? 'fr')]);
+        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr')]);
         ProductTranslation::create($request->only([
             'lang', 'name', 'unit', 'description', 'product_id'
         ]));
@@ -175,11 +176,10 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         if (Auth::user()->id != $product->user_id) {
-            flash(translate('This product is not yours.'))->warning();
-            return back();
+            abort(403);
         }
 
-        $lang = $request->lang;
+        $lang = $this->translationLanguage($request->lang);
         $tags = json_decode($product->tags);
         $categories = Category::where('parent_id', 0)
             ->where('digital', 0)
@@ -190,6 +190,8 @@ class ProductController extends Controller
 
     public function update(ProductRequest $request, Product $product)
     {
+        $request->merge(['lang' => $this->translationLanguage($request->lang)]);
+
         //Product
         $product = $this->productService->update($request->except([
             '_token', 'sku', 'choice', 'tax_id', 'tax', 'tax_type', 'flash_deal_id', 'flash_discount', 'flash_discount_type'
@@ -203,7 +205,7 @@ class ProductController extends Controller
         //Product Stock
         $product->stocks()->delete();
         $this->productStockService->store($request->only([
-            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id', 'length', 'width', 'height'
+            'colors_active', 'colors', 'choice_no', 'unit_price', 'sku', 'current_stock', 'product_id', 'length', 'width', 'height', 'removed_sku_variants'
         ]), $product);
 
         //VAT & Tax
@@ -267,12 +269,14 @@ class ProductController extends Controller
                 foreach ($request[$name] as $key => $item) {
                     array_push($data, $item);
                 }
+
                 array_push($options, $data);
             }
         }
 
         $combinations = (new CombinationService())->generate_combination($options);
-        return view('backend.product.products.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name'));
+        $generatedSkus = (new \App\Services\ProductSkuService())->candidates(count($combinations) + 1);
+        return view('backend.product.products.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'generatedSkus'));
     }
 
     public function sku_combination_edit(Request $request)
@@ -297,12 +301,18 @@ class ProductController extends Controller
                 foreach ($request[$name] as $key => $item) {
                     array_push($data, $item);
                 }
+
+                if (count($request->choice_no) === 1 && (int) $colors_active !== 1) {
+                    $data = ProductUtility::includeSavedDimensionOccurrences($data, $product, $no);
+                }
+
                 array_push($options, $data);
             }
         }
 
         $combinations = (new CombinationService())->generate_combination($options);
-        return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
+        $generatedSkus = (new \App\Services\ProductSkuService())->candidates(count($combinations) + 1);
+        return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product', 'generatedSkus'));
     }
 
     public function add_more_choice_option(Request $request)
@@ -361,8 +371,7 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         if (Auth::user()->id != $product->user_id) {
-            flash(translate('This product is not yours.'))->warning();
-            return back();
+            abort(403);
         }
 
         if (addon_is_activated('seller_subscription')) {
@@ -406,8 +415,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         if (Auth::user()->id != $product->user_id) {
-            flash(translate('This product is not yours.'))->warning();
-            return back();
+            abort(403);
         }
 
         $product->product_translations()->delete();
@@ -444,6 +452,11 @@ class ProductController extends Controller
             }
         }
         return 1;
+    }
+
+    private function translationLanguage(?string $lang = null): string
+    {
+        return $lang ?: (env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr'));
     }
 
     public function product_search(Request $request)

@@ -139,6 +139,12 @@ class CustomLabelController extends Controller
     public function destroy($id)
     {
         $custom_label = CustomLabel::findOrFail($id);
+
+        if ((int) $custom_label->user_id !== (int) auth()->id()) {
+            abort(403);
+        }
+
+        $custom_label->custom_label_translations()->delete();
         $custom_label->delete();
         flash(translate('Custom Label has been deleted successfully!'))->success();
         return back();

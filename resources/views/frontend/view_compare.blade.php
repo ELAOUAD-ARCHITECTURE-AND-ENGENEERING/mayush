@@ -7,7 +7,11 @@
             <div class="bg-white shadow-sm rounded">
                 <div class="py-3 d-flex justify-content-between align-items-center">
                     <div class="fs-16 fs-md-20 fw-700 text-dark">{{ translate('Compare Products')}}</div>
-                    <a href="{{ route('compare.reset') }}" style="text-decoration: none;border-radius: 25px;" class="btn btn-soft-primary btn-sm fs-12 fw-600">{{ translate('Reset Compare List')}}</a>
+                    <form action="{{ route('compare.reset') }}" method="POST" class="m-0">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" style="text-decoration: none;border-radius: 25px;" class="btn btn-soft-primary btn-sm fs-12 fw-600">{{ translate('Reset Compare List')}}</button>
+                    </form>
                 </div>
                 @if(Session::has('compare'))
                     @if(count(Session::get('compare')) > 0)
@@ -18,7 +22,15 @@
                                         $product = get_single_product($item);
                                     @endphp
                                     <div class="col-xl-3 col-lg-4 col-md-6 py-3">
-                                        <div class="border">
+                                        <div class="border position-relative">
+                                            <form action="{{ route('compare.remove') }}" method="POST" class="position-absolute right-0 top-0 mt-2 mr-2 z-1">
+                                                @csrf
+                                                @method('DELETE')
+                                                <input type="hidden" name="id" value="{{ $item }}">
+                                                <button type="submit" class="btn btn-icon btn-soft-danger btn-xs btn-circle" title="{{ translate('Remove from compare') }}">
+                                                    <i class="las la-times"></i>
+                                                </button>
+                                            </form>
                                             <!-- Product Name -->
                                             <div class="p-4 border-bottom">
                                                 <span class="fs-12 text-gray">{{ translate('Name')}}</span>

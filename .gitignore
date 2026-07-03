@@ -13,6 +13,7 @@
 /storage/*.key
 /storage/debugbar/
 /.phpunit.result.cache
+/.phpunit.cache/
 /temp/
 updates/
 *.zip
@@ -27,7 +28,7 @@ Homestead.json
 Homestead.yaml
 .DS_Store
 /nbproject/
-
+/MayushSEO
 ### Public Directory (Safe Handling) ###
 # DO NOT ignore the whole public folder!
 # Only ignore user uploads, generated storage symlinks, and temp dumps:
@@ -42,3 +43,12 @@ Homestead.yaml
 ### Local Trello sync artifacts ###
 .trello-synced
 /scripts/trello/
+
+### AI Agent Skills & Tooling (local only) ###
+.agent/
+.agents/
+.claude/
+.kiro/
+.qodo/
+.claude-flow/
+skills-lock.json

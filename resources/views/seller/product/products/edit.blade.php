@@ -352,11 +352,18 @@
                                     placeholder="{{ translate('Choice Title') }}" disabled>
                             </div>
                             <div class="col-lg-8">
+                                @php
+                                    $attributeValues = \App\Models\AttributeValue::where('attribute_id', $choice_option->attribute_id)->get();
+                                    $savedLocalValues = collect($choice_option->values)->diff($attributeValues->pluck('value'));
+                                @endphp
                                 <select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_{{ $choice_option->attribute_id }}[]" multiple>
-                                    @foreach (\App\Models\AttributeValue::where('attribute_id', $choice_option->attribute_id)->get() as $row)
+                                    @foreach ($attributeValues as $row)
                                         <option value="{{ $row->value }}" @if( in_array($row->value, $choice_option->values)) selected @endif>
                                             {{ $row->value }}
                                         </option>
+                                    @endforeach
+                                    @foreach ($savedLocalValues as $savedLocalValue)
+                                        <option value="{{ $savedLocalValue }}" selected>{{ $savedLocalValue }}</option>
                                     @endforeach
                                 </select>
                                 {{-- <input type="text" class="form-control aiz-tag-input" name="choice_options_{{ $choice_option->attribute_id }}[]" placeholder="{{ translate('Enter choice values') }}" value="{{ implode(',', $choice_option->values) }}" data-on-change="update_sku"> --}}
@@ -424,7 +431,7 @@
                                 {{translate('SKU')}}
                             </label>
                             <div class="col-md-6">
-                                <input type="text" placeholder="{{ translate('SKU') }}" value="{{ optional($product->stocks->first())->sku ?? '' }}" name="sku" class="form-control">
+                                <input type="text" placeholder="{{ translate('SKU') }}" value="{{ optional($product->stocks->first())->sku ?: (new \App\Services\ProductSkuService())->next() }}" name="sku" class="form-control">
                             </div>
                         </div>
                     </div>
@@ -1050,7 +1057,7 @@
 
 @section('script')
 <!-- Treeview js -->
-<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}?v={{ filemtime(public_path('assets/js/hummingbird-treeview.js')) }}"></script>
+<script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}?v={{ file_exists(public_path('assets/js/hummingbird-treeview.js')) ? filemtime(public_path('assets/js/hummingbird-treeview.js')) : time() }}"></script>
 
 <script type="text/javascript">
     $(document).ready(function (){

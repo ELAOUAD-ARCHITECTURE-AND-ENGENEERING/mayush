@@ -27,14 +27,16 @@ class FollowSellerController extends Controller
      */
     public function store(Request $request)
     {
-        if(isCustomer()){
-            $followed_seller = FollowSeller::where('user_id', Auth::user()->id)->where('shop_id', $request->id)->first();
-            if($followed_seller == null){
-                FollowSeller::insert([
-                    'user_id' => Auth::user()->id,
-                    'shop_id' => $request->id
-                ]);
-            }
+        $validated = $request->validate([
+            'id' => ['required', 'integer', 'exists:shops,id'],
+        ]);
+
+        if (isCustomer()) {
+            FollowSeller::firstOrCreate([
+                'user_id' => Auth::id(),
+                'shop_id' => $validated['id'],
+            ]);
+
             flash(translate('Seller is followed Successfully'))->success();
             return back();
         }
@@ -44,11 +46,15 @@ class FollowSellerController extends Controller
 
     public function remove(Request $request)
     {
-        $followed_seller = FollowSeller::where('user_id', Auth::user()->id)->where('shop_id', $request->id)->first();
-        if($followed_seller!=null){
-            FollowSeller::where('user_id', Auth::user()->id)->where('shop_id', $request->id)->delete();
-            flash(translate('Seller is unfollowed Successfully'))->success();
-            return back();
-        }
+        $validated = $request->validate([
+            'id' => ['required', 'integer', 'exists:shops,id'],
+        ]);
+
+        FollowSeller::where('user_id', Auth::id())
+            ->where('shop_id', $validated['id'])
+            ->delete();
+
+        flash(translate('Seller is unfollowed Successfully'))->success();
+        return back();
     }
 }

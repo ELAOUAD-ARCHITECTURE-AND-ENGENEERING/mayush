@@ -1,33 +1,39 @@
 <?php
 
-/**
- * CSRF Smoke Test Script
- * 
- * This script performs a raw HTTP POST request to the local application
- * without a CSRF token to verify that the production-level middleware
- * correctly rejects the request with a 419 Page Expired status.
- * 
- * Usage: php scripts/security/csrf-smoke-test.php
- */
+$url = $argv[1] ?? 'http://localhost/login';
+$payload = http_build_query([
+    'email' => 'csrf-smoke@example.com',
+    'password' => 'invalid-password',
+]);
 
-$url = 'http://localhost/login'; // Adjust to your local dev URL
-$data = ['email' => 'test@example.com', 'password' => 'password'];
-
-echo "Testing CSRF rejection on $url...\n";
+echo "Testing CSRF rejection on {$url}...\n";
 
 $ch = curl_init($url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false); // Do not follow redirects to see raw status
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => $payload,
+    CURLOPT_FOLLOWLOCATION => false,
+    CURLOPT_TIMEOUT => 15,
+]);
 
-$response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$body = curl_exec($ch);
+$error = curl_error($ch);
+$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
-if ($httpCode === 419) {
-    echo "SUCCESS: Request rejected with status 419 (Page Expired) as expected.\n";
-} else {
-    echo "FAILURE: Request returned status $httpCode. Expected 419.\n";
-    echo "Note: Ensure the local server is running and APP_ENV is NOT 'testing' during this test.\n";
+if ($error) {
+    fwrite(STDERR, "Request failed: {$error}\n");
+    exit(2);
 }
+
+if ($status === 419) {
+    echo "SUCCESS: request rejected with HTTP 419.\n";
+    exit(0);
+}
+
+echo "FAILURE: expected HTTP 419, received HTTP {$status}.\n";
+if ($body) {
+    echo substr($body, 0, 500)."\n";
+}
+exit(1);

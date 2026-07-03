@@ -48,9 +48,13 @@
                                 <td>{{$user->phone}}</td>
                                 <td class="text-right">
                                     @can('delete_customer')
-                                        <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('customers.destroy', $user->id)}}" title="{{ translate('Delete') }}">
-                                            <i class="las la-trash"></i>
-                                        </a>
+                                        <form action="{{ route('customers.destroy', $user->id) }}" method="POST" class="d-inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+                                                <i class="las la-trash"></i>
+                                            </button>
+                                        </form>
                                     @endcan
                                 </td>
                             </tr>

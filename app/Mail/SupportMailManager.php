@@ -28,7 +28,6 @@ class SupportMailManager extends Mailable
      */
      public function build()
      {
-         // dd($array);
          return $this->view($this->array['view'])
                      ->from($this->array['from'], env('MAIL_FROM_NAME'))
                      ->subject($this->array['subject'])

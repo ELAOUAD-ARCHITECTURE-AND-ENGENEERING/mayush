@@ -316,7 +316,7 @@
                 <div class="form-group mb-3">
                     <label class="fs-12 fw-700 text-uppercase text-muted">{{ translate('Points to Convert') }}</label>
                     <div class="input-group input-group-lg">
-                        <input type="number" name="points" id="points-to-convert" class="form-control border-right-0" placeholder="0" min="{{ (float)get_setting('club_point_convert_rate', 10) }}" step="{{ (float)get_setting('club_point_convert_rate', 10) }}">
+                        <input type="number" name="points" id="points-to-convert" class="form-control border-right-0" placeholder="0" min="{{ (float)get_setting('club_point_convert_rate', 10) }}" step="1">
                         <div class="input-group-append">
                             <span class="input-group-text bg-white border-left-0 text-primary fw-700">PTS</span>
                         </div>

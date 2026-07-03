@@ -23,8 +23,58 @@ class SearchController extends Controller
 {
     public function index(Request $request, $category_id = null, $brand_id = null)
     {
-        // dd( $category_id);
-        $query = $request->keyword;
+        try {
+            $response = $this->doIndex($request, $category_id, $brand_id);
+            if ($response instanceof \Illuminate\View\View) {
+                return $response->render();
+            }
+            return $response;
+        } catch (\Throwable $e) {
+            \Log::warning('SearchController::index crashed — returning empty results', [
+                'message' => $e->getMessage(),
+                'query'   => $request->q ?? $request->keyword,
+                'file'    => $e->getFile() . ':' . $e->getLine(),
+            ]);
+
+            // Try returning a safe, empty search page
+            try {
+                $fallbackView = view('frontend.product_listing', [
+                    'products'                 => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 24),
+                    'query'                    => $request->q ?? $request->keyword,
+                    'category'                 => [],
+                    'categories'               => collect(),
+                    'category_id'              => $category_id,
+                    'brand_id'                 => $brand_id,
+                    'brand'                    => null,
+                    'sort_by'                  => $request->sort_by,
+                    'seller_id'                => $request->seller_id,
+                    'min_price'                => $request->min_price,
+                    'max_price'                => $request->max_price,
+                    'attributes'               => collect(),
+                    'selected_attribute_values' => [],
+                    'colors'                   => collect(),
+                    'selected_color'           => null,
+                    'product_type'             => $request->product_type ?? 'general_product',
+                    'is_available'             => null,
+                    'preorder_categories'      => [],
+                ]);
+                return $fallbackView->render();
+            } catch (\Throwable $fallbackErr) {
+                // Last resort: if even the view can't render, return bare 200
+                \Log::warning('SearchController fallback view also crashed', [
+                    'message' => $fallbackErr->getMessage(),
+                ]);
+                return response('No results found.', 200);
+            }
+        }
+    }
+
+    /**
+     * Core search logic, extracted so index() can wrap it in try-catch.
+     */
+    private function doIndex(Request $request, $category_id = null, $brand_id = null)
+    {
+        $query = $request->keyword ?? $request->q;
         $sort_by = $request->sort_by;
         $product_type = $request->product_type ?? 'general_product';
         $min_price = $request->min_price;
@@ -57,7 +107,7 @@ class SearchController extends Controller
         // Attach counts from cached data (no extra queries)
         foreach ($attributes as $attribute) {
             $attribute->product_count = $attributeCounts->filter(fn($a) =>
-                str_contains($a, '"' . $attribute->id . '"')
+                $a && str_contains($a, '"' . $attribute->id . '"')
             )->count();
             foreach ($attribute->attribute_values as $value) {
                 $value->product_count = 0; // lightweight placeholder; full count only when filtered
@@ -186,12 +236,7 @@ class SearchController extends Controller
             $category_ids = CategoryUtility::children_ids($category_id);
             $category_ids[] = $category_id;
             $category = Category::with('childrenCategories')->find($category_id);
-            $products->where(function ($query) use ($category_ids) {
-                $query->whereIn('category_id', $category_ids)
-                      ->orWhereHas('categories', function ($categoryQuery) use ($category_ids) {
-                          $categoryQuery->whereIn('categories.id', $category_ids);
-                      });
-            });
+            $this->applyCategoryFilter($products, $category_ids);
         }
         //------------------- category product count start here ----------------------
 
@@ -241,6 +286,7 @@ class SearchController extends Controller
                 ->whereIn('preorder_product_id', $preorder_products_ids)
                 ->select('preorder_product_id as product_id', 'category_id');
 
+            $preorder_combinedCategories = $preorder_mainCategories->union($preorder_pivotCategories);
             $preorder_combinedCategoriesResults = $preorder_combinedCategories->get();
 
             $preorder_directCategoryProducts = $preorder_combinedCategoriesResults->groupBy('category_id')
@@ -270,9 +316,17 @@ class SearchController extends Controller
             $products->where('unit_price', '>=', $min_price)->where('unit_price', '<=', $max_price);
         }
 
+        $selectedCategoryIds = $this->categoryIdsFromRequest($request->categories ?? []);
+        if (count($selectedCategoryIds) > 0) {
+            $this->applyCategoryFilter($products, $selectedCategoryIds);
+        }
+
+        if (!empty($seller_id)) {
+            $products->where('user_id', $seller_id);
+        }
+
         if ($query != null) {
-            $searchController = new SearchController;
-            $searchController->store($request);
+            $this->store($request);
 
             $safeQuery = str_replace(['"', "'", '\\', '<', '>'], '', $query);
             $booleanQuery = collect(explode(' ', trim($safeQuery)))
@@ -281,7 +335,7 @@ class SearchController extends Controller
                 ->implode(' ');
 
             // ── FULLTEXT SEARCH & TYPO TOLERANCE ──────────────────────────
-            if (!empty($booleanQuery)) {
+            if ($this->usesFullTextSearch() && !empty($booleanQuery)) {
                 $products->where(function ($q) use ($booleanQuery, $query) {
                     $q->whereRaw('MATCH(name, tags) AGAINST (? IN BOOLEAN MODE)', [$booleanQuery])
                       ->orWhereRaw('SOUNDEX(name) = SOUNDEX(?)', [$query]);
@@ -295,11 +349,7 @@ class SearchController extends Controller
                     [$booleanQuery]
                 );
             } else {
-                // Fallback LIKE for very short queries (1 char)
-                $products->where(function ($q) use ($query) {
-                    $q->where('name', 'like', '%' . $query . '%')
-                      ->orWhere('tags', 'like', '%' . $query . '%');
-                });
+                $this->applyLikeKeywordSearch($products, $query);
             }
         }
 
@@ -321,10 +371,10 @@ class SearchController extends Controller
                 break;
         }
 
-        if ($request->has('color')) {
-            $str = '"' . $request->color . '"';
-            $products->where('colors', 'like', '%' . $str . '%');
-            $selected_color = $request->color;
+        $selectedColors = $this->colorsFromRequest($request);
+        if (count($selectedColors) > 0) {
+            $this->applyColorFilter($products, $selectedColors);
+            $selected_color = $selectedColors[0];
         }
         if ($request->has('selected_attribute_values')) {
             $selected_attribute_values = $request->selected_attribute_values;
@@ -344,7 +394,6 @@ class SearchController extends Controller
 
     public function index2(Request $request, $category_id = null, $brand_id = null)
     {
-        // dd($request->all());
         // return $request->all();
         $category_list = $request->categories ?? [];
         $category_ids = array_map(function ($str) {
@@ -546,12 +595,7 @@ class SearchController extends Controller
         $products = Product::where($conditions);
 
         if (count($category_list) > 0) {
-            $products->where(function ($query) use ($category_list) {
-                $query->whereIn('category_id', $category_list)
-                      ->orWhereHas('categories', function ($q) use ($category_list) {
-                          $q->whereIn('categories.id', $category_list);
-                      });
-            });
+            $this->applyCategoryFilter($products, $category_list);
         }
 
 
@@ -560,9 +604,12 @@ class SearchController extends Controller
             $products->where('unit_price', '>=', $min_price)->where('unit_price', '<=', $max_price);
         }
 
+        if (!empty($seller_id)) {
+            $products->where('user_id', $seller_id);
+        }
+
         if ($query != null) {
-            $searchController = new SearchController;
-            $searchController->store($request);
+            $this->store($request);
 
             $safeQuery = str_replace(['"', "'", '\\', '<', '>'], '', $query);
             $booleanQuery = collect(explode(' ', trim($safeQuery)))
@@ -571,7 +618,7 @@ class SearchController extends Controller
                 ->implode(' ');
 
             // ── FULLTEXT SEARCH & TYPO TOLERANCE ──────────────────────────
-            if (!empty($booleanQuery)) {
+            if ($this->usesFullTextSearch() && !empty($booleanQuery)) {
                 $products->where(function ($q) use ($booleanQuery, $query) {
                     $q->whereRaw('MATCH(name, tags) AGAINST (? IN BOOLEAN MODE)', [$booleanQuery])
                       ->orWhereRaw('SOUNDEX(name) = SOUNDEX(?)', [$query]);
@@ -585,10 +632,7 @@ class SearchController extends Controller
                     [$booleanQuery]
                 );
             } else {
-                $products->where(function ($q) use ($query) {
-                    $q->where('name', 'like', '%' . $query . '%')
-                      ->orWhere('tags', 'like', '%' . $query . '%');
-                });
+                $this->applyLikeKeywordSearch($products, $query);
             }
         }
 
@@ -611,14 +655,7 @@ class SearchController extends Controller
         }
 
         if ($request->has('colors') && is_array($request->colors)) {
-            $colors = $request->colors;
-
-            $products->where(function ($query) use ($colors) {
-                foreach ($colors as $color) {
-                    $str = '"' . $color . '"';
-                    $query->orWhere('colors', 'like', '%' . $str . '%');
-                }
-            });
+            $this->applyColorFilter($products, $request->colors);
         }
 
         if ($request->has('selected_attribute_values')) {
@@ -677,20 +714,28 @@ class SearchController extends Controller
 
     public function listingByCategory(Request $request, $category_slug)
     {
-        $category = Category::where('slug', $category_slug)->first();
-        if ($category != null) {
-            return $this->index($request, $category->id);
+        try {
+            $category = Category::where('slug', $category_slug)->first();
+            if ($category != null) {
+                return $this->index($request, $category->id);
+            }
+            abort(404);
+        } catch (\Throwable $e) {
+            return $this->index($request);
         }
-        abort(404);
     }
 
     public function listingByBrand(Request $request, $brand_slug)
     {
-        $brand = Brand::where('slug', $brand_slug)->first();
-        if ($brand != null) {
-            return $this->index($request, null, $brand->id);
+        try {
+            $brand = Brand::where('slug', $brand_slug)->first();
+            if ($brand != null) {
+                return $this->index($request, null, $brand->id);
+            }
+            abort(404);
+        } catch (\Throwable $e) {
+            return $this->index($request);
         }
-        abort(404);
     }
 
     //Suggestional Search (with caching per keyword, Etsy/Airbnb pattern)
@@ -698,7 +743,7 @@ class SearchController extends Controller
     {
         $query = $request->search;
         $mode = $request->mode ?? 'standard';
-        $preorder_products = null;
+        $preorder_products = [];
 
         if (empty(trim($query))) {
             return '0';
@@ -730,7 +775,7 @@ class SearchController extends Controller
                 ->implode(' ');
 
             // ── FULLTEXT autocomplete & Typo Tolerance ──────────────────────────
-            if (!empty($booleanQuery)) {
+            if ($this->usesFullTextSearch() && !empty($booleanQuery)) {
                 $products = filter_products(Product::query())
                     ->where('published', 1)
                     ->where(function ($q) use ($booleanQuery, $query) {
@@ -746,12 +791,9 @@ class SearchController extends Controller
                     ->limit(5)
                     ->get();
             } else {
-                $products = filter_products(Product::query())
-                    ->where('published', 1)
-                    ->where(function($q) use ($query) {
-                        $q->where('name', 'like', '%' . $query . '%')
-                          ->orWhere('tags', 'like', '%' . $query . '%');
-                    })->limit(5)->get();
+                $products = filter_products(Product::query())->where('published', 1);
+                $this->applyLikeKeywordSearch($products, $query);
+                $products = $products->limit(5)->get();
             }
 
             // Tags/keywords from matching products
@@ -801,21 +843,113 @@ class SearchController extends Controller
         return '0';
     }
 
+    private function usesFullTextSearch(): bool
+    {
+        return in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true);
+    }
+
+    private function categoryIdsFromRequest(array $categoryList): array
+    {
+        return array_values(array_filter(array_map(function ($value) {
+            preg_match('/\d+/', (string) $value, $matches);
+            return isset($matches[0]) ? (int) $matches[0] : null;
+        }, $categoryList), fn($value) => $value !== null));
+    }
+
+    private function colorsFromRequest(Request $request): array
+    {
+        if ($request->has('colors') && is_array($request->colors)) {
+            return array_values(array_filter($request->colors));
+        }
+
+        if ($request->filled('color')) {
+            return [$request->color];
+        }
+
+        return [];
+    }
+
+    private function applyCategoryFilter($products, array $categoryIds): void
+    {
+        $categoryIds = array_values(array_unique(array_filter($categoryIds)));
+
+        if (count($categoryIds) === 0) {
+            return;
+        }
+
+        $products->where(function ($query) use ($categoryIds) {
+            $query->whereIn('category_id', $categoryIds)
+                ->orWhereHas('categories', function ($categoryQuery) use ($categoryIds) {
+                    $categoryQuery->whereIn('categories.id', $categoryIds);
+                });
+        });
+    }
+
+    private function applyColorFilter($products, array $colors): void
+    {
+        $colors = array_values(array_unique(array_filter($colors)));
+
+        if (count($colors) === 0) {
+            return;
+        }
+
+        $products->where(function ($query) use ($colors) {
+            foreach ($colors as $color) {
+                $query->orWhere('colors', 'like', '%"' . $color . '"%');
+            }
+        });
+    }
+
+    private function applyLikeKeywordSearch($products, string $query): void
+    {
+        $terms = $this->searchTerms($query);
+
+        if (count($terms) === 0) {
+            return;
+        }
+
+        $products->where(function ($outerQuery) use ($terms) {
+            foreach ($terms as $term) {
+                $outerQuery->where(function ($query) use ($term) {
+                    $query->where('name', 'like', '%' . $term . '%')
+                        ->orWhere('tags', 'like', '%' . $term . '%')
+                        ->orWhereHas('product_translations', function ($translationQuery) use ($term) {
+                            $translationQuery->where('name', 'like', '%' . $term . '%');
+                        });
+                });
+            }
+        });
+    }
+
+    private function searchTerms(string $query): array
+    {
+        $safeQuery = preg_replace('/["\'\\\\<>]+/', ' ', $query);
+
+        return collect(preg_split('/\s+/', trim($safeQuery)))
+            ->filter(fn($term) => $term !== '')
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     /**
-     * Store a newly created resource in storage.
-     *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function store(Request $request)
     {
-        $search = Search::where('query', $request->keyword)->first();
+        $keyword = $request->keyword ?? $request->q;
+        if (empty($keyword)) {
+            return;
+        }
+        
+        $search = Search::where('query', $keyword)->first();
         if ($search != null) {
             $search->count = $search->count + 1;
             $search->save();
         } else {
             $search = new Search;
-            $search->query = $request->keyword;
+            $search->query = $keyword;
             $search->save();
         }
     }

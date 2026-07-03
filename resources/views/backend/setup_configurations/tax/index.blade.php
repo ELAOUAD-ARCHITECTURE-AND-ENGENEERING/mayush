@@ -48,9 +48,13 @@
                         <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('tax.edit', $tax->id )}}" title="{{ translate('Edit') }}">
                             <i class="las la-edit"></i>
                         </a>
-                        <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('tax.destroy', $tax->id)}}" title="{{ translate('Delete') }}">
-                            <i class="las la-trash"></i>
-                        </a>
+                        <form action="{{ route('tax.destroy', $tax->id) }}" method="POST" class="d-inline-block">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+                                <i class="las la-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 @endforeach

@@ -26,17 +26,24 @@ class NoteController extends Controller
         ];
     }
 
+    private function visibleNotes()
+    {
+        return Note::where(function ($query) {
+            $query->where('user_id', auth()->id())
+                ->orWhere(function ($query) {
+                    $query->where('user_id', optional(get_admin())->id)
+                        ->where('seller_access', 1);
+                });
+        });
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $sort_search =null;
-        $notes =  Note::where('user_id', auth()->id())
-                        ->orWhere(function ($query){
-                            $query->where('user_id', get_admin()->id)
-                            ->where('seller_access', 1);
-                        });
+        $notes = $this->visibleNotes();
         if ($request->has('search')){
             $sort_search = $request->search;
             $notes = $notes->where('description', 'like', '%'.$sort_search.'%');
@@ -91,7 +98,13 @@ class NoteController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $note = $this->visibleNotes()->findOrFail($id);
+
+        return response()->json([
+            'id' => $note->id,
+            'description' => $note->getTranslation('description'),
+            'html' => nl2br(e($note->getTranslation('description'))),
+        ]);
     }
 
     /**
@@ -101,7 +114,7 @@ class NoteController extends Controller
     {
         $lang   = $request->lang;
         $types = EnumsNoteType::cases();
-        $note  = Note::findOrFail($id);
+        $note  = Note::where('user_id', auth()->id())->findOrFail($id);
         return view('seller.note.edit', compact('note', 'types', 'lang'));
     }
 
@@ -119,7 +132,7 @@ class NoteController extends Controller
             return Redirect::back()->withErrors($validator);
         }
         
-        $note = Note::findOrFail($id);
+        $note = Note::where('user_id', auth()->id())->findOrFail($id);
         $note->note_type = $request->note_type;
         if($request->lang == env("DEFAULT_LANGUAGE")){
             $note->description = $request->description;
@@ -139,7 +152,7 @@ class NoteController extends Controller
      */
     public function destroy(Note $note)
     {   
-        $note = Note::findOrFail($note->id);
+        $note = Note::where('user_id', auth()->id())->findOrFail($note->id);
         $note->note_translations()->delete();
         $note->delete();
         flash(translate('Note has been deleted successfully!'))->success();

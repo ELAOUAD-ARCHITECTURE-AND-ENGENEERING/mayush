@@ -2,24 +2,11 @@
 
 namespace Tests\Integration\Middleware;
 
-use Tests\TestCase;
 use App\Models\User;
-use App\Models\Language;
-use App\Models\BusinessSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 use Tests\Traits\SeedsAppConfigs;
 
-/**
- * RoleMiddlewareTest
- *
- * Verifies that role-based middleware correctly blocks unauthorized users
- * and allows authorized users through. Tests reflect the real middleware
- * behavior:
- *   - IsAdmin: abort(404) for non-admin
- *   - IsSeller: abort(404) for non-seller
- *   - IsCustomer: redirect to login for guests
- *   - auth: redirect to login for guests
- */
 class RoleMiddlewareTest extends TestCase
 {
     use RefreshDatabase, SeedsAppConfigs;
@@ -30,79 +17,61 @@ class RoleMiddlewareTest extends TestCase
         $this->seedConfigs();
     }
 
-    // ─── Admin Routes ────────────────────────────────────────────────────────
-    // Route: GET /admin  →  middleware: ['auth', 'admin']
-    // IsAdmin aborts 404 for non-admin/staff users.
-    // auth middleware redirects guests to login.
-
     /** @test */
     public function guest_cannot_access_admin_dashboard(): void
     {
-        // auth middleware intercepts first → redirect to login
-        $response = $this->get(route('admin.dashboard'));
-        $response->assertRedirect();
+        $this->get(route('admin.dashboard'))->assertRedirect();
     }
 
     /** @test */
     public function customer_cannot_access_admin_dashboard(): void
     {
         $customer = User::factory()->customer()->create();
-        // auth passes, IsAdmin sees user_type != admin → abort(404)
-        $response = $this->actingAs($customer)->get(route('admin.dashboard'));
-        $response->assertStatus(404);
+
+        $this->actingAs($customer)
+            ->get(route('admin.dashboard'))
+            ->assertStatus(404);
     }
 
     /** @test */
-    public function admin_can_access_admin_dashboard(): void
+    public function admin_can_reach_admin_dashboard_route(): void
     {
         $admin = User::factory()->admin()->create();
-        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
-        // IsAdmin passes — controller runs (200 or 500 from missing view data)
-        // Key assertion: NOT blocked by middleware (not 404, not redirect to login)
-        $this->assertNotEquals(404, $response->status(), 'Admin should not be blocked by IsAdmin middleware');
-    }
 
-    // ─── Seller Routes ───────────────────────────────────────────────────────
-    // Route: GET /seller/dashboard  →  middleware: ['seller', 'verified', 'user', 'prevent-back-history']
-    // IsSeller aborts 404 for non-seller users (including guests).
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+
+        $this->assertNotEquals(404, $response->status());
+    }
 
     /** @test */
     public function guest_cannot_access_seller_dashboard(): void
     {
-        // IsSeller: Auth::check() false → abort(404)
-        $response = $this->get(route('seller.dashboard'));
-        $response->assertStatus(404);
+        $this->get(route('seller.dashboard'))->assertStatus(404);
     }
 
     /** @test */
     public function customer_cannot_access_seller_dashboard(): void
     {
         $customer = User::factory()->customer()->create();
-        // IsSeller: user_type != seller → abort(404)
-        $response = $this->actingAs($customer)->get(route('seller.dashboard'));
-        $response->assertStatus(404);
-    }
 
-    // ─── Customer Routes ─────────────────────────────────────────────────────
-    // Route: GET /purchase_history  →  middleware: ['customer', 'verified', 'unbanned']
-    // IsCustomer redirects guests to user.login route.
+        $this->actingAs($customer)
+            ->get(route('seller.dashboard'))
+            ->assertStatus(404);
+    }
 
     /** @test */
     public function guest_cannot_access_purchase_history(): void
     {
-        // IsCustomer: Auth::check() false → redirect to user.login
-        $response = $this->get(route('purchase_history.index'));
-        $response->assertRedirect();
+        $this->get(route('purchase_history.index'))->assertRedirect();
     }
 
     /** @test */
-    public function customer_can_access_purchase_history(): void
+    public function customer_is_not_redirected_to_login_for_purchase_history(): void
     {
         $customer = User::factory()->customer()->create();
+
         $response = $this->actingAs($customer)->get(route('purchase_history.index'));
-        // Customer middleware passes. Controller runs (200, 302 within app, or 500 from view).
-        // Key assertion: NOT redirected to login
-        $locationHeader = $response->headers->get('Location', '');
-        $this->assertStringNotContainsString('login', $locationHeader, 'Customer should not be redirected to login');
+
+        $this->assertStringNotContainsString('login', $response->headers->get('Location', ''));
     }
 }

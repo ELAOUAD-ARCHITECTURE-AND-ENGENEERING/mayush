@@ -83,16 +83,20 @@
                                     @php
                                         $product = get_single_product($product_id);
                                         $cartItem = $carts->toQuery()->where('product_id', $product_id)->where('variation', $admin_product_variation[$key])->first();
-                                        $product_stock = $product->stocks->where('variant', $cartItem->variation)->first();
-                                        $total = $total + cart_product_price($cartItem, $product, false) * $cartItem->quantity;
+                                        $availability = \App\Utility\CartUtility::cart_item_availability($cartItem, $product);
+                                        $product_stock = $availability['stock'];
+                                        $isUnavailable = !$availability['available'];
+                                        if (!$isUnavailable && $cartItem->status == 1) {
+                                            $total = $total + cart_product_price($cartItem, $product, false) * $cartItem->quantity;
+                                        }
                                     @endphp
                                     <li class="list-group-item px-0 border-md-0">
-                                        <div class="row gutters-5 align-items-center">
+                                        <div class="row gutters-5 align-items-center" @if($isUnavailable) style="opacity: .58; filter: grayscale(1);" @endif>
                                             <!-- select -->
                                             <div class="col-auto">
                                                 <div class="aiz-checkbox pl-0">
                                                     <label class="aiz-checkbox">
-                                                        <input type="checkbox" class="check-one check-one-admin" name="id[]" value="{{$product_id}}" @if($cartItem->status == 1) checked @endif>
+                                                        <input type="checkbox" class="check-one check-one-admin" name="id[]" value="{{$product_id}}" @if($cartItem->status == 1 && !$isUnavailable) checked @endif @if($isUnavailable) disabled @endif>
                                                         <span class="aiz-square-check"></span>
                                                     </label>
                                                 </div>
@@ -110,8 +114,8 @@
                                                     @if ($admin_product_variation[$key] != '')
                                                         <span class="fs-12 text-secondary d-block">{{ translate('Variation') }}: {{ $admin_product_variation[$key] }}</span>
                                                     @endif
-                                                    @if ($product_stock->qty <= 0)
-                                                        <span class="badge badge-inline badge-danger">{{ translate('Out of Stock') }}</span>
+                                                    @if ($isUnavailable)
+                                                        <span class="fs-12 fw-700 text-danger ml-1">{{ translate('Out of Stock') }}</span>
                                                     @endif
                                                 </span>
                                             </div>
@@ -139,22 +143,22 @@
                                                                 class="btn col-auto btn-icon btn-sm btn-light rounded-0"
                                                                 type="button" data-type="plus"
                                                                 data-field="quantity[{{ $cartItem->id }}]"
-                                                                @if ($product_stock->qty <= 0) disabled @endif>
+                                                                @if ($isUnavailable) disabled @endif>
                                                                 <i class="las la-plus"></i>
                                                             </button>
                                                             <input type="number" name="quantity[{{ $cartItem->id }}]"
                                                                 class="col border-0 text-center px-0 fs-14 input-number"
                                                                 placeholder="1" value="{{ $cartItem['quantity'] }}"
                                                                 min="{{ $product->min_qty }}"
-                                                                max="{{ $product_stock->qty }}"
+                                                                max="{{ $availability['stock_qty'] ?? 1 }}"
                                                                 onchange="updateQuantity({{ $cartItem->id }}, this)" 
                                                                 style="min-width: 45px;"
-                                                                @if ($product_stock->qty <= 0) disabled @endif>
+                                                                @if ($isUnavailable) disabled @endif>
                                                             <button
                                                                 class="btn col-auto btn-icon btn-sm btn-light rounded-0"
                                                                 type="button" data-type="minus"
                                                                 data-field="quantity[{{ $cartItem->id }}]"
-                                                                @if ($product_stock->qty <= 0) disabled @endif>
+                                                                @if ($isUnavailable) disabled @endif>
                                                                 <i class="las la-minus"></i>
                                                             </button>
                                                         </div>
@@ -164,7 +168,9 @@
                                                 </div>
                                                 <!-- Total -->
                                                 <div class="mr-2 mt-2 mt-xl-0">
-                                                    <span class="fw-700 fs-14 text-primary">{{ single_price(cart_product_price($cartItem, $product, false) * $cartItem->quantity) }}</span>
+                                                    <span class="fw-700 fs-14 {{ $isUnavailable ? 'text-danger' : 'text-primary' }}">
+                                                        {{ $isUnavailable ? translate('Unavailable') : single_price(cart_product_price($cartItem, $product, false) * $cartItem->quantity) }}
+                                                    </span>
                                                 </div>
                                             </div>
                                             <!-- Remove From Cart -->
@@ -206,16 +212,20 @@
                                         @php
                                             $product = get_single_product($product_id);
                                             $cartItem = $carts->toQuery()->where('product_id', $product_id)->where('variation', $seller_product_variation[$key][$key2])->first();
-                                            $product_stock = $product->stocks->where('variant', $cartItem->variation)->first();
-                                            $total = $total + cart_product_price($cartItem, $product, false) * $cartItem->quantity;
+                                            $availability = \App\Utility\CartUtility::cart_item_availability($cartItem, $product);
+                                            $product_stock = $availability['stock'];
+                                            $isUnavailable = !$availability['available'];
+                                            if (!$isUnavailable && $cartItem->status == 1) {
+                                                $total = $total + cart_product_price($cartItem, $product, false) * $cartItem->quantity;
+                                            }
                                         @endphp
                                         <li class="list-group-item px-0 border-md-0">
-                                            <div class="row gutters-5 align-items-center">
+                                            <div class="row gutters-5 align-items-center" @if($isUnavailable) style="opacity: .58; filter: grayscale(1);" @endif>
                                                 <!-- select -->
                                                 <div class="col-auto">
                                                     <div class="aiz-checkbox pl-0">
                                                         <label class="aiz-checkbox">
-                                                            <input type="checkbox" class="check-one check-one-seller-{{ $key }}" name="id[]" value="{{$product_id}}" @if($cartItem->status == 1) checked @endif>
+                                                            <input type="checkbox" class="check-one check-one-seller-{{ $key }}" name="id[]" value="{{$product_id}}" @if($cartItem->status == 1 && !$isUnavailable) checked @endif @if($isUnavailable) disabled @endif>
                                                             <span class="aiz-square-check"></span>
                                                         </label>
                                                     </div>
@@ -233,8 +243,8 @@
                                                         @if ($seller_product_variation[$key][$key2] != '')
                                                             <span class="fs-12 text-secondary d-block">{{ translate('Variation') }}: {{ $seller_product_variation[$key][$key2] }}</span>
                                                         @endif
-                                                        @if ($product_stock->qty <= 0)
-                                                            <span class="badge badge-inline badge-danger">{{ translate('Out of Stock') }}</span>
+                                                        @if ($isUnavailable)
+                                                            <span class="fs-12 fw-700 text-danger ml-1">{{ translate('Out of Stock') }}</span>
                                                         @endif
                                                     </span>
                                                 </div>
@@ -263,22 +273,22 @@
                                                                     class="btn col-auto btn-icon btn-sm btn-light rounded-0"
                                                                     type="button" data-type="plus"
                                                                     data-field="quantity[{{ $cartItem->id }}]"
-                                                                    @if ($product_stock->qty <= 0) disabled @endif>
+                                                                    @if ($isUnavailable) disabled @endif>
                                                                     <i class="las la-plus"></i>
                                                                 </button>
                                                                 <input type="number" name="quantity[{{ $cartItem->id }}]"
                                                                     class="col border-0 text-center px-0 fs-14 input-number"
                                                                     placeholder="1" value="{{ $cartItem['quantity'] }}"
                                                                     min="{{ $product->min_qty }}"
-                                                                    max="{{ $product_stock->qty }}"
+                                                                    max="{{ $availability['stock_qty'] ?? 1 }}"
                                                                     onchange="updateQuantity({{ $cartItem->id }}, this)" 
                                                                     style="min-width: 45px;"
-                                                                    @if ($product_stock->qty <= 0) disabled @endif>
+                                                                    @if ($isUnavailable) disabled @endif>
                                                                 <button
                                                                     class="btn col-auto btn-icon btn-sm btn-light rounded-0"
                                                                     type="button" data-type="minus"
                                                                     data-field="quantity[{{ $cartItem->id }}]"
-                                                                    @if ($product_stock->qty <= 0) disabled @endif>
+                                                                    @if ($isUnavailable) disabled @endif>
                                                                     <i class="las la-minus"></i>
                                                                 </button>
                                                             </div>
@@ -288,7 +298,9 @@
                                                     </div>
                                                     <!-- Total -->
                                                     <div class="mr-2 mt-2 mt-xl-0">
-                                                        <span class="fw-700 fs-14 text-primary">{{ single_price(cart_product_price($cartItem, $product, false) * $cartItem->quantity) }}</span>
+                                                        <span class="fw-700 fs-14 {{ $isUnavailable ? 'text-danger' : 'text-primary' }}">
+                                                            {{ $isUnavailable ? translate('Unavailable') : single_price(cart_product_price($cartItem, $product, false) * $cartItem->quantity) }}
+                                                        </span>
                                                     </div>
                                                 </div>
                                                 <!-- Remove From Cart -->

@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\Product;
 use App\Jobs\SyncSemanticEmbeddingJob;
 use App\Models\SemanticEmbedding;
+use App\Services\StorefrontCacheService;
 
 class ProductObserver
 {
@@ -13,6 +14,8 @@ class ProductObserver
      */
     public function saved(Product $product)
     {
+        app(StorefrontCacheService::class)->bump();
+
         // Offload the heavy Gemini API generation to the Horizon background worker.
         // It won't stall the user's web request.
         SyncSemanticEmbeddingJob::dispatch($product);
@@ -23,6 +26,8 @@ class ProductObserver
      */
     public function deleted(Product $product)
     {
+        app(StorefrontCacheService::class)->bump();
+
         // Removing the parent row inherently means the AI shouldn't be recommending it.
         SemanticEmbedding::where('embeddable_type', Product::class)
             ->where('embeddable_id', $product->id)

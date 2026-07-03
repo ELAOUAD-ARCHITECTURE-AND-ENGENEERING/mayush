@@ -57,9 +57,13 @@
                                         </a>
                                     @endcan
                                     @can('delete_faq')
-                                        <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('faq.destroy', $faq->id)}}" title="{{ translate('Delete') }}">
-                                            <i class="las la-trash"></i>
-                                        </a>
+                                        <form action="{{ route('faq.destroy', $faq->id) }}" method="POST" class="d-inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}">
+                                                <i class="las la-trash"></i>
+                                            </button>
+                                        </form>
                                     @endcan
                                 </td>
                             </tr>

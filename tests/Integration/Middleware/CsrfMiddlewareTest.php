@@ -2,10 +2,8 @@
 
 namespace Tests\Integration\Middleware;
 
-use Tests\TestCase;
-use App\Models\Language;
-use App\Models\BusinessSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 use Tests\Traits\SeedsAppConfigs;
 
 /**
@@ -31,36 +29,30 @@ class CsrfMiddlewareTest extends TestCase
     }
 
     /** @test */
-    public function post_request_bypasses_csrf_in_testing_environment()
+    public function post_request_bypasses_csrf_in_laravel_testing_environment(): void
     {
-        // Laravel's VerifyCsrfToken automatically bypasses CSRF checks 
-        // when runningUnitTests() is true. We verify that the request 
-        // reaches the controller and redirects back (302) due to invalid login.
         $response = $this->post('/login', [
             'email' => 'admin@example.com',
-            'password' => 'password'
+            'password' => 'password',
         ]);
 
         $response->assertStatus(302);
     }
 
     /** @test */
-    public function get_request_does_not_require_csrf()
+    public function get_request_does_not_require_csrf(): void
     {
-        $response = $this->get('/');
-        $response->assertStatus(200);
+        $this->get('/')->assertStatus(200);
     }
 
     /** @test */
-    public function api_routes_do_not_require_csrf()
+    public function api_routes_do_not_require_csrf(): void
     {
-        // API routes use Sanctum/token auth and exclude CSRF
         $response = $this->post('/api/v2/auth/login', [
             'email' => 'admin@example.com',
-            'password' => 'password'
+            'password' => 'password',
         ]);
 
-        // Should NOT return 419. Might return 401 or 422, but not 419.
         $this->assertNotEquals(419, $response->status());
     }
 }

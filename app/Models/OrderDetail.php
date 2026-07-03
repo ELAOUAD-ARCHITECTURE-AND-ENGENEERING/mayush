@@ -11,7 +11,7 @@ class OrderDetail extends Model
     use PreventDemoModeChanges, HasFactory;
     
     protected $fillable = [
-        'order_id', 'product_id', 'seller_id', 'variant', 'payment_status', 'delivery_status', 
+        'order_id', 'product_id', 'product_name', 'seller_id', 'variant', 'payment_status', 'delivery_status', 
         'shipping_type', 'pickup_point_id', 'product_referral_code', 'shipping_cost', 'quantity', 'price', 'tax'
     ];
 
@@ -23,6 +23,19 @@ class OrderDetail extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function getInvoiceProductNameAttribute(): string
+    {
+        if ($this->product) {
+            return $this->product->getTranslation('name');
+        }
+
+        if (!empty($this->product_name)) {
+            return $this->product_name;
+        }
+
+        return translate('Product') . ' #' . ($this->product_id ?? $this->id);
     }
 
     public function pickup_point()

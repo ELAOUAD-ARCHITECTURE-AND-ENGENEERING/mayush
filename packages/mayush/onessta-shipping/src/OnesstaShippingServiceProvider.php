@@ -85,6 +85,7 @@ class OnesstaShippingServiceProvider extends ServiceProvider
                 \Mayush\Shipping\Onessta\Console\Commands\SyncCities::class,
                 \Mayush\Shipping\Onessta\Console\Commands\SyncPickupCities::class,
                 \Mayush\Shipping\Onessta\Console\Commands\PollTracking::class,
+                \Mayush\Shipping\Onessta\Console\Commands\DiagnoseOrderShipment::class,
             ]);
         }
 

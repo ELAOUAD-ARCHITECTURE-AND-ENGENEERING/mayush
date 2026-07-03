@@ -10,7 +10,10 @@ Route::prefix('webhooks')->group(function () {
         ->withoutMiddleware(['web', 'auth', 'admin']);
 });
 
-Route::prefix('admin/shipping/onessta')->name('onessta.')->group(function () {
+Route::prefix('admin/shipping/onessta')
+    ->middleware(['auth', 'admin', 'prevent-back-history'])
+    ->name('onessta.')
+    ->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('index');
     Route::get('/shipments', [AdminController::class, 'shipments'])->name('shipments');
     Route::get('/webhook-logs', [AdminController::class, 'webhookLogs'])->name('webhook-logs');

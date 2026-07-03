@@ -14,8 +14,12 @@ class TopBanner extends Model
 
     public function getTranslation($field = '', $lang = false)
     {
-        $lang = $lang == false ? App::getLocale() : $lang;
+        $lang = $lang ?: App::getLocale();
         $top_banner_translation = $this->top_banner_translations->where('lang', $lang)->first();
+        if ($top_banner_translation != null && $top_banner_translation->$field !== null && $top_banner_translation->$field !== $this->$field) {
+            return in_array($field, ['name', 'title']) ? translate($top_banner_translation->$field, $lang) : $top_banner_translation->$field;
+        }
+
         return $top_banner_translation != null ? $top_banner_translation->$field : $this->$field;
     }
     
