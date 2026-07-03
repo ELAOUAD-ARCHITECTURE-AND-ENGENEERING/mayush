@@ -13,7 +13,7 @@ class PruneExpiredVaultTokens extends Command
      *
      * @var string
      */
-    protected $signature = 'vault:prune-expired';
+    protected $signature = 'vault:prune-expired {--dry-run : Count expired active vault tokens without deactivating anything}';
 
     /**
      * The console command description.
@@ -27,6 +27,17 @@ class PruneExpiredVaultTokens extends Command
      */
     public function handle()
     {
+        if ($this->option('dry-run')) {
+            $count = $this->expiredActiveTokensQuery()->count();
+
+            $this->warn('DRY RUN: no payment_tokens rows will be updated.');
+            $this->line('Table: payment_tokens');
+            $this->line('Conditions: is_active = true AND card expiry month/year is before the current month.');
+            $this->info("Candidate expired active vault tokens: {$count}");
+
+            return Command::SUCCESS;
+        }
+
         $count = PaymentToken::pruneExpired();
 
         if ($count > 0) {
@@ -37,5 +48,21 @@ class PruneExpiredVaultTokens extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    private function expiredActiveTokensQuery()
+    {
+        $now = now();
+
+        return PaymentToken::where('is_active', true)
+            ->whereNotNull('card_expiry_year')
+            ->whereNotNull('card_expiry_month')
+            ->where(function ($query) use ($now) {
+                $query->where('card_expiry_year', '<', $now->year)
+                    ->orWhere(function ($inner) use ($now) {
+                        $inner->where('card_expiry_year', $now->year)
+                            ->where('card_expiry_month', '<', $now->month);
+                    });
+            });
     }
 }
