@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Carbon;
 use App\Models\AuditLog;
 use App\Events\SecurityAlert;
 use Tests\TestCase;
@@ -20,7 +21,15 @@ class RateLimitingTest extends TestCase
         parent::setUp();
         // Clear rate limiter cache before each test
         Cache::flush();
+        Carbon::setTestNow(Carbon::now());
         Event::fake();
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
     }
 
     public function test_auth_login_is_rate_limited()

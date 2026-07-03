@@ -17,6 +17,10 @@
 /temp/
 updates/
 *.zip
+*.sql
+*.sql.gz
+/storage/app/backups/
+/sqlbackups/
 npm-debug.log
 yarn-error.log
 
