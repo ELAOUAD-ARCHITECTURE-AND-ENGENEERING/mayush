@@ -84,6 +84,10 @@ class HomeController extends Controller
 
     public function load_todays_deal_section(HomeLayoutService $layoutService)
     {
+        if (get_setting('todays_deal_section_status', '1') != '1') {
+            return response('');
+        }
+
         $todays_deal_products = $layoutService->getTodaysDealProducts();
         return view('frontend.' . safe_homepage_select() . '.partials.todays_deal', compact('todays_deal_products'));
     }
@@ -96,6 +100,10 @@ class HomeController extends Controller
 
     public function load_featured_section()
     {
+        if (get_setting('featured_products_section_status', '1') != '1') {
+            return response('');
+        }
+
         return view('frontend.' . safe_homepage_select() . '.partials.featured_products_section');
     }
 

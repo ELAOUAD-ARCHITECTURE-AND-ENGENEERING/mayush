@@ -19,7 +19,7 @@
 
 @if($firstHomeSliderImage)
     @section('preload')
-        <link rel="preload" as="image" href="{{ $firstHomeSliderImage }}">
+        <link rel="preload" as="image" href="{{ $firstHomeSliderImage }}" fetchpriority="high">
     @endsection
 @endif
 
@@ -52,6 +52,7 @@
                                             class="d-block mw-100 img-fit rounded shadow-sm overflow-hidden"
                                             src="{{ uploaded_asset($slider, 'large') }}"
                                             alt="{{ env('APP_NAME')}} promo"
+                                            width="1200"
                                             @if(count($featured_categories) == 0)
                                             height="457"
                                             @else

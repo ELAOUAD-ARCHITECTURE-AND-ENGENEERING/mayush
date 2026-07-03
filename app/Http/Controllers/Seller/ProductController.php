@@ -141,7 +141,7 @@ class ProductController extends Controller
         ]));
 
         // Product Translations
-        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?? (get_system_language()?->code ?? 'fr')]);
+        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr')]);
         ProductTranslation::create($request->only([
             'lang', 'name', 'unit', 'description', 'product_id'
         ]));
@@ -456,7 +456,7 @@ class ProductController extends Controller
 
     private function translationLanguage(?string $lang = null): string
     {
-        return $lang ?: (env('DEFAULT_LANGUAGE') ?: (get_system_language()?->code ?: 'fr'));
+        return $lang ?: (env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr'));
     }
 
     public function product_search(Request $request)

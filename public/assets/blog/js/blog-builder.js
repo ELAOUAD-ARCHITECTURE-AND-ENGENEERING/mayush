@@ -12,6 +12,7 @@
         var storageKey = "mayush.blog.builder." + window.location.pathname;
         var draggedIndex = null;
         var blocks = loadBlocks();
+        var quillInstances = {}; // Store Quill instances by block index
 
         if (!blocks.length && description && description.value.trim() !== "") {
             blocks = [{
@@ -25,14 +26,23 @@
 
         builder.querySelectorAll("[data-add-block]").forEach(function (button) {
             button.addEventListener("click", function () {
-                blocks.push(defaultBlock(button.getAttribute("data-add-block")));
+                var type = button.getAttribute("data-add-block");
+                
+                // Permission check for HTML block
+                if (type === 'html' && window.mayushBlogConfig && window.mayushBlogConfig.canManageHtml !== true) {
+                    alert('You do not have permission to add Advanced HTML blocks.');
+                    return;
+                }
+
+                blocks.push(defaultBlock(type));
                 render();
                 sync("Block added");
                 focusLastBlock();
             });
         });
 
-        blocksRoot.addEventListener("input", function () {
+        blocksRoot.addEventListener("input", function (e) {
+            if (e.target && e.target.classList.contains('ql-editor')) return; // handled by quill
             readFromDom();
             sync("Autosaved");
         });
@@ -44,9 +54,33 @@
 
         blocksRoot.addEventListener("click", function (event) {
             var button = event.target.closest("[data-builder-action]");
-            if (!button) {
+            
+            // Add FAQ item logic
+            if (event.target.closest("[data-add-faq-item]")) {
+                var blockEl = event.target.closest("[data-builder-block]");
+                var index = Number(blockEl.getAttribute("data-index"));
+                readFromDom();
+                blocks[index].data.items = blocks[index].data.items || [];
+                blocks[index].data.items.push({ question: "", answer: "" });
+                render();
+                sync("Autosaved");
                 return;
             }
+
+            // Remove FAQ item logic
+            if (event.target.closest("[data-remove-faq-item]")) {
+                var btn = event.target.closest("[data-remove-faq-item]");
+                var blockEl = btn.closest("[data-builder-block]");
+                var blockIndex = Number(blockEl.getAttribute("data-index"));
+                var itemIndex = Number(btn.getAttribute("data-item-index"));
+                readFromDom();
+                blocks[blockIndex].data.items.splice(itemIndex, 1);
+                render();
+                sync("Autosaved");
+                return;
+            }
+
+            if (!button) return;
 
             var blockEl = event.target.closest("[data-builder-block]");
             var index = Number(blockEl.getAttribute("data-index"));
@@ -56,6 +90,7 @@
 
             if (action === "remove") {
                 blocks.splice(index, 1);
+                delete quillInstances[index];
             }
 
             if (action === "up" && index > 0) {
@@ -138,30 +173,26 @@
         }
 
         function defaultBlock(type) {
-            if (type === "heading") {
-                return { type: "heading", data: { level: 2, text: "" } };
-            }
-
-            if (type === "image") {
-                return { type: "image", data: { upload_id: "", alt: "", caption: "" } };
-            }
-
-            if (type === "quote") {
-                return { type: "quote", data: { text: "", cite: "" } };
-            }
-
-            if (type === "list") {
-                return { type: "list", data: { style: "unordered", items: [""] } };
-            }
-
-            if (type === "divider") {
-                return { type: "divider", data: {} };
-            }
-
-            return { type: "paragraph", data: { text: "" } };
+            var defaults = {
+                heading: { type: "heading", data: { level: 2, text: "" } },
+                image: { type: "image", data: { upload_id: "", alt: "", caption: "" } },
+                quote: { type: "quote", data: { text: "", cite: "" } },
+                list: { type: "list", data: { style: "unordered", items: [""] } },
+                divider: { type: "divider", data: {} },
+                rich_text: { type: "rich_text", data: { text: "" } },
+                html: { type: "html", data: { code: "" } },
+                gallery: { type: "gallery", data: { upload_ids: "" } },
+                faq: { type: "faq", data: { items: [{ question: "", answer: "" }] } },
+                product_recommendation: { type: "product_recommendation", data: { title: "Recommended Products", product_ids: "" } },
+                shop_highlight: { type: "shop_highlight", data: { shop_id: "" } },
+            };
+            return defaults[type] || { type: "paragraph", data: { text: "" } };
         }
 
         function render() {
+            // Destroy old quills
+            quillInstances = {};
+
             blocksRoot.innerHTML = blocks.map(function (block, index) {
                 return renderBlock(block, index);
             }).join("");
@@ -171,6 +202,31 @@
             if (window.AIZ && window.AIZ.uploader && window.AIZ.uploader.previewGenerate) {
                 window.AIZ.uploader.previewGenerate();
             }
+
+            // Initialize Quill instances
+            setTimeout(function() {
+                blocksRoot.querySelectorAll('.quill-editor').forEach(function(editorEl) {
+                    var index = editorEl.getAttribute('data-index');
+                    var quill = new Quill(editorEl, {
+                        theme: 'snow',
+                        modules: {
+                            toolbar: [
+                                [{ 'header': [2, 3, 4, false] }],
+                                ['bold', 'italic', 'underline', 'strike'],
+                                [{'list': 'ordered'}, {'list': 'bullet'}],
+                                ['link', 'clean']
+                            ]
+                        }
+                    });
+                    
+                    quill.on('text-change', function() {
+                        readFromDom();
+                        sync("Autosaved");
+                    });
+
+                    quillInstances[index] = quill;
+                });
+            }, 50);
         }
 
         function renderBlock(block, index) {
@@ -221,6 +277,35 @@
                     field("Items", '<textarea data-field="items">' + escapeHtml((data.items || []).join("\n")) + '</textarea>');
             }
 
+            if (block.type === "rich_text") {
+                return field("Rich Text", '<div class="quill-editor" data-index="' + index + '" style="height: 200px;">' + (data.text || "") + '</div>');
+            }
+
+            if (block.type === "html") {
+                return field("Raw HTML", '<textarea data-field="code" class="form-control text-monospace" rows="6" placeholder="<div>Your HTML here</div>">' + escapeHtml(data.code || "") + '</textarea><small class="text-warning">Warning: HTML is rendered exactly as entered. Use with caution.</small>');
+            }
+
+            if (block.type === "gallery") {
+                return field("Gallery Images", uploaderMultiple(index, data.upload_ids || ""));
+            }
+
+            if (block.type === "product_recommendation") {
+                return field("Block Title", '<input type="text" data-field="title" value="' + escapeHtml(data.title || "") + '">') +
+                       field("Product IDs (Comma separated)", '<input type="text" data-field="product_ids" placeholder="e.g. 12,45,88" value="' + escapeHtml(data.product_ids || "") + '">');
+            }
+
+            if (block.type === "shop_highlight") {
+                return field("Shop ID", '<input type="text" data-field="shop_id" placeholder="Enter Shop ID" value="' + escapeHtml(data.shop_id || "") + '">');
+            }
+
+            if (block.type === "faq") {
+                var itemsHtml = (data.items || []).map(function(item, i) {
+                    return '<div class="faq-item p-2 border mb-2 bg-light"><div class="d-flex justify-content-between mb-2"><strong>Q' + (i+1) + '</strong><button type="button" class="btn btn-sm btn-icon btn-danger" data-remove-faq-item data-item-index="' + i + '"><i class="las la-times"></i></button></div><input type="text" data-faq-q class="form-control mb-2" placeholder="Question" value="' + escapeHtml(item.question || "") + '"><textarea data-faq-a class="form-control" rows="2" placeholder="Answer">' + escapeHtml(item.answer || "") + '</textarea></div>';
+                }).join("");
+                
+                return field("FAQ Items", itemsHtml + '<button type="button" class="btn btn-sm btn-soft-primary mt-2" data-add-faq-item>+ Add Question</button>');
+            }
+
             if (block.type === "divider") {
                 return '<div class="text-muted fs-13">Section divider</div>';
             }
@@ -241,6 +326,19 @@
             ].join("");
         }
 
+        function uploaderMultiple(index, value) {
+            return [
+                '<div class="input-group" data-toggle="aizuploader" data-type="image" data-multiple="true">',
+                    '<div class="input-group-prepend">',
+                        '<div class="input-group-text bg-soft-secondary font-weight-medium">Browse</div>',
+                    '</div>',
+                    '<div class="form-control file-amount">Choose Files</div>',
+                    '<input type="hidden" class="selected-files" data-field="upload_ids" value="' + escapeHtml(value) + '">',
+                '</div>',
+                '<div class="file-preview box sm"></div>'
+            ].join("");
+        }
+
         function field(label, control) {
             return '<div class="blog-builder__field"><label>' + label + '</label>' + control + '</div>';
         }
@@ -255,10 +353,27 @@
                 var block = blocks[index] || defaultBlock("paragraph");
                 var data = {};
 
-                blockEl.querySelectorAll("[data-field]").forEach(function (fieldEl) {
-                    var key = fieldEl.getAttribute("data-field");
-                    data[key] = key === "items" ? fieldEl.value.split("\n") : fieldEl.value;
-                });
+                if (block.type === 'faq') {
+                    var items = [];
+                    blockEl.querySelectorAll(".faq-item").forEach(function(itemEl) {
+                        items.push({
+                            question: itemEl.querySelector("[data-faq-q]").value,
+                            answer: itemEl.querySelector("[data-faq-a]").value
+                        });
+                    });
+                    data.items = items;
+                } else if (block.type === 'rich_text') {
+                    if (quillInstances[index]) {
+                        data.text = quillInstances[index].root.innerHTML;
+                    } else {
+                        data.text = block.data.text;
+                    }
+                } else {
+                    blockEl.querySelectorAll("[data-field]").forEach(function (fieldEl) {
+                        var key = fieldEl.getAttribute("data-field");
+                        data[key] = key === "items" ? fieldEl.value.split("\n") : fieldEl.value;
+                    });
+                }
 
                 return { type: block.type, data: data };
             });
@@ -299,10 +414,21 @@
                     return items ? "<" + tag + ">" + items + "</" + tag + ">" : "";
                 }
 
+                if (block.type === "rich_text" && data.text) {
+                    return data.text; // it's HTML from Quill
+                }
+
+                if (block.type === "html" && data.code) {
+                    return data.code; // raw HTML
+                }
+
                 if (block.type === "divider") {
                     return "<hr>";
                 }
 
+                // Complex blocks return empty string for raw HTML compilation 
+                // because they need server side rendering with blade components later,
+                // but we might want placeholders.
                 return "";
             }).filter(Boolean).join("\n");
         }
@@ -327,7 +453,13 @@
                 image: "Image",
                 quote: "Quote",
                 list: "List",
-                divider: "Divider"
+                divider: "Divider",
+                rich_text: "Rich Text",
+                html: "Advanced HTML",
+                gallery: "Gallery",
+                faq: "FAQ",
+                product_recommendation: "Products",
+                shop_highlight: "Shop"
             }[type] || "Block";
         }
 
@@ -338,7 +470,13 @@
                 image: "las la-image",
                 quote: "las la-quote-left",
                 list: "las la-list-ul",
-                divider: "las la-minus"
+                divider: "las la-minus",
+                rich_text: "las la-file-signature",
+                html: "las la-code",
+                gallery: "las la-images",
+                faq: "las la-question-circle",
+                product_recommendation: "las la-box",
+                shop_highlight: "las la-store"
             }[type] || "las la-square";
         }
 

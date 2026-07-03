@@ -368,7 +368,7 @@ class ProductController extends Controller
         ]));
 
         // Product Translations
-        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?? (get_system_language()?->code ?? 'fr')]);
+        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr')]);
         ProductTranslation::create($request->only([
             'lang',
             'name',
@@ -827,9 +827,9 @@ class ProductController extends Controller
 
         $redirrect_url = '';
         if ($request->has('type') && $request->type == 'Seller') {
-            $redirrect_url = route('products.seller.edit', ['id' => $product_new->id, 'lang' => env('DEFAULT_LANGUAGE')]);
+            $redirrect_url = route('products.seller.edit', ['id' => $product_new->id, 'lang' => env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr')]);
         } else {
-            $redirrect_url = route('products.admin.edit', ['id' => $product_new->id, 'lang' => env('DEFAULT_LANGUAGE')]);
+            $redirrect_url = route('products.admin.edit', ['id' => $product_new->id, 'lang' => env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr')]);
         }
         return response()->json([
                 'success' => true,
@@ -1194,7 +1194,7 @@ class ProductController extends Controller
 
     private function translationLanguage(?string $lang = null): string
     {
-        return $lang ?: (env('DEFAULT_LANGUAGE') ?: (get_system_language()?->code ?: 'fr'));
+        return $lang ?: (env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr'));
     }
 
     public function get_products_by_subcategory() { return 'Stub'; }

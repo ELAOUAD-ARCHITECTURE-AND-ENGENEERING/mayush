@@ -30,9 +30,23 @@
                 <i class="las la-align-left" aria-hidden="true"></i>
                 <span>{{ translate('Paragraph') }}</span>
             </button>
+            <button type="button" class="blog-builder__tool" data-add-block="rich_text">
+                <i class="las la-file-signature" aria-hidden="true"></i>
+                <span>{{ translate('Rich Text') }}</span>
+            </button>
+            @can('manage_blog_html')
+            <button type="button" class="blog-builder__tool" data-add-block="html">
+                <i class="las la-code" aria-hidden="true"></i>
+                <span>{{ translate('Advanced HTML') }}</span>
+            </button>
+            @endcan
             <button type="button" class="blog-builder__tool" data-add-block="image">
                 <i class="las la-image" aria-hidden="true"></i>
                 <span>{{ translate('Image') }}</span>
+            </button>
+            <button type="button" class="blog-builder__tool" data-add-block="gallery">
+                <i class="las la-images" aria-hidden="true"></i>
+                <span>{{ translate('Gallery') }}</span>
             </button>
             <button type="button" class="blog-builder__tool" data-add-block="quote">
                 <i class="las la-quote-left" aria-hidden="true"></i>
@@ -41,6 +55,18 @@
             <button type="button" class="blog-builder__tool" data-add-block="list">
                 <i class="las la-list-ul" aria-hidden="true"></i>
                 <span>{{ translate('List') }}</span>
+            </button>
+            <button type="button" class="blog-builder__tool" data-add-block="faq">
+                <i class="las la-question-circle" aria-hidden="true"></i>
+                <span>{{ translate('FAQ') }}</span>
+            </button>
+            <button type="button" class="blog-builder__tool" data-add-block="product_recommendation">
+                <i class="las la-box" aria-hidden="true"></i>
+                <span>{{ translate('Products') }}</span>
+            </button>
+            <button type="button" class="blog-builder__tool" data-add-block="shop_highlight">
+                <i class="las la-store" aria-hidden="true"></i>
+                <span>{{ translate('Shop') }}</span>
             </button>
             <button type="button" class="blog-builder__tool" data-add-block="divider">
                 <i class="las la-minus" aria-hidden="true"></i>

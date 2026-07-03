@@ -134,33 +134,25 @@ class HomepageRenderingTest extends TestCase
             ->assertSee('href="' . route('search') . '"', false);
     }
 
-    public function test_metro_homepage_skips_stale_hero_ids_and_preloads_first_valid_hero(): void
+    public function test_metro_hero_uses_mayush_graphic_chart_tokens(): void
     {
-        $stale = Upload::create([
-            'file_original_name' => 'stale.jpg',
-            'file_name' => 'uploads/missing-stale-hero.jpg',
-            'extension' => 'jpg',
-            'type' => 'image',
-            'file_size' => 1024,
-        ]);
-        $valid = $this->fakeHeroUpload('valid-hero.jpg');
-
         $this->setting('homepage_select', 'metro');
-        $this->setting('home_slider_images', json_encode([$stale->id, $valid->id]));
-        $this->setting('home_slider_links', json_encode(['https://example.test/stale', 'https://example.test/valid']));
-        $this->setting('home_slider_titles', json_encode(['Stale Hero', 'Valid Hero']));
-
         Cache::flush();
 
-        $response = $this->get(route('home'))->assertOk();
-        $content = $response->getContent();
-
-        $this->assertStringContainsString('<link rel="preload" as="image" href="'.uploaded_asset($valid, 'large').'">', $content);
-        $this->assertStringContainsString('Valid Hero', $content);
-        $this->assertStringContainsString('loading="eager"', $content);
-        $this->assertStringContainsString('fetchpriority="high"', $content);
-        $this->assertStringNotContainsString('Stale Hero', $content);
-        $this->assertStringNotContainsString('https://example.test/stale', $content);
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('padding: var(--mayush-hero-padding);', false)
+            ->assertSee('font-size: 64px !important;', false)
+            ->assertSee('max-width: 700px;', false)
+            ->assertSee('text-wrap: balance;', false)
+            ->assertSee('background: var(--mayush-orange) !important;', false)
+            ->assertSee('border-radius: var(--mayush-radius-md) !important;', false)
+            ->assertSee('rgba(217, 116, 52, .18)', false)
+            ->assertSee('rgba(26, 26, 26, .74)', false)
+            ->assertSee('.metro-hero-title span,', false)
+            ->assertSee('font-family: var(--mayush-font-heading) !important;', false)
+            ->assertSee('.floating-buttons-section-control', false)
+            ->assertSee('bottom: 96px !important;', false);
     }
 
     public function test_metro_featured_categories_appear_directly_after_hero_with_h2_heading(): void

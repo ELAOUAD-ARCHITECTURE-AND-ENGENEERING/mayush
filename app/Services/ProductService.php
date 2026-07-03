@@ -257,7 +257,8 @@ class ProductService
             $collection['meta_img'] = $collection['thumbnail_img'];
         }
 
-        if (isset($collection['lang']) && $collection['lang'] != env('DEFAULT_LANGUAGE')) {
+        $default_language = env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr');
+        if (isset($collection['lang']) && $collection['lang'] != $default_language) {
             unset($collection['name']);
             unset($collection['unit']);
             unset($collection['description']);

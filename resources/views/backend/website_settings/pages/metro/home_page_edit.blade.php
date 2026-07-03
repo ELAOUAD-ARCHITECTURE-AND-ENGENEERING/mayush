@@ -1532,6 +1532,26 @@
 
 					<!-- Collections Split -->
 					<div class="tab-pane fade" id="collections_split" role="tabpanel" aria-labelledby="collections-split-tab">
+						@php
+							$metroCollectionPanels = [
+								'newest' => [
+									'label' => translate('New Collections Panel'),
+									'eyebrow' => translate('Newest products'),
+									'title' => translate('Nouvelles collections'),
+									'description' => translate('Découvrez une sélection exclusive de mobilier et décoration où design contemporain, confort et raffinement se rencontrent.'),
+									'cta_text' => translate('View All'),
+									'cta_link' => route('search', ['sort_by' => 'newest']),
+								],
+								'best_selling' => [
+									'label' => translate('Best Selling Panel'),
+									'eyebrow' => translate('Best sellers'),
+									'title' => translate("L’art de vivre commence chez vous"),
+									'description' => translate('Les meilleures ventes qui font la tendance cette saison.'),
+									'cta_text' => translate('View All'),
+									'cta_link' => route('search', ['sort_by' => 'popular']),
+								],
+							];
+						@endphp
 						<form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
 							@csrf
 							<input type="hidden" name="tab" value="collections_split">
@@ -1560,7 +1580,7 @@
 													</label>
 												</div>
 											</div>
-											<p class="fs-14 fw-500 mb-0">{{ translate('Each panel uses a large background image, overlaid copy and CTA, with a compact autoplay product slider displayed at the bottom.') }}</p>
+											<p class="fs-14 fw-500 mb-0">{{ translate('Each panel uses a large background image, editable title, description and CTA, with a compact autoplay product slider displayed at the bottom.') }}</p>
 											<a href="{{ route('product-collections.index') }}" class="btn btn-soft-primary btn-sm mt-3">
 												<i class="las la-layer-group mr-1"></i>{{ translate('Manage Product Collections') }}
 											</a>
@@ -1568,13 +1588,23 @@
 									</div>
 								</div>
 								<div class="row gutters-16 mt-4">
-									@foreach ([
-										'newest' => translate('New Collections Panel'),
-										'best_selling' => translate('Best Selling Panel'),
-									] as $panelKey => $panelLabel)
+									@foreach ($metroCollectionPanels as $panelKey => $panelDefaults)
+										@php
+											$panelImage = get_setting('metro_collections_' . $panelKey . '_image', null, $lang);
+											$panelTitle = get_setting('metro_collections_' . $panelKey . '_title', null, $lang) ?: $panelDefaults['title'];
+											$panelDescription = get_setting('metro_collections_' . $panelKey . '_description', null, $lang) ?: $panelDefaults['description'];
+											$panelCtaText = get_setting('metro_collections_' . $panelKey . '_cta_text', null, $lang) ?: $panelDefaults['cta_text'];
+											$panelCtaLink = get_setting('metro_collections_' . $panelKey . '_cta_link', null, $lang) ?: $panelDefaults['cta_link'];
+										@endphp
 										<div class="col-xl-6 mb-3">
 											<div class="p-4 border h-100" style="background: #fcfcfc;">
-												<h3 class="fs-16 fw-700 mb-3">{{ $panelLabel }}</h3>
+												<div class="d-flex align-items-start justify-content-between mb-3">
+													<div>
+														<span class="badge badge-inline badge-soft-primary mb-2">{{ $panelDefaults['eyebrow'] }}</span>
+														<h3 class="fs-16 fw-700 mb-1">{{ $panelDefaults['label'] }}</h3>
+														<p class="fs-12 text-muted mb-0">{{ translate('This copy appears over the panel image on the homepage.') }}</p>
+													</div>
+												</div>
 												<div class="form-group">
 													<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('Background Image') }}</label>
 													<div class="input-group" data-toggle="aizuploader" data-type="image">
@@ -1582,29 +1612,32 @@
 															<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
 														</div>
 														<div class="form-control file-amount">{{ translate('Choose File') }}</div>
-														<input type="hidden" name="metro_collections_{{ $panelKey }}_image" class="selected-files" value="{{ get_setting('metro_collections_' . $panelKey . '_image', null, $lang) }}">
+														<input type="hidden" name="metro_collections_{{ $panelKey }}_image" class="selected-files" value="{{ $panelImage }}">
 													</div>
 													<div class="file-preview box sm"></div>
 												</div>
 												<div class="form-group">
 													<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('Title') }}</label>
-													<input type="text" class="form-control" name="metro_collections_{{ $panelKey }}_title" value="{{ get_setting('metro_collections_' . $panelKey . '_title', null, $lang) }}">
+													<input type="text" class="form-control" name="metro_collections_{{ $panelKey }}_title" value="{{ $panelTitle }}" placeholder="{{ $panelDefaults['title'] }}">
+													<small class="form-text text-muted">{{ translate('Main heading displayed in the collection panel.') }}</small>
 												</div>
 												<div class="form-group">
 													<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('Description') }}</label>
-													<textarea class="form-control" rows="3" name="metro_collections_{{ $panelKey }}_description">{{ get_setting('metro_collections_' . $panelKey . '_description', null, $lang) }}</textarea>
+													<textarea class="form-control" rows="3" name="metro_collections_{{ $panelKey }}_description" placeholder="{{ $panelDefaults['description'] }}">{{ $panelDescription }}</textarea>
+													<small class="form-text text-muted">{{ translate('Short supporting text shown under the title.') }}</small>
 												</div>
 												<div class="row gutters-10">
 													<div class="col-md-5">
 														<div class="form-group mb-md-0">
-															<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('CTA Text') }}</label>
-															<input type="text" class="form-control" name="metro_collections_{{ $panelKey }}_cta_text" value="{{ get_setting('metro_collections_' . $panelKey . '_cta_text', null, $lang) }}">
+															<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('CTA Button Text') }}</label>
+															<input type="text" class="form-control" name="metro_collections_{{ $panelKey }}_cta_text" value="{{ $panelCtaText }}" placeholder="{{ $panelDefaults['cta_text'] }}">
 														</div>
 													</div>
 													<div class="col-md-7">
 														<div class="form-group mb-0">
 															<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('CTA Link') }}</label>
-															<input type="text" class="form-control" placeholder="http://" name="metro_collections_{{ $panelKey }}_cta_link" value="{{ get_setting('metro_collections_' . $panelKey . '_cta_link', null, $lang) }}">
+															<input type="text" class="form-control" placeholder="{{ $panelDefaults['cta_link'] }}" name="metro_collections_{{ $panelKey }}_cta_link" value="{{ $panelCtaLink }}">
+															<small class="form-text text-muted">{{ translate('Use a full URL or a storefront path such as /search?sort_by=newest.') }}</small>
 														</div>
 													</div>
 												</div>

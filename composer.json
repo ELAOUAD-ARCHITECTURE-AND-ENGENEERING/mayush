@@ -32,6 +32,7 @@
         "maatwebsite/excel": "^3.1",
         "mehedi-iitdu/core-component-repository": "^2.2",
         "mercadopago/dx-php": "^2.5",
+        "mews/purifier": "^3.4",
         "mpdf/mpdf": "^8.1",
         "niklasravnsborg/laravel-pdf": "^4.1",
         "paypal/paypal-checkout-sdk": "dev-master",

@@ -6,7 +6,7 @@ Branch: `codex/v10-9-safe-integration`
 
 Source of truth: current Mayush `origin/main`
 
-Upstream reference: `C:/xampp/htdocs/mayush/updates V10.9` (read-only)
+Upstream reference: the archived `updates V10.9` snapshot, removed after the maintained slices were extracted.
 
 ## Baseline
 

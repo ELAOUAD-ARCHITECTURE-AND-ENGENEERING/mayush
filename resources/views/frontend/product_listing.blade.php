@@ -69,34 +69,9 @@
 
 @section('content')
 
-    <section class="mb-1">
+    <section class="mb-1 mayush-listing-page">
         <div class="container sm-px-0 pt-1">
-            @if(isset($category_id) && $category)
-                @php
-                    $categoryVisibleProductCount = method_exists($products, 'total') ? $products->total() : 0;
-                    $categoryFaqItems = \App\Services\SeoService::categoryFaqItems($category, $categoryVisibleProductCount, app(\App\Services\SeoStatsService::class)->verifiedSellerCount());
-                @endphp
-                <section class="py-3 px-3 px-md-0">
-                    <h1 class="fs-24 fs-md-28 fw-700 text-dark mb-2">{{ $category->getTranslation('name') }} au Maroc</h1>
-                    <p class="fs-12 text-gray mb-2">{{ \App\Services\SeoService::categoryFreshnessLabel() }}</p>
-                    <p class="fs-14 fs-md-15 text-gray mb-0">
-                        Comparez {{ number_format($categoryVisibleProductCount) }} references {{ $category->getTranslation('name') }}
-                        sur Mayush Marketplace avec vendeurs verifies, prix, dimensions et options de livraison au Maroc.
-                    </p>
-                    <blockquote class="geo-expert-note mt-3 mb-0 p-3 bg-light border-left border-primary fs-14 text-dark">
-                        {{ \App\Services\SeoService::categoryExpertNote($category) }}
-                    </blockquote>
-                    <div class="geo-category-faq mt-3">
-                        @foreach($categoryFaqItems as $faqItem)
-                            <details class="mb-2">
-                                <summary class="fw-700 fs-14 text-dark">{{ $faqItem['question'] }}</summary>
-                                <p class="fs-13 text-gray mt-2 mb-0">{{ $faqItem['answer'] }}</p>
-                            </details>
-                        @endforeach
-                    </div>
-                </section>
-            @endif
-            <form class="" id="search-form" action="" method="GET">
+            <form class="mayush-listing-search-form" id="search-form" action="" method="GET">
                 <div class="row">
 
                     <!-- Sidebar Filters -->
@@ -144,9 +119,6 @@
                                                                 <li d-item="{{ $category->products_count }}"
                                                                     id="generel_{{ $category->id }}">
                                                                     {{ $category->getTranslation('name') }}
-                                                                    @if ($category->products_count > 0)
-                                                                        {{ '   (' . $category->products_count . ')' }}
-                                                                    @endif
                                                                 </li>
                                                                 {{-- @endif --}}
                                                                 @foreach ($category->childrenCategories as $childCategory)
@@ -170,7 +142,7 @@
                                                                 @if ($category->products_count > 0)
                                                                     <li d-item="{{ $category->products_count }}"
                                                                         id="preorder_{{ $category->id }}">
-                                                                        {{ $category->getTranslation('name') }}{{ '   (' . $category->products_count . ')' }}
+                                                                        {{ $category->getTranslation('name') }}
                                                                     </li>
                                                                 @endif
                                                                 @foreach ($category->childrenCategories as $childCategory)
@@ -521,7 +493,7 @@
 
                         <!-- Top Filters -->
                         <!-- Top Filters -->
-                        <div class="text-left mb-4">
+                        <div class="text-left mb-4 mayush-listing-toolbar">
                             <div class="d-flex flex-column flex-xl-row justify-content-between align-items-start align-items-xl-center">
                                 <!-- Left: Title, Count, AI Button -->
                                 <div class="mb-3 mb-xl-0">
@@ -604,12 +576,17 @@
                                     </style>
                                 </div>
                             </div>
+                            @if (isset($category_id))
+                                <p class="fs-13 text-secondary mb-0 mt-2 pt-2">
+                                    {{ translate('Explorez une sélection Mayush vérifiée pour comparer les styles, les prix et les options de livraison au Maroc.') }}
+                                </p>
+                            @endif
                         </div>
 
                         <!-- Products -->
-                        <div class="px-3">
+                        <div class="px-3 mayush-listing-results">
 
-                            <div class="row gutters-16 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2 border-top border-left"
+                            <div class="row gutters-16 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2 border-top border-left mayush-listing-grid"
                                 id="products-row">
                                 {{-- @foreach ($products as $key => $product)
                                     <div class="col border-right border-bottom has-transition hov-shadow-out z-1 ">
@@ -641,6 +618,7 @@
         let category_page_first_time = true;
         let brand_page_first_time = true;
         let session_data_first_time = true;
+        let listing_first_render = true;
 
         function filter(e) {
             // alert("working or not")
@@ -687,11 +665,11 @@
             let skeletonHtml = '';
             for (let i = 0; i < 8; i++) {
                 skeletonHtml += `
-                <div class="col border-right border-bottom p-3">
-                    <div class="skeleton-shimmer h-200px w-100 mb-2 rounded"></div>
+                <div class="col border-right border-bottom p-3 mayush-listing-skeleton">
+                    <div class="skeleton-shimmer mayush-listing-skeleton-media w-100 mb-2 rounded"></div>
                     <div class="skeleton-shimmer h-15px w-75 mb-2 rounded"></div>
                     <div class="skeleton-shimmer h-15px w-50 mb-3 rounded"></div>
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center mayush-listing-skeleton-footer">
                         <div class="skeleton-shimmer h-20px w-40px rounded"></div>
                         <div class="skeleton-shimmer h-30px w-30px rounded-circle"></div>
                     </div>
@@ -777,10 +755,13 @@
                     $('#pagination').html(response.pagination_html);
                     $('#total_product_count').text(response.total_product_count);
 
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
+                    if (!listing_first_render) {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    }
+                    listing_first_render = false;
                 },
                 error: function(xhr, status, error) {
                     console.error('Error:', error);
