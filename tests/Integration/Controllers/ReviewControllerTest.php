@@ -14,6 +14,15 @@ use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 use Tests\Traits\SeedsAppConfigs;
 
+/**
+ * ReviewControllerTest
+ *
+ * Verifies core functionality of the ReviewController including:
+ * - Admin index viewing with correct permissions
+ * - Admin custom review creation and updates
+ * - Status toggling (published/unpublished)
+ * - Customer review submission mechanics and rating recalculation
+ */
 class ReviewControllerTest extends TestCase
 {
     use RefreshDatabase, SeedsAppConfigs;
