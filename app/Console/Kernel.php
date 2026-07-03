@@ -61,6 +61,9 @@ class Kernel extends ConsoleKernel
         $schedule->job(\App\Jobs\AggregateVendorPerformanceJob::class)->dailyAt('00:10');
         $schedule->job(\App\Jobs\AggregateMarketingMetricsJob::class)->dailyAt('00:15');
         $schedule->job(\App\Jobs\AggregateSecurityMetricsJob::class)->dailyAt('00:20');
+
+        // Expire stale payment attempts and free up locked stock
+        $schedule->command('mayush:payments:expire-stale')->everyFifteenMinutes();
     }
 
     /**

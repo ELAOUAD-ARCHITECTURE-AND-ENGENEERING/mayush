@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\PreventDemoModeChanges;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,6 +11,7 @@ use Illuminate\Support\Str;
 
 class Blog extends Model
 {
+    use HasFactory;
     use PreventDemoModeChanges;
 
     use SoftDeletes;

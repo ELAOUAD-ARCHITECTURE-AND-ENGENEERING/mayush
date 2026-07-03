@@ -12,6 +12,9 @@ use Carbon\Carbon;
 
 class CriticalErrorNotification extends Notification implements ShouldQueue
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use Queueable;
 
     public $event;
@@ -19,7 +22,6 @@ class CriticalErrorNotification extends Notification implements ShouldQueue
     /**
      * The number of times the queued notification may be attempted.
      */
-    public $tries = 3;
 
     /**
      * The number of seconds to wait before retrying the notification.
@@ -31,6 +33,7 @@ class CriticalErrorNotification extends Notification implements ShouldQueue
      */
     public function __construct(CriticalSystemError $event)
     {
+        $this->onQueue('critical');
         $this->event = $event;
     }
 

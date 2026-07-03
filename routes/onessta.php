@@ -7,6 +7,7 @@ use Mayush\Shipping\Onessta\Http\Controllers\WebhookController;
 Route::prefix('webhooks')->group(function () {
     Route::post('/onessta', [WebhookController::class, 'handle'])
         ->name('onessta.webhook')
+        ->middleware('throttle:onessta-webhook')
         ->withoutMiddleware(['web', 'auth', 'admin']);
 });
 

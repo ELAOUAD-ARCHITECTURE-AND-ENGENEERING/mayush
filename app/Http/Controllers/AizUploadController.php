@@ -237,9 +237,7 @@ class AizUploadController extends Controller
     {
         $upload = Upload::findOrFail($id);
 
-        if (auth()->user()->user_type == 'seller' && $upload->user_id != auth()->user()->id) {
-            abort(403);
-        }
+        $this->authorize('delete', $upload);
         try {
             if (env('FILESYSTEM_DRIVER') != 'local') {
                 Storage::disk(env('FILESYSTEM_DRIVER'))->delete($upload->file_name);
@@ -283,7 +281,7 @@ class AizUploadController extends Controller
         $search = $request->search;
         $sort_by = $request->sort;
 
-        if (auth()->user()->user_type == 'seller') {
+        if (auth()->user()->user_type != 'admin') {
             $all_uploads->where('user_id', auth()->user()->id);
         }
 
@@ -324,7 +322,7 @@ class AizUploadController extends Controller
 
         $uploads = Upload::onlyTrashed()->whereIn('id', $ids);
 
-        if (auth()->user()->user_type == 'seller') {
+        if (auth()->user()->user_type != 'admin') {
             $uploads->where('user_id', auth()->user()->id);
         }
 
@@ -345,7 +343,7 @@ class AizUploadController extends Controller
 
         $uploads = Upload::onlyTrashed()->whereIn('id', $ids);
 
-        if (auth()->user()->user_type == 'seller') {
+        if (auth()->user()->user_type != 'admin') {
             $uploads->where('user_id', auth()->user()->id);
         }
 
@@ -387,8 +385,10 @@ class AizUploadController extends Controller
             foreach ($request->id as $file_id) {
                 $upload = Upload::find($file_id);
                 if ($upload) {
-                    // Authorization check
-                    if (auth()->user()->user_type == 'seller' && $upload->user_id != auth()->user()->id) {
+                    // Authorization check via strict Policy
+                    try {
+                        $this->authorize('delete', $upload);
+                    } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
                         $fail_count++;
                         continue;
                     }
@@ -497,6 +497,7 @@ class AizUploadController extends Controller
     public function file_info(Request $request)
     {
         $file = Upload::findOrFail($request['id']);
+        $this->authorize('view', $file);
 
         return (auth()->user()->user_type == 'seller')
             ? view('seller.uploads.info', compact('file'))

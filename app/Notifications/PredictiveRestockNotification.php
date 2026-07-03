@@ -9,6 +9,9 @@ use Illuminate\Notifications\Notification;
 
 class PredictiveRestockNotification extends Notification implements ShouldQueue
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use Queueable;
 
     public $data;
@@ -21,6 +24,7 @@ class PredictiveRestockNotification extends Notification implements ShouldQueue
      */
     public function __construct($data)
     {
+        $this->onQueue('notifications');
         $this->data = $data;
         $this->className = PredictiveRestockNotification::class;
     }

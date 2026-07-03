@@ -221,9 +221,7 @@ class DigitalProductController  extends Controller
     {
         $product = Product::findOrFail($id);
 
-        if ((int) $product->user_id !== (int) Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('update', $product);
 
         (new ProductService)->destroy($id);
 
@@ -254,3 +252,4 @@ class DigitalProductController  extends Controller
         }
     }
 }
+

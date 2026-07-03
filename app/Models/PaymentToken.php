@@ -9,6 +9,10 @@ class PaymentToken extends Model
 {
     use HasFactory;
 
+    protected $hidden = [
+        'token',
+    ];
+
     protected $fillable = [
         'user_id',
         'gateway',
