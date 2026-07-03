@@ -126,9 +126,7 @@
         <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
     @endif
     <link rel="stylesheet" href="{{ versioned_static_asset('assets/css/aiz-core.css') }}">
-    @if(request()->routeIs('search', 'products.category'))
-        <link rel="stylesheet" href="{{ static_asset('assets/css/semantic_search.css') }}">
-    @endif
+    <link rel="stylesheet" href="{{ static_asset('assets/css/semantic_search.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/custom-style.css') }}">
 
     <!-- Mayush Design Tokens (Charte Graphique v1.0) -->
