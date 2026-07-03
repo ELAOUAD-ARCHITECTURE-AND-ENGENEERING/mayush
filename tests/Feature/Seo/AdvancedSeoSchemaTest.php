@@ -71,10 +71,12 @@ class AdvancedSeoSchemaTest extends TestCase
             ->assertSee('"@type": "FAQPage"', false)
             ->assertSee('Office Furniture Morocco Modern Workspace Collection', false)
             ->assertSee('Comment optimiser un espace de bureau ou coworking au Maroc ?', false)
-            ->assertSee('Office Furniture au Maroc', false)
-            ->assertSee('Derniere mise a jour', false)
-            ->assertSee('geo-expert-note', false)
-            ->assertSee('postes de travail modulaires', false);
+            ->assertSee('id="search-form"', false)
+            ->assertSee('Explorez une sélection Mayush vérifiée pour comparer les styles, les prix et les options de livraison au Maroc.', false)
+            ->assertSee('class="fs-13 text-secondary mb-0 mt-2 pt-2"', false)
+            ->assertDontSee('<h1 class="fs-24 fs-md-28 fw-700 text-dark mb-2">Office Furniture au Maroc</h1>', false)
+            ->assertDontSee('Derniere mise a jour', false)
+            ->assertDontSee('geo-expert-note', false);
     }
 
     public function test_homepage_and_product_pages_render_mayushseo_visible_geo_content(): void

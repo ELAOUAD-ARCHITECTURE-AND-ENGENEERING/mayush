@@ -2364,25 +2364,49 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
 
                 $this.on("click", function () {
                     localStorage.setItem(key, JSON.stringify(item));
+                    sessionStorage.setItem(key + '_session_shown', 'true');
                 });
             });
         },
         showSessionPopup: function () {
+            var hydrateDeferredPopupImages = function ($root) {
+                $root.find("img[data-popup-src]").each(function () {
+                    var src = this.getAttribute("data-popup-src");
+                    if (src && this.getAttribute("src") !== src) {
+                        this.setAttribute("src", src);
+                    }
+                    this.removeAttribute("data-popup-src");
+                });
+            };
+
             $(".removable-session").each(function () {
                 var $this = $(this);
                 var key = $this.data("key");
+
+                // If already shown or dismissed in the current session, do not show again
+                if (sessionStorage.getItem(key + '_session_shown')) {
+                    return;
+                }
+
                 var value = $this.data("value");
                 var item = {};
                 if (localStorage.getItem(key)) {
-                    item = localStorage.getItem(key);
-                    item = JSON.parse(item);
+                    try {
+                        item = JSON.parse(localStorage.getItem(key));
+                    } catch (e) {
+                        item = {};
+                    }
                 }
                 const now = new Date();
                 if (
                     typeof item.expiry == "undefined" ||
                     now.getTime() > item.expiry
                 ) {
+                    hydrateDeferredPopupImages($this);
                     $this.removeClass("d-none");
+                    
+                    // Mark as shown immediately so that navigating or refreshing prevents it from popping up again
+                    sessionStorage.setItem(key + '_session_shown', 'true');
                 }
             });
         },
@@ -2828,6 +2852,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const imageCounter = document.getElementById("imageCounter");
 
     const galleryImgs = document.querySelectorAll(".lightbox-item img.lightbox-source");
+    if (!galleryImgs.length) return;
 
     let currentIndex = 0;
     let scale = 1;
@@ -3596,4 +3621,31 @@ $(document).ready(function() {
         }
     });
 
+});
+
+// ==========================================================================
+// Premium Global Loader Setup
+// ==========================================================================
+$(document).ready(function() {
+    // Append the loader to the body if it doesn't exist
+    if ($('#premium-ajax-loader').length === 0) {
+        $('body').append('<div id="premium-ajax-loader" class="premium-global-loader"><div class="premium-spinner"></div></div>');
+    }
+
+    // Global AJAX hooks (exclude silent background requests by adding .silent-ajax class or handling logic if needed)
+    $(document).ajaxStart(function() {
+        $('#premium-ajax-loader').addClass('active');
+    });
+
+    $(document).ajaxStop(function() {
+        $('#premium-ajax-loader').removeClass('active');
+    });
+
+    // Hook into regular form submissions
+    $(document).on('submit', 'form:not(.no-loader)', function() {
+        // Prevent showing loader for forms targeting new tabs
+        if ($(this).attr('target') !== '_blank') {
+            $('#premium-ajax-loader').addClass('active');
+        }
+    });
 });

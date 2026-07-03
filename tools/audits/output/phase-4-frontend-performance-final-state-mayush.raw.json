@@ -1,0 +1,213 @@
+{
+  "generatedAt": "2026-06-22T15:48:55.201Z",
+  "base": "http://127.0.0.1:8010",
+  "results": [
+    {
+      "viewport": "desktop",
+      "route": "home",
+      "url": "http://127.0.0.1:8010/",
+      "status": 200,
+      "title": "Mayush Marketplace : Mobilier & Decoration au Maroc",
+      "lcp": 12864,
+      "cls": 0.0005,
+      "longTasks": 8,
+      "maxLongTask": 438,
+      "transferKB": 3988,
+      "ttfb": 9823,
+      "popupRealSrcCount": 0,
+      "popupDeferredCount": 1,
+      "listingCards": 0,
+      "productMainImages": 0
+    },
+    {
+      "viewport": "desktop",
+      "route": "category-office-furniture",
+      "url": "http://127.0.0.1:8010/category/office-furniture",
+      "status": 200,
+      "title": "Mobilier de bureau au Maroc | Mayush Marketplace",
+      "lcp": 14844,
+      "cls": 0.0256,
+      "longTasks": 7,
+      "maxLongTask": 652,
+      "transferKB": 2931,
+      "ttfb": 13415,
+      "popupRealSrcCount": 0,
+      "popupDeferredCount": 1,
+      "listingCards": 0,
+      "productMainImages": 0
+    },
+    {
+      "viewport": "desktop",
+      "route": "product-bibliotheque",
+      "url": "http://127.0.0.1:8010/product/bibliotheque-cadre-design-moderne-avec-rangements-modules-7",
+      "status": 200,
+      "title": "Bibliothèque CADRE – Design moderne avec rangements modulés",
+      "lcp": 33232,
+      "cls": 0.0106,
+      "longTasks": 8,
+      "maxLongTask": 1143,
+      "transferKB": 3281,
+      "ttfb": 32617,
+      "popupRealSrcCount": 0,
+      "popupDeferredCount": 1,
+      "listingCards": 0,
+      "productMainImages": 4
+    },
+    {
+      "viewport": "mobile",
+      "route": "home",
+      "url": "http://127.0.0.1:8010/",
+      "status": 200,
+      "title": "Mayush Marketplace : Mobilier & Decoration au Maroc",
+      "lcp": 12364,
+      "cls": 0.0014,
+      "longTasks": 7,
+      "maxLongTask": 393,
+      "transferKB": 4025,
+      "ttfb": 9539,
+      "popupRealSrcCount": 0,
+      "popupDeferredCount": 1,
+      "listingCards": 0,
+      "productMainImages": 0
+    },
+    {
+      "viewport": "mobile",
+      "route": "category-office-furniture",
+      "url": "http://127.0.0.1:8010/category/office-furniture",
+      "status": 200,
+      "title": "Mobilier de bureau au Maroc | Mayush Marketplace",
+      "lcp": 14448,
+      "cls": 0.0151,
+      "longTasks": 7,
+      "maxLongTask": 674,
+      "transferKB": 2931,
+      "ttfb": 12798,
+      "popupRealSrcCount": 0,
+      "popupDeferredCount": 1,
+      "listingCards": 0,
+      "productMainImages": 0
+    },
+    {
+      "viewport": "mobile",
+      "route": "product-bibliotheque",
+      "url": "http://127.0.0.1:8010/product/bibliotheque-cadre-design-moderne-avec-rangements-modules-7",
+      "status": 200,
+      "title": "Bibliothèque CADRE – Design moderne avec rangements modulés",
+      "lcp": 32720,
+      "cls": 0.0223,
+      "longTasks": 11,
+      "maxLongTask": 964,
+      "transferKB": 3281,
+      "ttfb": 32344,
+      "popupRealSrcCount": 0,
+      "popupDeferredCount": 1,
+      "listingCards": 0,
+      "productMainImages": 4
+    }
+  ],
+  "productionCacheProbe": {
+    "generatedAt": "2026-06-22T15:49:31.248Z",
+    "probe": [
+      {
+        "url": "https://mayushdesign.com/",
+        "runs": [
+          {
+            "status": 200,
+            "finalUrl": "https://mayushdesign.com/",
+            "cfCacheStatus": "EXPIRED",
+            "age": "",
+            "cacheControl": "no-cache, private",
+            "setCookie": false,
+            "contentType": "text/html; charset=UTF-8",
+            "totalMs": 3048
+          },
+          {
+            "status": 200,
+            "finalUrl": "https://mayushdesign.com/",
+            "cfCacheStatus": "HIT",
+            "age": "0",
+            "cacheControl": "no-cache, private",
+            "setCookie": false,
+            "contentType": "text/html; charset=UTF-8",
+            "totalMs": 79
+          }
+        ]
+      },
+      {
+        "url": "https://mayushdesign.com/category/office-furniture",
+        "runs": [
+          {
+            "status": 200,
+            "finalUrl": "https://mayushdesign.com/category/office-furniture",
+            "cfCacheStatus": "EXPIRED",
+            "age": "",
+            "cacheControl": "no-cache, private",
+            "setCookie": false,
+            "contentType": "text/html; charset=UTF-8",
+            "totalMs": 3583
+          },
+          {
+            "status": 200,
+            "finalUrl": "https://mayushdesign.com/category/office-furniture",
+            "cfCacheStatus": "HIT",
+            "age": "0",
+            "cacheControl": "no-cache, private",
+            "setCookie": false,
+            "contentType": "text/html; charset=UTF-8",
+            "totalMs": 56
+          }
+        ]
+      },
+      {
+        "url": "https://mayushdesign.com/assets/css/custom-style.css",
+        "runs": [
+          {
+            "status": 200,
+            "finalUrl": "https://mayushdesign.com/assets/css/custom-style.css",
+            "cfCacheStatus": "MISS",
+            "age": "",
+            "cacheControl": "public, max-age=2592000",
+            "setCookie": false,
+            "contentType": "text/css",
+            "totalMs": 105
+          },
+          {
+            "status": 200,
+            "finalUrl": "https://mayushdesign.com/assets/css/custom-style.css",
+            "cfCacheStatus": "HIT",
+            "age": "0",
+            "cacheControl": "public, max-age=2592000",
+            "setCookie": false,
+            "contentType": "text/css",
+            "totalMs": 41
+          }
+        ]
+      },
+      {
+        "url": "https://mayushdesign.com/assets/js/aiz-core.js",
+        "runs": [
+          {
+            "status": 200,
+            "finalUrl": "https://mayushdesign.com/assets/js/aiz-core.js",
+            "cfCacheStatus": "MISS",
+            "age": "",
+            "cacheControl": "public, max-age=2592000",
+            "setCookie": false,
+            "contentType": "text/javascript",
+            "totalMs": 162
+          },
+          {
+            "status": 200,
+            "finalUrl": "https://mayushdesign.com/assets/js/aiz-core.js",
+            "cfCacheStatus": "HIT",
+            "age": "0",
+            "cacheControl": "public, max-age=2592000",
+            "setCookie": false,
+            "contentType": "text/javascript",
+            "totalMs": 45
+          }
+        ]
+      }
+    ]
+  }
+}

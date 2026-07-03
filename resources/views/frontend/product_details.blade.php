@@ -26,7 +26,7 @@
 
 @if($productPreloadImage)
     @section('preload')
-        <link rel="preload" as="image" href="{{ $productPreloadImage }}">
+        <link rel="preload" as="image" href="{{ $productPreloadImage }}" fetchpriority="high">
     @endsection
 @endif
 
@@ -431,6 +431,11 @@
     <!-- ======================== Product Swipper Slide Start ================== -->
     <script type="text/javascript">
         document.addEventListener("DOMContentLoaded", function () {
+            if (!document.querySelector(".thumb-slider") || !document.querySelector(".main-slider")) {
+                return;
+            }
+
+            var initProductGallerySwipers = function () {
             /*------ Thumbnails Swiper ------*/
             var thumbSwiper = new Swiper(".thumb-slider", {
                 direction: "vertical",
@@ -500,7 +505,9 @@
                     updateThumbButtons(this);
                 });
             }
+            };
 
+            window.requestAnimationFrame(initProductGallerySwipers);
         });
     </script>
     <!-- ======================== Product Swipper Slide End ================== -->

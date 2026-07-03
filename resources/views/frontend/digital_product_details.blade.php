@@ -152,7 +152,7 @@
                                     </div>
                                 </div>
                                 <!-- Messase to seller -->
-                                @if (get_setting('conversation_system') == 1)
+                                {{-- @if (get_setting('conversation_system') == 1)
                                     <div class="col-md-4 text-md-right mb-3">
                                         <button class="btn btn-sm btn-soft-secondary-base rounded-0 hov-svg-white hov-text-white"
                                             onclick="show_chat_modal()">
@@ -168,7 +168,7 @@
                                             {{ translate('Message Seller') }}
                                         </button>
                                     </div>
-                                @endif
+                                @endif --}}
                                 <!-- Brand Logo & Name -->
                                 @if ($detailedProduct->brand != null)
                                     <div class="col-md-4 fs-14 fw-700 mb-3">

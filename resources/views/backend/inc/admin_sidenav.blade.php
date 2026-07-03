@@ -1273,7 +1273,7 @@
                         <li class="aiz-side-nav-item">
                             <a href="{{ route('blog.index') }}"
                                 class="aiz-side-nav-link {{ areActiveRoutes(['blog.index', 'blog.create', 'blog.edit'])}}">
-                                <span class="aiz-side-nav-text">{{ translate('All Posts') }}</span>
+                                <span class="aiz-side-nav-text">{{ translate('All Articles') }}</span>
                             </a>
                         </li>
                         @endcan

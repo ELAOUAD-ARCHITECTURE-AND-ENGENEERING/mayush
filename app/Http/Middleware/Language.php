@@ -45,7 +45,7 @@ class Language
         try {
             // 1. Check for a language explicitly marked as default and enabled
             $defaultLang = LanguageModel::where('status', 1)
-                ->where('code', env('DEFAULT_LANGUAGE'))
+                ->where('code', env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr'))
                 ->first();
 
             if ($defaultLang) {
@@ -62,6 +62,6 @@ class Language
         }
 
         // 3. Ultimate fallback
-        return env('DEFAULT_LANGUAGE', 'fr');
+        return env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr');
     }
 }

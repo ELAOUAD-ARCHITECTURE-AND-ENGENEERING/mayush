@@ -92,20 +92,13 @@ class BlogController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\BlogRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, BlogContentBlockService $blockService, BlogWorkflowService $workflow)
+    public function store(\App\Http\Requests\BlogRequest $request, BlogContentBlockService $blockService, BlogWorkflowService $workflow)
     {
 
-        $request->validate([
-            'category_id' => ['required', 'integer', 'exists:blog_categories,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'unique:blogs,slug'],
-            'short_description' => ['required', 'string'],
-            'workflow_action' => ['nullable', Rule::in(['draft', 'submit', 'publish'])],
-            'published_at' => ['nullable', 'date'],
-        ]);
+
 
         $blog = new Blog;
 
@@ -116,6 +109,10 @@ class BlogController extends Controller
         $blog->save();
         $this->syncBlogProducts($blog, $request);
         $workflow->saveVersion($blog, $request->user(), $blog->workflow_status);
+
+        if ($request->input('workflow_action') === 'preview') {
+            return redirect()->route('blog.preview', $blog->id);
+        }
 
         flash(translate('Blog post has been created successfully'))->success();
         return redirect()->route('blog.index');
@@ -149,20 +146,13 @@ class BlogController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\BlogRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id, BlogContentBlockService $blockService, BlogWorkflowService $workflow)
+    public function update(\App\Http\Requests\BlogRequest $request, $id, BlogContentBlockService $blockService, BlogWorkflowService $workflow)
     {
-        $request->validate([
-            'category_id' => ['required', 'integer', 'exists:blog_categories,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('blogs', 'slug')->ignore($id)],
-            'short_description' => ['required', 'string'],
-            'workflow_action' => ['nullable', Rule::in(['draft', 'submit', 'publish'])],
-            'published_at' => ['nullable', 'date'],
-        ]);
+
 
         $blog = Blog::findOrFail($id);
 
@@ -171,6 +161,10 @@ class BlogController extends Controller
         $blog->save();
         $this->syncBlogProducts($blog, $request);
         $workflow->saveVersion($blog, $request->user(), $blog->workflow_status);
+
+        if ($request->input('workflow_action') === 'preview') {
+            return redirect()->route('blog.preview', $blog->id);
+        }
 
         flash(translate('Blog post has been updated successfully'))->success();
         return redirect()->route('blog.index');
@@ -696,7 +690,7 @@ class BlogController extends Controller
             return;
         }
 
-        if (!$blog->exists || $action === 'draft' || $blog->workflow_status !== BlogWorkflowService::PUBLISHED) {
+        if (!$blog->exists || $action === 'draft' || $action === 'preview' || $blog->workflow_status !== BlogWorkflowService::PUBLISHED) {
             $workflow->saveDraft($blog);
         }
     }

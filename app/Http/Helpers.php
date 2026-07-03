@@ -1345,9 +1345,14 @@ if (!function_exists('uploaded_asset')) {
         } elseif ($id instanceof \Illuminate\Database\Eloquent\Collection || $id instanceof \Illuminate\Support\Collection) {
             $asset = $id->first();
         } else {
-            if ($id === null || $id === '' || $id === []) {
-                return $placeholder;
+            $idInt = (int)$id;
+            if (!$idInt) {
+                return static_asset('assets/img/placeholder.jpg');
             }
+            $asset = \Illuminate\Support\Facades\Cache::store('array')->remember('upload_model_' . $idInt, 3600, function () use ($idInt) {
+                return Upload::find($idInt);
+            });
+        }
 
             static $assets = [];
             $key = (string) $id;
@@ -1399,21 +1404,16 @@ if (!function_exists('uploaded_asset')) {
 if (!function_exists('uploaded_asset_srcset')) {
     function uploaded_asset_srcset($id, array $variants = []): string
     {
-        if ($id instanceof Upload) {
+        if (is_object($id) && $id instanceof Upload) {
             $asset = $id;
         } else {
-            if ($id === null || $id === '' || $id === []) {
+            $idInt = (int)$id;
+            if (!$idInt) {
                 return '';
             }
-
-            static $assets = [];
-            $key = (string) $id;
-
-            if (! array_key_exists($key, $assets)) {
-                $assets[$key] = Upload::find($id);
-            }
-
-            $asset = $assets[$key];
+            $asset = \Illuminate\Support\Facades\Cache::store('array')->remember('upload_model_' . $idInt, 3600, function () use ($idInt) {
+                return Upload::find($idInt);
+            });
         }
 
         if (!$asset || $asset->external_link || !str_contains((string) $asset->type, 'image')) {
@@ -2564,16 +2564,19 @@ if (!function_exists('get_single_attribute_name')) {
 if (!function_exists('get_user_cart')) {
     function get_user_cart()
     {
-        $cart = [];
-        if (auth()->user() != null) {
-            $cart = Cart::where('user_id', Auth::user()->id)->get();
-        } else {
-            $temp_user_id = Session()->get('temp_user_id');
-            if ($temp_user_id) {
-                $cart = Cart::where('temp_user_id', $temp_user_id)->get();
+        $cacheKey = 'user_cart_' . (auth()->check() ? auth()->id() : 'guest_' . session()->get('temp_user_id'));
+        return \Illuminate\Support\Facades\Cache::store('array')->remember($cacheKey, 60, function () {
+            $cart = [];
+            if (auth()->user() != null) {
+                $cart = Cart::where('user_id', Auth::user()->id)->get();
+            } else {
+                $temp_user_id = Session()->get('temp_user_id');
+                if ($temp_user_id) {
+                    $cart = Cart::where('temp_user_id', $temp_user_id)->get();
+                }
             }
-        }
-        return $cart;
+            return $cart;
+        });
     }
 }
 
@@ -2996,9 +2999,12 @@ if (!function_exists('get_first_product_image')) {
 
         foreach ($photosArray as $photoId) {
             if (!empty($photoId)) {
-                $asset = uploaded_asset($photoId, $size);
-                if ($asset !== $placeholder) {
-                    return $asset;
+                $idInt = (int)$photoId;
+                $asset = \Illuminate\Support\Facades\Cache::store('array')->remember('upload_model_' . $idInt, 3600, function () use ($idInt) {
+                    return \App\Models\Upload::find($idInt);
+                });
+                if ($asset) {
+                    return uploaded_asset($asset, $size);
                 }
             }
         }

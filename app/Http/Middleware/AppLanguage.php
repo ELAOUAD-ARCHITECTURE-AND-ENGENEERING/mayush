@@ -24,7 +24,7 @@ class AppLanguage
             $locale = env('DEFAULT_LANGUAGE');
         }
         else{
-            $locale = 'en';
+            $locale = config('app.locale', 'en');
         }
     
 
