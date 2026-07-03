@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PayoutNotification extends Notification
+class PayoutNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -20,8 +20,11 @@ class PayoutNotification extends Notification
      */
     public function __construct($data)
     {
+        $this->onQueue('notifications');
+        $this->afterCommit = true;
+
         $this->data = $data;
-        $this->className= PayoutNotification::class;
+        $this->className = 'app\Notifications\PayoutNotification';
     }
 
     /**

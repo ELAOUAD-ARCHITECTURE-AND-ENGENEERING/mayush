@@ -4,13 +4,14 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class OrderNotification extends Notification
+class OrderNotification extends Notification implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
     use Queueable;
-    
+
     public $data;
     public $className;
 
@@ -19,10 +20,33 @@ class OrderNotification extends Notification
      *
      * @return void
      */
-    public function __construct($order_notification)
+    public function __construct($data)
     {
-        $this->data = $order_notification;
-        $this->className= OrderNotification::class;
+        $this->onQueue('notifications');
+        $this->afterCommit = true;
+        
+        $this->data = $data;
+        $this->className = 'app\Notifications\OrderNotification';
+    }
+
+    /**
+     * The unique ID of the job.
+     *
+     * @return string
+     */
+    public function uniqueId()
+    {
+        return $this->data['order_id'] . '_' . $this->data['status'] . '_' . ($this->data['notification_type_id'] ?? 'default');
+    }
+
+    /**
+     * Get the tags that should be assigned to the job.
+     *
+     * @return array
+     */
+    public function tags()
+    {
+        return ['order:'.$this->data['order_id'], 'notification:'.$this->data['status']];
     }
 
     /**

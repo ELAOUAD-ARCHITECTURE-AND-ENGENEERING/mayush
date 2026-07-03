@@ -7,24 +7,35 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class InvoiceEmailManager extends Mailable
+class InvoiceEmailManager extends Mailable implements ShouldQueue
 {
+    use Queueable, SerializesModels;
+
     public $tries = 3;
     public $timeout = 60;
 
-    use Queueable, SerializesModels;
-    /**
-     * Create a new message instance.
-     *
-     * @return void
-     */
     public $array;
 
     public function __construct($array)
     {
         $this->onQueue('emails');
+        $this->afterCommit = true;
+        
         $this->array = $array;
     }
+
+    /**
+     * Get the tags that should be assigned to the job.
+     *
+     * @return array
+     */
+    public function tags()
+    {
+        return isset($this->array['order']->id) 
+            ? ['email:invoice', 'order:'.$this->array['order']->id] 
+            : ['email:invoice'];
+    }
+
     /**
      * Build the message.
      *

@@ -73,9 +73,10 @@ use phpDocumentor\Reflection\PseudoTypes\LowercaseString;
 
 //sensSMS function for OTP
 if (!function_exists('sendSMS')) {
-    function sendSMS($to, $from, $text, $template_id)
+    function sendSMS($to, $from, $text, $template_id = null)
     {
-        return SendSMSUtility::sendSMS($to, $from, $text, $template_id);
+        \App\Jobs\SendSmsJob::dispatch($to, $from, $text, $template_id);
+        return true;
     }
 }
 
