@@ -1,7 +1,5 @@
 @php
-    $featured_products = Cache::remember('featured_products', 3600, function () {
-        return filter_products(\App\Models\Product::where('published', 1)->where('featured', '1'))->latest()->limit(12)->get();
-    });
+    $featured_products = get_featured_products();
 @endphp
 
 @if (count($featured_products) > 0)

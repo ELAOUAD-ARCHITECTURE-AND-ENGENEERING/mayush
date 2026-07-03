@@ -64,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
     $this->app->bind(CmiConfigValidatorInterface::class, CmiConfigValidator::class);
 
     if (!$this->app->environment('production')) {
-        if (class_exists('Barryvdh\\Debugbar\\ServiceProvider')) {
+        if (env('DEBUGBAR_ENABLED', false) && class_exists('Barryvdh\\Debugbar\\ServiceProvider')) {
             $this->app->register('Barryvdh\\Debugbar\\ServiceProvider');
         }
 
