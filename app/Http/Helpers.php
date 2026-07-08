@@ -2100,8 +2100,8 @@ if (!function_exists('get_system_language')) {
             return Language::query()->where('code', $locale)->first();
         });
 
-        if (!$lang && app()->runningUnitTests()) {
-            return (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
+        if (!$lang) {
+            $lang = Language::query()->where('status', 1)->first() ?? (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
         }
 
         return $languages[$locale] = $lang;
