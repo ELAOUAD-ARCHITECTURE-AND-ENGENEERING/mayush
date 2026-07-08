@@ -58,6 +58,10 @@ class EmailUtility
     public static function email_verification_for_registration_seller($emailIdentifier, $email, $verificationCode){
         $emailTemplate = EmailTemplate::whereIdentifier($emailIdentifier)->first();
 
+        if (!$emailTemplate || $emailTemplate->status == 0) {
+            throw new \Exception("Seller registration email template is missing or disabled.");
+        }
+
         $emailSubject = $emailTemplate->subject;
         $emailSubject = str_replace('[[store_name]]', get_setting('site_name'), $emailSubject);
 
@@ -69,7 +73,7 @@ class EmailUtility
         $array['subject'] = $emailSubject;
         $array['content'] = $emailBody;
 
-        Mail::to($email)->queue(new MailManager($array));
+        Mail::to($email)->send(new MailManager($array));
     }
 
 
