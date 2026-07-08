@@ -10,19 +10,24 @@ class SeedSellerOnboardingEmailTemplates extends Migration
         [
             'identifier'    => 'seller_onboarding_documents_request',
             'subject'       => 'Action Required: Submit Your Documents to Complete Registration on [[store_name]]',
-            'default_text'  => '<p>Dear [[seller_name]],</p>
-<p>Thank you for registering as a seller on <strong>[[store_name]]</strong>!</p>
-<p>To complete your application and get your shop approved, please submit the following mandatory documents through your seller dashboard:</p>
-<ul>
-  <li>✅ Signed MayushSeller Contract (download available in your dashboard)</li>
-  <li>✅ Government-Issued Photo ID</li>
-  <li>✅ Business Registration Documents</li>
-  <li>📎 Any additional professional certifications relevant to your business category (optional)</li>
-</ul>
-<p>Please log in to your seller dashboard and navigate to <strong>Account Verification → Document Upload</strong> to submit your documents.</p>
-<p>Your shop will remain in <em>Pending Approval</em> status until your documents are reviewed by our team (typically within 48 hours).</p>
-<p>If you have any questions, please contact us at [[admin_email]].</p>
-<p>Best regards,<br>[[store_name]] Team</p>',
+            'default_text'  => '<div style="font-family: \'Public Sans\', \'Inter\', Helvetica, Arial, sans-serif; color: #1f2937; line-height: 1.6; font-size: 15px;">
+    <h2 style="font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 20px; margin-top: 0;">Welcome to [[store_name]], [[seller_name]]!</h2>
+    <p style="margin-bottom: 20px; color: #4b5563;">Thank you for taking the first step in registering as a seller on our platform. We are thrilled to have you!</p>
+    <p style="margin-bottom: 15px; color: #4b5563;">To complete your application and activate your shop, please provide the following mandatory documents through your seller dashboard:</p>
+    <div style="background-color: #f3f4f6; border-left: 4px solid #0b60bd; padding: 20px; margin-bottom: 25px; border-radius: 4px;">
+        <ul style="margin: 0; padding-left: 0; list-style-type: none;">
+            <li style="margin-bottom: 12px;"><span style="color: #0b60bd; margin-right: 8px; font-size: 14px;">✔</span> <strong>Signed MayushSeller Contract</strong> (downloadable from your dashboard)</li>
+            <li style="margin-bottom: 12px;"><span style="color: #0b60bd; margin-right: 8px; font-size: 14px;">✔</span> <strong>Government-Issued Photo ID</strong></li>
+            <li style="margin-bottom: 12px;"><span style="color: #0b60bd; margin-right: 8px; font-size: 14px;">✔</span> <strong>Business Registration Documents</strong></li>
+            <li><span style="color: #6b7280; margin-right: 8px; font-size: 14px;">📎</span> <span style="color: #6b7280;">Any additional professional certifications relevant to your category (optional)</span></li>
+        </ul>
+    </div>
+    <p style="margin-bottom: 20px; color: #4b5563;">To submit your documents, please log in to your dashboard and navigate to <strong>Account Verification → Document Upload</strong>.</p>
+    <p style="margin-bottom: 25px; padding: 15px; background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 4px; color: #92400e;"><strong>Note:</strong> Your shop will remain in <em>Pending Approval</em> status until these documents are reviewed by our team (typically within 48 hours).</p>
+    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+    <p style="margin-bottom: 5px; color: #6b7280; font-size: 14px;">If you have any questions, please reach out to us at <a href="mailto:[[admin_email]]" style="color: #0b60bd; text-decoration: none;">[[admin_email]]</a>.</p>
+    <p style="margin-top: 20px; color: #111827; font-weight: 500;">Best regards,<br>The [[store_name]] Team</p>
+</div>',
             'status'        => 1,
             'receiver'      => 'seller',
         ],
