@@ -2128,8 +2128,8 @@ if (!function_exists('get_session_language')) {
         $lang = Cache::remember("storefront:v{$revision}:session-language:{$code}", 900, function () use ($code) {
             return Language::query()->where('code', $code)->first();
         });
-        if (!$lang && app()->runningUnitTests()) {
-            return (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
+        if (!$lang) {
+            $lang = Language::query()->where('status', 1)->first() ?? (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
         }
         return $lang;
     }
