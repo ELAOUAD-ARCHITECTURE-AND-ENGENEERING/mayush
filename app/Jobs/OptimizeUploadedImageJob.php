@@ -12,14 +12,16 @@ use Illuminate\Queue\SerializesModels;
 
 class OptimizeUploadedImageJob implements ShouldQueue
 {
+    public $tries = 3;
+    public $timeout = 180;
+
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 3;
-    public int $timeout = 180;
     public array $backoff = [30, 120, 300];
 
     public function __construct(public int $uploadId)
     {
+        $this->onQueue('images');
         $this->onQueue((string) config('image-optimization.queue', 'images'));
     }
 

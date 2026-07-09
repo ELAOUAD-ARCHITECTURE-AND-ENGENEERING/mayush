@@ -88,6 +88,56 @@ class Handler extends ExceptionHandler
             }
         }
 
+        if ($e instanceof \Illuminate\Http\Exceptions\ThrottleRequestsException || 
+            ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException && $e->getStatusCode() === 429)) {
+            try {
+                $ip = $request->ip();
+                $path = $request->path();
+                $cacheKey = "throttle_audit_{$ip}_{$path}";
+
+                if (!\Illuminate\Support\Facades\Cache::has($cacheKey)) {
+                    \Illuminate\Support\Facades\Cache::put($cacheKey, true, now()->addMinutes(15));
+                    
+                    $isSensitive = $request->is(
+                        'admin/login*', 
+                        'users/login*', 
+                        'seller/login*', 
+                        'deliveryboy/login*', 
+                        'password/reset*', 
+                        'checkout*', 
+                        'express-buy*', 
+                        'cmi/callback', 
+                        'webhooks/onessta', 
+                        '*/upload*'
+                    );
+
+                    if ($isSensitive) {
+                        \App\Models\AuditLog::create([
+                            'admin_user_id' => auth()->id(),
+                            'action_type' => 'RATE_LIMIT_EXCEEDED',
+                            'description' => "Rate limit exceeded on sensitive route: " . $request->fullUrl(),
+                            'ip_address' => $ip,
+                        ]);
+
+                        event(new \App\Events\SecurityAlert("⏳ *Rate Limit Exceeded (Sensitive)*.\n*URL:* `{$request->fullUrl()}`\n*User:* " . (auth()->user() ? auth()->user()->email : 'Guest') . "\n*IP:* `{$ip}`", 'warning'));
+                    }
+                }
+                
+                $logCacheKey = "throttle_log_{$ip}_{$path}";
+                if (!\Illuminate\Support\Facades\Cache::has($logCacheKey)) {
+                    \Illuminate\Support\Facades\Cache::put($logCacheKey, true, now()->addMinutes(1));
+                    \Illuminate\Support\Facades\Log::channel('security')->warning('Rate limit exceeded', [
+                        'url' => $request->fullUrl(),
+                        'ip' => $ip,
+                        'user_id' => auth()->id(),
+                        'payload_keys' => array_keys($request->except(['password', 'password_confirmation', 'credit_card', 'cvv', 'signature', 'payload'])),
+                    ]);
+                }
+            } catch (Throwable $auditError) {
+                // Fail silently
+            }
+        }
+
         if($this->isHttpException($e))
         {
             if ($request->is('customer-products/admin')) {

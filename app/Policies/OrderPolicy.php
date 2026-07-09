@@ -10,6 +10,13 @@ class OrderPolicy
 {
     use HandlesAuthorization;
 
+    public function before(User $user, $ability)
+    {
+        if ($user->user_type === 'admin') {
+            return true;
+        }
+    }
+
     /**
      * Determine whether the user can view the order.
      */

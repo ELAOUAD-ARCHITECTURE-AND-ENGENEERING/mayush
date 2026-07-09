@@ -73,9 +73,10 @@ use phpDocumentor\Reflection\PseudoTypes\LowercaseString;
 
 //sensSMS function for OTP
 if (!function_exists('sendSMS')) {
-    function sendSMS($to, $from, $text, $template_id)
+    function sendSMS($to, $from, $text, $template_id = null)
     {
-        return SendSMSUtility::sendSMS($to, $from, $text, $template_id);
+        \App\Jobs\SendSmsJob::dispatch($to, $from, $text, $template_id);
+        return true;
     }
 }
 
@@ -1338,8 +1339,12 @@ if (!function_exists('app_timezone')) {
 if (!function_exists('uploaded_asset')) {
     function uploaded_asset($id, $size = null)
     {
+        $placeholder = static_asset('assets/img/placeholder.jpg');
+
         if (is_object($id) && $id instanceof \App\Models\Upload) {
             $asset = $id;
+        } elseif ($id instanceof \Illuminate\Database\Eloquent\Collection || $id instanceof \Illuminate\Support\Collection) {
+            $asset = $id->first();
         } else {
             $idInt = (int)$id;
             if (!$idInt) {
@@ -1350,13 +1355,16 @@ if (!function_exists('uploaded_asset')) {
             });
         }
 
-        if ($asset instanceof \Illuminate\Database\Eloquent\Collection || $asset instanceof \Illuminate\Support\Collection) {
-            $asset = $asset->first();
-        }
-
         if ($asset != null) {
+            static $resolvedUrls = [];
+            $resolvedKey = $asset->getKey().':'.($size ?: 'original');
+
+            if (array_key_exists($resolvedKey, $resolvedUrls)) {
+                return $resolvedUrls[$resolvedKey];
+            }
+
             if ($asset->external_link != null) {
-                return $asset->external_link;
+                return $resolvedUrls[$resolvedKey] = $asset->external_link;
             }
 
             $optimizer = app(\App\Services\ImageOptimizationService::class);
@@ -1374,13 +1382,13 @@ if (!function_exists('uploaded_asset')) {
                 if ($optimizer->exists($prefixed_path)) {
                     $file_name = $prefixed_path;
                 } else {
-                    return static_asset('assets/img/placeholder.jpg');
+                    return $resolvedUrls[$resolvedKey] = $placeholder;
                 }
             }
 
-            return my_asset($file_name);
+            return $resolvedUrls[$resolvedKey] = my_asset($file_name);
         }
-        return static_asset('assets/img/placeholder.jpg');
+        return $placeholder;
     }
 }
 
@@ -2020,7 +2028,7 @@ if (!function_exists('get_admin')) {
 if (!function_exists('get_slider_images')) {
     function get_slider_images($ids)
     {
-        return app(\App\Services\StorefrontDataService::class)->sliderImages((array) $ids);
+        return app(\App\Services\StorefrontHeroImageService::class)->validSliderUploads((array) $ids);
     }
 }
 
@@ -2077,21 +2085,26 @@ if (!function_exists('get_active_taxes')) {
 if (!function_exists('get_system_language')) {
     function get_system_language()
     {
-        $language_query = Language::query();
-
         $locale = 'en';
         if (Session::has('locale')) {
             $locale = Session::get('locale', Config::get('app.locale'));
         }
 
-        $language_query->where('code',  $locale);
-
-        $lang = $language_query->first();
-        if (!$lang && app()->runningUnitTests()) {
-            return (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
+        static $languages = [];
+        if (array_key_exists($locale, $languages)) {
+            return $languages[$locale];
         }
 
-        return $lang;
+        $revision = app(\App\Services\StorefrontCacheService::class)->revision();
+        $lang = Cache::remember("storefront:v{$revision}:system-language:{$locale}", 900, function () use ($locale) {
+            return Language::query()->where('code', $locale)->first();
+        });
+
+        if (!$lang) {
+            $lang = Language::query()->where('status', 1)->first() ?? (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
+        }
+
+        return $languages[$locale] = $lang;
     }
 }
 
@@ -2115,8 +2128,8 @@ if (!function_exists('get_session_language')) {
         $lang = Cache::remember("storefront:v{$revision}:session-language:{$code}", 900, function () use ($code) {
             return Language::query()->where('code', $code)->first();
         });
-        if (!$lang && app()->runningUnitTests()) {
-            return (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
+        if (!$lang) {
+            $lang = Language::query()->where('status', 1)->first() ?? (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
         }
         return $lang;
     }
@@ -2211,21 +2224,14 @@ if (!function_exists('get_product_max_unit_price')) {
 if (!function_exists('get_featured_products')) {
     function get_featured_products()
     {
-        return Cache::remember('featured_products', 3600, function () {
-            $product_query = Product::query();
-            return filter_products($product_query->where('featured', '1'))->latest()->limit(12)->get();
-        });
+        return app(\App\Services\StorefrontDataService::class)->featuredProducts();
     }
 }
 
 if (!function_exists('get_best_selling_products')) {
     function get_best_selling_products($limit, $user_id = null)
     {
-        $product_query = Product::query();
-        if ($user_id) {
-            $product_query = $product_query->where('user_id', $user_id);
-        }
-        return filter_products($product_query->orderBy('num_of_sale', 'desc'))->limit($limit)->get();
+        return app(\App\Services\StorefrontDataService::class)->bestSellingProducts((int) $limit, $user_id ? (int) $user_id : null);
     }
 }
 
@@ -2234,11 +2240,7 @@ if (!function_exists('get_best_selling_products')) {
 if (!function_exists('get_todays_deal_products')) {
     function get_todays_deal_products($limit, $user_id = null)
     {
-        $product_query = Product::query();
-        if ($user_id) {
-            $product_query = $product_query->where('user_id', $user_id);
-        }
-        return filter_products($product_query->where('todays_deal', '1'))->orderBy('id', 'desc')->limit($limit)->get();
+        return app(\App\Services\StorefrontDataService::class)->todaysDealProducts((int) $limit, $user_id ? (int) $user_id : null);
     }
 }
 
@@ -2984,6 +2986,8 @@ if (!function_exists('get_first_product_image')) {
         $thumbnail_id = is_object($thumbnail) ? $thumbnail->id : $thumbnail;
         $photosArray = array_diff($photosArray, [$thumbnail_id]);
         
+        $placeholder = static_asset('assets/img/placeholder.jpg');
+
         foreach ($photosArray as $photoId) {
             if (!empty($photoId)) {
                 $idInt = (int)$photoId;
@@ -3000,7 +3004,7 @@ if (!function_exists('get_first_product_image')) {
             return uploaded_asset($thumbnail, $size);
         }
 
-        return static_asset('assets/img/placeholder.jpg');
+        return $placeholder;
     }
 }
 

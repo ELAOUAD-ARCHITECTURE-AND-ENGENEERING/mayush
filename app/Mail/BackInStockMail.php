@@ -11,6 +11,9 @@ use Illuminate\Queue\SerializesModels;
 
 class BackInStockMail extends Mailable
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use Queueable, SerializesModels;
 
     /**
@@ -18,6 +21,7 @@ class BackInStockMail extends Mailable
      */
     public function __construct()
     {
+        $this->onQueue('emails');
         //
     }
 

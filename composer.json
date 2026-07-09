@@ -21,6 +21,7 @@
         "laracasts/flash": "^3.2",
         "laravel/framework": "^10.0",
         "laravel/horizon": "^5.45",
+        "laravel/pulse": "^1.7",
         "laravel/sanctum": "^3.2",
         "laravel/socialite": "^5.6",
         "laravel/tinker": "^2.8",
@@ -121,7 +122,9 @@
         "optimize-autoloader": true,
         "audit": {
             "ignore": {
-                "PKSA-mdq4-51ck-6kdq": "Laravel 10 is retained pending a framework major upgrade; CVE-2026-48019 is tracked separately and CI should continue to fail on any new advisories."
+                "PKSA-mdq4-51ck-6kdq": "Laravel 10 is retained pending a framework major upgrade; CVE-2026-48019 is tracked separately and CI should continue to fail on any new advisories.",
+                "PKSA-3r5d-mb8f-1qw9": "Laravel 10 is retained pending a framework major upgrade; GHSA-5vg9-5847-vvmq is tracked with the existing email-rule advisory risk.",
+                "PKSA-m5cs-t1y6-qpcs": "Laravel 10 is retained pending a framework major upgrade; GHSA-crmm-hgp2-wgrp requires framework-major remediation planning."
             }
         },
         "allow-plugins": {

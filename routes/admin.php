@@ -93,6 +93,7 @@ Route::controller(UpdateController::class)->group(function () {
 });
 
 Route::get('/admin', [AdminController::class, 'admin_dashboard'])->name('admin.dashboard')->middleware(['auth', 'admin']);
+Route::get('/admin/system-health', [\App\Http\Controllers\Admin\SystemHealthController::class, 'index'])->name('admin.system.health')->middleware(['auth', 'admin']);
 
 // Technical Analytics Dashboard
 Route::get('/admin/technical-analytics', function() {

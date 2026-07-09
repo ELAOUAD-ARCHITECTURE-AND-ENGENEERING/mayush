@@ -68,6 +68,14 @@ class ExpressBuyController extends Controller
             return back();
         }
 
+        $lockKey = 'express_buy_submit_' . Auth::id();
+        $lock = \Illuminate\Support\Facades\Cache::lock($lockKey, 15);
+
+        if (!$lock->get()) {
+            flash(translate('Your previous order is still processing. Please wait a moment.'))->warning();
+            return back();
+        }
+
         $quantity = $request->input('quantity', 1);
         $product = Product::findOrFail($product_id);
         $address = Address::where('user_id', Auth::id())->where('set_default', 1)->first();

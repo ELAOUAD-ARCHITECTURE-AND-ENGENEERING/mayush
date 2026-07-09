@@ -13,13 +13,15 @@ use Mayush\Shipping\Onessta\Services\TrackingService;
 
 class PollTrackingJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    public $tries = 3;
+    public $timeout = 120;
 
-    public int $tries = 1;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct()
     {
-        $this->queue = config('onessta.queue.name', 'onessta');
+        $this->onQueue('shipping');
+        
     }
 
     public function handle(TrackingService $trackingService): void

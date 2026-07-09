@@ -25,16 +25,16 @@ class RouteHardeningTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        // Send 5 requests (below/at limit)
-        for ($i = 0; $i < 5; $i++) {
+        // Send 3 requests (below/at limit)
+        for ($i = 0; $i < 3; $i++) {
             $response = $this->post(route('express.buy', 1));
             // We expect 403 or 302 (validation/session mismatch) but NOT 429
             $this->assertNotEquals(429, $response->getStatusCode(), "Request $i should not be throttled yet");
         }
 
-        // 6th request should be throttled
+        // 4th request should be throttled
         $response = $this->post(route('express.buy', 1));
-        $this->assertEquals(429, $response->getStatusCode(), '6th request must be throttled');
+        $this->assertEquals(429, $response->getStatusCode(), '4th request must be throttled');
     }
 
     /** @test */
@@ -43,6 +43,12 @@ class RouteHardeningTest extends TestCase
         $user = User::factory()->create();
         $order = CombinedOrder::create([
             'user_id' => $user->id,
+            'grand_total' => 100
+        ]);
+        \App\Models\Order::create([
+            'combined_order_id' => $order->id,
+            'user_id' => $user->id,
+            'payment_status' => 'unpaid',
             'grand_total' => 100
         ]);
 
@@ -67,15 +73,26 @@ class RouteHardeningTest extends TestCase
         ]);
 
         // Scenario 2: With Opt-in Cache. Use a fresh transaction because
-        // approved callbacks are idempotency-guarded by transaction id.
-        $oid = 'CO-' . $order->id . '-67890';
-        $callbackData['oid'] = $oid;
+        // approved callbacks are idempotency-guarded by transaction id and order status.
+        $order2 = CombinedOrder::create([
+            'user_id' => $user->id,
+            'grand_total' => 100
+        ]);
+        \App\Models\Order::create([
+            'combined_order_id' => $order2->id,
+            'user_id' => $user->id,
+            'payment_status' => 'unpaid',
+            'grand_total' => 100
+        ]);
+
+        $oid2 = 'CO-' . $order2->id . '-67890';
+        $callbackData['oid'] = $oid2;
         $callbackData['TransId'] = 'VAULT_TOKEN_TEST_OPT_IN';
         unset($callbackData['HASH']);
         $callbackData['HASH'] = $this->generateTestHash($callbackData, 'TEST_SECRET');
-        Cache::put('cmi_save_card_' . $oid, true, 3600);
+        Cache::put('cmi_save_card_' . $oid2, true, 3600);
         
-        $this->post(route('cmi.callback'), $callbackData);
+        $response = $this->post(route('cmi.callback'), $callbackData);
         
         $this->assertDatabaseHas('payment_tokens', [
             'user_id' => $user->id,

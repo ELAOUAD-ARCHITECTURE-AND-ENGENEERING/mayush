@@ -1,7 +1,5 @@
 @php
-    $best_selling_products = Cache::remember('best_selling_products', 86400, function () {
-        return filter_products(\App\Models\Product::where('published', 1)->orderBy('num_of_sale', 'desc'))->limit(20)->get();
-    });   
+    $best_selling_products = get_best_selling_products(20);
 @endphp
 
 @if (get_setting('best_selling') == 1)

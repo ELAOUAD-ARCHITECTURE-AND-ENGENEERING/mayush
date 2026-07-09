@@ -9,6 +9,9 @@ use Illuminate\Queue\SerializesModels;
 
 class SecondEmailVerifyMailManager extends Mailable
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use Queueable, SerializesModels;
 
     /**
@@ -21,6 +24,7 @@ class SecondEmailVerifyMailManager extends Mailable
 
     public function __construct($array)
     {
+        $this->onQueue('emails');
         $this->array = $array;
     }
 

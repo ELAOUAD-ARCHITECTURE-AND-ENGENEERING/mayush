@@ -9,6 +9,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class MailManager  extends Mailable
 {
+    public $tries = 3;
+    public $timeout = 60;
+
     use Queueable, SerializesModels;
     /**
      * Create a new message instance.
@@ -19,6 +22,7 @@ class MailManager  extends Mailable
 
     public function __construct($array)
     {
+        $this->onQueue('emails');
         $this->array = $array;
     }
     /**

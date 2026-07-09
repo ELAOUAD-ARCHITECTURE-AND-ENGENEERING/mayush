@@ -54,6 +54,8 @@ class MarketplaceHeaderLayoutTest extends TestCase
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('mayush-market-header', false)
+            ->assertSee('assets/css/semantic_search.css', false)
+            ->assertSee('id="ai-mode-toggle"', false)
             ->assertSee('Search Mayush Design')
             ->assertSee('Deliver to')
             ->assertSee('Morocco')
