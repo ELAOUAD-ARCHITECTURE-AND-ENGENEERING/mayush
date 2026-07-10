@@ -29,6 +29,7 @@ class PromotedCategoryTest extends TestCase
         $this->customer = User::factory()->create(['user_type' => 'customer']);
         $this->category = Category::factory()->create(['name' => 'Test Promo Category']);
         Cache::forget('business_settings');
+        app(\App\Services\StorefrontCacheService::class)->bump();
     }
 
     /** @test */
