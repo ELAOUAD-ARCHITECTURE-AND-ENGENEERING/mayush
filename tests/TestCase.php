@@ -11,6 +11,7 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        \Illuminate\Support\Facades\Cache::flush();
     }
 
     protected function tearDown(): void
