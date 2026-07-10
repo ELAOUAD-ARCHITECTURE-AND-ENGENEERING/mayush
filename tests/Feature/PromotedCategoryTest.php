@@ -308,9 +308,10 @@ class PromotedCategoryTest extends TestCase
         Cache::forget('business_settings');
         Cache::forget('translations-fr');
 
-        $this->withSession(['locale' => 'fr'])
-            ->get('/')
-            ->assertOk()
+        $response = $this->withSession(['locale' => 'fr'])
+            ->get('/');
+            
+        $response->assertOk()
             ->assertSee('Mobilier de bureau')
             ->assertDontSee('Unique Promo Desk');
     }
