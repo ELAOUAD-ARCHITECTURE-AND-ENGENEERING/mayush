@@ -2090,11 +2090,6 @@ if (!function_exists('get_system_language')) {
             $locale = Session::get('locale', Config::get('app.locale'));
         }
 
-        static $languages = [];
-        if (array_key_exists($locale, $languages)) {
-            return $languages[$locale];
-        }
-
         $revision = app(\App\Services\StorefrontCacheService::class)->revision();
         $lang = Cache::remember("storefront:v{$revision}:system-language:{$locale}", 900, function () use ($locale) {
             return Language::query()->where('code', $locale)->first();
@@ -2104,7 +2099,7 @@ if (!function_exists('get_system_language')) {
             $lang = Language::query()->where('status', 1)->first() ?? (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
         }
 
-        return $languages[$locale] = $lang;
+        return $lang;
     }
 }
 

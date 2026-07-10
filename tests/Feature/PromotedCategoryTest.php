@@ -214,6 +214,9 @@ class PromotedCategoryTest extends TestCase
             'slug' => 'unique-promo-chair',
         ]);
 
+        session(['locale' => 'fr']);
+        $this->assertSame('en', get_system_language()->code);
+
         Language::create([
             'name' => 'French',
             'code' => 'fr',
