@@ -210,8 +210,8 @@ class PromotedCategoryTest extends TestCase
     public function promoted_section_uses_selected_language_category_translation_instead_of_english_base_name()
     {
         $this->category->update([
-            'name' => 'Office Furniture',
-            'slug' => 'office-furniture',
+            'name' => 'Unique Promo Chair',
+            'slug' => 'unique-promo-chair',
         ]);
 
         Language::create([
@@ -254,15 +254,15 @@ class PromotedCategoryTest extends TestCase
             ->get('/')
             ->assertOk()
             ->assertSee('Mobilier de Bureau')
-            ->assertDontSee('Office Furniture');
+            ->assertDontSee('Unique Promo Chair');
     }
 
     /** @test */
     public function promoted_section_uses_ui_translation_when_category_translation_repeats_base_english_name()
     {
         $this->category->update([
-            'name' => 'Office Furniture',
-            'slug' => 'office-furniture',
+            'name' => 'Unique Promo Desk',
+            'slug' => 'unique-promo-desk',
         ]);
 
         Language::create([
@@ -275,12 +275,12 @@ class PromotedCategoryTest extends TestCase
         CategoryTranslation::create([
             'category_id' => $this->category->id,
             'lang' => 'fr',
-            'name' => 'Office Furniture',
+            'name' => 'Unique Promo Desk',
         ]);
 
         Translation::create([
             'lang' => 'fr',
-            'lang_key' => 'office_furniture',
+            'lang_key' => 'unique_promo_desk',
             'lang_value' => 'Mobilier de bureau',
         ]);
 
@@ -312,7 +312,7 @@ class PromotedCategoryTest extends TestCase
             ->get('/')
             ->assertOk()
             ->assertSee('Mobilier de bureau')
-            ->assertDontSee('Office Furniture');
+            ->assertDontSee('Unique Promo Desk');
     }
 
     /** @test */
