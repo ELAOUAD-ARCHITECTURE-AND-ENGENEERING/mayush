@@ -256,26 +256,22 @@
             </div>
         @endif
         <div class="py-20px d-flex flex-wrap flex-xl-nowrap align-items-center">
-            <div class="d-flex align-items-center bg-light p-20px rounded-2 w-100 mb-2 mb-xl-0 mr-0 mr-xl-2">
-                <div class="store-logo-container w-48px h-48px bg-white border bordre-2 border-gray rounded-1 overflow-hidden mr-3 d-flex flex-shrink-0 align-items-center justify-content-center">
-                    <img src="{{ static_asset('/assets/img/seller_type.svg') }}" alt="seller">
-                </div>
-                <div>
-                    @if ($detailedProduct->added_by == 'seller' && get_setting('vendor_system_activation') == 1)
+            @if ($detailedProduct->added_by == 'seller' && get_setting('vendor_system_activation') == 1)
+                <div class="d-flex align-items-center bg-light p-20px rounded-2 w-100 mb-2 mb-xl-0 mr-0 mr-xl-2">
+                    <div class="store-logo-container w-48px h-48px bg-white border bordre-2 border-gray rounded-1 overflow-hidden mr-3 d-flex flex-shrink-0 align-items-center justify-content-center">
+                        <img src="{{ static_asset('/assets/img/seller_type.svg') }}" alt="seller">
+                    </div>
+                    <div>
                         <p class="m-0 fs-14">
                             <span class="fw-400 text-gray">{{ translate('Sold by') }}</span>
                             <a href="{{ route('shop.visit', $detailedProduct->user->shop->slug) }}" class="fw-bold text-blue ml-2">{{ $detailedProduct->user->shop->name }}</a>
                         </p>
-                    @else
-                        <p class="m-0 fs-14">
-                            <span class="fw-bold text-blue">{{ translate('Inhouse product') }}</span>
-                        </p>
-                    @endif
-                    {{-- @if (get_setting('conversation_system') == 1)
-                        <a href="javascript:void();" onclick="show_chat_modal()" class="fs-14 fw-400 text-blue animate-underline-blue has-transition">{{ translate('Message Seller') }}</a>
-                    @endif --}}
+                        {{-- @if (get_setting('conversation_system') == 1)
+                            <a href="javascript:void();" onclick="show_chat_modal()" class="fs-14 fw-400 text-blue animate-underline-blue has-transition">{{ translate('Message Seller') }}</a>
+                        @endif --}}
+                    </div>
                 </div>
-            </div>
+            @endif
             @if ($detailedProduct->brand != null)
                 <div class="d-flex align-items-center bg-light p-20px rounded-2 w-100">
                     <div class="store-logo-container w-48px h-48px bg-white border bordre-2 border-gray rounded-1 overflow-hidden mr-3 d-flex flex-shrink-0 align-items-center justify-content-center">
@@ -752,26 +748,22 @@
                 </div>
             @endif
             <div class="py-20px d-flex flex-wrap flex-xl-nowrap align-items-center">
-                <div class="d-flex align-items-center bg-light p-20px rounded-2 w-100 mb-2 mb-xl-0 mr-0 mr-xl-2">
-                    <div class="store-logo-container w-48px h-48px bg-white border bordre-2 border-gray rounded-1 overflow-hidden mr-3 d-flex flex-shrink-0 align-items-center justify-content-center">
-                        <img src="{{ static_asset('/assets/img/seller_type.svg') }}" alt="seller">
-                    </div>
-                    <div>
-                        @if ($detailedProduct->added_by == 'seller' && get_setting('vendor_system_activation') == 1)
+                @if ($detailedProduct->added_by == 'seller' && get_setting('vendor_system_activation') == 1)
+                    <div class="d-flex align-items-center bg-light p-20px rounded-2 w-100 mb-2 mb-xl-0 mr-0 mr-xl-2">
+                        <div class="store-logo-container w-48px h-48px bg-white border bordre-2 border-gray rounded-1 overflow-hidden mr-3 d-flex flex-shrink-0 align-items-center justify-content-center">
+                            <img src="{{ static_asset('/assets/img/seller_type.svg') }}" alt="seller">
+                        </div>
+                        <div>
                             <p class="m-0 fs-14">
                                 <span class="fw-400 text-gray">{{ translate('Sold by') }}</span>
                                 <a href="{{ route('shop.visit', $detailedProduct->user->shop->slug) }}" class="fw-bold text-blue pl-15px">{{ $detailedProduct->user->shop->name }}</a>
                             </p>
-                        @else
-                            <p class="m-0 fs-14">
-                                <span class="fw-bold text-dark">{{ translate('Inhouse product') }}</span>
-                            </p>
-                        @endif
-                        {{-- @if (get_setting('conversation_system') == 1)
-                            <a href="javascript:void();" onclick="show_chat_modal()" class="fs-14 fw-400 text-blue animate-underline-blue has-transition">{{ translate('Message Seller') }}</a>
-                        @endif --}}
+                            {{-- @if (get_setting('conversation_system') == 1)
+                                <a href="javascript:void();" onclick="show_chat_modal()" class="fs-14 fw-400 text-blue animate-underline-blue has-transition">{{ translate('Message Seller') }}</a>
+                            @endif --}}
+                        </div>
                     </div>
-                </div>
+                @endif
                 @if ($detailedProduct->brand != null)
                     <div class="d-flex align-items-center bg-light p-20px rounded-2 w-100">
                         <div class="store-logo-container w-48px h-48px bg-white border bordre-2 border-gray rounded-1 overflow-hidden mr-3 d-flex flex-shrink-0 align-items-center justify-content-center">

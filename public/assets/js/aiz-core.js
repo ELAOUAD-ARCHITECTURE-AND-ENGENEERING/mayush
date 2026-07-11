@@ -2359,7 +2359,7 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
                 const now = new Date();
                 const item = {
                     value: value,
-                    expiry: now.getTime() + 3600000,
+                    expiry: now.getTime() + 604800000,
                 };
 
                 $this.on("click", function () {
@@ -3332,7 +3332,7 @@ function removeTopCard(id, auto = false) {
     if (key) {
         const item = {
             value: "removed",
-            expiry: Date.now()+(3600000),
+            expiry: Date.now()+(604800000),
         };
         localStorage.setItem(key, JSON.stringify(item));
     }
@@ -3375,7 +3375,7 @@ function smoothlyRemoveElement($element) {
                 const now = new Date();
                 const item = {
                     value: 'removed',
-                    expiry: now.getTime() + 3600000
+                    expiry: now.getTime() + 604800000
                 };
                 localStorage.setItem(sessionKey, JSON.stringify(item));
             }

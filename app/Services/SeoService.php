@@ -303,7 +303,7 @@ class SeoService
         $intent = self::categoryIntentProfile($category);
 
         return self::cleanText(
-            "Note de l'equipe conseil Mayush : pour {$categoryName}, privilegiez {$intent['expert_focus']} et verifiez toujours les dimensions, les finitions et les options de livraison avant de commander.",
+            "Note de l'équipe conseil Mayush : pour {$categoryName}, privilégiez {$intent['expert_focus']} et vérifiez toujours les dimensions, les finitions et les options de livraison avant de commander.",
             '',
             260
         );
@@ -314,7 +314,7 @@ class SeoService
         $category = optional($product->main_category)->getTranslation('name') ?: 'mobilier et decoration';
 
         return self::cleanText(
-            "Note de l'equipe conseil Mayush : pour un achat {$category} au Maroc, comparez les dimensions, la disponibilite, les delais de livraison et les informations du vendeur afin de choisir une piece adaptee a votre espace.",
+            "Note de l'équipe conseil Mayush : pour un achat {$category} au Maroc, comparez les dimensions, la disponibilité, les délais de livraison et les informations du vendeur afin de choisir une pièce adaptée à votre espace.",
             '',
             260
         );
