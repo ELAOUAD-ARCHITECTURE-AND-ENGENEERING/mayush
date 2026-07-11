@@ -92,7 +92,7 @@
                 <div class="col-lg-6">
                     <div class="p-3 p-md-4 p-xl-5">
                         <div class="bg-white p-4 p-xl-2rem border rounded-3">
-                            <form class="form-default" id="contact-us" role="form" action="{{ route('contact') }}" method="POST">
+                            <form class="form-default" id="contact-us" role="form" action="{{ route('contact.store') }}" method="POST">
                                 @csrf
 
                                 <!-- Name -->
