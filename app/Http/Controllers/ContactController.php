@@ -65,6 +65,13 @@ class ContactController extends Controller
 
     public function contact(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:50',
+            'content' => 'required|string|max:10000',
+        ]);
+
         // validate recaptcha
         $request->validate([
             'g-recaptcha-response' => [
