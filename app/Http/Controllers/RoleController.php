@@ -54,7 +54,7 @@ class RoleController extends Controller
         $role = Role::create(['name' => $request->name]);
         $role->givePermissionTo($request->permissions);
 
-        $role_translation = RoleTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'role_id' => $role->id]);
+        $role_translation = RoleTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE', 'fr'), 'role_id' => $role->id]);
         $role_translation->name = $request->name;
         $role_translation->save();
 
