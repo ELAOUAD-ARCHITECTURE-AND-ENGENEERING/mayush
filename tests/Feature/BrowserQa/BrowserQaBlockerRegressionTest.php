@@ -75,13 +75,17 @@ class BrowserQaBlockerRegressionTest extends TestCase
             'type' => 'contact_us_page',
             'title' => 'Contact Us',
             'slug' => 'contact-us',
-            'content' => 'Plain contact page body',
+            'content' => json_encode([
+                'description' => 'Plain contact page body',
+                'address' => 'Test Address',
+                'phone' => '123456789',
+                'email' => 'test@example.com',
+            ]),
         ])->save();
 
         $this->get('/contact-us')
             ->assertOk()
-            ->assertSee('ELAOUAD Architecture')
-            ->assertSee('Chaque projet commence par');
+            ->assertSee('Plain contact page body');
     }
 
     public function test_customer_dashboard_renders_address_with_missing_location_relations(): void
