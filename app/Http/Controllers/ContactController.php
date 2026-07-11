@@ -100,8 +100,7 @@ class ContactController extends Controller
                 'content' => $request->content,
             ]);
         } catch (\Exception $e) {
-			dd($e);
-            flash(translate('Something Went wrong '.$e))->error();
+            flash(translate('Something Went wrong'))->error();
             return back();
         }
         flash(translate('Query has been sent successfully'))->success();
