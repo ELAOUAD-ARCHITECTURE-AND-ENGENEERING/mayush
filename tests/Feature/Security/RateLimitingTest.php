@@ -144,7 +144,7 @@ class RateLimitingTest extends TestCase
         $response = $this->post($blogUrl);
         $response->assertStatus(429);
 
-        $contactUrl = route('contact.store');
+        $contactUrl = route('contact');
         for ($i = 0; $i < 3; $i++) {
             $response = $this->post($contactUrl);
             $this->assertNotEquals(429, $response->status());

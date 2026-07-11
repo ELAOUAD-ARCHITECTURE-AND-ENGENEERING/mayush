@@ -115,7 +115,7 @@ Route::controller(VerificationController::class)->group(function () {
     Route::get('/verification-confirmation/{code}', 'verification_confirmation')->name('email.verification.confirmation');
 });
 
-Route::post('/contact', [ContactController::class, 'contact'])->middleware('throttle:contact-form')->name('contact.store');
+Route::post('/contact', [ContactController::class, 'contact'])->middleware('throttle:contact-form')->name('contact');
 
 
 

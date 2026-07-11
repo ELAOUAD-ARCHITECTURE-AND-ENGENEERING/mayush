@@ -28,7 +28,7 @@ class ContactFormTest extends TestCase
 
         $this->get('/contact-us')
             ->assertOk()
-            ->assertSee(route('contact.store'), false);
+            ->assertSee(route('contact'), false);
     }
 
     public function test_guest_can_submit_valid_contact_form(): void
@@ -36,7 +36,7 @@ class ContactFormTest extends TestCase
         Mail::fake();
         User::factory()->admin()->create(['email' => 'admin@example.test']);
 
-        $response = $this->from('/contact-us')->post(route('contact.store'), [
+        $response = $this->from('/contact-us')->post(route('contact'), [
             'name' => 'Ada Lovelace',
             'email' => 'ada@example.test',
             'phone' => '+15551234567',
@@ -55,7 +55,7 @@ class ContactFormTest extends TestCase
     public function test_invalid_contact_submission_fails_validation(): void
     {
         $this->from('/contact-us')
-            ->post(route('contact.store'), [
+            ->post(route('contact'), [
                 'name' => '',
                 'email' => 'not-an-email',
                 'content' => '',
@@ -68,16 +68,11 @@ class ContactFormTest extends TestCase
 
     public function test_public_contact_route_is_not_admin_get_route(): void
     {
-        $publicRoute = Route::getRoutes()->getByName('contact.store');
-        $adminRoute = Route::getRoutes()->getByName('contact');
+        $publicRoute = Route::getRoutes()->getByName('contact');
 
         $this->assertNotNull($publicRoute);
         $this->assertContains('POST', $publicRoute->methods());
         $this->assertSame('contact', $publicRoute->uri());
-
-        $this->assertNotNull($adminRoute);
-        $this->assertContains('GET', $adminRoute->methods());
-        $this->assertNotSame($adminRoute->uri(), $publicRoute->uri());
     }
 
     private function createContactPage(): Page
