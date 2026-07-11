@@ -43,6 +43,7 @@ return [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
             'level' => 'debug',
+            'permission' => 0666,
         ],
 
         'daily' => [
@@ -50,6 +51,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => 'debug',
             'days' => 7,
+            'permission' => 0666,
         ],
 
         'slack' => [
@@ -92,42 +94,49 @@ return [
             'path' => storage_path('logs/seller_login.log'),
             'level' => 'info',
             'days' => 180,
+            'permission' => 0666,
         ],
 
         'payments' => [
             'driver' => 'daily',
             'path' => storage_path('logs/payments.log'),
             'days' => 14,
+            'permission' => 0666,
         ],
 
         'shipping' => [
             'driver' => 'daily',
             'path' => storage_path('logs/shipping.log'),
             'days' => 14,
+            'permission' => 0666,
         ],
 
         'queues' => [
             'driver' => 'daily',
             'path' => storage_path('logs/queues.log'),
             'days' => 7,
+            'permission' => 0666,
         ],
 
         'search' => [
             'driver' => 'daily',
             'path' => storage_path('logs/search.log'),
             'days' => 7,
+            'permission' => 0666,
         ],
 
         'security' => [
             'driver' => 'daily',
             'path' => storage_path('logs/security.log'),
             'days' => 14,
+            'permission' => 0666,
         ],
 
         'performance' => [
             'driver' => 'daily',
             'path' => storage_path('logs/performance.log'),
             'days' => 7,
+            'permission' => 0666,
         ],
     ],
 

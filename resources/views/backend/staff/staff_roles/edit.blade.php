@@ -50,7 +50,16 @@
                     @endphp
                     @if($show_permission_group)
                         <ul class="list-group mb-4">
-                            <li class="list-group-item bg-light" aria-current="true">{{ translate(Str::headline($permission_group[0]['section'])) }}</li>
+                            <li class="list-group-item bg-light d-flex justify-content-between align-items-center" aria-current="true">
+                                <span>{{ translate(Str::headline($permission_group[0]['section'])) }}</span>
+                                <div class="d-flex align-items-center">
+                                    <span class="mr-2 fs-12 fw-600">{{ translate('Select All') }}</span>
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input type="checkbox" class="select-all-section" onchange="toggleSectionPermissions(this)">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </li>
                             <li class="list-group-item">
                                 <div class="row">
                                     @foreach ($permission_group as $key => $permission)
@@ -82,4 +91,13 @@
     </div>
 </div>
 
+@endsection
+
+@section('script')
+<script type="text/javascript">
+    function toggleSectionPermissions(el) {
+        var isChecked = $(el).is(':checked');
+        $(el).closest('.list-group').find('input[name="permissions[]"]').prop('checked', isChecked);
+    }
+</script>
 @endsection
