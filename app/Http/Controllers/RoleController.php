@@ -81,7 +81,7 @@ class RoleController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        $lang = $request->lang;
+        $lang = $request->lang ?? env('DEFAULT_LANGUAGE', 'fr');
         $role = Role::findOrFail($id);
         return view('backend.staff.staff_roles.edit', compact('role', 'lang'));
     }
@@ -96,14 +96,15 @@ class RoleController extends Controller
     public function update(Request $request, $id)
     {
         $role = Role::findOrFail($id);
-        if ($request->lang == env("DEFAULT_LANGUAGE")) {
+        $lang = $request->lang ?? env('DEFAULT_LANGUAGE', 'fr');
+        if ($lang == env("DEFAULT_LANGUAGE", "fr")) {
             $role->name = $request->name;
         }
         $role->syncPermissions($request->permissions);
         $role->save();
 
         // Role Translation
-        $role_translation = RoleTranslation::firstOrNew(['lang' => $request->lang, 'role_id' => $role->id]);
+        $role_translation = RoleTranslation::firstOrNew(['lang' => $lang, 'role_id' => $role->id]);
         $role_translation->name = $request->name;
         $role_translation->save();
 
