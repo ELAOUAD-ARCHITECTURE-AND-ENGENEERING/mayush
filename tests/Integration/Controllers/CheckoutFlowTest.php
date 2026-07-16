@@ -11,6 +11,9 @@ use App\Models\Country;
 use App\Models\City;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Queue;
+use Mayush\Shipping\Onessta\Jobs\CreateShipmentJob;
+use Mayush\Shipping\Onessta\Models\OnesstaShipment;
 
 class CheckoutFlowTest extends TestCase
 {
@@ -107,6 +110,52 @@ class CheckoutFlowTest extends TestCase
         $order = \App\Models\Order::first();
         // Calculation: (90 price * 2 quantity) + 20 shipping = 200 (Tax is 0 in test env due to missing settings)
         $this->assertEquals(200, $order->grand_total);
+    }
+
+    /** @test */
+    public function checkout_dispatches_onessta_shipment_after_order_is_finalized()
+    {
+        $this->actingAs($this->user);
+        config([
+            'onessta.enabled' => true,
+            'onessta.queue.create_shipment_connection' => 'database',
+            'onessta.queue.name' => 'onessta',
+        ]);
+        Queue::fake();
+
+        Cart::create([
+            'owner_id' => $this->user->id,
+            'user_id' => $this->user->id,
+            'product_id' => $this->product->id,
+            'price' => 90,
+            'tax' => 4.5,
+            'shipping_cost' => 20,
+            'discount' => 0,
+            'shipping_type' => 'home_delivery',
+            'quantity' => 1,
+            'address_id' => $this->address->id,
+            'billing_address' => $this->address->id,
+            'variation' => '',
+            'status' => 1,
+        ]);
+
+        $this->post(route('payment.checkout'), [
+            'address_id' => $this->address->id,
+            'payment_option' => 'cash_on_delivery',
+        ])->assertStatus(302);
+
+        $order = \App\Models\Order::latest('id')->first();
+
+        Queue::assertPushed(CreateShipmentJob::class, function (CreateShipmentJob $job) use ($order) {
+            return $job->orderId === $order->id
+                && $job->shipmentData['code'] === 'ORD-' . $order->code;
+        });
+
+        $this->assertInstanceOf(OnesstaShipment::class, OnesstaShipment::where('order_id', $order->id)->first());
+        $this->assertDatabaseHas('onessta_shipments', [
+            'order_id' => $order->id,
+            'status' => 'QUEUED',
+        ]);
     }
 
     /** @test */

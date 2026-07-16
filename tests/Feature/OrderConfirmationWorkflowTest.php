@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Addon;
 use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -51,6 +52,39 @@ class OrderConfirmationWorkflowTest extends TestCase
                 && $job->shipmentData['code'] === 'ORD-' . $order->code;
         });
 
+        $this->assertDatabaseHas('onessta_shipments', [
+            'order_id' => $order->id,
+            'code' => 'ORD-' . $order->code,
+            'status' => 'QUEUED',
+        ]);
+    }
+
+    public function test_finalized_checkout_order_dispatches_shipment_after_initial_order_save(): void
+    {
+        Queue::fake();
+
+        // Mirror checkout: the order is created before shipping fields and
+        // order details are written, then finalized in a later save.
+        $order = Order::factory()->create([
+            'shipping_type' => null,
+            'grand_total' => 0,
+        ]);
+
+        Queue::assertNotPushed(CreateShipmentJob::class);
+
+        OrderDetail::factory()->create([
+            'order_id' => $order->id,
+        ]);
+
+        $order->forceFill([
+            'shipping_type' => 'home_delivery',
+            'grand_total' => 125,
+        ])->save();
+
+        app(\Mayush\Shipping\Onessta\Services\OrderShipmentDispatchService::class)
+            ->ensureForOrder($order->fresh(['orderDetails', 'user']));
+
+        Queue::assertPushed(CreateShipmentJob::class, 1);
         $this->assertDatabaseHas('onessta_shipments', [
             'order_id' => $order->id,
             'code' => 'ORD-' . $order->code,

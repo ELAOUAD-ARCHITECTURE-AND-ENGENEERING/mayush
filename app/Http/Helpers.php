@@ -1940,6 +1940,12 @@ if (!function_exists('calculateCommissionAffilationClubPoint')) {
 if (!function_exists('addon_is_activated')) {
     function addon_is_activated($identifier, $default = null)
     {
+        // Composer-installed integrations do not have legacy Addon records.
+        // ONESSTA remains controlled by its configuration flag instead.
+        if ($identifier === 'onessta') {
+            return (bool) config('onessta.enabled', false);
+        }
+
         // Bypass for specific addons
         if (in_array($identifier, ['affiliate_system', 'club_point'])) {
             return true;
