@@ -613,7 +613,16 @@ Route::controller(BlogController::class)->group(function () {
 });
 
 Route::middleware(['auth'])->prefix('author')->name('author.')->group(function () {
-    Route::resource('blogs', AuthorBlogController::class)->parameters(['blogs' => 'id'])->except('show');
+    Route::resource('blogs', \App\Http\Controllers\AuthorBlogController::class)->parameters(['blogs' => 'id'])->except('show');
+});
+
+// Live Chat API Routes
+Route::prefix('livechat')->controller(\App\Http\Controllers\Support\LiveChatController::class)->group(function () {
+    Route::post('/initiate', 'initiate')->name('livechat.initiate');
+    Route::post('/send', 'sendMessage')->name('livechat.send');
+    Route::get('/fetch', 'fetchMessages')->name('livechat.fetch');
+    Route::post('/ping', 'ping')->name('livechat.ping');
+    Route::post('/restart', 'restart')->name('livechat.restart');
 });
 
 Route::controller(PageController::class)->group(function () {

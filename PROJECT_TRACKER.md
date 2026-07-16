@@ -59,6 +59,8 @@
 | **2026-06-01** | **PERF-01** | Image Optimization Pipeline | Performance | WebP responsive pipeline (5 sizes), audit command, Horizon queue, fingerprint tracking. | ✅ Completed |
 | **2026-06-01** | **UI-05** | Metro Banner Style Standardization | UI/UX | Standardize banner copy styles, remove JS bloat (−126 lines), margin fix. | ✅ Completed |
 | **2026-06-01** | **FIX-02** | Migration FK Type Fix | Hotfix | Fix `image_optimization_states` FK type mismatch, `product_collections` column alignment. | ✅ Completed |
+| **2026-07-15** | **MA-110** | Stateful Live Chat Bot | Support | Multi-turn BotFlowEngine, dynamic category pills, 10 DB tables, data collector, CC redaction, and handoff records. | ✅ Completed |
+
 
 ---
 
@@ -188,6 +190,17 @@
     - [x] Improve city resolution robustness.
     - [x] Filter empty SKUs to prevent API rejection.
 
+### 10. Live Chat & AI Support (Rank 10)
+- **MA-110: Stateful Live Chat Support Bot**
+    - [x] Create database migrations for 10 chatbot-related tables (`support_categories`, `support_cases`, etc.).
+    - [x] Build MVP data seeder `SupportCasesSeeder.php` with 13 categories and ~20 priority flows.
+    - [x] Implement core state machine `BotFlowEngine.php` with transition states (`BOT_GREETING`, `INTENT_SELECTION`, `COLLECTING_DATA`, `WAITING_CONFIRMATION`, `RESOLVED_BY_BOT`, `WAITING_FOR_AGENT`).
+    - [x] Build `DataCollector.php` to gather required fields dynamically for cases (e.g. `order_reference`).
+    - [x] Build `ResolutionExecutor.php` to execute backend diagnostics and present approved answers.
+    - [x] Implement security redaction for Credit Card and CVV patterns in `SecurityGuard.php`.
+    - [x] Generate structured agent handoff records stored in `chatbot_escalations` table.
+    - [x] Update frontend chat widget greeting to render dynamic categories as "Awesome Pills".
+
 ---
 
 ## 📖 Team Guidelines
@@ -197,4 +210,5 @@
 
 ---
 
-*Last Updated by Antigravity AI — 2026-06-01T17:20:00Z | Migration FK fix, Image Pipeline, Product Collections, full tracker update.*
+*Last Updated by Antigravity AI — 2026-07-15T16:30:00Z | Stateful Live Chat Bot (MA-110), data collector, CC redaction, and handoff records.*
+
