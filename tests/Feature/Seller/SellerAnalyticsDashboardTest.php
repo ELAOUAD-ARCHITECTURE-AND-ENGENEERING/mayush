@@ -84,7 +84,7 @@ class SellerAnalyticsDashboardTest extends TestCase
     private function sellerWithShop(): User
     {
         $seller = User::factory()->seller()->create();
-        Shop::factory()->create(['user_id' => $seller->id]);
+        Shop::factory()->create(['user_id' => $seller->id, 'approval_status' => 'approved']);
 
         return $seller;
     }

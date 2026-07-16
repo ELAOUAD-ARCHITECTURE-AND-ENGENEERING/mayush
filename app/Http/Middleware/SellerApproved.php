@@ -22,7 +22,7 @@ class SellerApproved
         $shop = optional($user->shop);
 
         // Allow access if the shop is fully approved
-        if ($shop && $shop->approval_status === 'approved') {
+        if ($shop && $shop->canManageProducts()) {
             return $next($request);
         }
 

@@ -30,7 +30,7 @@
                         <th>{{ translate('Phone') }}</th>
                         <th>{{ translate('Email') }}</th>
                         <th>{{ translate('Registration Date') }}</th>
-                        <th data-breakpoints="lg">{{translate('Access Approval')}}</th>
+                        <th data-breakpoints="lg">{{translate('Seller Access')}}</th>
                         <th>{{ translate('Status') }}</th>
                         <th>{{ translate('Action') }}</th>
                     </tr>
@@ -49,15 +49,7 @@
                             <td>{{ $shop->user->email ?? '-' }}</td>
                             <td>{{ $shop->created_at ? $shop->created_at->format('Y-m-d H:i:s') : '-' }}</td>
                             <td>
-                                <label class="aiz-switch aiz-switch-success mb-0">
-                                    <input
-                                        @can('approve_seller') onchange="update_approved(this)" @endcan
-                                        value="{{ $shop->id }}" type="checkbox"
-                                        <?php if($shop->registration_approval == 1) echo "checked";?>
-                                        @cannot('approve_seller') disabled @endcan
-                                    >
-                                    <span class="slider round"></span>
-                                </label>
+                                <span class="badge badge-inline badge-warning">{{ translate('Restricted until final approval') }}</span>
                             </td>
                             <td>
                                 @if($shop->approval_status === 'under_review')
@@ -113,40 +105,19 @@
 
 @section('script')
 <script>
-    function update_approved(el){
-        if ('{{ env('DEMO_MODE') }}' === 'On') {
-            AIZ.plugins.notify('info', '{{ translate('Data can not change in demo mode.') }}');
-            return;
-        }
-        let registration_approval = el.checked ? 1 : 0;
-        let shop_id = el.value;
-        let $row = $(el).closest('tr');
-
-        $.post('{{ (Route::has('sellers.registration.approved') ? route('sellers.registration.approved') : '#') }}', {
-            _token: '{{ csrf_token() }}',
-            id: shop_id,
-            registration_approval: registration_approval
-        }, function (data) {
-            if (data == 1) {
-                AIZ.plugins.notify('success', '{{ translate('Pending sellers Approved successfully') }}');
-                if (registration_approval === 1) {
-                    $row.fadeOut(300, function() {
-                        $(this).remove();
-                    });
-                }
-            } else {
-                AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
-            }
-        });
-    }
-
-
     function showReviewModal(shop_id) {
         $.get('{{ url('admin/sellers') }}/' + shop_id + '/documents', function(data) {
             $('#review-modal-content').html(data.html);
             $('#reviewModal').modal('show');
         });
     }
+
+    $(function () {
+        const reviewShop = @json(request('review_shop'));
+        if (reviewShop) {
+            showReviewModal(reviewShop);
+        }
+    });
 
 </script>
 @endsection

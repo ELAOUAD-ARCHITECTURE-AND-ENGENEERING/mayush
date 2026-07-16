@@ -65,7 +65,10 @@ class CheckoutController
             $tax = 0;
             $shipping = 0;
             foreach ($cart_items as $key => $cartItem) {
-                $product = Product::find($cartItem['product_id']);
+                $product = Product::publiclyVisible()->find($cartItem['product_id']);
+                if (!$product) {
+                    return response()->json(['result' => false, 'message' => translate('One or more products in your cart are no longer available.')], 422);
+                }
                 $subtotal += cart_product_price($cartItem, $product, false, false) * $cartItem['quantity'];
                 $tax += cart_product_tax($cartItem, $product,false) * $cartItem['quantity'];
                 $shipping += $cartItem['shipping'] * $cartItem['quantity'];
@@ -85,7 +88,10 @@ class CheckoutController
         } elseif ($coupon->type == 'product_base') {
 
             foreach ($cart_items as $key => $cartItem) {
-                $product = Product::find($cartItem['product_id']);
+                $product = Product::publiclyVisible()->find($cartItem['product_id']);
+                if (!$product) {
+                    return response()->json(['result' => false, 'message' => translate('One or more products in your cart are no longer available.')], 422);
+                }
                 foreach ($coupon_details as $key => $coupon_detail) {
                     if ($coupon_detail->product_id == $cartItem['product_id']) {
                         if ($coupon->discount_type == 'percent') {

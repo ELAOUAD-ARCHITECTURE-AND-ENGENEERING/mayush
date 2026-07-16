@@ -99,6 +99,7 @@ class ShopController extends Controller
                 $shop->registration_approval= 0;
             }
             $shop->registration_approval= 0;
+            $shop->approval_status = 'pending';
             $shop->slug = preg_replace('/\s+/', '-', str_replace("/", " ", $request->shop_name));
             $shop->save();
 
@@ -131,15 +132,13 @@ class ShopController extends Controller
                 } catch (\Exception $e) {}
             }
 
-            // Queue onboarding documents request email
-            try {
-                EmailUtility::seller_onboarding_request_email($shop);
-            } catch (\Exception $e) {}
-
             if(get_setting('portfolio_landing')){
                 auth()->login($user, true);
+                app(\App\Services\SellerOnboardingNotifier::class)->registrationCompleted($shop);
                 return redirect()->route('dashboard');
             }
+
+            app(\App\Services\SellerOnboardingNotifier::class)->registrationCompleted($shop);
 
             flash(translate('Your Shop has been created successfully! Your seller account is under review. We will notify you once approved. '))->success();
             return redirect()->route('home');

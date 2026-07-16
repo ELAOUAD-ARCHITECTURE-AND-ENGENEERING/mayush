@@ -50,6 +50,7 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user
         Route::get('/onboarding', 'index')->name('onboarding.index');
         Route::post('/onboarding/upload', 'upload')->name('onboarding.upload');
         Route::get('/onboarding/contract', 'downloadContract')->name('onboarding.contract');
+        Route::get('/onboarding/documents/{document}/download', 'downloadDocument')->name('onboarding.document.download');
         Route::post('/onboarding/resubmit', 'resubmit')->name('onboarding.resubmit');
     });
 

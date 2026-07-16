@@ -18,7 +18,7 @@ class AuctionProductController extends Controller
 
     public function index()
     {
-        $products = Product::latest()->where('published', 1)->where('auction_product', 1);
+        $products = Product::publiclyVisible()->latest()->where('auction_product', 1);
         if (get_setting('seller_auction_product') == 0) {
             $products = $products->where('added_by', 'admin');
         }
@@ -29,14 +29,14 @@ class AuctionProductController extends Controller
 
     public function details_auction_product(Request $request, $slug)
     {
-        $detailedProduct  = Product::where('slug', $slug)->get();
+        $detailedProduct  = Product::publiclyVisible()->where('slug', $slug)->get();
         return new AuctionProductDetailCollection($detailedProduct);
     }
 
     public function bided_products_list()
     {
         $own_bids = AuctionProductBid::where('user_id', auth()->id())->orderBy('id', 'desc')->pluck('product_id');
-        $bided_products = Product::whereIn('id', $own_bids)->paginate(10);
+        $bided_products = Product::publiclyVisible()->whereIn('id', $own_bids)->paginate(10);
         return  AuctionBidProducts::collection($bided_products);
     }
 

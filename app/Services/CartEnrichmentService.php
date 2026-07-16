@@ -43,7 +43,7 @@ class CartEnrichmentService
 
         if (empty($tags)) {
             // Fallback: suggest from accent categories without tag matching if no tags found
-            return Product::isApprovedPublished()
+            return filter_products(Product::query())
                 ->whereIn('category_id', [1, 33]) // Lighting, Textiles
                 ->whereNotIn('id', $cartProductIds)
                 ->inRandomOrder()
@@ -53,7 +53,7 @@ class CartEnrichmentService
 
         // Matching logic: Find products in accent categories
         // We broadly search for accessories, lighting, decor based on name keywords if IDs are inconsistent
-        $suggestionQuery = Product::isApprovedPublished()
+        $suggestionQuery = filter_products(Product::query())
             ->whereNotIn('id', $cartProductIds);
 
         if (!empty($tags)) {
@@ -69,7 +69,7 @@ class CartEnrichmentService
 
         if ($results->isEmpty()) {
             // Ultimate fallback: Suggest best sellers or random approved products
-            return Product::isApprovedPublished()
+            return filter_products(Product::query())
                 ->whereNotIn('id', $cartProductIds)
                 ->orderBy('num_of_sale', 'desc')
                 ->take($limit)

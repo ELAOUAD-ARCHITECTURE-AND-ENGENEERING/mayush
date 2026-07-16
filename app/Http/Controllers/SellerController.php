@@ -7,6 +7,7 @@ use App\Models\Cart;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Shop;
+use App\Models\SellerDocument;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Payment;
@@ -22,6 +23,8 @@ use File;
 use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SellerController extends Controller
 {
@@ -38,6 +41,20 @@ class SellerController extends Controller
         $this->middleware(['permission:ban_seller'])->only('ban');
         $this->middleware(['permission:edit_seller_custom_followers'])->only('editSellerCustomFollowers');
         $this->middleware(['permission:view_pending_seller'])->only('pendingSellers');
+        $this->middleware(['permission:view_pending_seller|view_seller_profile'])->only([
+            'showDocuments',
+            'downloadDocument',
+            'show_verification_request',
+            'verification_info_modal',
+        ]);
+        $this->middleware(['permission:approve_seller'])->only([
+            'approveApplication',
+            'rejectApplication',
+            'reviewDocument',
+            'updateApproved',
+            'approve_seller',
+            'UpdateSellerRegistration',
+        ]);
         $this->middleware(['permission:mark_seller_suspected'])->only('suspicious');
     }
 
@@ -52,7 +69,7 @@ class SellerController extends Controller
         $approved = $request->approved_status ?? null;
         $verification_status =  $request->verification_status ?? null;
 
-        $shops = Shop::where('registration_approval', 1)->whereIn('user_id', function ($query) {
+        $shops = Shop::whereIn('user_id', function ($query) {
             $query->select('id')
                 ->from(with(new User)->getTable())
                 ->where('user_type', 'seller');
@@ -76,7 +93,9 @@ class SellerController extends Controller
             });
         }
         if ($approved != null) {
-            $shops = $shops->where('verification_status', $approved);
+            $shops = $approved
+                ? $shops->where('approval_status', 'approved')
+                : $shops->where('approval_status', '!=', 'approved');
         }
         $shops = $shops->paginate(15);
         return view('backend.sellers.index', compact('shops', 'sort_search', 'approved', 'verification_status'));
@@ -135,6 +154,10 @@ class SellerController extends Controller
             $shop->name     = $request->shop_name;
             $shop->address  = $request->address;
             $shop->slug     = 'demo-shop-' . $user->id;
+            // Administrator-created sellers follow the same restricted
+            // onboarding workflow as self-registered sellers.
+            $shop->registration_approval = 0;
+            $shop->approval_status = 'pending';
             $shop->save();
 
             try {
@@ -164,6 +187,8 @@ class SellerController extends Controller
             }
 
             DB::commit();
+
+            app(\App\Services\SellerOnboardingNotifier::class)->registrationCompleted($shop);
 
             flash(translate('Seller has been added successfully'))->success();
             return back();
@@ -303,93 +328,81 @@ class SellerController extends Controller
 
     public function show_verification_request($id)
     {
-        $shop = Shop::findOrFail($id);
-        return view('backend.sellers.verification', compact('shop'));
+        return $this->legacyOnboardingDisabled(request(), (int) $id);
     }
 
-    public function approve_seller($id)
+    public function approve_seller(Request $request, $id)
     {
-        $shop = Shop::findOrFail($id);
-        $shop->verification_status = 1;
-        $shop->save();
-        Cache::forget('verified_sellers_id');
-        Cache::forget('internal_sellers_id');
-
-        $users = User::findMany([$shop->user->id]);
-        $data = array();
-        $data['shop'] = $shop;
-        $data['status'] = 'approved';
-        $data['notification_type_id'] = get_notification_type('shop_verify_request_approved', 'type')->id;
-        Notification::send($users, new ShopVerificationNotification($data));
-
-        flash(translate('Seller has been approved successfully'))->success();
-        return back();
+        return $this->legacyOnboardingDisabled($request, (int) $id);
     }
 
-    public function reject_seller($id)
+    public function reject_seller(Request $request, $id)
     {
-        $shop = Shop::findOrFail($id);
-        $shop->verification_status = 0;
-        $shop->verification_info = null;
-        $shop->save();
-        Cache::forget('verified_sellers_id');
-        Cache::forget('internal_sellers_id');
-
-        $users = User::findMany([$shop->user->id]);
-        $data = array();
-        $data['shop'] = $shop;
-        $data['status'] = 'rejected';
-        $data['notification_type_id'] = get_notification_type('shop_verify_request_rejected', 'type')->id;
-        Notification::send($users, new ShopVerificationNotification($data));
-
-        flash(translate('Seller verification request has been rejected successfully'))->success();
-        return back();
+        return $this->legacyOnboardingDisabled($request, (int) $id);
     }
 
     // ─── NEW ONBOARDING WORKFLOW METHODS ────────────────────────────────────
 
     public function showDocuments($id)
     {
-        $shop = Shop::findOrFail($id);
+        $shop = Shop::with(['documents' => fn ($query) => $query->orderByDesc('version')->orderByDesc('id')])->findOrFail($id);
+        $reviewHistory = \App\Models\AuditLog::where('target_user_id', $shop->user_id)
+            ->whereIn('action_type', ['seller_documents_uploaded', 'seller_application_approved', 'seller_application_rejected', 'seller_document_reviewed'])
+            ->with('admin')
+            ->latest()
+            ->get();
         return response()->json([
-            'html' => view('backend.sellers.documents_modal', compact('shop'))->render()
+            'html' => view('backend.sellers.documents_modal', compact('shop', 'reviewHistory'))->render()
         ]);
     }
 
     public function approveApplication(Request $request, $id)
     {
-        $shop = Shop::findOrFail($id);
-        $shop->approval_status = 'approved';
-        $shop->registration_approval = 1; // Backward compatibility
-        $shop->rejection_reason = null;
-        $shop->reviewed_at = now();
-        $shop->reviewed_by = auth()->id();
-        $shop->save();
-
-        \App\Models\AuditLog::create([
-            'admin_user_id'  => auth()->id(),
-            'target_user_id' => $shop->user_id,
-            'action_type'    => 'seller_application_approved',
-            'description'    => 'Admin approved the seller onboarding application.',
-            'ip_address'     => request()->ip(),
+        $validated = $request->validate([
+            'admin_note' => 'nullable|string|max:2000',
         ]);
 
-        try {
-            \App\Utility\EmailUtility::seller_application_status_email($shop, 'approved');
-            
-            // In-app notification
-            $notificationType = \App\Models\NotificationType::where('type', 'shop_verify_request_approved')->first();
-            if ($notificationType) {
-                $data = [
-                    'shop' => $shop,
-                    'status' => 'approved',
-                    'notification_type_id' => $notificationType->id
-                ];
-                \Illuminate\Support\Facades\Notification::send([$shop->user], new \App\Notifications\ShopVerificationNotification($data));
+        $shop = null;
+        $approvalBlocked = false;
+        DB::transaction(function () use ($id, $validated, &$shop, &$approvalBlocked) {
+            $shop = Shop::with('documents')->lockForUpdate()->findOrFail($id);
+            $missing = $shop->missingRequiredDocumentTypes();
+            $seller = $shop->user;
+            if ($missing !== []
+                || !$seller
+                || $seller->user_type !== 'seller'
+                || $seller->banned) {
+                $approvalBlocked = true;
+                return;
             }
-        } catch (\Exception $e) {
-            \Log::error('Failed to notify seller of approval: ' . $e->getMessage());
+
+            $previousStatus = $shop->approval_status;
+            $shop->approval_status = 'approved';
+            $shop->registration_approval = 1;
+            $shop->rejection_reason = null;
+            $shop->admin_note = $validated['admin_note'] ?? null;
+            $shop->reviewed_at = now();
+            $shop->reviewed_by = auth()->id();
+            $shop->save();
+
+            \App\Models\AuditLog::create([
+                'admin_user_id'  => auth()->id(),
+                'target_user_id' => $shop->user_id,
+                'action_type'    => 'seller_application_approved',
+                'description'    => "Seller onboarding status changed from {$previousStatus} to approved.",
+                'ip_address'     => request()->ip(),
+            ]);
+        });
+
+        if ($approvalBlocked) {
+            flash(translate('Approval is blocked because required documents are missing or not approved.'))->error();
+            return back();
         }
+
+        Cache::forget('verified_sellers_id');
+        app(\App\Services\StorefrontCacheService::class)->bump();
+
+        app(\App\Services\SellerOnboardingNotifier::class)->applicationApproved($shop);
 
         flash(translate('Seller application approved successfully.'))->success();
         return back();
@@ -398,44 +411,142 @@ class SellerController extends Controller
     public function rejectApplication(Request $request, $id)
     {
         $request->validate([
-            'rejection_reason' => 'required|string|max:1000'
+            'rejection_reason' => 'required|string|max:1000',
+            'admin_note' => 'nullable|string|max:2000',
         ]);
 
-        $shop = Shop::findOrFail($id);
-        $shop->approval_status = 'rejected';
-        $shop->registration_approval = 0; // Backward compatibility
-        $shop->rejection_reason = $request->rejection_reason;
-        $shop->reviewed_at = now();
-        $shop->reviewed_by = auth()->id();
-        $shop->save();
+        $shop = DB::transaction(function () use ($id, $request) {
+            $shop = Shop::lockForUpdate()->findOrFail($id);
+            $previousStatus = $shop->approval_status;
+            $shop->approval_status = 'rejected';
+            $shop->registration_approval = 0; // Backward compatibility only.
+            $shop->rejection_reason = $request->rejection_reason;
+            $shop->admin_note = $request->input('admin_note') ?: $request->rejection_reason;
+            $shop->reviewed_at = now();
+            $shop->reviewed_by = auth()->id();
+            $shop->save();
 
-        \App\Models\AuditLog::create([
-            'admin_user_id'  => auth()->id(),
-            'target_user_id' => $shop->user_id,
-            'action_type'    => 'seller_application_rejected',
-            'description'    => 'Admin rejected the seller onboarding application. Reason: ' . $request->rejection_reason,
-            'ip_address'     => request()->ip(),
-        ]);
+            \App\Models\AuditLog::create([
+                'admin_user_id'  => auth()->id(),
+                'target_user_id' => $shop->user_id,
+                'action_type'    => 'seller_application_rejected',
+                'description'    => "Seller onboarding status changed from {$previousStatus} to rejected. Reason: " . $request->rejection_reason,
+                'ip_address'     => request()->ip(),
+            ]);
 
-        try {
-            \App\Utility\EmailUtility::seller_application_status_email($shop, 'rejected', $request->rejection_reason);
-            
-            // In-app notification
-            $notificationType = \App\Models\NotificationType::where('type', 'shop_verify_request_rejected')->first();
-            if ($notificationType) {
-                $data = [
-                    'shop' => $shop,
-                    'status' => 'rejected',
-                    'notification_type_id' => $notificationType->id
-                ];
-                \Illuminate\Support\Facades\Notification::send([$shop->user], new \App\Notifications\ShopVerificationNotification($data));
-            }
-        } catch (\Exception $e) {
-            \Log::error('Failed to notify seller of rejection: ' . $e->getMessage());
-        }
+            return $shop;
+        });
+        Cache::forget('verified_sellers_id');
+        app(\App\Services\StorefrontCacheService::class)->bump();
+
+        app(\App\Services\SellerOnboardingNotifier::class)->applicationRejected($shop, $request->rejection_reason);
 
         flash(translate('Seller application rejected successfully.'))->success();
         return back();
+    }
+
+    public function reviewDocument(Request $request, SellerDocument $document)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'rejection_reason' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validated['status'] === 'rejected' && blank($validated['rejection_reason'] ?? null)) {
+            return back()->withErrors(['rejection_reason' => translate('A rejection reason is required.')]);
+        }
+
+        $shop = $document->shop;
+        $latestDocument = $shop->documents()
+            ->where('document_type', $document->document_type)
+            ->orderByDesc('version')
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$latestDocument || (int) $latestDocument->id !== (int) $document->id) {
+            return back()->withErrors(['document' => translate('Only the latest document version can be reviewed.')]);
+        }
+
+        [$shop, $documentStatus] = DB::transaction(function () use ($document, $validated, $shop) {
+            $lockedShop = Shop::lockForUpdate()->findOrFail($shop->id);
+            $lockedDocument = SellerDocument::lockForUpdate()->findOrFail($document->id);
+            $latestDocument = $lockedShop->documents()
+                ->where('document_type', $lockedDocument->document_type)
+                ->orderByDesc('version')
+                ->orderByDesc('id')
+                ->first();
+
+            if (!$latestDocument || (int) $latestDocument->id !== (int) $lockedDocument->id) {
+                return [null, null];
+            }
+
+            $previousDocumentStatus = $lockedDocument->status ?? 'pending';
+            $previousShopStatus = $lockedShop->approval_status;
+
+            $lockedDocument->status = $validated['status'];
+            $lockedDocument->rejection_reason = $validated['status'] === 'rejected' ? $validated['rejection_reason'] : null;
+            $lockedDocument->reviewed_at = now();
+            $lockedDocument->reviewed_by = auth()->id();
+            $lockedDocument->save();
+
+            $lockedShop->reviewed_at = now();
+            $lockedShop->reviewed_by = auth()->id();
+            $lockedShop->refreshOnboardingReviewState();
+            $lockedShop->save();
+
+            \App\Models\AuditLog::create([
+                'admin_user_id' => auth()->id(),
+                'target_user_id' => $lockedShop->user_id,
+                'action_type' => 'seller_document_reviewed',
+                'description' => "Document {$lockedDocument->document_type} status changed from {$previousDocumentStatus} to {$lockedDocument->status}; seller status changed from {$previousShopStatus} to {$lockedShop->approval_status}.",
+                'ip_address' => request()->ip(),
+            ]);
+
+            return [$lockedShop, $lockedDocument->status];
+        });
+
+        if (!$shop) {
+            return back()->withErrors(['document' => translate('Only the latest document version can be reviewed.')]);
+        }
+
+        Cache::forget('verified_sellers_id');
+        app(\App\Services\StorefrontCacheService::class)->bump();
+
+        if ($documentStatus === 'rejected') {
+            $reviewedDocument = SellerDocument::find($document->id);
+            if ($reviewedDocument) {
+                app(\App\Services\SellerOnboardingNotifier::class)->correctionRequired(
+                    $shop,
+                    $reviewedDocument,
+                    (string) $validated['rejection_reason']
+                );
+            }
+        }
+
+        return back()->with('success', translate('Document review updated successfully.'));
+    }
+
+    public function downloadDocument(SellerDocument $document)
+    {
+        $this->authorize('view', $document);
+        $path = $document->safeStoragePath();
+        abort_unless($path !== null && Storage::disk('seller_documents')->exists($path), 404);
+
+        $downloadName = (string) Str::of(basename($document->original_name ?: 'seller-document'))
+            ->replaceMatches('/[^A-Za-z0-9._-]/', '_')
+            ->limit(180, '');
+
+        $contentType = in_array($document->mime_type, [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+        ], true) ? $document->mime_type : 'application/octet-stream';
+
+        return Storage::disk('seller_documents')->download(
+            $path,
+            $downloadName,
+            ['Content-Type' => $contentType]
+        );
     }
 
 
@@ -447,29 +558,12 @@ class SellerController extends Controller
 
     public function verification_info_modal(Request $request)
     {
-        $shop = Shop::findOrFail($request->id);
-        return view('backend.sellers.verification_info_modal', compact('shop'));
+        return $this->legacyOnboardingDisabled($request, (int) $request->id);
     }
 
     public function updateApproved(Request $request)
     {
-        $shop = Shop::findOrFail($request->id);
-        $shop->verification_status = $request->status;
-        $shop->save();
-        Cache::forget('verified_sellers_id');
-        Cache::forget('internal_sellers_id');
-
-        $status = $request->status == 1 ? 'approved' : 'rejected';
-        $users = User::findMany([$shop->user->id]);
-        $data = array();
-        $data['shop'] = $shop;
-        $data['status'] = $status;
-        $data['notification_type_id'] = $status == 'approved' ?
-            get_notification_type('shop_verify_request_approved', 'type')->id :
-            get_notification_type('shop_verify_request_rejected', 'type')->id;
-
-        Notification::send($users, new ShopVerificationNotification($data));
-        return 1;
+        return $this->legacyOnboardingDisabled($request, (int) $request->id);
     }
 
     public function login($id)
@@ -483,21 +577,26 @@ class SellerController extends Controller
 
     public function ban($id)
     {
-        $shop = Shop::findOrFail($id);
+        [$shop, $suspended] = DB::transaction(function () use ($id) {
+            $shop = Shop::lockForUpdate()->findOrFail($id);
+            $user = User::lockForUpdate()->findOrFail($shop->user_id);
+            $suspended = (bool) !$user->banned;
+            $user->banned = $suspended ? 1 : 0;
+            $user->save();
+            $shop->setRelation('user', $user);
+            return [$shop, $suspended];
+        });
 
-        if ($shop->user->banned == 1) {
-            $shop->user->banned = 0;
-            if ($shop->verification_info) {
-                $shop->verification_status = 1;
-            }
-            flash(translate('Seller has been unbanned successfully'))->success();
-        } else {
-            $shop->user->banned = 1;
-            $shop->verification_status = 0;
-            flash(translate('Seller has been banned successfully'))->success();
-        }
-        $shop->save();
-        $shop->user->save();
+        Cache::forget('verified_sellers_id');
+        Cache::forget('internal_sellers_id');
+        app(\App\Services\StorefrontCacheService::class)->bump();
+
+        app(\App\Services\SellerOnboardingNotifier::class)->accessChanged($shop, $suspended);
+        flash($suspended
+            ? translate('Seller has been banned successfully.')
+            : translate('Seller has been unbanned successfully.'))
+            ->success();
+
         return back();
     }
 
@@ -532,7 +631,9 @@ class SellerController extends Controller
             });
         }
         if ($approved != null) {
-            $shops = $shops->where('verification_status', $approved);
+            $shops = $approved
+                ? $shops->where('approval_status', 'approved')
+                : $shops->where('approval_status', '!=', 'approved');
         }
         $shops = $shops->paginate(15);
         return view('backend.sellers.seller_based_commission.set_commission', compact('shops', 'sort_search', 'approved', 'verification_status'));
@@ -581,16 +682,9 @@ class SellerController extends Controller
     public function pendingSellers(Request $request)
     {
         $sort_search = $request->search ?? null;
-        if (get_setting('portfolio_landing') == 1) {
-            $shops = Shop::where(function ($query) {
-                    $query->where('verification_status', 0)
-                        ->orWhere('registration_approval', 0);
-                })
-                ->with('user')
-                ->latest();
-        }else{
-            $shops = Shop::where('registration_approval', 0)->with('user')->latest();
-        }
+        $shops = Shop::whereIn('approval_status', ['pending', 'under_review', 'rejected'])
+            ->with('user')
+            ->latest();
 
         if ($sort_search != null) {
             $user_ids = User::where('user_type', 'seller')
@@ -611,18 +705,22 @@ class SellerController extends Controller
 
     public function UpdateSellerRegistration(Request $request)
     {
-        $shop = Shop::findOrFail($request->id);
-        $shop->registration_approval = $request->registration_approval;
-        $shop->approval_status = $request->registration_approval ? 'approved' : 'pending';
-        $request->has('verification_status') ? $shop->verification_status = $request->verification_status : 0;
-        if ($shop->save()) {
-            try {
-                EmailUtility::seller_shop_approval_email('seller_shop_approval_email', $shop);
-            } catch (\Exception $e) {
-            }
-            return 1;
+        return $this->legacyOnboardingDisabled($request, (int) $request->id);
+    }
+
+    private function legacyOnboardingDisabled(Request $request, ?int $shopId = null)
+    {
+        $payload = [
+            'message' => translate('The legacy seller verification workflow has been retired. Use seller onboarding document review.'),
+            'error' => 'seller_onboarding_legacy_flow_disabled',
+        ];
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json($payload, 410);
         }
-        return 0;
+
+        flash($payload['message'])->warning();
+        return redirect()->route('sellers.registration_pending', $shopId ? ['review_shop' => $shopId] : []);
     }
 
     public function sellerProfile(Request $request)
@@ -705,26 +803,7 @@ class SellerController extends Controller
 
     public function deleteVerificationFile(Request $request)
     {
-        try {
-            $index = $request->input('index');
-            $shopId = $request->input('shop_id');
-            $filePath = $request->input('file_path');
-            $shop = Shop::find($shopId);
-            $verificationInfo = json_decode($shop->verification_info, true);
-            if (file_exists(public_path($filePath))) {
-                @unlink(public_path($filePath));
-            }
-
-            unset($verificationInfo[$index]);
-            $verificationInfo = array_values($verificationInfo);
-            $shop->verification_info = json_encode($verificationInfo);
-            $shop->save();
-            flash(translate('Verification file deleted successfully'))->success();
-            return back();
-        } catch (\Exception $e) {
-            flash(translate('Failed to delete verification file. Please try again later.'))->error();
-            return back();
-        }
+        return $this->legacyOnboardingDisabled($request, (int) $request->input('shop_id'));
     }
 
     public function resendVerification($id)

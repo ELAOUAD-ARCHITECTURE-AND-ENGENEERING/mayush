@@ -30,6 +30,7 @@ class EliteSystemTest extends TestCase
         $shop->name = 'Test Shop ' . uniqid();
         $shop->slug = 'test-shop-' . uniqid();
         $shop->verification_status = 1;
+        $shop->approval_status = 'approved';
         $shop->save();
         return $shop;
     }

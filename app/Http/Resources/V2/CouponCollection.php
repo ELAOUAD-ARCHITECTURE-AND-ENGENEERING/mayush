@@ -40,7 +40,7 @@ class CouponCollection extends ResourceCollection
 
                 $shop_name = $user_type == 'admin' ? get_setting('website_name') : ( $shop->name ?? '');
 
-                if ($user_type == 'admin' || ($shop != null && $shop->verification_status)) {
+                if ($user_type == 'admin' || ($shop != null && $shop->isFullyApproved())) {
                     return [
                         'id' => (int)$data->id,
                         'user_type' => $user_type,

@@ -77,7 +77,7 @@ class ExpressBuyController extends Controller
         }
 
         $quantity = $request->input('quantity', 1);
-        $product = Product::findOrFail($product_id);
+        $product = Product::publiclyVisible()->findOrFail($product_id);
         $address = Address::where('user_id', Auth::id())->where('set_default', 1)->first();
 
         // Build address JSON for the order

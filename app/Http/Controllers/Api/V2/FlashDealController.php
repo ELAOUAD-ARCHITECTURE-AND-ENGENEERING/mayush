@@ -44,9 +44,13 @@ class FlashDealController extends Controller
     {
         $flash_deal = FlashDeal::where("slug", $id)->first();
         $products = collect();
+        if (!$flash_deal) {
+            return new ProductMiniCollection($products);
+        }
         foreach ($flash_deal->flash_deal_products as $key => $flash_deal_product) {
-            if (Product::find($flash_deal_product->product_id) != null) {
-                $products->push(Product::find($flash_deal_product->product_id));
+            $product = Product::publiclyVisible()->find($flash_deal_product->product_id);
+            if ($product) {
+                $products->push($product);
             }
         }
         return new ProductMiniCollection($products);

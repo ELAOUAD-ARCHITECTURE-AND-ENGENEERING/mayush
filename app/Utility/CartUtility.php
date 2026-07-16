@@ -55,6 +55,16 @@ class CartUtility
             ];
         }
 
+        if (!$product->isPubliclyVisible()) {
+            return [
+                'available' => false,
+                'stock' => null,
+                'stock_qty' => 0,
+                'out_of_stock' => true,
+                'insufficient_quantity' => false,
+            ];
+        }
+
         if ($product->digital == 1 || $product->auction_product == 1) {
             return [
                 'available' => true,
@@ -85,7 +95,13 @@ class CartUtility
     public static function sync_cart_item_stock_status($cartItem): void
     {
         $product = $cartItem->product;
-        if (!$product || $product->digital == 1 || $product->auction_product == 1) {
+        if (!$product || !$product->isPubliclyVisible()) {
+            $cartItem->status = 0;
+            $cartItem->save();
+            return;
+        }
+
+        if ($product->digital == 1 || $product->auction_product == 1) {
             return;
         }
 

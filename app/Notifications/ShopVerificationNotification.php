@@ -26,7 +26,7 @@ class ShopVerificationNotification extends Notification implements ShouldQueue
         $this->afterCommit = true;
 
         $this->data = $data;
-        $this->className = 'app\Notifications\ShopVerificationNotification';
+        $this->className = self::class;
     }
 
     /**
@@ -62,12 +62,27 @@ class ShopVerificationNotification extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
+        $shop = $this->data['shop'] ?? null;
+        $shopName = is_array($shop) ? ($shop['name'] ?? '') : ($shop?->name ?? '');
+        $shopId = is_array($shop) ? ($shop['id'] ?? null) : ($shop?->id ?? null);
+        $approvalStatus = is_array($shop)
+            ? ($shop['approval_status'] ?? null)
+            : ($shop?->approval_status ?? null);
+
         return [
-            'notification_type_id' => $this->data['notification_type_id'],
+            'notification_type_id' => $this->data['notification_type_id'] ?? null,
             'data' => [
-                'name'  => $this->data['shop']['name'],
-                'id'    => $this->data['shop']['id'],
-                'status'=> $this->data['status']
+                'name'  => $shopName,
+                'id'    => $shopId,
+                'status'=> $this->data['status'] ?? null,
+                'workflow' => $this->data['workflow'] ?? null,
+                'approval_status' => $this->data['approval_status'] ?? $approvalStatus,
+                'document_id' => $this->data['document_id'] ?? null,
+                'document_type' => $this->data['document_type'] ?? null,
+                'document_version' => $this->data['document_version'] ?? null,
+                'reason' => $this->data['reason'] ?? null,
+                'target_route_name' => $this->data['target_route_name'] ?? null,
+                'target_route_parameters' => $this->data['target_route_parameters'] ?? [],
             ]
         ];
     }

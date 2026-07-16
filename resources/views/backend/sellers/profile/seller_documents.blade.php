@@ -1,64 +1,53 @@
 <div class="card seller-profile-documents">
+    <div class="card-header">
+        <h5 class="mb-0 h6">{{ translate('Seller Onboarding Documents') }}</h5>
+    </div>
+    <div class="card-body">
+        @php($documents = $shop->documents->sortByDesc(fn ($document) => [$document->version ?? 1, $document->id]))
 
-    <div class="row gutters-5">
-     
-
-        @if (json_decode($shop->verification_info) && is_array(json_decode($shop->verification_info)))
-        @foreach (json_decode($shop->verification_info) as $key => $info)
-        @if ($info->type == 'file')
-        @php
-        $file_path = $info->value;
-        $file_name = basename($file_path);
-        $extension = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
-        $is_image = in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
-        @endphp
-
-        <div class="col-auto w-140px w-lg-220px">
-            <div class="aiz-file-box">
-
-                <div class="dropdown-file">
-                    <a class="dropdown-link" data-toggle="dropdown">
-                        <i class="la la-ellipsis-v"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <a href="javascript:void(0)" class="dropdown-item" onclick="showFileInModal('{{ my_asset($file_path) }}')">
-                            <span>{{translate('View')}}</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" onclick="printFile('{{ my_asset($file_path) }}')">
-                            <span>{{translate('Print')}}</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item confirm-delete" data-href="{{ (Route::has('seller.verification.file.delete') ? route('seller.verification.file.delete', ['index' => $key, 'shop_id' => $shop->id, 'file_path' => $file_path]) : '#') }}">
-                            <span>{{translate('Delete')}}</span>
-                        </a>
-                    </div>
-                </div>
-                <div class="card card-file aiz-uploader-select c-default" title="{{ $file_name }}">
-                    @if ($is_image)
-                    <div class="card-file-thumb">
-                        <img src="{{ my_asset($file_path) }}" class="img-fit">
-                    </div>
-                    @elseif ($extension == 'pdf')
-                    <div class="card-file-thumb d-flex align-items-center justify-content-center" style="height: 120px; background: #f5f5f5;">
-                        <i class="las la-file-pdf" style="font-size: 48px; color: red;"></i>
-                    </div>
-                    @else
-                    <div class="card-file-thumb d-flex align-items-center justify-content-center" style="height: 120px; background: #f5f5f5;">
-                        <i class="las la-file" style="font-size: 48px; color: #666;"></i>
-                    </div>
-                    @endif
-
-                    <div class="card-body">
-                        <h6 class="d-flex">
-                            <span class="text-truncate title">{{ $info->label ?? $file_name }}</span>
-                            <span class="ext">.{{ $extension }}</span>
-                        </h6>
-                    </div>
-                </div>
+        @if($documents->isEmpty())
+            <p class="text-muted mb-0">{{ translate('No onboarding documents have been submitted.') }}</p>
+        @else
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>{{ translate('Document') }}</th>
+                            <th>{{ translate('Version') }}</th>
+                            <th>{{ translate('Status') }}</th>
+                            <th>{{ translate('Review') }}</th>
+                            <th>{{ translate('File') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($documents as $document)
+                            <tr>
+                                <td>{{ ucwords(str_replace('_', ' ', $document->document_type)) }}</td>
+                                <td>v{{ $document->version ?? 1 }}</td>
+                                <td>
+                                    <span class="badge badge-inline badge-{{ $document->status === 'approved' ? 'success' : ($document->status === 'rejected' ? 'danger' : 'warning') }}">
+                                        {{ translate(ucfirst($document->status ?? 'pending')) }}
+                                    </span>
+                                    @if($document->rejection_reason)
+                                        <small class="d-block text-danger">{{ $document->rejection_reason }}</small>
+                                    @endif
+                                </td>
+                                <td>
+                                    {{ $document->reviewed_at ? $document->reviewed_at->format('d M Y H:i') : '-' }}
+                                    @if($document->reviewer)
+                                        <small class="d-block text-muted">{{ $document->reviewer->name }}</small>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('sellers.documents.download', $document->id) }}" target="_blank" rel="noopener" class="btn btn-sm btn-primary">
+                                        {{ translate('Authorized Download') }}
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-        </div>
         @endif
-        @endforeach
-        @endif
-
     </div>
 </div>

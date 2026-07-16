@@ -17,7 +17,7 @@ class WishlistController extends Controller
 
     public function add($slug)
     {
-        $product = Product::where('slug', $slug)->first();
+        $product = Product::publiclyVisible()->where('slug', $slug)->firstOrFail();
         $wishlist = Wishlist::where('product_id', $product->id)->where('user_id', auth()->user()->id)->first();
         if ($wishlist != null) {
             return response()->json([
@@ -44,7 +44,7 @@ class WishlistController extends Controller
 
     public function remove($slug)
     {
-        $product = Product::where('slug', $slug)->first();
+        $product = Product::publiclyVisible()->where('slug', $slug)->firstOrFail();
         $wishlist = Wishlist::where('product_id', $product->id)->where('user_id',  auth()->user()->id)->first();
         if ($wishlist == null) {
             return response()->json([
@@ -66,7 +66,7 @@ class WishlistController extends Controller
 
     public function isProductInWishlist($slug)
     {
-        $product = Product::where('slug', $slug)->first();
+        $product = Product::publiclyVisible()->where('slug', $slug)->firstOrFail();
 
         $wishlist = Wishlist::where('product_id', $product->id)->where('user_id',  auth()->user()->id)->first();
 

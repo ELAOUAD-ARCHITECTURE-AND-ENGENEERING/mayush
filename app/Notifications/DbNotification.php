@@ -21,7 +21,6 @@ class DbNotification extends Notification
         return $notifiable->routeNotificationFor('database')->create([
             'id' => $notification_id,
             'notification_type_id' => $notificationTypeID,
-            'notifiable_type'=> \Auth::user()->id,
             'type' => $className,
             'data' => $data,
             'read_at' => null,

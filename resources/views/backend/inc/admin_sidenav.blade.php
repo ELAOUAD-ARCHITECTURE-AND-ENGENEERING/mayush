@@ -1057,8 +1057,7 @@
                         @can('view_all_seller')
                         <li class="aiz-side-nav-item">
                             @php
-                            $sellers = \App\Models\Shop::where('verification_status', 0)->where('verification_info',
-                            '!=', null)->count();
+                            $sellers = \App\Models\Shop::whereIn('approval_status', ['pending', 'under_review', 'rejected'])->count();
                             @endphp
                             <a href="{{ route('sellers.index') }}"
                                 class="aiz-side-nav-link {{ areActiveRoutes(['sellers.index', 'sellers.profile']) }}">
@@ -1541,6 +1540,23 @@
                         <span class="aiz-side-nav-arrow"></span>
                     </a>
                     <ul class="aiz-side-nav-list level-2">
+                        @can('view_all_support_tickets')
+                            @php
+                                $livechat_open = \App\Models\SupportConversation::where('status', 'open')->count();
+                                $livechat_escalated = \App\Models\SupportConversation::where('conversation_state', 'WAITING_FOR_AGENT')->count();
+                            @endphp
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('livechat.admin_index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['livechat.admin_index'])}}">
+                                    <span class="aiz-side-nav-text">{{translate('Live Chat')}}</span>
+                                    @if($livechat_escalated > 0)
+                                        <span class="badge badge-danger blink" style="animation: blink 1s linear infinite;">{{ $livechat_escalated }} Escalated</span>
+                                        <style>@keyframes blink { 50% { opacity: 0; } }</style>
+                                    @elseif($livechat_open > 0)
+                                        <span class="badge badge-success">{{ $livechat_open }}</span>
+                                    @endif
+                                </a>
+                            </li>
+                        @endcan
                         @can('view_all_support_tickets')
                             @php
                                 $support_ticket = DB::table('tickets')

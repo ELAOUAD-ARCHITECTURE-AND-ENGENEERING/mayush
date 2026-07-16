@@ -129,14 +129,14 @@ class AdminController extends Controller
         }
         $data['sales_stat'] = $new_stat;
         $data['total_sellers'] = User::where('user_type', 'seller')->where('email_verified_at', '!=', null)->count();
-        $data['status_wise_sellers'] = Shop::select('verification_status', DB::raw('COUNT(*) as total'))
+        $data['status_wise_sellers'] = Shop::select('approval_status', DB::raw('COUNT(*) as total'))
             ->whereIn('user_id', function ($q){
                 $q->select('id')
                     ->from(with(new User)->getTable())
                     ->where('user_type', 'seller')
                     ->where('email_verified_at', '!=', null);
             })
-            ->groupBy('verification_status')
+            ->groupBy('approval_status')
             ->get();
         $data['top_sellers'] = Order::select('orders.seller_id', 'users.name', 'users.user_type', 'users.avatar_original', DB::raw('SUM(grand_total) as total'))
             ->leftJoin('users', 'orders.seller_id', '=', 'users.id')

@@ -164,6 +164,16 @@ class OrderController extends Controller
             return redirect()->route('home');
         }
 
+        $cartProductIds = $carts->pluck('product_id')->unique();
+        $publicProductIds = Product::publiclyVisible()
+            ->whereIn('id', $cartProductIds)
+            ->pluck('id');
+
+        if ($publicProductIds->count() !== $cartProductIds->count()) {
+            flash(translate('One or more products in your cart are no longer available.'))->error();
+            return redirect()->route('cart');
+        }
+
         $address = Address::where('id', $carts[0]['address_id'])->first();
         $billing_address = Address::where('id', $carts[0]['billing_address'])->first();
 
@@ -212,7 +222,7 @@ class OrderController extends Controller
         $seller_products = array();
         foreach ($carts as $cartItem) {
             $product_ids = array();
-            $product = Product::find($cartItem['product_id']);
+            $product = Product::publiclyVisible()->findOrFail($cartItem['product_id']);
             if (isset($seller_products[$product->user_id])) {
                 $product_ids = $seller_products[$product->user_id];
             }
@@ -244,7 +254,7 @@ class OrderController extends Controller
 
             //Order Details Storing
             foreach ($seller_product as $cartItem) {
-                $product = Product::find($cartItem['product_id']);
+                $product = Product::publiclyVisible()->findOrFail($cartItem['product_id']);
 
                 $subtotal += cart_product_price($cartItem, $product, false, false) * $cartItem['quantity'];
                 $tax +=  cart_product_tax($cartItem, $product, false) * $cartItem['quantity'];

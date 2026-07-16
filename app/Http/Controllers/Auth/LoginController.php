@@ -291,11 +291,6 @@ class LoginController extends Controller
             return redirect()->route('admin.dashboard');
         } elseif (auth()->user()->user_type == 'seller') {
             
-            if (auth()->user()->shop->registration_approval  == 0) {
-                auth()->logout();
-                flash(translate("Your seller account is under review. We will notify you once approved."));
-                return redirect()->route('home');
-            }
             //save the seller login log
             \Log::channel('seller_login')->info('Seller Logged In', [
                 'user_id' => auth()->user()->id,

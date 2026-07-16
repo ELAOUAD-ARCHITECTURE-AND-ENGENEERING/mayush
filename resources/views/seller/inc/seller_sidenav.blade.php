@@ -37,6 +37,7 @@
             </div>
             <ul class="aiz-side-nav-list" id="search-menu">
             </ul>
+            @if(Auth::user()->shop?->canManageProducts())
             <ul class="aiz-side-nav-list" id="main-menu" data-toggle="aiz-side-menu">
                 <li class="aiz-side-nav-item">
                     <a href="{{ route('seller.dashboard') }}" class="aiz-side-nav-link">
@@ -492,6 +493,28 @@
                 @endif
 
             </ul><!-- .aiz-side-nav -->
+            @else
+            <ul class="aiz-side-nav-list" id="main-menu">
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('seller.dashboard') }}" class="aiz-side-nav-link">
+                        <i class="las la-home aiz-side-nav-icon"></i>
+                        <span class="aiz-side-nav-text">{{ translate('Dashboard') }}</span>
+                    </a>
+                </li>
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('seller.onboarding.index') }}" class="aiz-side-nav-link">
+                        <i class="las la-file-upload aiz-side-nav-icon"></i>
+                        <span class="aiz-side-nav-text">{{ translate('Complete Registration') }}</span>
+                    </a>
+                </li>
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('seller.profile.index') }}" class="aiz-side-nav-link">
+                        <i class="las la-user aiz-side-nav-icon"></i>
+                        <span class="aiz-side-nav-text">{{ translate('Profile') }}</span>
+                    </a>
+                </li>
+            </ul>
+            @endif
         </div><!-- .aiz-side-nav-wrap -->
     </div><!-- .aiz-sidebar -->
     <div class="aiz-sidebar-overlay"></div>

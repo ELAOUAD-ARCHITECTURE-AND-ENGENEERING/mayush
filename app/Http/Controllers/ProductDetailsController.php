@@ -32,7 +32,11 @@ class ProductDetailsController extends Controller
             session(['link' => url()->current()]);
         }
 
-        $detailedProduct  = Product::with('reviews', 'brand', 'stocks', 'user', 'user.shop')->where('auction_product', 0)->where('slug', $slug)->where('approved', 1)->first();
+        $detailedProduct  = Product::publiclyVisible()
+            ->with('reviews', 'brand', 'stocks', 'user', 'user.shop')
+            ->where('auction_product', 0)
+            ->where('slug', $slug)
+            ->first();
 
         if ($detailedProduct != null && $detailedProduct->published) {
             // Time-series view tracking (MA-104)
@@ -107,7 +111,7 @@ class ProductDetailsController extends Controller
             // Smart Recommendations
             
             // 1. Deals on related products
-            $related_deals = Product::isApprovedPublished()
+            $related_deals = filter_products(Product::query())
                 ->where('discount', '>', 0)
                 ->where('category_id', $detailedProduct->category_id)
                 ->where('id', '!=', $detailedProduct->id)
@@ -118,7 +122,7 @@ class ProductDetailsController extends Controller
             $users_who_viewed = LastViewedProduct::where('product_id', $detailedProduct->id)->pluck('user_id');
             $also_viewed = collect();
             if ($users_who_viewed->isNotEmpty()) {
-                $also_viewed = Product::isApprovedPublished()
+                $also_viewed = filter_products(Product::query())
                     ->whereIn('id', function ($query) use ($users_who_viewed, $detailedProduct) {
                         $query->select('product_id')
                             ->from('last_viewed_products')
@@ -132,7 +136,7 @@ class ProductDetailsController extends Controller
             }
 
             // 3. Best Selling products in the same category
-            $category_best_sellers = Product::isApprovedPublished()
+            $category_best_sellers = filter_products(Product::query())
                 ->where('category_id', $detailedProduct->category_id)
                 ->where('id', '!=', $detailedProduct->id)
                 ->orderBy('num_of_sale', 'desc')
@@ -149,7 +153,7 @@ class ProductDetailsController extends Controller
                         ->pluck('user_id');
                     
                     if ($other_users->isNotEmpty()) {
-                        $history_recommendations = Product::isApprovedPublished()
+                        $history_recommendations = filter_products(Product::query())
                             ->whereIn('id', function ($query) use ($other_users, $user_history_ids) {
                                 $query->select('product_id')
                                     ->from('last_viewed_products')
@@ -165,7 +169,7 @@ class ProductDetailsController extends Controller
             } // ends if(Auth::check())
 
             // 5. Frequently Bought Together (MA-107)
-            $frequently_bought = Product::isApprovedPublished()
+            $frequently_bought = filter_products(Product::query())
                 ->whereIn('id', function ($query) use ($detailedProduct) {
                     $query->select('frequently_bought_product_id')
                         ->from('frequently_bought_products')
@@ -194,7 +198,10 @@ class ProductDetailsController extends Controller
 
     public function variant_price(Request $request)
     {
-        $product = Product::find($request->id);
+        $product = Product::publiclyVisible()->find($request->id);
+        if (!$product) {
+            abort(404);
+        }
         $str = '';
         $quantity = 0;
         $tax = 0;
@@ -418,8 +425,8 @@ class ProductDetailsController extends Controller
     }
 
     public function product_reviews(Request $request) {
-        $detailedProduct = Product::where('slug', $request->slug)
-            ->where('approved', 1)
+        $detailedProduct = Product::publiclyVisible()
+            ->where('slug', $request->slug)
             ->firstOrFail();
         $query = $detailedProduct->reviews()->where('status', 1);
         switch ($request->sort_by) {

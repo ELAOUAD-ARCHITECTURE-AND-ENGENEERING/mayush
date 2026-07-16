@@ -142,20 +142,15 @@ if (!function_exists('filter_products')) {
     function filter_products($products)
     {
 
-        $products = $products->isApprovedPublished()->where('auction_product', 0);
+        $products = $products->publiclyVisible()->where('auction_product', 0);
 
         if (!addon_is_activated('wholesale')) {
             $products = $products->where('wholesale_product', 0);
         }
-        $verified_sellers = verified_sellers_id();
         $internal_sellers = internal_sellers_id();
 
         if (get_setting('vendor_system_activation') == 1) {
-            return $products->where(function ($p) use ($verified_sellers, $internal_sellers) {
-                $p->where('added_by', 'admin')
-                  ->orWhereIn('user_id', $verified_sellers)
-                  ->orWhereIn('user_id', $internal_sellers);
-            });
+            return $products;
         } else {
             return $products->where(function ($p) use ($internal_sellers) {
                 $p->where('added_by', 'admin')
@@ -177,11 +172,7 @@ if (!function_exists('verified_sellers_id')) {
     function verified_sellers_id()
     {
         return Cache::rememberForever('verified_sellers_id', function () {
-            return Shop::where('verification_status', 1)
-                ->whereHas('user', function ($query) {
-                    $query->where('is_intern', 0)
-                          ->where('banned', 0);
-                })
+            return Shop::publiclyVisible()
                 ->pluck('user_id')->toArray();
         });
     }
@@ -1674,11 +1665,7 @@ if (!function_exists('can_switch_account_mode')) {
             return false;
         }
 
-        $shop = $user->shop;
-        $shopVerified = (int) ($shop->verification_status ?? 0) === 1;
-        $shopApproved = $shop->approval_status === 'approved' || (int) ($shop->registration_approval ?? 0) === 1;
-
-        return $shopVerified || $shopApproved;
+        return $user->shop?->canManageProducts() === true;
     }
 }
 
@@ -2188,7 +2175,7 @@ if (!function_exists('get_products_count')) {
         if ($user_id) {
             $products_query = $products_query->where('user_id', $user_id);
         }
-        return $products_query->isApprovedPublished()->count();
+        return filter_products($products_query)->count();
     }
 }
 
@@ -2200,7 +2187,7 @@ if (!function_exists('get_product_min_unit_price')) {
         if ($user_id) {
             $product_query = $product_query->where('user_id', $user_id);
         }
-        return $product_query->isApprovedPublished()->min('unit_price');
+        return filter_products($product_query)->min('unit_price');
     }
 }
 
@@ -2212,7 +2199,7 @@ if (!function_exists('get_product_max_unit_price')) {
         if ($user_id) {
             $product_query = $product_query->where('user_id', $user_id);
         }
-        return $product_query->isApprovedPublished()->max('unit_price');
+        return filter_products($product_query)->max('unit_price');
     }
 }
 
@@ -2253,7 +2240,7 @@ if (!function_exists('get_seller_products')) {
     function get_seller_products($user_id)
     {
         $product_query = Product::query();
-        return $product_query->where('user_id', $user_id)->isApprovedPublished()->orderBy('created_at', 'desc')->limit(15)->get();
+        return filter_products($product_query->where('user_id', $user_id))->orderBy('created_at', 'desc')->limit(15)->get();
     }
 }
 
@@ -2262,7 +2249,7 @@ if (!function_exists('get_shop_best_selling_products')) {
     function get_shop_best_selling_products($user_id)
     {
         $product_query = Product::query();
-        return $product_query->where('user_id', $user_id)->isApprovedPublished()->orderBy('num_of_sale', 'desc')->paginate(24);
+        return filter_products($product_query->where('user_id', $user_id))->orderBy('num_of_sale', 'desc')->paginate(24);
     }
 }
 
@@ -2271,7 +2258,7 @@ if (!function_exists('get_all_auction_products')) {
     function get_auction_products($limit = null, $paginate = null)
     {
         $product_query = Product::query();
-        $products = $product_query->latest()->isApprovedPublished()->where('auction_product', 1);
+        $products = filter_products($product_query->latest()->where('auction_product', 1));
         if (get_setting('seller_auction_product') == 0) {
             $products = $products->where('added_by', 'admin');
         }
@@ -2357,30 +2344,17 @@ if (!function_exists('lastViewedProducts')) {
 if (!function_exists('getLastViewedProducts')) {
     function getLastViewedProducts()
     {
-        $verified_sellers = verified_sellers_id();
+        $publicProducts = Product::publiclyVisible()
+            ->when(!addon_is_activated('wholesale'), function ($query) {
+                $query->where('wholesale_product', 0);
+            })
+            ->when(!addon_is_activated('auction'), function ($query) {
+                $query->where('auction_product', 0);
+            });
 
         $lastViewedProduct = LastViewedProduct::where('user_id', auth()->user()->id)->orderBy('updated_at','desc')
-                                ->whereIn("product_id", function ($query) use ($verified_sellers) {
-                                    $query->select('id')
-                                        ->from('products')
-                                        ->where('approved', '1')->where('published', 1)
-                                        ->when(!addon_is_activated('wholesale') ,function ($q1){
-                                            $q1->where('wholesale_product', 0);
-                                        })
-                                        ->when(!addon_is_activated('auction') ,function ($q2){
-                                            $q2->where('auction_product', 0);
-                                        })
-                                        ->when(get_setting('vendor_system_activation') == 0 ,function ($q3){
-                                            $q3->where('added_by', 'admin');
-                                        })
-                                        ->when(get_setting('vendor_system_activation') == 1 ,function ($q4) use ($verified_sellers){
-                                            $q4->where(function ($p1) use ($verified_sellers) {
-                                                $p1->where('added_by', 'admin')->orWhere(function ($p2) use ($verified_sellers) {
-                                                    $p2->whereIn('user_id', $verified_sellers);
-                                                });
-                                            });
-                                        });
-                                })->get();
+                                ->whereIn('product_id', $publicProducts->select('id'))
+                                ->get();
 
         return $lastViewedProduct;
     }
@@ -2473,7 +2447,7 @@ if (!function_exists('get_brands_by_products')) {
     function get_brands_by_products($usrt_id)
     {
         $product_query = Product::query();
-        $brand_ids =  $product_query->where('user_id', $usrt_id)->isApprovedPublished()->whereNotNull('brand_id')->pluck('brand_id')->toArray();
+        $brand_ids =  filter_products($product_query->where('user_id', $usrt_id))->whereNotNull('brand_id')->pluck('brand_id')->toArray();
 
         $brand_query = Brand::query();
         return $brand_query->whereIn('id', $brand_ids)->get();
@@ -2510,7 +2484,7 @@ if (!function_exists('get_categories_by_products')) {
     function get_categories_by_products($user_id)
     {
         $product_query = Product::query();
-        $category_ids = $product_query->where('user_id', $user_id)->isApprovedPublished()->pluck('category_id')->toArray();
+        $category_ids = filter_products($product_query->where('user_id', $user_id))->pluck('category_id')->toArray();
 
         $category_query = Category::query();
         return $category_query->whereIn('id', $category_ids)->get();
@@ -2520,8 +2494,10 @@ if (!function_exists('get_categories_by_products')) {
 if (!function_exists('get_categories_by_preorder_products')) {
     function get_categories_by_preorder_products($user_id)
     {
-        $product_query = PreorderProduct::query();
-        $category_ids = $product_query->where('user_id', $user_id)->where('is_published', 1)->pluck('category_id')->toArray();
+        $category_ids = PreorderProduct::publiclyVisible()
+            ->where('user_id', $user_id)
+            ->pluck('category_id')
+            ->toArray();
 
         $category_query = Category::query();
         return $category_query->whereIn('id', $category_ids)->get();
@@ -2580,10 +2556,7 @@ if (!function_exists('get_best_sellers')) {
     function get_best_sellers($limit = '')
     {
         return Cache::remember('best_selers', 86400, function () use ($limit) {
-            return Shop::where('verification_status', 1)
-                ->whereHas('user', function ($query) {
-                    $query->where('is_intern', 0);
-                })
+            return Shop::publiclyVisible()
                 ->orderBy('num_of_sale', 'desc')->take($limit)->get();
         });
     }
@@ -3133,29 +3106,16 @@ if (! function_exists('flash_message')) {
 if (!function_exists('get_wishlists')) {
     function get_wishlists()
     {
-        $verified_sellers = verified_sellers_id();
+        $publicProducts = Product::publiclyVisible()
+            ->when(!addon_is_activated('wholesale'), function ($query) {
+                $query->where('wholesale_product', 0);
+            })
+            ->when(!addon_is_activated('auction'), function ($query) {
+                $query->where('auction_product', 0);
+            });
+
         $wishlists = Wishlist::where('user_id', auth()->user()->id)
-                    ->whereIn("product_id", function ($query) use ($verified_sellers) {
-                        $query->select('id')
-                            ->from('products')
-                            ->where('approved', '1')->where('published', 1)
-                            ->when(!addon_is_activated('wholesale') ,function ($q1){
-                                $q1->where('wholesale_product', 0);
-                            })
-                            ->when(!addon_is_activated('auction') ,function ($q2){
-                                $q2->where('auction_product', 0);
-                            })
-                            ->when(get_setting('vendor_system_activation') == 0 ,function ($q3){
-                                $q3->where('added_by', 'admin');
-                            })
-                            ->when(get_setting('vendor_system_activation') == 1 ,function ($q4) use ($verified_sellers){
-                                $q4->where(function ($p1) use ($verified_sellers) {
-                                    $p1->where('added_by', 'admin')->orWhere(function ($p2) use ($verified_sellers) {
-                                        $p2->whereIn('user_id', $verified_sellers);
-                                    });
-                                });
-                            });
-                    })
+                    ->whereIn('product_id', $publicProducts->select('id'))
                     ->latest();
         return $wishlists;
     }
@@ -3541,37 +3501,30 @@ if (!function_exists('preorder_payment_type')) {
 if (!function_exists('filter_preorder_product')) {
     function filter_preorder_product($products)
     {
-        if (get_setting('vendor_system_activation') == 1) {
-            return $products->where(function ($query) {
-                $query->whereHas('user', function ($q) {
-                    $q->where('user_type', 'admin');
-                })->orWhereHas('user.shop', function ($q) {
-                    $q->where('verification_status', 1);
-                });
-            });
-        } else {
-            return $products;
-        }
-
+        return $products->publiclyVisible();
     }
 }
 
 
 function filter_single_preorder_product($product)
 {
-    if (get_setting('vendor_system_activation') == 1) {
-        $user = $product->user;
+    if (!$product || (int) $product->is_published !== 1) {
+        return null;
+    }
 
-        if ($user->user_type == 'seller') {
-            // Return the product only if the seller's shop is verified
-            return optional($user->shop)->verification_status == 1 ? $product : null;
-        }
-        // Return the product if the user is not a seller (e.g., admin)
+    $user = $product->user;
+    if (!$user || $user->banned) {
+        return null;
+    }
+
+    if ($user->user_type === 'admin' || $user->is_intern) {
         return $product;
-    } 
-    
-    // If vendor system is not activated, return the product directly
-    return $product;
+    }
+
+    return get_setting('vendor_system_activation') == 1
+        && optional($user->shop)->isFullyApproved()
+        ? $product
+        : null;
 }
 
 
@@ -3958,7 +3911,7 @@ if (!function_exists('same_state_shipping_pos')) {
 if (!function_exists('get_same_seller_products')) {
     function get_same_seller_products($user_id, $limit = 20)
     {
-        $products = Product::where('user_id', $user_id)->isApprovedPublished()->take($limit)->get();
+        $products = filter_products(Product::where('user_id', $user_id))->take($limit)->get();
         return $products;
     }
 }
@@ -3967,9 +3920,9 @@ if (!function_exists('get_same_seller_products')) {
 if (!function_exists('get_related_products_by_category')) {
     function get_related_products_by_category($category_id, $limit = 20)
     {
-        $products = Product::isApprovedPublished()->whereHas('categories', function ($query) use ($category_id) {
+        $products = filter_products(Product::whereHas('categories', function ($query) use ($category_id) {
                         $query->where('category_id', $category_id);
-                    })
+                    }))
                     ->take($limit)
                     ->get();
         return $products;

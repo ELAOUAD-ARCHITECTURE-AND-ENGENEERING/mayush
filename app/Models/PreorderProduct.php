@@ -5,6 +5,7 @@ namespace App\Models;
 use App;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use App\Traits\PreventDemoModeChanges;
 
 class PreorderProduct extends Model
@@ -13,6 +14,41 @@ class PreorderProduct extends Model
 
     protected $guarded = [];
     protected $with = ['preorder_product_translations'];
+
+    /**
+     * Preorder products that are allowed on the public storefront.
+     * Seller visibility is based on the authoritative shop approval state.
+     */
+    public function scopePubliclyVisible(Builder $query): Builder
+    {
+        $query = $query->where('is_published', 1)
+            ->where(function (Builder $product) {
+                $product->whereHas('user', function (Builder $user) {
+                    $user->where('user_type', 'admin');
+                })->orWhereHas('user', function (Builder $user) {
+                    $user->where('user_type', 'seller')
+                        ->where('banned', 0)
+                        ->whereHas('shop', function (Builder $shop) {
+                            $shop->where('approval_status', 'approved');
+                        });
+                });
+            });
+
+        if (get_setting('vendor_system_activation') != 1) {
+            $query->whereHas('user', function (Builder $user) {
+                    $user->where('user_type', 'admin')
+                    ->orWhere(function (Builder $intern) {
+                        $intern->where('is_intern', 1)
+                            ->where('banned', 0)
+                            ->whereHas('shop', function (Builder $shop) {
+                                $shop->where('approval_status', 'approved');
+                            });
+                    });
+            });
+        }
+
+        return $query;
+    }
 
     public function getTranslation($field = '', $lang = false)
     {

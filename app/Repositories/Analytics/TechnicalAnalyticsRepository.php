@@ -382,16 +382,14 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
 
     private function approvedVendorQuery()
     {
-        $query = \App\Models\Shop::query()->where('verification_status', 1);
-
-        if (Schema::hasColumn('shops', 'approval_status')) {
-            return $query->where('approval_status', 'approved');
-        }
-
-        if (Schema::hasColumn('shops', 'registration_approval')) {
-            return $query->where('registration_approval', 1);
-        }
-
-        return $query;
+        // Analytics counts approved seller accounts, not only shops currently
+        // exposed by the storefront visibility policy (which intentionally
+        // changes when the vendor marketplace is disabled).
+        return \App\Models\Shop::query()
+            ->where('approval_status', 'approved')
+            ->whereHas('user', function ($user) {
+                $user->where('user_type', 'seller')
+                    ->where('banned', 0);
+            });
     }
 }

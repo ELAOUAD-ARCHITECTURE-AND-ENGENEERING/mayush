@@ -667,7 +667,7 @@
                                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
                                     </a>
                                     <div class="absolute-top-left z-1 ml-2 mt-1 rounded-content bg-white">
-                                        @if ($seller->verification_status == 1)
+                                        @if ($seller->isFullyApproved())
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24.001" height="24"
                                                 viewBox="0 0 24.001 24">
                                                 <g id="Group_25929" data-name="Group 25929"

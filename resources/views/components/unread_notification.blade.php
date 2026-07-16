@@ -42,9 +42,23 @@
                         {{-- Shop Verification Related Notifications --}}
                         @elseif ($notification->type == 'App\Notifications\ShopVerificationNotification')
                             @php
-                                if($notification->data['status'] == 'submitted'){
+                                $verificationStatus = $notification->data['status'] ?? null;
+                                if(in_array($verificationStatus, ['submitted', 'documents_submitted'], true)){
                                     $shopName = "<span class='text-blue'>".$notification->data['name']."</span>";
                                     $notifyContent = str_replace('[[shop_name]]', $shopName, $notifyContent);
+                                } elseif (in_array($verificationStatus, ['registration_completed', 'approved', 'rejected'], true)) {
+                                    $notifyContent = $notificationType?->getTranslation('default_text')
+                                        ?? translate('Seller onboarding status updated.');
+                                } elseif ($verificationStatus === 'correction_required') {
+                                    $documentType = $notification->data['document_type'] ?? null;
+                                    $reason = $notification->data['reason'] ?? null;
+                                    $notifyContent = translate('A correction is required for one or more of your seller onboarding documents.')
+                                        . ($documentType ? ' ' . ucwords(str_replace('_', ' ', $documentType)) . '.' : '')
+                                        . ($reason ? ' ' . e($reason) : '');
+                                } elseif ($verificationStatus === 'suspended') {
+                                    $notifyContent = translate('Your seller account has been suspended. Seller operations are currently restricted.');
+                                } elseif ($verificationStatus === 'reactivated') {
+                                    $notifyContent = translate('Your seller account has been reactivated.');
                                 }
                             @endphp
 

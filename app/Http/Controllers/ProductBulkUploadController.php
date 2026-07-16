@@ -30,7 +30,7 @@ class ProductBulkUploadController extends Controller
     public function index()
     {
         if (Auth::user()->user_type == 'seller') {
-            if (Auth::user()->shop->verification_status) {
+            if (Auth::user()->shop?->canManageProducts()) {
                 return view('seller.product_bulk_upload.index');
             } else {
                 flash(translate('Your shop is not verified yet!'))->warning();

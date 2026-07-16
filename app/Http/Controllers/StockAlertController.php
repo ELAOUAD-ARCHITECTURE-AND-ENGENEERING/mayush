@@ -38,7 +38,7 @@ class StockAlertController extends Controller
             }
         }
 
-        $product = Product::findOrFail($productId);
+        $product = Product::publiclyVisible()->findOrFail($productId);
 
         // Prevent duplicate active subscriptions
         $existing = StockSubscription::pending()

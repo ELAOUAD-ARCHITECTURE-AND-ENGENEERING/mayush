@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Requests\SellerProfileRequest;
-use App\Models\User;
 use Auth;
 use Hash;
 
@@ -35,7 +34,10 @@ class ProfileController extends Controller
             return back();
         }
 
-        $user = User::findOrFail($id);
+        // This is a seller self-service endpoint. Never trust the route ID to
+        // select a different user record.
+        abort_unless((int) $id === (int) Auth::id(), 403);
+        $user = Auth::user();
         $user->name = $request->name;
         $user->phone = $request->phone;
 

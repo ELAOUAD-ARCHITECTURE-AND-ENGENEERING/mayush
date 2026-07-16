@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\Shop;
+use App\Models\User;
 use App\Services\IndexNowService;
 use App\Services\SeoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -134,10 +135,12 @@ class AdvancedSeoSchemaTest extends TestCase
     public function test_seller_profile_renders_mayushseo_eeat_content_and_store_schema(): void
     {
         $shop = Shop::factory()->create([
+            'user_id' => User::factory()->seller()->create()->id,
             'name' => 'Atelier Atlas',
             'slug' => 'atelier-atlas',
             'address' => 'Casablanca, Maroc',
             'verification_status' => 1,
+            'approval_status' => 'approved',
         ]);
         Product::factory()->create([
             'user_id' => $shop->user_id,

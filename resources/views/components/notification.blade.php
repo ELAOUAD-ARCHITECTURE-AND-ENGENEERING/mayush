@@ -69,10 +69,26 @@
                             {{-- Shop Verification Related Notifications --}}
                             @elseif ($notification->type == 'App\Notifications\ShopVerificationNotification')
                                 @php
-                                    if($notification->data['status'] == 'submitted'){
-                                        $route = route('sellers.show_verification_request', $notification->data['id']);
+                                    $verificationStatus = $notification->data['status'] ?? null;
+                                    if(in_array($verificationStatus, ['submitted', 'documents_submitted'], true)){
+                                        $route = ($notification->data['workflow'] ?? null) === 'onboarding'
+                                            ? route('sellers.registration_pending', ['review_shop' => $notification->data['id']])
+                                            : route('sellers.show_verification_request', $notification->data['id']);
                                         $shopName = "<a href='".$route."'>".$notification->data['name']."</a>";
                                         $notifyContent = str_replace('[[shop_name]]', $shopName, $notifyContent);
+                                    } elseif (in_array($verificationStatus, ['registration_completed', 'approved', 'rejected'], true)) {
+                                        $notifyContent = $notificationType?->getTranslation('default_text')
+                                            ?? translate('Seller onboarding status updated.');
+                                    } elseif ($verificationStatus === 'correction_required') {
+                                        $documentType = $notification->data['document_type'] ?? null;
+                                        $reason = $notification->data['reason'] ?? null;
+                                        $notifyContent = translate('A correction is required for one or more of your seller onboarding documents.')
+                                            . ($documentType ? ' ' . ucwords(str_replace('_', ' ', $documentType)) . '.' : '')
+                                            . ($reason ? ' ' . e($reason) : '');
+                                    } elseif ($verificationStatus === 'suspended') {
+                                        $notifyContent = translate('Your seller account has been suspended. Seller operations are currently restricted.');
+                                    } elseif ($verificationStatus === 'reactivated') {
+                                        $notifyContent = translate('Your seller account has been reactivated.');
                                     }
                                 @endphp
 

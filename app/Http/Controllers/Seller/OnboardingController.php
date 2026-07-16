@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Utility\EmailUtility;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class OnboardingController extends Controller
 {
@@ -30,7 +32,7 @@ class OnboardingController extends Controller
             return redirect()->route('seller.dashboard');
         }
 
-        $documents = $shop->documents->keyBy('document_type');
+        $documents = $shop->documents()->orderByDesc('version')->orderByDesc('id')->get()->unique('document_type')->keyBy('document_type');
         
         return view('seller.onboarding.index', compact('shop', 'documents'));
     }
@@ -52,14 +54,45 @@ class OnboardingController extends Controller
         return response()->download($path);
     }
 
+    public function downloadDocument(SellerDocument $document)
+    {
+        $this->authorize('view', $document);
+        $path = $document->safeStoragePath();
+
+        abort_unless($path !== null && Storage::disk('seller_documents')->exists($path), 404);
+
+        $downloadName = (string) Str::of(basename($document->original_name ?: 'seller-document'))
+            ->replaceMatches('/[^A-Za-z0-9._-]/', '_')
+            ->limit(180, '');
+
+        $contentType = in_array($document->mime_type, [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+        ], true) ? $document->mime_type : 'application/octet-stream';
+
+        return Storage::disk('seller_documents')->download(
+            $path,
+            $downloadName,
+            ['Content-Type' => $contentType]
+        );
+    }
+
     /**
      * Handle document uploads and submit for review.
      */
     public function upload(Request $request)
     {
         $shop = Auth::user()->shop;
+
+        if (!$shop || !$shop->canSubmitOnboardingDocuments()) {
+            flash(translate('Your onboarding submission cannot be changed while it is under review or approved.'))->warning();
+            return back();
+        }
         
-        if ($shop->approval_status === 'under_review') {
+        $rejectedDocumentTypes = $shop->rejectedOnboardingDocumentTypes();
+
+        if ($shop->approval_status === 'under_review' && $rejectedDocumentTypes === []) {
             flash(translate('Your documents are currently under review. Please wait.'))->warning();
             return back();
         }
@@ -70,11 +103,19 @@ class OnboardingController extends Controller
             return back();
         }
 
+        // Initial submission requires the complete package. Corrections are
+        // intentionally incremental: a seller may replace one rejected
+        // document at a time while the other rejected versions remain
+        // preserved for review history.
+        $requiredTypes = $shop->approval_status === 'pending'
+            ? $shop->requiredDocumentTypes()
+            : [];
+
         $rules = [
-            'contract'              => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
-            'government_id'         => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
-            'business_registration' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
-            'certification'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'contract'              => (in_array('contract', $requiredTypes, true) ? 'required' : 'nullable') . '|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:10240',
+            'government_id'         => (in_array('government_id', $requiredTypes, true) ? 'required' : 'nullable') . '|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:10240',
+            'business_registration' => (in_array('business_registration', $requiredTypes, true) ? 'required' : 'nullable') . '|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:10240',
+            'certification'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:10240',
         ];
 
         $messages = [
@@ -87,39 +128,46 @@ class OnboardingController extends Controller
 
         $request->validate($rules, $messages);
 
+        if (in_array($shop->approval_status, ['rejected', 'under_review'], true)
+            && ($requiredTypes !== [] || $rejectedDocumentTypes !== [])
+            && !$request->hasFile('contract')
+            && !$request->hasFile('government_id')
+            && !$request->hasFile('business_registration')
+            && !$request->hasFile('certification')) {
+            return back()->withErrors(['documents' => translate('Upload at least one corrected document.')]);
+        }
+
         try {
-            $this->storeDocument($request, $shop, 'contract');
-            $this->storeDocument($request, $shop, 'government_id');
-            $this->storeDocument($request, $shop, 'business_registration');
-            
-            if ($request->hasFile('certification')) {
-                $this->storeDocument($request, $shop, 'certification');
-            }
+            DB::transaction(function () use ($request, &$shop) {
+                // Serialize submissions for this shop so replacement versions
+                // cannot be assigned the same number concurrently.
+                $shop = $shop->newQuery()->lockForUpdate()->findOrFail($shop->id);
+                $wasRejected = $shop->approval_status === 'rejected';
 
-            // Update shop status
-            $shop->approval_status = 'under_review';
-            $shop->documents_submitted_at = now();
-            
-            if ($shop->approval_status === 'rejected') {
-                $shop->resubmission_count += 1;
-            }
-            
-            $shop->save();
+                foreach (['contract', 'government_id', 'business_registration', 'certification'] as $type) {
+                    if ($request->hasFile($type)) {
+                        $this->storeDocument($request, $shop, $type);
+                    }
+                }
 
-            // Log action
-            AuditLog::create([
-                'target_user_id' => $shop->user_id,
-                'action_type'    => 'seller_documents_uploaded',
-                'description'    => "Seller uploaded onboarding documents. Resubmission count: {$shop->resubmission_count}",
-                'ip_address'     => request()->ip(),
-            ]);
+                $shop->approval_status = 'under_review';
+                $shop->documents_submitted_at = now();
+                $shop->rejection_reason = null;
+                $shop->admin_note = null;
+                if ($wasRejected) {
+                    $shop->resubmission_count = (int) $shop->resubmission_count + 1;
+                }
+                $shop->save();
 
-            // Notify Admin
-            try {
-                EmailUtility::seller_documents_received_admin('seller_documents_received_admin', $shop);
-            } catch (\Exception $e) {
-                Log::error('Failed to send admin notification for documents: ' . $e->getMessage());
-            }
+                AuditLog::create([
+                    'target_user_id' => $shop->user_id,
+                    'action_type'    => 'seller_documents_uploaded',
+                    'description'    => "Seller uploaded onboarding documents. Resubmission count: {$shop->resubmission_count}",
+                    'ip_address'     => request()->ip(),
+                ]);
+            });
+
+            app(\App\Services\SellerOnboardingNotifier::class)->documentsSubmitted($shop);
 
             flash(translate('Documents submitted successfully. We will review them shortly.'))->success();
             return back();
@@ -146,18 +194,25 @@ class OnboardingController extends Controller
     {
         if ($request->hasFile($type)) {
             $file = $request->file($type);
-            $path = $file->store('private/seller-documents');
-            
-            SellerDocument::updateOrCreate(
-                ['shop_id' => $shop->id, 'document_type' => $type],
-                [
-                    'file_path'     => $path,
-                    'original_name' => $file->getClientOriginalName(),
-                    'mime_type'     => $file->getMimeType(),
-                    'file_size'     => $file->getSize(),
-                    'uploaded_at'   => now(),
-                ]
-            );
+            $previous = SellerDocument::where('shop_id', $shop->id)
+                ->where('document_type', $type)
+                ->latest('version')->first();
+            $path = $file->store('', 'seller_documents');
+
+            SellerDocument::create([
+                'shop_id' => $shop->id,
+                'document_type' => $type,
+                'file_path' => $path,
+                'original_name' => (string) Str::of(basename($file->getClientOriginalName()))
+                    ->replaceMatches('/[^A-Za-z0-9._-]/', '_')
+                    ->limit(180, ''),
+                'mime_type' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+                'uploaded_at' => now(),
+                'status' => 'pending',
+                'version' => $previous ? ((int) $previous->version + 1) : 1,
+                'replaces_document_id' => $previous?->id,
+            ]);
         }
     }
 }

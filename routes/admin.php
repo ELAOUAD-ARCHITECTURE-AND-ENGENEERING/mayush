@@ -261,6 +261,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/sellers/{id}/documents', 'showDocuments')->name('sellers.documents');
         Route::post('/sellers/approve/{id}', 'approveApplication')->name('sellers.approve');
         Route::post('/sellers/reject/{id}', 'rejectApplication')->name('sellers.reject');
+        Route::post('/sellers/documents/{document}/review', 'reviewDocument')->name('sellers.documents.review');
+        Route::get('/sellers/documents/{document}/download', 'downloadDocument')->name('sellers.documents.download');
         Route::get('/sellers/login/{id}', 'login')->name('sellers.login');
         Route::post('/sellers/payment_modal', 'payment_modal')->name('sellers.payment_modal');
         Route::post('/sellers/profile_modal', 'profile_modal')->name('sellers.profile_modal');

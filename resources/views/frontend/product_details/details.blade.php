@@ -737,6 +737,20 @@
                             }
                         </script>
                     @endif
+                    @if ($detailedProduct->digital == 1 || $total_qty > 0)
+                        @php
+                            $whatsappNumberCustom = '212660900398';
+                            $productUrlCustom = URL::to('/product') . '/' . $detailedProduct->slug;
+                            $messageCustom = "i would like to buy this product could help me " . $productUrlCustom;
+                            $whatsappUrlCustom = "https://wa.me/{$whatsappNumberCustom}?text=" . urlencode($messageCustom);
+                        @endphp
+                        <div class="mt-2 w-100">
+                            <a href="{{ $whatsappUrlCustom }}" target="_blank" class="btn text-white fw-bold d-flex align-items-center justify-content-center w-100 py-15px rounded-1 has-transition cursor-pointer hov-opacity-80" style="background-color: #22C55E; transition: opacity 0.2s ease-in-out;">
+                                <i class="lab la-whatsapp fs-20 mr-2"></i>
+                                {{ translate('Buy via WhatsApp') }}
+                            </a>
+                        </div>
+                    @endif
                     <!--Buttons End-->
                 </div>
             @endif

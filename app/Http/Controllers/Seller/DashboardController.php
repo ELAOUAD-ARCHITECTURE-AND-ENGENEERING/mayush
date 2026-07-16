@@ -16,6 +16,18 @@ class DashboardController extends Controller
     public function index()
     {
         $authUserId = auth()->user()->id;
+        $shop = Auth::user()->shop;
+
+        if (!$shop) {
+            abort(403, translate('Seller shop onboarding is not available.'));
+        }
+
+        // Do not render operational seller analytics or product/order links
+        // until the shop has passed the authoritative onboarding check.
+        if (!$shop->canManageProducts()) {
+            return view('seller.restricted_dashboard', compact('shop'));
+        }
+
         $data['this_month_pending_orders'] = OrderDetail::whereSellerId($authUserId)
                                     ->whereDeliveryStatus('pending')
                                     ->whereYear('created_at', Carbon::now()->year)
@@ -113,7 +125,7 @@ class DashboardController extends Controller
             return $v->days_remaining <= 7; // Show anything running out within a week
         })->sortBy('days_remaining');
 
-        $data['shop'] = Auth::user()->shop;
+        $data['shop'] = $shop;
 
         return view('seller.dashboard', $data);
     }

@@ -131,7 +131,7 @@ class SearchController extends Controller
 
 
         if (addon_is_activated('preorder') && $request->product_type == 'preorder_product') {
-            $products = PreorderProduct::where('is_published', 1);
+            $products = PreorderProduct::publiclyVisible();
             $products = filter_preorder_product($products);
             if ($category_id != null) {
                 $category_ids = CategoryUtility::children_ids($category_id);
@@ -274,7 +274,7 @@ class SearchController extends Controller
        if (addon_is_activated('preorder')) {
             // ################# preorder category start here #################
 
-            $preorder_products = PreorderProduct::where('is_published', 1);
+            $preorder_products = PreorderProduct::publiclyVisible();
             $preorder_products_ids = filter_preorder_product($preorder_products)->pluck('id')->toArray();
 
             $preorder_mainCategories = DB::table('preorder_products')
@@ -447,7 +447,7 @@ class SearchController extends Controller
 
         // return $colors;
         if (addon_is_activated('preorder') && $request->product_type == 'preorder_product') {
-            $products = PreorderProduct::where('is_published', 1);
+            $products = PreorderProduct::publiclyVisible();
 
             if (count($category_list_preorder) > 0) {
                 $products->where(function ($query) use ($category_list_preorder) {
@@ -808,7 +808,7 @@ class SearchController extends Controller
             }
 
             $categories = Category::where('name', 'like', '%' . $query . '%')->limit(3)->get();
-            $shops = Shop::whereIn('user_id', verified_sellers_id())
+            $shops = Shop::publiclyVisible()
                 ->where('name', 'like', '%' . $query . '%')->limit(3)->get();
 
             return compact('products', 'keywords', 'categories', 'shops');
@@ -821,17 +821,10 @@ class SearchController extends Controller
 
 
         if (addon_is_activated('preorder')) {
-            $preorder_products =  PreorderProduct::where('is_published', 1)
+            $preorder_products =  PreorderProduct::publiclyVisible()
                 ->where(function ($queryBuilder) use ($query) {
                     $queryBuilder->where('product_name', 'like', '%' . $query . '%')
                         ->orWhere('tags', 'like', '%' . $query . '%');
-                })
-                ->where(function ($query) {
-                    $query->whereHas('user', function ($q) {
-                        $q->where('user_type', 'admin');
-                    })->orWhereHas('user.shop', function ($q) {
-                        $q->where('verification_status', 1);
-                    });
                 })
                 ->limit(3)
                 ->get();

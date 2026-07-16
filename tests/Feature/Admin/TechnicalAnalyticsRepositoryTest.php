@@ -14,7 +14,7 @@ class TechnicalAnalyticsRepositoryTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_vendor_kpis_and_growth_count_only_approved_verified_shops(): void
+    public function test_vendor_kpis_and_growth_count_only_authoritatively_approved_shops(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-05-06 12:00:00'));
 
@@ -52,10 +52,10 @@ class TechnicalAnalyticsRepositoryTest extends TestCase
         $growth = $repository->getVendorGrowthChart();
         $currentMonth = collect($growth)->last();
 
-        $this->assertSame(2, $kpis['active']);
-        $this->assertSame(1, $kpis['new']);
-        $this->assertSame(2, $currentMonth['active']);
-        $this->assertSame(1, $currentMonth['new']);
+        $this->assertSame(3, $kpis['active']);
+        $this->assertSame(2, $kpis['new']);
+        $this->assertSame(3, $currentMonth['active']);
+        $this->assertSame(2, $currentMonth['new']);
         $this->assertDatabaseHas('shops', ['id' => $approvedOld->id]);
         $this->assertDatabaseHas('shops', ['id' => $approvedCurrent->id]);
     }

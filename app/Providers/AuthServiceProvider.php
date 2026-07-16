@@ -20,6 +20,7 @@ class AuthServiceProvider extends ServiceProvider
     \App\Models\Product::class => \App\Policies\ProductPolicy::class,
     \App\Models\Review::class => \App\Policies\ReviewPolicy::class,
     \App\Models\RefundRequest::class => \App\Policies\RefundPolicy::class,
+    \App\Models\SellerDocument::class => \App\Policies\SellerDocumentPolicy::class,
   ];
 
   /**

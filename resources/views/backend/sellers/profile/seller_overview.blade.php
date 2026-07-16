@@ -95,57 +95,31 @@
     </div>
 
     <div class="col-lg-7 d-flex flex-column gap-3">
-        @if($shop->verification_status == 1 && $shop->verification_info != null)
-        <div class="rounded-2 p-4 mt-4 mt-md-0 bg-color mb-3" style="border: none;">
+        @php
+            $onboardingCardClass = $shop->isFullyApproved() ? 'bg-color' : ($shop->approval_status === 'rejected' ? 'bg-color2' : 'bg-color3');
+            $onboardingLabel = match ($shop->approval_status) {
+                'approved' => translate('Active'),
+                'under_review' => translate('Under Review'),
+                'rejected' => translate('Correction Required'),
+                default => translate('Pending Documents'),
+            };
+        @endphp
+        <div class="rounded-2 p-4 mt-4 mt-md-0 {{ $onboardingCardClass }} mb-3" style="border: none;">
             <div class="d-flex align-items-center">
                 <div class="d-flex align-items-center">
-                    <div>{{translate('Verification Status')}}</div>
-                    <p class="font-weight-bold ml-3 mb-0">{{translate('Verified')}}</p>
+                    <div>{{ translate('Seller Access') }}</div>
+                    <p class="font-weight-bold ml-3 mb-0">{{ $onboardingLabel }}</p>
                 </div>
-                <a href="javascript:void();" onclick="show_seller_verification_info('{{$shop->id}}');"
-                    class="ml-auto text-muted fs-12"
-                    style="text-decoration: underline;">
-                    {{translate('View Submitted Form')}}
-                </a>
+                @if($shop->approval_status !== 'approved')
+                    @can('view_pending_seller')
+                        <a href="{{ route('sellers.registration_pending', ['review_shop' => $shop->id]) }}"
+                            class="ml-auto text-muted fs-12" style="text-decoration: underline;">
+                            {{ translate('Review Onboarding') }}
+                        </a>
+                    @endcan
+                @endif
             </div>
         </div>
-
-        @elseif($shop->verification_status == 1 && $shop->verification_info == null)
-        <div class="rounded-2 p-4 mt-4 mt-md-0 bg-color mb-3" style="border: none;">
-            <div class="d-flex align-items-center">
-                <div class="d-flex align-items-center">
-                    <div>{{translate('Verification Status')}}</div>
-                    <p class="font-weight-bold ml-3 mb-0">{{translate('Verified')}}</p>
-                </div>
-                <span class="ml-auto text-muted fs-12">{{translate('By Admin')}}</span>
-            </div>
-        </div>
-
-        @elseif($shop->verification_status != 1 && $shop->verification_info != null)
-        <div class="rounded-2 p-4 mt-4 mt-md-0 bg-color2 mb-3" style="border: none;">
-            <div class="d-flex align-items-center">
-                <div class="d-flex align-items-center">
-                    <div>{{translate('Verification Status')}}</div>
-                    <p class="font-weight-bold ml-3 mb-0">{{translate('Pending Approval')}}</p>
-                </div>
-                <a href="javascript:void();" onclick="show_seller_verification_info('{{$shop->id}}');"
-                    class="ml-auto text-muted fs-12"
-                    style="text-decoration: underline;">
-                    {{translate('View Submitted Form')}}
-                </a>
-            </div>
-        </div>
-        @else
-
-        <div class="rounded-2 p-4 mt-4 mt-md-0 bg-color3 mb-3" style="border: none;">
-            <div class="d-flex align-items-center">
-                <div class="d-flex align-items-center">
-                    <div>{{translate('Verification Status')}}</div>
-                    <p class="font-weight-bold ml-3 mb-0">{{translate('Not Applied')}}</p>
-                </div>
-            </div>
-        </div>
-        @endif
 
         <!-- First Card - Supplier Info -->
         <div class="card rounded-2 border-color card-no-shadow mt-2 mt-md-2">

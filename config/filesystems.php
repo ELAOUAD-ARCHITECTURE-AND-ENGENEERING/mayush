@@ -55,6 +55,12 @@ return [
             'visibility' => 'public',
         ],
 
+        'seller_documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/seller-documents'),
+            'throw' => true,
+        ],
+
         'aws' => [
             'driver'    => 's3',
             'key'       => env('AWS_ACCESS_KEY_ID'),

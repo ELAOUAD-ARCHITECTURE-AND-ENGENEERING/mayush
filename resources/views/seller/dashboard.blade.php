@@ -197,6 +197,38 @@
                 <a href="{{ route('seller.onboarding.index') }}" class="btn btn-warning btn-sm font-weight-bold">{{ translate('Complete Onboarding') }}</a>
             </div>
         </div>
+        <div class="card border-warning mb-4">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <strong>{{ translate('Onboarding checklist') }}</strong>
+                <span class="badge badge-light">{{ $shop->approvalStatusLabel() }}</span>
+            </div>
+            <div class="card-body">
+                @php
+                    $missingOnboardingDocuments = $shop->missingRequiredDocumentTypes();
+                    $latestRejectedDocument = $shop->documents()->where('status', 'rejected')->latest('reviewed_at')->first();
+                @endphp
+                @if($missingOnboardingDocuments)
+                    <p class="mb-2">{{ translate('Required items still needing approval:') }}</p>
+                    <ul class="mb-3">
+                        @foreach($missingOnboardingDocuments as $documentType)
+                            <li>{{ translate(ucwords(str_replace('_', ' ', $documentType))) }}</li>
+                        @endforeach
+                    </ul>
+                @endif
+                @if($latestRejectedDocument)
+                    <div class="alert alert-danger mb-3">
+                        <strong>{{ translate('Correction requested:') }}</strong>
+                        {{ $latestRejectedDocument->rejection_reason }}
+                    </div>
+                @endif
+                @if($shop->admin_note)
+                    <p class="text-muted mb-3"><strong>{{ translate('Administrator note:') }}</strong> {{ $shop->admin_note }}</p>
+                @endif
+                <a href="{{ route('seller.onboarding.index') }}" class="btn btn-primary btn-sm">
+                    {{ translate('Complete Registration') }}
+                </a>
+            </div>
+        </div>
     @endif
 
     @if(addon_is_activated('gst_system') && !auth()->user()->shop->gst_verification)
@@ -777,11 +809,11 @@
             @endif
             <div
                 class="card mb-0 @if (addon_is_activated('seller_subscription')) px-4 py-5 @else p-5 h-100 @endif d-flex align-items-center justify-content-center">
-                @if ($authUser->shop?->verification_status == 0)
+                @if (!$shop?->canManageProducts())
                     <div class="my-n4 py-1 text-center">
                         <img src="{{ static_asset('assets/img/non_verified.png') }}" alt=""
                             class="w-xxl-130px w-90px d-block">
-                        <a href="{{ route('seller.shop.verify') }}"
+                        <a href="{{ route('seller.onboarding.index') }}"
                             class="btn btn-sm btn-primary">{{ translate('Verify Now') }}</a>
                     </div>
                 @else
@@ -1087,10 +1119,10 @@
                     {{ translate('Your account is pending verification. Please complete verification to continue.') }}
                 </p>
 
-                <a href="javascript:void(0)"
+                <a href="{{ route('seller.onboarding.index') }}"
                     class="btn btn-primary"
                     id="openSellerVerification">
-                        Click here to verify
+                        {{ translate('Complete seller onboarding') }}
                 </a>
                 @else
                 <h4 class="mb-3">{{ translate('Verification is under review') }}</h4>
@@ -1114,7 +1146,8 @@
     </div>
 
 
-    <!-- Verification Modal -->
+    @if (false)
+    <!-- Retired verification modal: seller onboarding is the only document workflow. -->
     <div id="seller_verification_modal" class="modal fade">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
@@ -1263,6 +1296,7 @@
             </div>
         </div>
     </div>
+    @endif
 @endsection
 
 @section('script')
@@ -1384,7 +1418,7 @@
         });
     </script>
 
-    @if(get_setting('portfolio_landing') && ($authUser->shop?->verification_status == 0))
+    @if(get_setting('portfolio_landing') && (!$authUser->shop?->canManageProducts()))
     <script>
         $(document).ready(function () {
             $('body').addClass('verification-lock');
@@ -1400,8 +1434,9 @@
     @endif
 
 <script>
+    @if (false)
      // Verification modal handling
-    @if(get_setting('portfolio_landing') && ($authUser->shop?->verification_status == 0))
+    @if(get_setting('portfolio_landing') && (!$authUser->shop?->canManageProducts()))
         $('body').addClass('verification-lock');
         $('#varification_pending_modal').modal({
             backdrop: 'static',
@@ -1571,6 +1606,7 @@
             $('#photoSelfieRequiredAlert').addClass('d-none');
         }
     });
+    @endif
 </script>
 
 @endsection

@@ -286,7 +286,7 @@
                                             <div
                                                 class="d-flex justify-content-between @if ($key == 0) mb-1 @endif">
                                                 <h3 class="fs-13 fw-600 mb-0">
-                                                    @if ($status_wise_seller->verification_status == 1)
+                                                    @if ($status_wise_seller->approval_status == 'approved')
                                                         <span
                                                             class="badge badge-md badge-dot badge-circle badge-success text-truncate mr-2"></span>
                                                         {{ translate('Approved Sellers') }}
