@@ -30,6 +30,9 @@ class EventServiceProvider extends ServiceProvider
         \Mayush\Shipping\Onessta\Events\ShipmentCreationFailed::class => [
             \Mayush\Shipping\Onessta\Listeners\NotifyAdminOnShipmentFailure::class,
         ],
+        \App\Events\NewCustomerMessageReceived::class => [
+            \App\Listeners\ProcessBotResponse::class,
+        ],
     ];
 
   /**

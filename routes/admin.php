@@ -593,6 +593,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/reviews/published', 'updatePublished')->name('reviews.published');
     });
 
+    //Support Live Chat
+    Route::controller(\App\Http\Controllers\Support\AdminLiveChatController::class)->group(function () {
+        Route::get('livechat/', 'index')->name('livechat.admin_index');
+        Route::get('livechat/{id}/fetch', 'fetchMessages')->name('livechat.admin_fetch');
+        Route::post('livechat/{id}/reply', 'reply')->name('livechat.admin_reply');
+        Route::post('livechat/{id}/close', 'close')->name('livechat.admin_close');
+    });
+
     //Support_Ticket
     Route::controller(SupportTicketController::class)->group(function () {
         Route::get('support_ticket/', 'admin_index')->name('support_ticket.admin_index');
