@@ -230,6 +230,8 @@ class OrderController extends Controller
             $seller_products[$product->user_id] = $product_ids;
         }
 
+        $createdOrderIds = [];
+
         DB::beginTransaction();
         try {
             foreach ($seller_products as $seller_product) {
@@ -399,12 +401,23 @@ class OrderController extends Controller
             $combined_order->grand_total += $order->grand_total;
 
             $order->save();
+            $createdOrderIds[] = $order->id;
         }
 
         $combined_order->save();
 
         $request->session()->put('combined_order_id', $combined_order->id);
-            DB::commit();
+        DB::commit();
+
+        // The initial order save happens before shipping_type, totals, and
+        // order details are populated. Dispatch only after commit so the
+        // shipment payload represents the finalized buyer order.
+        foreach ($createdOrderIds as $createdOrderId) {
+            $createdOrder = Order::with(['orderDetails', 'user'])->find($createdOrderId);
+            if ($createdOrder) {
+                app(OrderShipmentDispatchService::class)->ensureForOrder($createdOrder);
+            }
+        }
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
