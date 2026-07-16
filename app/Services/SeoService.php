@@ -143,7 +143,7 @@ class SeoService
     {
         $name = self::cleanText($shop->name, 'Ce vendeur Mayush', 60);
         $location = self::cleanText($shop->address, 'Maroc', 70);
-        $verified = (int) $shop->verification_status === 1 ? 'verifie' : 'reference';
+        $verified = $shop->isFullyApproved() ? 'verifie' : 'reference';
 
         return self::cleanText("Decouvrez {$name}, vendeur {$verified} sur Mayush Marketplace au Maroc. Consultez ses produits, avis, profil, localisation ({$location}) et options de contact.", '', 170);
     }
@@ -303,7 +303,7 @@ class SeoService
         $intent = self::categoryIntentProfile($category);
 
         return self::cleanText(
-            "Note de l'équipe conseil Mayush : pour {$categoryName}, privilégiez {$intent['expert_focus']} et vérifiez toujours les dimensions, les finitions et les options de livraison avant de commander.",
+            "Note de l'équipe conseil Mayush : pour la catégorie {$categoryName}, privilégiez {$intent['expert_focus']} et vérifiez toujours les dimensions, les finitions et les options de livraison avant de commander.",
             '',
             260
         );
@@ -314,7 +314,7 @@ class SeoService
         $category = optional($product->main_category)->getTranslation('name') ?: 'mobilier et decoration';
 
         return self::cleanText(
-            "Note de l'équipe conseil Mayush : pour un achat {$category} au Maroc, comparez les dimensions, la disponibilité, les délais de livraison et les informations du vendeur afin de choisir une pièce adaptée à votre espace.",
+            "Note de l'équipe conseil Mayush : pour vos achats dans la catégorie {$category} au Maroc, comparez les dimensions, la disponibilité, les délais de livraison et les informations du vendeur afin de choisir une pièce adaptée à votre espace.",
             '',
             260
         );
@@ -497,7 +497,7 @@ class SeoService
                 [
                     '@type' => 'PropertyValue',
                     'name' => 'Statut Mayush',
-                    'value' => (int) $shop->verification_status === 1 ? 'Vendeur verifie' : 'Vendeur reference',
+                    'value' => $shop->isFullyApproved() ? 'Vendeur verifie' : 'Vendeur reference',
                 ],
             ],
         ];
