@@ -38,7 +38,7 @@
           <div class="col-md-6">
               <div class="row fs-12">
                   <div class="col-auto w-200px">
-                      <span class="font-weight-bold light-blue">{{ get_shop_by_user_id($order->seller_id)->name??"Inhouse Products" }}</span>
+                      <span class="font-weight-bold light-blue">{{ get_shop_by_user_id($order->seller_id)->name ?? translate('Inhouse Products') }}</span>
                   </div>
                   <div class="col">
                       <span class="text-muted">{{ translate('Date')}}: {{ date('d-m-Y', $order->date) }}</span>

@@ -41,7 +41,7 @@ class Product extends Model
         $lang = $lang ?: App::getLocale();
         $product_translation = $this->product_translations->where('lang', $lang)->first();
         if ($product_translation != null && $product_translation->$field !== null && $product_translation->$field !== $this->$field) {
-            return in_array($field, ['name', 'title']) ? translate($product_translation->$field, $lang) : $product_translation->$field;
+            return $product_translation->$field;
         }
 
         return $product_translation != null ? $product_translation->$field : $this->$field;
@@ -152,6 +152,64 @@ class Product extends Model
     public function scopeIsApprovedPublished($query)
     {
         return $query->where('approved', '1')->where('published', 1);
+    }
+
+    /**
+     * Products allowed on public storefront and API responses.
+     * Seller visibility is based on the authoritative shop approval state.
+     */
+    public function scopePubliclyVisible($query)
+    {
+        $query = $query->isApprovedPublished()
+            ->where(function ($product) {
+                $product->where('added_by', 'admin')
+                    ->orWhereHas('user', function ($user) {
+                        $user->where('user_type', 'seller')
+                            ->where('banned', 0)
+                            ->where(function ($seller) {
+                                $seller->where('is_intern', 1)
+                                    ->orWhereHas('shop', function ($shop) {
+                                        $shop->where('approval_status', 'approved');
+                                    });
+                            });
+                    });
+            });
+
+        if (get_setting('vendor_system_activation') != 1) {
+            $query->where(function ($product) {
+                $product->where('added_by', 'admin')
+                    ->orWhereHas('user', function ($user) {
+                        $user->where('user_type', 'seller')
+                            ->where('is_intern', 1)
+                            ->where('banned', 0);
+                    });
+            });
+        }
+
+        return $query;
+    }
+
+    public function isPubliclyVisible(): bool
+    {
+        if ((int) $this->approved !== 1 || (int) $this->published !== 1) {
+            return false;
+        }
+
+        if ($this->added_by === 'admin') {
+            return true;
+        }
+
+        $user = $this->relationLoaded('user') ? $this->user : $this->user()->with('shop')->first();
+        if (!$user || $user->user_type !== 'seller' || $user->banned) {
+            return false;
+        }
+
+        if ($user->is_intern) {
+            return true;
+        }
+
+        return get_setting('vendor_system_activation') == 1
+            && $user->shop?->isFullyApproved() === true;
     }
 
     public function last_viewed_products()
