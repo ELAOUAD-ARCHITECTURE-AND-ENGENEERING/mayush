@@ -15,7 +15,7 @@ class WholesaleProductController extends Controller
     {
         CoreComponentRepository::instantiateShopRepository();
 
-        $products = Product::where('wholesale_product', 1)->orderBy('created_at', 'desc');
+        $products = Product::publiclyVisible()->where('wholesale_product', 1)->orderBy('created_at', 'desc');
 
         if ($request->has('user_id') && $request->user_id != null) {
             $products = $products->where('user_id', $request->user_id);
@@ -41,7 +41,10 @@ class WholesaleProductController extends Controller
     }
     public function wholesale_product_details(Request $request, $id)
     {
-        $product =  Product::find($id);
+        $product = Product::publiclyVisible()->find($id);
+        if (!$product) {
+            return response()->json(['result' => false, 'message' => translate('Product not found.')], 404);
+        }
         return new WholesaleProductDetailsCollection($product);
     }
 }

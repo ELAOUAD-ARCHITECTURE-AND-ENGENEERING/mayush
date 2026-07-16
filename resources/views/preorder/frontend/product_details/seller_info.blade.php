@@ -18,7 +18,7 @@
                         <a href="{{ route('shop.visit', $product->user->shop->slug) }}"
                             class="text-reset hov-text-primary d-block fs-14 fw-700">
                             {{ $product->user->shop->name }}
-                            @if ($product->user->shop->verification_status == 1)
+                            @if ($product->user->shop->isFullyApproved())
                                 <span class="ml-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="17.5" viewBox="0 0 17.5 17.5">
                                         <g id="Group_25616" data-name="Group 25616" transform="translate(-537.249 -1042.75)">

@@ -6,7 +6,7 @@ use Route;
 
 Route::group(['prefix' => 'v2/seller', 'middleware' => ['app_language']], function () {
 
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth:sanctum', 'seller.approved.api'])->group(function () {
 
         //Order Section
         Route::controller(OrderController::class)->group(function () {

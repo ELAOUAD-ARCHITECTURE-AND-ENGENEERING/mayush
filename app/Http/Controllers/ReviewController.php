@@ -102,6 +102,10 @@ class ReviewController extends Controller
     public function store(Request $request)
     {
         $authUser = auth()->user();
+        $product = $authUser->user_type == 'customer'
+            ? Product::publiclyVisible()->findOrFail($request->product_id)
+            : Product::findOrFail($request->product_id);
+
         $review             = new Review;
         $review->product_id = $request->product_id;
         if($authUser->user_type == 'customer'){
@@ -128,7 +132,6 @@ class ReviewController extends Controller
                 ->update(['reviewed' => 1]);
         }
         
-        $product = Product::findOrFail($request->product_id);
         $reviewCount = Review::whereProductId($product->id)->whereStatus(1)->count();
         if ( $reviewCount > 0) {
             $product->rating = Review::whereProductId($product->id)->whereStatus(1)->sum('rating') /  $reviewCount;
@@ -145,7 +148,6 @@ class ReviewController extends Controller
         }
 
         if (addon_is_activated('club_point')) {
-            $product = Product::findOrFail($request->product_id);
             $getPoint = false;
 
             if ($product->added_by == 'admin') {
@@ -302,7 +304,7 @@ class ReviewController extends Controller
     public function product_review_modal(Request $request)
     {
         $order_id = $request->order_id;
-        $product = Product::where('id', $request->product_id)->first();
+        $product = Product::publiclyVisible()->findOrFail($request->product_id);
         $review = Review::where('user_id', Auth::user()->id)->where('product_id', $product->id)->first();
         return view('frontend.user.product_review_modal', compact('product', 'review', 'order_id'));
     }

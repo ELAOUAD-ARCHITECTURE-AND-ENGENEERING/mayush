@@ -22,14 +22,11 @@ class ProductController extends Controller
 {
     public function index()
     {
-        return new ProductMiniCollection(Product::latest()->paginate(10));
+        return new ProductMiniCollection(Product::publiclyVisible()->latest()->paginate(10));
     }
     public function show($id)
     {
-        $product = Product::where('id', $id)
-            ->where('published', 1)
-            ->where('approved', 1)
-            ->get();
+        $product = Product::publiclyVisible()->where('id', $id)->get();
 
         if ($product->isEmpty()) {
             return response()->json([
@@ -44,8 +41,8 @@ class ProductController extends Controller
 
     public function product_details($slug, $user_id)
     {
-        $product = Product::where('slug', $slug)->get();
-        if ($product->count() > 0 && $product[0]->user && ($product[0]->user->banned || $product[0]->user->is_intern)) {
+        $product = Product::publiclyVisible()->where('slug', $slug)->get();
+        if ($product->isEmpty()) {
             return response()->json(['message' => 'Product not found'], 404);
         }
         if(get_setting('last_viewed_product_activation') == 1 && $user_id != null){
@@ -56,7 +53,11 @@ class ProductController extends Controller
 
     public function getPrice(Request $request)
     {
-        $product = Product::where("slug", $request->slug)->first();
+        $product = Product::publiclyVisible()->where("slug", $request->slug)->first();
+        if (!$product) {
+            return response()->json(['result' => false, 'message' => translate('Product not found')], 404);
+        }
+
         $str = '';
         $tax = 0;
         $quantity = 1;
@@ -167,10 +168,10 @@ class ProductController extends Controller
     public function seller($id, Request $request)
     {
         $shop = Shop::findOrFail($id);
-        if ($shop->user && ($shop->user->banned || $shop->user->is_intern)) {
+        if (!$shop->isPubliclyVisible()) {
             return response()->json(['message' => 'Shop not found'], 404);
         }
-        $products = Product::where('added_by', 'seller')->where('user_id', $shop->user_id);
+        $products = Product::publiclyVisible()->where('added_by', 'seller')->where('user_id', $shop->user_id);
         if ($request->name != "" || $request->name != null) {
             $products = $products->where('name', 'like', '%' . $request->name . '%');
         }
@@ -248,15 +249,21 @@ class ProductController extends Controller
 
     public function frequentlyBought($slug)
     {
-        $product = Product::where("slug", $slug)->first();
+        $product = Product::publiclyVisible()->where("slug", $slug)->first();
+        if (!$product) {
+            return new ProductMiniCollection(collect());
+        }
         $products = get_frequently_bought_products($product);
         return new ProductMiniCollection($products);
     }
 
     public function topFromSeller($slug)
     {
-        $product = Product::where("slug", $slug)->first();
-        $products = Product::where('user_id', $product->user_id)->orderBy('num_of_sale', 'desc')->physical();
+        $product = Product::publiclyVisible()->where("slug", $slug)->first();
+        if (!$product) {
+            return new ProductMiniCollection(collect());
+        }
+        $products = Product::publiclyVisible()->where('user_id', $product->user_id)->orderBy('num_of_sale', 'desc')->physical();
         return new ProductMiniCollection(filter_products($products)->limit(10)->get());
     }
 
@@ -368,7 +375,7 @@ class ProductController extends Controller
 
     public function variantPrice(Request $request)
     {
-        $product = Product::findOrFail($request->id);
+        $product = Product::publiclyVisible()->findOrFail($request->id);
         $str = '';
         $tax = 0;
 

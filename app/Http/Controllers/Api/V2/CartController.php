@@ -39,7 +39,13 @@ class CartController extends Controller
         $tax = 0.00;
         $gst = 0.00;
         foreach ($items as $cartItem) {
-            $product = Product::find($cartItem['product_id']);
+            $product = Product::publiclyVisible()->find($cartItem['product_id']);
+            if (!$product) {
+                return response()->json([
+                    'result' => false,
+                    'message' => translate('One or more products in your cart are no longer available.'),
+                ], 422);
+            }
             $subtotal += cart_product_price($cartItem, $product, false, false) * $cartItem['quantity'];
             $tax += cart_product_tax($cartItem, $product, false) * $cartItem['quantity'];
             $gst += cart_product_gst($cartItem, $product, false);
@@ -99,7 +105,10 @@ class CartController extends Controller
                 $shop_items_data = array();
                 if (!empty($shop_items_raw_data)) {
                     foreach ($shop_items_raw_data as $shop_items_raw_data_item) {
-                        $product = Product::where('id', $shop_items_raw_data_item["product_id"])->first();
+                        $product = Product::publiclyVisible()->whereKey($shop_items_raw_data_item["product_id"])->first();
+                        if (!$product) {
+                            continue;
+                        }
                         $price = cart_product_price($shop_items_raw_data_item, $product, false, false) * intval($shop_items_raw_data_item["quantity"]);
                         $tax = cart_product_tax($shop_items_raw_data_item, $product, false);
                         $gst = cart_product_gst($shop_items_raw_data_item, $product, false);
@@ -169,7 +178,7 @@ class CartController extends Controller
         }
 
         $check_auction_in_cart = CartUtility::check_auction_in_cart($carts);
-        $product = Product::findOrFail($request->id);
+        $product = Product::publiclyVisible()->findOrFail($request->id);
 
         if ($check_auction_in_cart && $product->auction_product == 0) {
             return response()->json([
@@ -274,7 +283,12 @@ class CartController extends Controller
     {
         $cart = Cart::find($request->id);
         if ($cart != null) {
-            $product = Product::find($cart->product_id);
+            $product = Product::publiclyVisible()->find($cart->product_id);
+            if (!$product) {
+                $cart->status = 0;
+                $cart->save();
+                return response()->json(['result' => false, 'message' => translate('This product is no longer available.')], 422);
+            }
             if ($product->auction_product == 1) {
                 return response()->json(['result' => false, 'message' => translate('Maximum available quantity reached')], 200);
             }
@@ -301,7 +315,10 @@ class CartController extends Controller
             $i = 0;
             foreach ($cart_ids as $cart_id) {
                 $cart_item = Cart::where('id', $cart_id)->first();
-                $product = Product::where('id', $cart_item->product_id)->first();
+                $product = Product::publiclyVisible()->whereKey($cart_item->product_id)->first();
+                if (!$product) {
+                    return response()->json(['result' => false, 'message' => translate('This product is no longer available.')], 422);
+                }
 
                 if ($product->min_qty > $cart_quantities[$i]) {
                     return response()->json(['result' => false, 'message' => translate("Minimum") . " {$product->min_qty} " . translate("item(s) should be ordered for") . " {$product->name}"], 200);

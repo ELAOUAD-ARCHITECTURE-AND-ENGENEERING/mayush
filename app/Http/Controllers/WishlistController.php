@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Auth;
 use App\Models\Wishlist;
+use App\Models\Product;
 
 class WishlistController extends Controller
 {
@@ -38,11 +39,12 @@ class WishlistController extends Controller
     public function store(Request $request)
     {
         if(Auth::check()){
-            $wishlist = Wishlist::where('user_id', Auth::user()->id)->where('product_id', $request->id)->first();
+            $product = Product::publiclyVisible()->findOrFail($request->id);
+            $wishlist = Wishlist::where('user_id', Auth::user()->id)->where('product_id', $product->id)->first();
             if($wishlist == null){
                 $wishlist = new Wishlist;
                 $wishlist->user_id = Auth::user()->id;
-                $wishlist->product_id = $request->id;
+                $wishlist->product_id = $product->id;
                 $wishlist->save();
             }
             if(get_setting('header_element') ==5){

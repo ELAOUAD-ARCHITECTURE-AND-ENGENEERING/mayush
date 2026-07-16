@@ -47,20 +47,20 @@ class CartController extends Controller
 
     public function showCartModal(Request $request)
     {
-        $product = Product::find($request->id);
+        $product = Product::publiclyVisible()->findOrFail($request->id);
         return view('frontend.partials.cart.addToCart', compact('product'));
     }
 
     public function selectVariantCanvas(Request $request)
     {
-        $product = Product::find($request->id);
+        $product = Product::publiclyVisible()->findOrFail($request->id);
         return view('frontend.partials.cart.selectVariantCanvas', compact('product'));
     }
 
 
     public function showCartModalAuction(Request $request)
     {
-        $product = Product::find($request->id);
+        $product = Product::publiclyVisible()->findOrFail($request->id);
         return view('auction.frontend.addToCartAuction', compact('product'));
     }
 
@@ -83,7 +83,7 @@ class CartController extends Controller
         }
 
         $check_auction_in_cart = CartUtility::check_auction_in_cart($carts);
-        $product = Product::find($request->id);
+        $product = Product::publiclyVisible()->findOrFail($request->id);
         $carts = array();
 
         if($check_auction_in_cart && $product->auction_product == 0) {
@@ -208,7 +208,7 @@ class CartController extends Controller
         $cartItem = Cart::findOrFail($request->id);
 
         if ($cartItem['id'] == $request->id) {
-            $product = Product::find($cartItem['product_id']);
+            $product = Product::publiclyVisible()->findOrFail($cartItem['product_id']);
             $product_stock = CartUtility::product_stock($product, $cartItem['variation']);
             if (!$product_stock || $product_stock->qty <= 0) {
                 $cartItem->status = 0;
@@ -342,7 +342,7 @@ class CartController extends Controller
             'quantity' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        $product = Product::findOrFail($request->id);
+        $product = Product::publiclyVisible()->findOrFail($request->id);
         
         $quantity = (int) ($request->quantity ?? $product->min_qty);
         if ($quantity < $product->min_qty) {

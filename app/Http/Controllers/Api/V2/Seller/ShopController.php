@@ -28,13 +28,13 @@ class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $shop_query = Shop::query();
+        $shop_query = Shop::publiclyVisible();
 
         if ($request->name != null && $request->name != "") {
             $shop_query->where("name", 'like', "%{$request->name}%");
             SearchUtility::store($request->name);
         }
-        return new ShopCollection($shop_query->whereIn('user_id', verified_sellers_id())->paginate(10));
+        return new ShopCollection($shop_query->paginate(10));
     }
 
 
@@ -220,6 +220,10 @@ class ShopController extends Controller
             $shop->name = $request->shop_name;
             $shop->address = $request->address;
             $shop->slug = preg_replace('/\s+/', '-', str_replace("/", " ", $request->shop_name));
+            // Seller onboarding always starts restricted; do not rely on a
+            // database default for the authorization state.
+            $shop->registration_approval = 0;
+            $shop->approval_status = 'pending';
             $shop->save();
 
             if (BusinessSetting::where('type', 'email_verification')->first()->value != 1) {
@@ -245,43 +249,19 @@ class ShopController extends Controller
 
     public function getVerifyForm()
     {
-        $forms = BusinessSetting::where('type', 'verification_form')->first();
-        return response()->json(json_decode($forms->value));
+        return response()->json([
+            'result' => false,
+            'message' => translate('Seller verification is now completed through the onboarding document workflow.'),
+            'error' => 'seller_onboarding_legacy_flow_disabled',
+        ], 410);
     }
 
     public function store_verify_info(Request $request)
     {
-        $data = array();
-        $i = 0;
-        foreach (json_decode(BusinessSetting::where('type', 'verification_form')->first()->value) as $key => $element) {
-            $item = array();
-            if ($element->type == 'text') {
-                $item['type'] = 'text';
-                $item['label'] = $element->label;
-                $item['value'] = $request['element_' . $i];
-            } elseif ($element->type == 'select' || $element->type == 'radio') {
-                $item['type'] = 'select';
-                $item['label'] = $element->label;
-                $item['value'] = $request['element_' . $i];
-            } elseif ($element->type == 'multi_select') {
-                $item['type'] = 'multi_select';
-                $item['label'] = $element->label;
-                $item['value'] = json_encode($request['element_' . $i]);
-            } elseif ($element->type == 'file') {
-                $item['type'] = 'file';
-                $item['label'] = $element->label;
-                $item['value'] = $request['element_' . $i]->store('uploads/verification_form');
-            }
-            array_push($data, $item);
-            $i++;
-        }
-
-        $shop = auth()->user()->shop;
-        $shop->verification_info = json_encode($data);
-        if ($shop->save()) {
-            return $this->success(translate('Your shop verification request has been submitted successfully!'));
-        }
-
-        return $this->failed(translate('Something Went Wrong!'));
+        return response()->json([
+            'result' => false,
+            'message' => translate('Seller verification is now completed through the onboarding document workflow.'),
+            'error' => 'seller_onboarding_legacy_flow_disabled',
+        ], 410);
     }
 }

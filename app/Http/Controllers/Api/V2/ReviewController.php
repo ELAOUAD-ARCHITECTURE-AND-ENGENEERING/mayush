@@ -19,7 +19,13 @@ class ReviewController extends Controller
 
     public function submit(Request $request)
     {
-        $product = Product::find($request->product_id);
+        $product = Product::publiclyVisible()->find($request->product_id);
+        if (!$product) {
+            return response()->json([
+                'result' => false,
+                'message' => translate('You cannot review this product'),
+            ], 404);
+        }
         $user = User::find(auth()->user()->id);
 
         $reviewable = false;

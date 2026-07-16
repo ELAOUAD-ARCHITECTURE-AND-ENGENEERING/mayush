@@ -50,7 +50,7 @@ class StorefrontDataService
     {
         return $this->remember('sale-alert-products', 900, function () {
             return CustomSaleAlert::with('product')->get()->map(function ($alert) {
-                if (! $alert->product) {
+                if (! $alert->product || ! $alert->product->isPubliclyVisible()) {
                     return null;
                 }
 
@@ -93,10 +93,9 @@ class StorefrontDataService
             FlashDealProduct::with(['product' => fn ($query) => $this->withProductCardRelations($query)])
                 ->where('flash_deal_id', $flashDealId)
                 ->orderBy('id', 'desc')
-                ->limit($limit)
                 ->get(),
             [$flashDealId, $limit]
-        );
+        )->filter(fn ($flashDealProduct) => $flashDealProduct->product?->isPubliclyVisible())->take($limit)->values();
     }
 
     public function featuredProducts(int $limit = 12)
@@ -230,9 +229,7 @@ class StorefrontDataService
         }
 
         return $this->remember('promoted-category-products', 900, function () use ($categoryIds, $limit) {
-            $discounted = $this->withProductCardRelations(Product::whereIn('category_id', $categoryIds))
-                ->where('published', 1)
-                ->where('approved', 1)
+            $discounted = $this->withProductCardRelations(filter_products(Product::whereIn('category_id', $categoryIds)))
                 ->where('discount', '>', 0)
                 ->latest()
                 ->limit($limit)
@@ -242,9 +239,7 @@ class StorefrontDataService
                 return $discounted;
             }
 
-            return $this->withProductCardRelations(Product::whereIn('category_id', $categoryIds))
-                ->where('published', 1)
-                ->where('approved', 1)
+            return $this->withProductCardRelations(filter_products(Product::whereIn('category_id', $categoryIds)))
                 ->latest()
                 ->limit($limit)
                 ->get();
@@ -254,8 +249,8 @@ class StorefrontDataService
     public function eliteArtisans()
     {
         return $this->remember('elite-artisans', 900, fn () =>
-            Shop::whereHas('activeEliteSubscription')
-                ->where('verification_status', 1)
+            Shop::publiclyVisible()
+                ->whereHas('activeEliteSubscription')
                 ->get()
         );
     }
@@ -263,10 +258,7 @@ class StorefrontDataService
     public function recentBestSellers()
     {
         return $this->remember('recent-best-sellers', 300, fn () =>
-            Shop::where('verification_status', 1)
-                ->whereHas('user', function ($query) {
-                    $query->where('is_intern', 0);
-                })
+            Shop::publiclyVisible()
                 ->whereIn('user_id', function ($query) {
                     $query->select('seller_id')
                         ->from('order_details')

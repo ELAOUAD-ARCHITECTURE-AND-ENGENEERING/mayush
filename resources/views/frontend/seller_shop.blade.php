@@ -4,7 +4,7 @@
     $shopSeoTitle = \App\Services\SeoService::meaningfulText($shop->meta_title, \App\Services\SeoService::shopMetaTitle($shop), 70, 8);
     $shopSeoDescription = \App\Services\SeoService::meaningfulText($shop->meta_description, \App\Services\SeoService::shopMetaDescription($shop), 170, 20);
     $shopSeoImage = uploaded_asset($shop->meta_img ?: $shop->logo);
-    $shopPublishedProductCount = \App\Models\Product::where('user_id', $shop->user_id)->isApprovedPublished()->count();
+    $shopPublishedProductCount = filter_products(\App\Models\Product::where('user_id', $shop->user_id))->count();
 @endphp
 
 @section('meta_title'){{ $shopSeoTitle }}@stop
@@ -57,7 +57,7 @@
             </p>
             <div class="d-flex flex-wrap align-items-center">
                 <span class="badge badge-inline badge-soft-primary mr-2 mb-2">
-                    {{ $shop->verification_status == 1 ? 'Vendeur verifie Mayush' : 'Vendeur reference Mayush' }}
+                            {{ $shop->isFullyApproved() ? 'Vendeur verifie Mayush' : 'Vendeur reference Mayush' }}
                 </span>
                 <span class="badge badge-inline badge-soft-secondary mr-2 mb-2">
                     {{ number_format($shopPublishedProductCount) }} produits publies
@@ -112,7 +112,7 @@
                                 <a href="{{ route('shop.visit', $shop->slug) }}"
                                     class="text-dark d-block fs-16 fw-700">
                                     {{ $shop->name }}
-                                    @if ($shop->verification_status == 1)
+                                    @if ($shop->isFullyApproved())
                                         <span class="ml-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="17.5" viewBox="0 0 17.5 17.5">
                                                 <g id="Group_25616" data-name="Group 25616" transform="translate(-537.249 -1042.75)">

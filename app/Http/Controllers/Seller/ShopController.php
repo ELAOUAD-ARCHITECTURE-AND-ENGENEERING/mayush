@@ -23,7 +23,24 @@ class ShopController extends Controller
 
     public function update(Request $request)
     {
-        $shop = Shop::find($request->shop_id);
+        // Seller self-service must always be scoped to the authenticated
+        // seller. The hidden shop_id is only a legacy form field and is not an
+        // authorization boundary.
+        $shop = Auth::user()->shop;
+        abort_unless($shop, 404);
+
+        // Seller onboarding documents are handled exclusively by
+        // SellerDocument. Preserve non-file business settings, but do not
+        // accept retired verification uploads that would be written below
+        // public/ or create a second approval workflow.
+        $legacyVerificationFileFields = ['certificate', 'seller_photo', 'id_card', 'gstin_certificate'];
+        $hasLegacyVerificationFile = collect($legacyVerificationFileFields)
+            ->contains(fn (string $field): bool => $request->hasFile($field));
+
+        if ($hasLegacyVerificationFile || $request->filled('live_selfie')) {
+            flash(translate('Seller verification is now completed from the onboarding page.'))->warning();
+            return redirect()->route('seller.onboarding.index');
+        }
 
         if ($request->has('name') && $request->has('address')) {
             if ($request->has('shipping_cost')) {
@@ -68,62 +85,12 @@ class ShopController extends Controller
         if ($request->has('certificate_number')) {
 
             $business_info['certificate_number'] = $request->certificate_number;
-            // Replace certificate file
-            if ($request->hasFile('certificate')) {
-                    if (!empty($business_info['certificate']) && file_exists(public_path($business_info['certificate']))) {
-                        unlink(public_path($business_info['certificate']));
-                    }
-                    $business_info['certificate'] =
-                    $request->file('certificate')->store('uploads/verification_form');
-                }
             $business_info['country'] = Country::find($request->country_id)?->name;
             $business_info['state']   = State::find($request->state_id)?->name;
         }
 
-        if ($request->has('seller_photo') || $request->has('live_selfie') || $request->has('id_card')) {
-
-           
-            // Replace seller_photo file
-            if ($request->hasFile('seller_photo')) {
-                if (!empty($business_info['seller_photo']) && file_exists(public_path($business_info['seller_photo']))) {
-                    unlink(public_path($business_info['seller_photo']));
-                }
-                $business_info['seller_photo'] =
-                $request->file('seller_photo')->store('uploads/verification_form');
-            }
-
-            if ($request->hasFile('id_card')) {
-                if (!empty($business_info['id_card']) && file_exists(public_path($business_info['id_card']))) {
-                    unlink(public_path($business_info['id_card']));
-                }
-                $business_info['id_card'] =
-                $request->file('id_card')->store('uploads/verification_form');
-            }
-
-            if ($request->live_selfie) {
-                if (!empty($business_info['seller_selfie']) &&
-                    file_exists(public_path($business_info['seller_selfie']))) {
-                    unlink(public_path($business_info['seller_selfie']));
-                }
-                $image = $request->live_selfie;  // your base64 encoded
-                $image = str_replace('data:image/png;base64,', '', $image);
-                $image = str_replace(' ', '+', $image);
-                $imageName = 'uploads/verification_form/seller_selfie_' . time() . '.png';
-                \File::put(public_path($imageName), base64_decode($image));
-                $business_info['seller_selfie'] = $imageName;
-            }
-        }
-
         if (addon_is_activated('gst_system') && $request->has('gstin_number')) {
             $business_info['gstin'] = $request->gstin_number;
-            if ($request->hasFile('gstin_certificate')) {
-                if (!empty($business_info['gstin_certificate']) &&
-                    file_exists(public_path($business_info['gstin_certificate']))) {
-                    unlink(public_path($business_info['gstin_certificate']));
-                }
-                $business_info['gstin_certificate'] =
-                $request->file('gstin_certificate')->store('uploads/verification_form');
-            }
         }
         $shop->business_info = json_encode($business_info);
 
@@ -138,7 +105,10 @@ class ShopController extends Controller
     }
 
     public function bannerUpdate(Request $request){
-        $shop = Shop::find($request->shop_id);
+        // Do not allow a seller to update another shop by changing the legacy
+        // hidden shop_id form value.
+        $shop = Auth::user()->shop;
+        abort_unless($shop, 404);
         $shop->top_banner_image     = $request->top_banner_image;
         $shop->top_banner_link      = $request->top_banner_link;
         $shop->slider_images        = $request->slider_images;
@@ -160,61 +130,17 @@ class ShopController extends Controller
 
     public function verify_form()
     {
-        if (Auth::user()->shop->verification_info == null) {
-            $shop = Auth::user()->shop;
-            return view('seller.verify_form', compact('shop'));
-        } else {
-            flash(translate('Sorry! You have sent verification request already.'))->error();
-            return back();
-        }
+        flash(translate('Seller verification is now completed from the onboarding page.'))->info();
+        return redirect()->route('seller.onboarding.index');
     }
 
     public function verify_form_store(Request $request)
     {
-        $data = array();
-        $i = 0;
-        foreach (json_decode(BusinessSetting::where('type', 'verification_form')->first()->value) as $key => $element) {
-            $item = array();
-            if ($element->type == 'text') {
-                $item['type'] = 'text';
-                $item['label'] = $element->label;
-                $item['value'] = $request['element_' . $i];
-            } elseif ($element->type == 'select' || $element->type == 'radio') {
-                $item['type'] = 'select';
-                $item['label'] = $element->label;
-                $item['value'] = $request['element_' . $i];
-            } elseif ($element->type == 'multi_select') {
-                $item['type'] = 'multi_select';
-                $item['label'] = $element->label;
-                $item['value'] = json_encode($request['element_' . $i]);
-            } elseif ($element->type == 'file') {
-                $item['type'] = 'file';
-                $item['label'] = $element->label;
-                $item['value'] = $request['element_' . $i]->store('uploads/verification_form');
-            }
-            array_push($data, $item);
-            $i++;
-        }
-        $shop = Auth::user()->shop;
-        $shop->verification_info = json_encode($data);
-        if ($shop->save()) {
-            $users = User::where('user_type', 'admin')->get();
-            $notificationType = get_notification_type('shop_verify_request_submitted', 'type');
-            
-            if ($users->isNotEmpty() && $notificationType) {
-                $data = array();
-                $data['shop'] = $shop;
-                $data['status'] = 'submitted';
-                $data['notification_type_id'] = $notificationType->id;
-                Notification::send($users, new ShopVerificationNotification($data));
-            }
-            
-            flash(translate('Your shop verification request has been submitted successfully!'))->success();
-            return redirect()->route('seller.dashboard');
-        }
-
-        flash(translate('Sorry! Something went wrong.'))->error();
-        return back();
+        // Retained as a compatibility endpoint so old links do not fail, but
+        // it must never create public verification uploads or mutate the
+        // legacy verification workflow.
+        flash(translate('Seller verification is now completed from the onboarding page.'))->warning();
+        return redirect()->route('seller.onboarding.index');
     }
 
     public function show()

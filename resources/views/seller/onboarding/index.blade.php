@@ -1,6 +1,8 @@
 @extends('seller.layouts.app')
 
 @section('panel_content')
+    @php($rejectedRequiredTypes = $shop->rejectedRequiredDocumentTypes())
+    @php($rejectedDocumentTypes = $shop->rejectedOnboardingDocumentTypes())
     <div class="aiz-titlebar mt-2 mb-4">
         <div class="row align-items-center">
             <div class="col-md-6">
@@ -37,10 +39,15 @@
         </div>
     </div>
 
-    @if($shop->approval_status === 'under_review')
+    @if($shop->approval_status === 'under_review' && $rejectedDocumentTypes === [])
         <div class="alert alert-info">
             <h4 class="alert-heading"><i class="las la-info-circle"></i> {{ translate('Under Review') }}</h4>
-            <p class="mb-0">{{ translate('Your documents were submitted on') }} <strong>{{ $shop->documents_submitted_at->format('d M, Y h:i A') }}</strong>. {{ translate('Our team is reviewing your application. You will be notified via email once approved.') }}</p>
+            <p class="mb-0">{{ translate('Your documents were submitted on') }} <strong>{{ $shop->documents_submitted_at?->format('d M, Y h:i A') ?? '-' }}</strong>. {{ translate('Our team is reviewing your application. You will be notified via email once approved.') }}</p>
+        </div>
+    @elseif($shop->approval_status === 'under_review')
+        <div class="alert alert-warning">
+            <h4 class="alert-heading"><i class="las la-exclamation-circle"></i> {{ translate('Correction Required') }}</h4>
+            <p class="mb-0">{{ translate('Some required documents still need correction. Upload the corrected files below while your application remains restricted.') }}</p>
         </div>
     @elseif($shop->approval_status === 'rejected')
         <div class="alert alert-danger">
@@ -63,7 +70,15 @@
         </div>
     @endif
 
-    @if(in_array($shop->approval_status, ['pending', 'rejected']) && $shop->canResubmit())
+    @if($shop->canSubmitOnboardingDocuments())
+        @php
+            $requiredTypes = $shop->approval_status === 'pending'
+                ? $shop->requiredDocumentTypes()
+                : $rejectedRequiredTypes;
+            if ($shop->approval_status === 'rejected' && $requiredTypes === []) {
+                $requiredTypes = $shop->requiredDocumentTypes();
+            }
+        @endphp
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0 h6">{{ translate('Upload Onboarding Documents') }}</h5>
@@ -80,7 +95,7 @@
                                 <p class="text-muted fs-12 mb-2">{{ translate('Please download the contract, sign it, and upload the scanned copy.') }}</p>
                                 <a href="{{ route('seller.onboarding.contract') }}" class="btn btn-outline-primary btn-sm mb-3" target="_blank"><i class="las la-download"></i> {{ translate('Download Contract Template') }}</a>
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="contract" id="contract" accept=".pdf,.jpg,.jpeg,.png" required>
+                                    <input type="file" class="custom-file-input" name="contract" id="contract" accept=".pdf,.jpg,.jpeg,.png" @if(in_array('contract', $requiredTypes, true)) required @endif>
                                     <label class="custom-file-label" for="contract">{{ translate('Choose file') }}</label>
                                 </div>
                                 @error('contract') <span class="text-danger fs-12">{{ $message }}</span> @enderror
@@ -91,7 +106,7 @@
                                 <label class="font-weight-bold">{{ translate('2. Government-Issued Photo ID') }} <span class="text-danger">*</span></label>
                                 <p class="text-muted fs-12 mb-2">{{ translate('Upload a clear copy of your National ID, Passport, or Driver\'s License.') }}</p>
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="government_id" id="government_id" accept=".pdf,.jpg,.jpeg,.png" required>
+                                    <input type="file" class="custom-file-input" name="government_id" id="government_id" accept=".pdf,.jpg,.jpeg,.png" @if(in_array('government_id', $requiredTypes, true)) required @endif>
                                     <label class="custom-file-label" for="government_id">{{ translate('Choose file') }}</label>
                                 </div>
                                 @error('government_id') <span class="text-danger fs-12">{{ $message }}</span> @enderror
@@ -104,7 +119,7 @@
                                 <label class="font-weight-bold">{{ translate('3. Business Registration Documents') }} <span class="text-danger">*</span></label>
                                 <p class="text-muted fs-12 mb-2">{{ translate('Upload your company registration, tax certificate, or equivalent business proof.') }}</p>
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="business_registration" id="business_registration" accept=".pdf,.jpg,.jpeg,.png" required>
+                                    <input type="file" class="custom-file-input" name="business_registration" id="business_registration" accept=".pdf,.jpg,.jpeg,.png" @if(in_array('business_registration', $requiredTypes, true)) required @endif>
                                     <label class="custom-file-label" for="business_registration">{{ translate('Choose file') }}</label>
                                 </div>
                                 @error('business_registration') <span class="text-danger fs-12">{{ $message }}</span> @enderror
@@ -127,6 +142,29 @@
                         <button type="submit" class="btn btn-primary btn-lg">{{ translate('Submit Documents for Review') }}</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    @endif
+
+    @if($documents->isNotEmpty())
+        <div class="card mt-4">
+            <div class="card-header"><h5 class="mb-0 h6">{{ translate('Submitted Documents') }}</h5></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead><tr><th>{{ translate('Document') }}</th><th>{{ translate('Version') }}</th><th>{{ translate('Status') }}</th><th>{{ translate('Review note') }}</th></tr></thead>
+                        <tbody>
+                        @foreach($documents as $document)
+                            <tr>
+                                <td>{{ ucwords(str_replace('_', ' ', $document->document_type)) }}</td>
+                                <td>{{ $document->version ?? 1 }}</td>
+                                <td><span class="badge badge-{{ $document->status === 'approved' ? 'success' : ($document->status === 'rejected' ? 'danger' : 'warning') }}">{{ translate(ucfirst($document->status ?? 'pending')) }}</span></td>
+                                <td>{{ $document->rejection_reason ?: '—' }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     @endif

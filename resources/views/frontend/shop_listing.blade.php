@@ -40,7 +40,7 @@
                                                     onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
                                             </a>
                                             <div class="absolute-top-right z-1 mr-md-2 mt-1 rounded-content bg-white">
-                                                @if ($shop->verification_status == 1)
+                                                @if ($shop->isFullyApproved())
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24.001" height="24" viewBox="0 0 24.001 24">
                                                         <g id="Group_25929" data-name="Group 25929" transform="translate(-480 -345)">
                                                             <circle id="Ellipse_637" data-name="Ellipse 637" cx="12" cy="12" r="12" transform="translate(480 345)" fill="#fff"/>

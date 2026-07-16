@@ -6,8 +6,9 @@
 
         if (
             !$user ||
-            $user->verification_status == 0 ||
-            optional($user->shop)->verification_status == 0
+            ($user->user_type == 'seller'
+                ? !optional($user->shop)->isFullyApproved()
+                : $user->verification_status == 0)
         ) {
             $layout = 'frontend.layouts.portfolio_app';
         }

@@ -52,7 +52,7 @@ class SubmitIndexNowUrls extends Command
 
         $urls = [route('home')];
 
-        Product::isApprovedPublished()
+        Product::publiclyVisible()
             ->whereNotNull('slug')
             ->latest('updated_at')
             ->limit($perTypeLimit)
@@ -78,9 +78,8 @@ class SubmitIndexNowUrls extends Command
                 $urls[] = route('blog.details', $blog->slug);
             });
 
-        Shop::whereNotNull('slug')
-            ->where('verification_status', 1)
-            ->whereHas('user', fn ($query) => $query->where('banned', 0))
+        Shop::publiclyVisible()
+            ->whereNotNull('slug')
             ->latest('updated_at')
             ->limit($perTypeLimit)
             ->get(['id', 'slug'])

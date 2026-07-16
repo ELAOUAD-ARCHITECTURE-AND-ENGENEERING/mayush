@@ -1,12 +1,5 @@
 @php
-    $newest_preorder_products = \App\Models\PreorderProduct::where('is_published', 1)
-    ->where(function ($query) {
-        $query->whereHas('user', function ($q) {
-            $q->where('user_type', 'admin');
-        })->orWhereHas('user.shop', function ($q) {
-            $q->where('verification_status', 1);
-        });
-    })
+    $newest_preorder_products = \App\Models\PreorderProduct::publiclyVisible()
     ->latest()
     ->limit(12)
     ->get();

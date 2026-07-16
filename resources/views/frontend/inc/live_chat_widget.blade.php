@@ -1,3 +1,19 @@
+@php
+    $hasActiveChat = false;
+    if (Auth::check()) {
+        $hasActiveChat = \App\Models\SupportConversation::where('user_id', Auth::id())
+            ->where('status', 'open')
+            ->exists();
+    } else {
+        $guestToken = request()->cookie('guest_token');
+        if ($guestToken) {
+            $hasActiveChat = \App\Models\SupportConversation::where('guest_token', $guestToken)
+                ->whereNull('user_id')
+                ->where('status', 'open')
+                ->exists();
+        }
+    }
+@endphp
 <style>
     .lc-widget-btn {
         position: fixed;
@@ -20,6 +36,26 @@
     .lc-widget-btn:hover {
         transform: scale(1.1);
         box-shadow: 0 15px 25px rgba(217, 116, 52, 0.5);
+    }
+    .lc-widget-btn.lc-active {
+        background: linear-gradient(135deg, #10b981, #059669); /* Vivid Emerald/Green gradient */
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+        animation: lc-glow 2s infinite alternate ease-in-out;
+    }
+    .lc-widget-btn.lc-hidden {
+        transform: scale(0) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    @keyframes lc-glow {
+        0% {
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            transform: scale(1);
+        }
+        100% {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.9), 0 0 40px rgba(16, 185, 129, 0.4);
+            transform: scale(1.05);
+        }
     }
     .lc-chat-window {
         position: fixed;
@@ -373,7 +409,7 @@
     }
 </style>
 
-<div class="lc-widget-btn" id="lc-widget-btn">
+<div class="lc-widget-btn {{ $hasActiveChat ? 'lc-active' : '' }}" id="lc-widget-btn">
     <i class="las la-comment-dots"></i>
 </div>
 
@@ -434,7 +470,7 @@
             isOpen = !isOpen;
             if(isOpen) {
                 windowEl.classList.add('lc-open');
-                btn.style.transform = 'scale(0)';
+                btn.classList.add('lc-hidden');
                 initiateChat();
                 startPolling();
                 startPinging();
@@ -444,7 +480,7 @@
         closeBtn.addEventListener('click', () => {
             isOpen = false;
             windowEl.classList.remove('lc-open');
-            btn.style.transform = 'scale(1)';
+            btn.classList.remove('lc-hidden');
             stopPolling();
         });
 
@@ -461,6 +497,10 @@
                 const data = await res.json();
                 if(data.conversation && data.conversation.status === 'expired') {
                     handleExpired();
+                } else if(data.conversation && data.conversation.status === 'open') {
+                    btn.classList.add('lc-active');
+                } else {
+                    btn.classList.remove('lc-active');
                 }
                 renderMessages(data.messages, data.user_avatar, data.agent_avatar);
             } catch(e) { console.error('Chat init error', e); }
@@ -625,6 +665,7 @@
             inputEl.disabled = true;
             sendBtn.disabled = true;
             inputEl.placeholder = "Conversation expired.";
+            btn.classList.remove('lc-active');
             stopPolling();
             stopPinging();
         }
@@ -669,6 +710,7 @@
                 });
                 isExpired = false;
                 lastMessageCount = 0;
+                btn.classList.remove('lc-active');
                 bodyEl.innerHTML = '';
                 inputEl.disabled = false;
                 sendBtn.disabled = false;

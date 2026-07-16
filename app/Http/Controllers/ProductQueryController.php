@@ -44,7 +44,7 @@ class ProductQueryController extends Controller
         $this->validate($request, [
             'question' => 'required|string',
         ]);
-        $product = Product::find($request->product);
+        $product = Product::publiclyVisible()->findOrFail($request->product);
 
         $query = new ProductQuery();
         $query->customer_id = Auth::id();

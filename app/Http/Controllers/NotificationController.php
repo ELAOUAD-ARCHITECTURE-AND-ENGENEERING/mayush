@@ -171,11 +171,19 @@ class NotificationController extends Controller
         // Shop Verification notification redirect
         elseif($notification->type == 'App\Notifications\ShopVerificationNotification'){
             if($userType == 'admin' || $userType == 'staff'){
-                return redirect()->route('sellers.show_verification_request', $notification->data['id']);
+                // Only allow the server-defined review route. Never turn a
+                // notification payload into an arbitrary redirect target.
+                return redirect()->route('sellers.registration_pending', [
+                    'review_shop' => $notification->data['id'] ?? null,
+                ]);
             }
-            else{
-                return redirect()->route('seller.dashboard');
-            }
+
+            $sellerRoute = in_array(($notification->data['target_route_name'] ?? null), [
+                'seller.onboarding.index',
+                'seller.dashboard',
+            ], true) ? $notification->data['target_route_name'] : 'seller.dashboard';
+
+            return redirect()->route($sellerRoute);
         }
 
         // Preorder notification redirect

@@ -45,7 +45,7 @@ class BlogProductMatcherService
     {
         return Product::query()
             ->with(['thumbnail', 'user.shop', 'stocks', 'taxes'])
-            ->isApprovedPublished()
+            ->publiclyVisible()
             ->where('digital', 0)
             ->where('auction_product', 0)
             ->where(function (Builder $query) {

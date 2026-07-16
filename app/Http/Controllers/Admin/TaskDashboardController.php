@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\RefundRequest;
-use App\Models\Seller;
+use App\Models\Shop;
 use App\Models\EliteSubscription;
 use App\Models\Blog;
 use App\Models\BlogSubscriberLog;
@@ -22,9 +22,9 @@ class TaskDashboardController extends Controller
             ? RefundRequest::where('refund_status', 0)->count()
             : 0; 
         
-        // 2. Unverified sellers
-        $unverifiedSellers = Schema::hasTable('sellers')
-            ? Seller::where('verification_status', 0)->count()
+        // 2. Sellers still restricted by the authoritative onboarding state
+        $unverifiedSellers = Schema::hasTable('shops')
+            ? Shop::whereIn('approval_status', ['pending', 'under_review', 'rejected'])->count()
             : 0;
 
         // 3. Failed or unpaid payments

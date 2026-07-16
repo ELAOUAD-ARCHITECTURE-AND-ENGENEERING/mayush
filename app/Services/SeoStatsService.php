@@ -21,12 +21,12 @@ class SeoStatsService
 
     public function verifiedSellerCount(): int
     {
-        return (int) Shop::where('verification_status', 1)->count();
+        return (int) Shop::publiclyVisible()->count();
     }
 
     public function publishedProductCount(): int
     {
-        return (int) Product::isApprovedPublished()->count();
+        return (int) Product::publiclyVisible()->count();
     }
 
     public function deliverySuccessRate(): ?int
@@ -98,7 +98,7 @@ class SeoStatsService
         $locale = app()->getLocale();
 
         return Cache::remember("homepage_seo_item_list:{$locale}:{$limit}", 900, function () use ($limit) {
-            $products = Product::isApprovedPublished()
+            $products = Product::publiclyVisible()
                 ->with('thumbnail')
                 ->latest('updated_at')
                 ->take($limit)

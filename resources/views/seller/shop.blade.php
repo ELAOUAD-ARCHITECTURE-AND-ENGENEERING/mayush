@@ -163,22 +163,24 @@
         </div>
     </div>
 
-    <!-- GST  -->
-   
-    @php
-        $business_info = json_decode($shop->business_info, true);
-    @endphp
+    <!-- Business details (verification files are handled by SellerDocument) -->
+    @php($business_info = json_decode($shop->business_info, true) ?: [])
     <div class="card">
         <div class="card-header">
             <h5 class="mb-0 h6">{{ translate('Business Settings') }}</h5>
         </div>
 
         <div class="card-body">
-            <form action="{{ route('seller.shop.update') }}" method="POST" enctype="multipart/form-data">
+            <div class="alert alert-info">
+                {{ translate('Seller verification documents are managed securely in the onboarding workflow.') }}
+                <a href="{{ route('seller.onboarding.index') }}" class="alert-link ml-1">
+                    {{ translate('Open seller onboarding') }}
+                </a>
+            </div>
+            <form action="{{ route('seller.shop.update') }}" method="POST">
                 @csrf
                 <input type="hidden" name="shop_id" value="{{ $shop->id }}">
                 @if (addon_is_activated('gst_system'))
-                {{-- GSTIN Number --}}
                 <div class="row">
                     <div class="col-md-2">
                         <label>
@@ -190,33 +192,8 @@
                         <input type="text" class="form-control mb-3"  name="gstin_number" placeholder="{{ translate('GSTIN Number') }}" value="{{ $business_info['gstin'] ?? '' }}" required @if($shop->gst_verification) disabled @endif>
                     </div>
                 </div>
-
-                {{-- GSTIN Certificate --}}
-                <div class="row">
-                    <div class="col-md-2">
-                        <label>
-                            {{ translate('GSTIN Certificate') }}
-                            <span class="text-danger">*</span>
-                        </label>
-                    </div>
-                    <div class="col-md-10">
-                        <div class="custom-file mb-3">
-                            <label class="custom-file-label">
-                                <input type="file" data-preview="#gst_preview" class="custom-file-input preview-input" name="gstin_certificate" id="gstin_certificate"  accept=".jpg,.jpeg,.png,.bmp,application/pdf" required @if($shop->gst_verification) disabled @endif>
-                                <span class="custom-file-name">{{ translate('Choose file') }}</span>
-                            </label>
-                        </div>
-                        <div id="gst_preview" class="mt-2"></div>
-                        @if (isset($business_info['certificate']))
-                        <div class="mb-2 text-center">
-                            <a onclick="showFileInModal('{{ my_asset($business_info['gstin_certificate']) }}')" class="btn btn-sm btn-info text-white">{{ translate('View Current Certificate') }}</a>
-                        </div>
-                        @endif
-                    </div>
-                </div>
                 @endif
 
-                {{-- Certificate Number --}}
                 <div class="row">
                     <div class="col-md-2">
                         <label>
@@ -226,30 +203,6 @@
                     </div>
                     <div class="col-md-10">
                         <input type="text"  class="form-control mb-3"  name="certificate_number" placeholder="{{ translate('VAT / TIN / BIN Number') }}" value="{{ $business_info['certificate_number'] ?? '' }}" required>
-                    </div>
-                </div>
-
-                {{-- Certificate --}}
-                <div class="row">
-                    <div class="col-md-2">
-                        <label>
-                            {{ translate('Reg Certificate / Trade License / Sale Tax Permit ') }}
-                            <span class="text-danger">*</span>
-                        </label>
-                    </div>
-                    <div class="col-md-10">
-                        <div class="custom-file mb-3">
-                            <label class="custom-file-label">
-                                <input type="file" class="custom-file-input preview-input" data-preview="#certificate_preview" name="certificate" id="certificate"  accept=".jpg,.jpeg,.png,.bmp,application/pdf" >
-                                <span class="custom-file-name">{{ translate('Choose file') }}</span>
-                            </label>
-                        </div>
-                        <div id="certificate_preview" class="mt-2"></div>
-                        @if (isset($business_info['certificate']))
-                        <div class="mb-2 text-center">
-                            <a onclick="showFileInModal('{{ my_asset($business_info['certificate']) }}')" class="btn btn-sm btn-info text-white">{{ translate('View Current Certificate') }}</a>
-                        </div>
-                        @endif
                     </div>
                 </div>
 

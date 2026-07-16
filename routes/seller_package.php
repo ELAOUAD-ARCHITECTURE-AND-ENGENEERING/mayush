@@ -31,4 +31,6 @@ Route::group(['middleware' => ['seller']], function(){
     });
 });
 
-Route::get('/seller_packages/check_for_invalid', [SellerPackageController::class, 'unpublish_products'])->name('seller_packages.unpublish_products');
+Route::get('/seller_packages/check_for_invalid', [SellerPackageController::class, 'unpublish_products'])
+    ->middleware(['seller'])
+    ->name('seller_packages.unpublish_products');

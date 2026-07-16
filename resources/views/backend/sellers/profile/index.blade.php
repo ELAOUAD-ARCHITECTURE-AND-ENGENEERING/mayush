@@ -14,7 +14,7 @@
                 </div>
                 <div class="d-flex flex-wrap align-items-center justify-content-center mb-1">
                     <span class="font-weight-bold fs-18">{{ $shop->name }}</span>
-                    @if($shop->verification_status)
+                    @if($shop->isFullyApproved())
                     <div class="icon-container ml-2" data-tooltip="Verified">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
                             <g id="_6819ed6f635ef55dbc567842d82cbaf7" data-name="6819ed6f635ef55dbc567842d82cbaf7" transform="translate(-1 -1)">
@@ -622,61 +622,6 @@
                 $('.demo-select2-placeholder').select2();
             });
         }
-
-        function show_seller_verification_info(id){
-            $.post('{{ route('sellers.verification_info_modal') }}',{_token:'{{ @csrf_token() }}', id:id}, function(data){
-                $('#seller_common_modal #seller-common-content').html(data);
-                $('#seller_common_modal').modal('show', {backdrop: 'static'});
-            });
-        }
-
-
-        //print Verification file like ctrl +P
-        function printFile(fileUrl) {
-            let oldIframe = document.getElementById('print-iframe');
-            if (oldIframe) oldIframe.remove();
-            let iframe = document.createElement('iframe');
-            iframe.id = 'print-iframe';
-            iframe.style.display = 'none';
-            iframe.src = fileUrl;
-
-            iframe.onload = function() {
-                setTimeout(function() {
-                    iframe.contentWindow.focus();
-                    iframe.contentWindow.print();
-                }, 300);
-            };
-
-            document.body.appendChild(iframe);
-        }
-
-        // View file in modal
-        function showFileInModal(fileUrl) {
-            const ext = fileUrl.split('.').pop().toLowerCase();
-            const container = document.getElementById('filePreviewContainer');
-            container.innerHTML = '';
-
-            if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
-                const img = document.createElement('img');
-                img.src = fileUrl;
-                img.style.maxWidth = '100%';
-                img.style.maxHeight = '600px';
-                container.appendChild(img);
-            } else if (ext === 'pdf') {
-                const iframe = document.createElement('iframe');
-                iframe.src = fileUrl;
-                iframe.style.width = '100%';
-                iframe.style.height = '600px';
-                iframe.frameBorder = 0;
-                container.appendChild(iframe);
-            } else {
-                container.innerHTML = '<p class="text-danger">Unsupported file format.</p>';
-            }
-
-            $('#filePreviewModal').modal('show');
-        }
-
-        
 
 </script>
 

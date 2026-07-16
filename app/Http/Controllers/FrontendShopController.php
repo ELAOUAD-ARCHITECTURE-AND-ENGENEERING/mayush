@@ -14,33 +14,20 @@ class FrontendShopController extends Controller
 {
     public function shop($slug)
     {
-        if (get_setting('vendor_system_activation') != 1) {
-            return redirect()->route('home');
-        }
         $shop  = Shop::where('slug', $slug)->first();
         if ($shop != null) {
-            if (!$shop->user || $shop->user->banned == 1) {
-                abort(404);
-            }
-            if ($shop->verification_status != 0) {
-                return view('frontend.seller_shop', compact('shop'));
-            } else {
-                return view('frontend.seller_shop_without_verification', compact('shop'));
-            }
+            abort_unless($shop->isPubliclyVisible(), 404);
+
+            return view('frontend.seller_shop', compact('shop'));
         }
         abort(404);
     }
 
     public function filter_shop(Request $request, $slug, $type)
     {
-        if (get_setting('vendor_system_activation') != 1) {
-            return redirect()->route('home');
-        }
         $shop  = Shop::where('slug', $slug)->first();
         if ($shop != null && $type != null) {
-            if (!$shop->user || $shop->user->banned == 1) {
-                abort(404);
-            }
+            abort_unless($shop->isPubliclyVisible(), 404);
             if ($type == 'all-products') {
                 $sort_by = $request->sort_by;
                 $min_price = $request->min_price;
@@ -56,7 +43,7 @@ class FrontendShopController extends Controller
                     $conditions = array_merge($conditions, ['brand_id' => $brand_id]);
                 }
 
-                $products = Product::where($conditions);
+                $products = Product::publiclyVisible()->where($conditions);
 
                 if ($request->has('selected_categories')) {
                     $selected_categories = $request->selected_categories;
@@ -111,7 +98,7 @@ class FrontendShopController extends Controller
                     $conditions = array_merge($conditions, ['brand_id' => $brand_id]);
                 }
 
-                $products = PreorderProduct::where('is_published',1)->where('user_id' , $shop->user->id);
+                $products = PreorderProduct::publiclyVisible()->where('user_id', $shop->user->id);
 
                 if ($request->has('is_available') && $request->is_available !== null) {
                     $availability = $request->is_available;
@@ -182,10 +169,7 @@ class FrontendShopController extends Controller
 
     public function all_seller(Request $request)
     {
-        if (get_setting('vendor_system_activation') != 1) {
-            return redirect()->route('home');
-        }
-        $shops = Shop::whereIn('user_id', verified_sellers_id())
+        $shops = Shop::publiclyVisible()
             ->paginate(15);
 
         return view('frontend.shop_listing', compact('shops'));

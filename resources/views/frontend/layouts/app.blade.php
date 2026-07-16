@@ -1523,5 +1523,7 @@
             });
         </script>
     @endif
+
+    @include('frontend.inc.live_chat_widget')
 </body>
 </html>

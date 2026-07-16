@@ -166,11 +166,8 @@ class Product extends Model
                     ->orWhereHas('user', function ($user) {
                         $user->where('user_type', 'seller')
                             ->where('banned', 0)
-                            ->where(function ($seller) {
-                                $seller->where('is_intern', 1)
-                                    ->orWhereHas('shop', function ($shop) {
-                                        $shop->where('approval_status', 'approved');
-                                    });
+                            ->whereHas('shop', function ($shop) {
+                                $shop->where('approval_status', 'approved');
                             });
                     });
             });
@@ -181,7 +178,10 @@ class Product extends Model
                     ->orWhereHas('user', function ($user) {
                         $user->where('user_type', 'seller')
                             ->where('is_intern', 1)
-                            ->where('banned', 0);
+                            ->where('banned', 0)
+                            ->whereHas('shop', function ($shop) {
+                                $shop->where('approval_status', 'approved');
+                            });
                     });
             });
         }
@@ -204,12 +204,11 @@ class Product extends Model
             return false;
         }
 
-        if ($user->is_intern) {
-            return true;
+        if (!$user->shop?->isFullyApproved()) {
+            return false;
         }
 
-        return get_setting('vendor_system_activation') == 1
-            && $user->shop?->isFullyApproved() === true;
+        return get_setting('vendor_system_activation') == 1 || (bool) $user->is_intern;
     }
 
     public function last_viewed_products()

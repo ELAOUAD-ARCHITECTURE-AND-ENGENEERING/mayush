@@ -108,7 +108,7 @@ class ShippingController extends Controller
                 $shop_items_data = [];
                 if (!empty($shop_items_raw_data)) {
                     foreach ($shop_items_raw_data as $shop_items_raw_data_item) {
-                        $product = Product::find($shop_items_raw_data_item["product_id"]);
+                        $product = Product::publiclyVisible()->find($shop_items_raw_data_item["product_id"]);
                         if (!$product) continue;
                         $shop_items_data = [];
                         $shop_items_data_item = [];

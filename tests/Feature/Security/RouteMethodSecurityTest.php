@@ -74,6 +74,8 @@ class RouteMethodSecurityTest extends TestCase
     {
         $seller = User::factory()->seller()->create();
         $otherSeller = User::factory()->seller()->create();
+        Shop::factory()->create(['user_id' => $seller->id, 'approval_status' => 'approved']);
+        Shop::factory()->create(['user_id' => $otherSeller->id, 'approval_status' => 'approved']);
 
         $ownAddress = Address::factory()->create(['user_id' => $seller->id]);
         $otherAddress = Address::factory()->create(['user_id' => $otherSeller->id]);

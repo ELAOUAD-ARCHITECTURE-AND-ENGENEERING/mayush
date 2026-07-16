@@ -402,7 +402,7 @@
                                         <div class="text-secondary fs-14 fw-400">{{ translate('Seller Guarantees')}}</div>
                                     </div>
                                     <div class="col-10">
-                                        @if ($detailedProduct->user->shop->verification_status == 1)
+                                        @if ($detailedProduct->user->shop->isFullyApproved())
                                             <span class="text-success fs-14 fw-700">{{ translate('Verified seller')}}</span>
                                         @else
                                             <span class="text-danger fs-14 fw-700">{{ translate('Non verified seller')}}</span>
@@ -439,7 +439,7 @@
                     @if ($detailedProduct->added_by == 'seller' && $detailedProduct->user->shop != null)
                         <div class="border mb-4" style="background: #fcfcfd;">
                             <div class="position-relative p-4 text-left">
-                                @if ($detailedProduct->user->shop->verification_status)
+                                    @if ($detailedProduct->user->shop->isFullyApproved())
                                     <div class="absolute-top-right mr-4 bg-white z-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="31.999" height="48.001" viewBox="0 0 31.999 48.001">
                                             <g id="Group_24169" data-name="Group 24169" transform="translate(-532 -1033.999)">
@@ -464,7 +464,7 @@
                                     <div>
                                         <a href="{{ route('shop.visit', $detailedProduct->user->shop->slug) }}" class="text-reset d-block fw-700">
                                             {{ $detailedProduct->user->shop->name }}
-                                            @if ($detailedProduct->user->shop->verification_status == 1)
+                                            @if ($detailedProduct->user->shop->isFullyApproved())
                                                 <span class="ml-2"><i class="fa fa-check-circle" style="color:green"></i></span>
                                             @else
                                                 <span class="ml-2"><i class="fa fa-times-circle" style="color:red"></i></span>

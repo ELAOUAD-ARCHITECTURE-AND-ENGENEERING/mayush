@@ -91,8 +91,8 @@
                             <th data-breakpoints="lg">{{ translate('Commission') }}</th>
                         @endif
                         <th data-breakpoints="lg">{{translate('Email Verification')}}</th>
-                        <th data-breakpoints="lg">{{translate('Seller Verification')}}</th>
-                        <th data-breakpoints="lg">{{translate('Verification Approval')}}</th>
+                        <th data-breakpoints="lg">{{translate('Onboarding Status')}}</th>
+                        <th data-breakpoints="lg">{{translate('Seller Access')}}</th>
                     @else
                         <th data-breakpoints="lg">{{translate('Rating')}}</th>
                         <th data-breakpoints="lg">{{translate('Followers')}}</th>
@@ -167,34 +167,26 @@
                             </td>
                             <td>
                                 <div class="d-flex flex-column align-items-start">
-                                    @if ($shop->verification_status != 1 && $shop->verification_info != null)
-                                        <span class="badge badge-inline badge-warning mb-1"> {{ translate('Applied') }}</span>
-                                        <a href="javascript:void();" onclick="show_seller_verification_info('{{$shop->id}}');" class="badge badge-inline badge-info">
-                                            {{ translate('View Details') }}
-                                        </a>
-                                    @elseif($shop->verification_status == 1 && $shop->verification_info != null)
-                                        <span class="badge badge-inline badge-success mb-1"> {{ translate('Verified') }}</span>
-                                        <a href="javascript:void();" onclick="show_seller_verification_info('{{$shop->id}}');" class="badge badge-inline badge-info">
-                                            {{ translate('View Details') }}
-                                        </a>
-                                    @elseif($shop->verification_status == 1 && $shop->verification_info == null)
-                                        <span class="badge badge-inline badge-success mb-1"> {{ translate('Verified') }}</span>
-                                        <span class="badge badge-inline badge-secondary">{{ translate('By Admin') }}</span>
+                                    @if($shop->approval_status === 'approved')
+                                        <span class="badge badge-inline badge-success">{{ translate('Approved') }}</span>
+                                    @elseif($shop->approval_status === 'under_review')
+                                        <span class="badge badge-inline badge-warning">{{ translate('Under Review') }}</span>
+                                    @elseif($shop->approval_status === 'rejected')
+                                        <span class="badge badge-inline badge-danger">{{ translate('Correction Required') }}</span>
                                     @else
-                                        <span class="badge badge-inline badge-secondary"> {{ translate('Not Applied') }}</span>
+                                        <span class="badge badge-inline badge-secondary">{{ translate('Pending Documents') }}</span>
+                                    @endif
+                                    @if($shop->approval_status !== 'approved' && Route::has('sellers.documents') && auth()->user()->can('view_pending_seller'))
+                                        <a href="{{ route('sellers.registration_pending', ['review_shop' => $shop->id]) }}" class="badge badge-inline badge-info mt-1">{{ translate('Review Documents') }}</a>
                                     @endif
                                 </div>
                             </td>
                             <td>
-                                <label class="aiz-switch aiz-switch-success mb-0">
-                                    <input
-                                        @can('approve_seller') onchange="update_approved(this)" @endcan
-                                        value="{{ $shop->id }}" type="checkbox"
-                                        <?php if($shop->verification_status == 1) echo "checked";?>
-                                        @cannot('approve_seller') disabled @endcan
-                                    >
-                                    <span class="slider round"></span>
-                                </label>
+                                @if($shop->isFullyApproved())
+                                    <span class="badge badge-inline badge-success">{{ translate('Active') }}</span>
+                                @else
+                                    <span class="badge badge-inline badge-warning">{{ translate('Restricted until final approval') }}</span>
+                                @endif
                             </td>
                             
                             <td>
@@ -313,15 +305,6 @@
     <!-- Bulk Delete modal -->
     @include('modals.bulk_delete_modal')
 
-	<!-- Seller verification info Modal -->
-	<div class="modal fade" id="verification_info_modal">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content" id="verification-info-modal-content">
-
-			</div>
-		</div>
-	</div>
-
 	<!-- Seller Payment Modal -->
 	<div class="modal fade" id="payment_modal">
 	    <div class="modal-dialog modal-dialog-centered">
@@ -404,35 +387,6 @@
                 $('#payment_modal #payment-modal-content').html(data);
                 $('#payment_modal').modal('show', {backdrop: 'static'});
                 $('.demo-select2-placeholder').select2();
-            });
-        }
-
-        function show_seller_verification_info(id){
-            $.post('{{ route('sellers.verification_info_modal') }}',{_token:'{{ @csrf_token() }}', id:id}, function(data){
-                $('#verification_info_modal #verification-info-modal-content').html(data);
-                $('#verification_info_modal').modal('show', {backdrop: 'static'});
-            });
-        }
-
-        function update_approved(el){
-            if('{{env('DEMO_MODE')}}' == 'On'){
-                AIZ.plugins.notify('info', '{{ translate('Data can not change in demo mode.') }}');
-                return;
-            }
-
-            if(el.checked){
-                var status = 1;
-            }
-            else{
-                var status = 0;
-            }
-            $.post('{{ route('sellers.approved') }}', {_token:'{{ csrf_token() }}', id:el.value, status:status}, function(data){
-                if(data == 1){
-                    AIZ.plugins.notify('success', '{{ translate('Approved sellers updated successfully') }}');
-                }
-                else{
-                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
-                }
             });
         }
 

@@ -43,7 +43,7 @@ class AdminButtonRouteContractTest extends TestCase
         }
     }
 
-    public function test_seller_verification_actions_render_post_forms(): void
+    public function test_legacy_seller_verification_view_points_to_current_review_workflow(): void
     {
         $seller = User::factory()->seller()->create();
         $shop = Shop::factory()->create([
@@ -56,11 +56,14 @@ class AdminButtonRouteContractTest extends TestCase
 
         $html = view('backend.sellers.verification', compact('shop'))->render();
 
-        $this->assertStringContainsString('method="POST"', $html);
-        $this->assertStringContainsString(route('sellers.approve', $shop->id), $html);
-        $this->assertStringContainsString(route('sellers.reject', $shop->id), $html);
-        $this->assertStringNotContainsString('href="' . route('sellers.approve', $shop->id) . '"', $html);
-        $this->assertStringNotContainsString('href="' . route('sellers.reject', $shop->id) . '"', $html);
+        $this->assertStringContainsString('Legacy Verification Workflow Disabled', $html);
+        $this->assertStringContainsString(
+            route('sellers.registration_pending', ['review_shop' => $shop->id]),
+            $html
+        );
+        $this->assertStringNotContainsString('method="POST"', $html);
+        $this->assertStringNotContainsString(route('sellers.approve', $shop->id), $html);
+        $this->assertStringNotContainsString(route('sellers.reject', $shop->id), $html);
     }
 
     public function test_admin_button_templates_use_delete_contracts(): void

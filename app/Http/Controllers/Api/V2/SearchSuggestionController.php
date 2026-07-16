@@ -47,7 +47,7 @@ class SearchSuggestionController extends Controller
         }
 
         if ($type == "sellers") {
-            $shop_query = Shop::query();
+            $shop_query = Shop::publiclyVisible();
             if ($query_key != "") {
                 $shop_query->where('name', 'like', "%$query_key%");
             }

@@ -33,7 +33,13 @@ class OrderController extends Controller
         if (get_setting('minimum_order_amount_check') == 1) {
             $subtotal = 0;
             foreach (Cart::where('user_id', auth()->user()->id)->active()->get() as $key => $cartItem) {
-                $product = Product::find($cartItem['product_id']);
+                $product = Product::publiclyVisible()->find($cartItem['product_id']);
+                if (!$product) {
+                    return response()->json([
+                        'result' => false,
+                        'message' => translate('One or more products in your cart are no longer available.'),
+                    ], 422);
+                }
                 $subtotal += cart_product_price($cartItem, $product, false, false) * $cartItem['quantity'];
             }
             if ($subtotal < get_setting('minimum_order_amount')) {
@@ -49,6 +55,16 @@ class OrderController extends Controller
                 'result' => false,
                 'message' => translate('Cart is Empty')
             ]);
+        }
+
+        foreach ($cartItems as $cartItem) {
+            if (!Product::publiclyVisible()->whereKey($cartItem['product_id'])->exists()) {
+                return response()->json([
+                    'combined_order_id' => 0,
+                    'result' => false,
+                    'message' => translate('One or more products in your cart are no longer available.'),
+                ], 422);
+            }
         }
 
         $user = User::find(auth()->user()->id);
@@ -78,7 +94,7 @@ class OrderController extends Controller
         $seller_products = array();
         foreach ($cartItems as $cartItem) {
             $product_ids = array();
-            $product = Product::find($cartItem['product_id']);
+            $product = Product::publiclyVisible()->findOrFail($cartItem['product_id']);
             if (isset($seller_products[$product->user_id])) {
                 $product_ids = $seller_products[$product->user_id];
             }
@@ -114,7 +130,7 @@ class OrderController extends Controller
 
             //Order Details Storing
             foreach ($seller_product as $cartItem) {
-                $product = Product::find($cartItem['product_id']);
+                $product = Product::publiclyVisible()->findOrFail($cartItem['product_id']);
 
                 $subtotal += cart_product_price($cartItem, $product, false, false) * $cartItem['quantity'];
                 $tax += cart_product_tax($cartItem, $product, false) * $cartItem['quantity'];

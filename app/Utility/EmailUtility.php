@@ -28,7 +28,7 @@ class EmailUtility
         $emailBody = str_replace('[[password]]', $password, $emailBody);
         $emailBody = str_replace('[[email/phone]]', $email_or_phone, $emailBody);
         $emailBody = str_replace('[[date]]', date('d-m-Y', strtotime($user->created_at)), $emailBody);
-        $emailBody = str_replace('[[admin_email]]', $admin->email, $emailBody);
+        $emailBody = str_replace('[[admin_email]]', $admin?->email ?? '', $emailBody);
         
         $array['subject'] = $emailSubject;
         $array['content'] = $emailBody;
@@ -87,7 +87,7 @@ class EmailUtility
         $emailBody = str_replace('[[payment_method]]', $payment_method, $emailBody);
         $emailBody = str_replace('[[amount]]', $amount, $emailBody);
         $emailBody = str_replace('[[date]]', date('d-m-Y', strtotime($user->created_at)), $emailBody);
-        $emailBody = str_replace('[[admin_email]]', $admin->email, $emailBody);
+        $emailBody = str_replace('[[admin_email]]', $admin?->email ?? '', $emailBody);
         $emailBody = str_replace('[[customer_name]]', $user->name, $emailBody);
         $array['subject'] = $emailSubject;
         $array['content'] = $emailBody;
@@ -116,7 +116,7 @@ class EmailUtility
         $emailBody = str_replace('[[seller_shop_name]]', $shop->name, $emailBody);
         $emailBody = str_replace('[[seller_shop_address]]', $shop->address, $emailBody);
         $emailBody = str_replace('[[date]]', date('d-m-Y', strtotime($user->created_at)), $emailBody);
-        $emailBody = str_replace('[[admin_email]]', $admin->email, $emailBody);
+        $emailBody = str_replace('[[admin_email]]', $admin?->email ?? '', $emailBody);
 
         $array['subject'] = $emailSubject;
         $array['content'] = $emailBody;
@@ -432,7 +432,7 @@ class EmailUtility
         $emailBody = $emailTemplate->default_text;
         $emailBody = str_replace('[[store_name]]', get_setting('site_name'), $emailBody);
         $emailBody = str_replace('[[seller_name]]', $user->name, $emailBody);
-        $emailBody = str_replace('[[admin_email]]', $admin->email, $emailBody);
+        $emailBody = str_replace('[[admin_email]]', $admin?->email ?? '', $emailBody);
 
         $array['subject'] = $emailSubject;
         $array['content'] = $emailBody;
@@ -450,7 +450,7 @@ class EmailUtility
         $emailSubject = str_replace('[[seller_shop_name]]', $shop->name, $emailTemplate->subject);
 
         $emailBody = $emailTemplate->default_text;
-        $emailBody = str_replace('[[admin_name]]', $admin->name, $emailBody);
+        $emailBody = str_replace('[[admin_name]]', $admin?->name ?? 'Administrator', $emailBody);
         $emailBody = str_replace('[[seller_name]]', $user->name, $emailBody);
         $emailBody = str_replace('[[seller_shop_name]]', $shop->name, $emailBody);
         $emailBody = str_replace('[[seller_email]]', $user->email, $emailBody);
@@ -459,9 +459,23 @@ class EmailUtility
         $emailBody = str_replace('[[admin_panel_url]]', route('sellers.registration_pending'), $emailBody);
         $emailBody = str_replace('[[store_name]]', get_setting('site_name'), $emailBody);
 
-        $array['subject'] = $emailSubject;
-        $array['content'] = $emailBody;
-        Mail::to($admin->email)->queue(new MailManager($array));
+        $recipients = User::query()
+            ->whereIn('user_type', ['admin', 'staff'])
+            ->where('banned', 0)
+            ->whereNotNull('email')
+            ->get();
+
+        if ($recipients->isEmpty() && $admin?->email) {
+            $recipients = collect([$admin]);
+        }
+
+        foreach ($recipients as $recipient) {
+            $recipientBody = str_replace('[[admin_name]]', $recipient->name, $emailBody);
+            Mail::to($recipient->email)->queue(new MailManager([
+                'subject' => $emailSubject,
+                'content' => $recipientBody,
+            ]));
+        }
     }
 
     public static function seller_application_status_email($shop, $status, $reason = null)
@@ -479,7 +493,7 @@ class EmailUtility
         $emailBody = str_replace('[[seller_name]]', $user->name, $emailBody);
         $emailBody = str_replace('[[seller_shop_name]]', $shop->name, $emailBody);
         $emailBody = str_replace('[[store_name]]', get_setting('site_name'), $emailBody);
-        $emailBody = str_replace('[[admin_email]]', $admin->email, $emailBody);
+        $emailBody = str_replace('[[admin_email]]', $admin?->email ?? '', $emailBody);
         $emailBody = str_replace('[[login_url]]', route('seller.login'), $emailBody);
 
         if ($status === 'rejected') {
@@ -491,5 +505,48 @@ class EmailUtility
         $array['subject'] = $emailSubject;
         $array['content'] = $emailBody;
         Mail::to($user->email)->queue(new MailManager($array));
+    }
+
+    /**
+     * Send a seller onboarding lifecycle email using an idempotently seeded
+     * template. Unknown placeholders are intentionally left untouched so
+     * administrators can identify incomplete template configuration.
+     */
+    public static function seller_onboarding_event_email($shop, string $identifier, array $context = []): void
+    {
+        $user = $shop->user;
+        if (!$user || !$user->email) {
+            return;
+        }
+
+        $emailTemplate = EmailTemplate::whereIdentifier($identifier)->first();
+        if (!$emailTemplate || $emailTemplate->status == 0) {
+            return;
+        }
+
+        $admin = get_admin();
+        $replacements = [
+            '[[store_name]]' => get_setting('site_name'),
+            '[[seller_name]]' => $user->name,
+            '[[seller_shop_name]]' => $shop->name,
+            '[[seller_email]]' => $user->email,
+            '[[admin_email]]' => $admin?->email ?? '',
+            '[[approval_status]]' => $shop->approvalStatusLabel(),
+            '[[onboarding_url]]' => route('seller.onboarding.index'),
+            '[[dashboard_url]]' => route('seller.dashboard'),
+            '[[document_id]]' => (string) ($context['document_id'] ?? ''),
+            '[[document_type]]' => translate(ucwords(str_replace('_', ' ', (string) ($context['document_type'] ?? 'document')))),
+            '[[document_version]]' => (string) ($context['document_version'] ?? ''),
+            '[[reason]]' => (string) ($context['reason'] ?? ''),
+        ];
+
+        $subject = str_replace(array_keys($replacements), array_values($replacements), $emailTemplate->subject);
+        $bodyTemplate = $emailTemplate->default_text ?? $emailTemplate->content ?? '';
+        $body = str_replace(array_keys($replacements), array_values($replacements), $bodyTemplate);
+
+        Mail::to($user->email)->queue(new MailManager([
+            'subject' => $subject,
+            'content' => $body,
+        ]));
     }
 }

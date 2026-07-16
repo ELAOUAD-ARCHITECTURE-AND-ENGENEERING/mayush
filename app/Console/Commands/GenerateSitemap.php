@@ -101,10 +101,10 @@ class GenerateSitemap extends Command
                 }
             });
 
-            $prodCount = Product::where('published', 1)->where('approved', 1)->count();
+            $prodCount = Product::publiclyVisible()->count();
             $this->info("Found {$prodCount} Published/Approved Products");
             // 4. Products
-            Product::where('published', 1)->where('approved', 1)->each(function (Product $product) use ($sitemap) {
+            Product::publiclyVisible()->each(function (Product $product) use ($sitemap) {
                 if ($product->slug) {
                     $sitemap->add(Url::create(route('product', $product->slug))
                         ->setLastModificationDate($product->updated_at)
@@ -122,11 +122,7 @@ class GenerateSitemap extends Command
                     ->setPriority(0.7));
             });
 
-            $shopQuery = Shop::whereNotNull('slug')
-                ->where('verification_status', 1)
-                ->whereHas('user', function ($query) {
-                    $query->where('banned', 0);
-                });
+            $shopQuery = Shop::publiclyVisible()->whereNotNull('slug');
 
             $shopCount = (clone $shopQuery)->count();
             $this->info("Found {$shopCount} Seller Shops");

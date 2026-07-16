@@ -71,6 +71,7 @@ class SitemapSeoTest extends TestCase
             'user_id' => $verifiedSeller->id,
             'slug' => 'verified-shop',
             'verification_status' => 1,
+            'approval_status' => 'approved',
         ]);
         $unverifiedSeller = User::factory()->seller()->create(['banned' => 0]);
         Shop::factory()->create([

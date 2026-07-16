@@ -203,12 +203,8 @@ class AuthController extends Controller
         if ($user != null) {
             if (!$user->banned) {
                 if (Hash::check($request->password, $user->password)) {
-                    if($user->user_type=='seller' && $user->shop->registration_approval  == 0){
-                        return response()->json(['result' => false, 'message' => translate('Your seller account is under review. We will notify you once approved.'), 'user' => null], 401);
-                    }else{
-                        $tempUserId = $request->has('temp_user_id') ? $request->temp_user_id : null;
-                        return $this->loginSuccess($user,'', $tempUserId);
-                    }
+                    $tempUserId = $request->has('temp_user_id') ? $request->temp_user_id : null;
+                    return $this->loginSuccess($user,'', $tempUserId);
 
                 } else {
                     return response()->json(['result' => false, 'message' => translate('Unauthorized'), 'user' => null], 401);

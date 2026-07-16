@@ -28,13 +28,8 @@ class PortfolioView
         return redirect()->route('home');
     }
 
-    // User not verified
-    if ($user->verification_status == 0) {
-        return redirect()->route('home');
-    }
-
-    // Shop exists & not verified (avoid error)
-    if ($user->shop && $user->shop->verification_status == 0) {
+    // Seller onboarding must use the authoritative shop state.
+    if ($user->user_type === 'seller' && (!$user->shop || !$user->shop->isFullyApproved())) {
         return redirect()->route('home');
     }
 

@@ -632,7 +632,7 @@ class BlogController extends Controller
     {
         return Product::query()
             ->with(['thumbnail', 'user.shop'])
-            ->isApprovedPublished()
+            ->publiclyVisible()
             ->where('digital', 0)
             ->orderBy('name')
             ->limit(300)
@@ -746,7 +746,7 @@ class BlogController extends Controller
             ->values();
 
         $safeProductIds = Product::query()
-            ->isApprovedPublished()
+            ->publiclyVisible()
             ->whereIn('id', $productIds)
             ->pluck('id')
             ->all();

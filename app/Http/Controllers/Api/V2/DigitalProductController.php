@@ -8,16 +8,26 @@ use App\Models\Upload;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderDetail;
-use File;
 
 class DigitalProductController extends Controller
 {
     public function download(Request $request)
     {
-        $product = Product::findOrFail($request->id);
+        $product = Product::where('digital', 1)->findOrFail($request->id);
         $orders = Order::select("id")->where('user_id', auth()->user()->id)->pluck('id');
         $orderDetails = OrderDetail::where("product_id", $request->id)->whereIn("order_id", $orders)->get();
-        if (auth()->user()->user_type == 'admin' || auth()->user()->id == $product->user_id || $orderDetails) {
+        $isAdmin = auth()->user()->user_type == 'admin';
+        $isApprovedOwner = auth()->user()->id == $product->user_id && $product->isPubliclyVisible();
+        $hasPaidOrder = $orderDetails->where('payment_status', 'paid')->isNotEmpty();
+
+        if (!$isAdmin && auth()->user()->id == $product->user_id && !$isApprovedOwner) {
+            return response()->json([
+                'message' => translate('Seller onboarding is not complete.'),
+                'error' => 'seller_onboarding_incomplete',
+            ], 403);
+        }
+
+        if ($isAdmin || $isApprovedOwner || $hasPaidOrder) {
             $upload = Upload::findOrFail($product->file_name);
             if (env('FILESYSTEM_DRIVER') == "s3") {
                 return \Storage::disk(config('filesystems.default'))->download($upload->file_name, $upload->file_original_name . "." . $upload->extension);
@@ -28,7 +38,10 @@ class DigitalProductController extends Controller
                 }
             }
         } else {
-            return response()->download(File("dd.pdf"), "failed.jpg");
+            return response()->json([
+                'message' => translate('You are not allowed to download this product.'),
+                'error' => 'digital_download_forbidden',
+            ], 403);
         }
     }
 }

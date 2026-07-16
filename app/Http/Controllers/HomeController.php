@@ -74,7 +74,10 @@ class HomeController extends Controller
             if (!auth()->check()) {
                 return view('frontend.portfolio.index', $homepageData + compact('goingons'));
             }
-            if (($authUser->verification_status == 0) ||( $authUser->shop && $authUser->shop->verification_status == 0)) {
+            $sellerOnboardingRestricted = $authUser->user_type === 'seller'
+                && (!$authUser->shop || !$authUser->shop->isFullyApproved());
+
+            if (($authUser->user_type !== 'seller' && $authUser->verification_status == 0) || $sellerOnboardingRestricted) {
                 return view('frontend.portfolio.index', $homepageData + compact('goingons'));
             }
         }

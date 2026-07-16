@@ -126,14 +126,8 @@ class HomeLayoutService
             return collect();
         }
 
-        return Cache::remember('home_preorder_featured_products', 300, fn () => PreorderProduct::where('is_published', 1)->where('is_featured', 1)
-            ->where(function ($query) {
-                $query->whereHas('user', function ($q) {
-                    $q->where('user_type', 'admin');
-                })->orWhereHas('user.shop', function ($q) {
-                    $q->where('verification_status', 1);
-                });
-            })
+        return Cache::remember('home_preorder_featured_products', 300, fn () => PreorderProduct::publiclyVisible()
+                ->where('is_featured', 1)
             ->latest()
             ->limit(12)
             ->get());

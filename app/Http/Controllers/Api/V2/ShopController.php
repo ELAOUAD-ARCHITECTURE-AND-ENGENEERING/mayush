@@ -16,14 +16,14 @@ class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $shop_query = Shop::query();
+        $shop_query = Shop::publiclyVisible();
 
         if ($request->name != null && $request->name != "") {
             $shop_query->where("name", 'like', "%{$request->name}%");
             SearchUtility::store($request->name);
         }
 
-        return new ShopCollection($shop_query->whereIn('user_id', verified_sellers_id())->paginate(10));
+        return new ShopCollection($shop_query->paginate(10));
 
         //remove this , this is for testing
         //return new ShopCollection($shop_query->paginate(10));
@@ -32,7 +32,7 @@ class ShopController extends Controller
     public function info($id)
     {
         $shop = Shop::where('slug', $id)->first();
-        if ($shop && $shop->user && ($shop->user->banned || $shop->user->is_intern)) {
+        if (!$shop || !$shop->isPubliclyVisible()) {
             return response()->json(['message' => 'Shop not found'], 404);
         }
         return new ShopDetailsCollection($shop);
@@ -40,53 +40,51 @@ class ShopController extends Controller
 
     public function shopOfUser($id)
     {
-        return new ShopCollection(Shop::where('user_id', $id)->whereHas('user', function($q) {
-            $q->where('is_intern', 0);
-        })->get());
+        return new ShopCollection(Shop::publiclyVisible()->where('user_id', $id)->get());
     }
 
     public function allProducts($id)
     {
         $shop = Shop::findOrFail($id);
-        if ($shop->user && ($shop->user->banned || $shop->user->is_intern)) {
+        if (!$shop->isPubliclyVisible()) {
             return response()->json(['message' => 'Shop not found'], 404);
         }
-        return new ProductCollection(Product::where('user_id', $shop->user_id)->where('published', 1)->latest()->paginate(10));
+        return new ProductCollection(Product::publiclyVisible()->where('user_id', $shop->user_id)->latest()->paginate(10));
     }
 
     public function topSellingProducts($id)
     {
         $shop = Shop::findOrFail($id);
-        if ($shop->user && ($shop->user->banned || $shop->user->is_intern)) {
+        if (!$shop->isPubliclyVisible()) {
             return response()->json(['message' => 'Shop not found'], 404);
         }
 
         return Cache::remember("app.top_selling_products-$id", 86400, function () use ($shop) {
-            return new ProductMiniCollection(Product::where('user_id', $shop->user_id)->where('published', 1)->orderBy('num_of_sale', 'desc')->limit(10)->get());
+            return new ProductMiniCollection(Product::publiclyVisible()->where('user_id', $shop->user_id)->orderBy('num_of_sale', 'desc')->limit(10)->get());
         });
     }
 
     public function featuredProducts($id)
     {
         $shop = Shop::findOrFail($id);
-        if ($shop->user && ($shop->user->banned || $shop->user->is_intern)) {
+        if (!$shop->isPubliclyVisible()) {
             return response()->json(['message' => 'Shop not found'], 404);
         }
 
         return Cache::remember("app.featured_products-$id", 86400, function () use ($shop) {
-            return new ProductMiniCollection(Product::where(['user_id' => $shop->user_id, 'seller_featured' => 1])->where('published', 1)->latest()->limit(10)->get());
+            return new ProductMiniCollection(Product::publiclyVisible()->where(['user_id' => $shop->user_id, 'seller_featured' => 1])->latest()->limit(10)->get());
         });
     }
 
     public function newProducts($id)
     {
         $shop = Shop::findOrFail($id);
-        if ($shop->user && ($shop->user->banned || $shop->user->is_intern)) {
+        if (!$shop->isPubliclyVisible()) {
             return response()->json(['message' => 'Shop not found'], 404);
         }
 
         return Cache::remember("app.new_products-$id", 86400, function () use ($shop) {
-            return new ProductMiniCollection(Product::where('user_id', $shop->user_id)->where('published', 1)->orderBy('created_at', 'desc')->limit(10)->get());
+            return new ProductMiniCollection(Product::publiclyVisible()->where('user_id', $shop->user_id)->orderBy('created_at', 'desc')->limit(10)->get());
         });
     }
 
