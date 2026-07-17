@@ -181,6 +181,7 @@
         visibility: hidden;
         opacity: 0;
         width: 260px;
+        max-width: calc(100vw - 80px);
         background-color: #1a1a1a;
         color: #fff;
         text-align: left;
@@ -188,7 +189,7 @@
         padding: 10px 12px;
         position: absolute;
         z-index: 10001;
-        bottom: 125%;
+        top: 125%;
         right: 0;
         font-size: 12px;
         font-weight: 400;
@@ -200,11 +201,11 @@
     .lc-tooltip::after {
         content: "";
         position: absolute;
-        top: 100%;
+        bottom: 100%;
         right: 10px;
         border-width: 5px;
         border-style: solid;
-        border-color: #1a1a1a transparent transparent transparent;
+        border-color: transparent transparent #1a1a1a transparent;
     }
     .lc-learn-more-container:hover .lc-tooltip {
         visibility: visible;
@@ -407,6 +408,32 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 10px rgba(217,116,52,0.15);
     }
+    @media (max-width: 575px) {
+        .lc-widget-btn {
+            bottom: 20px;
+            right: 15px;
+        }
+        .lc-chat-window {
+            bottom: 90px;
+            right: 15px;
+            left: 15px;
+            width: auto;
+            height: calc(100vh - 105px);
+            max-height: none;
+            min-height: 0;
+            border-radius: 20px;
+        }
+        .lc-header {
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .lc-restart-btn {
+            border-radius: 0 0 20px 20px;
+        }
+        #lc-restart-btn-container {
+            border-radius: 0 0 20px 20px !important;
+        }
+    }
 </style>
 
 <div class="lc-widget-btn {{ $hasActiveChat ? 'lc-active' : '' }}" id="lc-widget-btn">
@@ -446,7 +473,7 @@
         </div>
         <button id="lc-send-btn" class="lc-send-btn"><i class="las la-paper-plane"></i></button>
     </div>
-    <div style="text-align: center; padding-bottom: 15px; background: #fff; border-radius: 0 0 24px 24px;">
+    <div id="lc-restart-btn-container" style="text-align: center; padding-bottom: 15px; background: #fff; border-radius: 0 0 24px 24px;">
         <a href="#" id="lc-restart-btn" style="font-size: 13px; color: #D97434; text-decoration: none; font-weight: 600;"><i class="las la-sync-alt"></i> {{ translate('Start New Conversation') }}</a>
     </div>
 </div>
