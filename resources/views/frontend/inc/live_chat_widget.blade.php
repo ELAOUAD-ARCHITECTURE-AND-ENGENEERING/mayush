@@ -189,7 +189,7 @@
         padding: 10px 12px;
         position: absolute;
         z-index: 10001;
-        bottom: 125%;
+        top: 125%;
         right: 0;
         font-size: 12px;
         font-weight: 400;
@@ -201,11 +201,11 @@
     .lc-tooltip::after {
         content: "";
         position: absolute;
-        top: 100%;
+        bottom: 100%;
         right: 10px;
         border-width: 5px;
         border-style: solid;
-        border-color: #1a1a1a transparent transparent transparent;
+        border-color: transparent transparent #1a1a1a transparent;
     }
     .lc-learn-more-container:hover .lc-tooltip {
         visibility: visible;
