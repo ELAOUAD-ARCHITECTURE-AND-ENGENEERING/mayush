@@ -739,7 +739,7 @@
                     @endif
                     @if ($detailedProduct->digital == 1 || $total_qty > 0)
                         @php
-                            $whatsappNumberCustom = '212660900398';
+                            $whatsappNumberCustom = '212688018863';
                             $productUrlCustom = URL::to('/product') . '/' . $detailedProduct->slug;
                             $messageCustom = "i would like to buy this product could help me " . $productUrlCustom;
                             $whatsappUrlCustom = "https://wa.me/{$whatsappNumberCustom}?text=" . urlencode($messageCustom);
