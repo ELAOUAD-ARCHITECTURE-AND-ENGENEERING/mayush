@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderConfirmationController;
 use App\Http\Controllers\CompareController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\CurrencyController;
@@ -218,7 +219,7 @@ Route::controller(AddressController::class)->group(function () {
     Route::post('/get-states', 'getStates')->name('get-state');
     Route::post('/get-cities', 'getCities')->name('get-city');
     Route::post('/get-areas', 'getAreas')->name('get-area');
-    Route::post('/get-cities-by-state', 'getStates')->name('get-cities-by-state');
+    Route::get('/get-cities-by-state', [\App\Http\Controllers\CityController::class, 'getCities'])->name('get-cities-by-state');
     Route::post('/get-cities-by-country', 'getCitiesByCountry')->name('get-city-by-country');
 });
 
@@ -396,8 +397,8 @@ Route::middleware(['unbanned'])->group(function () {
             Route::any('/delivery_info', 'store_shipping_info')->name('checkout.store_shipping_infostore');
             Route::post('/payment_select', 'store_delivery_info')->name('checkout.store_delivery_info');
             Route::post('/update-delivery-info', 'updateDeliveryInfo')->name('checkout.updateDeliveryInfo');
-            Route::get('/order-confirmed', 'order_confirmed')->name('order_confirmed');
-            Route::get('/order-confirmed/{combined_order_id}', 'order_confirmed')->name('order_confirmed_with_id');
+            Route::get('/order-confirmed', [OrderConfirmationController::class, 'orderConfirmed'])->name('order_confirmed');
+            Route::get('/order-confirmed/{combined_order_id}', [OrderConfirmationController::class, 'orderConfirmedWithId'])->name('order_confirmed_with_id');
             Route::post('/payment', 'checkout')->name('payment.checkout');
             Route::get('/deliveryinfo', 'get_shipping_info')->name('checkout.get_delivery_info');
             Route::post('/get_pick_up_points', 'get_shipping_info')->name('shipping_info.get_pick_up_points');
