@@ -218,7 +218,7 @@ Route::controller(AddressController::class)->group(function () {
     Route::post('/get-states', 'getStates')->name('get-state');
     Route::post('/get-cities', 'getCities')->name('get-city');
     Route::post('/get-areas', 'getAreas')->name('get-area');
-    Route::post('/get-cities-by-state', 'getStates')->name('get-cities-by-state');
+    Route::get('/get-cities-by-state', [\App\Http\Controllers\CityController::class, 'getCities'])->name('get-cities-by-state');
     Route::post('/get-cities-by-country', 'getCitiesByCountry')->name('get-city-by-country');
 });
 
