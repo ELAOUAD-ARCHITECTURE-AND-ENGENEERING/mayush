@@ -3,6 +3,7 @@
 namespace Tests\Integration\Controllers\Frontend;
 
 use Tests\TestCase;
+use App\Http\Controllers\OrderConfirmationController;
 use App\Models\User;
 use App\Models\Language;
 use App\Models\BusinessSetting;
@@ -64,6 +65,18 @@ class CheckoutControllerTest extends TestCase
         // Checking route exists and returns a non-500 response for a guest redirect
         $response = $this->get('/order-confirmed');
         $this->assertContains($response->status(), [200, 302, 404]);
+    }
+
+    /** @test */
+    public function order_confirmation_routes_use_the_notification_aware_controller(): void
+    {
+        $route = app('router')->getRoutes()->getByName('order_confirmed');
+        $routeWithId = app('router')->getRoutes()->getByName('order_confirmed_with_id');
+
+        $this->assertSame(OrderConfirmationController::class, $route->getControllerClass());
+        $this->assertSame('orderConfirmed', $route->getActionMethod());
+        $this->assertSame(OrderConfirmationController::class, $routeWithId->getControllerClass());
+        $this->assertSame('orderConfirmedWithId', $routeWithId->getActionMethod());
     }
 
     /** @test */
