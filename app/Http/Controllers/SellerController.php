@@ -189,6 +189,8 @@ class SellerController extends Controller
             DB::commit();
 
             app(\App\Services\SellerOnboardingNotifier::class)->registrationCompleted($shop);
+            Cache::forget('internal_sellers_id');
+            app(\App\Services\StorefrontCacheService::class)->bump();
 
             flash(translate('Seller has been added successfully'))->success();
             return back();
@@ -252,6 +254,8 @@ class SellerController extends Controller
                 $shop->workshop_video_url = $request->workshop_video_url;
             }
             if ($shop->save()) {
+                Cache::forget('internal_sellers_id');
+                app(\App\Services\StorefrontCacheService::class)->bump();
                 flash(translate('Seller has been updated successfully'))->success();
                 return redirect()->route('sellers.index');
             }

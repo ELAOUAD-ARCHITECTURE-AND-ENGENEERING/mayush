@@ -51,7 +51,9 @@ class ProductDetailsController extends Controller
                 ]);
                 Session::put($view_session_key, time());
             }
-            if ((get_setting('vendor_system_activation') != 1) && $detailedProduct->added_by == 'seller') {
+            if ((get_setting('vendor_system_activation') != 1)
+                && $detailedProduct->added_by == 'seller'
+                && !($detailedProduct->user->is_intern ?? false)) {
                 abort(404);
             }
 

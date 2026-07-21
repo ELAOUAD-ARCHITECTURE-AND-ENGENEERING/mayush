@@ -256,7 +256,7 @@
             </div>
         @endif
         <div class="py-20px d-flex flex-wrap flex-xl-nowrap align-items-center">
-            @if ($detailedProduct->added_by == 'seller' && get_setting('vendor_system_activation') == 1)
+            @if ($detailedProduct->added_by == 'seller' && get_setting('vendor_system_activation') == 1 && !($detailedProduct->user->is_intern ?? false))
                 <div class="d-flex align-items-center bg-light p-20px rounded-2 w-100 mb-2 mb-xl-0 mr-0 mr-xl-2">
                     <div class="store-logo-container w-48px h-48px bg-white border bordre-2 border-gray rounded-1 overflow-hidden mr-3 d-flex flex-shrink-0 align-items-center justify-content-center">
                         <img src="{{ static_asset('/assets/img/seller_type.svg') }}" alt="seller">
@@ -762,7 +762,7 @@
                 </div>
             @endif
             <div class="py-20px d-flex flex-wrap flex-xl-nowrap align-items-center">
-                @if ($detailedProduct->added_by == 'seller' && get_setting('vendor_system_activation') == 1)
+                @if ($detailedProduct->added_by == 'seller' && get_setting('vendor_system_activation') == 1 && !($detailedProduct->user->is_intern ?? false))
                     <div class="d-flex align-items-center bg-light p-20px rounded-2 w-100 mb-2 mb-xl-0 mr-0 mr-xl-2">
                         <div class="store-logo-container w-48px h-48px bg-white border bordre-2 border-gray rounded-1 overflow-hidden mr-3 d-flex flex-shrink-0 align-items-center justify-content-center">
                             <img src="{{ static_asset('/assets/img/seller_type.svg') }}" alt="seller">

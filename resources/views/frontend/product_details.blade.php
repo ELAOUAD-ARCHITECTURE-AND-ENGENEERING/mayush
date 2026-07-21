@@ -106,9 +106,11 @@
                             <li class="mr-2rem"><a href="#frequentlyBought"
                                     class="nav-link d-inline-block px-0 pt-20px pb-20px fs-16 fw-700 text-gray hov-text-dark has-transition">{{translate('Frequently
                                     Bought')}}</a></li>
-                            <li class="mr-2rem"><a href="#fromThisSeller"
-                                    class="nav-link d-inline-block px-0 pt-20px pb-20px fs-16 fw-700 text-gray hov-text-dark has-transition">{{translate('More
-                                    from this Seller')}}</a></li>
+                            @if (!($detailedProduct->user->is_intern ?? false))
+                                <li class="mr-2rem"><a href="#fromThisSeller"
+                                        class="nav-link d-inline-block px-0 pt-20px pb-20px fs-16 fw-700 text-gray hov-text-dark has-transition">{{translate('More
+                                        from this Seller')}}</a></li>
+                            @endif
                             <li class="mr-2rem"><a href="#smartRecommendations"
                                     class="nav-link d-inline-block px-0 pt-20px pb-20px fs-16 fw-700 text-gray hov-text-dark has-transition">{{translate('Recommendations')}}</a></li>
                             @endif
@@ -179,9 +181,11 @@
                 <!--FREQUENT BOUGTH TOGETHER END-->
 
                 <!--FROM THIS SELLER START-->
-                <section id="fromThisSeller">
-                    @include('frontend.product_details.from_this_seller_products')
-                </section>
+                @if (!($detailedProduct->user->is_intern ?? false))
+                    <section id="fromThisSeller">
+                        @include('frontend.product_details.from_this_seller_products')
+                    </section>
+                @endif
                 <!--FROM THIS SELLER END-->
 
                 <!--SMART RECOMMENDATIONS START-->
