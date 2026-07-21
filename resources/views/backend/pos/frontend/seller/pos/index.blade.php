@@ -604,7 +604,7 @@
                     country_id  : country_id
                 },
                 success: function (response) {
-                    var obj = JSON.parse(response);
+                    var obj = response;
                     if(obj != '') {
                         $('[name="state_id"]').html(obj);
                         AIZ.plugins.bootstrapSelect('refresh');
@@ -625,7 +625,7 @@
                     state_id: state_id
                 },
                 success: function (response) {
-                    var obj = JSON.parse(response);
+                    var obj = response;
                     if(obj != '') {
                         $('[name="city_id"]').html(obj);
                         AIZ.plugins.bootstrapSelect('refresh');

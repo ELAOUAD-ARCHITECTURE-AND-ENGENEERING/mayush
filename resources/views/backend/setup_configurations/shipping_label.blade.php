@@ -250,7 +250,7 @@
                 type: 'POST',
                 data: { country_id: country_id },
                 success: function (response) {
-                    var obj = JSON.parse(response);
+                    var obj = response;
                     if (obj && obj.length > 0) {
                         var select = $('[name="state_id"]');
                         select.html(obj);

@@ -109,7 +109,7 @@ class AddressController extends Controller
             $html .= '<option value="' . $state->id . '">' . $state->name . '</option>';
         }
         
-        echo json_encode($html);
+        return response()->json($html);
     }
     
     public function getCities(Request $request) {
@@ -120,7 +120,7 @@ class AddressController extends Controller
             $html .= '<option value="' . $row->id . '">' . $row->getTranslation('name') . '</option>';
         }
         
-        echo json_encode($html);
+        return response()->json($html);
     }
 
     public function set_default($id){

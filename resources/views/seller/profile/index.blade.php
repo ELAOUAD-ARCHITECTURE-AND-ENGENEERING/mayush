@@ -530,7 +530,7 @@
                 country_id: country_id
             },
             success: function(response) {
-                var obj = JSON.parse(response);
+                var obj = response;
                 if (obj != '') {
                     $('[name="state_id"]').html(obj);
                     AIZ.plugins.bootstrapSelect('refresh');
@@ -551,7 +551,7 @@
                 state_id: state_id
             },
             success: function(response) {
-                var obj = JSON.parse(response);
+                var obj = response;
                 if (obj != '') {
                     $('[name="city_id"]').html(obj);
                     AIZ.plugins.bootstrapSelect('refresh');
@@ -572,7 +572,7 @@
                 city_id: city_id
             },
             success: function (response) {
-                var obj = JSON.parse(response);
+                var obj = response;
                 $('[name="area_id"]').html(obj);
                 AIZ.plugins.bootstrapSelect('refresh');
                 if (obj.includes('<option') && !obj.includes('disabled selected')) {
@@ -598,7 +598,7 @@
                 country_id: country_id
             },
             success: function (response) {
-                var obj = JSON.parse(response);
+                var obj = response;
                 if(obj != '') {
                     $('[name="city_id"]').html(obj);
                     AIZ.plugins.bootstrapSelect('refresh');

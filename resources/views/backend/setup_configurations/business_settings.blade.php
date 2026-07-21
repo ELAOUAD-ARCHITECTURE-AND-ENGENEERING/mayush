@@ -168,7 +168,7 @@
                 country_id: country_id
             },
             success: function(response) {
-                var obj = JSON.parse(response);
+                var obj = response;
                 if (obj != '') {
                     $('[name="state_id"]').html(obj);
                     if (savedStateName) {
