@@ -212,4 +212,74 @@ class OrderConfirmationWorkflowTest extends TestCase
 
         $this->assertFalse($order->fresh()->is_confirmed);
     }
+
+    public function test_order_confirmation_dispatches_confirmation_email_only_on_first_confirmation(): void
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+        Queue::fake();
+
+        if (!\Illuminate\Support\Facades\Schema::hasTable('email_templates')) {
+            \Illuminate\Support\Facades\Schema::create('email_templates', function ($table) {
+                $table->id();
+                $table->string('identifier')->nullable();
+                $table->string('subject')->nullable();
+                $table->text('content')->nullable();
+                $table->text('default_text')->nullable();
+                $table->tinyInteger('status')->default(1);
+                $table->timestamps();
+            });
+        } elseif (!\Illuminate\Support\Facades\Schema::hasColumn('email_templates', 'default_text')) {
+            \Illuminate\Support\Facades\Schema::table('email_templates', function ($table) {
+                $table->text('default_text')->nullable();
+            });
+        }
+
+        \DB::table('email_templates')->updateOrInsert(
+            ['identifier' => 'order_confirmed_email_to_customer'],
+            ['subject' => 'Confirmed [[order_code]]', 'default_text' => 'Order confirmed', 'status' => 1]
+        );
+
+        $admin = User::factory()->admin()->create();
+        $buyer = User::factory()->customer()->create(['email' => 'buyer-confirm@example.test']);
+        $order = Order::withoutEvents(fn () => Order::factory()->create([
+            'user_id' => $buyer->id,
+            'seller_id' => $admin->id,
+            'is_confirmed' => false,
+            'shipping_type' => 'home_delivery',
+        ]));
+
+        // 1. Initial confirmation (false -> true): Email should be dispatched
+        $this->actingAs($admin)
+            ->postJson(route('orders.confirm'), [
+                'order_id' => $order->id,
+                'is_confirmed' => 1,
+            ])
+            ->assertOk()
+            ->assertJson(['success' => true, 'is_confirmed' => true]);
+
+        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\MailManager::class, 1);
+
+        // 2. Duplicate confirmation (true -> true): Email should NOT be dispatched again
+        $this->actingAs($admin)
+            ->postJson(route('orders.confirm'), [
+                'order_id' => $order->id,
+                'is_confirmed' => 1,
+            ])
+            ->assertOk()
+            ->assertJson(['success' => true, 'is_confirmed' => true]);
+
+        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\MailManager::class, 1);
+
+        // 3. Unconfirmation (true -> false): No email should be sent
+        $this->actingAs($admin)
+            ->postJson(route('orders.confirm'), [
+                'order_id' => $order->id,
+                'is_confirmed' => 0,
+            ])
+            ->assertOk()
+            ->assertJson(['success' => true, 'is_confirmed' => false]);
+
+        $this->assertFalse($order->fresh()->is_confirmed);
+        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\MailManager::class, 1);
+    }
 }
