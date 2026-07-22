@@ -549,4 +549,131 @@ class EmailUtility
             'content' => $body,
         ]));
     }
+
+    /**
+     * Send refund request submission email to customer, seller, and admin.
+     */
+    public static function sendRefundRequestEmails($refundRequest): void
+    {
+        $order = $refundRequest->order;
+        $customer = $refundRequest->user ?? $order?->user;
+        $seller = User::find($refundRequest->seller_id);
+        $admin = get_admin();
+
+        $replacements = [
+            '[[store_name]]' => get_setting('site_name'),
+            '[[customer_name]]' => $customer?->name ?? '',
+            '[[seller_name]]' => $seller?->name ?? '',
+            '[[shop_name]]' => $seller?->shop?->name ?? get_setting('site_name'),
+            '[[order_code]]' => $order?->code ?? '',
+            '[[refund_amount]]' => single_price($refundRequest->refund_amount),
+            '[[admin_email]]' => $admin?->email ?? '',
+        ];
+
+        self::sendTemplateEmail('refund_request_email_to_customer', $customer?->email, $replacements);
+
+        if ($seller && $seller->email) {
+            self::sendTemplateEmail('refund_request_email_to_seller', $seller->email, $replacements);
+        }
+
+        if ($admin && $admin->email) {
+            self::sendTemplateEmail('refund_request_email_to_admin', $admin->email, $replacements);
+        }
+    }
+
+    /**
+     * Send refund request accepted email to customer, seller, and admin.
+     */
+    public static function sendRefundAcceptedEmails($refundRequest, string $byRole = 'admin'): void
+    {
+        $order = $refundRequest->order;
+        $customer = $refundRequest->user ?? $order?->user;
+        $seller = User::find($refundRequest->seller_id);
+        $admin = get_admin();
+
+        $replacements = [
+            '[[store_name]]' => get_setting('site_name'),
+            '[[customer_name]]' => $customer?->name ?? '',
+            '[[seller_name]]' => $seller?->name ?? '',
+            '[[shop_name]]' => $seller?->shop?->name ?? get_setting('site_name'),
+            '[[order_code]]' => $order?->code ?? '',
+            '[[refund_amount]]' => single_price($refundRequest->refund_amount),
+            '[[admin_email]]' => $admin?->email ?? '',
+        ];
+
+        self::sendTemplateEmail('refund_request_accepted_email_to_customer', $customer?->email, $replacements);
+
+        $adminIdentifier = $byRole === 'seller' ? 'refund_accepted_by_seller_email_to_admin' : 'refund_accepted_by_admin_email_to_admin';
+        if ($admin && $admin->email) {
+            self::sendTemplateEmail($adminIdentifier, $admin->email, $replacements);
+        }
+
+        $sellerIdentifier = $byRole === 'seller' ? 'refund_accepted_by_seller_email_to_seller' : 'refund_accepted_by_admin_email_to_seller';
+        if ($seller && $seller->email) {
+            self::sendTemplateEmail($sellerIdentifier, $seller->email, $replacements);
+        }
+    }
+
+    /**
+     * Send refund request denied email to customer, seller, and admin.
+     */
+    public static function sendRefundDeniedEmails($refundRequest, string $byRole = 'admin'): void
+    {
+        $order = $refundRequest->order;
+        $customer = $refundRequest->user ?? $order?->user;
+        $seller = User::find($refundRequest->seller_id);
+        $admin = get_admin();
+
+        $replacements = [
+            '[[store_name]]' => get_setting('site_name'),
+            '[[customer_name]]' => $customer?->name ?? '',
+            '[[seller_name]]' => $seller?->name ?? '',
+            '[[shop_name]]' => $seller?->shop?->name ?? get_setting('site_name'),
+            '[[order_code]]' => $order?->code ?? '',
+            '[[refund_amount]]' => single_price($refundRequest->refund_amount),
+            '[[rejection_reason]]' => $refundRequest->reject_reason ?? 'N/A',
+            '[[admin_email]]' => $admin?->email ?? '',
+        ];
+
+        self::sendTemplateEmail('refund_request_denied_email_to_customer', $customer?->email, $replacements);
+
+        $adminIdentifier = $byRole === 'seller' ? 'refund_denied_by_seller_email_to_admin' : 'refund_denied_by_admin_email_to_admin';
+        if ($admin && $admin->email) {
+            self::sendTemplateEmail($adminIdentifier, $admin->email, $replacements);
+        }
+
+        $sellerIdentifier = $byRole === 'seller' ? 'refund_denied_by_seller_email_to_seller' : 'refund_denied_by_admin_email_to_seller';
+        if ($seller && $seller->email) {
+            self::sendTemplateEmail($sellerIdentifier, $seller->email, $replacements);
+        }
+    }
+
+    /**
+     * Generic email template dispatcher by identifier and placeholder replacements.
+     */
+    public static function sendTemplateEmail(string $identifier, ?string $toEmail, array $replacements = []): void
+    {
+        if (!$toEmail) {
+            return;
+        }
+
+        $template = EmailTemplate::whereIdentifier($identifier)->first();
+        if (!$template || $template->status == 0) {
+            return;
+        }
+
+        $subject = str_replace(array_keys($replacements), array_values($replacements), $template->subject ?? '');
+        $bodyText = $template->default_text ?? $template->content ?? '';
+        $body = str_replace(array_keys($replacements), array_values($replacements), $bodyText);
+
+        try {
+            Mail::to($toEmail)->queue(new MailManager([
+                'subject' => $subject,
+                'content' => $body,
+            ]));
+            \Log::info("Email template {$identifier} dispatched to {$toEmail}");
+        } catch (\Exception $e) {
+            \Log::error("Failed to send email template {$identifier} to {$toEmail}: " . $e->getMessage());
+        }
+    }
 }
