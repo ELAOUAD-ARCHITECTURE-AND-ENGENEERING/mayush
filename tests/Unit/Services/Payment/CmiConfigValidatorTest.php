@@ -293,6 +293,27 @@ class CmiConfigValidatorTest extends TestCase
         $this->assertEmpty($result->errors);
     }
 
+    public function test_validate_rejects_http_return_urls_in_production(): void
+    {
+        $this->app->detectEnvironment(fn () => 'production');
+
+        config([
+            'cmi.merchant_id' => 'validmerchant123',
+            'cmi.secret_key' => 'valid-secret-key-16chars',
+            'cmi.gateway_url' => 'https://attijari-payment.cmi.co.ma/fim/est3Dgate',
+            'cmi.callback_url' => 'http://mayush.test/cmi/callback',
+            'cmi.ok_url' => 'https://mayushdesign.com/cmi/success',
+            'cmi.fail_url' => 'https://mayushdesign.com/cmi/fail',
+        ]);
+
+        $result = $this->validator->validate();
+
+        $this->assertFalse($result->isValid);
+        $this->assertTrue(
+            collect($result->errors)->contains(fn ($error) => str_contains($error, 'CMI_CALLBACK_URL'))
+        );
+    }
+
     public function test_validate_passes_with_valid_test_configuration(): void
     {
         config([
