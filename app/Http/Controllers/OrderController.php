@@ -30,6 +30,7 @@ use App\Utility\EmailUtility;
 use App\Models\ProductStock;
 use App\Models\InventoryLog;
 use App\Utility\CartUtility;
+use Illuminate\Support\Facades\Log;
 use DB;
 
 class OrderController extends Controller
@@ -700,10 +701,22 @@ class OrderController extends Controller
         ]);
 
         $order = Order::findOrFail($validated['order_id']);
-        $order->is_confirmed = $request->boolean('is_confirmed');
+        $wasConfirmed = (bool) $order->is_confirmed;
+        $newConfirmed = $request->boolean('is_confirmed');
+
+        $order->is_confirmed = $newConfirmed;
         Order::withoutEvents(function () use ($order) {
             $order->save();
         });
+
+        if (!$wasConfirmed && $newConfirmed) {
+            try {
+                EmailUtility::order_email($order->fresh(), 'confirmed');
+                Log::info("Order confirmation email dispatched successfully for order ID: {$order->id}, Code: {$order->code}");
+            } catch (\Exception $e) {
+                Log::error("Failed to dispatch order confirmation email for order ID: {$order->id}, Code: {$order->code}. Error: " . $e->getMessage());
+            }
+        }
 
         $shipmentResult = $order->is_confirmed
             ? app(OrderShipmentDispatchService::class)->ensureForOrder($order->fresh())
