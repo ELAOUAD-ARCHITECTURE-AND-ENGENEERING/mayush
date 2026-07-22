@@ -515,9 +515,9 @@
                                         
                                         @if(!empty($query))
                                         <div class="ai-toggle-wrap">
-                                            <button type="button" id="ai-mode-toggle" 
+                                            <button type="button" id="listing-ai-mode-toggle"
                                                 class="btn btn-sm aiz-ai-search-btn rounded-pill px-3 fw-700 h-35px d-flex align-items-center text-nowrap" 
-                                                onclick="toggleAiMode(this)"
+                                                onclick="toggleListingAiMode(this)"
                                                 data-toggle="tooltip"
                                                 title="{{ translate('AI Semantic Search understands concepts, not just keywords.') }}">
                                                 <i class="las la-magic fs-16 mr-2"></i>
@@ -652,8 +652,12 @@
             filter_data();
         }
 
-        function toggleAiMode(btn) {
+        let activeSearchRequest = null;
+
+        function toggleListingAiMode(btn) {
             $(btn).toggleClass('active');
+            $('#ai-mode-toggle').toggleClass('active', $(btn).hasClass('active'));
+            $('.ai-mode-toggle-wrap').toggleClass('active', $(btn).hasClass('active'));
             filter_data();
         }
 
@@ -679,7 +683,8 @@
             $('#pagination').html('');
 
             var formData = $('#search-form').serialize();
-            var searchMode = $('#ai-mode-toggle').length ? ($('#ai-mode-toggle').hasClass('active') ? 'ai' : 'standard') : 'standard';
+            var aiModeEnabled = $('#listing-ai-mode-toggle').hasClass('active') || $('#ai-mode-toggle').hasClass('active');
+            var searchMode = aiModeEnabled ? 'ai' : 'standard';
             formData += '&page=' + page + '&mode=' + searchMode;
 
             // preoerder route to search page time
@@ -739,7 +744,11 @@
             }
 
             // alert(JSON.stringify(formData));
-            $.ajax({
+            if (activeSearchRequest && activeSearchRequest.readyState !== 4) {
+                activeSearchRequest.abort();
+            }
+
+            activeSearchRequest = $.ajax({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
