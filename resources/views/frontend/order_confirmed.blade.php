@@ -1,5 +1,246 @@
 @extends('frontend.layouts.app')
 
+@section('styles')
+    <style>
+        .order-confirmation-recommendations {
+            --recommendation-gap: 8px;
+            background: var(--mayush-white, #fff);
+            border: 1px solid var(--mayush-border, #e5e0d8);
+            border-radius: var(--mayush-radius-xl, 12px);
+            box-shadow: var(--mayush-shadow-card, 0 2px 8px rgba(0, 0, 0, .08));
+            padding: clamp(18px, 2.4vw, 28px);
+        }
+
+        .order-confirmation-recommendations__header {
+            align-items: flex-end;
+            border-bottom: 1px solid var(--mayush-border, #e5e0d8);
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+        }
+
+        .order-confirmation-recommendations__title {
+            color: var(--mayush-black, #1a1a1a);
+            font-family: var(--mayush-font-heading, Georgia, serif);
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin: 0;
+        }
+
+        .order-confirmation-recommendations__title::before {
+            background: var(--mayush-orange, #d97434);
+            border-radius: 999px;
+            content: '';
+            display: inline-block;
+            height: 7px;
+            margin-right: 9px;
+            vertical-align: 2px;
+            width: 7px;
+        }
+
+        .order-confirmation-recommendations__hint {
+            color: var(--mayush-text-muted, #666);
+            font-size: 12px;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .order-confirmation-slider {
+            margin: 0 calc(var(--recommendation-gap) * -1);
+        }
+
+        .order-confirmation-slider .slick-list {
+            margin: 0;
+            padding: 3px 0 8px;
+        }
+
+        .order-confirmation-slider .slick-track {
+            display: flex;
+        }
+
+        .order-confirmation-slider .slick-slide {
+            display: flex;
+            float: none;
+            height: auto;
+        }
+
+        .order-confirmation-slider .slick-slide > div,
+        .order-confirmation-slider .carousel-box {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+
+        .order-confirmation-slider .carousel-box {
+            padding: 0 var(--recommendation-gap);
+        }
+
+        .order-confirmation-product-card {
+            border: 1px solid var(--mayush-border, #e5e0d8);
+            border-radius: var(--mayush-radius-lg, 8px);
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow: hidden;
+            transition: border-color var(--mayush-transition-base, .3s ease), box-shadow var(--mayush-transition-base, .3s ease), transform var(--mayush-transition-base, .3s ease);
+            width: 100%;
+        }
+
+        .order-confirmation-product-card:hover {
+            border-color: rgba(217, 116, 52, .55);
+            box-shadow: var(--mayush-shadow-card-hover, 0 8px 24px rgba(0, 0, 0, .12));
+            transform: translateY(-2px);
+        }
+
+        .order-confirmation-product-card__image {
+            aspect-ratio: 1 / .82;
+            background: var(--mayush-soft-beige, #f5f1e8);
+            display: block;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .order-confirmation-product-card__image img {
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--mayush-transition-slow, .5s ease);
+            width: 100%;
+        }
+
+        .order-confirmation-product-card__badge {
+            background: var(--mayush-orange, #d97434);
+            border-radius: 0 0 6px 0;
+            color: var(--mayush-white, #fff);
+            font-size: 11px;
+            font-weight: 700;
+            left: 0;
+            line-height: 1;
+            padding: 7px 9px;
+            position: absolute;
+            top: 0;
+            z-index: 1;
+        }
+
+        .order-confirmation-product-card:hover .order-confirmation-product-card__image img {
+            transform: scale(1.035);
+        }
+
+        .order-confirmation-product-card__body {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            padding: 12px 13px 14px;
+        }
+
+        .order-confirmation-product-card__name {
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.45;
+            margin: 0 0 9px;
+            min-height: 38px;
+        }
+
+        .order-confirmation-product-card__name a {
+            color: var(--mayush-text, #333);
+            display: -webkit-box;
+            overflow: hidden;
+            text-decoration: none;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            transition: color var(--mayush-transition-fast, .15s ease);
+        }
+
+        .order-confirmation-product-card__name a:hover {
+            color: var(--mayush-orange, #d97434);
+        }
+
+        .order-confirmation-product-card__price {
+            align-items: baseline;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: auto;
+        }
+
+        .order-confirmation-product-card__price-current {
+            color: var(--mayush-price, #9f4f18);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .order-confirmation-product-card__price-old {
+            color: var(--mayush-text-light, #999);
+            font-size: 12px;
+        }
+
+        .order-confirmation-slider .slick-arrow {
+            background: var(--mayush-white, #fff) !important;
+            border: 1px solid var(--mayush-border, #e5e0d8) !important;
+            color: var(--mayush-black, #1a1a1a) !important;
+            height: 34px !important;
+            line-height: 32px !important;
+            width: 34px !important;
+        }
+
+        .order-confirmation-slider .slick-prev {
+            left: -7px !important;
+        }
+
+        .order-confirmation-slider .slick-next {
+            right: -7px !important;
+        }
+
+        .order-confirmation-slider .slick-arrow:hover {
+            background: var(--mayush-orange, #d97434) !important;
+            border-color: var(--mayush-orange, #d97434) !important;
+            color: var(--mayush-white, #fff) !important;
+        }
+
+        .order-confirmation-slider .slick-arrow:focus-visible {
+            outline: 2px solid var(--mayush-orange, #d97434);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 767.98px) {
+            .order-confirmation-recommendations {
+                padding: 16px 12px;
+            }
+
+            .order-confirmation-recommendations__header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 5px;
+                margin-bottom: 14px;
+                padding-bottom: 12px;
+            }
+
+            .order-confirmation-recommendations__hint {
+                white-space: normal;
+            }
+
+            .order-confirmation-slider .slick-prev {
+                left: -5px !important;
+            }
+
+            .order-confirmation-slider .slick-next {
+                right: -5px !important;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .order-confirmation-product-card,
+            .order-confirmation-product-card__image img,
+            .order-confirmation-product-card__name a {
+                transition: none;
+            }
+        }
+    </style>
+@endsection
+
 @section('content')
 
     <!-- Steps -->
@@ -112,56 +353,38 @@
                     @endphp
 
                     @if (count($related_products) > 0)
-                        <div class="mb-4 bg-white p-4 border">
-                            <h5 class="fw-600 mb-3 fs-16 text-soft-dark pb-2 border-bottom">{{ translate('Suggested for You')}}</h5>
-                            <div class="aiz-carousel arrow-x-0 arrow-inactive-none" data-items="4" data-xxl-items="4" data-xl-items="4" data-lg-items="3" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows="true" data-dots="false" data-autoplay="true" data-infinite="true">
+                        <section class="order-confirmation-recommendations mb-4" aria-labelledby="suggested-products-title" role="region">
+                            <div class="order-confirmation-recommendations__header">
+                                <h2 id="suggested-products-title" class="order-confirmation-recommendations__title">{{ translate('Suggested for You')}}</h2>
+                                <p class="order-confirmation-recommendations__hint">{{ translate('Complete your space with more pieces you may love') }}</p>
+                            </div>
+                            <div class="aiz-carousel order-confirmation-slider arrow-inactive-none" data-items="4" data-xxl-items="4" data-xl-items="4" data-lg-items="3" data-md-items="3" data-sm-items="2" data-xs-items="1.2" data-arrows="true" data-dots="false" data-autoplay="true" data-infinite="true" aria-label="{{ translate('Suggested products') }}">
                                 @foreach ($related_products as $related_product)
-                                    <div class="carousel-box mx-2">
-                                        <div class="img h-120px rounded overflow-hidden position-relative">
-                                            <a href="{{ route('product', $related_product->slug) }}">
-                                                <img class="lazyload img-fit has-transition" src="{{ static_asset('assets/img/placeholder.jpg') }}" data-src="{{ uploaded_asset($related_product->thumbnail_img) }}" alt="{{ $related_product->name }}">
-                                            </a>
-                                        </div>
-                                        <div class="mt-2 text-center">
-                                            <h3 class="fw-400 fs-13 text-truncate-2 lh-1-4 mb-1 h-35px">
-                                                <a href="{{ route('product', $related_product->slug) }}" class="text-reset hov-text-primary">{{ $related_product->name }}</a>
-                                            </h3>
-                                            <div class="fw-700 fs-14">
-                                                <span>{{ home_discounted_base_price($related_product) }}</span>
-                                            </div>
-                                        </div>
+                                    <div class="carousel-box">
+                                        @include('frontend.partials.order_confirmation_product_card', ['product' => $related_product])
                                     </div>
                                 @endforeach
                             </div>
-                        </div>
+                        </section>
                     @endif
 
                     @if ($last_viewed_products && count($last_viewed_products) > 0)
-                        <div class="mb-4 bg-white p-4 border">
-                            <h5 class="fw-600 mb-3 fs-16 text-soft-dark pb-2 border-bottom">{{ translate('Your Last Viewed Products')}}</h5>
-                            <div class="aiz-carousel arrow-x-0 arrow-inactive-none" data-items="4" data-xxl-items="4" data-xl-items="4" data-lg-items="3" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows="true" data-dots="false" data-autoplay="true" data-infinite="true">
+                        <section class="order-confirmation-recommendations mb-4" aria-labelledby="last-viewed-products-title" role="region">
+                            <div class="order-confirmation-recommendations__header">
+                                <h2 id="last-viewed-products-title" class="order-confirmation-recommendations__title">{{ translate('Your Last Viewed Products')}}</h2>
+                                <p class="order-confirmation-recommendations__hint">{{ translate('Pick up where you left off') }}</p>
+                            </div>
+                            <div class="aiz-carousel order-confirmation-slider arrow-inactive-none" data-items="4" data-xxl-items="4" data-xl-items="4" data-lg-items="3" data-md-items="3" data-sm-items="2" data-xs-items="1.2" data-arrows="true" data-dots="false" data-autoplay="true" data-infinite="true" aria-label="{{ translate('Your last viewed products') }}">
                                 @foreach ($last_viewed_products as $item)
                                     @php $last_product = $item->product; @endphp
                                     @if ($last_product)
-                                        <div class="carousel-box mx-2">
-                                            <div class="img h-120px rounded overflow-hidden position-relative">
-                                                <a href="{{ route('product', $last_product->slug) }}">
-                                                    <img class="lazyload img-fit has-transition" src="{{ static_asset('assets/img/placeholder.jpg') }}" data-src="{{ uploaded_asset($last_product->thumbnail_img) }}" alt="{{ $last_product->name }}">
-                                                </a>
-                                            </div>
-                                            <div class="mt-2 text-center">
-                                                <h3 class="fw-400 fs-13 text-truncate-2 lh-1-4 mb-1 h-35px">
-                                                    <a href="{{ route('product', $last_product->slug) }}" class="text-reset hov-text-primary">{{ $last_product->name }}</a>
-                                                </h3>
-                                                <div class="fw-700 fs-14">
-                                                    <span>{{ home_discounted_base_price($last_product) }}</span>
-                                                </div>
-                                            </div>
+                                        <div class="carousel-box">
+                                            @include('frontend.partials.order_confirmation_product_card', ['product' => $last_product])
                                         </div>
                                     @endif
                                 @endforeach
                             </div>
-                        </div>
+                        </section>
                     @endif
 
                     <!-- Orders Info -->
