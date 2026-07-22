@@ -6,6 +6,7 @@
     $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
     $firstHomeHero = app(\App\Services\StorefrontHeroImageService::class)->firstValidHero();
     $firstHomeSliderImage = $firstHomeHero ? uploaded_asset($firstHomeHero, 'large') : null;
+    $firstHomeSliderSrcset = $firstHomeHero ? uploaded_asset_srcset($firstHomeHero, ['medium', 'large']) : null;
     $featured_categories = $featured_categories ?? collect();
     $hot_categories = $hot_categories ?? collect();
     $todays_deal_products = $todays_deal_products ?? collect();
@@ -19,7 +20,7 @@
 
 @if($firstHomeSliderImage)
     @section('preload')
-        <link rel="preload" as="image" href="{{ $firstHomeSliderImage }}" fetchpriority="high">
+        <link rel="preload" as="image" href="{{ $firstHomeSliderImage }}" @if($firstHomeSliderSrcset) imagesrcset="{{ $firstHomeSliderSrcset }}" imagesizes="100vw" @endif fetchpriority="high">
     @endsection
 @endif
 

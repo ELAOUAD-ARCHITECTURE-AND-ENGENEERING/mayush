@@ -495,9 +495,9 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
 
     // Analytics Routes
     Route::prefix('analytics')->group(function () {
-        Route::post('track-visit', [AnalyticsController::class, 'trackVisit'])
+        Route::match(['post', 'options'], 'track-visit', [AnalyticsController::class, 'trackVisit'])
             ->withoutMiddleware([EnsureSystemKey::class, EnsureFrontendRequestsAreStateful::class, VerifyCsrfToken::class]);
-        Route::post('track-health', [AnalyticsController::class, 'trackHealth'])
+        Route::match(['post', 'options'], 'track-health', [AnalyticsController::class, 'trackHealth'])
             ->withoutMiddleware([EnsureSystemKey::class, EnsureFrontendRequestsAreStateful::class, VerifyCsrfToken::class]);
     });
 });
