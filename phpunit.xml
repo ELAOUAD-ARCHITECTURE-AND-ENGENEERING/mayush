@@ -32,7 +32,7 @@
     <env name="APP_SERVICES_CACHE" value="bootstrap/cache/testing_services.php"/>
     <env name="VIEW_COMPILED_PATH" value="storage/framework/testing"/>
     <env name="DISABLE_CLAMAV" value="false"/>
-    <server name="DEFAULT_LANGUAGE" value="en"/>
+    <server name="DEFAULT_LANGUAGE" value="fr"/>
     <server name="DEMO_MODE" value="Off"/>
     <server name="FORCE_HTTPS" value="Off"/>
     <server name="SESSION_DRIVER" value="array"/>

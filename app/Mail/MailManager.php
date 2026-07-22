@@ -22,17 +22,13 @@ class MailManager extends Mailable
         $this->array = $array;
 
         $targetLocale = $array['lang'] ?? $array['locale'] ?? session('locale') ?? env('DEFAULT_LANGUAGE', 'fr');
-        if (!empty($targetLocale)) {
-            $this->locale($targetLocale);
-        }
+        $this->locale(!empty($targetLocale) ? $targetLocale : 'fr');
     }
 
     public function build()
     {
-        $targetLocale = $this->locale ?: ($this->array['lang'] ?? $this->array['locale'] ?? session('locale') ?? env('DEFAULT_LANGUAGE', 'fr'));
-        if ($targetLocale) {
-            App::setLocale($targetLocale);
-        }
+        $targetLocale = $this->locale ?: ($this->array['lang'] ?? $this->array['locale'] ?? session('locale') ?? env('DEFAULT_LANGUAGE', 'fr')) ?: 'fr';
+        App::setLocale($targetLocale);
 
         return $this->view('emails.index')
                     ->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))

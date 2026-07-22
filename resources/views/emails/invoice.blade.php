@@ -85,12 +85,13 @@
 					<td class="text-right"></td>
 				</tr>
 				<tr>
+				<tr>
 					<td class="gry-color small">{{  translate('Email') }}: {{ get_setting('contact_email') }}</td>
-					<td class="text-right small"><span class="gry-color small">{{  translate('Order ID') }}:</span> <span class="strong">{{ $order->code }}</span></td>
+					<td class="text-right small"><span class="gry-color small">{{  translate('N° de commande') }}:</span> <span class="strong">{{ $order->code }}</span></td>
 				</tr>
 				<tr>
 					<td class="gry-color small">{{  translate('Phone') }}: {{ get_setting('contact_phone') }}</td>
-					<td class="text-right small"><span class="gry-color small">{{  translate('Order Date') }}:</span> <span class=" strong">{{ date('d-m-Y', $order->date) }}</span></td>
+					<td class="text-right small"><span class="gry-color small">{{  translate('Date de commande') }}:</span> <span class=" strong">{{ date('d-m-Y', $order->date) }}</span></td>
 				</tr>
 			</table>
 
@@ -101,11 +102,11 @@
 				@php
 					$shipping_address = json_decode($order->shipping_address);
 				@endphp
-				<tr><td class="strong small gry-color">{{ translate('Client / Billing address') }}:</td></tr>
+				<tr><td class="strong small gry-color">{{ translate('Adresse du client / Facturation') }}:</td></tr>
 				<tr><td class="strong">{{ $shipping_address->name }}</td></tr>
 				<tr><td class="gry-color small">{{ $shipping_address->address }}, {{ $shipping_address->city }}, {{ $shipping_address->country }}</td></tr>
 				<tr><td class="gry-color small">{{ translate('Email') }}: {{ $shipping_address->email }}</td></tr>
-				<tr><td class="gry-color small">{{ translate('Phone') }}: {{ $shipping_address->phone }}</td></tr>
+				<tr><td class="gry-color small">{{ translate('Téléphone') }}: {{ $shipping_address->phone }}</td></tr>
 			</table>
 		</div>
 
@@ -113,11 +114,11 @@
 			<table class="padding text-left small border-bottom">
 				<thead>
 	                <tr class="gry-color" style="background: #eceff4;">
-	                    <th width="35%">{{ translate('Product Name') }}</th>
-						<th width="15%">{{ translate('Delivery Type') }}</th>
-	                    <th width="10%">{{ translate('Qty') }}</th>
-	                    <th width="15%">{{ translate('Unit Price') }}</th>
-	                    <th width="10%">{{ translate('Tax') }}</th>
+	                    <th width="35%">{{ translate('Nom du produit') }}</th>
+						<th width="15%">{{ translate('Mode de livraison') }}</th>
+	                    <th width="10%">{{ translate('Qté') }}</th>
+	                    <th width="15%">{{ translate('Prix unitaire') }}</th>
+	                    <th width="10%">{{ translate('TVA') }}</th>
 	                    <th width="15%" class="text-right">{{ translate('Total') }}</th>
 	                </tr>
 				</thead>
@@ -127,10 +128,10 @@
 							<td>{{ $orderDetail->invoice_product_name }} @if($orderDetail->variation != null) ({{ $orderDetail->variation }}) @endif</td>
 							<td>
 								@if ($order->shipping_type != null && $order->shipping_type == 'home_delivery')
-									{{ translate('Home Delivery') }}
+									{{ translate('Livraison à domicile') }}
 								@elseif ($order->shipping_type == 'pickup_point')
 									@if ($order->pickup_point != null)
-										{{ $order->pickup_point->getTranslation('name') }} ({{ translate('Pickip Point') }})
+										{{ $order->pickup_point->getTranslation('name') }} ({{ translate('Point de retrait') }})
 									@endif
 								@endif
 							</td>
@@ -148,25 +149,27 @@
 	        <table style="width: 40%;margin-left:auto;" class="text-right sm-padding small strong">
 		        <tbody>
 			        <tr>
-			            <th class="gry-color text-left">{{ translate('Sub Total') }}</th>
+			            <th class="gry-color text-left">{{ translate('Sous-total') }}</th>
 			            <td class="currency">{{ single_price($order->orderDetails->sum('price')) }}</td>
 			        </tr>
 			        <tr>
-			            <th class="gry-color text-left">{{ translate('Shipping Cost') }}</th>
+			            <th class="gry-color text-left">{{ translate('Frais de livraison') }}</th>
 			            <td class="currency">{{ single_price($order->orderDetails->sum('shipping_cost')) }}</td>
 			        </tr>
 			        <tr class="border-bottom">
-			            <th class="gry-color text-left">{{ translate('Total Tax') }}</th>
+			            <th class="gry-color text-left">{{ translate('TVA totale') }}</th>
 			            <td class="currency">{{ single_price($order->orderDetails->sum('tax')) }}</td>
 			        </tr>
                     <tr class="border-bottom">
-			            <th class="gry-color text-left">{{ translate('Coupon') }}</th>
+			            <th class="gry-color text-left">{{ translate('Remise coupon') }}</th>
 			            <td class="currency">{{ single_price($order->coupon_discount) }}</td>
 			        </tr>
 			        <tr>
-			            <th class="text-left strong">{{ translate('Grand Total') }}</th>
+			            <th class="text-left strong">{{ translate('Total général') }}</th>
 			            <td class="currency">{{ single_price($order->grand_total) }}</td>
 			        </tr>
+		        </tbody>
+		    </table>
 		        </tbody>
 		    </table>
 	    </div>
