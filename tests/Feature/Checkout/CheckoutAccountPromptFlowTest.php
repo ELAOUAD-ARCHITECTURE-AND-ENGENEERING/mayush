@@ -74,7 +74,31 @@ class CheckoutAccountPromptFlowTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('checkout-account-modal');
+        $response->assertSee('checkout-auth-close');
+        $response->assertSee('data-checkout-auth-next');
+        $response->assertSee('data-checkout-auth-step="2"', false);
+        $response->assertSee('value="+212"', false);
+        $response->assertDontSee('data-backdrop="static"');
         $response->assertDontSee('guest_shipping_info');
+    }
+
+    public function test_registration_accepts_an_empty_postal_code(): void
+    {
+        $this->createGuestCart('guest-empty-postal-code');
+
+        $response = $this
+            ->withSession(['temp_user_id' => 'guest-empty-postal-code'])
+            ->postJson(route('checkout.account_address'), $this->accountPayload([
+                'delivery_postal_code' => null,
+            ]));
+
+        $response->assertOk()
+            ->assertJsonPath('status', 'success');
+
+        $this->assertDatabaseHas('addresses', [
+            'address' => 'Checkout Street 1',
+            'postal_code' => null,
+        ]);
     }
 
     public function test_email_registration_creates_address_logs_in_and_keeps_checkout_ajax_flow(): void
