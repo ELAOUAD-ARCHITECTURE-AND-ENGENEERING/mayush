@@ -150,8 +150,8 @@ Route::controller(HomeController::class)->group(function () {
     Route::match(['get', 'post'], '/home/section/home_categories', 'load_home_categories_section')->name('home.section.home_categories');
     Route::match(['get', 'post'], '/home/section/best_sellers', 'load_best_sellers_section')->name('home.section.best_sellers');
     Route::match(['get', 'post'], '/home/section/auction_products', 'load_auction_products_section')->name('home.section.auction_products');
-    Route::get('/home/section/todays_deal', 'load_todays_deal_section')->name('home.section.todays_deal');
-    Route::get('/home/section/newest_products', 'load_newest_product_section')->name('home.section.newest_products');
+    Route::match(['get', 'post'], '/home/section/todays_deal', 'load_todays_deal_section')->name('home.section.todays_deal');
+    Route::match(['get', 'post'], '/home/section/newest_products', 'load_newest_product_section')->name('home.section.newest_products');
     Route::get('/home/section/promoted_category', 'load_promoted_category_section')->name('home.section.promoted_category');
     Route::get('/home/section/preorder_products', 'load_preorder_featured_products_section')->name('home.section.preorder_products');
     Route::match(['get', 'post'], '/home/section/load-elite-artisans-section', 'load_elite_artisans_section')->name('load-elite-artisans-section');

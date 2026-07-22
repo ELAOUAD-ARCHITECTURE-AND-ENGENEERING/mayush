@@ -6,6 +6,7 @@
     $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
     $firstMetroHero = app(\App\Services\StorefrontHeroImageService::class)->firstValidHero();
     $firstMetroSliderImage = $firstMetroHero ? uploaded_asset($firstMetroHero, 'large') : null;
+    $firstMetroSliderSrcset = $firstMetroHero ? uploaded_asset_srcset($firstMetroHero, ['medium', 'large']) : null;
 @endphp
 
 @section('meta_title'){{ $homepageSeoTitle }}@stop
@@ -15,7 +16,7 @@
 
 @if($firstMetroSliderImage)
     @section('preload')
-        <link rel="preload" as="image" href="{{ $firstMetroSliderImage }}">
+        <link rel="preload" as="image" href="{{ $firstMetroSliderImage }}" @if($firstMetroSliderSrcset) imagesrcset="{{ $firstMetroSliderSrcset }}" imagesizes="100vw" @endif fetchpriority="high">
     @endsection
 @endif
 
