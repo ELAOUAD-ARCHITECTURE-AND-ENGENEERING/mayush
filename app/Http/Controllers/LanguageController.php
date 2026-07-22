@@ -22,10 +22,39 @@ class LanguageController extends Controller
 
     public function changeLanguage(Request $request)
     {
-    	$request->session()->put('locale', $request->locale);
-        $language = Language::where('code', $request->locale)->first();
-        $request->session()->put('langcode', $language->app_lang_code);
-    	flash(translate('Language changed to ').$language->name)->success();
+        $locale = trim((string) $request->input('locale'));
+        $language = Language::where('code', $locale)
+            ->where('status', 1)
+            ->first();
+
+        if (!$language) {
+            Log::warning('Language switch rejected: unsupported or inactive locale.', [
+                'locale' => $locale,
+                'user_id' => auth()->id(),
+            ]);
+
+            $message = translate('The selected language is unavailable.');
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json(['message' => $message], 422);
+            }
+
+            return redirect()->back()->withErrors(['locale' => $message]);
+        }
+
+        $request->session()->put([
+            'locale' => $language->code,
+            'langcode' => $language->app_lang_code,
+        ]);
+        flash(translate('Language changed to ') . $language->name)->success();
+
+        if ($request->ajax() || $request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'locale' => $language->code,
+            ]);
+        }
+
+        return redirect()->back();
     }
 
     public function index(Request $request)

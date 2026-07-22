@@ -1,6 +1,8 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#e8ebef">
     @php
     $logo = get_setting('header_logo');
+    $site_name = get_setting('site_name', config('app.name', 'MAYUSH DESIGN'));
+    $site_url = config('app.url', url('/'));
     @endphp
     <tr>
         <td align="center" valign="top" class="container" style="padding:50px 10px;">
@@ -20,7 +22,13 @@
                                                         <th class="column" style="font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal;">
                                                             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                                                 <tr>
-                                                                    <td class="img m-center" style="font-size:0pt; line-height:0pt; text-align:left;"><img src="{{ uploaded_asset($logo) }}" width="" height="24" border="0" alt="" /></td>
+                                                                    <td class="img m-center" style="font-size:0pt; line-height:0pt; text-align:left;">
+                                                                        @if($logo && uploaded_asset($logo))
+                                                                            <img src="{{ uploaded_asset($logo) }}" height="24" border="0" alt="{{ $site_name }}" />
+                                                                        @else
+                                                                            <span style="font-size: 18px; font-weight: bold; color: #000;">{{ $site_name }}</span>
+                                                                        @endif
+                                                                    </td>
                                                                 </tr>
                                                             </table>
                                                         </th>
@@ -28,7 +36,7 @@
                                                         <th class="column" width="120" style="font-size:0pt; line-height:0pt; padding:0; margin:0; font-weight:normal;">
                                                             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                                                 <tr>
-                                                                    <td class="text-header right" style="color:#000000; font-family:'Fira Mono', Arial,sans-serif; font-size:12px; line-height:16px; text-align:right;"><a href="{{ env('APP_URL') }}" target="_blank" class="link" style="color:#000001; text-decoration:none;"><span class="link" style="color:#000001; text-decoration:none;">{{ env('APP_NAME') }}</span></a></td>
+                                                                    <td class="text-header right" style="color:#000000; font-family:'Fira Mono', Arial,sans-serif; font-size:12px; line-height:16px; text-align:right;"><a href="{{ $site_url }}" target="_blank" class="link" style="color:#000001; text-decoration:none;"><span class="link" style="color:#000001; text-decoration:none;">{{ $site_name }}</span></a></td>
                                                                 </tr>
                                                             </table>
                                                         </th>

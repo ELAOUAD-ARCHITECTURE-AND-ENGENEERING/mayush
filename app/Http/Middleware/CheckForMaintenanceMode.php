@@ -21,7 +21,7 @@ class CheckForMaintenanceMode
      * @var array
      */
     protected $except = [
-        '/admin*', '/login', '/logout', '/subcategories*', '/subsubcategories*', '/home_categories*', '/aiz-uploader*'
+        '/admin*', '/login', '/logout', '/language', '/currency', '/subcategories*', '/subsubcategories*', '/home_categories*', '/aiz-uploader*'
     ];
 
     /**
