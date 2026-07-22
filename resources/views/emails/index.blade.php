@@ -63,13 +63,13 @@
                         <table width="100%" border="0" cellspacing="0" cellpadding="0">
                             <tr>
                                 <td style="padding: 20px 30px; text-align: center; font-family: 'Public Sans', 'Inter', Helvetica, Arial, sans-serif; color: #6b7280; font-size: 12px; line-height: 1.5;">
-                                    <p style="margin: 0 0 10px 0;">
-                                        &copy; {{ date('Y') }} {{ $site_name }}. {{ translate('All rights reserved.') }}
-                                    </p>
-                                    <p style="margin: 0;">
-                                        {{ translate('This email was sent to you because you are registered on our platform.') }}<br>
-                                        <a href="{{ $base_email_url }}" style="color: #0b60bd; text-decoration: none;">{{ translate('Visit our website') }}</a>
-                                    </p>
+                                     <p style="margin: 0 0 10px 0;">
+                                         &copy; {{ date('Y') }} {{ $site_name }}. {{ translate('Tous droits réservés.') }}
+                                     </p>
+                                     <p style="margin: 0;">
+                                         {{ translate('Cet email vous a été envoyé car vous êtes inscrit sur notre plateforme.') }}<br>
+                                         <a href="{{ $base_email_url }}" style="color: #0b60bd; text-decoration: none;">{{ translate('Visiter notre site web') }}</a>
+                                     </p>
                                 </td>
                             </tr>
                         </table>

@@ -21,6 +21,10 @@ trait SeedsAppConfigs
         );
 
         Language::updateOrCreate(
+            ['code' => 'fr'],
+            ['name' => 'French', 'app_lang_code' => 'fr', 'rtl' => 0]
+        );
+        Language::updateOrCreate(
             ['code' => 'en'],
             ['name' => 'English', 'app_lang_code' => 'en', 'rtl' => 0]
         );
@@ -56,7 +60,7 @@ trait SeedsAppConfigs
             'site_name' => 'MayushTest',
             'website_name' => 'MayushTest',
             'site_motto' => 'Design Marketplace',
-            'language' => 'en',
+            'language' => 'fr',
             'homepage_select' => 'classic',
             'authentication_layout_select' => 'boxed',
             'header_element' => null,

@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\App;
 
 class InvoiceEmailManager extends Mailable implements ShouldQueue
 {
@@ -43,6 +44,9 @@ class InvoiceEmailManager extends Mailable implements ShouldQueue
      */
      public function build()
      {
+        $targetLocale = $this->locale ?: ($this->array['lang'] ?? $this->array['locale'] ?? session('locale') ?? env('DEFAULT_LANGUAGE', 'fr')) ?: 'fr';
+        App::setLocale($targetLocale);
+
         return $this->view($this->array['view'])
                 ->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
                 ->subject($this->array['subject'])

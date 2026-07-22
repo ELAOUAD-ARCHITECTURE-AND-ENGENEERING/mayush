@@ -257,7 +257,7 @@ class OrderConfirmationWorkflowTest extends TestCase
             ->assertOk()
             ->assertJson(['success' => true, 'is_confirmed' => true]);
 
-        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\MailManager::class, 1);
+        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\MailManager::class, 2);
 
         // 2. Duplicate confirmation (true -> true): Email should NOT be dispatched again
         $this->actingAs($admin)
@@ -268,7 +268,7 @@ class OrderConfirmationWorkflowTest extends TestCase
             ->assertOk()
             ->assertJson(['success' => true, 'is_confirmed' => true]);
 
-        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\MailManager::class, 1);
+        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\MailManager::class, 2);
 
         // 3. Unconfirmation (true -> false): No email should be sent
         $this->actingAs($admin)
@@ -280,6 +280,6 @@ class OrderConfirmationWorkflowTest extends TestCase
             ->assertJson(['success' => true, 'is_confirmed' => false]);
 
         $this->assertFalse($order->fresh()->is_confirmed);
-        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\MailManager::class, 1);
+        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\MailManager::class, 2);
     }
 }

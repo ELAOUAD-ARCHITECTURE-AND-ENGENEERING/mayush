@@ -219,7 +219,7 @@ class EmailUtility
         $emailBody = $emailTemplate->default_text;
         $link = route('email.verification.confirmation', $verification_code);
         $verifyButton = '<div style="display: flex; justify-content: center; padding-bottom:4px;">
-            <a href="'.$link.'" target="_blank" style="background: #0b60bd; text-decoration:none; padding: 1.4rem 2rem; color:#fff;border-radius: .3rem;">Click here</a>
+            <a href="'.$link.'" target="_blank" style="background: #0b60bd; text-decoration:none; padding: 1.4rem 2rem; color:#fff;border-radius: .3rem;">Cliquez ici pour vérifier votre compte</a>
         </div>';
         
         $emailBody = str_replace('[[store_name]]', get_setting('site_name'), $emailBody);
@@ -411,7 +411,7 @@ class EmailUtility
         $user = $order->user;
         if (!$user || !$user->email) return;
 
-        $array['subject'] = 'Your cart is waiting for you - ' . get_setting('site_name');
+        $array['subject'] = 'Votre panier vous attend - ' . get_setting('site_name');
         $array['view'] = 'emails.abandoned_cart';
         $array['order'] = $order;
 

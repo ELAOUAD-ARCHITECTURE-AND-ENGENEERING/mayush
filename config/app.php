@@ -102,7 +102,7 @@ return [
     |
     */
 
-    'locale' => env('DEFAULT_LANGUAGE', 'en'),
+    'locale' => env('DEFAULT_LANGUAGE', 'fr'),
 
     /*
     |--------------------------------------------------------------------------
@@ -115,7 +115,7 @@ return [
     |
     */
 
-    'fallback_locale' => 'en',
+    'fallback_locale' => env('FALLBACK_LANGUAGE', 'fr'),
 
     /*
     |--------------------------------------------------------------------------
