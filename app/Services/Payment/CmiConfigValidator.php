@@ -90,6 +90,11 @@ class CmiConfigValidator implements CmiConfigValidatorInterface
         $gatewayErrors = $this->validateGatewayUrl();
         $errors = array_merge($errors, $gatewayErrors);
 
+        // The hosted 3-D Secure flow must be able to return to the merchant.
+        // Fail early in production instead of allowing a card challenge to
+        // complete against an unreachable HTTP/.test callback URL.
+        $errors = array_merge($errors, $this->validateReturnUrls());
+
         // Check for warnings
         $warnings = $this->gatherWarnings();
 
@@ -271,6 +276,29 @@ class CmiConfigValidator implements CmiConfigValidatorInterface
         // In production mode, validate that production URL is used
         if (!$this->isTestMode() && !$this->isValidProductionUrl($gatewayUrl)) {
             $errors[] = 'Production mode requires a valid CMI production gateway URL (https://attijari-payment.cmi.co.ma/fim/est3Dgate or https://payment.cmi.co.ma/fim/est3Dgate).';
+        }
+
+        return $errors;
+    }
+
+    private function validateReturnUrls(): array
+    {
+        if (!$this->isProductionEnvironment() || $this->isTestMode()) {
+            return [];
+        }
+
+        $errors = [];
+        $urls = [
+            'CMI_OK_URL' => config('cmi.ok_url') ?: route('cmi.success'),
+            'CMI_FAIL_URL' => config('cmi.fail_url') ?: route('cmi.fail'),
+            'CMI_CALLBACK_URL' => config('cmi.callback_url') ?: route('cmi.callback'),
+        ];
+
+        foreach ($urls as $label => $url) {
+            $parts = is_string($url) ? parse_url($url) : false;
+            if (!is_array($parts) || ($parts['scheme'] ?? null) !== 'https' || empty($parts['host'])) {
+                $errors[] = "{$label} must be an absolute HTTPS URL in production.";
+            }
         }
 
         return $errors;

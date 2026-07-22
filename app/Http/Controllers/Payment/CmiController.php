@@ -133,7 +133,7 @@ class CmiController extends Controller
                 $data['BillToCity'] = $this->str_without_accents($shipping_info['city'] ?? '');
                 $data['BillToStateProv'] = $this->str_without_accents($shipping_info['state'] ?? '');
                 $data['BillToPostalCode'] = $this->str_without_accents($shipping_info['postal_code'] ?? '');
-                $data['BillToCountry'] = $this->str_without_accents($shipping_info['country'] ?? '504');
+                $data['BillToCountry'] = $this->cmiCountryCode($shipping_info['country'] ?? '504');
                 $data['email'] = $shipping_info['email'] ?? $user->email ?? 'email@domain.com';
                 $data['tel'] = $this->str_without_accents($shipping_info['phone'] ?? $user->phone ?? '0000000000');
                 $data['oid'] = $oid;
@@ -384,6 +384,8 @@ class CmiController extends Controller
              }
              return redirect()->route('order_confirmed');
         } else {
+            $this->markPaymentAttemptFailed($input);
+
             if (isset($input['oid'])) {
                 $parts = explode('-', $input['oid']);
                 if (count($parts) >= 2) {
@@ -405,9 +407,12 @@ class CmiController extends Controller
     {
         $input = $request->all();
         $storeKey = config('cmi.secret_key');
+        $hashValid = false;
         if (isset($input['HASH'])) {
             $actualHash = $this->generateHash($input, $storeKey);
-            if ($input['HASH'] === $actualHash && isset($input['oid'])) {
+            $hashValid = hash_equals((string) $actualHash, (string) $input['HASH']);
+            if ($hashValid && isset($input['oid'])) {
+                $this->markPaymentAttemptFailed($input);
                 $parts = explode('-', $input['oid']);
                 if (count($parts) >= 2) {
                     if ($parts[0] == 'CO') {
@@ -420,6 +425,16 @@ class CmiController extends Controller
                 }
             }
         }
+
+        Log::warning('CMI payment failed', [
+            'oid' => $hashValid ? ($input['oid'] ?? null) : null,
+            'trans_id' => $hashValid ? ($input['TransId'] ?? null) : null,
+            'proc_return_code' => $hashValid ? ($input['ProcReturnCode'] ?? null) : null,
+            'error_code' => $hashValid ? ($input['ErrorCode'] ?? null) : null,
+            'error_message_present' => $hashValid && !empty($input['ErrMsg']),
+            'hash_valid' => $hashValid,
+        ]);
+
         Session::put('payment_error', $input['ErrMsg'] ?? translate("Payment was cancelled or failed."));
         return redirect()->route('payment.failed');
     }
@@ -493,7 +508,7 @@ class CmiController extends Controller
                 $data['BillToCity'] = $this->str_without_accents($address->city ? $address->city->name : '');
                 $data['BillToStateProv'] = $this->str_without_accents($address->state ? $address->state->name : '');
                 $data['BillToPostalCode'] = $this->str_without_accents($address->postal_code);
-                $data['BillToCountry'] = $this->str_without_accents($address->country ? $address->country->name : '504');
+                $data['BillToCountry'] = $this->cmiCountryCode($address->country ? $address->country->name : '504');
             }
             
             $data['okUrl'] = config('cmi.ok_url') ?: route('cmi.success');
@@ -501,7 +516,7 @@ class CmiController extends Controller
             $data['callbackUrl'] = config('cmi.callback_url') ?: route('cmi.callback');
 
             $data['hash'] = $this->generateHash($data, $storeKey);
-            $actionUrl = config('cmi.gateway_url');
+            $actionUrl = $this->configValidator->getGatewayUrl();
 
             PaymentAttempt::create([
                 'user_id' => $user->id,
@@ -529,5 +544,46 @@ class CmiController extends Controller
             Session::flash('error', translate('Failed to process Express Buy setup.'));
             return redirect()->route('home');
         }
+    }
+
+    private function markPaymentAttemptFailed(array $input): void
+    {
+        $merchantReference = $input['oid'] ?? null;
+
+        if (!$merchantReference) {
+            return;
+        }
+
+        try {
+            PaymentAttempt::where('merchant_reference', $merchantReference)
+                ->where('status', '!=', 'paid')
+                ->update([
+                    'status' => 'failed',
+                    'failed_at' => now(),
+                    'gateway_reference' => $input['TransId'] ?? null,
+                    'response_payload_hash' => hash('sha256', json_encode($input)),
+                ]);
+        } catch (\Throwable $e) {
+            Log::warning('CMI failed-payment attempt could not be updated', [
+                'merchant_reference' => $merchantReference,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    private function cmiCountryCode($country): string
+    {
+        $country = trim((string) $country);
+
+        if (preg_match('/^\d{3}$/', $country)) {
+            return $country;
+        }
+
+        $normalized = strtolower($this->str_without_accents($country));
+        if (in_array($normalized, ['ma', 'mar', 'morocco', 'maroc'], true)) {
+            return '504';
+        }
+
+        return $this->str_without_accents($country ?: '504');
     }
 }
