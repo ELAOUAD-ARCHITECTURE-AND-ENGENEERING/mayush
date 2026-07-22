@@ -430,6 +430,9 @@ Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() 
         Route::get('digital-purchase-history', 'digital_index')->name('digital_purchase_history.index');
         Route::get('/digital-products/download/{id}', 'download')->name('digital-products.download');
     });
+    Route::post('/order-re-payment', [CheckoutController::class, 'orderRePayment'])
+        ->middleware('throttle:payments')
+        ->name('order.re_payment');
 
     // Wishlist
     // Payment Tokens (Vault)

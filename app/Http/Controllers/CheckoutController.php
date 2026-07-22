@@ -1252,27 +1252,53 @@ class CheckoutController extends Controller
     }
 
     public function orderRePayment(Request $request){
-        $order = Order::findOrFail($request->input('order_id'));
+        $paymentOption = trim((string) $request->input('payment_option'));
+        $order = Order::where('id', $request->input('order_id'))
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        if (
+            $order->payment_status !== 'unpaid'
+            || $order->delivery_status !== 'pending'
+            || (int) $order->manual_payment !== 0
+        ) {
+            Session::flash('warning', translate('This order is not available for payment.'));
+            return Redirect::back();
+        }
+
+        $availableMethods = get_activate_payment_methods()->pluck('name')->all();
+        if (get_setting('cmi_payment') == 1) {
+            $availableMethods[] = 'cmi';
+        }
+        if (get_setting('wallet_system') == 1 && Auth::user()->balance >= $order->grand_total) {
+            $availableMethods[] = 'wallet';
+        }
+
+        if ($paymentOption === '' || !in_array($paymentOption, array_unique($availableMethods), true)) {
+            Session::flash('warning', translate('Please select an available payment method.'));
+            return Redirect::back();
+        }
+
         if($order != null){
             $request->session()->put('payment_type', 'order_re_payment');
             $data['order_id'] = $order->id;
-            $data['payment_method'] = $request->input('payment_option');
+            $data['payment_method'] = $paymentOption;
             $request->session()->put('payment_data', $data);
 
             // If block for Online payment, wallet and cash on delivery. Else block for Offline payment
-            $decorator = __NAMESPACE__ . '\\Payment\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $request->input('payment_option')))) . "Controller";
+            $decorator = __NAMESPACE__ . '\\Payment\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $paymentOption))) . "Controller";
             if (class_exists($decorator)) {
                 return app($decorator)->pay($request);
             }
             else {
                 $manual_payment_data = array(
-                    'name'   => $request->input('payment_option'),
+                    'name'   => $paymentOption,
                     'amount' => $order->grand_total,
                     'trx_id' => $request->input('trx_id'),
                     'photo'  => $request->input('photo')
                 );
 
-                $order->payment_type = $request->input('payment_option');
+                $order->payment_type = $paymentOption;
                 $order->manual_payment = 1;
                 $order->manual_payment_data = json_encode($manual_payment_data);
                 $order->save();
