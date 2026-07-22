@@ -20,6 +20,7 @@ blog/js/*
 !*.svg
 !img/
 img/*
+!img/mayush-bot-avatar.png
 !img/office_furniture_4k*.webp
 !img/cards/
 img/cards/*

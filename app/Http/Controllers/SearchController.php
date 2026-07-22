@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\QueryException;
 use App\Models\Search;
 use App\Models\Product;
 use App\Models\Category;
@@ -838,7 +840,23 @@ class SearchController extends Controller
 
     private function usesFullTextSearch(): bool
     {
-        return in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true);
+        if (!in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true)) {
+            return false;
+        }
+
+        try {
+            return Cache::remember('search_fulltext_index_available', 300, function () {
+                return collect(Schema::getIndexes('products'))->contains(function ($index) {
+                    $columns = array_map('strtolower', $index['columns'] ?? []);
+
+                    return strtoupper((string) ($index['type'] ?? '')) === 'FULLTEXT'
+                        && $columns === ['name', 'tags'];
+                });
+            });
+        } catch (\Throwable $e) {
+            // Search must remain available if schema inspection is unavailable.
+            return false;
+        }
     }
 
     private function categoryIdsFromRequest(array $categoryList): array
@@ -935,15 +953,38 @@ class SearchController extends Controller
         if (empty($keyword)) {
             return;
         }
-        
-        $search = Search::where('query', $keyword)->first();
-        if ($search != null) {
-            $search->count = $search->count + 1;
-            $search->save();
-        } else {
-            $search = new Search;
-            $search->query = $keyword;
-            $search->save();
+
+        try {
+            if (!Schema::hasTable('searches')) {
+                return;
+            }
+
+            // Increment existing rows atomically so concurrent AJAX searches do
+            // not lose counts or race on a read-then-insert sequence.
+            if (Search::where('query', $keyword)->increment('count')) {
+                return;
+            }
+
+            try {
+                $search = new Search;
+                $search->query = $keyword;
+                $search->count = 1;
+                $search->save();
+            } catch (QueryException $e) {
+                // Another request may have inserted the unique keyword between
+                // the increment and insert. Complete the increment in that case.
+                if ((string) $e->getCode() !== '23000' && !str_contains($e->getMessage(), 'Duplicate entry')) {
+                    throw $e;
+                }
+
+                Search::where('query', $keyword)->increment('count');
+            }
+        } catch (\Throwable $e) {
+            // Search analytics are optional and must never turn a listing into 500.
+            \Log::warning('Search tracking skipped', [
+                'message' => $e->getMessage(),
+                'query' => $keyword,
+            ]);
         }
     }
 

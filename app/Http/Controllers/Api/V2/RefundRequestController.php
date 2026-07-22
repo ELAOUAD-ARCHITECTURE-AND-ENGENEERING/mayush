@@ -36,6 +36,12 @@ class RefundRequestController extends Controller
         $refund->refund_status = 0;
         $refund->save();
 
+        try {
+            \App\Utility\EmailUtility::sendRefundRequestEmails($refund);
+        } catch (\Exception $e) {
+            \Log::error("Failed to send refund request submission emails: " . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'message' => translate('Request Sent')
