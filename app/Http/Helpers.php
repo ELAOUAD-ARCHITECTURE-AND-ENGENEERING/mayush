@@ -1544,7 +1544,7 @@ if (!function_exists('public_asset_url_prefix')) {
 if (!function_exists('getBaseURL')) {
     function getBaseURL()
     {
-        if (app()->runningInConsole() || empty($_SERVER['HTTP_HOST']) || (isset($_SERVER['SCRIPT_NAME']) && (str_contains($_SERVER['SCRIPT_NAME'], ':') || str_contains($_SERVER['SCRIPT_NAME'], '\\')))) {
+        if (empty($_SERVER['HTTP_HOST']) || (isset($_SERVER['SCRIPT_NAME']) && (str_contains($_SERVER['SCRIPT_NAME'], ':') || str_contains($_SERVER['SCRIPT_NAME'], '\\')))) {
             $url = config('app.url', 'http://localhost');
             $parsed = parse_url($url);
             $scheme = isset($parsed['scheme']) ? $parsed['scheme'] . '://' : '//';
