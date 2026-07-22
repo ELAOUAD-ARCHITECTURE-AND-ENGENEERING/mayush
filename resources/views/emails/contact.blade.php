@@ -7,4 +7,4 @@
     <strong>{{ translate('Phone') }}:</strong> {{ $phone }}
     @endif
 </p>
-<a href="{{ env('APP_URL') }}">{{ translate('Go to the website') }}</a>
+<a href="{{ config('app.url', url('/')) }}">{{ translate('Go to the website') }}</a>
