@@ -358,6 +358,22 @@ class CheckoutController extends Controller
             'user_type' => 'customer',
         ]);
 
+        if ($user != null && (get_email_template_data('registration_email_to_customer', 'status') == 1)) {
+            try {
+                EmailUtility::customer_registration_email('registration_email_to_customer', $user, $request->input('password'));
+            } catch (\Exception $e) {
+                \Log::error("Checkout customer registration email failed: " . $e->getMessage());
+            }
+        }
+
+        if ($user != null && (get_email_template_data('customer_reg_email_to_admin', 'status') == 1)) {
+            try {
+                EmailUtility::customer_registration_email('customer_reg_email_to_admin', $user, $request->input('password'));
+            } catch (\Exception $e) {
+                \Log::error("Checkout admin registration email failed: " . $e->getMessage());
+            }
+        }
+
         Auth::login($user);
         $this->attachGuestCartsToUser($user);
         $address = $this->createCheckoutAddress($user, $request->all());
@@ -1133,7 +1149,9 @@ class CheckoutController extends Controller
                 Cart::where('user_id', $user->getKey())->active()->get() :
                 Cart::where('temp_user_id', $request->session()->get('temp_user_id'))->active()->get();
 
-        $carts->toQuery()->update(['address_id' => $request->input('address_id')]);
+        if ($carts->isNotEmpty()) {
+            $carts->toQuery()->update(['address_id' => $request->input('address_id')]);
+        }
 
         $country_id = $user != null ?
                     Address::findOrFail($request->input('address_id'))->country_id :

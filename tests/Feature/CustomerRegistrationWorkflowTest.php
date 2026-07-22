@@ -37,8 +37,13 @@ class CustomerRegistrationWorkflowTest extends TestCase
                 $table->string('identifier')->nullable();
                 $table->string('subject')->nullable();
                 $table->text('content')->nullable();
+                $table->text('default_text')->nullable();
                 $table->tinyInteger('status')->default(0);
                 $table->timestamps();
+            });
+        } elseif (!Schema::hasColumn('email_templates', 'default_text')) {
+            Schema::table('email_templates', function (Blueprint $table) {
+                $table->text('default_text')->nullable();
             });
         }
 
@@ -146,5 +151,70 @@ class CustomerRegistrationWorkflowTest extends TestCase
         $matches = User::all()->filter(fn (User $user) => $user->phone === '+15557654321');
 
         $this->assertCount(1, $matches);
+    }
+
+    public function test_checkout_account_creation_dispatches_registration_emails(): void
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+
+        if (!Schema::hasTable('countries')) {
+            Schema::create('countries', function (Blueprint $table) {
+                $table->id();
+                $table->string('code')->nullable();
+                $table->string('name')->nullable();
+                $table->integer('status')->default(1);
+                $table->timestamps();
+            });
+        }
+
+        if (!Schema::hasTable('cities')) {
+            Schema::create('cities', function (Blueprint $table) {
+                $table->id();
+                $table->string('name')->nullable();
+                $table->unsignedBigInteger('country_id')->default(1);
+                $table->integer('status')->default(1);
+                $table->timestamps();
+            });
+        }
+
+        $countryId = \DB::table('countries')->insertGetId(['code' => 'MA', 'name' => 'Morocco', 'status' => 1]);
+        $cityId = \DB::table('cities')->insertGetId(['name' => 'Casablanca', 'country_id' => $countryId, 'status' => 1]);
+
+        User::factory()->create(['user_type' => 'admin', 'email' => 'admin@example.test']);
+
+        \App\Models\EmailTemplate::query()->where('identifier', 'registration_email_to_customer')->update([
+            'status' => 1,
+            'subject' => 'Welcome [[customer_name]]',
+            'default_text' => 'Hello [[customer_name]]',
+        ]);
+        \App\Models\EmailTemplate::query()->where('identifier', 'customer_reg_email_to_admin')->update([
+            'status' => 1,
+            'subject' => 'New User [[customer_name]]',
+            'default_text' => 'New user [[customer_name]] registered',
+        ]);
+
+        $response = $this->postJson('/checkout/account-address', [
+            'action' => 'register',
+            'name' => 'Checkout Buyer',
+            'verification_method' => 'email',
+            'email' => 'checkoutbuyer@example.test',
+            'password' => 'Secret123!',
+            'password_confirmation' => 'Secret123!',
+            'delivery_address' => '123 Main St',
+            'delivery_country_id' => $countryId,
+            'delivery_city_id' => $cityId,
+            'delivery_postal_code' => '20000',
+            'delivery_phone' => '0612345678',
+            'delivery_country_code' => '212',
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'checkoutbuyer@example.test',
+            'user_type' => 'customer',
+        ]);
+
+        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\MailManager::class);
     }
 }
