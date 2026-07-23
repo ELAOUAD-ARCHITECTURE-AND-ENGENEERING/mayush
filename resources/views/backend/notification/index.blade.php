@@ -26,6 +26,7 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    @include('partials.notification-filters')
                     <ul class="list-group list-group-flush">
                         <x-notification :notifications="$notifications"/>
                     </ul>

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use App\Services\Notifications\NotificationDispatcher;
 use App\Notifications\EliteApplicationNotification;
 use Carbon\Carbon;
 
@@ -276,7 +277,23 @@ class SellerEliteController extends Controller
         try {
             $admins = User::where('user_type', 'admin')->get();
             if ($admins->isNotEmpty()) {
-                Notification::send($admins, new EliteApplicationNotification($subscription));
+                if (config('notifications_v2.enabled')) {
+                    app(NotificationDispatcher::class)->dispatch(
+                        'seller.status',
+                        'elite_subscription',
+                        $subscription->id,
+                        'status:active:'.$subscription->updated_at?->format('U.u'),
+                        $admins->pluck('id'),
+                        [
+                            'seller_id' => $subscription->user_id,
+                            'status' => 'elite_subscription_active',
+                            'title' => 'Elite subscription activated',
+                            'message' => 'An Elite subscription has been activated.',
+                        ]
+                    );
+                } else {
+                    Notification::send($admins, new EliteApplicationNotification($subscription));
+                }
             }
         } catch (\Exception $e) {
             Log::warning('Elite Payment: Admin notification failed', ['error' => $e->getMessage()]);

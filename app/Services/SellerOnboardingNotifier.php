@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
+use App\Services\Notifications\NotificationDispatcher;
 
 class SellerOnboardingNotifier
 {
@@ -192,6 +193,24 @@ class SellerOnboardingNotifier
             return;
         }
 
+        if (config('notifications_v2.enabled')) {
+            app(NotificationDispatcher::class)->dispatch(
+                'seller.status',
+                'shop',
+                $shop->id,
+                "seller:{$event}:{$anchor}",
+                [$shop->user_id],
+                [
+                    'seller_id' => $shop->user_id,
+                    'status' => $event,
+                    'title' => 'Seller account update',
+                    'message' => 'Your seller account status is now '.str_replace('_', ' ', $event).'.',
+                    'action_url' => route($targetRoute, [], false),
+                ]
+            );
+            return;
+        }
+
         $type = $this->notificationType($notificationType, 'seller');
         if (!$type || !$type->status) {
             return;
@@ -212,15 +231,33 @@ class SellerOnboardingNotifier
 
     private function sendAdministratorSubmissionNotification(Shop $shop, string $anchor): void
     {
-        $type = $this->notificationType('shop_verify_request_submitted', 'admin');
-        if (!$type || !$type->status) {
-            return;
-        }
-
         $admins = User::query()
             ->whereIn('user_type', ['admin', 'staff'])
             ->where('banned', 0)
             ->get();
+
+        if (config('notifications_v2.enabled')) {
+            app(NotificationDispatcher::class)->dispatch(
+                'seller.status',
+                'shop',
+                $shop->id,
+                "admin:documents:{$anchor}",
+                $admins->pluck('id'),
+                [
+                    'seller_id' => $shop->user_id,
+                    'status' => 'submitted',
+                    'title' => 'Seller documents submitted',
+                    'message' => 'A seller application is ready for review.',
+                    'action_url' => route('sellers.registration_pending', ['review_shop' => $shop->id], false),
+                ]
+            );
+            return;
+        }
+
+        $type = $this->notificationType('shop_verify_request_submitted', 'admin');
+        if (!$type || !$type->status) {
+            return;
+        }
 
         if ($admins->isEmpty()) {
             return;
@@ -267,6 +304,10 @@ class SellerOnboardingNotifier
 
     private function dispatchOnce(string $channel, string $eventKey, Closure $callback): void
     {
+        if (config('notifications_v2.enabled') && $channel === 'email') {
+            return;
+        }
+
         $key = 'seller-onboarding:sent:' . sha1("{$channel}:{$eventKey}");
         $lock = Cache::lock($key . ':lock', 10);
 

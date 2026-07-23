@@ -9,6 +9,7 @@ use App\Models\SellerWithdrawRequest;
 use App\Models\User;
 use App\Utility\EmailUtility;
 use Auth;
+use App\Services\Notifications\NotificationDispatcher;
 
 class SellerWithdrawRequestController extends Controller
 {
@@ -51,12 +52,30 @@ class SellerWithdrawRequestController extends Controller
                 $data['amount'] = $request->amount;
                 $data['status'] = 'pending';
                 $data['notification_type_id'] = $notificationType->id;
-                Notification::send($users, new PayoutNotification($data));
+                if (config('notifications_v2.enabled')) {
+                    app(NotificationDispatcher::class)->dispatch(
+                        'payout.status',
+                        'seller_withdraw_request',
+                        $seller_withdraw_request->id,
+                        'status:requested',
+                        $users->pluck('id'),
+                        [
+                            'payout_id' => $seller_withdraw_request->id,
+                            'status' => 'requested',
+                            'title' => 'Payout requested',
+                            'message' => 'A seller payout request is awaiting review.',
+                        ]
+                    );
+                } else {
+                    Notification::send($users, new PayoutNotification($data));
+                }
             }
 
             // Seller payout request email to admin & seller
             $emailIdentifiers = ['seller_payout_request_email_to_admin','seller_payout_request_email_to_seller'];
-            EmailUtility::seller_payout($emailIdentifiers, $seller, $request->amount,  null);
+            if (!config('notifications_v2.enabled')) {
+                EmailUtility::seller_payout($emailIdentifiers, $seller, $request->amount,  null);
+            }
 
             flash(translate('Request has been sent successfully'))->success();
             return redirect()->route('seller.money_withdraw_requests.index');

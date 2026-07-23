@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
 use Validator;
 use Redirect;
+use App\Services\Notifications\NotificationDispatcher;
+use Illuminate\Support\Str;
 
 class NotificationController extends Controller
 {
@@ -22,17 +24,15 @@ class NotificationController extends Controller
         $this->middleware(['permission:delete_custom_notification_history'])->only('customNotificationSingleDelete', 'customNotificationBulkDelete');
     }
 
-    public function adminIndex()
+    public function adminIndex(Request $request)
     {
-        $notifications = auth()->user()->notifications()->paginate(15);
-        auth()->user()->unreadNotifications->markAsRead();
+        $notifications = $this->inboxQuery($request)->paginate(15)->withQueryString();
         return view('backend.notification.index', compact('notifications'));
     }
 
-    public function customerIndex()
+    public function customerIndex(Request $request)
     {
-        $notifications = auth()->user()->notifications()->paginate(15);
-        auth()->user()->unreadNotifications->markAsRead();
+        $notifications = $this->inboxQuery($request)->paginate(15)->withQueryString();
         return view('frontend.user.customer.notification.index', compact('notifications'));
     }
 
@@ -69,13 +69,31 @@ class NotificationController extends Controller
             return Redirect::back()->withErrors($validator);
         }
 
-        foreach($request->user_ids as $user_id){
-            $user = User::where('id', $user_id)->first();
-            $data = array();
-            $data['link'] = $request->link;
-            $data['notification_type_id'] = $request->notification_type_id;
+        if (config('notifications_v2.enabled')) {
+            $type = NotificationType::findOrFail($request->notification_type_id);
+            $campaignId = (string) Str::uuid();
+            app(NotificationDispatcher::class)->dispatch(
+                'custom.sent',
+                'custom_campaign',
+                $campaignId,
+                'campaign:'.$campaignId,
+                User::whereIn('id', $request->user_ids)->pluck('id'),
+                [
+                    'campaign_id' => $campaignId,
+                    'title' => $type->getTranslation('name') ?: 'Notification',
+                    'message' => $type->getTranslation('default_text') ?: $type->name,
+                    'action_url' => $request->link,
+                ]
+            );
+        } else {
+            foreach($request->user_ids as $user_id){
+                $user = User::where('id', $user_id)->first();
+                $data = array();
+                $data['link'] = $request->link;
+                $data['notification_type_id'] = $request->notification_type_id;
 
-            Notification::send($user, new CustomNotification($data));
+                Notification::send($user, new CustomNotification($data));
+            }
         }
         flash(translate('Notification has been sent successfully'))->success();
         return back();
@@ -106,10 +124,14 @@ class NotificationController extends Controller
 
     public function bulkDelete($data){
         if(!empty($data['notification_ids'])){
-            auth()->user()
+            $query = auth()->user()
                 ->notifications()
-                ->whereIn('id', (array) $data['notification_ids'])
-                ->delete();
+                ->whereIn('id', (array) $data['notification_ids']);
+            if (Schema::hasColumn('notifications', 'archived_at')) {
+                $query->update(['archived_at' => now(), 'updated_at' => now()]);
+            } else {
+                $query->delete();
+            }
         }
     }
     // Notification delete end
@@ -122,6 +144,18 @@ class NotificationController extends Controller
 
         // Notification mark as read
         $notification->markAsRead();
+
+        if ($notification->type === 'App\\Notifications\\CanonicalNotification') {
+            $actionUrl = app(\App\Services\Notifications\NotificationPayload::class)
+                ->safeActionUrl($notification->data['action_url'] ?? null);
+
+            if ($actionUrl) {
+                return redirect()->to($actionUrl);
+            }
+
+            flash(translate('The notification target is no longer available'))->warning();
+            return redirect()->back();
+        }
 
         // Order notification redirect
         if($notification->type == 'App\Notifications\OrderNotification'){
@@ -256,5 +290,24 @@ class NotificationController extends Controller
         $notificationData = json_decode($notifications[0]->data, true);
         $link = json_decode($notifications[0]->data, true)['link'];
         return view('backend.notification.custom_notified_customers_list', compact('notifications', 'content', 'link'));
+    }
+
+    private function inboxQuery(Request $request)
+    {
+        $category = mb_substr((string) $request->query('category'), 0, 50);
+        $severity = in_array($request->query('severity'), ['info', 'important', 'critical'], true)
+            ? $request->query('severity')
+            : null;
+        $read = in_array($request->query('read'), ['read', 'unread'], true)
+            ? $request->query('read')
+            : null;
+
+        return auth()->user()->notifications()
+            ->when(Schema::hasColumn('notifications', 'archived_at'), fn ($query) => $query->whereNull('archived_at'))
+            ->when($category !== '' && Schema::hasColumn('notifications', 'category'), fn ($query) => $query->where('category', $category))
+            ->when($severity && Schema::hasColumn('notifications', 'severity'), fn ($query) => $query->where('severity', $severity))
+            ->when($read === 'read', fn ($query) => $query->whereNotNull('read_at'))
+            ->when($read === 'unread', fn ($query) => $query->whereNull('read_at'))
+            ->latest();
     }
 }

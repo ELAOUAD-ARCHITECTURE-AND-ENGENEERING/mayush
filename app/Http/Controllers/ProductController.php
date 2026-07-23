@@ -28,6 +28,7 @@ use App\Services\ProductTaxService;
 use App\Services\ProductFlashDealService;
 use App\Services\ProductStockService;
 use App\Services\FrequentlyBoughtProductService;
+use App\Services\Notifications\NotificationDispatcher;
 use App\Utility\ProductUtility;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -991,7 +992,23 @@ class ProductController extends Controller
         $data['status']         = $request->approved == 1 ? 'approved' : 'rejected';
         $data['product']        = $product;
         $data['notification_type_id'] = get_notification_type('seller_product_approved', 'type')->id;
-        Notification::send($users, new ShopProductNotification($data));
+        if (config('notifications_v2.enabled')) {
+            app(NotificationDispatcher::class)->dispatch(
+                'product.status',
+                'product',
+                $product->id,
+                'approval:'.$product->id.':'.$product->approved,
+                $users->pluck('id'),
+                [
+                    'product_id' => $product->id,
+                    'status' => $data['status'],
+                    'title' => 'Product status updated',
+                    'message' => 'A product approval status has changed.',
+                ]
+            );
+        } else {
+            Notification::send($users, new ShopProductNotification($data));
+        }
 
         Artisan::call('view:clear');
         Artisan::call('cache:clear');

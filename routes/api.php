@@ -42,6 +42,11 @@ Route::group(['prefix' => 'v2/auth', 'middleware' => ['app_language']], function
 
 Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
 
+    Route::post(
+        'notification-delivery-webhooks/{channel}',
+        [\App\Http\Controllers\NotificationDeliveryWebhookController::class, 'update']
+    )->whereIn('channel', ['mail', 'sms', 'push'])->middleware('throttle:60,1');
+
 
     //auth controller
     Route::post('guest-user-account-create', [AuthController::class, 'guestUserAccountCreate']);
@@ -240,6 +245,20 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
             Route::get('unread-notifications', 'unreadNotifications')->middleware('auth:sanctum');
             Route::post('notifications/bulk-delete', 'bulkDelete')->middleware('auth:sanctum');
             Route::get('notifications/mark-as-read/{notificationId?}', 'notificationMarkAsRead')->middleware('auth:sanctum');
+        });
+
+        Route::middleware('auth:sanctum')->controller(\App\Http\Controllers\NotificationCenterController::class)->group(function () {
+            Route::get('notifications', 'index');
+            Route::get('notifications/summary', 'summary');
+            Route::patch('notifications/{id}/read', 'read');
+            Route::patch('notifications/{id}/unread', 'unread');
+            Route::post('notifications/read-all', 'readAll');
+            Route::delete('notifications', 'archive');
+            Route::post('notifications/{id}/broadcast-ack', 'broadcastAck');
+            Route::get('notification-preferences', 'preferences');
+            Route::put('notification-preferences', 'updatePreferences');
+            Route::post('notification-devices', 'registerDevice');
+            Route::delete('notification-devices/{id}', 'revokeDevice');
         });
 
         Route::get('products/last-viewed', [ProductController::class, 'lastViewedProducts'])->middleware('auth:sanctum');

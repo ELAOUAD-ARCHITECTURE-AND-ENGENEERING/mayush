@@ -1,9 +1,10 @@
 {
-  "core.js": "build/storefront/core-CZO7ADWT.js",
-  "home.js": "build/storefront/home-UDSJPI5S.js",
-  "listing.js": "build/storefront/listing-3VD7D45Y.js",
-  "product.js": "build/storefront/product-OMCSFETH.js",
-  "cart.js": "build/storefront/cart-GZYJFD6I.js",
-  "checkout.js": "build/storefront/checkout-NMUXCMYN.js",
-  "carousel.js": "build/storefront/carousel-HURSVEYT.js"
+  "core.js": "build/storefront/core-IKPDXYUA.js",
+  "home.js": "build/storefront/home-JTGYKOED.js",
+  "listing.js": "build/storefront/listing-TBASZFR2.js",
+  "product.js": "build/storefront/product-32HMAAGJ.js",
+  "cart.js": "build/storefront/cart-5BY2EZBF.js",
+  "checkout.js": "build/storefront/checkout-NM6NX4GA.js",
+  "carousel.js": "build/storefront/carousel-ZGDIZN36.js",
+  "notifications.js": "build/storefront/notifications-AF5HZXN3.js"
 }

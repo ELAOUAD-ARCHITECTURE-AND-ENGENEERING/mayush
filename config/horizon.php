@@ -199,7 +199,7 @@ return [
     'defaults' => [
         'supervisor-critical' => [
             'connection' => 'redis',
-            'queue' => ['critical', 'payments', 'shipping'],
+            'queue' => ['audits', 'critical', 'payments', 'shipping'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,
@@ -212,7 +212,7 @@ return [
         ],
         'supervisor-communications' => [
             'connection' => 'redis',
-            'queue' => ['notifications', 'emails', 'sms'],
+            'queue' => ['notifications', 'emails', 'sms', 'push'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,

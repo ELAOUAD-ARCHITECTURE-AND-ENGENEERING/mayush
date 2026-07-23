@@ -11,11 +11,17 @@ use Mail;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\OrderNotification;
 use App\Models\FirebaseNotification;
+use App\Services\Notifications\NotificationDispatcher;
 
 class NotificationUtility
 {
     public static function sendOrderPlacedNotification($order, $request = null)
-    {       
+    {
+        if (config('notifications_v2.enabled')) {
+            self::sendNotification($order, 'placed');
+            return;
+        }
+
         $lock = \Illuminate\Support\Facades\Cache::lock('order_placed_notify_'.$order->id, 30);
         if (!$lock->get()) {
             \Log::info("Duplicate order notification dispatch suppressed for order {$order->id}");
@@ -82,7 +88,49 @@ class NotificationUtility
     }
 
     public static function sendNotification($order, $order_status)
-    {     
+    {
+        if (config('notifications_v2.enabled')) {
+            $admin = get_admin();
+            $recipientIds = collect([
+                $order->user_id,
+                $order->seller_id,
+                $admin?->id,
+            ])->filter()->unique()->values();
+            $normalized = strtolower(str_replace([' ', '-'], '_', (string) $order_status));
+            $eventKey = match ($normalized) {
+                'placed' => 'order.placed',
+                'confirmed', 'processed', 'processing' => 'order.confirmed',
+                'cancelled', 'canceled' => 'order.cancelled',
+                'shipped', 'on_delivery', 'on_the_way', 'in_transit', 'out_for_delivery' => 'order.shipped',
+                'delivered' => 'order.delivered',
+                default => 'order.updated',
+            };
+            $historyId = $order->orderTrackingHistories()
+                ->where('status', $order_status)
+                ->latest('id')
+                ->value('id');
+            $occurrence = $historyId
+                ? 'tracking-history:'.$historyId
+                : 'order-status:'.$normalized.':'.optional($order->updated_at)->format('U.u');
+
+            app(NotificationDispatcher::class)->dispatch(
+                $eventKey,
+                'order',
+                $order->id,
+                $occurrence,
+                $recipientIds,
+                [
+                    'order_id' => $order->id,
+                    'order_code' => $order->code,
+                    'status' => $order_status,
+                    'title' => ucfirst(str_replace('_', ' ', $normalized)),
+                    'message' => "Order {$order->code} is now ".str_replace('_', ' ', $normalized).'.',
+                ]
+            );
+
+            return;
+        }
+
         $lock = \Illuminate\Support\Facades\Cache::lock('order_status_notify_'.$order->id.'_'.$order_status, 30);
         if (!$lock->get()) {
             \Log::info("Duplicate status notification suppressed for order {$order->id} status {$order_status}");
@@ -117,7 +165,11 @@ class NotificationUtility
     }
 
     public static function sendFirebaseNotification($req)
-    {        
+    {
+        if (config('notifications_v2.enabled')) {
+            return;
+        }
+
         $url = 'https://fcm.googleapis.com/v1/projects/myproject-b5ae1/messages:send';
 
         $fields = array

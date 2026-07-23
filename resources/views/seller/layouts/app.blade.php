@@ -233,5 +233,6 @@
             }
         </script>
     @endif
+    @include('partials.notification-center-runtime')
 </body>
 </html>

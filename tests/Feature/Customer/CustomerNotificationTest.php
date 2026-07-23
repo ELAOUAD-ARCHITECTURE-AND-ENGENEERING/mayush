@@ -13,7 +13,7 @@ class CustomerNotificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_customer_notification_page_shows_only_own_notifications_and_marks_them_read(): void
+    public function test_customer_notification_page_shows_only_own_notifications_without_marking_them_read(): void
     {
         $customer = User::factory()->customer()->create();
         $otherCustomer = User::factory()->customer()->create();
@@ -27,7 +27,7 @@ class CustomerNotificationTest extends TestCase
             ->assertSee('Personal notification message')
             ->assertDontSee($otherId);
 
-        $this->assertNotNull(DB::table('notifications')->where('id', $ownId)->value('read_at'));
+        $this->assertNull(DB::table('notifications')->where('id', $ownId)->value('read_at'));
         $this->assertNull(DB::table('notifications')->where('id', $otherId)->value('read_at'));
     }
 
@@ -56,7 +56,7 @@ class CustomerNotificationTest extends TestCase
             ->assertOk()
             ->assertSee('1');
 
-        $this->assertDatabaseMissing('notifications', ['id' => $ownId]);
+        $this->assertNotNull(DB::table('notifications')->where('id', $ownId)->value('archived_at'));
         $this->assertDatabaseHas('notifications', ['id' => $otherId]);
     }
 
@@ -93,7 +93,7 @@ class CustomerNotificationTest extends TestCase
             ->assertOk()
             ->assertJsonPath('result', true);
 
-        $this->assertDatabaseMissing('notifications', ['id' => $deleteId]);
+        $this->assertNotNull(DB::table('notifications')->where('id', $deleteId)->value('archived_at'));
         $this->assertDatabaseHas('notifications', ['id' => $otherId]);
     }
 

@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Api\V2;
 use App\Http\Resources\V2\NotificationCollection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class NotificationController extends Controller
 {
     public function allNotification()
     {
-        auth()->user()->unreadNotifications->markAsRead();
-        $notifications = auth()->user()->notifications()->get();
+        $notifications = auth()->user()->notifications()
+            ->when(Schema::hasColumn('notifications', 'archived_at'), fn ($query) => $query->whereNull('archived_at'))
+            ->latest()
+            ->get();
         return new NotificationCollection($notifications);
     }
 
@@ -25,7 +28,12 @@ class NotificationController extends Controller
         if($request->notification_ids != null){
             $idsArray = $this->notificationIds($request->notification_ids);
 
-            auth()->user()->notifications()->whereIn('id', $idsArray)->delete();
+            $query = auth()->user()->notifications()->whereIn('id', $idsArray);
+            if (Schema::hasColumn('notifications', 'archived_at')) {
+                $query->update(['archived_at' => now(), 'updated_at' => now()]);
+            } else {
+                $query->delete();
+            }
             return $this->success(translate('Notification deleted successfully'));
         }
         return  $this->failed(translate('Something went wrong'));

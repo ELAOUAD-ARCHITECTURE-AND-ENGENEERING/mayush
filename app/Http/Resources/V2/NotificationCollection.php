@@ -10,8 +10,15 @@ class NotificationCollection extends ResourceCollection
     {
         return [
             'data' => $this->collection->map(function($data) {
-                $notificationType = get_notification_type($data->notification_type_id, 'id');
-                $notifyContent = $notificationType->getTranslation('default_text');
+                if (($data->data['schema_version'] ?? null) === 1) {
+                    return app(\App\Services\Notifications\NotificationPresenter::class)->present($data);
+                }
+
+                $notificationType = $data->notification_type_id
+                    ? get_notification_type($data->notification_type_id, 'id')
+                    : null;
+                $notifyContent = $notificationType?->getTranslation('default_text')
+                    ?: \Illuminate\Support\Str::headline(class_basename($data->type ?: 'Notification'));
                 if ($data->type == 'App\Notifications\OrderNotification'){
                     $notifyContent = str_replace('[[order_code]]', $data->data['order_code'], $notifyContent);
                 }
@@ -21,7 +28,7 @@ class NotificationCollection extends ResourceCollection
                     'type' => $data->type,
                     'data' => $data->data,
                     'notification_text' => $notifyContent,
-                    'image' => uploaded_asset($notificationType->image),
+                    'image' => $notificationType?->image ? uploaded_asset($notificationType->image) : null,
                     'date' => date("F j Y, g:i a", strtotime($data->created_at))
                 ];
             })

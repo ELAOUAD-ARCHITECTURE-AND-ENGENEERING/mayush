@@ -23,6 +23,7 @@ use App\Services\ProductTaxService;
 use App\Services\ProductFlashDealService;
 use App\Services\ProductStockService;
 use App\Services\FrequentlyBoughtProductService;
+use App\Services\Notifications\NotificationDispatcher;
 use App\Utility\ProductUtility;
 use Illuminate\Support\Facades\Notification;
 
@@ -157,7 +158,23 @@ class ProductController extends Controller
                 $data['product']        = $product;
                 $data['notification_type_id'] = $notificationType->id;
 
-                Notification::send($users, new ShopProductNotification($data));
+                if (config('notifications_v2.enabled')) {
+                    app(NotificationDispatcher::class)->dispatch(
+                        'product.status',
+                        'product',
+                        $product->id,
+                        'submission:'.$product->id.':pending',
+                        $users->pluck('id'),
+                        [
+                            'product_id' => $product->id,
+                            'status' => 'pending',
+                            'title' => 'Product submitted',
+                            'message' => 'A seller product is waiting for review.',
+                        ]
+                    );
+                } else {
+                    Notification::send($users, new ShopProductNotification($data));
+                }
             }
         }
 

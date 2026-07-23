@@ -1526,5 +1526,6 @@
     @endif
 
     @include('frontend.inc.live_chat_widget')
+    @include('partials.notification-center-runtime')
 </body>
 </html>

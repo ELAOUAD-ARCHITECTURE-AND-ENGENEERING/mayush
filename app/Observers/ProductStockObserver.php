@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\ProductStock;
 use App\Models\StockAlertSubscription;
 use App\Notifications\RestockNotification;
+use App\Services\Notifications\NotificationDispatcher;
 use Notification;
 
 class ProductStockObserver
@@ -35,7 +36,25 @@ class ProductStockObserver
 
         foreach ($subscriptions as $subscription) {
             if ($subscription->user) {
-                $subscription->user->notify(new RestockNotification($productStock->product_id ? $productStock->product : $subscription->product));
+                if (config('notifications_v2.enabled')) {
+                    app(NotificationDispatcher::class)->dispatch(
+                        'product.restocked',
+                        'stock_alert_subscription',
+                        $subscription->id,
+                        'restock:'.$subscription->id,
+                        [$subscription->user_id],
+                        [
+                            'product_id' => $productStock->product_id,
+                            'title' => 'Product back in stock',
+                            'message' => 'A product you follow is back in stock.',
+                            'action_url' => $productStock->product?->slug
+                                ? route('product', $productStock->product->slug, false)
+                                : null,
+                        ]
+                    );
+                } else {
+                    $subscription->user->notify(new RestockNotification($productStock->product_id ? $productStock->product : $subscription->product));
+                }
                 
                 // Mark as notified
                 $subscription->update(['notified' => 1]);
