@@ -5,6 +5,7 @@ namespace Tests\Integration\Controllers\Backend;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Category;
+use App\Models\CategoryTranslation;
 use App\Models\Language;
 use App\Models\BusinessSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -101,6 +102,36 @@ class AdminCategoryControllerTest extends TestCase
         $this->assertDatabaseHas('categories', [
             'id' => $category->id,
             'name' => 'New Name'
+        ]);
+    }
+
+    /** @test */
+    public function updating_a_non_default_category_translation_preserves_the_base_name()
+    {
+        $category = Category::factory()->create(['name' => 'Nom par défaut']);
+        CategoryTranslation::create([
+            'category_id' => $category->id,
+            'lang' => env('DEFAULT_LANGUAGE', 'fr'),
+            'name' => 'Nom par défaut',
+        ]);
+
+        $response = $this->actingAs($this->admin)->put(route('categories.update', $category->id), [
+            'name' => 'English Name',
+            'digital' => 0,
+            'slug' => 'english-name',
+            'parent_id' => 0,
+            'lang' => 'en',
+        ]);
+
+        $response->assertJson(['success' => true]);
+        $this->assertDatabaseHas('categories', [
+            'id' => $category->id,
+            'name' => 'Nom par défaut',
+        ]);
+        $this->assertDatabaseHas('category_translations', [
+            'category_id' => $category->id,
+            'lang' => 'en',
+            'name' => 'English Name',
         ]);
     }
 

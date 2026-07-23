@@ -162,7 +162,16 @@ class CategoryController extends Controller
     public function update(CategoryRequest $request, $id)
     {
         $category = Category::findOrFail($id);
-        if($request->lang == env("DEFAULT_LANGUAGE")){
+        $defaultLanguage = env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr');
+        $language = $request->input('lang') ?: $defaultLanguage;
+
+        // Keep the legacy base name usable as a fallback until a default-language
+        // translation exists, while preserving the base name for translated edits.
+        $hasDefaultTranslation = CategoryTranslation::where('category_id', $category->id)
+            ->where('lang', $defaultLanguage)
+            ->exists();
+
+        if ($language === $defaultLanguage || !$hasDefaultTranslation) {
             $category->name = $request->name;
         }
         if($request->order_level != null) {
@@ -219,7 +228,7 @@ class CategoryController extends Controller
 
         $category->attributes()->sync($request->filtering_attributes);
 
-        $category_translation = CategoryTranslation::firstOrNew(['lang' => $request->lang, 'category_id' => $category->id]);
+        $category_translation = CategoryTranslation::firstOrNew(['lang' => $language, 'category_id' => $category->id]);
         $category_translation->name = $request->name;
         $category_translation->save();
 

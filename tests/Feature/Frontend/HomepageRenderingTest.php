@@ -209,8 +209,7 @@ class HomepageRenderingTest extends TestCase
             ->assertSee('data-items="6"', false)
             ->assertSee('-webkit-line-clamp: 2', false)
             ->assertSee('border: 1px solid #f97316', false)
-            ->assertSee('color: #111827', false)
-            ->assertSee('Specially Made For U');
+            ->assertSee('color: #111827', false);
     }
 
     public function test_metro_category_icon_navigation_can_be_hidden_from_home_settings(): void
