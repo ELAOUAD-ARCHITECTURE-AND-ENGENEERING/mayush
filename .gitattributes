@@ -2,4 +2,7 @@
 *.css linguist-vendored
 *.scss linguist-vendored
 *.js linguist-vendored
+# Keep esbuild's storefront inputs identical on Windows and Linux checkouts.
+resources/js/storefront/*.js text eol=lf
+scripts/storefront/*.mjs text eol=lf
 CHANGELOG.md export-ignore

@@ -1,7 +1,6 @@
 {
   "version": 3,
   "sources": ["../../../resources/js/storefront/home.js"],
-  "sourcesContent": ["document.documentElement.classList.add('storefront-profile-home');\r\n"],
   "mappings": "AAAA,SAAS,gBAAgB,UAAU,IAAI,yBAAyB",
   "names": []
 }

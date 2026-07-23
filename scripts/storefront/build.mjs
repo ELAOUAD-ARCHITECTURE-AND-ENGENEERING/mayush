@@ -1,6 +1,6 @@
 import { build } from 'esbuild';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
-import { dirname, relative } from 'node:path';
+import { relative } from 'node:path';
 
 const outdir = 'public/build/storefront';
 const entryPoints = {
@@ -23,6 +23,7 @@ const result = await build({
     bundle: true,
     minify: true,
     sourcemap: true,
+    sourcesContent: false,
     metafile: true,
     entryNames: '[name]-[hash]',
     format: 'esm',
@@ -32,7 +33,9 @@ const result = await build({
 const manifest = {};
 for (const [output, metadata] of Object.entries(result.metafile.outputs)) {
     if (!metadata.entryPoint) continue;
-    manifest[`${relative('resources/js/storefront', metadata.entryPoint).replace(/\\/g, '/')}`] = relative('public', output).replace(/\\/g, '/');
+
+    const entryName = relative('resources/js/storefront', metadata.entryPoint).replace(/\\/g, '/');
+    manifest[entryName] = relative('public', output).replace(/\\/g, '/');
 }
 
-await writeFile(`${outdir}/manifest.json`, `${JSON.stringify(manifest, null, 2)}\n`);
+await writeFile(outdir + '/manifest.json', JSON.stringify(manifest, null, 2) + '\n');
