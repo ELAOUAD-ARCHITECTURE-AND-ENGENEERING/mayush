@@ -1,4 +1,4 @@
-import { access, readdir, readFile, stat } from 'node:fs/promises';
+import { lstat, readdir, readFile } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 
 const publicDirectory = resolve('public');
@@ -16,34 +16,56 @@ const expectedEntries = [
 ];
 
 function fail(message) {
-    throw new Error(`Invalid storefront asset manifest: ${message}`);
+    throw new Error('Invalid storefront asset manifest: ' + message);
 }
 
 function resolvePublicAsset(path) {
     if (typeof path !== 'string' || !path.startsWith('build/storefront/') || path.includes('..')) {
-        fail(`invalid asset path: ${String(path)}`);
+        fail('invalid asset path: ' + String(path));
     }
 
     const assetPath = resolve(publicDirectory, path);
-    if (!assetPath.startsWith(`${publicDirectory}${sep}`)) {
-        fail(`asset escapes the public directory: ${path}`);
+    if (!assetPath.startsWith(publicDirectory + sep)) {
+        fail('asset escapes the public directory: ' + path);
     }
 
     return assetPath;
 }
 
-async function assertNonEmptyFile(path, description) {
-    try {
-        await access(path);
-        if ((await stat(path)).size === 0) {
-            fail(`${description} is empty`);
-        }
-    } catch (error) {
-        if (error instanceof Error && error.message.startsWith('Invalid storefront asset manifest:')) {
-            throw error;
-        }
+async function assertRegularNonEmptyFile(path, description) {
+    let file;
 
-        fail(`${description} is missing`);
+    try {
+        file = await lstat(path);
+    } catch {
+        fail(description + ' is missing');
+    }
+
+    if (file.isSymbolicLink() || !file.isFile()) {
+        fail(description + ' must be a regular file');
+    }
+
+    if (file.size === 0) {
+        fail(description + ' is empty');
+    }
+}
+
+async function assertSourceMap(path, description) {
+    await assertRegularNonEmptyFile(path, description);
+
+    let sourceMap;
+    try {
+        sourceMap = JSON.parse(await readFile(path, 'utf8'));
+    } catch {
+        fail(description + ' is not valid JSON');
+    }
+
+    if (!sourceMap || Array.isArray(sourceMap) || typeof sourceMap !== 'object') {
+        fail(description + ' must contain an object');
+    }
+
+    if ('sourcesContent' in sourceMap) {
+        fail(description + ' must not embed source content');
     }
 }
 
@@ -60,29 +82,31 @@ if (!manifest || Array.isArray(manifest) || typeof manifest !== 'object') {
 
 const manifestEntries = Object.keys(manifest).sort();
 if (JSON.stringify(manifestEntries) !== JSON.stringify([...expectedEntries].sort())) {
-    fail(`expected entries ${expectedEntries.join(', ')}, received ${manifestEntries.join(', ') || '(none)'}`);
+    fail('expected entries ' + expectedEntries.join(', ') + ', received ' + (manifestEntries.join(', ') || '(none)'));
 }
 
 const referencedAssets = [];
+const referencedMaps = [];
 for (const entry of expectedEntries) {
     const assetPath = resolvePublicAsset(manifest[entry]);
     if (!assetPath.endsWith('.js')) {
-        fail(`${entry} does not reference a JavaScript bundle`);
+        fail(entry + ' does not reference a JavaScript bundle');
     }
 
-    await assertNonEmptyFile(assetPath, `${entry} bundle`);
-    await assertNonEmptyFile(`${assetPath}.map`, `${entry} source map`);
+    const sourceMapPath = assetPath + '.map';
+    await assertRegularNonEmptyFile(assetPath, entry + ' bundle');
+    await assertSourceMap(sourceMapPath, entry + ' source map');
     referencedAssets.push(assetPath);
+    referencedMaps.push(sourceMapPath);
 }
 
-const generatedJavaScript = (await readdir(storefrontDirectory))
-    .filter((file) => file.endsWith('.js'))
+const generatedFiles = (await readdir(storefrontDirectory))
     .map((file) => resolve(storefrontDirectory, file))
     .sort();
 
-const expectedJavaScript = [...referencedAssets].sort();
-if (JSON.stringify(generatedJavaScript) !== JSON.stringify(expectedJavaScript)) {
-    fail('generated JavaScript bundles do not exactly match manifest.json');
+const expectedFiles = [manifestPath, ...referencedAssets, ...referencedMaps].sort();
+if (JSON.stringify(generatedFiles) !== JSON.stringify(expectedFiles)) {
+    fail('generated files do not exactly match manifest.json');
 }
 
-console.log(`Validated ${expectedEntries.length} storefront bundles and source maps.`);
+console.log('Validated ' + expectedEntries.length + ' storefront bundles and source maps.');

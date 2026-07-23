@@ -1,7 +1,6 @@
 {
   "version": 3,
   "sources": ["../../../resources/js/storefront/carousel.js"],
-  "sourcesContent": ["export function initializeCarousel(root = document) {\r\n    if (window.AIZ?.plugins?.slickCarousel) {\r\n        window.AIZ.plugins.slickCarousel(root);\r\n    }\r\n}\r\n"],
   "mappings": "AAAO,SAASA,EAAmBC,EAAO,SAAU,CAC5C,OAAO,KAAK,SAAS,eACrB,OAAO,IAAI,QAAQ,cAAcA,CAAI,CAE7C",
   "names": ["initializeCarousel", "root"]
 }

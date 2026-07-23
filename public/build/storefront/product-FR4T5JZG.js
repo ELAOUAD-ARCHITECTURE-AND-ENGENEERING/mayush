@@ -1,2 +1,2 @@
 document.documentElement.classList.add("storefront-profile-product");
-//# sourceMappingURL=product-32HMAAGJ.js.map
+//# sourceMappingURL=product-FR4T5JZG.js.map
