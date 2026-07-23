@@ -31,6 +31,12 @@ class LanguageSwitchTest extends TestCase
     public function test_ajax_language_switch_rejects_unknown_or_inactive_locale(): void
     {
         Language::factory()->create([
+            'code' => 'en',
+            'app_lang_code' => 'en',
+            'status' => 1,
+        ]);
+
+        Language::factory()->create([
             'code' => 'fr',
             'app_lang_code' => 'fr',
             'status' => 0,

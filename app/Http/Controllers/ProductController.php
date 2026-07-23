@@ -1211,7 +1211,7 @@ class ProductController extends Controller
 
     private function translationLanguage(?string $lang = null): string
     {
-        return $lang ?: (env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr'));
+        return $lang ?: app()->getLocale();
     }
 
     public function get_products_by_subcategory() { return 'Stub'; }
