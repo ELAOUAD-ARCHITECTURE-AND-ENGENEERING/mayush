@@ -11,6 +11,7 @@ use App\Models\Shop;
 use App\Models\User;
 use App\Services\IndexNowService;
 use App\Services\SeoService;
+use Database\Seeders\BladeTranslationSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -25,6 +26,8 @@ class AdvancedSeoSchemaTest extends TestCase
         parent::setUp();
 
         $this->seedConfigs();
+        $this->seed(BladeTranslationSeeder::class);
+        $this->app->setLocale('fr');
         config(['app.url' => 'https://mayushdesign.test']);
     }
 
@@ -106,7 +109,7 @@ class AdvancedSeoSchemaTest extends TestCase
             ->assertSee('"@type": "ItemList"', false)
             ->assertSee('Que peut-on acheter sur Mayush au Maroc ?', false)
             ->assertSee('Mayush Marketplace', false)
-            ->assertSee('Marketplace de Mobilier & Decoration au Maroc', false)
+            ->assertSee('Marketplace de Mobilier & Décoration au Maroc')
             ->assertSee('marketplace marocaine de mobilier', false);
 
         $this->get(route('product', $product->slug))
@@ -152,8 +155,8 @@ class AdvancedSeoSchemaTest extends TestCase
             ->assertOk()
             ->assertSee('"@type": "Store"', false)
             ->assertSee('Atelier Atlas - vendeur Mayush au Maroc', false)
-            ->assertSee('Vendeur verifie Mayush', false)
-            ->assertSee('1 produits publies', false)
+            ->assertSee('Vendeur vérifié Mayush', false)
+            ->assertSee('1 produits publiés', false)
             ->assertSee('Casablanca, Maroc', false);
     }
 

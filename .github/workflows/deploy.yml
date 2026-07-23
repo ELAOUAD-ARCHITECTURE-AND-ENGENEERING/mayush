@@ -248,6 +248,7 @@ jobs:
             php8.2 artisan app:preflight-restore --require-redis --allow-pending-migrations --no-ansi
             php8.2 artisan migrate --force
             php8.2 artisan db:seed --class=BlogNavigationSeeder --force
+            php8.2 artisan db:seed --class=Database\\Seeders\\BladeTranslationSeeder --force
             php8.2 artisan app:preflight-restore --require-redis --require-blog-navigation --no-ansi
             php8.2 artisan queue:restart
             php8.2 artisan horizon:terminate
