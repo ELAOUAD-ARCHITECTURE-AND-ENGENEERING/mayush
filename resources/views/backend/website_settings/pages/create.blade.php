@@ -36,7 +36,7 @@
 					<textarea
 						class="aiz-text-editor form-control"
 						data-buttons='[["font", ["bold", "underline", "italic", "clear"]],["para", ["ul", "ol", "paragraph"]],["style", ["style"]],["color", ["color"]],["table", ["table"]],["insert", ["link", "picture", "video"]],["view", ["fullscreen", "codeview", "undo", "redo"]]]'
-						placeholder="Content.."
+						placeholder="{{ translate('Content..') }}"
 						data-min-height="300"
 						name="content"
 						required

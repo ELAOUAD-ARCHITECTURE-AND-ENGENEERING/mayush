@@ -371,7 +371,7 @@
                                             <!-- link -->
                                             <div class="col-md">
                                                 <div class="form-group mb-md-0">
-                                                    <input type="text" class="form-control" placeholder="http://" name="slider_links[]" value="{{ isset(json_decode($shop->slider_links, true)[$key]) ? json_decode($shop->slider_links, true)[$key] : '' }}">
+                                                    <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="slider_links[]" value="{{ isset(json_decode($shop->slider_links, true)[$key]) ? json_decode($shop->slider_links, true)[$key] : '' }}">
                                                 </div>
                                             </div>
                                             <!-- remove parent button -->
@@ -414,7 +414,7 @@
                                         <!-- link -->
                                         <div class="col-md">
                                             <div class="form-group mb-md-0">
-                                                <input type="text" class="form-control" placeholder="http://" name="slider_links[]" value="">
+                                                <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="slider_links[]" value="">
                                             </div>
                                         </div>
                                         <!-- remove parent button -->
@@ -462,7 +462,7 @@
                                             <!-- link -->
                                             <div class="col-md">
                                                 <div class="form-group mb-md-0">
-                                                    <input type="text" class="form-control" placeholder="http://" name="banner_full_width_1_links[]" value="{{ isset(json_decode($shop->banner_full_width_1_links, true)[$key]) ? json_decode($shop->banner_full_width_1_links, true)[$key] : '' }}">
+                                                    <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="banner_full_width_1_links[]" value="{{ isset(json_decode($shop->banner_full_width_1_links, true)[$key]) ? json_decode($shop->banner_full_width_1_links, true)[$key] : '' }}">
                                                 </div>
                                             </div>
                                             <!-- remove parent button -->
@@ -505,7 +505,7 @@
                                         <!-- link -->
                                         <div class="col-md">
                                             <div class="form-group mb-md-0">
-                                                <input type="text" class="form-control" placeholder="http://" name="banner_full_width_1_links[]" value="">
+                                                <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="banner_full_width_1_links[]" value="">
                                             </div>
                                         </div>
                                         <!-- remove parent button -->
@@ -556,7 +556,7 @@
                                                 <div class="form-group mb-md-0">
                                                     <input type="text" 
                                                         class="form-control" 
-                                                        placeholder="http://" 
+                                                        placeholder="{{ translate('http://') }}" 
                                                         name="banners_half_width_links[]" 
                                                         value="{{ isset(json_decode($shop->banners_half_width_links, true)[$key]) ? json_decode($shop->banners_half_width_links, true)[$key] : '' }}">
                                                 </div>
@@ -601,7 +601,7 @@
                                         <!-- link -->
                                         <div class="col-md">
                                             <div class="form-group mb-md-0">
-                                                <input type="text" class="form-control" placeholder="http://" name="banners_half_width_links[]" value="">
+                                                <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="banners_half_width_links[]" value="">
                                             </div>
                                         </div>
                                         <!-- remove parent button -->
@@ -652,7 +652,7 @@
                                                 <div class="form-group mb-md-0">
                                                     <input type="text" 
                                                         class="form-control" 
-                                                        placeholder="http://" 
+                                                        placeholder="{{ translate('http://') }}" 
                                                         name="banner_full_width_2_links[]" 
                                                         value="{{ isset(json_decode($shop->banner_full_width_2_links, true)[$key]) ? json_decode($shop->banner_full_width_2_links, true)[$key] : '' }}">
                                                 </div>
@@ -697,7 +697,7 @@
                                         <!-- link -->
                                         <div class="col-md">
                                             <div class="form-group mb-md-0">
-                                                <input type="text" class="form-control" placeholder="http://" name="banner_full_width_2_links[]" value="">
+                                                <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="banner_full_width_2_links[]" value="">
                                             </div>
                                         </div>
                                         <!-- remove parent button -->

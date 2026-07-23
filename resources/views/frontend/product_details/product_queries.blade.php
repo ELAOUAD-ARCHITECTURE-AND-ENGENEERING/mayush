@@ -33,7 +33,7 @@
                         <div class="row align-items-center">
                             <div class="col-12 col-md-9 col-lg-10">
                                 <textarea class="form-control border-0 px-0" id="product-queries" rows="3" name="question"
-                                    placeholder="Write your question here . . . "></textarea>
+                                    placeholder="{{ translate('Write your question here . . .') }}"></textarea>
                             </div>
                             <div class="col-12 col-sm-6 col-md-3 col-lg-2">
                                 <input type="submit" value="Submit"

@@ -63,7 +63,7 @@
             </div>
             <div class="card-footer">
                 <div class="input-group">
-                    <input type="text" id="chat-input" class="form-control" placeholder="Type your reply here..." disabled>
+                    <input type="text" id="chat-input" class="form-control" placeholder="{{ translate('Type your reply here...') }}" disabled>
                     <div class="input-group-append">
                         <button class="btn btn-primary" id="btn-send" type="button" disabled>Send</button>
                     </div>

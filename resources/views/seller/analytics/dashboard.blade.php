@@ -43,7 +43,7 @@
     <!-- Date Range Picker -->
     <div class="row align-items-center mb-4">
         <div class="col-md-4">
-            <input type="text" class="form-control aiz-date-range" id="date-range" name="date" placeholder="Filter by date range">
+            <input type="text" class="form-control aiz-date-range" id="date-range" name="date" placeholder="{{ translate('Filter by date range') }}">
         </div>
     </div>
 

@@ -34,7 +34,7 @@
 
                             <button type="button" class="btn btn-block border border-dashed hov-bg-soft-secondary fs-14 rounded-0 d-flex align-items-center justify-content-center add-row">
                                 <i class="las la-plus"></i>
-                                <span class="ml-2">Add More</span>
+                                <span class="ml-2">{{ translate('Add More') }}</span>
                             </button>
                         </div>
                     </div>
@@ -65,9 +65,9 @@ document.addEventListener("DOMContentLoaded", function () {
             newRow.innerHTML = `
                 <div class="col">
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Enter Attribute Value" name="attribute_values[]" maxlength="60" required>
+                        <input type="text" class="form-control" placeholder="{{ translate('Enter Attribute Value') }}" name="attribute_values[]" maxlength="60" required>
                     </div>
-                </div>
+                </div>`
                 <div class="col-auto">
                     <button type="button" class="my-1 pt-2 btn btn-icon btn-circle btn-sm btn-soft-danger remove-row">
                         <i class="las la-times"></i>

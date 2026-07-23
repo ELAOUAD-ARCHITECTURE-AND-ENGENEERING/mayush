@@ -75,7 +75,7 @@
                     @csrf
                     <div class="form-group">
                         <label>{{translate('Template Name')}}</label>
-                        <input type="text" name="name" class="form-control" placeholder="e.g. Standard Electronics Rate" required>
+                        <input type="text" name="name" class="form-control" placeholder="{{ translate('e.g. Standard Electronics Rate') }}" required>
                     </div>
                     <div class="form-group">
                         <label>{{translate('Calculation Type')}}</label>
@@ -94,11 +94,11 @@
                         <p class="text-muted small">{{translate('Optional: Set guardrails so cheap items do not give too few points, or expensive items do not give too many.')}}</p>
                         <div class="form-group">
                             <label>{{translate('Minimum Point Output')}}</label>
-                            <input type="number" name="min_threshold" class="form-control" placeholder="e.g. 5">
+                            <input type="number" name="min_threshold" class="form-control" placeholder="{{ translate('e.g. 5') }}">
                         </div>
                         <div class="form-group">
                             <label>{{translate('Maximum Point Output')}}</label>
-                            <input type="number" name="max_threshold" class="form-control" placeholder="e.g. 5000">
+                            <input type="number" name="max_threshold" class="form-control" placeholder="{{ translate('e.g. 5000') }}">
                         </div>
                     </div>
                     

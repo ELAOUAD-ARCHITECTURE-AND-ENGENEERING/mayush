@@ -273,7 +273,7 @@
 																<div class="col-md-6">
 																	<div class="form-group">
 																		<label class="fs-13 fw-600">{{ translate('Slide Link') }}</label>
-																		<input type="text" class="form-control" placeholder="http://" name="home_slider_links[]" value="{{ $decoded_home_slider_links[$key] ?? '' }}">
+																		<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_slider_links[]" value="{{ $decoded_home_slider_links[$key] ?? '' }}">
 																	</div>
 																</div>
 																<div class="col-md-6">
@@ -297,7 +297,7 @@
 																<div class="col-md-6">
 																	<div class="form-group mb-md-0">
 																		<label class="fs-13 fw-600">{{ translate('CTA Button Link') }}</label>
-																		<input type="text" class="form-control" placeholder="http://" name="home_slider_cta_links[]" value="{{ $decoded_home_slider_cta_links[$key] ?? '' }}">
+																		<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_slider_cta_links[]" value="{{ $decoded_home_slider_cta_links[$key] ?? '' }}">
 																	</div>
 																</div>
 															</div>
@@ -345,7 +345,7 @@
 															<div class="col-md-6">
 																<div class="form-group">
 																	<label class="fs-13 fw-600">{{ translate('Slide Link') }}</label>
-																	<input type="text" class="form-control" placeholder="http://" name="home_slider_links[]" value="">
+																	<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_slider_links[]" value="">
 																</div>
 															</div>
 															<div class="col-md-6">
@@ -369,7 +369,7 @@
 															<div class="col-md-6">
 																<div class="form-group mb-md-0">
 																	<label class="fs-13 fw-600">{{ translate('CTA Button Link') }}</label>
-																	<input type="text" class="form-control" placeholder="http://" name="home_slider_cta_links[]" value="">
+																	<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_slider_cta_links[]" value="">
 																</div>
 															</div>
 														</div>
@@ -690,7 +690,7 @@
 														<!-- link -->
 														<div class="col-md">
 															<div class="form-group mb-md-0">
-																<input type="text" class="form-control" placeholder="http://" name="home_banner1_links[]" value="{{ isset(json_decode($home_banner1_links, true)[$key]) ? json_decode($home_banner1_links, true)[$key] : '' }}">
+																<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner1_links[]" value="{{ isset(json_decode($home_banner1_links, true)[$key]) ? json_decode($home_banner1_links, true)[$key] : '' }}">
 															</div>
 														</div>
 														<!-- remove parent button -->
@@ -740,7 +740,7 @@
 													<!-- link -->
 													<div class="col-md">
 														<div class="form-group mb-md-0 mb-0">
-															<input type="text" class="form-control" placeholder="http://" name="home_banner1_links[]" value="">
+															<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner1_links[]" value="">
 														</div>
 													</div>
 													<!-- remove parent button -->
@@ -812,7 +812,7 @@
 														<!-- link -->
 														<div class="col-md">
 															<div class="form-group mb-md-0">
-																<input type="text" class="form-control" placeholder="http://" name="home_preorder_banner_1_links[]" value="{{ isset(json_decode($home_preorder_banner_1_links, true)[$key]) ? json_decode($home_preorder_banner_1_links, true)[$key] : '' }}">
+																<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_preorder_banner_1_links[]" value="{{ isset(json_decode($home_preorder_banner_1_links, true)[$key]) ? json_decode($home_preorder_banner_1_links, true)[$key] : '' }}">
 															</div>
 														</div>
 														<!-- remove parent button -->
@@ -855,7 +855,7 @@
 													<!-- link -->
 													<div class="col-md">
 														<div class="form-group mb-md-0 mb-0">
-															<input type="text" class="form-control" placeholder="http://" name="home_preorder_banner_1_links[]" value="">
+															<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_preorder_banner_1_links[]" value="">
 														</div>
 													</div>
 													<!-- remove parent button -->
@@ -941,7 +941,7 @@
 														<!-- link -->
 														<div class="col-md">
 															<div class="form-group mb-md-0">
-																<input type="text" class="form-control" placeholder="http://" name="home_banner2_links[]" value="{{ isset(json_decode($home_banner2_links, true)[$key]) ? json_decode($home_banner2_links, true)[$key] : '' }}">
+																<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner2_links[]" value="{{ isset(json_decode($home_banner2_links, true)[$key]) ? json_decode($home_banner2_links, true)[$key] : '' }}">
 															</div>
 														</div>
 														<!-- remove parent button -->
@@ -991,7 +991,7 @@
 													<!-- link -->
 													<div class="col-md">
 														<div class="form-group mb-md-0 mb-0">
-															<input type="text" class="form-control" placeholder="http://" name="home_banner2_links[]" value="">
+															<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner2_links[]" value="">
 														</div>
 													</div>
 													<!-- remove parent button -->
@@ -1081,7 +1081,7 @@
 														<!-- link -->
 														<div class="col-md">
 															<div class="form-group mb-md-0">
-																<input type="text" class="form-control" placeholder="http://" name="home_banner3_links[]" value="{{ isset(json_decode($home_banner3_links, true)[$key]) ? json_decode($home_banner3_links, true)[$key] : '' }}">
+																<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner3_links[]" value="{{ isset(json_decode($home_banner3_links, true)[$key]) ? json_decode($home_banner3_links, true)[$key] : '' }}">
 															</div>
 														</div>
 														<!-- remove parent button -->
@@ -1131,7 +1131,7 @@
 													<!-- link -->
 													<div class="col-md">
 														<div class="form-group mb-md-0 mb-0">
-															<input type="text" class="form-control" placeholder="http://" name="home_banner3_links[]" value="">
+															<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner3_links[]" value="">
 														</div>
 													</div>
 													<!-- remove parent button -->
@@ -1744,7 +1744,7 @@
 														<div class="col-md-8">
 															<div class="form-group">
 																<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('CTA Link') }}</label>
-																<input type="text" class="form-control" placeholder="http://" name="home_banner4_links[]" value="{{ isset(json_decode($home_banner4_links ?? '[]', true)[$key]) ? json_decode($home_banner4_links, true)[$key] : '' }}">
+																<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner4_links[]" value="{{ isset(json_decode($home_banner4_links ?? '[]', true)[$key]) ? json_decode($home_banner4_links, true)[$key] : '' }}">
 															</div>
 														</div>
 													</div>
@@ -1799,13 +1799,13 @@
 													<div class="col-md-6">
 														<div class="form-group">
 															<label class="fs-12 fw-600 text-uppercase text-muted">H2 Title</label>
-															<textarea class="form-control" rows="3" placeholder="Headline shown over this banner" name="home_banner4_titles[]"></textarea>
+															<textarea class="form-control" rows="3" placeholder="{{ translate('Headline shown over this banner') }}" name="home_banner4_titles[]"></textarea>
 														</div>
 													</div>
 													<div class="col-md-6">
 														<div class="form-group">
 															<label class="fs-12 fw-600 text-uppercase text-muted">Description</label>
-															<textarea class="form-control" rows="3" placeholder="Supporting text shown below the title" name="home_banner4_descriptions[]"></textarea>
+															<textarea class="form-control" rows="3" placeholder="{{ translate('Supporting text shown below the title') }}" name="home_banner4_descriptions[]"></textarea>
 														</div>
 													</div>
 												</div>
@@ -1813,13 +1813,13 @@
 													<div class="col-md-4">
 														<div class="form-group">
 															<label class="fs-12 fw-600 text-uppercase text-muted">CTA Button Text</label>
-															<input type="text" class="form-control" placeholder="Acheter maintenant" name="home_banner4_cta_texts[]" value="">
+															<input type="text" class="form-control" placeholder="{{ translate('Acheter maintenant') }}" name="home_banner4_cta_texts[]" value="">
 														</div>
 													</div>
 														<div class="col-md-8">
 														<div class="form-group">
 															<label class="fs-12 fw-600 text-uppercase text-muted">CTA Link</label>
-															<input type="text" class="form-control" placeholder="http://" name="home_banner4_links[]" value="">
+															<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner4_links[]" value="">
 														</div>
 													</div>
 													<div class="form-group">

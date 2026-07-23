@@ -256,7 +256,7 @@
                             <label class="col-md-3 col-from-label">{{translate('Watermark Text')}}</label>
                             <div class="col-md-8">
                                 <input type="hidden" name="types[]" value="watermark_text">
-                                <input type="text" name="watermark_text" class="form-control" placeholder="Watermark Text" value="{{  get_setting('watermark_text') }}">
+                                <input type="text" name="watermark_text" class="form-control" placeholder="{{ translate('Watermark Text') }}" value="{{  get_setting('watermark_text') }}">
                             </div>
                         </div>
                         <!-- Watermark Text Size -->
@@ -264,7 +264,7 @@
                             <label class="col-md-3 col-from-label">{{translate('Watermark Text Size')}}</label>
                             <div class="col-md-8">
                                 <input type="hidden" name="types[]" value="watermark_text_size">
-                                <input type="number" name="watermark_text_size" class="form-control" placeholder="Ex: 20" value="{{  get_setting('watermark_text_size') }}">
+                                <input type="number" name="watermark_text_size" class="form-control" placeholder="{{ translate('Ex: 20') }}" value="{{  get_setting('watermark_text_size') }}">
                             </div>
                         </div>
                         <!-- Watermark Text Color -->
