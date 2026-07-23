@@ -69,7 +69,7 @@ class BlogPlatformTest extends TestCase
         $blog->tags()->sync([$tag->id]);
         $related->tags()->sync([$tag->id]);
 
-        $response = $this->get(route('blog.details', $blog->slug));
+        $response = $this->withSession(['locale' => 'en'])->get(route('blog.details', $blog->slug));
 
         $response->assertStatus(200);
         $response->assertSee('Related Posts');
@@ -81,7 +81,7 @@ class BlogPlatformTest extends TestCase
     {
         $this->createPublishedBlog();
 
-        $response = $this->get(route('home'));
+        $response = $this->withSession(['locale' => 'en'])->get(route('home'));
 
         $response->assertStatus(200);
         $response->assertSee('Latest from Blog');

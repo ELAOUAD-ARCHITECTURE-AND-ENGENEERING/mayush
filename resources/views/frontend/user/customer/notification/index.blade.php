@@ -19,6 +19,7 @@
         </div>
     </div>
     <div class="card-body">
+        @include('partials.notification-filters')
         <!-- Notifications -->
         <ul class="list-group list-group-flush">
             <div class="form-group">
@@ -55,8 +56,11 @@
                             <div class="media-body">
                                 <div class="d-flex">
                                     @php
-                                        $notificationType = get_notification_type($notification->notification_type_id, 'id');
-                                        $notifyContent = $notificationType->getTranslation('default_text');
+                                        $presented = app(\App\Services\Notifications\NotificationPresenter::class)->present($notification);
+                                        $notificationType = $notification->notification_type_id
+                                            ? get_notification_type($notification->notification_type_id, 'id')
+                                            : null;
+                                        $notifyContent = $presented['message'];
                                     @endphp
                                     <div class="form-group d-inline-block">
                                         <label class="aiz-checkbox">
@@ -67,13 +71,13 @@
                                     @if($notificationShowDesign != 'only_text')
                                         <div class="size-35px mr-2">
                                             <img
-                                                src="{{ uploaded_asset($notificationType->image) }}"
+                                                src="{{ $notificationType?->image ? uploaded_asset($notificationType->image) : static_asset('assets/img/notification.png') }}"
                                                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/notification.png') }}';"
                                                 class="img-fit h-100 {{ $notifyImageDesign }}" >
                                         </div>
                                     @endif
                                     <div>
-                                        <p class="mb-1 text-truncate-2">
+                                        <p class="mb-1 text-truncate-2 {{ $notification->read_at ? 'text-muted' : 'fw-600' }}">
                                             @if($notification->type == 'App\Notifications\OrderNotification')
                                                 @php
                                                     $orderCode  = $notification->data['order_code'];
@@ -96,11 +100,28 @@
                                                     }
                                                 @endphp
                                             @endif
-                                            {!! $notifyContent !!}
+                                            @if($presented['action_url'])
+                                                <a href="{{ $presented['action_url'] }}"
+                                                   class="text-reset"
+                                                   data-notification-open
+                                                   data-notification-id="{{ $notification->id }}">{!! $notifyContent !!}</a>
+                                            @else
+                                                {!! $notifyContent !!}
+                                            @endif
                                         </p>
+                                        <span class="badge badge-soft-{{ $presented['severity'] === 'critical' ? 'danger' : ($presented['severity'] === 'important' ? 'warning' : 'secondary') }}">
+                                            {{ translate(ucfirst($presented['category'])) }}
+                                        </span>
                                         <small class="text-muted">
                                             {{ date("F j Y, g:i a", strtotime($notification->created_at)) }}
                                         </small>
+                                        <button type="button"
+                                                class="btn btn-link btn-sm p-0 ml-2"
+                                                data-notification-toggle-read
+                                                data-notification-id="{{ $notification->id }}"
+                                                data-notification-state="{{ $notification->read_at ? 'unread' : 'read' }}">
+                                            {{ $notification->read_at ? translate('Mark unread') : translate('Mark read') }}
+                                        </button>
                                     </div>
                                 </div>
                             </div>

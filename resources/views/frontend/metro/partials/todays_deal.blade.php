@@ -1,4 +1,7 @@
 @if (count($todays_deal_products) > 0)
+    @php
+        $lang = get_system_language() ? get_system_language()->code : null;
+    @endphp
     <style>
         .todays-deal-yellow-section {
             background: #F5F1E8;
@@ -218,32 +221,32 @@
 
                 <div class="todays-deal-header-row">
                     <div>
-                        <h2 class="mb-0">{{ get_setting('todays_deal_title', translate('Specially Made For U')) }}</h2>
-                        <div class="deal-btn mt-3">{{ get_setting('todays_deal_subtitle', translate("Today's Deal")) }}</div>
+                        <h2 class="mb-0">{{ get_setting('todays_deal_title', translate('Specially Made For U'), $lang) }}</h2>
+                        <div class="deal-btn mt-3">{{ get_setting('todays_deal_subtitle', translate("Today's Deal"), $lang) }}</div>
                         <p class="todays-deal-urgency-copy">
-                            {{ get_setting('todays_deal_description', translate('Featured products selected for today only. The countdown resets every night at midnight.')) }}
+                            {{ get_setting('todays_deal_description', translate('Featured products selected for today only. The countdown resets every night at midnight.'), $lang) }}
                         </p>
                     </div>
 
                     <div class="todays-deal-countdown mx-auto mt-3 mt-md-0" data-metro-todays-countdown aria-label="{{ translate('Time remaining before today\'s deals reset') }}">
                         <span class="todays-deal-countdown__unit">
                             <span class="todays-deal-countdown__value" data-countdown-part="days">00</span>
-                            <span class="todays-deal-countdown__label">{{ translate('JJ') }}</span>
+                            <span class="todays-deal-countdown__label">{{ translate('Days') }}</span>
                         </span>
                         <span class="todays-deal-countdown__separator">:</span>
                         <span class="todays-deal-countdown__unit">
                             <span class="todays-deal-countdown__value" data-countdown-part="hours">00</span>
-                            <span class="todays-deal-countdown__label">{{ translate('HH') }}</span>
+                            <span class="todays-deal-countdown__label">{{ translate('Hours') }}</span>
                         </span>
                         <span class="todays-deal-countdown__separator">:</span>
                         <span class="todays-deal-countdown__unit">
                             <span class="todays-deal-countdown__value" data-countdown-part="minutes">00</span>
-                            <span class="todays-deal-countdown__label">{{ translate('MM') }}</span>
+                            <span class="todays-deal-countdown__label">{{ translate('Minutes') }}</span>
                         </span>
                         <span class="todays-deal-countdown__separator">:</span>
                         <span class="todays-deal-countdown__unit">
                             <span class="todays-deal-countdown__value" data-countdown-part="seconds">00</span>
-                            <span class="todays-deal-countdown__label">{{ translate('SS') }}</span>
+                            <span class="todays-deal-countdown__label">{{ translate('Seconds') }}</span>
                         </span>
                     </div>
                 </div>

@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\SecurityAlertNotification;
+use App\Services\Notifications\NotificationDispatcher;
 use App\Models\User;
 
 class ClamavService
@@ -77,11 +78,25 @@ class ClamavService
                 // Security Evolution: Real-time Alerting
                 $admin = User::where('user_type', 'admin')->first();
                 if ($admin) {
-                    Notification::send($admin, new SecurityAlertNotification([
-                        'type' => 'Virus Detected',
-                        'message' => "A virus was found in the uploaded file: {$file->getClientOriginalName()}. The upload was blocked.",
-                        'level' => 'critical'
-                    ]));
+                    if (config('notifications_v2.enabled')) {
+                        app(NotificationDispatcher::class)->dispatch(
+                            'security.alert',
+                            'clamav_scan',
+                            hash('sha256', $file->getClientOriginalName()),
+                            'virus:'.hash('sha256', $file->getClientOriginalName().':'.($file->getSize() ?: 0)),
+                            [$admin->id],
+                            [
+                                'title' => 'Security alert',
+                                'message' => 'A malicious upload was blocked by the security scanner.',
+                            ]
+                        );
+                    } else {
+                        Notification::send($admin, new SecurityAlertNotification([
+                            'type' => 'Virus Detected',
+                            'message' => "A virus was found in the uploaded file: {$file->getClientOriginalName()}. The upload was blocked.",
+                            'level' => 'critical'
+                        ]));
+                    }
                 }
                 
                 return false;

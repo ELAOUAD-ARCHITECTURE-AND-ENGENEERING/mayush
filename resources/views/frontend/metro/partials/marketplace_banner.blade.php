@@ -1,4 +1,5 @@
 @php
+    $lang = get_system_language() ? get_system_language()->code : null;
     $home_banner4_images = get_setting('home_banner4_images', null, $lang);
     $home_banner4_links = json_decode(get_setting('home_banner4_links', null, $lang), true) ?: [];
     $home_banner4_titles = json_decode(get_setting('home_banner4_titles', null, $lang), true) ?: [];

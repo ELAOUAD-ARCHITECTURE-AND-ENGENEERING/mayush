@@ -249,6 +249,7 @@ jobs:
             php8.2 artisan app:preflight-restore --require-redis --require-blog-navigation --no-ansi
             php8.2 artisan queue:restart
             php8.2 artisan horizon:terminate
+            php8.2 artisan reverb:restart || true
             
             # Generate manifest directly
             echo "{\"commit\": \"${{ github.sha }}\", \"short_sha\": \"${POST_DEPLOY_COMMIT}\", \"timestamp\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\", \"branch\": \"${{ github.ref_name }}\"}" > public/version.json

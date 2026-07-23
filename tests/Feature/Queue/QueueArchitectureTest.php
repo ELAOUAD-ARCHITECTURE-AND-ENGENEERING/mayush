@@ -35,8 +35,8 @@ class QueueArchitectureTest extends TestCase
         
         $defaults = Config::get('horizon.defaults');
         
-        $this->assertEquals(['critical', 'payments', 'shipping'], $defaults['supervisor-critical']['queue']);
-        $this->assertEquals(['notifications', 'emails', 'sms'], $defaults['supervisor-communications']['queue']);
+        $this->assertEquals(['audits', 'critical', 'payments', 'shipping'], $defaults['supervisor-critical']['queue']);
+        $this->assertEquals(['notifications', 'emails', 'sms', 'push'], $defaults['supervisor-communications']['queue']);
         $this->assertEquals(['search', 'embeddings', 'images'], $defaults['supervisor-media-search']['queue']);
         $this->assertEquals(['reports', 'audits', 'default'], $defaults['supervisor-maintenance']['queue']);
     }

@@ -1,0 +1,16 @@
+# Apache 2.4 modules required:
+#   headers, proxy, proxy_http, proxy_wstunnel, ssl
+# Merge these directives inside the existing HTTPS <VirtualHost *:443>.
+# Reverb must stay private on 127.0.0.1:8080.
+
+ProxyPreserveHost On
+ProxyTimeout 60
+RequestHeader set X-Forwarded-Proto "https"
+
+# Reverb WebSocket endpoint.
+ProxyPass        "/app"  "ws://127.0.0.1:8080/app"
+ProxyPassReverse "/app"  "ws://127.0.0.1:8080/app"
+
+# Reverb HTTP endpoint used by the browser/client handshake.
+ProxyPass        "/apps" "http://127.0.0.1:8080/apps"
+ProxyPassReverse "/apps" "http://127.0.0.1:8080/apps"

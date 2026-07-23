@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../resources/js/storefront/product.js"],
-  "sourcesContent": ["document.documentElement.classList.add('storefront-profile-product');\n"],
+  "sourcesContent": ["document.documentElement.classList.add('storefront-profile-product');\r\n"],
   "mappings": "AAAA,SAAS,gBAAgB,UAAU,IAAI,4BAA4B",
   "names": []
 }

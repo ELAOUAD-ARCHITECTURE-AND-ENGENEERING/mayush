@@ -11,6 +11,7 @@ const entryPoints = {
     cart: 'resources/js/storefront/cart.js',
     checkout: 'resources/js/storefront/checkout.js',
     carousel: 'resources/js/storefront/carousel.js',
+    notifications: 'resources/js/storefront/notifications.js',
 };
 
 await rm(outdir, { recursive: true, force: true });

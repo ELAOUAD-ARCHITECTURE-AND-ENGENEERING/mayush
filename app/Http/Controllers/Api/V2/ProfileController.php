@@ -17,6 +17,9 @@ use App\Models\Cart;
 use Hash;
 use Illuminate\Support\Facades\File;
 use Storage;
+use App\Models\NotificationDevice;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
@@ -61,6 +64,10 @@ class ProfileController extends Controller
 
     public function update_device_token(Request $request)
     {
+        $validated = $request->validate([
+            'device_token' => ['nullable', 'string', 'max:4096'],
+            'platform' => ['nullable', 'in:web,android,ios,unknown'],
+        ]);
         $user = User::find(auth()->user()->id);
         if(!$user){
             return response()->json([
@@ -69,10 +76,25 @@ class ProfileController extends Controller
             ]);
         }
 
-        $user->device_token = $request->device_token;
+        $user->device_token = $validated['device_token'] ?? null;
 
 
         $user->save();
+
+        if (!empty($validated['device_token']) && Schema::hasTable('notification_devices')) {
+            $hash = hash('sha256', $validated['device_token']);
+            $device = NotificationDevice::firstOrNew(['token_hash' => $hash]);
+            if (!$device->exists) {
+                $device->id = (string) Str::uuid();
+            }
+            $device->forceFill([
+                'user_id' => $user->id,
+                'token' => $validated['device_token'],
+                'platform' => $validated['platform'] ?? 'unknown',
+                'last_seen_at' => now(),
+                'revoked_at' => null,
+            ])->save();
+        }
 
         return response()->json([
             'result' => true,

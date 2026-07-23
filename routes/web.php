@@ -26,6 +26,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NotificationCenterController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentInformationController;
 use App\Http\Controllers\PurchaseHistoryController;
@@ -359,6 +360,20 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function() {
     Route::get('/all-notifications', [NotificationController::class, 'customerIndex'])->name('all-notifications');
     Route::post('/notifications/bulk-delete', [NotificationController::class, 'bulkDeleteCustomer'])->name('notifications.bulk_delete');
 
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/notifications', [NotificationCenterController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/summary', [NotificationCenterController::class, 'summary'])->name('notifications.summary');
+    Route::patch('/notifications/{id}/read', [NotificationCenterController::class, 'read'])->name('notifications.read');
+    Route::patch('/notifications/{id}/unread', [NotificationCenterController::class, 'unread'])->name('notifications.unread');
+    Route::post('/notifications/read-all', [NotificationCenterController::class, 'readAll'])->name('notifications.read-all');
+    Route::delete('/notifications', [NotificationCenterController::class, 'archive'])->name('notifications.archive');
+    Route::post('/notifications/{id}/broadcast-ack', [NotificationCenterController::class, 'broadcastAck'])->name('notifications.broadcast-ack');
+    Route::get('/notification-preferences', [NotificationCenterController::class, 'preferences'])->name('notification-preferences.show');
+    Route::put('/notification-preferences', [NotificationCenterController::class, 'updatePreferences'])->name('notification-preferences.update');
+    Route::post('/notification-devices', [NotificationCenterController::class, 'registerDevice'])->name('notification-devices.store');
+    Route::delete('/notification-devices/{id}', [NotificationCenterController::class, 'revokeDevice'])->name('notification-devices.destroy');
 });
 
 Route::middleware(['auth', 'verified', 'unbanned', 'user'])

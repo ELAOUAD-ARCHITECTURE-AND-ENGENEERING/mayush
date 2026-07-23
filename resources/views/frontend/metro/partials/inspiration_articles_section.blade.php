@@ -17,9 +17,14 @@
                 data-infinite="{{ $inspirationBlogs->count() > 4 ? 'true' : 'false' }}">
                 @foreach($inspirationBlogs->take(6) as $blog)
                     @php
-                        $title = $blog->getTranslation('title');
-                        $summary = $blog->getTranslation('short_description');
+                        $sysLang = get_system_language();
+                        $lang = $sysLang ? $sysLang->code : App::getLocale();
+                        $appLangCode = ($sysLang && isset($sysLang->app_lang_code)) ? $sysLang->app_lang_code : 'en';
+                        $title = translate($blog->getTranslation('title', $lang), $lang);
+                        $summary = translate($blog->getTranslation('short_description', $lang), $lang);
                         $image = $blog->hero_image ?: $blog->banner ?: $blog->meta_img;
+                        $categoryName = $blog->category ? translate($blog->category->category_name, $lang) : '';
+                        $formattedDate = optional($blog->published_at ? \Carbon\Carbon::parse($blog->published_at) : $blog->created_at)->locale($appLangCode)->translatedFormat('d M, Y');
                     @endphp
                     <div class="carousel-box pb-2">
                         <article class="h-100 bg-white border rounded overflow-hidden has-transition hov-shadow-md">
@@ -34,9 +39,9 @@
                             </a>
                             <div class="p-3">
                                 <div class="fs-12 text-secondary mb-2">
-                                    {{ optional($blog->published_at ? \Carbon\Carbon::parse($blog->published_at) : $blog->created_at)->format('M d, Y') }}
-                                    @if($blog->category)
-                                        <span class="mx-1">|</span>{{ $blog->category->category_name }}
+                                    {{ $formattedDate }}
+                                    @if($categoryName)
+                                        <span class="mx-1">|</span>{{ $categoryName }}
                                     @endif
                                 </div>
                                 <h3 class="fs-16 fw-700 mb-2 text-truncate-2" style="min-height: 42px;">

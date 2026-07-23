@@ -67,6 +67,11 @@ class Kernel extends ConsoleKernel
 
         // Expire inactive guest support chats
         $schedule->command('support:expire-guest-chats')->everyMinute();
+
+        $schedule->command('notifications:prune-inbox')
+            ->dailyAt('03:15')
+            ->withoutOverlapping()
+            ->onOneServer();
     }
 
     /**

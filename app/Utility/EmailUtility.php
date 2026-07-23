@@ -175,7 +175,7 @@ class EmailUtility
             $emailTemplate = EmailTemplate::whereIdentifier($emailIdentifier)->first();
 
             if($emailTemplate != null && $emailTemplate->status == 1){
-                $shopName = $user->user_type == 'seller' ? $user->shop->name : null;
+                $shopName = $user->user_type == 'seller' ? $user->shop?->name : null;
                 $emailSubject = $emailTemplate->subject;
                 $emailSubject = str_replace('[[order_code]]', $order->code, $emailSubject);
     

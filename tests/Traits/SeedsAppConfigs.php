@@ -22,11 +22,15 @@ trait SeedsAppConfigs
 
         Language::updateOrCreate(
             ['code' => 'fr'],
-            ['name' => 'French', 'app_lang_code' => 'fr', 'rtl' => 0]
+            ['name' => 'French', 'app_lang_code' => 'fr', 'rtl' => 0, 'status' => 1]
         );
         Language::updateOrCreate(
             ['code' => 'en'],
-            ['name' => 'English', 'app_lang_code' => 'en', 'rtl' => 0]
+            ['name' => 'English', 'app_lang_code' => 'en', 'rtl' => 0, 'status' => 1]
+        );
+        Language::updateOrCreate(
+            ['code' => 'ma'],
+            ['name' => 'Arabic', 'app_lang_code' => 'ar', 'rtl' => 1, 'status' => 1]
         );
 
         foreach ($this->defaultBusinessSettings() as $type => $value) {

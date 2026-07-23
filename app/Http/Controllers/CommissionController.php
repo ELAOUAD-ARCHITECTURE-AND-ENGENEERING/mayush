@@ -12,6 +12,7 @@ use Session;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\PayoutNotification;
 use App\Utility\EmailUtility;
+use App\Services\Notifications\NotificationDispatcher;
 
 class CommissionController extends Controller
 {
@@ -88,11 +89,29 @@ class CommissionController extends Controller
         $data['amount'] = $payment_data['amount'];
         $data['status'] = 'paid';
         $data['notification_type_id'] = get_notification_type('seller_payout', 'type')->id;
-        Notification::send($users, new PayoutNotification($data));
+        if (config('notifications_v2.enabled')) {
+            app(NotificationDispatcher::class)->dispatch(
+                'payout.status',
+                'payment',
+                $payment->id,
+                'status:paid',
+                [$shop->user->id],
+                [
+                    'payout_id' => $payment->id,
+                    'status' => 'paid',
+                    'title' => 'Payout completed',
+                    'message' => 'Your seller payout has been completed.',
+                ]
+            );
+        } else {
+            Notification::send($users, new PayoutNotification($data));
+        }
 
         // Seller payout request email to admin & seller
         $emailIdentifiers = ['seller_payout_email_to_admin','seller_payout_email_to_seller'];
-        EmailUtility::seller_payout($emailIdentifiers, $shop->user, $payment_data['amount'], ucwords(str_replace('_', ' ',$payment_data['payment_method'])));
+        if (!config('notifications_v2.enabled')) {
+            EmailUtility::seller_payout($emailIdentifiers, $shop->user, $payment_data['amount'], ucwords(str_replace('_', ' ',$payment_data['payment_method'])));
+        }
 
         Session::forget('payment_data');
         Session::forget('payment_type');

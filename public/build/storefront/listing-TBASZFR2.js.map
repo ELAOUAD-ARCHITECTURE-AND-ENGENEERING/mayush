@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../resources/js/storefront/listing.js"],
-  "sourcesContent": ["document.documentElement.classList.add('storefront-profile-listing');\n"],
+  "sourcesContent": ["document.documentElement.classList.add('storefront-profile-listing');\r\n"],
   "mappings": "AAAA,SAAS,gBAAgB,UAAU,IAAI,4BAA4B",
   "names": []
 }

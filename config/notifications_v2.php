@@ -1,0 +1,57 @@
+<?php
+
+return [
+    'enabled' => env('NOTIFICATIONS_V2_ENABLED', false),
+    'broadcasting_enabled' => env('NOTIFICATION_BROADCASTING_ENABLED', false),
+    'sms_enabled' => env('NOTIFICATION_SMS_ENABLED', false),
+    'fcm_enabled' => env('FCM_V1_ENABLED', false),
+    'retention_days' => 90,
+    'delivery_webhook_secret' => env('NOTIFICATION_DELIVERY_WEBHOOK_SECRET'),
+    'critical_inbox_categories' => [
+        'payments',
+        'orders',
+        'refunds',
+        'security',
+        'seller',
+        'payouts',
+        'account',
+    ],
+    'events' => [
+        'order.placed' => ['type' => 'order_placed', 'category' => 'orders', 'severity' => 'important', 'title' => 'Order placed', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'order.confirmed' => ['type' => 'order_confirmed', 'category' => 'orders', 'severity' => 'important', 'title' => 'Order confirmed', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'order.cancelled' => ['type' => 'order_cancelled', 'category' => 'orders', 'severity' => 'important', 'title' => 'Order cancelled', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'order.shipped' => ['type' => 'order_shipped', 'category' => 'orders', 'severity' => 'important', 'title' => 'Order shipped', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'order.delivered' => ['type' => 'order_delivered', 'category' => 'orders', 'severity' => 'important', 'title' => 'Order delivered', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'order.updated' => ['type' => 'order_updated', 'category' => 'orders', 'severity' => 'important', 'title' => 'Order updated', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'payment.approved' => ['type' => 'payment_approved', 'category' => 'payments', 'severity' => 'critical', 'title' => 'Payment approved', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'payment.failed' => ['type' => 'payment_failed', 'category' => 'payments', 'severity' => 'critical', 'title' => 'Payment failed', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'refund.requested' => ['type' => 'refund_requested', 'category' => 'refunds', 'severity' => 'important', 'title' => 'Refund requested', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'refund.approved' => ['type' => 'refund_approved', 'category' => 'refunds', 'severity' => 'important', 'title' => 'Refund approved', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'refund.rejected' => ['type' => 'refund_rejected', 'category' => 'refunds', 'severity' => 'important', 'title' => 'Refund rejected', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'dispute.updated' => ['type' => 'dispute_updated', 'category' => 'refunds', 'severity' => 'critical', 'title' => 'Dispute updated', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'security.alert' => ['type' => 'security_alert', 'category' => 'security', 'severity' => 'critical', 'title' => 'Security alert', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'sms', 'push']],
+        'security.login' => ['type' => 'login_alert', 'category' => 'security', 'severity' => 'critical', 'title' => 'New login', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'seller.status' => ['type' => 'seller_status_updated', 'category' => 'seller', 'severity' => 'important', 'title' => 'Seller status updated', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'payout.status' => ['type' => 'payout_status_updated', 'category' => 'payouts', 'severity' => 'important', 'title' => 'Payout status updated', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'account.changed' => ['type' => 'account_changed', 'category' => 'account', 'severity' => 'critical', 'title' => 'Important account change', 'mandatory_inbox' => true, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'message.received' => ['type' => 'message_received', 'category' => 'messages', 'severity' => 'info', 'title' => 'New message', 'mandatory_inbox' => false, 'channels' => ['in_app', 'broadcast', 'push']],
+        'product.status' => ['type' => 'product_status_updated', 'category' => 'products', 'severity' => 'info', 'title' => 'Product status updated', 'mandatory_inbox' => false, 'channels' => ['in_app', 'broadcast', 'push']],
+        'product.restocked' => ['type' => 'product_restocked', 'category' => 'products', 'severity' => 'info', 'title' => 'Product back in stock', 'mandatory_inbox' => false, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'stock.alert' => ['type' => 'stock_alert', 'category' => 'products', 'severity' => 'info', 'title' => 'Stock alert', 'mandatory_inbox' => false, 'channels' => ['in_app', 'broadcast', 'email']],
+        'marketing.promotion' => ['type' => 'promotion', 'category' => 'marketing', 'severity' => 'info', 'title' => 'Promotion', 'mandatory_inbox' => false, 'channels' => ['in_app']],
+        'marketing.newsletter' => ['type' => 'newsletter', 'category' => 'marketing', 'severity' => 'info', 'title' => 'Newsletter', 'mandatory_inbox' => false, 'channels' => ['in_app']],
+        'marketing.recommendation' => ['type' => 'recommendation', 'category' => 'marketing', 'severity' => 'info', 'title' => 'Recommendation', 'mandatory_inbox' => false, 'channels' => ['in_app']],
+        'custom.sent' => ['type' => 'custom', 'category' => 'marketing', 'severity' => 'info', 'title' => 'Notification', 'mandatory_inbox' => false, 'channels' => ['in_app']],
+    ],
+    'fcm' => [
+        'service_account_path' => env('FCM_SERVICE_ACCOUNT_PATH'),
+        'project_id' => env('FCM_PROJECT_ID'),
+        'timeout' => 10,
+    ],
+    'reverb' => [
+        'allowed_origins' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', env('REVERB_ALLOWED_ORIGINS', env('APP_URL', '')))
+        ))),
+    ],
+];

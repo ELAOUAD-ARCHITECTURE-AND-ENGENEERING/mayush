@@ -1,0 +1,17 @@
+[program:mayush-reverb]
+process_name=%(program_name)s
+command=__PHP_BIN__ __APP_DIR__/artisan reverb:start --host=127.0.0.1 --port=__REVERB_PORT__
+directory=__APP_DIR__
+autostart=true
+autorestart=true
+startsecs=3
+startretries=3
+stopasgroup=true
+killasgroup=true
+user=__APP_USER__
+redirect_stderr=true
+stdout_logfile=__APP_DIR__/storage/logs/reverb.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=5
+stopwaitsecs=15
+minfds=10000

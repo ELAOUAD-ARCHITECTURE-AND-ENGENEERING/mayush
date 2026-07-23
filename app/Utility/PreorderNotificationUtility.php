@@ -5,6 +5,7 @@ namespace App\Utility;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\PreorderNotification;
+use App\Services\Notifications\NotificationDispatcher;
 
 class PreorderNotificationUtility
 {
@@ -16,6 +17,24 @@ class PreorderNotificationUtility
             array_push($userIds, $adminId);
         }
         $users = User::findMany($userIds);
+
+        if (config('notifications_v2.enabled')) {
+            app(NotificationDispatcher::class)->dispatch(
+                'order.updated',
+                'preorder',
+                $preorder->id,
+                'preorder:'.$preorder->id.':'.$statusType,
+                $users->pluck('id'),
+                [
+                    'order_code' => $preorder->order_code,
+                    'status' => $statusType,
+                    'title' => 'Preorder updated',
+                    'message' => 'Your preorder status has been updated.',
+                ]
+            );
+
+            return;
+        }
         
         $order_notification = array();
         $order_notification['preorder_id'] = $preorder->id;

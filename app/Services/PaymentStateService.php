@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\EliteSubscription;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Services\Notifications\NotificationDispatcher;
 
 class PaymentStateService
 {
@@ -62,6 +63,28 @@ class PaymentStateService
             }
 
             $lockedAttempt->save();
+
+            if (in_array($to, ['paid', 'failed', 'cancelled', 'expired'], true) && $lockedAttempt->user_id) {
+                $order = $lockedAttempt->order;
+                app(NotificationDispatcher::class)->dispatch(
+                    $to === 'paid' ? 'payment.approved' : 'payment.failed',
+                    'payment_attempt',
+                    $lockedAttempt->id,
+                    'status:'.$to,
+                    [$lockedAttempt->user_id],
+                    [
+                        'payment_id' => $lockedAttempt->id,
+                        'order_id' => $lockedAttempt->order_id,
+                        'order_code' => $order?->code,
+                        'status' => $to,
+                        'title' => $to === 'paid' ? 'Payment approved' : 'Payment failed',
+                        'message' => $to === 'paid'
+                            ? 'Your payment was approved.'
+                            : 'Your payment could not be completed.',
+                    ]
+                );
+            }
+
             return true;
         });
     }
@@ -98,6 +121,7 @@ class PaymentStateService
                 $lockedOrder->payment_status = 'paid';
                 $lockedOrder->payment_details = json_encode($paymentDetails);
                 $lockedOrder->save();
+                $this->dispatchPaidNotification($lockedOrder, 'order-paid:'.$lockedOrder->id);
                 return true;
 
             } elseif ($orderEntity instanceof User) {
@@ -119,5 +143,27 @@ class PaymentStateService
 
             return false;
         });
+    }
+
+    private function dispatchPaidNotification(Order $order, string $occurrenceKey): void
+    {
+        if (!$order->user_id) {
+            return;
+        }
+
+        app(NotificationDispatcher::class)->dispatch(
+            'payment.approved',
+            'order',
+            $order->id,
+            $occurrenceKey,
+            [$order->user_id],
+            [
+                'order_id' => $order->id,
+                'order_code' => $order->code,
+                'status' => 'paid',
+                'title' => 'Payment approved',
+                'message' => "Payment for order {$order->code} was approved.",
+            ]
+        );
     }
 }

@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../resources/js/storefront/cart.js"],
-  "sourcesContent": ["document.documentElement.classList.add('storefront-profile-cart');\n"],
+  "sourcesContent": ["document.documentElement.classList.add('storefront-profile-cart');\r\n"],
   "mappings": "AAAA,SAAS,gBAAgB,UAAU,IAAI,yBAAyB",
   "names": []
 }

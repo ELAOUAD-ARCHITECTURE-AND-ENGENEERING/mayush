@@ -196,4 +196,30 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(PaymentToken::class);
     }
+
+    public function notificationPreferences()
+    {
+        return $this->hasMany(NotificationPreference::class);
+    }
+
+    public function notificationSettings()
+    {
+        return $this->hasOne(UserNotificationSetting::class);
+    }
+
+    public function notificationDevices()
+    {
+        return $this->hasMany(NotificationDevice::class);
+    }
+
+    public function notificationDeliveries()
+    {
+        return $this->hasMany(NotificationDelivery::class, 'recipient_id')
+            ->where('recipient_type', self::class);
+    }
+
+    public function receivesBroadcastNotificationsOn(): string
+    {
+        return 'App.Models.User.'.$this->id;
+    }
 }
