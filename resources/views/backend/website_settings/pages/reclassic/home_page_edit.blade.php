@@ -234,7 +234,7 @@
 														<!-- link -->
 														<div class="col-md">
 															<div class="form-group mb-md-0">
-																<input type="text" class="form-control" placeholder="http://" name="home_slider_links[]" value="{{ isset(json_decode($home_slider_links, true)[$key]) ? json_decode($home_slider_links, true)[$key] : '' }}">
+																<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_slider_links[]" value="{{ isset(json_decode($home_slider_links, true)[$key]) ? json_decode($home_slider_links, true)[$key] : '' }}">
 															</div>
 														</div>
 														<!-- remove parent button -->
@@ -277,7 +277,7 @@
 													<!-- link -->
 													<div class="col-md">
 														<div class="form-group mb-md-0">
-															<input type="text" class="form-control" placeholder="http://" name="home_slider_links[]" value="">
+															<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_slider_links[]" value="">
 														</div>
 													</div>
 													<!-- remove parent button -->
@@ -392,7 +392,7 @@
 														<!-- link -->
 														<div class="col-md">
 															<div class="form-group mb-md-0">
-																<input type="text" class="form-control" placeholder="http://" name="home_banner1_links[]" value="{{ isset(json_decode($home_banner1_links, true)[$key]) ? json_decode($home_banner1_links, true)[$key] : '' }}">
+																<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner1_links[]" value="{{ isset(json_decode($home_banner1_links, true)[$key]) ? json_decode($home_banner1_links, true)[$key] : '' }}">
 															</div>
 														</div>
 														<!-- remove parent button -->
@@ -435,7 +435,7 @@
 													<!-- link -->
 													<div class="col-md">
 														<div class="form-group mb-md-0 mb-0">
-															<input type="text" class="form-control" placeholder="http://" name="home_banner1_links[]" value="">
+															<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner1_links[]" value="">
 														</div>
 													</div>
 													<!-- remove parent button -->
@@ -617,7 +617,7 @@
 														<!-- link -->
 														<div class="col-md">
 															<div class="form-group mb-md-0">
-																<input type="text" class="form-control" placeholder="http://" name="home_preorder_banner_1_links[]" value="{{ isset(json_decode($home_preorder_banner_1_links, true)[$key]) ? json_decode($home_preorder_banner_1_links, true)[$key] : '' }}">
+																<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_preorder_banner_1_links[]" value="{{ isset(json_decode($home_preorder_banner_1_links, true)[$key]) ? json_decode($home_preorder_banner_1_links, true)[$key] : '' }}">
 															</div>
 														</div>
 														<!-- remove parent button -->
@@ -660,7 +660,7 @@
 													<!-- link -->
 													<div class="col-md">
 														<div class="form-group mb-md-0 mb-0">
-															<input type="text" class="form-control" placeholder="http://" name="home_preorder_banner_1_links[]" value="">
+															<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_preorder_banner_1_links[]" value="">
 														</div>
 													</div>
 													<!-- remove parent button -->
@@ -727,7 +727,7 @@
 														<!-- link -->
 														<div class="col-md">
 															<div class="form-group mb-md-0">
-																<input type="text" class="form-control" placeholder="http://" name="home_banner2_links[]" value="{{ isset(json_decode($home_banner2_links, true)[$key]) ? json_decode($home_banner2_links, true)[$key] : '' }}">
+																<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner2_links[]" value="{{ isset(json_decode($home_banner2_links, true)[$key]) ? json_decode($home_banner2_links, true)[$key] : '' }}">
 															</div>
 														</div>
 														<!-- remove parent button -->
@@ -770,7 +770,7 @@
 													<!-- link -->
 													<div class="col-md">
 														<div class="form-group mb-md-0 mb-0">
-															<input type="text" class="form-control" placeholder="http://" name="home_banner2_links[]" value="">
+															<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner2_links[]" value="">
 														</div>
 													</div>
 													<!-- remove parent button -->
@@ -951,7 +951,7 @@
 														<!-- link -->
 														<div class="col-md">
 															<div class="form-group mb-md-0">
-																<input type="text" class="form-control" placeholder="http://" name="home_banner3_links[]" value="{{ isset(json_decode($home_banner3_links, true)[$key]) ? json_decode($home_banner3_links, true)[$key] : '' }}">
+																<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner3_links[]" value="{{ isset(json_decode($home_banner3_links, true)[$key]) ? json_decode($home_banner3_links, true)[$key] : '' }}">
 															</div>
 														</div>
 														<!-- remove parent button -->
@@ -994,7 +994,7 @@
 													<!-- link -->
 													<div class="col-md">
 														<div class="form-group mb-md-0 mb-0">
-															<input type="text" class="form-control" placeholder="http://" name="home_banner3_links[]" value="">
+															<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner3_links[]" value="">
 														</div>
 													</div>
 													<!-- remove parent button -->

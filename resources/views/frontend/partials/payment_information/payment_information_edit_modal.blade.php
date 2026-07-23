@@ -54,7 +54,7 @@
 
             <input type="text" name="other_payment_method" class="form-control"
                 value="{{ !is_numeric($payment_information->payment_name) ? $payment_information->payment_name : '' }}"
-                placeholder="Enter Payment Method">
+                placeholder="{{ translate('Enter Payment Method') }}">
         </div>
 
         <!-- Payment Instructions -->
@@ -89,7 +89,7 @@
 
             <input type="text" name="other_bank_name" class="form-control"
                 value="{{ !is_numeric($payment_information->bank_name) ? $payment_information->bank_name : '' }}"
-                placeholder="Enter Bank Name">
+                placeholder="{{ translate('Enter Bank Name') }}">
         </div>
 
         <div class="form-group mb-3">

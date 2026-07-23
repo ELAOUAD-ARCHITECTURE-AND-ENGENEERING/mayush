@@ -61,7 +61,7 @@
                                     <label class="col-from-label">{{ translate('CMI Gateway URL') }}</label>
                                 </div>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="CMI_GATEWAY_URL" value="{{  env('CMI_GATEWAY_URL') }}" placeholder="https://testpayment.cmi.co.ma/fim/est3Dgate" required>
+                                    <input type="text" class="form-control" name="CMI_GATEWAY_URL" value="{{  env('CMI_GATEWAY_URL') }}" placeholder="{{ translate('https://testpayment.cmi.co.ma/fim/est3Dgate') }}" required>
                                 </div>
                             </div>
                             

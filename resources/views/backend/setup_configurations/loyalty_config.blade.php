@@ -49,7 +49,7 @@
                                         <input type="number" step="0.01" name="tiers[{{ $tier->id }}][min_spend]"
                                             value="{{ $tier->min_spend ?? 0 }}"
                                             class="form-control form-control-sm" style="width:150px;"
-                                            placeholder="e.g. 5000">
+                                            placeholder="{{ translate('e.g. 5000') }}">
                                     </td>
                                     <td>
                                         <input type="number" step="0.01" name="tiers[{{ $tier->id }}][loyalty_multiplier]"
@@ -78,7 +78,7 @@
             <div class="row gutters-5">
                 <div class="col-md-3">
                     <label class="fs-12">{{ translate('Tier Name') }}</label>
-                    <input type="text" name="new_tier_name" class="form-control form-control-sm" placeholder="e.g. Silver">
+                    <input type="text" name="new_tier_name" class="form-control form-control-sm" placeholder="{{ translate('e.g. Silver') }}">
                 </div>
                 <div class="col-md-2">
                     <label class="fs-12">{{ translate('Level') }}</label>

@@ -13,7 +13,7 @@
 						@csrf
                         <div class="form-group">
                             <label>{{ translate('Canonical Base URL') }}</label>
-                            <input type="url" name="base_url" class="form-control" placeholder="https://mayushdesign.com" value="{{ rtrim(config('app.url'), '/') }}">
+                            <input type="url" name="base_url" class="form-control" placeholder="{{ translate('https://mayushdesign.com') }}" value="{{ rtrim(config('app.url'), '/') }}">
                         </div>
 						<!-- Submit button -->
 						<div class="d-flex justify-content-end mt-4">

@@ -40,7 +40,7 @@
                         <div class="form-group">
                             <input type="hidden" name="types[]" value="GEMINI_API_KEY">
                             <label class="col-from-label">{{translate('Gemini API Key')}}</label>
-                            <input type="text" class="form-control" name="GEMINI_API_KEY" value="{{ env('GEMINI_API_KEY') }}" placeholder="AIzaSy..." required>
+                            <input type="text" class="form-control" name="GEMINI_API_KEY" value="{{ env('GEMINI_API_KEY') }}" placeholder="{{ translate('AIzaSy...') }}" required>
                         </div>
 
                         <div class="form-group mb-0 text-right">

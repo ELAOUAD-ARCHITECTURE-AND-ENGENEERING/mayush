@@ -51,16 +51,16 @@
 
     <section class="py-3 bg-white border-bottom">
         <div class="container">
-            <h1 class="fs-22 fw-700 text-dark mb-2">{{ $shop->name }} - vendeur Mayush au Maroc</h1>
+            <h1 class="fs-22 fw-700 text-dark mb-2">{{ $shop->name }} - {{ translate('Mayush seller in Morocco') }}</h1>
             <p class="fs-14 text-gray mb-2">
                 {{ $shopSeoDescription }}
             </p>
             <div class="d-flex flex-wrap align-items-center">
                 <span class="badge badge-inline badge-soft-primary mr-2 mb-2">
-                            {{ $shop->isFullyApproved() ? 'Vendeur verifie Mayush' : 'Vendeur reference Mayush' }}
+                            {{ $shop->isFullyApproved() ? translate('Verified Mayush Seller') : translate('Referenced Mayush Seller') }}
                 </span>
                 <span class="badge badge-inline badge-soft-secondary mr-2 mb-2">
-                    {{ number_format($shopPublishedProductCount) }} produits publies
+                    {{ number_format($shopPublishedProductCount) }} {{ translate('published products') }}
                 </span>
                 @if($shop->address)
                     <span class="badge badge-inline badge-soft-secondary mr-2 mb-2">

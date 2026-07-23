@@ -43,13 +43,13 @@
     							<div class="form-group">
     								<label>{{ translate('Title') }} ({{ translate('Translatable') }})</label>
     								<input type="hidden" name="types[][{{ $lang }}]" value="footer_title">
-    								<input type="text" class="form-control" placeholder="Footer title" name="footer_title" value="{{ get_setting('footer_title',null,$lang) }}">
+    								<input type="text" class="form-control" placeholder="{{ translate('Footer title') }}" name="footer_title" value="{{ get_setting('footer_title',null,$lang) }}">
     							</div>
 								<!-- About description -->
     			                <div class="form-group">
     								<label>{{ translate('Footer description') }} ({{ translate('Translatable') }})</label>
     								<input type="hidden" name="types[][{{ $lang }}]" value="footer_description">
-    								<textarea class="form-control" name="footer_description" rows="6" placeholder="Type.." >{{ get_setting('footer_description',null,$lang) }}</textarea>
+    								<textarea class="form-control" name="footer_description" rows="6" placeholder="{{ translate('Type..') }}" >{{ get_setting('footer_description',null,$lang) }}</textarea>
     							</div>
 								<!-- Update Button -->
 								<div class="mt-4 text-right">
@@ -87,7 +87,7 @@
     			                <div class="form-group">
     								<label>{{ translate('About description') }} ({{ translate('Translatable') }})</label>
     								<input type="hidden" name="types[][{{ $lang }}]" value="about_us_description">
-    								<textarea class="aiz-text-editor form-control" name="about_us_description" data-buttons='[["font", ["bold", "underline", "italic"]],["para", ["ul", "ol"]],["view", ["undo","redo"]]]' placeholder="Type.." data-min-height="150">
+    								<textarea class="aiz-text-editor form-control" name="about_us_description" data-buttons='[["font", ["bold", "underline", "italic"]],["para", ["ul", "ol"]],["view", ["undo","redo"]]]' placeholder="{{ translate('Type..') }}" data-min-height="150">
                                         {!! get_setting('about_us_description',null,$lang) !!}
                                     </textarea>
     							</div>
@@ -95,13 +95,13 @@
                                 <div class="form-group">
                                     <label>{{ translate('Play Store Link') }}</label>
                                     <input type="hidden" name="types[]" value="play_store_link">
-                                    <input type="text" class="form-control" placeholder="http://" name="play_store_link" value="{{ get_setting('play_store_link') }}">
+                                    <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="play_store_link" value="{{ get_setting('play_store_link') }}">
                                 </div>
 								<!-- App Store Link -->
                                 <div class="form-group">
                                     <label>{{ translate('App Store Link') }}</label>
                                     <input type="hidden" name="types[]" value="app_store_link">
-                                    <input type="text" class="form-control" placeholder="http://" name="app_store_link" value="{{ get_setting('app_store_link') }}">
+                                    <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="app_store_link" value="{{ get_setting('app_store_link') }}">
                                 </div>
 								<!-- Update Button -->
 								<div class="mt-4 text-right">
@@ -161,7 +161,7 @@
     							<div class="form-group">
     								<label>{{ translate('Title') }} ({{ translate('Translatable') }})</label>
     								<input type="hidden" name="types[][{{ $lang }}]" value="widget_one">
-    								<input type="text" class="form-control" placeholder="Widget title" name="widget_one" value="{{ get_setting('widget_one',null,$lang) }}">
+    								<input type="text" class="form-control" placeholder="{{ translate('Widget title') }}" name="widget_one" value="{{ get_setting('widget_one',null,$lang) }}">
     							</div>
 								<!-- Links -->
     			                <div class="form-group">
@@ -185,7 +185,7 @@
     												</div>
     												<div class="col">
     													<div class="form-group">
-    														<input type="text" class="form-control" placeholder="http://" name="widget_one_links[]" value="{{ $widget_one_links }}">
+    														<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="widget_one_links[]" value="{{ $widget_one_links }}">
     													</div>
     												</div>
     												<div class="col-auto">
@@ -209,7 +209,7 @@
     										</div>
     										<div class="col">
     											<div class="form-group">
-    												<input type="text" class="form-control" placeholder="http://" name="widget_one_links[]">
+    												<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="widget_one_links[]">
     											</div>
     										</div>
     										<div class="col-auto">
@@ -252,7 +252,7 @@
                         <div class="form-group">
                   			<label>{{ translate('Copyright Text') }} ({{ translate('Translatable') }})</label>
                   			<input type="hidden" name="types[][{{ $lang }}]" value="frontend_copyright_text">
-                  			<textarea class="aiz-text-editor form-control" name="frontend_copyright_text" data-buttons='[["font", ["bold", "underline", "italic"]],["insert", ["link"]],["view", ["undo","redo"]]]' placeholder="Type.." data-min-height="150">
+                  			<textarea class="aiz-text-editor form-control" name="frontend_copyright_text" data-buttons='[["font", ["bold", "underline", "italic"]],["insert", ["link"]],["view", ["undo","redo"]]]' placeholder="{{ translate('Type..') }}" data-min-height="150">
                                 {!! get_setting('frontend_copyright_text',null,$lang) !!}
                             </textarea>
                   		</div>
@@ -283,7 +283,7 @@
                                 <span class="input-group-text"><i class="lab la-facebook-f"></i></span>
                             </div>
                             <input type="hidden" name="types[]" value="facebook_link">
-                            <input type="text" class="form-control" placeholder="http://" name="facebook_link" value="{{ get_setting('facebook_link')}}">
+                            <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="facebook_link" value="{{ get_setting('facebook_link')}}">
                         </div>
 						<!-- Twitter Link -->
                         <div class="input-group form-group">
@@ -296,7 +296,7 @@
 								</span>
                             </div>
                             <input type="hidden" name="types[]" value="twitter_link">
-                            <input type="text" class="form-control" placeholder="http://" name="twitter_link" value="{{ get_setting('twitter_link')}}">
+                            <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="twitter_link" value="{{ get_setting('twitter_link')}}">
                         </div>
 						<!-- Instagram Link -->
                         <div class="input-group form-group">
@@ -304,7 +304,7 @@
                                 <span class="input-group-text"><i class="lab la-instagram"></i></span>
                             </div>
                             <input type="hidden" name="types[]" value="instagram_link">
-                            <input type="text" class="form-control" placeholder="http://" name="instagram_link" value="{{ get_setting('instagram_link')}}">
+                            <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="instagram_link" value="{{ get_setting('instagram_link')}}">
                         </div>
 						<!-- Youtube Link -->
                         <div class="input-group form-group">
@@ -312,7 +312,7 @@
                                 <span class="input-group-text"><i class="lab la-youtube"></i></span>
                             </div>
                             <input type="hidden" name="types[]" value="youtube_link">
-                            <input type="text" class="form-control" placeholder="http://" name="youtube_link" value="{{ get_setting('youtube_link')}}">
+                            <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="youtube_link" value="{{ get_setting('youtube_link')}}">
                         </div>
 						<!-- Linkedin Link -->
                         <div class="input-group form-group">
@@ -320,7 +320,7 @@
                                 <span class="input-group-text"><i class="lab la-linkedin-in"></i></span>
                             </div>
                             <input type="hidden" name="types[]" value="linkedin_link">
-                            <input type="text" class="form-control" placeholder="http://" name="linkedin_link" value="{{ get_setting('linkedin_link')}}">
+                            <input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="linkedin_link" value="{{ get_setting('linkedin_link')}}">
                         </div>
                     </div>
                   </div>
@@ -339,7 +339,7 @@
 									<label>{{ translate('Seller App Link') }}</label>
 									<div class="input-group form-group">
 										<input type="hidden" name="types[]" value="seller_app_link">
-										<input type="text" class="form-control" placeholder="http://" name="seller_app_link" value="{{ get_setting('seller_app_link')}}">
+										<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="seller_app_link" value="{{ get_setting('seller_app_link')}}">
 									</div>
 								</div>
 							@endif
@@ -349,7 +349,7 @@
 									<label>{{ translate('Delivery Boy App Link') }}</label>
 									<div class="input-group form-group">
 										<input type="hidden" name="types[]" value="delivery_boy_app_link">
-										<input type="text" class="form-control" placeholder="http://" name="delivery_boy_app_link" value="{{ get_setting('delivery_boy_app_link')}}">
+										<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="delivery_boy_app_link" value="{{ get_setting('delivery_boy_app_link')}}">
 									</div>
 								</div>
 							@endif
