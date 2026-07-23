@@ -40,7 +40,13 @@ jobs:
         run: |
           npm ci
           npm run build:storefront
-          test -z "$(git status --porcelain -- public/build/storefront)"
+          npm run validate:storefront
+          runtime_asset_changes="$(git status --porcelain -- public/build/storefront | grep -Ev '\.map$' || true)"
+          if [ -n "$runtime_asset_changes" ]; then
+            echo "Storefront runtime assets changed after the production build:"
+            printf '%s\n' "$runtime_asset_changes"
+            exit 1
+          fi
 
       - name: "Prepare Laravel Environment"
         run: |
