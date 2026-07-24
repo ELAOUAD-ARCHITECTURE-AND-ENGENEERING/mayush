@@ -38,7 +38,7 @@ class QueueArchitectureTest extends TestCase
         $this->assertEquals(['audits', 'critical', 'payments', 'shipping'], $defaults['supervisor-critical']['queue']);
         $this->assertEquals(['notifications', 'emails', 'sms', 'push'], $defaults['supervisor-communications']['queue']);
         $this->assertEquals(['search', 'embeddings', 'images'], $defaults['supervisor-media-search']['queue']);
-        $this->assertEquals(['reports', 'audits', 'default'], $defaults['supervisor-maintenance']['queue']);
+        $this->assertEquals(['reports', 'audits', 'translations', 'default'], $defaults['supervisor-maintenance']['queue']);
     }
 
     public function test_runtime_job_dispatching()
