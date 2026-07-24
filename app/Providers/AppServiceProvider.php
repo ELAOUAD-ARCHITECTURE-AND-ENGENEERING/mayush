@@ -9,6 +9,8 @@ use App\Models\Order;
 use Mayush\Shipping\Onessta\Observers\OrderObserver;
 use App\Services\Payment\CmiConfigValidatorInterface;
 use App\Services\Payment\CmiConfigValidator;
+use App\Contracts\ProductTranslationService;
+use App\Services\AzureProductTranslationService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -67,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
   {
     // Bind CMI Configuration Validator interface
     $this->app->bind(CmiConfigValidatorInterface::class, CmiConfigValidator::class);
+    $this->app->bind(ProductTranslationService::class, AzureProductTranslationService::class);
 
     if (!$this->app->environment('production')) {
         if (env('DEBUGBAR_ENABLED', false) && class_exists('Barryvdh\\Debugbar\\ServiceProvider')) {

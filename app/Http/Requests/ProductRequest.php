@@ -56,7 +56,7 @@ class ProductRequest extends FormRequest
         $rules['name']          = 'required|max:255';
         $rules['category_ids']  = 'required';
         $rules['category_id']   = ['required', Rule::in($this->category_ids)];
-        $rules['unit']         = 'sometimes|required|regex:/^[A-Za-z\s]+$/';
+        $rules['unit']         = ['sometimes', 'required', 'regex:/^[\p{L}\s]+$/u'];
         $rules['min_qty']      = 'sometimes|required|numeric';
         $rules['unit_price']    = 'sometimes|required|numeric|gt:0';
         if ($this->get('discount_type') == 'amount') {
