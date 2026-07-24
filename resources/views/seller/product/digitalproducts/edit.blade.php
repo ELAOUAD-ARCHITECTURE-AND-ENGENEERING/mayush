@@ -29,16 +29,17 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="card">
-                    <ul class="nav nav-tabs nav-fill language-bar">
+                    <ul class="nav nav-tabs nav-fill language-bar" id="product-language-bar">
                         @foreach (get_all_active_language() as $key => $language)
                         <li class="nav-item">
-                            <a class="nav-link text-reset @if ($language->code == $lang) active @endif py-3" href="{{ route('seller.digitalproducts.edit', ['id'=>$product->id, 'lang'=> $language->code] ) }}">
+                            <a class="nav-link text-reset @if ($language->code == $lang) active @endif py-3" data-lang="{{ $language->code }}" href="{{ route('seller.digitalproducts.edit', ['id'=>$product->id, 'lang'=> $language->code] ) }}">
                                 <img src="{{ static_asset('assets/img/flags/'.$language->code.'.png') }}" height="11" class="mr-1">
                                 <span>{{$language->name}}</span>
                             </a>
                         </li>
                         @endforeach
                     </ul>
+                    @include('backend.product.products.copy_french_modal', ['lang' => $lang])
                     <div class="card-body">
                         <div class="form-group row">
                             <label class="col-lg-3 col-from-label">{{translate('Product Name')}} <span class="text-danger">*</span></label>

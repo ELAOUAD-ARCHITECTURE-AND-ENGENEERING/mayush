@@ -253,8 +253,8 @@ class ProductService
             $collection['meta_description'] = strip_tags($collection->get('description'));
         }
 
-        if ($collection['meta_img'] == null) {
-            $collection['meta_img'] = $collection['thumbnail_img'];
+        if (!isset($collection['meta_img']) || $collection['meta_img'] == null) {
+            $collection['meta_img'] = $collection['thumbnail_img'] ?? null;
         }
 
         $default_language = env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr');

@@ -369,14 +369,29 @@ class ProductController extends Controller
         ]));
 
         // Product Translations
-        $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr')]);
-        ProductTranslation::create($request->only([
-            'lang',
-            'name',
-            'unit',
-            'description',
-            'product_id'
-        ]));
+        $lang = $request->lang ?: (env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr'));
+        ProductTranslation::updateOrCreate(
+            ['product_id' => $product->id, 'lang' => $lang],
+            [
+                'name' => $request->name,
+                'unit' => $request->unit,
+                'description' => $request->description
+            ]
+        );
+        if ($request->has('translations') && is_array($request->translations)) {
+            foreach ($request->translations as $trLang => $trData) {
+                if (!empty($trData['name']) || !empty($trData['description'])) {
+                    ProductTranslation::updateOrCreate(
+                        ['product_id' => $product->id, 'lang' => $trLang],
+                        [
+                            'name' => $trData['name'] ?? $request->name,
+                            'unit' => $trData['unit'] ?? $request->unit,
+                            'description' => $trData['description'] ?? $request->description
+                        ]
+                    );
+                }
+            }
+        }
 
         flash(translate('Product has been inserted successfully'))->success();
 
@@ -711,6 +726,20 @@ class ProductController extends Controller
                 'description'
             ])
         );
+        if ($request->has('translations') && is_array($request->translations)) {
+            foreach ($request->translations as $trLang => $trData) {
+                if (!empty($trData['name']) || !empty($trData['description'])) {
+                    ProductTranslation::updateOrCreate(
+                        ['product_id' => $product->id, 'lang' => $trLang],
+                        [
+                            'name' => $trData['name'] ?? $request->name,
+                            'unit' => $trData['unit'] ?? $request->unit,
+                            'description' => $trData['description'] ?? $request->description
+                        ]
+                    );
+                }
+            }
+        }
 
         // flash(translate('Product has been updated successfully'))->success();
         Artisan::call('view:clear');
