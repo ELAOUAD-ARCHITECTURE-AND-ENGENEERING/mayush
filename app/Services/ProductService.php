@@ -262,6 +262,9 @@ class ProductService
             unset($collection['name']);
             unset($collection['unit']);
             unset($collection['description']);
+            unset($collection['meta_title']);
+            unset($collection['meta_description']);
+            unset($collection['meta_keywords']);
         }
         unset($collection['lang']);
 

@@ -375,18 +375,24 @@ class ProductController extends Controller
             [
                 'name' => $request->name,
                 'unit' => $request->unit,
-                'description' => $request->description
+                'description' => $request->description,
+                'meta_title' => $request->meta_title,
+                'meta_description' => $request->meta_description,
+                'meta_keywords' => $request->meta_keywords,
             ]
         );
         if ($request->has('translations') && is_array($request->translations)) {
             foreach ($request->translations as $trLang => $trData) {
-                if (!empty($trData['name']) || !empty($trData['description'])) {
+                if (!empty($trData['name']) || !empty($trData['description']) || !empty($trData['meta_title']) || !empty($trData['meta_description']) || !empty($trData['meta_keywords'])) {
                     ProductTranslation::updateOrCreate(
                         ['product_id' => $product->id, 'lang' => $trLang],
                         [
                             'name' => $trData['name'] ?? $request->name,
                             'unit' => $trData['unit'] ?? $request->unit,
-                            'description' => $trData['description'] ?? $request->description
+                            'description' => $trData['description'] ?? $request->description,
+                            'meta_title' => $trData['meta_title'] ?? $request->meta_title,
+                            'meta_description' => $trData['meta_description'] ?? $request->meta_description,
+                            'meta_keywords' => $trData['meta_keywords'] ?? $request->meta_keywords,
                         ]
                     );
                 }
@@ -723,18 +729,24 @@ class ProductController extends Controller
             $request->only([
                 'name',
                 'unit',
-                'description'
+                'description',
+                'meta_title',
+                'meta_description',
+                'meta_keywords',
             ])
         );
         if ($request->has('translations') && is_array($request->translations)) {
             foreach ($request->translations as $trLang => $trData) {
-                if (!empty($trData['name']) || !empty($trData['description'])) {
+                if (!empty($trData['name']) || !empty($trData['description']) || !empty($trData['meta_title']) || !empty($trData['meta_description']) || !empty($trData['meta_keywords'])) {
                     ProductTranslation::updateOrCreate(
                         ['product_id' => $product->id, 'lang' => $trLang],
                         [
                             'name' => $trData['name'] ?? $request->name,
                             'unit' => $trData['unit'] ?? $request->unit,
-                            'description' => $trData['description'] ?? $request->description
+                            'description' => $trData['description'] ?? $request->description,
+                            'meta_title' => $trData['meta_title'] ?? $request->meta_title,
+                            'meta_description' => $trData['meta_description'] ?? $request->meta_description,
+                            'meta_keywords' => $trData['meta_keywords'] ?? $request->meta_keywords,
                         ]
                     );
                 }

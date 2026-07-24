@@ -790,17 +790,17 @@
                                 <!-- Meta Title -->
                                 <div class="form-group mb-2">
                                     <label class="col-from-label">{{translate('Meta Title')}}</label>
-                                    <input type="text" class="form-control" name="meta_title" value="{{ $product->meta_title }}" placeholder="{{translate('Meta Title')}}">
+                                    <input type="text" class="form-control" name="meta_title" value="{{ $product->getTranslation('meta_title', $lang) }}" placeholder="{{translate('Meta Title')}}">
                                 </div>
                                 <!-- Description -->
                                 <div class="form-group mb-2">
                                     <label class="col-from-label">{{translate('Description')}}</label>
-                                    <textarea name="meta_description" rows="8" class="form-control">{{ $product->meta_description }}</textarea>
+                                    <textarea name="meta_description" rows="8" class="form-control">{{ $product->getTranslation('meta_description', $lang) }}</textarea>
                                 </div>
                                 <!-- meta keywords -->
                                 <div class="form-group mb-2">
                                     <label class="col-from-label">{{translate('Keywords')}}</label>
-                                    <textarea class="resize-off form-control" name="meta_keywords" placeholder="{{ translate('Keyword, Keyword') }}">{{ $product->meta_keywords }}</textarea>
+                                    <textarea class="resize-off form-control" name="meta_keywords" placeholder="{{ translate('Keyword, Keyword') }}">{{ $product->getTranslation('meta_keywords', $lang) }}</textarea>
                                     <small class="text-muted">{{ translate('Separate with coma') }}</small>
                                 </div>
                                 <!-- Meta Image -->

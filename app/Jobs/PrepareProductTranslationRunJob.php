@@ -42,10 +42,10 @@ class PrepareProductTranslationRunJob implements ShouldQueue
 
         Product::query()
             ->without(['taxes', 'thumbnail'])
-            ->select(['id', 'name', 'unit', 'description', 'draft'])
+            ->select(['id', 'name', 'unit', 'description', 'meta_title', 'meta_description', 'meta_keywords', 'draft'])
             ->where('draft', 0)
             ->with(['product_translations' => function ($query) use ($statusService) {
-                $query->select(['id', 'product_id', 'lang', 'name', 'unit', 'description'])
+                $query->select(['id', 'product_id', 'lang', 'name', 'unit', 'description', 'meta_title', 'meta_description', 'meta_keywords'])
                     ->whereIn('lang', [$statusService->sourceLanguage(), $statusService->targetLanguage()]);
             }])
             ->orderBy('id')

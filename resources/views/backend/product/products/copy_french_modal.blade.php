@@ -1,8 +1,9 @@
 @php
     $currentLang = $lang ?? request()->get('lang', 'fr');
     $activeLanguages = collect(get_all_active_language());
-    $arabicLanguageCode = optional($activeLanguages->first(function ($language) {
-        return (string) $language->code === 'ar';
+    $configuredTargetLanguage = (string) config('product_translation.target_language', 'ma');
+    $arabicLanguageCode = optional($activeLanguages->first(function ($language) use ($configuredTargetLanguage) {
+        return (string) $language->code === $configuredTargetLanguage;
     }))->code;
     $arabicLanguageCode = $arabicLanguageCode ?: optional($activeLanguages->first(function ($language) {
         return (int) ($language->rtl ?? 0) === 1;
