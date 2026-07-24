@@ -5,7 +5,7 @@ return [
     'target_language' => env('PRODUCT_TRANSLATION_TARGET_LANGUAGE', 'ma'),
     'azure_target_language' => 'ar',
     'queue' => env('PRODUCT_TRANSLATION_QUEUE', 'translations'),
-    'fields' => ['name', 'unit', 'description'],
+    'fields' => ['name', 'unit', 'description', 'meta_title', 'meta_description', 'meta_keywords'],
     'required_fields' => ['name'],
     'chunk_size' => 100,
 ];

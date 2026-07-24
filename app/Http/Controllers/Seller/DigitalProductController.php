@@ -113,7 +113,7 @@ class DigitalProductController  extends Controller
         // Product Translations
         $request->merge(['lang' => env('DEFAULT_LANGUAGE') ?: config('app.locale', 'fr')]);
         ProductTranslation::create($request->only([
-            'lang', 'name', 'description', 'product_id'
+            'lang', 'name', 'description', 'meta_title', 'meta_description', 'meta_keywords', 'product_id'
         ]));
 
         if (get_setting('product_approve_by_admin') == 1) {
@@ -215,7 +215,7 @@ class DigitalProductController  extends Controller
         // Product Translations
         ProductTranslation::updateOrCreate(
             $request->only(['lang', 'product_id']),
-            $request->only(['name', 'description'])
+            $request->only(['name', 'description', 'meta_title', 'meta_description', 'meta_keywords'])
         );
 
         flash(translate('Product has been updated successfully'))->success();

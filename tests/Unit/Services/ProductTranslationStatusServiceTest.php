@@ -38,6 +38,48 @@ class ProductTranslationStatusServiceTest extends TestCase
         $this->assertSame(['name', 'unit', 'description'], $diagnosis['valid_fields']);
     }
 
+    public function test_it_includes_localized_seo_fields_in_translation_status(): void
+    {
+        config([
+            'product_translation.fields' => ['name', 'unit', 'description', 'meta_title', 'meta_description', 'meta_keywords'],
+            'product_translation.required_fields' => ['name'],
+        ]);
+
+        $product = new Product([
+            'meta_title' => 'Titre SEO',
+            'meta_description' => 'Description SEO',
+            'meta_keywords' => 'rangement, maison',
+        ]);
+        $product->setRelation('product_translations', new Collection([
+            ProductTranslation::make([
+                'lang' => 'fr',
+                'name' => 'Bureau',
+                'unit' => 'pièce',
+                'description' => 'Description',
+                'meta_title' => 'Titre SEO',
+                'meta_description' => 'Description SEO',
+                'meta_keywords' => 'rangement, maison',
+            ]),
+            ProductTranslation::make([
+                'lang' => 'ma',
+                'name' => 'مكتب',
+                'unit' => 'قطعة',
+                'description' => 'وصف',
+                'meta_title' => 'عنوان تحسين محركات البحث',
+                'meta_description' => 'وصف تحسين محركات البحث',
+                'meta_keywords' => 'ترتيب, منزل',
+            ]),
+        ]));
+
+        $diagnosis = $this->service->diagnose($product);
+
+        $this->assertSame(ProductTranslationStatusService::COMPLETE, $diagnosis['status']);
+        $this->assertSame(
+            ['name', 'unit', 'description', 'meta_title', 'meta_description', 'meta_keywords'],
+            $diagnosis['valid_fields']
+        );
+    }
+
     public function test_it_detects_missing_arabic_and_copied_french(): void
     {
         $product = $this->product('Bureau mural', 'pièce', 'Description française');

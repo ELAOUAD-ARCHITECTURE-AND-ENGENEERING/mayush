@@ -32,10 +32,10 @@ class ProductTranslationDiagnosticsController extends Controller
         $summary = Cache::remember('admin:product-translation:summary', 30, fn () => $this->summaryData());
         $query = Product::query()
             ->without(['taxes', 'thumbnail'])
-            ->select(['id', 'name', 'unit', 'description', 'thumbnail_img', 'brand_id', 'user_id', 'category_id', 'draft', 'added_by'])
+            ->select(['id', 'name', 'unit', 'description', 'meta_title', 'meta_description', 'meta_keywords', 'thumbnail_img', 'brand_id', 'user_id', 'category_id', 'draft', 'added_by'])
             ->where('draft', 0)
             ->with(['product_translations' => fn ($builder) => $builder
-                ->select(['id', 'product_id', 'lang', 'name', 'unit', 'description'])
+                ->select(['id', 'product_id', 'lang', 'name', 'unit', 'description', 'meta_title', 'meta_description', 'meta_keywords'])
                 ->whereIn('lang', [$this->statusService->sourceLanguage(), $this->statusService->targetLanguage()])]);
 
         if ($request->filled('search')) {
@@ -170,11 +170,17 @@ class ProductTranslationDiagnosticsController extends Controller
     {
         $result = $this->repairService->repair($product);
         Cache::forget('admin:product-translation:summary');
+        $statusCode = match ($result['error_code'] ?? null) {
+            'configuration' => 503,
+            'rate_limit' => 429,
+            default => ($result['status'] === 'failed' ? 422 : 200),
+        };
+
         return response()->json([
             'success' => $result['status'] === 'success',
             'result' => $result,
             'message' => $result['status'] === 'success' ? 'La version arabe a été corrigée.' : 'Aucune correction complète n’a été enregistrée.',
-        ], $result['status'] === 'failed' ? 422 : 200);
+        ], $statusCode);
     }
 
     public function retryFailed(ProductTranslationRun $run, Request $request): JsonResponse
@@ -224,8 +230,8 @@ class ProductTranslationDiagnosticsController extends Controller
         $total = 0;
         $failedIds = ProductTranslationRunItem::query()->where('status', 'failed')->pluck('product_id')->flip();
 
-        Product::query()->without(['taxes', 'thumbnail'])->select(['id', 'name', 'unit', 'description', 'draft'])->where('draft', 0)
-            ->with(['product_translations' => fn ($builder) => $builder->select(['id', 'product_id', 'lang', 'name', 'unit', 'description'])->whereIn('lang', [$this->statusService->sourceLanguage(), $this->statusService->targetLanguage()])])
+        Product::query()->without(['taxes', 'thumbnail'])->select(['id', 'name', 'unit', 'description', 'meta_title', 'meta_description', 'meta_keywords', 'draft'])->where('draft', 0)
+            ->with(['product_translations' => fn ($builder) => $builder->select(['id', 'product_id', 'lang', 'name', 'unit', 'description', 'meta_title', 'meta_description', 'meta_keywords'])->whereIn('lang', [$this->statusService->sourceLanguage(), $this->statusService->targetLanguage()])])
             ->orderBy('id')->chunkById((int) config('product_translation.chunk_size', 100), function ($products) use (&$counts, &$total, $failedIds) {
             foreach ($products as $product) {
                 $total++;
@@ -245,7 +251,7 @@ class ProductTranslationDiagnosticsController extends Controller
         if ($productIds === []) {
             return;
         }
-        Product::query()->without(['taxes', 'thumbnail'])->whereIn('id', $productIds)->with(['product_translations' => fn ($builder) => $builder->select(['id', 'product_id', 'lang', 'name', 'unit', 'description'])->whereIn('lang', [$this->statusService->sourceLanguage(), $this->statusService->targetLanguage()])])->get()->each(function ($product) use ($run) {
+        Product::query()->without(['taxes', 'thumbnail'])->whereIn('id', $productIds)->with(['product_translations' => fn ($builder) => $builder->select(['id', 'product_id', 'lang', 'name', 'unit', 'description', 'meta_title', 'meta_description', 'meta_keywords'])->whereIn('lang', [$this->statusService->sourceLanguage(), $this->statusService->targetLanguage()])])->get()->each(function ($product) use ($run) {
             $diagnosis = $this->statusService->diagnose($product);
             ProductTranslationRunItem::create([
                 'run_id' => $run->id,

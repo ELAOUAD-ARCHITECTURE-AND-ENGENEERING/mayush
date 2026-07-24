@@ -74,6 +74,35 @@ class AzureProductTranslationServiceTest extends TestCase
         $this->assertSame([], $result['failed_fields']);
     }
 
+    public function test_it_translates_seo_fields_with_the_same_stable_field_mapping(): void
+    {
+        $this->configureAzure();
+        Http::fake(function (HttpRequest $request) {
+            $this->assertSame([
+                ['Text' => 'Titre SEO'],
+                ['Text' => 'Description SEO'],
+                ['Text' => 'rangement, maison'],
+            ], $request->data());
+
+            return Http::response([
+                ['translations' => [['text' => 'عنوان SEO']]],
+                ['translations' => [['text' => 'وصف SEO']]],
+                ['translations' => [['text' => 'ترتيب, منزل']]],
+            ], 200);
+        });
+
+        $result = (new AzureProductTranslationService())->translateFields([
+            'meta_title' => 'Titre SEO',
+            'meta_description' => 'Description SEO',
+            'meta_keywords' => 'rangement, maison',
+        ]);
+
+        $this->assertTrue($result['success']);
+        $this->assertSame('عنوان SEO', $result['fields']['meta_title']);
+        $this->assertSame('وصف SEO', $result['fields']['meta_description']);
+        $this->assertSame('ترتيب, منزل', $result['fields']['meta_keywords']);
+    }
+
     public function test_dimension_choice_options_are_preserved_and_not_sent_to_azure(): void
     {
         $this->configureAzure();

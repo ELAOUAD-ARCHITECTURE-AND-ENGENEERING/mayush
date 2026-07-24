@@ -116,19 +116,19 @@
                         <div class="form-group row">
                             <label class="col-lg-3 col-from-label">{{translate('Meta Title')}}</label>
                             <div class="col-lg-9">
-                                <input type="text" class="form-control" name="meta_title" value="{{ $product->meta_title }}" placeholder="{{translate('Meta Title')}}">
+                                <input type="text" class="form-control" name="meta_title" value="{{ $product->getTranslation('meta_title', $lang) }}" placeholder="{{translate('Meta Title')}}">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-lg-3 col-from-label">{{translate('Description')}}</label>
                             <div class="col-lg-9">
-                                <textarea name="meta_description" rows="8" class="form-control">{{ $product->meta_description }}</textarea>
+                                <textarea name="meta_description" rows="8" class="form-control">{{ $product->getTranslation('meta_description', $lang) }}</textarea>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-md-3 col-from-label">{{translate('Keywords')}}</label>
                             <div class="col-md-9">
-                                <textarea class="resize-off form-control" name="meta_keywords" placeholder="{{ translate('Keyword, Keyword') }}">{{ $product->meta_keywords }}</textarea>
+                                <textarea class="resize-off form-control" name="meta_keywords" placeholder="{{ translate('Keyword, Keyword') }}">{{ $product->getTranslation('meta_keywords', $lang) }}</textarea>
                                 <small class="text-muted">{{ translate('Separate with coma') }}</small>
                             </div>
                         </div>

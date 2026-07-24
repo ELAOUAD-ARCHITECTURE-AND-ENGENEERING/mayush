@@ -44,7 +44,7 @@ class Product extends Model
             return $product_translation->$field;
         }
 
-        return $product_translation != null ? $product_translation->$field : $this->$field;
+        return $product_translation?->{$field} ?? $this->{$field};
     }
 
     public function product_translations()
