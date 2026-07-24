@@ -34,6 +34,23 @@
                 <div class="col-lg-8">
                     @csrf
                     <input type="hidden" name="added_by" value="seller">
+                    @php
+                        $lang = request()->get('lang', 'fr');
+                    @endphp
+                    <input type="hidden" name="lang" value="{{ $lang }}">
+
+                    <ul class="nav nav-tabs nav-fill language-bar mb-3" id="product-language-bar">
+                        @foreach (get_all_active_language() as $key => $language)
+                        <li class="nav-item">
+                            <a class="nav-link text-reset @if ($language->code == $lang) active @endif py-3" data-lang="{{ $language->code }}" href="{{ route('seller.products.create', ['lang'=> $language->code] ) }}">
+                                <img src="{{ static_asset('assets/img/flags/'.$language->code.'.png') }}" height="11" class="mr-1">
+                                <span>{{$language->name}}</span>
+                            </a>
+                        </li>
+                        @endforeach
+                    </ul>
+
+                    @include('backend.product.products.copy_french_modal', ['lang' => $lang])
                     <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0 h6">{{ translate('Product Information') }}</h5>

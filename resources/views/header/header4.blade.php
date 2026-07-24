@@ -235,7 +235,8 @@
                             @include('frontend.partials.wishlist')
                         </div>
                     </div>
-                    <!-- Notifications -->
+                    @if (!config('notifications_v2.enabled'))
+                    <!-- Legacy notifications: retained only while Notification Center v2 is disabled. -->
                     <ul class="list-inline mb-0 h-100 d-none d-xl-flex justify-content-end align-items-center">
                         <li class="list-inline-item ml-3 mr-3 pr-3 pl-0 dropdown">
                             <a class="dropdown-toggle no-arrow text-secondary fs-12" data-toggle="dropdown"
@@ -387,6 +388,10 @@
                             @endauth
                         </li>
                     </ul>
+                    @endif
+                @endif
+                @if (config('notifications_v2.enabled'))
+                    @include('partials.notification-center-trigger', ['variant' => 'storefront'])
                 @endif
 
                 <div class="d-none d-xl-block ml-auto mr-0">

@@ -31,10 +31,11 @@
             @csrf
             <input type="hidden" name="added_by" value="seller">
             <div class="card">
-                <ul class="nav nav-tabs nav-fill language-bar">
+                <ul class="nav nav-tabs nav-fill language-bar" id="product-language-bar">
                     @foreach (get_all_active_language() as $key => $language)
                     <li class="nav-item">
                         <a class="nav-link text-reset @if ($language->code == $lang) active @endif py-3"
+                            data-lang="{{ $language->code }}"
                             href="{{ route('seller.products.edit', ['id'=>$product->id, 'lang'=> $language->code] ) }}">
                             <img src="{{ static_asset('assets/img/flags/'.$language->code.'.png') }}" height="11"
                                 class="mr-1">
@@ -43,6 +44,7 @@
                     </li>
                     @endforeach
                 </ul>
+                @include('backend.product.products.copy_french_modal', ['lang' => $lang])
                 <div class="card-body">
                     <div class="form-group row">
                         <label class="col-lg-3 col-from-label">{{translate('Product Name')}} <i class="las la-language text-danger" title="{{translate('Translatable')}}"></i></label>
@@ -314,7 +316,7 @@
                         <div class="col-lg-1">
                             <label class="aiz-switch aiz-switch-success mb-0">
                                 <input value="1" type="checkbox" name="colors_active"
-                                    <?php if(count(json_decode($product->colors)) > 0) echo "checked";?>>
+                                    <?php if(!empty($product->colors) && is_array(json_decode($product->colors)) && count(json_decode($product->colors)) > 0) echo "checked";?>>
                                 <span></span>
                             </label>
                         </div>
@@ -343,6 +345,7 @@
                     </div>
 
                     <div class="customer_choice_options" id="customer_choice_options">
+                        @if($product->choice_options != null && is_array(json_decode($product->choice_options)))
                         @foreach (json_decode($product->choice_options) as $key => $choice_option)
                         <div class="form-group row">
                             <div class="col-lg-3">
@@ -370,6 +373,7 @@
                             </div>
                         </div>
                         @endforeach
+                        @endif
                     </div>
                 </div>
             </div>
@@ -693,7 +697,7 @@
                                     @endphp
 
                                     <div id="selected-fq-bought-products">
-                                        @if(count($fq_bought_products) > 0)
+                                        @if(!empty($fq_bought_products) && count($fq_bought_products) > 0)
                                             <div class="table-responsive mb-4">
                                                 <table class="table aiz-table mb-0">
                                                     <thead>

@@ -38,7 +38,8 @@ $middleHeaderTextColor = get_setting('middle_header_text_color');
                                     @include('frontend.partials.wishlistText')
                                 </div>
                             </div>
-                            <!-- Notifications -->
+                            @if (!config('notifications_v2.enabled'))
+                            <!-- Legacy notifications: retained only while Notification Center v2 is disabled. -->
                             <ul class="list-inline mb-0 h-100 d-none d-xl-flex justify-content-end align-items-center">
                                 <li class="list-inline-item ml-3 mr-3 pr-3 pl-0 dropdown">
                                     <a class="dropdown-toggle no-arrow fs-12" data-toggle="dropdown"
@@ -198,6 +199,10 @@ $middleHeaderTextColor = get_setting('middle_header_text_color');
                                     @endauth
                                 </li>
                             </ul>
+                            @endif
+                            @endif
+                            @if (config('notifications_v2.enabled'))
+                                @include('partials.notification-center-trigger', ['variant' => 'storefront'])
                             @endif
                             <!-- Gear Icon Dropdown Toggle -->
                             <div class="dropdown ml-4 mb-1 z-1045 py-1">
