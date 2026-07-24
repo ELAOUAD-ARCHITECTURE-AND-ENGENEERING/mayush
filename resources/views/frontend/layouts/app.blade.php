@@ -623,7 +623,9 @@
 
     <script>
         @foreach (session('flash_notification', collect())->toArray() as $message)
-            AIZ.plugins.notify('{{ $message['level'] }}', '{{ $message['message'] }}');
+            @if (!config('notifications_v2.enabled') || !auth()->check())
+                AIZ.plugins.notify('{{ $message['level'] }}', '{{ $message['message'] }}');
+            @endif
         @endforeach
     </script>
 

@@ -93,6 +93,12 @@
         gap: 8px;
     }
 
+    .buyer-dashboard-notification {
+        align-items: center;
+        display: inline-flex;
+        flex: 0 0 auto;
+    }
+
     /* ── User chip ──────────────────────────────────────────────────────── */
     .buyer-dashboard-user {
         color: #FFFFFF;
@@ -167,7 +173,11 @@
         .buyer-dashboard-navbar { position: static; }
         .buyer-dashboard-navbar-inner { padding: 12px 0; }
         .buyer-dashboard-nav { margin-top: 10px; order: 3; width: 100%; }
-        .buyer-dashboard-actions { margin-top: 8px; width: 100%; }
+        .buyer-dashboard-actions {
+            justify-content: flex-end;
+            margin-top: 8px;
+            width: 100%;
+        }
     }
 
     @media (max-width: 767.98px) {
@@ -229,6 +239,10 @@
                     @if (can_switch_account_mode())
                         @include('partials.account_mode_switcher')
                     @endif
+                    {{-- Shared inbox entry point; its runtime owns fetch and realtime updates. --}}
+                    <div class="buyer-dashboard-notification">
+                        @include('partials.notification-center-trigger', ['variant' => 'buyer'])
+                    </div>
                     {{-- User chip --}}
                     <div class="d-none d-lg-flex align-items-center" style="gap:8px;">
                         <span class="avatar avatar-sm buyer-dashboard-avatar">

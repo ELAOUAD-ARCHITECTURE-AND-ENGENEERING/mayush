@@ -27,13 +27,17 @@ class NotificationController extends Controller
     public function adminIndex(Request $request)
     {
         $notifications = $this->inboxQuery($request)->paginate(15)->withQueryString();
-        return view('backend.notification.index', compact('notifications'));
+        $notificationUnreadCount = $this->unreadInboxCount();
+
+        return view('backend.notification.index', compact('notifications', 'notificationUnreadCount'));
     }
 
     public function customerIndex(Request $request)
     {
         $notifications = $this->inboxQuery($request)->paginate(15)->withQueryString();
-        return view('frontend.user.customer.notification.index', compact('notifications'));
+        $notificationUnreadCount = $this->unreadInboxCount();
+
+        return view('frontend.user.customer.notification.index', compact('notifications', 'notificationUnreadCount'));
     }
 
 
@@ -309,5 +313,14 @@ class NotificationController extends Controller
             ->when($read === 'read', fn ($query) => $query->whereNotNull('read_at'))
             ->when($read === 'unread', fn ($query) => $query->whereNull('read_at'))
             ->latest();
+    }
+
+    private function unreadInboxCount(): int
+    {
+        return auth()->user()
+            ->notifications()
+            ->when(Schema::hasColumn('notifications', 'archived_at'), fn ($query) => $query->whereNull('archived_at'))
+            ->whereNull('read_at')
+            ->count();
     }
 }

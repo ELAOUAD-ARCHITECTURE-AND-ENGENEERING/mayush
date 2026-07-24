@@ -108,7 +108,8 @@ $bottomHeaderTextColor = get_setting('bottom_header_text_color');
                             <div class="d-flex align-items-center">
                                 <!-- New Links -->
                                 @if (Auth::check() && auth()->user()->user_type == 'customer')
-                                <!-- Notifications -->
+                                @if (!config('notifications_v2.enabled'))
+                                <!-- Legacy notifications: retained only while Notification Center v2 is disabled. -->
                                 <ul class="list-inline mb-0 h-100 d-none d-xl-flex justify-content-end align-items-center">
                                     <li class="list-inline-item mb-2 dropdown">
                                         <a class="dropdown-toggle no-arrow fs-12" data-toggle="dropdown"
@@ -278,6 +279,10 @@ $bottomHeaderTextColor = get_setting('bottom_header_text_color');
                                         @endauth
                                     </li>
                                 </ul>
+                                @endif
+                                @endif
+                                @if (config('notifications_v2.enabled'))
+                                    @include('partials.notification-center-trigger', ['variant' => 'storefront'])
                                 @endif
                                 <!-- Search Icon for small device -->
                                 <div class="d-lg-none">

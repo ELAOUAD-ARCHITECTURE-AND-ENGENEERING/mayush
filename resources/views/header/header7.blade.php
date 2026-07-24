@@ -408,6 +408,10 @@
                     </div>
                 </div>
 
+                @if (config('notifications_v2.enabled'))
+                    @include('partials.notification-center-trigger', ['variant' => 'storefront'])
+                @endif
+
                 <div class="market-cart-wrap dropdown ml-3" data-hover="dropdown">
                     <div class="nav-cart-box dropdown h-100" id="cart_items">
                         @php

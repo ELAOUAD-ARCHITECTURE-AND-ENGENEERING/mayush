@@ -23,8 +23,13 @@ class NotificationController extends Controller
             ->latest()
             ->paginate(15)
             ->withQueryString();
+        $notificationUnreadCount = auth()->user()
+            ->notifications()
+            ->when(Schema::hasColumn('notifications', 'archived_at'), fn ($query) => $query->whereNull('archived_at'))
+            ->whereNull('read_at')
+            ->count();
         
-        return view('seller.notification.index', compact('notifications'));
+        return view('seller.notification.index', compact('notifications', 'notificationUnreadCount'));
     }
 
     public function bulkDelete(Request $request){
