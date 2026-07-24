@@ -238,7 +238,7 @@ return [
         ],
         'supervisor-maintenance' => [
             'connection' => 'redis',
-            'queue' => ['reports', 'audits', 'default'],
+            'queue' => ['reports', 'audits', 'translations', 'default'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,

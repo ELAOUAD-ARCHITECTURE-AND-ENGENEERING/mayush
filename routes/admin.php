@@ -75,6 +75,7 @@ use App\Http\Controllers\TodaysDealController;
 use App\Http\Controllers\AIController;
 use App\Http\Controllers\Admin\ProductCollectionController;
 use App\Http\Controllers\ProductTranslationController;
+use App\Http\Controllers\ProductTranslationDiagnosticsController;
 
 /*
   |--------------------------------------------------------------------------
@@ -177,6 +178,16 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     });
 
     // Products
+    Route::controller(ProductTranslationDiagnosticsController::class)->prefix('products/translation-diagnostics')->group(function () {
+        Route::get('/', 'index')->name('admin.product_translation_diagnostics');
+        Route::get('/summary', 'summary')->name('admin.product_translation_diagnostics.summary');
+        Route::get('/preview', 'preview')->name('admin.product_translation_diagnostics.preview');
+        Route::post('/start', 'start')->name('admin.product_translation_diagnostics.start');
+        Route::get('/runs/{run}', 'progress')->name('admin.product_translation_diagnostics.progress');
+        Route::post('/runs/{run}/retry-failed', 'retryFailed')->name('admin.product_translation_diagnostics.retry_failed');
+        Route::post('/products/{product}/repair', 'repair')->name('admin.product_translation_diagnostics.repair');
+    });
+
     Route::controller(ProductController::class)->group(function () {
         Route::get('/products/admin', 'admin_products')->name('products.admin');
         Route::get('/products/seller', 'seller_products')->name('products.seller');
