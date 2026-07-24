@@ -496,6 +496,10 @@ class RouteServiceProvider extends ServiceProvider
     RateLimiter::for('uploads', function (Request $request) {
       return Limit::perMinute(20)->by(optional($request->user())->id ?: $request->ip());
     });
+
+    RateLimiter::for('product-translation', function (Request $request) {
+      return Limit::perMinute(10)->by(optional($request->user())->id ?: $request->ip());
+    });
   }
 
   /**

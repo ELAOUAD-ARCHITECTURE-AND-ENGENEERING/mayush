@@ -72,4 +72,13 @@ return [
         'key' => env('GEMINI_API_KEY'),
     ],
 
+    'azure_translator' => [
+        'key' => env('AZURE_TRANSLATOR_KEY'),
+        'region' => env('AZURE_TRANSLATOR_REGION'),
+        'endpoint' => env('AZURE_TRANSLATOR_ENDPOINT', 'https://api.cognitive.microsofttranslator.com'),
+        'api_version' => env('AZURE_TRANSLATOR_API_VERSION', '3.0'),
+        'timeout' => env('AZURE_TRANSLATOR_TIMEOUT', 15),
+        'connect_timeout' => env('AZURE_TRANSLATOR_CONNECT_TIMEOUT', 5),
+    ],
+
 ];

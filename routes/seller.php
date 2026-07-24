@@ -24,6 +24,7 @@ use App\Http\Controllers\Seller\SellerWithdrawRequestController;
 use App\Http\Controllers\Seller\ShopController;
 use App\Http\Controllers\Seller\SupportTicketController;
 use App\Http\Controllers\SellerEliteController;
+use App\Http\Controllers\ProductTranslationController;
 
 //Upload
 Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user', 'prevent-back-history'], 'as' => 'seller.'], function () {
@@ -71,6 +72,9 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user
             Route::get('/products', 'index')->name('products');
             Route::get('/product/create', 'create')->name('products.create');
             Route::post('/products/store', 'store')->name('products.store');
+            Route::post('/products/translate-to-arabic', [ProductTranslationController::class, 'translate'])
+                ->middleware('throttle:product-translation')
+                ->name('products.translate_to_arabic');
             Route::get('/product/{id}/edit', 'edit')->name('products.edit');
             Route::post('/products/update/{product}', 'update')->name('products.update');
             Route::get('/products/duplicate/{id}', 'duplicate')->name('products.duplicate');

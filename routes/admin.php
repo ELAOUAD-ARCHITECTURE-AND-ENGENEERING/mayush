@@ -74,6 +74,7 @@ use App\Http\Controllers\PosController;
 use App\Http\Controllers\TodaysDealController;
 use App\Http\Controllers\AIController;
 use App\Http\Controllers\Admin\ProductCollectionController;
+use App\Http\Controllers\ProductTranslationController;
 
 /*
   |--------------------------------------------------------------------------
@@ -182,6 +183,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/products/all', 'all_products')->name('products.all');
         Route::get('/products/create', 'create')->name('products.create');
         Route::post('/products/store/', 'store')->name('products.store');
+        Route::post('/products/translate-to-arabic', [ProductTranslationController::class, 'translate'])
+            ->middleware(['permission:add_new_product|product_edit', 'throttle:product-translation'])
+            ->name('products.translate_to_arabic');
         Route::get('/products/admin/{id}/edit', 'admin_product_edit')->name('products.admin.edit');
         Route::get('/products/seller/{id}/edit', 'seller_product_edit')->name('products.seller.edit');
         Route::post('/products/update/{product}', 'update')->name('products.update');

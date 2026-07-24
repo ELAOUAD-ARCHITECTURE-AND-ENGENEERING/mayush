@@ -1,11 +1,22 @@
 @php
     $currentLang = $lang ?? request()->get('lang', 'fr');
+    $activeLanguages = collect(get_all_active_language());
+    $arabicLanguageCode = optional($activeLanguages->first(function ($language) {
+        return (string) $language->code === 'ar';
+    }))->code;
+    $arabicLanguageCode = $arabicLanguageCode ?: optional($activeLanguages->first(function ($language) {
+        return (int) ($language->rtl ?? 0) === 1;
+    }))->code ?: 'ar';
 @endphp
 
 <!-- Button container (displayed when Arabic tab is active) -->
-<div id="copy-french-btn-wrapper" class="mb-3 text-right" style="{{ $currentLang == 'ar' ? '' : 'display: none;' }}">
+<div id="copy-french-btn-wrapper" class="mb-3 text-right" data-arabic-language="{{ $arabicLanguageCode }}" style="{{ $currentLang == $arabicLanguageCode ? '' : 'display: none;' }}">
     <button type="button" class="btn btn-sm btn-soft-primary fw-600" id="btn-copy-french-content">
         <i class="las la-copy mr-1 fs-16"></i> {{ translate('Copier le contenu français') }}
+    </button>
+    <button type="button" class="btn btn-sm btn-soft-success fw-600 ml-1" id="btn-translate-arabic-content"
+        data-translate-url="{{ request()->routeIs('seller.*') ? route('seller.products.translate_to_arabic') : route('products.translate_to_arabic') }}">
+        <i class="las la-language mr-1 fs-16"></i> {{ translate('Traduire le contenu en arabe') }}
     </button>
 </div>
 
@@ -39,4 +50,24 @@
     </div>
 </div>
 
-<script src="{{ static_asset('assets/js/mayush-copy-french-content.js') }}"></script>
+<!-- Modal confirmation for existing Arabic text before translation -->
+<div class="modal fade" id="modal-translate-arabic-confirm" tabindex="-1" role="dialog" aria-labelledby="modalTranslateArabicTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-600" id="modalTranslateArabicTitle">{{ translate('Traduire le contenu en arabe') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p class="fs-14 mb-0">{{ translate('Certains champs contiennent déjà du texte arabe. Choisissez les champs à traduire.') }}</p>
+            </div>
+            <div class="modal-footer flex-column flex-sm-row">
+                <button type="button" class="btn btn-soft-primary btn-sm mb-2 mb-sm-0 w-100 w-sm-auto" id="btn-translate-french-only">{{ translate('Traduire uniquement les champs encore en français') }}</button>
+                <button type="button" class="btn btn-danger btn-sm mb-2 mb-sm-0 w-100 w-sm-auto" id="btn-retranslate-all">{{ translate('Retraduire tous les champs textuels') }}</button>
+                <button type="button" class="btn btn-light btn-sm w-100 w-sm-auto" data-dismiss="modal">{{ translate('Annuler') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script defer src="{{ static_asset('assets/js/mayush-copy-french-content.js') }}?v={{ file_exists(public_path('assets/js/mayush-copy-french-content.js')) ? filemtime(public_path('assets/js/mayush-copy-french-content.js')) : time() }}"></script>
