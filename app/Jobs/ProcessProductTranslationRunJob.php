@@ -81,11 +81,18 @@ class ProcessProductTranslationRunJob implements ShouldQueue
         ])->save();
 
         $this->syncCounters($run);
-        if (($result['error_code'] ?? null) === 'rate_limit') {
+        if (($result['status'] ?? 'failed') === 'failed') {
+            $errorMessage = $this->errorMessage($result);
+            $failureReason = ($result['error_code'] ?? null) === 'rate_limit'
+                ? 'Azure rate limit reached. The run stopped completely; retry the failed products when the quota is available.'
+                : ($errorMessage ?: 'A product failed to translate. The run stopped completely.');
+
             $run->forceFill([
-                'status' => 'paused',
+                'status' => 'failed',
+                'active_key' => null,
                 'processing_product_id' => null,
-                'failure_reason' => 'Azure rate limit reached. Retry the failed products when the quota is available.',
+                'failure_reason' => $failureReason,
+                'finished_at' => now(),
                 'last_progress_at' => now(),
             ])->save();
             return;

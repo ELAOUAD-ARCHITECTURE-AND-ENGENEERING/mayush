@@ -163,7 +163,6 @@ class ProductTranslationDiagnosticsController extends Controller
     public function progress(ProductTranslationRun $run): JsonResponse
     {
         $this->authorizeRun($run);
-        $run->load(['items' => fn ($query) => $query->latest('id')->limit(1)]);
         return response()->json(['run' => $this->runPayload($run)]);
     }
 

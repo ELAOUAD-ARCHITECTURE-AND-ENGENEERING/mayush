@@ -46,4 +46,23 @@ class ProductTranslationDiagnosticsControllerTest extends TestCase
             [403, 404]
         );
     }
+
+    public function test_authorized_user_can_poll_a_run_without_loading_all_items(): void
+    {
+        $run = ProductTranslationRun::create([
+            'user_id' => $this->admin->id,
+            'status' => 'failed',
+            'total_candidates' => 1,
+            'processed_count' => 1,
+            'failed_count' => 1,
+            'failure_reason' => 'Azure rate limit reached.',
+            'finished_at' => now(),
+        ]);
+
+        $this->actingAs($this->admin)
+            ->getJson(route('admin.product_translation_diagnostics.progress', ['run' => $run->id]))
+            ->assertOk()
+            ->assertJsonPath('run.id', $run->id)
+            ->assertJsonPath('run.status', 'failed');
+    }
 }

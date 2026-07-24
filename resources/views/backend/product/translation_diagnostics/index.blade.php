@@ -132,5 +132,5 @@
 @endsection
 
 @section('script')
-<script src="{{ static_asset('assets/js/mayush-translation-diagnostics.js') }}"></script>
+<script src="{{ static_asset('assets/js/mayush-translation-diagnostics.js') }}?v={{ filemtime(public_path('assets/js/mayush-translation-diagnostics.js')) }}"></script>
 @endsection

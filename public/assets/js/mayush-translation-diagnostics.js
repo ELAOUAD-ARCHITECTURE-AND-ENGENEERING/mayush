@@ -21,6 +21,14 @@
 
     function showRun() { $('#translation-run-panel').removeClass('d-none'); }
 
+    function stopPolling() {
+        if (pollTimer) {
+            window.clearTimeout(pollTimer);
+            pollTimer = null;
+        }
+        window.onbeforeunload = null;
+    }
+
     function renderRun(run) {
         if (!run) return;
         showRun();
@@ -39,13 +47,14 @@
         if (run.failure_reason) $('#run-warning').removeClass('d-none').text(run.failure_reason); else $('#run-warning').addClass('d-none');
         if (run.status === 'paused') {
             $('#run-final-actions').toggleClass('d-none', !(run.failed > 0));
+            stopPolling();
+            return;
         }
         if (run.status === 'completed' || run.status === 'completed_with_errors' || run.status === 'failed') {
             $('#run-final-actions').toggleClass('d-none', !(run.failed > 0));
             $('#translation-run-result-body').html('<p>La correction a traité <strong>' + (run.processed || 0) + '</strong> produit(s), dont <strong>' + (run.success || 0) + '</strong> corrigé(s) et <strong>' + (run.failed || 0) + '</strong> échec(s).</p>');
             $('#translation-run-result-modal').modal('show');
-            if (pollTimer) window.clearTimeout(pollTimer);
-            window.onbeforeunload = null;
+            stopPolling();
             return;
         }
         window.onbeforeunload = function () { return 'Une correction de traductions est en cours.'; };
