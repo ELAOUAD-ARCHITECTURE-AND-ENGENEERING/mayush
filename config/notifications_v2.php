@@ -37,6 +37,7 @@ return [
         'message.received' => ['type' => 'message_received', 'category' => 'messages', 'severity' => 'info', 'title' => 'New message', 'mandatory_inbox' => false, 'channels' => ['in_app', 'broadcast', 'push']],
         'product.status' => ['type' => 'product_status_updated', 'category' => 'products', 'severity' => 'info', 'title' => 'Product status updated', 'mandatory_inbox' => false, 'channels' => ['in_app', 'broadcast', 'push']],
         'product.restocked' => ['type' => 'product_restocked', 'category' => 'products', 'severity' => 'info', 'title' => 'Product back in stock', 'mandatory_inbox' => false, 'channels' => ['in_app', 'broadcast', 'email', 'push']],
+        'product.translation_completed' => ['type' => 'product_translation_completed', 'category' => 'products', 'severity' => 'info', 'title' => 'Correction des traductions terminée', 'mandatory_inbox' => false, 'channels' => ['in_app', 'broadcast']],
         'stock.alert' => ['type' => 'stock_alert', 'category' => 'products', 'severity' => 'info', 'title' => 'Stock alert', 'mandatory_inbox' => false, 'channels' => ['in_app', 'broadcast', 'email']],
         'marketing.promotion' => ['type' => 'promotion', 'category' => 'marketing', 'severity' => 'info', 'title' => 'Promotion', 'mandatory_inbox' => false, 'channels' => ['in_app']],
         'marketing.newsletter' => ['type' => 'newsletter', 'category' => 'marketing', 'severity' => 'info', 'title' => 'Newsletter', 'mandatory_inbox' => false, 'channels' => ['in_app']],
