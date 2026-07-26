@@ -13,9 +13,14 @@ class ProductTranslationRunFinalizer
         if ($run->finished_at !== null && $run->active_key === null) {
             return $run;
         }
+        if ($run->items()->whereIn('status', ['pending', 'processing'])->exists()) {
+            return $run;
+        }
+
+        $status = $run->failed_count > 0 ? 'completed_with_errors' : 'completed';
 
         $run->forceFill([
-            'status' => $run->failed_count > 0 ? 'completed_with_errors' : 'completed',
+            'status' => $status,
             'active_key' => null,
             'processing_product_id' => null,
             'finished_at' => now(),
@@ -27,7 +32,7 @@ class ProductTranslationRunFinalizer
                 'product.translation_completed',
                 'product_translation_run',
                 $run->id,
-                'completed',
+                $status,
                 [$run->user_id],
                 [
                     'title' => 'Correction des traductions terminée',

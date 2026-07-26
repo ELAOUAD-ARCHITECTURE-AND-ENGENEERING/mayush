@@ -29,8 +29,8 @@ class SearchFallbackTest extends TestCase
     /** @test */
     public function semantic_search_failure_does_not_crash_search_page(): void
     {
-        // Disable Gemini API key to simulate failure
-        config(['services.gemini.key' => '']);
+        // Disable OpenRouter API key to simulate failure
+        config(['services.openrouter.key' => '']);
 
         $response = $this->get('/search?q=test');
 
@@ -48,11 +48,11 @@ class SearchFallbackTest extends TestCase
     }
 
     /** @test */
-    public function search_route_returns_valid_response_when_gemini_api_is_unavailable(): void
+    public function search_route_returns_valid_response_when_openrouter_api_is_unavailable(): void
     {
-        // Mock Gemini API failure
+        // Mock OpenRouter API failure
         Http::fake([
-            'generativelanguage.googleapis.com/*' => Http::response(['error' => 'API unavailable'], 500)
+            'openrouter.ai/*' => Http::response(['error' => 'API unavailable'], 500)
         ]);
 
         $response = $this->get('/search?q=test');

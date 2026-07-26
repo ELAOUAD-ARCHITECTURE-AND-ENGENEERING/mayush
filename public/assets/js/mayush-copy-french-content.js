@@ -104,13 +104,38 @@
             try { sessionStorage.setItem(this.storageKey(), JSON.stringify(this.frenchSnapshot)); } catch (e) {}
         },
 
+        serverFrenchSnapshot: function () {
+            var raw = $('#copy-french-btn-wrapper').attr('data-french-source-fields');
+            if (!raw) return { controls: [] };
+            try {
+                // Blade escapes the JSON for the HTML attribute; decode the
+                // entities before parsing the source snapshot.
+                raw = $('<textarea>').html(raw).val() || raw;
+                var fields = JSON.parse(raw);
+                var controls = Object.keys(fields || {}).map(function (name) {
+                    var value = fields[name];
+                    var values = Array.isArray(value) ? value : undefined;
+                    return {
+                        name: name,
+                        key: this.canonicalName(name),
+                        type: name === 'description' || name === 'meta_description' ? 'textarea' : 'text',
+                        value: Array.isArray(value) ? value.join(', ') : value,
+                        values: values
+                    };
+                }, this);
+                return { controls: controls, capturedAt: new Date().toISOString() };
+            } catch (e) {
+                return { controls: [] };
+            }
+        },
+
         loadFrenchSnapshot: function () {
             if (this.frenchSnapshot) return this.frenchSnapshot;
             try {
                 var stored = sessionStorage.getItem(this.storageKey());
                 if (stored) this.frenchSnapshot = JSON.parse(stored);
             } catch (e) {}
-            return this.frenchSnapshot || { controls: [] };
+            return this.frenchSnapshot || this.serverFrenchSnapshot();
         },
 
         groups: function (snapshot) {
@@ -285,7 +310,10 @@
         startTranslation: function (mode) {
             if (this.busy) return;
             var self = this;
-            var fields = this.translationFields(this.snapshot(), mode === 'only_french');
+            // The Arabic tab contains destination values. Translation must use
+            // the saved French snapshot as its source.
+            var french = this.loadFrenchSnapshot();
+            var fields = this.translationFields(french, mode === 'only_french');
             if (!Object.keys(fields).length) {
                 this.notify('warning', 'Aucun contenu français à traduire.');
                 return;
@@ -310,7 +338,7 @@
                 })
             }).done(function (response) {
                 self.applyTranslatedFields(response.fields || {});
-                self.notify(response.failed_fields && response.failed_fields.length ? 'warning' : 'success', response.message || 'Le contenu a été traduit en arabe avec Microsoft Azure Translator. Vérifiez la traduction avant d’enregistrer.');
+                self.notify(response.failed_fields && response.failed_fields.length ? 'warning' : 'success', response.message || 'Le contenu a été traduit en arabe avec succès. Vérifiez la traduction avant d’enregistrer.');
             }).fail(function (xhr) {
                 var response = xhr.responseJSON || {};
                 self.notify('danger', response.message || 'La traduction n’a pas pu être effectuée. Les valeurs actuelles ont été conservées.');

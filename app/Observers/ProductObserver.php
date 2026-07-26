@@ -16,7 +16,7 @@ class ProductObserver
     {
         app(StorefrontCacheService::class)->bump();
 
-        // Offload the heavy Gemini API generation to the Horizon background worker.
+        // Offload the heavy OpenRouter AI generation to the Horizon background worker.
         // It won't stall the user's web request.
         SyncSemanticEmbeddingJob::dispatch($product);
     }

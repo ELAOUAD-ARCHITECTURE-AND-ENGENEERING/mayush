@@ -27,19 +27,27 @@ class ProductTranslationEndpointTest extends TestCase
         ]);
         $this->admin->givePermissionTo(['add_new_product', 'product_edit']);
         config([
-            'services.azure_translator.key' => 'test-key',
-            'services.azure_translator.region' => null,
-            'services.azure_translator.endpoint' => 'https://translator.test',
-            'services.azure_translator.api_version' => '3.0',
+            'services.openrouter.key' => 'test-key',
+            'services.openrouter.model' => 'openrouter/free',
+            'services.openrouter.api_base' => 'https://openrouter.ai/api/v1',
+            'services.openrouter.site_url' => 'https://mayushdesign.com',
+            'services.openrouter.app_name' => 'MAYUSH',
+            'services.openrouter.max_retries' => 0,
         ]);
     }
 
     public function test_authenticated_product_manager_can_translate_without_saving_a_product(): void
     {
-        Http::fake(function (HttpRequest $request) {
+        Http::fake(function () {
+            $translated = json_encode(['fields' => [
+                'name' => 'Translated name',
+                'description' => '[MAYUSH_HTML_0]Translated description[MAYUSH_HTML_1]',
+                'unit_price' => '[MAYUSH_VALUE_2]',
+            ]], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
             return Http::response([
-                ['translations' => [['text' => 'مكتب']]],
-                ['translations' => [['text' => '<p>وصف</p>']]],
+                'model' => 'openrouter/free',
+                'choices' => [['message' => ['content' => $translated]]],
             ], 200);
         });
 
@@ -55,11 +63,11 @@ class ProductTranslationEndpointTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('fields.name', 'مكتب')
-            ->assertJsonPath('fields.description', '<p>وصف</p>')
+            ->assertJsonPath('fields.name', 'Translated name')
+            ->assertJsonPath('fields.description', '<p>Translated description</p>')
             ->assertJsonPath('fields.unit_price', '100');
         $this->assertDatabaseCount('products', 0);
-        Http::assertSent(fn (HttpRequest $request) => $request->hasHeader('Ocp-Apim-Subscription-Key', 'test-key'));
+        Http::assertSent(fn (HttpRequest $request) => $request->url() === 'https://openrouter.ai/api/v1/chat/completions' && $request->hasHeader('Authorization', 'Bearer test-key'));
     }
 
     public function test_unauthorized_user_cannot_use_the_admin_translation_endpoint(): void

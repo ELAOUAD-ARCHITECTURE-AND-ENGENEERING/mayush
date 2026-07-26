@@ -31,7 +31,7 @@ class V109SchemaMigrationTest extends TestCase
         $this->assertTrue(Schema::hasTable('ai_prompts'));
         $this->assertTrue(Schema::hasTable('ai_usage_logs'));
 
-        foreach (['invoice_config', 'shipping_label', 'thermal_printer', 'ai_activation', 'gemini_model'] as $type) {
+        foreach (['invoice_config', 'shipping_label', 'thermal_printer', 'ai_activation', 'openrouter_model'] as $type) {
             $this->assertDatabaseHas('business_settings', ['type' => $type]);
         }
 
@@ -93,6 +93,6 @@ class V109SchemaMigrationTest extends TestCase
 
         $this->actingAs($admin)->get(route('ai-config'))
             ->assertOk()
-            ->assertSee('Google AI');
+            ->assertSee('OpenRouter');
     }
 }

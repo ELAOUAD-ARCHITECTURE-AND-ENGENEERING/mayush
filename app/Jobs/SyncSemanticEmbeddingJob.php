@@ -22,7 +22,7 @@ class SyncSemanticEmbeddingJob implements ShouldQueue
 
     /**
      * The number of times the job may be attempted.
-     * We want to retry in case the Gemini API throws rate limits or timeouts.
+     * Retry when the OpenRouter embeddings endpoint is temporarily unavailable.
      */
 
     /**
@@ -63,7 +63,7 @@ class SyncSemanticEmbeddingJob implements ShouldQueue
         if (!empty($slackWebhook)) {
             try {
                 \Illuminate\Support\Facades\Http::post($slackWebhook, [
-                    'text' => "🚨 *Mayush Gemini API Critical Error*\nFailed to sync embedding for Product ID {$this->product->id} after 3 attempts.\n*Error:* `{$exception->getMessage()}`"
+                    'text' => "🚨 *Mayush OpenRouter Embeddings Error*\nFailed to sync embedding for Product ID {$this->product->id} after 3 attempts."
                 ]);
             } catch (\Exception $e) {
                 // Ignore slack fallback failure

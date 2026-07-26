@@ -49,7 +49,7 @@ class ReindexProducts extends Command
 
             $bar->advance();
             
-            // Limit Gemini requests to 60 per minute max (Free Tier)
+            // Limit external AI requests to 60 per minute max.
             // Only sleep if we actually made an API request (implied by synced/not skipped)
             // For simplicity, we sleep 1s per product to be the most conservative.
             sleep(1);
