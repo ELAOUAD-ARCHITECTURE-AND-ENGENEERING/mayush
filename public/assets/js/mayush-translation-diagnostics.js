@@ -23,6 +23,23 @@
 
     function showRun() { $('#translation-run-panel').removeClass('d-none'); }
 
+    function retryAfterSeconds(xhr) {
+        var headerValue = xhr.getResponseHeader('Retry-After');
+        var bodyValue = xhr.responseJSON && xhr.responseJSON.result && xhr.responseJSON.result.retry_after;
+        var seconds = parseInt(headerValue || bodyValue || 60, 10);
+        return isNaN(seconds) ? 60 : Math.max(1, Math.min(seconds, 3600));
+    }
+
+    function holdRepairButton(button, original, seconds) {
+        var retryAt = new Date(Date.now() + seconds * 1000);
+        button.prop('disabled', true)
+            .html('<i class="las la-clock mr-1"></i> Réessayez après ' + retryAt.toLocaleTimeString())
+            .attr('title', 'OpenRouter limite temporaire. Réessayez après ' + retryAt.toLocaleString());
+        window.setTimeout(function () {
+            button.prop('disabled', false).html(original).removeAttr('title');
+        }, seconds * 1000);
+    }
+
     function renderRetryCooldown(run) {
         var retryButton = $('#translation-run-retry');
         var retryAt = run.next_retry_at ? new Date(run.next_retry_at) : null;
@@ -133,8 +150,15 @@
 
     root.on('click', '.js-repair-product', function () {
         var button = $(this), original = button.html();
+        var keepDisabled = false;
         button.prop('disabled', true).html('<i class="las la-spinner la-spin"></i>');
-        request({ url: button.data('url'), method: 'POST' }).done(function (data) { if (data.success) window.location.reload(); else alert(data.message || 'Le produit n’a pas été corrigé.'); }).fail(function (xhr) { alert((xhr.responseJSON && xhr.responseJSON.message) || 'La correction a échoué.'); }).always(function () { button.prop('disabled', false).html(original); });
+        request({ url: button.data('url'), method: 'POST' }).done(function (data) { if (data.success) window.location.reload(); else alert(data.message || 'Le produit n’a pas été corrigé.'); }).fail(function (xhr) {
+            if (xhr.status === 429) {
+                keepDisabled = true;
+                holdRepairButton(button, original, retryAfterSeconds(xhr));
+            }
+            alert((xhr.responseJSON && xhr.responseJSON.message) || 'La limite temporaire du service de traduction est active.');
+        }).always(function () { if (!keepDisabled) button.prop('disabled', false).html(original); });
     });
 
     if (activeRun) { showRun(); poll(); }
