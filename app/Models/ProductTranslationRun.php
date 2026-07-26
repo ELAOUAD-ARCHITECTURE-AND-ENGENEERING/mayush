@@ -12,6 +12,7 @@ class ProductTranslationRun extends Model
         'started_at' => 'datetime',
         'finished_at' => 'datetime',
         'last_progress_at' => 'datetime',
+        'next_retry_at' => 'datetime',
     ];
 
     public function items()

@@ -65,6 +65,14 @@ return [
             'block_for' => null,
         ],
 
+        'redis_translations' => [
+            'driver' => 'redis',
+            'connection' => 'default',
+            'queue' => 'translations',
+            'retry_after' => (int) env('PRODUCT_TRANSLATION_QUEUE_RETRY_AFTER', 600),
+            'block_for' => 5,
+        ],
+
     ],
 
     /*

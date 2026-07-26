@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductTranslationRun;
 use App\Models\ProductTranslationRunItem;
 use App\Services\ProductTranslationRepairService;
+use App\Services\ProductTranslationRateLimitGuard;
 use App\Services\ProductTranslationStatusService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -34,7 +35,7 @@ class ProcessProductTranslationRunJob implements ShouldQueue
     {
         return [
             (new WithoutOverlapping('product-translation-run:'.$this->runId))
-                ->releaseAfter(5)
+                ->dontRelease()
                 ->expireAfter(900),
         ];
     }
@@ -68,7 +69,13 @@ class ProcessProductTranslationRunJob implements ShouldQueue
                 'started_at' => now(),
                 'error_message' => null,
             ])->save();
-            $run->forceFill(['status' => 'running', 'processing_product_id' => $item->product_id, 'failure_reason' => null, 'last_progress_at' => now()])->save();
+            $run->forceFill([
+                'status' => 'running',
+                'processing_product_id' => $item->product_id,
+                'failure_reason' => null,
+                'next_retry_at' => null,
+                'last_progress_at' => now(),
+            ])->save();
             return $item;
         });
 
@@ -251,7 +258,16 @@ class ProcessProductTranslationRunJob implements ShouldQueue
                         'updated_at' => now(),
                     ]);
             }
-            $run->forceFill(['status' => 'failed', 'active_key' => null, 'failure_reason' => 'The queue stopped the translation run.', 'finished_at' => now(), 'last_progress_at' => now()])->save();
+            $run->forceFill([
+                'status' => 'failed',
+                'active_key' => null,
+                'failure_reason' => 'The queue stopped the translation run.',
+                'finished_at' => now(),
+                'next_retry_at' => null,
+                'processing_product_id' => null,
+                'last_progress_at' => now(),
+            ])->save();
+            $this->syncCounters($run);
         }
     }
 
@@ -275,6 +291,9 @@ class ProcessProductTranslationRunJob implements ShouldQueue
     {
         $errorCode = (string) ($result['error_code'] ?? 'translation_failed');
         $rateLimited = $errorCode === 'rate_limit';
+        $retryAfter = $rateLimited
+            ? app(ProductTranslationRateLimitGuard::class)->block($result['retry_after'] ?? null)
+            : null;
         $message = $this->errorMessage($result) ?: ($rateLimited
             ? 'The OpenRouter rate limit was reached. The run is stopped; retry the failed products manually.'
             : 'The OpenRouter translation failed. The run is stopped; retry the failed products manually.');
@@ -303,6 +322,7 @@ class ProcessProductTranslationRunJob implements ShouldQueue
             'processing_product_id' => null,
             'failure_reason' => $message,
             'finished_at' => $rateLimited ? null : now(),
+            'next_retry_at' => $retryAfter !== null ? now()->addSeconds($retryAfter) : null,
             'last_retry_decision' => $rateLimited ? 'stop_rate_limit' : 'stop_failure',
             'last_progress_at' => now(),
         ])->save();

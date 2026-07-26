@@ -11,6 +11,7 @@ use App\Models\ProductTranslationRun;
 use App\Models\ProductTranslationRunItem;
 use App\Models\User;
 use App\Services\ProductTranslationRepairService;
+use App\Services\ProductTranslationRateLimitGuard;
 use App\Services\ProductTranslationStatusService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -22,7 +23,8 @@ class ProductTranslationDiagnosticsController extends Controller
 {
     public function __construct(
         private readonly ProductTranslationStatusService $statusService,
-        private readonly ProductTranslationRepairService $repairService
+        private readonly ProductTranslationRepairService $repairService,
+        private readonly ProductTranslationRateLimitGuard $rateLimitGuard
     ) {
         $this->middleware('permission:product_edit|show_all_products');
     }
@@ -179,7 +181,26 @@ class ProductTranslationDiagnosticsController extends Controller
 
     public function repair(Product $product): JsonResponse
     {
-        $result = $this->repairService->repair($product);
+        if (($retryAfter = $this->rateLimitGuard->retryAfter()) > 0) {
+            return $this->rateLimitResponse($retryAfter);
+        }
+
+        $lock = $this->rateLimitGuard->requestLock();
+        if (! $lock->get()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Une autre traduction est deja en cours. Reessayez dans quelques secondes.',
+            ], 429)->header('Retry-After', '5');
+        }
+
+        try {
+            $result = $this->repairService->repair($product);
+        } finally {
+            $lock->release();
+        }
+        if (($result['error_code'] ?? null) === 'rate_limit') {
+            $retryAfter = $this->rateLimitGuard->block($result['retry_after'] ?? null);
+        }
         Cache::forget('admin:product-translation:summary');
         $statusCode = match ($result['error_code'] ?? null) {
             'configuration', 'credentials', 'invalid_model', 'account_credit', 'structured_output_unsupported', 'temporary_failure', 'timeout' => 503,
@@ -189,11 +210,30 @@ class ProductTranslationDiagnosticsController extends Controller
             default => ($result['status'] === 'failed' ? 422 : 200),
         };
 
-        return response()->json([
+        $response = response()->json([
             'success' => $result['status'] === 'success',
             'result' => $result,
             'message' => $result['status'] === 'success' ? 'La version arabe a été corrigée.' : 'Aucune correction complète n’a été enregistrée.',
         ], $statusCode);
+
+        if (($result['error_code'] ?? null) === 'rate_limit') {
+            $response->header('Retry-After', (string) $retryAfter);
+        }
+
+        return $response;
+    }
+
+    private function rateLimitResponse(int $retryAfter): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'result' => [
+                'status' => 'failed',
+                'error_code' => 'rate_limit',
+                'retry_after' => $retryAfter,
+            ],
+            'message' => 'La limite temporaire du service de traduction est active. Reessayez apres le delai indique.',
+        ], 429)->header('Retry-After', (string) max(1, $retryAfter));
     }
 
     public function retryFailed(ProductTranslationRun $run, Request $request): JsonResponse
@@ -204,12 +244,20 @@ class ProductTranslationDiagnosticsController extends Controller
         }
 
         abort_unless(in_array($run->status, ['completed_with_errors', 'failed', 'paused', 'retrying', 'waiting_for_quota', 'waiting_for_rate_limit'], true), 422, 'Cette exécution ne contient pas de produits à relancer.');
+        if ($run->next_retry_at && now()->lt($run->next_retry_at)) {
+            $retryAfter = max(1, now()->diffInSeconds($run->next_retry_at));
+            return response()->json([
+                'message' => 'La limite du service de traduction est toujours active. Réessayez après le délai indiqué.',
+                'run' => $this->runPayload($run),
+            ], 429)->header('Retry-After', (string) $retryAfter);
+        }
         if (in_array($run->status, ['retrying', 'waiting_for_quota', 'waiting_for_rate_limit'], true)) {
             $run->forceFill([
                 'status' => 'queued',
                 'failure_reason' => null,
                 'processing_product_id' => null,
                 'finished_at' => null,
+                'next_retry_at' => null,
                 'last_progress_at' => now(),
             ])->save();
             ProcessProductTranslationRunJob::dispatch($run->id);
@@ -231,6 +279,7 @@ class ProductTranslationDiagnosticsController extends Controller
                     'failure_reason' => null,
                     'processing_product_id' => null,
                     'finished_at' => null,
+                    'next_retry_at' => null,
                     'last_progress_at' => now(),
                 ])->save();
             });
@@ -254,7 +303,7 @@ class ProductTranslationDiagnosticsController extends Controller
         }
 
         return response()->json([
-            'message' => 'La correction en arrière-plan nécessite une file asynchrone et un worker actif. Configurez PRODUCT_TRANSLATION_QUEUE_CONNECTION sur database ou redis.',
+            'message' => 'La correction en arrière-plan nécessite une file asynchrone et un worker actif. Configurez PRODUCT_TRANSLATION_QUEUE_CONNECTION sur redis_translations.',
         ], 503);
     }
 
@@ -338,6 +387,7 @@ class ProductTranslationDiagnosticsController extends Controller
             'last_input_characters' => $run->last_input_characters !== null ? (int) $run->last_input_characters : null,
             'last_total_tokens' => $run->last_total_tokens !== null ? (int) $run->last_total_tokens : null,
             'last_retry_decision' => $run->last_retry_decision,
+            'next_retry_at' => optional($run->next_retry_at)->toIso8601String(),
             'percentage' => $run->total_candidates > 0 ? round(($run->processed_count / $run->total_candidates) * 100, 1) : 0,
             'current_product' => $current ? ['id' => $current->id, 'name' => $current->name, 'thumbnail' => uploaded_asset($current->thumbnail_img)] : null,
             'started_at' => optional($run->started_at)->toIso8601String(),

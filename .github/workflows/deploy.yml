@@ -213,12 +213,18 @@ jobs:
             upsert_env_if_set "OPENROUTER_TRANSLATION_MAX_PAYLOAD" "${OPENROUTER_TRANSLATION_MAX_PAYLOAD:-}"
             upsert_env_if_set "OPENROUTER_TEMPERATURE" "${OPENROUTER_TEMPERATURE:-}"
 
-            # Horizon supervises the translations queue on Redis. Keep this
-            # feature-specific connection explicit so an old database/sync
-            # value cannot leave translation runs permanently queued while
-            # the rest of the application's queue configuration is preserved.
+            # Horizon supervises translations on a dedicated Redis connection.
+            # Keep this explicit so an old database/sync/redis value cannot
+            # leave runs queued or share workers with unrelated application
+            # queues.
+            sed -i "/^PRODUCT_TRANSLATION_QUEUE=/d" "$ENV_FILE"
             sed -i "/^PRODUCT_TRANSLATION_QUEUE_CONNECTION=/d" "$ENV_FILE"
-            printf 'PRODUCT_TRANSLATION_QUEUE_CONNECTION=redis\n' >> "$ENV_FILE"
+            sed -i "/^PRODUCT_TRANSLATION_QUEUE_RETRY_AFTER=/d" "$ENV_FILE"
+            sed -i "/^PRODUCT_TRANSLATION_WORKER_TIMEOUT=/d" "$ENV_FILE"
+            printf 'PRODUCT_TRANSLATION_QUEUE=translations\n' >> "$ENV_FILE"
+            printf 'PRODUCT_TRANSLATION_QUEUE_CONNECTION=redis_translations\n' >> "$ENV_FILE"
+            printf 'PRODUCT_TRANSLATION_QUEUE_RETRY_AFTER=600\n' >> "$ENV_FILE"
+            printf 'PRODUCT_TRANSLATION_WORKER_TIMEOUT=480\n' >> "$ENV_FILE"
 
             if grep -q '^OPENROUTER_API_KEY=' "$ENV_FILE" && \
               [ -n "$(sed -n 's/^OPENROUTER_API_KEY=//p' "$ENV_FILE" | head -n 1)" ]; then
@@ -312,6 +318,18 @@ jobs:
             # Run the server's specific ENV and cache script
             sudo -E /usr/local/bin/deploy_mayush_env_and_cache.sh
 
+            # The server-side sync script is allowed to rewrite .env. Reassert
+            # the non-secret translation queue contract after it completes so
+            # the final cached configuration cannot drift from Horizon.
+            sed -i "/^PRODUCT_TRANSLATION_QUEUE=/d" "$ENV_FILE"
+            sed -i "/^PRODUCT_TRANSLATION_QUEUE_CONNECTION=/d" "$ENV_FILE"
+            sed -i "/^PRODUCT_TRANSLATION_QUEUE_RETRY_AFTER=/d" "$ENV_FILE"
+            sed -i "/^PRODUCT_TRANSLATION_WORKER_TIMEOUT=/d" "$ENV_FILE"
+            printf 'PRODUCT_TRANSLATION_QUEUE=translations\n' >> "$ENV_FILE"
+            printf 'PRODUCT_TRANSLATION_QUEUE_CONNECTION=redis_translations\n' >> "$ENV_FILE"
+            printf 'PRODUCT_TRANSLATION_QUEUE_RETRY_AFTER=600\n' >> "$ENV_FILE"
+            printf 'PRODUCT_TRANSLATION_WORKER_TIMEOUT=480\n' >> "$ENV_FILE"
+
             # The environment-sync script updates the production .env. Rebuild
             # Laravel's cached configuration after that write, then restart
             # long-lived workers so OpenRouter credentials are loaded in new
@@ -322,6 +340,19 @@ jobs:
             php8.2 artisan product-translation:config-check --no-ansi
             php8.2 artisan queue:restart
             php8.2 artisan horizon:terminate
+            horizon_running=0
+            for attempt in 1 2 3 4 5; do
+              if sudo supervisorctl status mayush-horizon | grep -q 'RUNNING'; then
+                horizon_running=1
+                break
+              fi
+              sleep 2
+            done
+            if [ "$horizon_running" -ne 1 ]; then
+              echo "Horizon did not restart successfully after deployment"
+              sudo supervisorctl status mayush-horizon || true
+              exit 1
+            fi
 
             echo ""
             echo "Validating scheduler and queueing bounded image repairs..."

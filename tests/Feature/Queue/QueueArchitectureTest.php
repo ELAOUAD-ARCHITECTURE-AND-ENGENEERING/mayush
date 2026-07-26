@@ -7,6 +7,8 @@ use App\Jobs\AggregateSecurityMetricsJob;
 use App\Jobs\OptimizeStaticImageJob;
 use App\Jobs\OptimizeUploadedImageJob;
 use App\Jobs\ProcessFrequentlyBoughtJob;
+use App\Jobs\PrepareProductTranslationRunJob;
+use App\Jobs\ProcessProductTranslationRunJob;
 use App\Jobs\SyncSemanticEmbeddingJob;
 use App\Mail\InvoiceEmailManager;
 use App\Models\Product;
@@ -32,13 +34,32 @@ class QueueArchitectureTest extends TestCase
         $this->assertArrayHasKey('supervisor-communications', $environments);
         $this->assertArrayHasKey('supervisor-media-search', $environments);
         $this->assertArrayHasKey('supervisor-maintenance', $environments);
+        $this->assertArrayHasKey('supervisor-translations', $environments);
         
         $defaults = Config::get('horizon.defaults');
         
         $this->assertEquals(['audits', 'critical', 'payments', 'shipping'], $defaults['supervisor-critical']['queue']);
         $this->assertEquals(['notifications', 'emails', 'sms', 'push'], $defaults['supervisor-communications']['queue']);
         $this->assertEquals(['search', 'embeddings', 'images'], $defaults['supervisor-media-search']['queue']);
-        $this->assertEquals(['reports', 'audits', 'translations', 'default'], $defaults['supervisor-maintenance']['queue']);
+        $this->assertEquals(['reports', 'audits', 'default'], $defaults['supervisor-maintenance']['queue']);
+        $this->assertEquals('redis_translations', $defaults['supervisor-translations']['connection']);
+        $this->assertEquals(['translations'], $defaults['supervisor-translations']['queue']);
+        $this->assertSame('translations', Config::get('product_translation.queue'));
+        $this->assertSame(480, $defaults['supervisor-translations']['timeout']);
+        $this->assertSame(1, $environments['supervisor-translations']['maxProcesses']);
+        $this->assertSame(600, Config::get('queue.connections.redis_translations.retry_after'));
+    }
+
+    public function test_translation_jobs_use_the_dedicated_connection(): void
+    {
+        $job = new ProcessProductTranslationRunJob(123);
+
+        $this->assertSame('redis_translations', $job->connection);
+        $this->assertSame('translations', $job->queue);
+
+        $prepareJob = new PrepareProductTranslationRunJob(123);
+        $this->assertSame('redis_translations', $prepareJob->connection);
+        $this->assertSame('translations', $prepareJob->queue);
     }
 
     public function test_runtime_job_dispatching()

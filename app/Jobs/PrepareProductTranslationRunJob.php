@@ -33,7 +33,7 @@ class PrepareProductTranslationRunJob implements ShouldQueue
     {
         return [
             (new WithoutOverlapping('product-translation-prepare:'.$this->runId))
-                ->releaseAfter(5)
+                ->dontRelease()
                 ->expireAfter(900),
         ];
     }

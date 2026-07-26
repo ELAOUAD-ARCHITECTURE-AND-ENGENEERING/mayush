@@ -156,8 +156,10 @@ class OpenRouterProductTranslationService implements ProductTranslationService
         $body['response_format'] = $this->strictResponseFormat($schema);
         $body['provider'] = ['require_parameters' => true];
 
-        $maxRetries = max(0, (int) ($config['max_retries'] ?? 3));
         $timeout = max(1, (int) ($config['timeout'] ?? 90));
+        $workerTimeout = max($timeout + 30, (int) config('product_translation.worker_timeout', 480));
+        $safeAttempts = max(1, intdiv(max(1, $workerTimeout - 30), $timeout + 1));
+        $maxRetries = min(max(0, (int) ($config['max_retries'] ?? 3)), max(0, $safeAttempts - 1));
         $attempt = 0;
         $lastError = 'request_failed';
         $retryAfter = null;
@@ -232,7 +234,10 @@ class OpenRouterProductTranslationService implements ProductTranslationService
             if (is_array($response->json('error')) || is_array($response->json('choices.0.error'))) {
                 $lastError = $this->errorCode($response);
                 $retryAfter = $this->retryAfter($response);
-                if (in_array($lastError, ['rate_limit', 'temporary_failure', 'timeout'], true) && $attempt <= $maxRetries) {
+                // A rate limit is a run-level stop condition. Retrying the
+                // same request here multiplies quota pressure and can keep a
+                // queue worker occupied for minutes before the run is paused.
+                if ($lastError !== 'rate_limit' && in_array($lastError, ['temporary_failure', 'timeout'], true) && $attempt <= $maxRetries) {
                     $this->backoff($attempt, $retryAfter);
                     continue;
                 }
@@ -248,7 +253,7 @@ class OpenRouterProductTranslationService implements ProductTranslationService
             if (in_array($status, self::RETRYABLE_STATUSES, true)) {
                 $lastError = $this->errorCode($response);
                 $retryAfter = $this->retryAfter($response);
-                if ($attempt <= $maxRetries) {
+                if ($lastError !== 'rate_limit' && $attempt <= $maxRetries) {
                     $this->backoff($attempt, $retryAfter);
                     continue;
                 }
