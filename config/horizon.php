@@ -98,6 +98,7 @@ return [
 
     'waits' => [
         'redis:default' => 60,
+        'redis_translations:translations' => 120,
     ],
 
     /*
@@ -238,7 +239,7 @@ return [
         ],
         'supervisor-maintenance' => [
             'connection' => 'redis',
-            'queue' => ['reports', 'audits', 'translations', 'default'],
+            'queue' => ['reports', 'audits', 'default'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,
@@ -248,6 +249,18 @@ return [
             'tries' => 1,
             'timeout' => 300,
             'nice' => 10,
+        ],
+        'supervisor-translations' => [
+            'connection' => 'redis_translations',
+            'queue' => ['translations'],
+            'balance' => 'simple',
+            'maxProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 256,
+            'tries' => 1,
+            'timeout' => 480,
+            'nice' => 5,
         ],
     ],
 
@@ -269,6 +282,9 @@ return [
             'supervisor-maintenance' => [
                 'maxProcesses' => 2,
             ],
+            'supervisor-translations' => [
+                'maxProcesses' => 1,
+            ],
         ],
 
         'local' => [
@@ -282,6 +298,9 @@ return [
                 'maxProcesses' => 1,
             ],
             'supervisor-maintenance' => [
+                'maxProcesses' => 1,
+            ],
+            'supervisor-translations' => [
                 'maxProcesses' => 1,
             ],
         ],

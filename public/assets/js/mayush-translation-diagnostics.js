@@ -6,6 +6,7 @@
 
     var csrf = $('meta[name="csrf-token"]').attr('content');
     var pollTimer = null;
+    var retryCooldownTimer = null;
     var pollFailures = 0;
     var activeRun = root.data('active-run') || null;
     var urls = {
@@ -21,6 +22,25 @@
     }
 
     function showRun() { $('#translation-run-panel').removeClass('d-none'); }
+
+    function renderRetryCooldown(run) {
+        var retryButton = $('#translation-run-retry');
+        var retryAt = run.next_retry_at ? new Date(run.next_retry_at) : null;
+        var blocked = run.status === 'paused' && retryAt && !isNaN(retryAt.getTime()) && retryAt.getTime() > Date.now();
+
+        if (retryCooldownTimer) {
+            window.clearTimeout(retryCooldownTimer);
+            retryCooldownTimer = null;
+        }
+        retryButton.prop('disabled', !!blocked);
+        if (blocked) {
+            retryButton.attr('title', 'Réessayez après ' + retryAt.toLocaleString());
+            $('#translation-run-connection').text('Relance disponible après ' + retryAt.toLocaleTimeString());
+            retryCooldownTimer = window.setTimeout(function () { renderRun(run); }, Math.max(1, retryAt.getTime() - Date.now() + 100));
+        } else {
+            retryButton.removeAttr('title');
+        }
+    }
 
     function stopPolling() {
         if (pollTimer) {
@@ -43,6 +63,7 @@
         $('#translation-run-status').text({ queued: 'En attente de traitement', running: 'Traduction automatique séquentielle en cours', retrying: 'Nouvelle tentative automatique en cours', waiting_for_quota: 'Limite temporaire du service atteinte; reprise automatique', waiting_for_rate_limit: 'Limite temporaire du service atteinte; reprise automatique', paused: 'Traitement en pause', completed: 'Correction terminée', completed_with_errors: 'Terminée avec des erreurs', failed: 'Exécution interrompue' }[run.status] || run.status);
         $('#translation-run-panel').toggleClass('is-paused', run.status === 'paused' || run.status === 'waiting_for_quota' || run.status === 'waiting_for_rate_limit').toggleClass('is-error', run.status === 'failed' || run.status === 'completed_with_errors');
         $('#translation-run-connection').text(run.status === 'paused' ? 'Relance manuelle' : ((run.status === 'waiting_for_quota' || run.status === 'waiting_for_rate_limit') ? 'Reprise automatique programmée' : 'Suivi actif'));
+        renderRetryCooldown(run);
         if (run.current_product) $('#run-current-product').removeClass('d-none').html('Produit en cours : <strong>' + $('<div>').text(run.current_product.name || ('#' + run.current_product.id)).html() + '</strong>');
         else $('#run-current-product').addClass('d-none');
         if (run.failure_reason) $('#run-warning').removeClass('d-none').text(run.failure_reason); else $('#run-warning').addClass('d-none');
@@ -104,7 +125,10 @@
 
     $('#translation-run-retry').on('click', function () {
         if (!activeRun) return;
-        request({ url: urls.retry + '/' + activeRun + '/retry-failed', method: 'POST' }).done(function (data) { renderRun(data.run); }).fail(function (xhr) { alert((xhr.responseJSON && xhr.responseJSON.message) || 'Impossible de relancer les échecs.'); });
+        request({ url: urls.retry + '/' + activeRun + '/retry-failed', method: 'POST' }).done(function (data) { renderRun(data.run); }).fail(function (xhr) {
+            if (xhr.responseJSON && xhr.responseJSON.run) renderRun(xhr.responseJSON.run);
+            alert((xhr.responseJSON && xhr.responseJSON.message) || 'Impossible de relancer les échecs.');
+        });
     });
 
     root.on('click', '.js-repair-product', function () {

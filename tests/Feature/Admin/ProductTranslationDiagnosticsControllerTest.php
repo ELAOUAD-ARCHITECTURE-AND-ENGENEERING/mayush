@@ -3,8 +3,10 @@
 namespace Tests\Feature\Admin;
 
 use App\Jobs\PrepareProductTranslationRunJob;
+use App\Models\Product;
 use App\Models\ProductTranslationRun;
 use App\Models\User;
+use App\Services\ProductTranslationRateLimitGuard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Spatie\Permission\Models\Permission;
@@ -82,5 +84,37 @@ class ProductTranslationDiagnosticsControllerTest extends TestCase
             ->assertOk()
             ->assertJsonPath('run.id', $run->id)
             ->assertJsonPath('run.status', 'failed');
+    }
+
+    public function test_rate_limited_run_cannot_be_retried_during_cooldown(): void
+    {
+        $run = ProductTranslationRun::create([
+            'user_id' => $this->admin->id,
+            'active_key' => 'global',
+            'status' => 'paused',
+            'total_candidates' => 2,
+            'pending_count' => 1,
+            'failed_count' => 1,
+            'failure_reason' => 'rate_limit',
+            'next_retry_at' => now()->addMinutes(5),
+        ]);
+
+        $this->actingAs($this->admin)
+            ->postJson(route('admin.product_translation_diagnostics.retry_failed', ['run' => $run->id]))
+            ->assertStatus(429)
+            ->assertJsonPath('run.status', 'paused')
+            ->assertHeader('Retry-After');
+    }
+
+    public function test_one_by_one_translation_respects_the_shared_rate_limit_cooldown(): void
+    {
+        $product = Product::factory()->create(['draft' => 0]);
+        $retryAfter = app(ProductTranslationRateLimitGuard::class)->block(120);
+
+        $this->actingAs($this->admin)
+            ->postJson(route('admin.product_translation_diagnostics.repair', ['product' => $product->id]))
+            ->assertStatus(429)
+            ->assertJsonPath('result.error_code', 'rate_limit')
+            ->assertHeader('Retry-After', (string) $retryAfter);
     }
 }

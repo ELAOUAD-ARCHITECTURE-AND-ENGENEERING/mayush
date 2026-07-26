@@ -38,6 +38,7 @@ class ProductTranslationRunJobsTest extends TestCase
         (new ProcessProductTranslationRunJob($run->id))->handle(app(ProductTranslationRepairService::class));
 
         $this->assertDatabaseHas('product_translation_runs', ['id' => $run->id, 'status' => 'paused', 'active_key' => 'global']);
+        $this->assertNotNull($run->fresh()->next_retry_at);
         $this->assertDatabaseHas('product_translation_run_items', ['id' => $item->id, 'status' => 'failed']);
         Queue::assertNotPushed(ProcessProductTranslationRunJob::class);
     }

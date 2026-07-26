@@ -134,7 +134,7 @@ class OpenRouterProductTranslationServiceTest extends TestCase
         $this->assertSame('malformed_response', $result['error_code']);
     }
 
-    public function test_it_returns_rate_limit_after_controlled_retries(): void
+    public function test_it_returns_rate_limit_without_repeating_a_quota_exhausting_request(): void
     {
         $this->configureOpenRouter(2);
         Http::fake(['https://openrouter.ai/*' => Http::response([], 429)]);
@@ -144,7 +144,7 @@ class OpenRouterProductTranslationServiceTest extends TestCase
         $this->assertFalse($result['success']);
         $this->assertSame('rate_limit', $result['error_code']);
         $this->assertSame('Bureau mural', $result['fields']['name']);
-        Http::assertSentCount(3);
+        Http::assertSentCount(1);
     }
 
     public function test_it_honors_openrouter_retry_delay_information(): void

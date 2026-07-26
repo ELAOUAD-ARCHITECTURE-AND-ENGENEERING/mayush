@@ -16,6 +16,9 @@ class CheckProductTranslationConfiguration extends Command
             'key' => config('services.openrouter.key'),
             'model' => config('services.openrouter.model'),
             'api_base' => config('services.openrouter.api_base'),
+            'queue' => config('product_translation.queue') === 'translations' ? 'translations' : null,
+            'queue_connection' => config('product_translation.queue_connection') === 'redis_translations' ? 'redis_translations' : null,
+            'queue_retry_after' => (int) config('queue.connections.redis_translations.retry_after') >= ((int) config('product_translation.worker_timeout', 480) + 60) ? 'valid' : null,
         ];
         $missing = collect($required)
             ->filter(fn ($value) => blank($value))

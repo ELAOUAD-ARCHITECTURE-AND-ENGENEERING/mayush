@@ -24,6 +24,7 @@ class ProductTranslationRunFinalizer
             'active_key' => null,
             'processing_product_id' => null,
             'finished_at' => now(),
+            'next_retry_at' => null,
             'last_progress_at' => now(),
         ])->save();
 

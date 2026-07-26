@@ -31,4 +31,21 @@ class CheckProductTranslationConfigurationTest extends TestCase
             ->expectsOutput('OpenRouter translation configuration is missing: key, model, api_base')
             ->assertExitCode(1);
     }
+
+    public function test_it_fails_when_the_translation_queue_is_not_supervised(): void
+    {
+        config([
+            'services.openrouter.key' => 'test-key',
+            'services.openrouter.model' => 'openrouter/free',
+            'services.openrouter.api_base' => 'https://openrouter.ai/api/v1',
+            'product_translation.queue' => 'default',
+            'product_translation.queue_connection' => 'sync',
+            'queue.connections.redis_translations.retry_after' => 90,
+            'product_translation.worker_timeout' => 480,
+        ]);
+
+        $this->artisan('product-translation:config-check')
+            ->expectsOutput('OpenRouter translation configuration is missing: queue, queue_connection, queue_retry_after')
+            ->assertExitCode(1);
+    }
 }
