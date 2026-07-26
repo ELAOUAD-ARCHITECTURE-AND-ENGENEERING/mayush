@@ -40,22 +40,20 @@ class AiAndFacebookGuardTest extends TestCase
     {
         $this->actingAs(User::factory()->admin()->create());
         BusinessSetting::updateOrCreate(['type' => 'ai_activation'], ['value' => '1']);
-        BusinessSetting::updateOrCreate(['type' => 'gemini_model'], ['value' => 'gemini-test']);
+        BusinessSetting::updateOrCreate(['type' => 'openrouter_model'], ['value' => 'openrouter/free']);
         AiPrompt::updateOrCreate(['identifier' => 'product_add_edit_prompt'], [
             'type' => 'product',
             'prompt' => 'Generate {prompt_fields} for {product_name} in {language}',
         ]);
-        config(['services.gemini.key' => 'fake-key']);
+        config(['services.openrouter.key' => 'fake-key', 'services.openrouter.model' => 'openrouter/free', 'services.openrouter.api_base' => 'https://openrouter.ai/api/v1']);
 
         Http::fake([
-            'generativelanguage.googleapis.com/*' => Http::response([
-                'candidates' => [[
-                    'content' => ['parts' => [['text' => '{"name":"Generated Product"}']]],
-                ]],
-                'usageMetadata' => [
-                    'promptTokenCount' => 2,
-                    'candidatesTokenCount' => 3,
-                    'totalTokenCount' => 5,
+            'openrouter.ai/*' => Http::response([
+                'choices' => [['message' => ['content' => '{"name":"Generated Product"}']]],
+                'usage' => [
+                    'prompt_tokens' => 2,
+                    'completion_tokens' => 3,
+                    'total_tokens' => 5,
                 ],
             ]),
         ]);
@@ -67,7 +65,7 @@ class AiAndFacebookGuardTest extends TestCase
         ]);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertDatabaseHas('ai_usage_logs', ['total_tokens' => 5, 'model' => 'gemini-test']);
+        $this->assertDatabaseHas('ai_usage_logs', ['total_tokens' => 5, 'model' => 'openrouter/free']);
         Http::assertSentCount(1);
     }
 

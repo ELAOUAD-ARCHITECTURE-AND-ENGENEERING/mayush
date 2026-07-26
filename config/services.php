@@ -68,17 +68,19 @@ return [
         'secret_key' => env('TURNSTILE_SECRET_KEY'),
     ],
 
-    'gemini' => [
-        'key' => env('GEMINI_API_KEY'),
-    ],
-
-    'azure_translator' => [
-        'key' => env('AZURE_TRANSLATOR_KEY'),
-        'region' => env('AZURE_TRANSLATOR_REGION'),
-        'endpoint' => env('AZURE_TRANSLATOR_ENDPOINT', 'https://api.cognitive.microsofttranslator.com'),
-        'api_version' => env('AZURE_TRANSLATOR_API_VERSION', '3.0'),
-        'timeout' => env('AZURE_TRANSLATOR_TIMEOUT', 15),
-        'connect_timeout' => env('AZURE_TRANSLATOR_CONNECT_TIMEOUT', 5),
+    'openrouter' => [
+        'key' => env('OPENROUTER_API_KEY'),
+        'model' => env('OPENROUTER_MODEL', 'openrouter/free'),
+        'api_base' => env('OPENROUTER_API_BASE', 'https://openrouter.ai/api/v1'),
+        'site_url' => env('OPENROUTER_SITE_URL', 'https://mayushdesign.com'),
+        'app_name' => env('OPENROUTER_APP_NAME', 'MAYUSH'),
+        'timeout' => (int) env('OPENROUTER_TRANSLATION_TIMEOUT', 90),
+        'max_retries' => (int) env('OPENROUTER_TRANSLATION_MAX_RETRIES', 3),
+        'retry_after' => (int) env('OPENROUTER_TRANSLATION_RETRY_AFTER', 60),
+        'temperature' => (float) env('OPENROUTER_TEMPERATURE', 0.1),
+        'translation_max_payload' => (int) env('OPENROUTER_TRANSLATION_MAX_PAYLOAD', 100000),
+        'embedding_model' => env('OPENROUTER_EMBEDDING_MODEL', 'openai/text-embedding-3-small'),
+        'embedding_dimensions' => (int) env('OPENROUTER_EMBEDDING_DIMENSIONS', 768),
     ],
 
 ];

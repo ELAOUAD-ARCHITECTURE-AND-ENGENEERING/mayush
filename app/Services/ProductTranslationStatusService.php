@@ -130,13 +130,17 @@ class ProductTranslationStatusService
         ];
     }
 
-    public function sourceValues(Product $product): array
+    public function sourceValues(Product $product, bool $onlyMissing = true): array
     {
         $diagnosis = $this->diagnose($product);
+        $translations = $product->relationLoaded('product_translations')
+            ? $product->product_translations
+            : $product->product_translations()->whereIn('lang', [$this->sourceLanguage(), $this->targetLanguage()])->get();
+        $source = $translations->firstWhere('lang', $this->sourceLanguage());
 
         return collect($diagnosis['fields'])
-            ->filter(fn (array $field) => $field['source_present'] && $field['target_state'] !== 'valid')
-            ->mapWithKeys(fn (array $field, string $name) => [$name => $this->rawValue($field['source'])])
+            ->filter(fn (array $field) => $field['source_present'] && (!$onlyMissing || $field['target_state'] !== 'valid'))
+            ->mapWithKeys(fn (array $field, string $name) => [$name => $this->sourceValue($product, $source, $name)])
             ->all();
     }
 
@@ -211,8 +215,4 @@ class ProductTranslationStatusService
         return Str::limit((string) $value, 1000, '…');
     }
 
-    private function rawValue(?string $value): string
-    {
-        return (string) $value;
-    }
 }

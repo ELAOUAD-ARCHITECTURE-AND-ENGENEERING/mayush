@@ -11,6 +11,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -25,12 +26,22 @@ class PrepareProductTranslationRunJob implements ShouldQueue
     public function __construct(public int $runId)
     {
         $this->onQueue((string) config('product_translation.queue', 'translations'));
+        $this->onConnection((string) config('product_translation.queue_connection', config('queue.default', 'sync')));
+    }
+
+    public function middleware(): array
+    {
+        return [
+            (new WithoutOverlapping('product-translation-prepare:'.$this->runId))
+                ->releaseAfter(5)
+                ->expireAfter(900),
+        ];
     }
 
     public function handle(ProductTranslationStatusService $statusService, ProductTranslationRunFinalizer $finalizer): void
     {
         $run = ProductTranslationRun::find($this->runId);
-        if (!$run || !$run->isActive()) {
+        if (!$run || !$run->isActive() || !in_array($run->status, ['queued', 'running'], true)) {
             return;
         }
 
@@ -72,7 +83,7 @@ class PrepareProductTranslationRunJob implements ShouldQueue
                     ProductTranslationRunItem::query()->upsert(
                         $rows,
                         ['run_id', 'product_id'],
-                        ['status', 'missing_fields', 'source_missing_fields', 'completed_at', 'updated_at']
+                        ['missing_fields', 'source_missing_fields', 'updated_at']
                     );
                 }
                 $this->syncCounters($run);
@@ -113,7 +124,7 @@ class PrepareProductTranslationRunJob implements ShouldQueue
             'skipped_count' => (clone $items)->where('status', 'skipped')->count(),
             'failed_count' => (clone $items)->where('status', 'failed')->count(),
             'translated_field_count' => (clone $items)->sum('translated_field_count'),
-            'azure_characters' => (clone $items)->sum('azure_characters'),
+            'translated_characters' => (clone $items)->sum('translated_characters'),
             'last_progress_at' => now(),
         ])->save();
     }
@@ -139,7 +150,7 @@ class PrepareProductTranslationRunJob implements ShouldQueue
             'product.translation_completed',
             'product_translation_run',
             $run->id,
-            'completed',
+            $run->failed_count > 0 ? 'completed_with_errors' : 'completed',
             [$run->user_id],
             [
                 'title' => 'Correction des traductions terminée',

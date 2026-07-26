@@ -20,10 +20,10 @@ class AiService
             ], 403);
         }
 
-        if (!filled(config('services.gemini.key') ?: env('GEMINI_API_KEY'))) {
+        if (!filled(config('services.openrouter.key'))) {
             return response()->json([
                 'success' => false,
-                'message' => translate('Gemini API key is not configured.'),
+                'message' => translate('OpenRouter API key is not configured.'),
             ], 422);
         }
 
@@ -55,10 +55,10 @@ class AiService
             ], 422);
         }
 
-        $config = $fieldMap[$section];
+        $sectionConfig = $fieldMap[$section];
         $prompt = str_replace(
             ['{product_name}', '{language}', '{prompt_fields}'],
-            [$productName, $config['language_target'], $config['prompt_fields']],
+            [$productName, $sectionConfig['language_target'], $sectionConfig['prompt_fields']],
             $promptTemplate
         );
 
@@ -66,24 +66,31 @@ class AiService
             $prompt .= "\nImprove this content:\n" . json_encode($existingData);
         }
 
-        $model = get_setting('gemini_model') ?: 'gemini-2.0-flash-lite';
-        $apiKey = config('services.gemini.key') ?: env('GEMINI_API_KEY');
+        $openRouterConfig = config('services.openrouter', []);
+        $model = get_setting('openrouter_model') ?: ($openRouterConfig['model'] ?? 'openrouter/free');
 
-        $response = Http::timeout(15)
-            ->acceptJson()
-            ->post("https://generativelanguage.googleapis.com/v1/models/{$model}:generateContent?key={$apiKey}", [
-                'contents' => [[
-                    'parts' => [['text' => $prompt]],
-                ]],
-                'generationConfig' => [
-                    'temperature' => 0.7,
-                    'topP' => 0.95,
-                    'maxOutputTokens' => 1024,
-                ],
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer '.(string) ($openRouterConfig['key'] ?? ''),
+        ];
+        if (filled($openRouterConfig['site_url'] ?? null)) {
+            $headers['HTTP-Referer'] = (string) $openRouterConfig['site_url'];
+        }
+        if (filled($openRouterConfig['app_name'] ?? null)) {
+            $headers['X-OpenRouter-Title'] = (string) $openRouterConfig['app_name'];
+        }
+
+        $response = Http::withHeaders($headers)
+            ->timeout((int) ($openRouterConfig['timeout'] ?? 90))
+            ->post(rtrim((string) ($openRouterConfig['api_base'] ?? 'https://openrouter.ai/api/v1'), '/').'/chat/completions', [
+                'model' => $model,
+                'temperature' => 0.7,
+                'stream' => false,
+                'messages' => [['role' => 'user', 'content' => $prompt]],
             ]);
 
         if (!$response->successful()) {
-            Log::warning('Gemini product generation failed', [
+            Log::warning('OpenRouter product generation failed', [
                 'status' => $response->status(),
                 'model' => $model,
             ]);
@@ -95,12 +102,12 @@ class AiService
         }
 
         $result = $response->json();
-        $text = $result['candidates'][0]['content']['parts'][0]['text'] ?? '';
+        $text = $result['choices'][0]['message']['content'] ?? '';
         $text = trim(preg_replace('/^```(?:json)?\s*|\s*```$/m', '', $text));
         $decoded = json_decode($text, true);
 
         if (!is_array($decoded)) {
-            Log::warning('Gemini product generation returned invalid JSON', [
+            Log::warning('OpenRouter product generation returned invalid JSON', [
                 'model' => $model,
                 'json_error' => json_last_error_msg(),
             ]);
@@ -112,11 +119,11 @@ class AiService
         }
 
         $clean = [];
-        foreach ($config['fields'] as $field) {
+        foreach ($sectionConfig['fields'] as $field) {
             $clean[$field] = $decoded[$field] ?? null;
         }
 
-        $this->logUsage($result['usageMetadata'] ?? [], $model);
+        $this->logUsage($result['usage'] ?? [], $model);
 
         return response()->json([
             'success' => true,
@@ -124,7 +131,7 @@ class AiService
             'section' => $section,
             'language' => $language,
             'is_regenerated' => !empty($existingData),
-            'tokens' => $result['usageMetadata'] ?? [],
+            'tokens' => $result['usage'] ?? [],
         ]);
     }
 
@@ -164,9 +171,9 @@ class AiService
 
         AiUsageLog::create([
             'user_id' => auth()->id(),
-            'prompt_tokens' => $tokenUsage['promptTokenCount'] ?? 0,
-            'completion_tokens' => $tokenUsage['candidatesTokenCount'] ?? 0,
-            'total_tokens' => $tokenUsage['totalTokenCount'] ?? 0,
+            'prompt_tokens' => $tokenUsage['prompt_tokens'] ?? 0,
+            'completion_tokens' => $tokenUsage['completion_tokens'] ?? 0,
+            'total_tokens' => $tokenUsage['total_tokens'] ?? 0,
             'model' => $model,
         ]);
     }

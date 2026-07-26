@@ -26,6 +26,6 @@ class ProductTranslationRun extends Model
 
     public function isActive(): bool
     {
-        return in_array($this->status, ['queued', 'running', 'paused'], true);
+        return in_array($this->status, ['queued', 'running', 'paused', 'retrying', 'waiting_for_quota', 'waiting_for_rate_limit'], true);
     }
 }

@@ -126,8 +126,19 @@ class ProductTranslationDiagnosticsController extends Controller
     public function start(Request $request): JsonResponse
     {
         $request->validate(['retry_failed_run_id' => ['nullable', 'integer', 'exists:product_translation_runs,id']]);
-        $active = ProductTranslationRun::query()->whereNotNull('active_key')->whereIn('status', ['queued', 'running', 'paused'])->latest('id')->first();
+        if ($queueError = $this->backgroundQueueError()) {
+            return $queueError;
+        }
+
+        $active = ProductTranslationRun::query()->whereNotNull('active_key')->whereIn('status', ['queued', 'running', 'paused', 'retrying', 'waiting_for_quota', 'waiting_for_rate_limit'])->latest('id')->first();
         if ($active) {
+            if ($active->status === 'paused') {
+                return response()->json([
+                    'message' => 'Cette exécution est en pause. Utilisez « Réessayer les échecs » pour reprendre manuellement.',
+                    'run' => $this->runPayload($active),
+                ]);
+            }
+
             return response()->json(['message' => 'Une traduction automatique est déjà en cours.', 'run' => $this->runPayload($active)], 409);
         }
 
@@ -171,8 +182,10 @@ class ProductTranslationDiagnosticsController extends Controller
         $result = $this->repairService->repair($product);
         Cache::forget('admin:product-translation:summary');
         $statusCode = match ($result['error_code'] ?? null) {
-            'configuration' => 503,
+            'configuration', 'credentials', 'invalid_model', 'account_credit', 'structured_output_unsupported', 'temporary_failure', 'timeout' => 503,
             'rate_limit' => 429,
+            'payload_too_large' => 413,
+            'safety_blocked', 'incomplete_response', 'malformed_response', 'empty_response', 'request_failed' => 422,
             default => ($result['status'] === 'failed' ? 422 : 200),
         };
 
@@ -186,11 +199,28 @@ class ProductTranslationDiagnosticsController extends Controller
     public function retryFailed(ProductTranslationRun $run, Request $request): JsonResponse
     {
         $this->authorizeRun($run);
-        abort_unless($run->status === 'completed_with_errors' || $run->status === 'failed' || $run->status === 'paused', 422, 'Cette exécution ne contient pas de produits à relancer.');
+        if ($queueError = $this->backgroundQueueError()) {
+            return $queueError;
+        }
+
+        abort_unless(in_array($run->status, ['completed_with_errors', 'failed', 'paused', 'retrying', 'waiting_for_quota', 'waiting_for_rate_limit'], true), 422, 'Cette exécution ne contient pas de produits à relancer.');
+        if (in_array($run->status, ['retrying', 'waiting_for_quota', 'waiting_for_rate_limit'], true)) {
+            $run->forceFill([
+                'status' => 'queued',
+                'failure_reason' => null,
+                'processing_product_id' => null,
+                'finished_at' => null,
+                'last_progress_at' => now(),
+            ])->save();
+            ProcessProductTranslationRunJob::dispatch($run->id);
+            $fresh = $run->fresh();
+            return response()->json(['run' => $fresh ? $this->runPayload($fresh) : null, 'message' => 'Le traitement va reprendre.']);
+        }
         if ($run->status === 'paused') {
             DB::transaction(function () use ($run) {
                 $run->items()->where('status', 'failed')->update([
                     'status' => 'pending',
+                    'attempt_count' => 0,
                     'error_message' => null,
                     'completed_at' => null,
                     'updated_at' => now(),
@@ -215,6 +245,17 @@ class ProductTranslationDiagnosticsController extends Controller
     private function authorizeRun(ProductTranslationRun $run): void
     {
         abort_unless(auth()->user()->can('product_edit') || auth()->user()->can('show_all_products'), 403);
+    }
+
+    private function backgroundQueueError(): ?JsonResponse
+    {
+        if (config('product_translation.queue_connection', config('queue.default')) !== 'sync' || app()->runningUnitTests()) {
+            return null;
+        }
+
+        return response()->json([
+            'message' => 'La correction en arrière-plan nécessite une file asynchrone et un worker actif. Configurez PRODUCT_TRANSLATION_QUEUE_CONNECTION sur database ou redis.',
+        ], 503);
     }
 
     private function summaryData(): array
@@ -288,14 +329,35 @@ class ProductTranslationDiagnosticsController extends Controller
             'skipped' => (int) $run->skipped_count,
             'failed' => (int) $run->failed_count,
             'translated_fields' => (int) $run->translated_field_count,
-            'azure_characters' => (int) $run->azure_characters,
+            'translated_characters' => (int) $run->translated_characters,
+            'provider' => $run->provider,
+            'requested_model' => $run->requested_model,
+            'actual_model' => $run->actual_model,
+            'last_operation_id' => $run->last_operation_id,
+            'last_request_duration_ms' => $run->last_request_duration_ms !== null ? (int) $run->last_request_duration_ms : null,
+            'last_input_characters' => $run->last_input_characters !== null ? (int) $run->last_input_characters : null,
+            'last_total_tokens' => $run->last_total_tokens !== null ? (int) $run->last_total_tokens : null,
+            'last_retry_decision' => $run->last_retry_decision,
             'percentage' => $run->total_candidates > 0 ? round(($run->processed_count / $run->total_candidates) * 100, 1) : 0,
             'current_product' => $current ? ['id' => $current->id, 'name' => $current->name, 'thumbnail' => uploaded_asset($current->thumbnail_img)] : null,
             'started_at' => optional($run->started_at)->toIso8601String(),
             'finished_at' => optional($run->finished_at)->toIso8601String(),
             'last_progress_at' => optional($run->last_progress_at)->toIso8601String(),
-            'failure_reason' => $run->failure_reason,
+            'failure_reason' => $this->displayFailureReason($run->failure_reason),
         ];
+    }
+
+    private function displayFailureReason(?string $reason): ?string
+    {
+        if ($reason === null || $reason === '') {
+            return $reason;
+        }
+
+        if (stripos($reason, 'azure') !== false || stripos($reason, 'gemini') !== false) {
+            return 'Cette exécution a été créée avec un ancien fournisseur. Relancez les échecs pour utiliser le service actuel.';
+        }
+
+        return $reason;
     }
 
     private function syncRunCounters(ProductTranslationRun $run): void
@@ -309,7 +371,7 @@ class ProductTranslationDiagnosticsController extends Controller
             'skipped_count' => (clone $items)->where('status', 'skipped')->count(),
             'failed_count' => (clone $items)->where('status', 'failed')->count(),
             'translated_field_count' => (clone $items)->sum('translated_field_count'),
-            'azure_characters' => (clone $items)->sum('azure_characters'),
+            'translated_characters' => (clone $items)->sum('translated_characters'),
             'last_progress_at' => now(),
         ])->save();
     }

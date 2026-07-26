@@ -15,18 +15,18 @@ class SemanticSearchTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_services_config_has_gemini_block(): void
+    public function test_services_config_has_openrouter_block(): void
     {
-        $this->assertIsArray(config('services.gemini'));
-        $this->assertArrayHasKey('key', config('services.gemini'));
+        $this->assertIsArray(config('services.openrouter'));
+        $this->assertArrayHasKey('key', config('services.openrouter'));
     }
 
     public function test_generate_embedding_returns_768_dimensions_with_mocked_api(): void
     {
-        Config::set('services.gemini.key', 'TEST_KEY');
+        Config::set('services.openrouter.key', 'TEST_KEY');
         Http::fake([
-            'generativelanguage.googleapis.com/*' => Http::response([
-                'embedding' => ['values' => array_fill(0, 768, 0.1)],
+            'openrouter.ai/*' => Http::response([
+                'data' => [['embedding' => array_fill(0, 768, 0.1)]],
             ], 200),
         ]);
 
@@ -39,7 +39,7 @@ class SemanticSearchTest extends TestCase
 
     public function test_fallback_returns_32_dim_mock_when_no_key(): void
     {
-        Config::set('services.gemini.key', '');
+        Config::set('services.openrouter.key', '');
 
         $vector = SemanticUtility::generateEmbedding('test product description');
 
@@ -49,9 +49,9 @@ class SemanticSearchTest extends TestCase
 
     public function test_generate_embedding_returns_empty_on_invalid_key(): void
     {
-        Config::set('services.gemini.key', 'INVALID_KEY_12345');
+        Config::set('services.openrouter.key', 'INVALID_KEY_12345');
         Http::fake([
-            'generativelanguage.googleapis.com/*' => Http::response([
+            'openrouter.ai/*' => Http::response([
                 'error' => ['message' => 'API key invalid'],
             ], 403),
         ]);
@@ -110,7 +110,7 @@ class SemanticSearchTest extends TestCase
 
     public function test_sync_embedding_creates_db_record(): void
     {
-        Config::set('services.gemini.key', '');
+        Config::set('services.openrouter.key', '');
         $product = Product::factory()->create();
 
         $this->assertTrue(SemanticUtility::syncEmbedding($product));
@@ -127,7 +127,7 @@ class SemanticSearchTest extends TestCase
 
     public function test_sync_embedding_updates_existing_record(): void
     {
-        Config::set('services.gemini.key', '');
+        Config::set('services.openrouter.key', '');
         $product = Product::factory()->create();
 
         SemanticUtility::syncEmbedding($product);
@@ -140,7 +140,7 @@ class SemanticSearchTest extends TestCase
 
     public function test_similarity_threshold_filters_low_scores(): void
     {
-        Config::set('services.gemini.key', '');
+        Config::set('services.openrouter.key', '');
         $product = Product::factory()->create();
         SemanticUtility::syncEmbedding($product);
 
@@ -154,7 +154,7 @@ class SemanticSearchTest extends TestCase
 
     public function test_search_returns_model_in_results(): void
     {
-        Config::set('services.gemini.key', '');
+        Config::set('services.openrouter.key', '');
         $product = Product::factory()->create(['name' => 'Handmade Ceramic Mug']);
         $vector = SemanticUtility::generateEmbedding($product->name);
 
@@ -177,7 +177,7 @@ class SemanticSearchTest extends TestCase
 
     public function test_reindex_command_runs_without_error(): void
     {
-        Config::set('services.gemini.key', '');
+        Config::set('services.openrouter.key', '');
         Product::factory()->create();
 
         $this->assertSame(0, Artisan::call('search:reindex'));
@@ -185,7 +185,7 @@ class SemanticSearchTest extends TestCase
 
     public function test_stored_embeddings_have_correct_dimensions(): void
     {
-        Config::set('services.gemini.key', '');
+        Config::set('services.openrouter.key', '');
         $product = Product::factory()->create();
         SemanticUtility::syncEmbedding($product);
 

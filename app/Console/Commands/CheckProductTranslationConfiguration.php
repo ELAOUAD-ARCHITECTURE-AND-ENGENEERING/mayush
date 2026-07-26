@@ -8,14 +8,14 @@ class CheckProductTranslationConfiguration extends Command
 {
     protected $signature = 'product-translation:config-check';
 
-    protected $description = 'Verify that Azure Translator configuration is available to this Laravel process.';
+    protected $description = 'Verify that OpenRouter translation configuration is available to this Laravel process.';
 
     public function handle(): int
     {
         $required = [
-            'key' => config('services.azure_translator.key'),
-            'endpoint' => config('services.azure_translator.endpoint'),
-            'api_version' => config('services.azure_translator.api_version'),
+            'key' => config('services.openrouter.key'),
+            'model' => config('services.openrouter.model'),
+            'api_base' => config('services.openrouter.api_base'),
         ];
         $missing = collect($required)
             ->filter(fn ($value) => blank($value))
@@ -23,11 +23,11 @@ class CheckProductTranslationConfiguration extends Command
             ->all();
 
         if ($missing !== []) {
-            $this->error('Azure Translator configuration is missing: '.implode(', ', $missing));
+            $this->error('OpenRouter translation configuration is missing: '.implode(', ', $missing));
             return self::FAILURE;
         }
 
-        $this->info('Azure Translator configuration is available.');
+        $this->info('OpenRouter translation configuration is available.');
         return self::SUCCESS;
     }
 }

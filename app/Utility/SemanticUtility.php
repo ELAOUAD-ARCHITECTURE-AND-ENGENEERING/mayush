@@ -12,39 +12,47 @@ class SemanticUtility
      */
     public static function generateEmbedding($text)
     {
-        $apiKey = config('services.gemini.key');
+        $config = config('services.openrouter', []);
+        $apiKey = $config['key'] ?? null;
         if (empty($apiKey)) {
             if (app()->environment('testing')) {
                 return self::testingFallbackEmbedding($text);
             }
 
-            Log::error("Gemini API Key missing in configuration.");
+            Log::error('OpenRouter API key missing in configuration.');
             return [];
         }
 
         try {
-            $response = \Illuminate\Support\Facades\Http::withHeaders([
+            $headers = [
                 'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={$apiKey}", [
-                'model' => 'models/gemini-embedding-001',
-                'content' => [
-                    'parts' => [
-                        ['text' => $text]
-                    ]
-                ],
-                'outputDimensionality' => 768
-            ]);
+                'Authorization' => 'Bearer '.(string) $apiKey,
+            ];
+            if (filled($config['site_url'] ?? null)) {
+                $headers['HTTP-Referer'] = (string) $config['site_url'];
+            }
+            if (filled($config['app_name'] ?? null)) {
+                $headers['X-OpenRouter-Title'] = (string) $config['app_name'];
+            }
+            $dimensions = (int) ($config['embedding_dimensions'] ?? 768);
+            $response = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                ->timeout((int) ($config['timeout'] ?? 90))
+                ->post(rtrim((string) ($config['api_base'] ?? 'https://openrouter.ai/api/v1'), '/').'/embeddings', [
+                    'model' => (string) ($config['embedding_model'] ?? 'openai/text-embedding-3-small'),
+                    'input' => $text,
+                    'dimensions' => $dimensions,
+                ]);
 
             if ($response->successful()) {
-                $values = $response->json('embedding.values');
-                if (is_array($values) && count($values) === 768) {
+                $values = $response->json('data.0.embedding');
+                if (is_array($values) && count($values) === $dimensions) {
                     return $values;
                 }
             }
             
-            Log::error("Gemini API Error: " . ($response->json('error.message') ?? $response->body()));
+            Log::error('OpenRouter embedding request failed.', ['status' => $response->status()]);
         } catch (\Exception $e) {
-            Log::error("Gemini Request Failed: " . $e->getMessage());
+            Log::error('OpenRouter embedding request failed.', ['exception' => get_class($e)]);
         }
 
         return [];
@@ -145,7 +153,7 @@ class SemanticUtility
                     
                     $score = self::calculateSimilarity($queryVector, $vector);
                     
-                    // Similarity threshold for Gemini 768-dim embeddings
+                    // Similarity threshold for the configured OpenRouter embeddings model.
                     if ($score > 0.68) {
                         $results[] = [
                             'score' => $score,

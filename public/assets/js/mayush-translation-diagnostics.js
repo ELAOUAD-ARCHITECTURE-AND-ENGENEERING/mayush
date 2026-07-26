@@ -6,6 +6,7 @@
 
     var csrf = $('meta[name="csrf-token"]').attr('content');
     var pollTimer = null;
+    var pollFailures = 0;
     var activeRun = root.data('active-run') || null;
     var urls = {
         preview: root.data('preview-url'),
@@ -39,9 +40,9 @@
         $('#run-success').text(run.success || 0);
         $('#run-skipped').text(run.skipped || 0);
         $('#run-failed').text(run.failed || 0);
-        $('#translation-run-status').text({ queued: 'En attente de traitement', running: 'Traitement séquentiel en cours', paused: 'Traitement en pause', completed: 'Correction terminée', completed_with_errors: 'Terminée avec des erreurs', failed: 'Exécution interrompue' }[run.status] || run.status);
-        $('#translation-run-panel').toggleClass('is-paused', run.status === 'paused').toggleClass('is-error', run.status === 'failed' || run.status === 'completed_with_errors');
-        $('#translation-run-connection').text(run.status === 'paused' ? 'En pause' : 'Suivi actif');
+        $('#translation-run-status').text({ queued: 'En attente de traitement', running: 'Traduction automatique séquentielle en cours', retrying: 'Nouvelle tentative automatique en cours', waiting_for_quota: 'Limite temporaire du service atteinte; reprise automatique', waiting_for_rate_limit: 'Limite temporaire du service atteinte; reprise automatique', paused: 'Traitement en pause', completed: 'Correction terminée', completed_with_errors: 'Terminée avec des erreurs', failed: 'Exécution interrompue' }[run.status] || run.status);
+        $('#translation-run-panel').toggleClass('is-paused', run.status === 'paused' || run.status === 'waiting_for_quota' || run.status === 'waiting_for_rate_limit').toggleClass('is-error', run.status === 'failed' || run.status === 'completed_with_errors');
+        $('#translation-run-connection').text(run.status === 'paused' ? 'Relance manuelle' : ((run.status === 'waiting_for_quota' || run.status === 'waiting_for_rate_limit') ? 'Reprise automatique programmée' : 'Suivi actif'));
         if (run.current_product) $('#run-current-product').removeClass('d-none').html('Produit en cours : <strong>' + $('<div>').text(run.current_product.name || ('#' + run.current_product.id)).html() + '</strong>');
         else $('#run-current-product').addClass('d-none');
         if (run.failure_reason) $('#run-warning').removeClass('d-none').text(run.failure_reason); else $('#run-warning').addClass('d-none');
@@ -63,7 +64,21 @@
 
     function poll() {
         if (!activeRun) return;
-        request({ url: urls.progress + '/' + activeRun, method: 'GET' }).done(function (data) { $('#translation-run-connection').text('Suivi actif'); renderRun(data.run); }).fail(function () { $('#translation-run-connection').text('Reconnexion…'); pollTimer = window.setTimeout(poll, 4000); });
+        request({ url: urls.progress + '/' + activeRun, method: 'GET' }).done(function (data) {
+            pollFailures = 0;
+            $('#translation-run-connection').text('Suivi actif');
+            renderRun(data.run);
+        }).fail(function () {
+            pollFailures++;
+            if (pollFailures >= 3) {
+                $('#translation-run-connection').text('Suivi interrompu');
+                $('#run-warning').removeClass('d-none').text('Le suivi de cette exécution est momentanément indisponible. Actualisez la page pour consulter son état.');
+                stopPolling();
+                return;
+            }
+            $('#translation-run-connection').text('Reconnexion…');
+            pollTimer = window.setTimeout(poll, 4000);
+        });
     }
 
     $('#translation-run-start').on('click', function () {
@@ -77,7 +92,14 @@
 
     $('#translation-run-confirm').on('click', function () {
         var button = $(this).prop('disabled', true);
-        request({ url: urls.start, method: 'POST', data: {} }).done(function (data) { $('#translation-run-preview-modal').modal('hide'); renderRun(data.run); }).fail(function (xhr) { alert((xhr.responseJSON && xhr.responseJSON.message) || 'Impossible de démarrer la correction.'); }).always(function () { button.prop('disabled', false); });
+        request({ url: urls.start, method: 'POST', data: {} }).done(function (data) { $('#translation-run-preview-modal').modal('hide'); renderRun(data.run); }).fail(function (xhr) {
+            if (xhr.status === 409 && xhr.responseJSON && xhr.responseJSON.run) {
+                $('#translation-run-preview-modal').modal('hide');
+                renderRun(xhr.responseJSON.run);
+                return;
+            }
+            alert((xhr.responseJSON && xhr.responseJSON.message) || 'Impossible de démarrer la correction.');
+        }).always(function () { button.prop('disabled', false); });
     });
 
     $('#translation-run-retry').on('click', function () {

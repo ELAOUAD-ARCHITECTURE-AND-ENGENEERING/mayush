@@ -999,8 +999,8 @@ class BusinessSettingsController extends Controller
         );
 
         BusinessSetting::updateOrCreate(
-            ['type' => 'gemini_model'],
-            ['value' => $request->gemini_model ?: 'gemini-2.0-flash-lite']
+            ['type' => 'openrouter_model'],
+            ['value' => $request->openrouter_model ?: config('services.openrouter.model', 'openrouter/free')]
         );
 
         Artisan::call('cache:clear');

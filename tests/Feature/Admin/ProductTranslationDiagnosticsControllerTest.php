@@ -37,6 +37,24 @@ class ProductTranslationDiagnosticsControllerTest extends TestCase
         $this->assertSame(1, ProductTranslationRun::count());
     }
 
+    public function test_start_returns_a_paused_run_without_a_conflict(): void
+    {
+        $run = ProductTranslationRun::create([
+            'user_id' => $this->admin->id,
+            'active_key' => 'global',
+            'status' => 'paused',
+            'total_candidates' => 2,
+            'pending_count' => 2,
+            'failure_reason' => 'The previous run was paused.',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->postJson(route('admin.product_translation_diagnostics.start'))
+            ->assertOk()
+            ->assertJsonPath('run.id', $run->id)
+            ->assertJsonPath('run.status', 'paused');
+    }
+
     public function test_customer_cannot_access_translation_diagnostics(): void
     {
         $customer = User::factory()->create(['user_type' => 'customer']);
@@ -55,7 +73,7 @@ class ProductTranslationDiagnosticsControllerTest extends TestCase
             'total_candidates' => 1,
             'processed_count' => 1,
             'failed_count' => 1,
-            'failure_reason' => 'Azure rate limit reached.',
+            'failure_reason' => 'La limite temporaire du service de traduction a été atteinte.',
             'finished_at' => now(),
         ]);
 

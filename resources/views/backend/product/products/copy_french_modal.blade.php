@@ -8,10 +8,14 @@
     $arabicLanguageCode = $arabicLanguageCode ?: optional($activeLanguages->first(function ($language) {
         return (int) ($language->rtl ?? 0) === 1;
     }))->code ?: 'ar';
+    $serverFrenchSource = [];
+    if (isset($product) && $product instanceof \App\Models\Product) {
+        $serverFrenchSource = app(\App\Services\ProductTranslationStatusService::class)->sourceValues($product, false);
+    }
 @endphp
 
 <!-- Button container (displayed when Arabic tab is active) -->
-<div id="copy-french-btn-wrapper" class="mb-3 text-right" data-arabic-language="{{ $arabicLanguageCode }}" style="{{ $currentLang == $arabicLanguageCode ? '' : 'display: none;' }}">
+<div id="copy-french-btn-wrapper" class="mb-3 text-right" data-arabic-language="{{ $arabicLanguageCode }}" data-french-source-fields="{{ e(json_encode($serverFrenchSource, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) }}" style="{{ $currentLang == $arabicLanguageCode ? '' : 'display: none;' }}">
     <button type="button" class="btn btn-sm btn-soft-primary fw-600" id="btn-copy-french-content">
         <i class="las la-copy mr-1 fs-16"></i> {{ translate('Copier le contenu français') }}
     </button>
