@@ -262,6 +262,31 @@ jobs:
             
             REDIS_HOST="${REDIS_HOST:-127.0.0.1}"
             REDIS_PORT="${REDIS_PORT:-6379}"
+
+            # Translation jobs use the same Redis server as the production
+            # queue. If production is configured for a local Redis endpoint,
+            # make the service persistent before validating connectivity.
+            # Managed Redis hosts are never modified by this block.
+            if [[ "$REDIS_HOST" == "127.0.0.1" || "$REDIS_HOST" == "localhost" || "$REDIS_HOST" == "::1" ]]; then
+              if command -v systemctl >/dev/null 2>&1; then
+                redis_service=""
+                for candidate in redis-server redis; do
+                  if systemctl list-unit-files "${candidate}.service" 2>/dev/null | grep -q "${candidate}.service"; then
+                    redis_service="$candidate"
+                    break
+                  fi
+                done
+
+                if [ -z "$redis_service" ]; then
+                  echo "Local Redis service is not installed; installing redis-server..."
+                  sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
+                  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq redis-server
+                  redis_service="redis-server"
+                fi
+
+                sudo systemctl enable --now "${redis_service}.service"
+              fi
+            fi
             
             if [ -z "$REDIS_PASS" ]; then
               echo "REDIS_FAIL: REDIS_PASSWORD is empty in .env"
@@ -273,8 +298,8 @@ jobs:
               sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq redis-tools
             fi
             
-            if ! redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" -a "$REDIS_PASS" ping | grep -q PONG; then
-              echo "REDIS_FAIL: Redis authentication failed for ${REDIS_HOST}:${REDIS_PORT}"
+            if ! REDISCLI_AUTH="$REDIS_PASS" redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" ping | grep -q PONG; then
+              echo "REDIS_FAIL: Redis is unavailable or authentication failed for ${REDIS_HOST}:${REDIS_PORT}"
               exit 1
             fi
             

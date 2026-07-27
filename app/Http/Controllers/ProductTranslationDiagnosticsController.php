@@ -18,6 +18,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
+use Throwable;
 
 class ProductTranslationDiagnosticsController extends Controller
 {
@@ -181,23 +184,8 @@ class ProductTranslationDiagnosticsController extends Controller
             return response()->json(['message' => 'Une traduction automatique est déjà en cours.', 'run' => $active ? $this->runPayload($active) : null], 409);
         }
 
-        try {
-            if ($request->filled('retry_failed_run_id')) {
-                ProcessProductTranslationRunJob::dispatch($run->id);
-            } else {
-                PrepareProductTranslationRunJob::dispatch($run->id);
-            }
-        } catch (\Throwable $e) {
-            $run->forceFill([
-                'status' => 'failed',
-                'active_key' => null,
-                'failure_reason' => 'Impossible d’envoyer la tâche à la file Redis (127.0.0.1:6379). Vérifiez que le service Redis est démarré.',
-            ])->save();
-
-            return response()->json([
-                'message' => 'Le service de file de traitement Redis est inaccessible (tcp://127.0.0.1:6379). Assurez-vous que le serveur Redis est démarré.',
-                'run' => $this->runPayload($run->fresh()),
-            ], 503);
+        if ($queueResponse = $this->dispatchRun($run, ! $request->filled('retry_failed_run_id'))) {
+            return $queueResponse;
         }
 
         return response()->json(['run' => $this->runPayload($run), 'message' => 'La correction automatique a été mise en file d’attente.']);
@@ -290,7 +278,9 @@ class ProductTranslationDiagnosticsController extends Controller
                 'next_retry_at' => null,
                 'last_progress_at' => now(),
             ])->save();
-            ProcessProductTranslationRunJob::dispatch($run->id);
+            if ($queueResponse = $this->dispatchRun($run)) {
+                return $queueResponse;
+            }
             $fresh = $run->fresh();
             return response()->json(['run' => $fresh ? $this->runPayload($fresh) : null, 'message' => 'Le traitement va reprendre.']);
         }
@@ -313,7 +303,9 @@ class ProductTranslationDiagnosticsController extends Controller
                     'last_progress_at' => now(),
                 ])->save();
             });
-            ProcessProductTranslationRunJob::dispatch($run->id);
+            if ($queueResponse = $this->dispatchRun($run)) {
+                return $queueResponse;
+            }
             return response()->json(['run' => $this->runPayload($run->fresh()), 'message' => 'Les produits en échec vont être relancés.']);
         }
 
@@ -371,13 +363,74 @@ class ProductTranslationDiagnosticsController extends Controller
 
         try {
             Queue::connection($connectionName)->size((string) config('product_translation.queue', 'translations'));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
+            Log::error('Product translation queue health check failed.', [
+                'connection' => $connectionName,
+                'queue' => (string) config('product_translation.queue', 'translations'),
+                'exception' => $e,
+            ]);
+
             return response()->json([
-                'message' => 'Le service de file de traitement Redis est inaccessible (tcp://127.0.0.1:6379). Assurez-vous que le serveur Redis est démarré sur votre machine.',
+                'message' => $this->queueUnavailableMessage(),
             ], 503);
         }
 
         return null;
+    }
+
+    private function dispatchRun(ProductTranslationRun $run, bool $prepare = false): ?JsonResponse
+    {
+        try {
+            if ($prepare) {
+                PrepareProductTranslationRunJob::dispatch($run->id);
+            } else {
+                ProcessProductTranslationRunJob::dispatch($run->id);
+            }
+        } catch (Throwable $e) {
+            Log::error('Product translation job dispatch failed.', [
+                'run_id' => $run->id,
+                'connection' => (string) config('product_translation.queue_connection', 'redis_translations'),
+                'queue' => (string) config('product_translation.queue', 'translations'),
+                'exception' => $e,
+            ]);
+
+            DB::transaction(function () use ($run) {
+                $locked = ProductTranslationRun::query()->lockForUpdate()->find($run->id);
+                if (! $locked) {
+                    return;
+                }
+
+                $locked->items()->whereIn('status', ['pending', 'processing'])->update([
+                    'status' => 'failed',
+                    'error_message' => 'La file de traitement Redis est indisponible.',
+                    'completed_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $this->syncRunCounters($locked);
+                $locked->forceFill([
+                    'status' => 'failed',
+                    'active_key' => null,
+                    'processing_product_id' => null,
+                    'failure_reason' => 'Impossible de démarrer la file de traitement. Vérifiez Redis et relancez les échecs.',
+                    'finished_at' => now(),
+                    'next_retry_at' => null,
+                    'last_progress_at' => now(),
+                ])->save();
+            });
+
+            $fresh = $run->fresh();
+            return response()->json([
+                'message' => $this->queueUnavailableMessage(),
+                'run' => $fresh ? $this->runPayload($fresh) : null,
+            ], 503);
+        }
+
+        return null;
+    }
+
+    private function queueUnavailableMessage(): string
+    {
+        return 'Le service de file de traitement est temporairement indisponible. Vérifiez Redis et le worker Horizon, puis réessayez.';
     }
 
     private function summaryData(): array
