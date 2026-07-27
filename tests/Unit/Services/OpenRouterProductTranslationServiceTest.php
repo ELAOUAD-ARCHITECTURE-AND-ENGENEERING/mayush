@@ -286,4 +286,22 @@ class OpenRouterProductTranslationServiceTest extends TestCase
         $this->assertSame('configuration', $result['error_code']);
         $this->assertSame('Bureau mural', $result['fields']['name']);
     }
+
+    public function test_it_includes_fallback_models_in_request_payload(): void
+    {
+        $this->configureOpenRouter();
+        config([
+            'services.openrouter.model' => 'google/gemini-2.0-flash-001',
+            'services.openrouter.fallback_models' => ['openai/gpt-4o-mini', 'deepseek/deepseek-chat'],
+        ]);
+
+        Http::fake(function (HttpRequest $request) {
+            $data = json_decode($request->body(), true);
+            $this->assertEquals(['google/gemini-2.0-flash-001', 'openai/gpt-4o-mini', 'deepseek/deepseek-chat'], $data['models'] ?? []);
+            return $this->response(['name' => 'مكتب']);
+        });
+
+        $result = app(OpenRouterProductTranslationService::class)->translateFields(['name' => 'Bureau']);
+        $this->assertTrue($result['success']);
+    }
 }

@@ -13,7 +13,8 @@
         preview: root.data('preview-url'),
         start: root.data('start-url'),
         progress: root.data('progress-base-url'),
-        retry: root.data('retry-base-url')
+        retry: root.data('retry-base-url'),
+        stop: root.data('stop-base-url')
     };
 
     function request(options) {
@@ -71,6 +72,8 @@
         if (!run) return;
         showRun();
         activeRun = run.id;
+        var isRunning = ['queued', 'running', 'retrying', 'waiting_for_quota', 'waiting_for_rate_limit', 'paused'].indexOf(run.status) !== -1;
+        $('#translation-run-stop').toggleClass('d-none', !isRunning);
         var pct = Math.min(100, Math.max(0, Number(run.percentage || 0)));
         $('#translation-run-progress').css('width', pct + '%').attr('aria-valuenow', pct);
         $('#run-processed').text((run.processed || 0) + ' / ' + (run.total || 0));
@@ -119,24 +122,75 @@
         });
     }
 
+    function showNoticeModal(message, title, iconClass, btnClass) {
+        title = title || 'Information';
+        iconClass = iconClass || 'la-info-circle text-primary';
+        btnClass = btnClass || 'btn-primary';
+
+        $('#translation-notice-title').text(title);
+        $('#translation-notice-message').text(message);
+        $('#notice-modal-icon').attr('class', 'las ' + iconClass);
+        $('#translation-notice-cancel-btn').addClass('d-none');
+        $('#translation-notice-confirm-btn').attr('class', 'btn btn-sm px-4 ' + btnClass).text('OK').off('click');
+        $('#translation-notice-modal').modal('show');
+    }
+
+    function showConfirmModal(message, title, onConfirm) {
+        title = title || 'Confirmation';
+        $('#translation-notice-title').text(title);
+        $('#translation-notice-message').text(message);
+        $('#notice-modal-icon').attr('class', 'las la-question-circle text-warning');
+        $('#translation-notice-cancel-btn').removeClass('d-none');
+        $('#translation-notice-confirm-btn').attr('class', 'btn btn-sm btn-danger px-4').text('Confirmer').off('click').on('click', function () {
+            if (typeof onConfirm === 'function') onConfirm();
+        });
+        $('#translation-notice-modal').modal('show');
+    }
+
+    var maxProcessable = 0;
+
     $('#translation-run-start').on('click', function () {
         request({ url: urls.preview, method: 'GET' }).done(function (data) {
-            $('#preview-products').text(data.processable || 0);
+            maxProcessable = parseInt(data.processable || 0, 10);
+            $('#preview-products').text(maxProcessable);
             $('#preview-fields').text(data.estimated_fields || 0);
-            $('#preview-characters').text(data.estimated_characters || 0);
+            $('#preview-limit-total-addon').text('/ ' + maxProcessable);
+            var limitInput = $('#preview-limit-input');
+            limitInput.attr('max', maxProcessable > 0 ? maxProcessable : 1);
+            if (!limitInput.val() || parseInt(limitInput.val(), 10) > maxProcessable || parseInt(limitInput.val(), 10) < 1) {
+                limitInput.val(maxProcessable > 0 ? maxProcessable : '');
+            }
             $('#translation-run-preview-modal').modal('show');
-        }).fail(function (xhr) { alert((xhr.responseJSON && xhr.responseJSON.message) || 'Impossible de préparer la correction.'); });
+        }).fail(function (xhr) {
+            showNoticeModal((xhr.responseJSON && xhr.responseJSON.message) || 'Impossible de préparer la correction.', 'Erreur', 'la-exclamation-triangle text-danger', 'btn-danger');
+        });
     });
 
     $('#translation-run-confirm').on('click', function () {
+        var limitInput = $('#preview-limit-input');
+        var limitVal = parseInt(limitInput.val(), 10);
+        if (isNaN(limitVal) || limitVal < 1) {
+            showNoticeModal('Le nombre de produits à traduire doit être supérieur ou égal à 1.', 'Attention', 'la-exclamation-circle text-warning', 'btn-warning');
+            limitInput.focus();
+            return;
+        }
+        if (maxProcessable > 0 && limitVal > maxProcessable) {
+            showNoticeModal('Le nombre de produits à traduire ne peut pas dépasser le total des produits éligibles (' + maxProcessable + ').', 'Attention', 'la-exclamation-circle text-warning', 'btn-warning');
+            limitInput.val(maxProcessable).focus();
+            return;
+        }
+
         var button = $(this).prop('disabled', true);
-        request({ url: urls.start, method: 'POST', data: {} }).done(function (data) { $('#translation-run-preview-modal').modal('hide'); renderRun(data.run); }).fail(function (xhr) {
+        request({ url: urls.start, method: 'POST', data: { limit: limitVal } }).done(function (data) {
+            $('#translation-run-preview-modal').modal('hide');
+            renderRun(data.run);
+        }).fail(function (xhr) {
             if (xhr.status === 409 && xhr.responseJSON && xhr.responseJSON.run) {
                 $('#translation-run-preview-modal').modal('hide');
                 renderRun(xhr.responseJSON.run);
                 return;
             }
-            alert((xhr.responseJSON && xhr.responseJSON.message) || 'Impossible de démarrer la correction.');
+            showNoticeModal((xhr.responseJSON && xhr.responseJSON.message) || 'Impossible de démarrer la correction.', 'Erreur de démarrage', 'la-exclamation-triangle text-danger', 'btn-danger');
         }).always(function () { button.prop('disabled', false); });
     });
 
@@ -144,7 +198,20 @@
         if (!activeRun) return;
         request({ url: urls.retry + '/' + activeRun + '/retry-failed', method: 'POST' }).done(function (data) { renderRun(data.run); }).fail(function (xhr) {
             if (xhr.responseJSON && xhr.responseJSON.run) renderRun(xhr.responseJSON.run);
-            alert((xhr.responseJSON && xhr.responseJSON.message) || 'Impossible de relancer les échecs.');
+            showNoticeModal((xhr.responseJSON && xhr.responseJSON.message) || 'Impossible de relancer les échecs.', 'Erreur de relance', 'la-exclamation-triangle text-danger', 'btn-danger');
+        });
+    });
+
+    $('#translation-run-stop').on('click', function () {
+        if (!activeRun) return;
+        showConfirmModal('Voulez-vous vraiment arrêter l’exécution de la traduction ?', 'Arrêter la traduction', function () {
+            var button = $('#translation-run-stop').prop('disabled', true);
+            request({ url: urls.stop + '/' + activeRun + '/stop', method: 'POST' }).done(function (data) {
+                renderRun(data.run);
+            }).fail(function (xhr) {
+                if (xhr.responseJSON && xhr.responseJSON.run) renderRun(xhr.responseJSON.run);
+                showNoticeModal((xhr.responseJSON && xhr.responseJSON.message) || 'Impossible d’arrêter la traduction.', 'Erreur', 'la-exclamation-triangle text-danger', 'btn-danger');
+            }).always(function () { button.prop('disabled', false); });
         });
     });
 
@@ -152,13 +219,36 @@
         var button = $(this), original = button.html();
         var keepDisabled = false;
         button.prop('disabled', true).html('<i class="las la-spinner la-spin"></i>');
-        request({ url: button.data('url'), method: 'POST' }).done(function (data) { if (data.success) window.location.reload(); else alert(data.message || 'Le produit n’a pas été corrigé.'); }).fail(function (xhr) {
-            if (xhr.status === 429) {
-                keepDisabled = true;
-                holdRepairButton(button, original, retryAfterSeconds(xhr));
-            }
-            alert((xhr.responseJSON && xhr.responseJSON.message) || 'La limite temporaire du service de traduction est active.');
-        }).always(function () { if (!keepDisabled) button.prop('disabled', false).html(original); });
+        request({ url: button.data('url'), method: 'POST' })
+            .done(function (data) {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    button.prop('disabled', false).html(original);
+                    var msg = data.message || 'Le produit n’a pas été corrigé.';
+                    if (window.AIZ && window.AIZ.plugins && window.AIZ.plugins.notify) {
+                        window.AIZ.plugins.notify('warning', msg);
+                    } else {
+                        showNoticeModal(msg, 'Information', 'la-exclamation-circle text-warning', 'btn-warning');
+                    }
+                }
+            })
+            .fail(function (xhr) {
+                button.prop('disabled', false).html(original);
+                if (xhr.status === 429) {
+                    keepDisabled = true;
+                    holdRepairButton(button, original, retryAfterSeconds(xhr));
+                }
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Impossible de traduire ce produit pour le moment.';
+                if (window.AIZ && window.AIZ.plugins && window.AIZ.plugins.notify) {
+                    window.AIZ.plugins.notify('danger', msg);
+                } else {
+                    showNoticeModal(msg, 'Erreur de traduction', 'la-exclamation-triangle text-danger', 'btn-danger');
+                }
+            })
+            .always(function () {
+                if (!keepDisabled) button.prop('disabled', false).html(original);
+            });
     });
 
     if (activeRun) { showRun(); poll(); }

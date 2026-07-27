@@ -20,6 +20,8 @@ class OpenRouterProductTranslationService implements ProductTranslationService
 
     public function translateFields(array $fields, string $sourceLanguage = 'fr', string $targetLanguage = 'ar'): array
     {
+        $fields = $this->sanitizeFieldsHtml($fields);
+
         $result = [
             'success' => true,
             'fields' => $fields,
@@ -141,8 +143,13 @@ class OpenRouterProductTranslationService implements ProductTranslationService
     private function request(array $fields, array $schema, string $sourceLanguage, string $targetLanguage, array $config, string $operationId, int $inputCharacters): array
     {
         $endpoint = rtrim((string) $config['api_base'], '/').'/chat/completions';
+        $modelsList = array_values(array_unique(array_filter(array_merge(
+            [(string) $config['model']],
+            (array) ($config['fallback_models'] ?? [])
+        ))));
+
         $body = [
-            'model' => (string) $config['model'],
+            'model' => $modelsList[0] ?? (string) $config['model'],
             'temperature' => (float) ($config['temperature'] ?? 0.1),
             'stream' => false,
             'messages' => [[
@@ -153,6 +160,9 @@ class OpenRouterProductTranslationService implements ProductTranslationService
                 'content' => $this->prompt->build(['fields' => $fields], $sourceLanguage, $targetLanguage),
             ]],
         ];
+        if (count($modelsList) > 1) {
+            $body['models'] = $modelsList;
+        }
         $body['response_format'] = $this->strictResponseFormat($schema);
         $body['provider'] = ['require_parameters' => true];
 
@@ -450,6 +460,13 @@ class OpenRouterProductTranslationService implements ProductTranslationService
 
         $pathKey = $this->pathKey($path);
         $stringValue = is_string($value) ? $value : null;
+
+        if ($stringValue !== null && $this->containsHtml($stringValue)) {
+            $stringValue = preg_replace('/<span[^>]*class="[^"]*selectionAnchor[^"]*"[^>]*>.*?<\/span>/i', '', $stringValue);
+            $stringValue = preg_replace('/\s*data-(start|end|section-id)="[^"]*"/i', '', $stringValue);
+            $stringValue = preg_replace('/<p>\s*<\/p>/i', '', $stringValue);
+        }
+
         $eligible = $stringValue !== null
             && trim($stringValue) !== ''
             && $this->isTranslatableValue((string) end($path), $stringValue)
@@ -484,10 +501,18 @@ class OpenRouterProductTranslationService implements ProductTranslationService
             }
 
             if ($record['html']) {
-                if (!str_contains($current, $record['token'])) {
+                if (str_contains($current, $record['token'])) {
+                    $current = str_replace($record['token'], $record['value'], $current);
+                } elseif (preg_match('/^<\/[a-z0-9]+>$/i', trim($record['value']))) {
+                    if (preg_match('/(<\/li>|<\/p>|<li|<p|$)/i', $current, $matches, PREG_OFFSET_CAPTURE)) {
+                        $pos = $matches[0][1];
+                        $current = substr_replace($current, $record['value'], $pos, 0);
+                    } else {
+                        $current .= $record['value'];
+                    }
+                } else {
                     return [$decoded, false];
                 }
-                $current = str_replace($record['token'], $record['value'], $current);
             } elseif ($current !== $record['token']) {
                 return [$decoded, false];
             } else {
@@ -508,7 +533,12 @@ class OpenRouterProductTranslationService implements ProductTranslationService
                 continue;
             }
 
-            if ($this->htmlTags($source) !== $this->htmlTags($target)) {
+            $srcCounts = array_count_values($this->htmlTags($source));
+            $tgtCounts = array_count_values($this->htmlTags($target));
+            ksort($srcCounts);
+            ksort($tgtCounts);
+
+            if ($srcCounts !== $tgtCounts) {
                 return false;
             }
             if (preg_match('/<\/?(?:script|style|iframe|object|embed|form)(?:\s|>)/i', $target)) {
@@ -694,5 +724,25 @@ class OpenRouterProductTranslationService implements ProductTranslationService
         if (is_string($fields) && trim($fields) !== '') {
             $paths[] = $this->pathKey($prefix);
         }
+    }
+
+    private function sanitizeFieldsHtml(mixed $fields): mixed
+    {
+        if (is_array($fields)) {
+            $cleaned = [];
+            foreach ($fields as $key => $value) {
+                $cleaned[$key] = $this->sanitizeFieldsHtml($value);
+            }
+            return $cleaned;
+        }
+
+        if (is_string($fields) && $this->containsHtml($fields)) {
+            $cleaned = preg_replace('/<span[^>]*class="[^"]*selectionAnchor[^"]*"[^>]*>.*?<\/span>/i', '', $fields);
+            $cleaned = preg_replace('/\s*data-(start|end|section-id)="[^"]*"/i', '', $cleaned);
+            $cleaned = preg_replace('/<p>\s*<\/p>/i', '', $cleaned);
+            return trim($cleaned);
+        }
+
+        return $fields;
     }
 }

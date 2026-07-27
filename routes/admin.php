@@ -185,6 +185,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::post('/start', 'start')->name('admin.product_translation_diagnostics.start');
         Route::get('/runs/{run}', 'progress')->name('admin.product_translation_diagnostics.progress');
         Route::post('/runs/{run}/retry-failed', 'retryFailed')->name('admin.product_translation_diagnostics.retry_failed');
+        Route::post('/runs/{run}/stop', 'stop')->name('admin.product_translation_diagnostics.stop');
         Route::post('/products/{product}/repair', 'repair')->name('admin.product_translation_diagnostics.repair');
     });
 
