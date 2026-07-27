@@ -117,4 +117,35 @@ class ProductTranslationDiagnosticsControllerTest extends TestCase
             ->assertJsonPath('result.error_code', 'rate_limit')
             ->assertHeader('Retry-After', (string) $retryAfter);
     }
+
+    public function test_start_accepts_and_stores_batch_limit(): void
+    {
+        Queue::fake();
+
+        $response = $this->actingAs($this->admin)->postJson(route('admin.product_translation_diagnostics.start'), ['limit' => 25]);
+        $response->assertOk()
+            ->assertJsonPath('run.status', 'queued')
+            ->assertJsonPath('run.limit_count', 25);
+
+        $this->assertSame(25, ProductTranslationRun::first()->limit_count);
+    }
+
+    public function test_authorized_user_can_stop_running_translation(): void
+    {
+        $run = ProductTranslationRun::create([
+            'user_id' => $this->admin->id,
+            'active_key' => 'global',
+            'status' => 'running',
+            'total_candidates' => 10,
+            'pending_count' => 5,
+            'processed_count' => 5,
+        ]);
+
+        $response = $this->actingAs($this->admin)->postJson(route('admin.product_translation_diagnostics.stop', ['run' => $run->id]));
+        $response->assertOk()
+            ->assertJsonPath('run.status', 'failed')
+            ->assertJsonPath('run.failure_reason', 'Traduction interrompue par l’utilisateur.');
+
+        $this->assertNull(ProductTranslationRun::find($run->id)->active_key);
+    }
 }

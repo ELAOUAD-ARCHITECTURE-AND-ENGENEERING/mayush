@@ -51,6 +51,9 @@ class PrepareProductTranslationRunJob implements ShouldQueue
             'last_progress_at' => now(),
         ])->save();
 
+        $limitCount = $run->limit_count ? (int) $run->limit_count : null;
+        $pendingSeeded = 0;
+
         Product::query()
             ->without(['taxes', 'thumbnail'])
             ->select(['id', 'name', 'unit', 'description', 'meta_title', 'meta_description', 'meta_keywords', 'draft'])
@@ -60,14 +63,20 @@ class PrepareProductTranslationRunJob implements ShouldQueue
                     ->whereIn('lang', [$statusService->sourceLanguage(), $statusService->targetLanguage()]);
             }])
             ->orderBy('id')
-            ->chunkById((int) config('product_translation.chunk_size', 100), function ($products) use ($run, $statusService) {
+            ->chunkById((int) config('product_translation.chunk_size', 100), function ($products) use ($run, $statusService, $limitCount, &$pendingSeeded) {
                 $rows = [];
                 foreach ($products as $product) {
+                    if ($limitCount !== null && $pendingSeeded >= $limitCount) {
+                        break;
+                    }
                     $diagnosis = $statusService->diagnose($product);
                     if ($diagnosis['status'] === ProductTranslationStatusService::COMPLETE) {
                         continue;
                     }
                     $sourceMissing = $diagnosis['source_missing_fields'] !== [];
+                    if (!$sourceMissing) {
+                        $pendingSeeded++;
+                    }
                     $rows[] = [
                         'run_id' => $run->id,
                         'product_id' => $product->id,
@@ -87,6 +96,10 @@ class PrepareProductTranslationRunJob implements ShouldQueue
                     );
                 }
                 $this->syncCounters($run);
+
+                if ($limitCount !== null && $pendingSeeded >= $limitCount) {
+                    return false;
+                }
             });
 
         $this->syncCounters($run);

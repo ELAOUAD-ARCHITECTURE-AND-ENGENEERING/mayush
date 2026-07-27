@@ -71,6 +71,7 @@ return [
     'openrouter' => [
         'key' => env('OPENROUTER_API_KEY'),
         'model' => env('OPENROUTER_MODEL', 'openrouter/free'),
+        'fallback_models' => array_values(array_filter(array_map('trim', explode(',', (string) env('OPENROUTER_FALLBACK_MODELS', ''))))),
         'api_base' => env('OPENROUTER_API_BASE', 'https://openrouter.ai/api/v1'),
         'site_url' => env('OPENROUTER_SITE_URL', 'https://mayushdesign.com'),
         'app_name' => env('OPENROUTER_APP_NAME', 'MAYUSH'),

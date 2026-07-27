@@ -127,12 +127,28 @@ class ProductTranslationDiagnosticsController extends Controller
 
     public function start(Request $request): JsonResponse
     {
-        $request->validate(['retry_failed_run_id' => ['nullable', 'integer', 'exists:product_translation_runs,id']]);
+        $request->validate([
+            'retry_failed_run_id' => ['nullable', 'integer', 'exists:product_translation_runs,id'],
+            'limit' => ['nullable', 'integer', 'min:1'],
+        ]);
         if ($queueError = $this->backgroundQueueError()) {
             return $queueError;
         }
 
         $active = ProductTranslationRun::query()->whereNotNull('active_key')->whereIn('status', ['queued', 'running', 'paused', 'retrying', 'waiting_for_quota', 'waiting_for_rate_limit'])->latest('id')->first();
+        if ($active && in_array($active->status, ['queued', 'running', 'retrying'], true)) {
+            $lastProgress = $active->last_progress_at ?: $active->updated_at;
+            if ($lastProgress && now()->diffInSeconds($lastProgress) > 120) {
+                $active->forceFill([
+                    'status' => 'paused',
+                    'active_key' => null,
+                    'failure_reason' => 'Le worker de file d’attente est inactif. Cliquez sur « Réessayer les échecs » pour reprendre.',
+                    'last_progress_at' => now(),
+                ])->save();
+                $active = null;
+            }
+        }
+
         if ($active) {
             if ($active->status === 'paused') {
                 return response()->json([
@@ -150,6 +166,7 @@ class ProductTranslationDiagnosticsController extends Controller
                     'user_id' => auth()->id(),
                     'active_key' => 'global',
                     'status' => 'queued',
+                    'limit_count' => $request->filled('limit') ? $request->integer('limit') : null,
                     'last_progress_at' => now(),
                 ]);
                 if ($request->filled('retry_failed_run_id')) {
@@ -164,10 +181,23 @@ class ProductTranslationDiagnosticsController extends Controller
             return response()->json(['message' => 'Une traduction automatique est déjà en cours.', 'run' => $active ? $this->runPayload($active) : null], 409);
         }
 
-        if ($request->filled('retry_failed_run_id')) {
-            ProcessProductTranslationRunJob::dispatch($run->id);
-        } else {
-            PrepareProductTranslationRunJob::dispatch($run->id);
+        try {
+            if ($request->filled('retry_failed_run_id')) {
+                ProcessProductTranslationRunJob::dispatch($run->id);
+            } else {
+                PrepareProductTranslationRunJob::dispatch($run->id);
+            }
+        } catch (\Throwable $e) {
+            $run->forceFill([
+                'status' => 'failed',
+                'active_key' => null,
+                'failure_reason' => 'Impossible d’envoyer la tâche à la file Redis (127.0.0.1:6379). Vérifiez que le service Redis est démarré.',
+            ])->save();
+
+            return response()->json([
+                'message' => 'Le service de file de traitement Redis est inaccessible (tcp://127.0.0.1:6379). Assurez-vous que le serveur Redis est démarré.',
+                'run' => $this->runPayload($run->fresh()),
+            ], 503);
         }
 
         return response()->json(['run' => $this->runPayload($run), 'message' => 'La correction automatique a été mise en file d’attente.']);
@@ -291,6 +321,35 @@ class ProductTranslationDiagnosticsController extends Controller
         return $this->start($request);
     }
 
+    public function stop(ProductTranslationRun $run): JsonResponse
+    {
+        $this->authorizeRun($run);
+
+        DB::transaction(function () use ($run) {
+            $run = ProductTranslationRun::query()->lockForUpdate()->find($run->id);
+            if (!$run) {
+                return;
+            }
+
+            $run->forceFill([
+                'status' => 'failed',
+                'active_key' => null,
+                'processing_product_id' => null,
+                'failure_reason' => 'Traduction interrompue par l’utilisateur.',
+                'finished_at' => now(),
+                'last_progress_at' => now(),
+                'next_retry_at' => null,
+            ])->save();
+        });
+
+        Cache::forget('admin:product-translation:summary');
+
+        return response()->json([
+            'run' => $this->runPayload($run->fresh()),
+            'message' => 'La traduction automatique a été arrêtée.',
+        ]);
+    }
+
     private function authorizeRun(ProductTranslationRun $run): void
     {
         abort_unless(auth()->user()->can('product_edit') || auth()->user()->can('show_all_products'), 403);
@@ -298,13 +357,27 @@ class ProductTranslationDiagnosticsController extends Controller
 
     private function backgroundQueueError(): ?JsonResponse
     {
-        if (config('product_translation.queue_connection', config('queue.default')) !== 'sync' || app()->runningUnitTests()) {
+        if (app()->runningUnitTests()) {
             return null;
         }
 
-        return response()->json([
-            'message' => 'La correction en arrière-plan nécessite une file asynchrone et un worker actif. Configurez PRODUCT_TRANSLATION_QUEUE_CONNECTION sur redis_translations.',
-        ], 503);
+        $connectionName = config('product_translation.queue_connection', config('queue.default'));
+
+        if ($connectionName === 'sync') {
+            return response()->json([
+                'message' => 'La correction en arrière-plan nécessite une file asynchrone et un worker actif. Configurez PRODUCT_TRANSLATION_QUEUE_CONNECTION sur redis_translations.',
+            ], 503);
+        }
+
+        try {
+            Queue::connection($connectionName)->size((string) config('product_translation.queue', 'translations'));
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Le service de file de traitement Redis est inaccessible (tcp://127.0.0.1:6379). Assurez-vous que le serveur Redis est démarré sur votre machine.',
+            ], 503);
+        }
+
+        return null;
     }
 
     private function summaryData(): array
@@ -371,6 +444,7 @@ class ProductTranslationDiagnosticsController extends Controller
         return [
             'id' => $run->id,
             'status' => $run->status,
+            'limit_count' => $run->limit_count !== null ? (int) $run->limit_count : null,
             'total' => (int) $run->total_candidates,
             'pending' => (int) $run->pending_count,
             'processed' => (int) $run->processed_count,

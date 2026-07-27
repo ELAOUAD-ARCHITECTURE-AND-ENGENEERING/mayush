@@ -43,6 +43,7 @@
     data-start-url="{{ route('admin.product_translation_diagnostics.start') }}"
     data-progress-base-url="{{ url('/admin/products/translation-diagnostics/runs') }}"
     data-retry-base-url="{{ url('/admin/products/translation-diagnostics/runs') }}"
+    data-stop-base-url="{{ url('/admin/products/translation-diagnostics/runs') }}"
     data-target-language="{{ $diagnoses ? ($diagnoses[array_key_first($diagnoses)]['target_language'] ?? 'ma') : 'ma' }}"
     data-active-run="{{ $activeRun?->id }}">
     <div class="aiz-titlebar d-flex align-items-center justify-content-between flex-wrap mb-3">
@@ -59,7 +60,12 @@
         <div class="card-body">
             <div class="d-flex align-items-start justify-content-between flex-wrap">
                 <div><h2 class="h5 mb-1">Correction en arrière-plan</h2><p class="text-muted mb-0" id="translation-run-status">Préparation…</p></div>
-                <span class="badge badge-soft-primary mt-1" id="translation-run-connection">Suivi actif</span>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                    <span class="badge badge-soft-primary" id="translation-run-connection">Suivi actif</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger ml-2 d-none" id="translation-run-stop" title="Arrêter l'exécution en cours">
+                        <i class="las la-stop-circle mr-1"></i> Arrêter
+                    </button>
+                </div>
             </div>
             <div class="progress mt-3" role="progressbar" aria-label="Progression de la correction" aria-valuemin="0" aria-valuemax="100"><div id="translation-run-progress" class="progress-bar bg-primary" style="width:0%"></div></div>
             <div class="row mt-3 small text-muted">
@@ -127,8 +133,75 @@
     </div>
 </div>
 
-<div class="modal fade" id="translation-run-preview-modal" tabindex="-1" role="dialog" aria-labelledby="translation-run-preview-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered" role="document"><div class="modal-content"><div class="modal-header"><h2 class="modal-title h5" id="translation-run-preview-title">Confirmer la correction</h2><button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button></div><div class="modal-body"><p>La correction automatique traite les produits un par un. Les champs arabes déjà valides seront conservés.</p><dl class="row mb-0"><dt class="col-7">Produits concernés</dt><dd class="col-5 text-right" id="preview-products">—</dd><dt class="col-7">Champs estimés</dt><dd class="col-5 text-right" id="preview-fields">—</dd><dt class="col-7">Caractères estimés</dt><dd class="col-5 text-right" id="preview-characters">—</dd></dl><div class="alert alert-warning mt-3 mb-0 small">Une seule exécution peut être active à la fois.</div></div><div class="modal-footer"><button type="button" class="btn btn-light" data-dismiss="modal">Annuler</button><button type="button" class="btn btn-primary" id="translation-run-confirm"><i class="las la-play mr-1"></i> Démarrer</button></div></div></div></div>
-<div class="modal fade" id="translation-run-result-modal" tabindex="-1" role="dialog" aria-labelledby="translation-run-result-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered" role="document"><div class="modal-content"><div class="modal-header"><h2 class="modal-title h5" id="translation-run-result-title">Correction terminée</h2></div><div class="modal-body" id="translation-run-result-body"></div><div class="modal-footer"><button type="button" class="btn btn-primary" data-dismiss="modal">Fermer</button></div></div></div></div>
+<div class="modal fade" id="translation-run-preview-modal" tabindex="-1" role="dialog" aria-labelledby="translation-run-preview-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="translation-run-preview-title">Confirmer la correction</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>La correction automatique traite les produits un par un. Les champs arabes déjà valides seront conservés.</p>
+                <dl class="row mb-0">
+                    <dt class="col-7">Produits éligibles</dt><dd class="col-5 text-right" id="preview-products">—</dd>
+                    <dt class="col-7">Champs estimés</dt><dd class="col-5 text-right" id="preview-fields">—</dd>
+                </dl>
+                <div class="form-group mt-3 mb-2">
+                    <label for="preview-limit-input" class="fw-600">Nombre de produits à traduire dans ce lot</label>
+                    <div class="input-group">
+                        <input type="number" id="preview-limit-input" class="form-control" min="1" step="1" placeholder="Ex: 50">
+                        <div class="input-group-append"><span class="input-group-text text-muted" id="preview-limit-total-addon">/ —</span></div>
+                    </div>
+                    <small class="form-text text-muted">Entrez une valeur entre 1 et le total des produits éligibles (ou laissez la valeur max pour tout traiter).</small>
+                </div>
+                <div class="alert alert-warning mt-3 mb-0 small">Une seule exécution peut être active à la fois.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="translation-run-confirm"><i class="las la-play mr-1"></i> Démarrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="translation-run-result-modal" tabindex="-1" role="dialog" aria-labelledby="translation-run-result-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="translation-run-result-title">Correction terminée</h2>
+            </div>
+            <div class="modal-body" id="translation-run-result-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="translation-notice-modal" tabindex="-1" role="dialog" aria-labelledby="translation-notice-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+            <div class="modal-header border-0 bg-light pb-2 pt-3">
+                <div class="d-flex align-items-center">
+                    <div id="notice-modal-icon-container" class="mr-2 fs-22">
+                        <i id="notice-modal-icon" class="las la-info-circle text-primary"></i>
+                    </div>
+                    <h2 class="modal-title h5 font-weight-bold mb-0" id="translation-notice-title">Notification</h2>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body py-4">
+                <p id="translation-notice-message" class="mb-0 text-dark fs-14" style="line-height: 1.6;"></p>
+            </div>
+            <div class="modal-footer border-0 bg-light pt-2 pb-3">
+                <button type="button" class="btn btn-sm btn-secondary d-none" id="translation-notice-cancel-btn" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-sm btn-primary px-4" id="translation-notice-confirm-btn" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
