@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
+use Throwable;
 
 class CheckProductTranslationConfiguration extends Command
 {
@@ -19,6 +21,7 @@ class CheckProductTranslationConfiguration extends Command
             'queue' => config('product_translation.queue') === 'translations' ? 'translations' : null,
             'queue_connection' => config('product_translation.queue_connection') === 'redis_translations' ? 'redis_translations' : null,
             'queue_retry_after' => (int) config('queue.connections.redis_translations.retry_after') >= ((int) config('product_translation.worker_timeout', 480) + 60) ? 'valid' : null,
+            'redis' => $this->redisIsReachable() ? 'reachable' : null,
         ];
         $missing = collect($required)
             ->filter(fn ($value) => blank($value))
@@ -32,5 +35,20 @@ class CheckProductTranslationConfiguration extends Command
 
         $this->info('OpenRouter translation configuration is available.');
         return self::SUCCESS;
+    }
+
+    private function redisIsReachable(): bool
+    {
+        if (app()->runningUnitTests()) {
+            return true;
+        }
+
+        try {
+            Redis::connection((string) config('queue.connections.redis_translations.connection', 'default'))->ping();
+
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
     }
 }
