@@ -172,7 +172,6 @@ Route::controller(HomeController::class)->group(function () {
         Route::get('/todays-deal', 'todays_deal')->name('todays-deal');
         Route::get('/best-selling', 'best_selling')->name('best-selling');
         Route::get('/featured-products', 'featured_products')->name('featured-products');
-        Route::get('/track-your-order', 'trackOrder')->name('orders.track');
         Route::get('/product-reviews', 'product_reviews')->name('product.reviews');
     });
 
@@ -434,6 +433,9 @@ Route::middleware(['unbanned'])->group(function () {
 Route::get('/collections/{slug}', [ProductCollectionController::class, 'show'])->name('product-collections.show');
 
 Route::group(['middleware' => ['customer', 'verified', 'unbanned']], function() {
+
+    // Track Order
+    Route::get('/track-your-order', [\App\Http\Controllers\ProductDetailsController::class, 'trackOrder'])->name('orders.track');
 
     // Purchase History
     Route::get('/purchase_history', [PurchaseHistoryController::class, 'index'])->name('purchase_history.index');

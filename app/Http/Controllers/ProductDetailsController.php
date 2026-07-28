@@ -330,11 +330,14 @@ class ProductDetailsController extends Controller
 
     public function trackOrder(Request $request)
     {
-        if ($request->has('order_code')) {
-            $order = \App\Models\Order::where('code', $request->order_code)->first();
+        if ($request->has('order_code') && !empty($request->order_code)) {
+            $order = \App\Models\Order::where('code', trim($request->order_code))
+                ->where('user_id', auth()->id())
+                ->first();
             if ($order != null) {
                 return view('frontend.track_order', compact('order'));
             }
+            flash(translate('Order not found or access denied.'))->error();
         }
         return view('frontend.track_order');
     }
