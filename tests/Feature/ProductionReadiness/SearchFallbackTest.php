@@ -65,6 +65,8 @@ class SearchFallbackTest extends TestCase
             'services.openrouter.key' => '',
         ]);
 
+        SemanticEmbedding::query()->delete();
+
         $visible = Product::factory()->create([
             'name' => 'Visible Semantic Product',
             'published' => 1,
