@@ -19,6 +19,8 @@ class SearchUxContractTest extends TestCase
         $this->assertStringContainsString("event.key === 'Escape'", $source);
         $this->assertStringContainsString("name: 'mode'", $source);
         $this->assertStringContainsString('URLSearchParams(window.location.search)', $source);
+        $this->assertStringContainsString("!$(this).is('#search-form')", $source);
+        $this->assertStringContainsString("listingToggle.toggleClass('active', enabled).attr('aria-pressed'", $source);
     }
 
     public function test_product_listing_syncs_search_state_without_replacing_the_locale_path(): void

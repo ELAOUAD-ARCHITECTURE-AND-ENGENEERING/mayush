@@ -908,10 +908,11 @@
             const $toggle = $('#ai-mode-toggle');
             const $wrap = $('.ai-mode-toggle-wrap');
             const $input = activeSearchInput();
+            const $listingToggle = $('#listing-ai-mode-toggle');
 
             $toggle.toggleClass('active', enabled).attr('aria-pressed', enabled ? 'true' : 'false');
             $wrap.toggleClass('active', enabled);
-            $('#listing-ai-mode-toggle').toggleClass('active', enabled);
+            $listingToggle.toggleClass('active', enabled).attr('aria-pressed', enabled ? 'true' : 'false');
 
             if (enabled) {
                 $input.attr('placeholder', '{{ translate('Describe a vibe... (e.g. Warm Cozy Minimal)') }}');
@@ -979,7 +980,7 @@
             });
 
             $('form').filter(function() {
-                return $(this).find('input[name="keyword"]').length > 0;
+                return !$(this).is('#search-form') && $(this).find('input[name="keyword"]').length > 0;
             }).off('submit.searchMode').on('submit.searchMode', function() {
                 var $modeInput = $(this).find('input.search-mode-state');
                 if (!$modeInput.length) {
