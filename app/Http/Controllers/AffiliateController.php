@@ -33,12 +33,11 @@ class AffiliateController extends Controller
     public function userDashboard()
     {
         $user = Auth::user();
+        $this->ensureReferralCode($user);
 
         if (!addon_is_activated('affiliate_system') || get_setting('affiliate_system_activation') == 0) {
             return view('frontend.user.affiliate.coming_soon', compact('user'));
         }
-
-        $this->ensureReferralCode($user);
         
         $affiliate_user = AffiliateUser::where('user_id', $user->id)->first();
         $affiliate_logs = AffiliateLog::where('user_id', $user->id)->latest()->paginate(10);

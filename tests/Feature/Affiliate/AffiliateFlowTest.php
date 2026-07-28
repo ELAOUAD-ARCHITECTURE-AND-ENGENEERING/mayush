@@ -18,6 +18,11 @@ class AffiliateFlowTest extends TestCase
 
     public function test_user_dashboard_generates_referral_code_and_link(): void
     {
+        \App\Models\Addon::updateOrCreate(['unique_identifier' => 'affiliate_system'], ['name' => 'Affiliate System', 'activated' => 1]);
+        $setting = \App\Models\BusinessSetting::firstOrNew(['type' => 'affiliate_system_activation']);
+        $setting->value = 1;
+        $setting->save();
+
         $user = User::factory()->create(['referral_code' => null]);
         $this->affiliateUser($user, ['status' => 1]);
 
