@@ -756,6 +756,7 @@
         var searchMinLength = Number(@json(config('search.autocomplete.min_length', 2)));
         var searchMaxLength = Number(@json(config('search.autocomplete.max_length', 80)));
         var searchDebounceMs = Number(@json(config('search.autocomplete.debounce_ms', 300)));
+        var searchUxV2Enabled = @json((bool) config('search.features.frontend_v2', false));
         var searchNothingLabel = @json(translate('Sorry, nothing found for'));
         var searchTooShortLabel = @json(translate('Keep typing to see suggestions.'));
         var searchTooLongLabel = @json(translate('Your search is too long. Please use fewer words.'));
@@ -931,6 +932,16 @@
         }
 
         $(function() {
+            if (!searchUxV2Enabled) {
+                // Keep the existing autocomplete contract available while the
+                // enhanced UX remains disabled by feature flag.
+                $('input[name="keyword"]').off('input.searchLegacy focus.searchLegacy')
+                    .on('input.searchLegacy focus.searchLegacy', function() {
+                        search();
+                    });
+                return;
+            }
+
             $('input[name="keyword"]').attr({
                 'aria-label': '{{ translate('Search products') }}',
                 'aria-controls': 'search-content',

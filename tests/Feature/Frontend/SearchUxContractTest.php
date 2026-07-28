@@ -12,6 +12,8 @@ class SearchUxContractTest extends TestCase
         $source = File::get(resource_path('views/frontend/layouts/app.blade.php'));
 
         $this->assertStringContainsString('searchDebounceMs', $source);
+        $this->assertStringContainsString('searchUxV2Enabled', $source);
+        $this->assertStringContainsString('if (!searchUxV2Enabled)', $source);
         $this->assertStringContainsString('searchRequest.abort()', $source);
         $this->assertStringContainsString("$('<strong>').text(query)", $source);
         $this->assertStringContainsString("'aria-autocomplete': 'list'", $source);
