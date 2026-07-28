@@ -53,6 +53,30 @@ class ApiV2ProductTest extends TestCase
     }
 
     /** @test */
+    public function api_multi_word_search_requires_each_meaningful_term(): void
+    {
+        Product::factory()->create([
+            'name' => 'Walnut Dining Chair',
+            'tags' => 'walnut,dining,chair',
+            'published' => 1,
+            'approved' => 1,
+        ]);
+
+        Product::factory()->create([
+            'name' => 'Dining Lamp',
+            'tags' => 'dining,lighting',
+            'published' => 1,
+            'approved' => 1,
+        ]);
+
+        $response = $this->getJson('/api/v2/products/search?name=walnut%20dining');
+
+        $response->assertOk()
+            ->assertJsonFragment(['name' => 'Walnut Dining Chair'])
+            ->assertJsonMissing(['name' => 'Dining Lamp']);
+    }
+
+    /** @test */
     public function it_returns_404_for_non_existent_product_api()
     {
         $response = $this->getJson('/api/v2/products/9999');

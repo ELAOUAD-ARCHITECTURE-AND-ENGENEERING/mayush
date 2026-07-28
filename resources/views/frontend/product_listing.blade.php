@@ -654,6 +654,17 @@
 
         let activeSearchRequest = null;
 
+        function syncSearchUrl(formData) {
+            if (!window.location.pathname.includes('/search') || !window.history || !window.history.replaceState) {
+                return;
+            }
+
+            const params = new URLSearchParams(formData);
+            const queryString = params.toString();
+            const nextUrl = window.location.pathname + (queryString ? '?' + queryString : '');
+            window.history.replaceState({ search: true }, '', nextUrl);
+        }
+
         function toggleListingAiMode(btn) {
             $(btn).toggleClass('active');
             $('#ai-mode-toggle').toggleClass('active', $(btn).hasClass('active'));
@@ -686,6 +697,7 @@
             var aiModeEnabled = $('#listing-ai-mode-toggle').hasClass('active') || $('#ai-mode-toggle').hasClass('active');
             var searchMode = aiModeEnabled ? 'ai' : 'standard';
             formData += '&page=' + page + '&mode=' + searchMode;
+            syncSearchUrl(formData);
 
             // preoerder route to search page time
             if (session_data_first_time) {

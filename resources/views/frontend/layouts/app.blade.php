@@ -611,9 +611,38 @@
     <script src="{{ versioned_static_asset('assets/js/aiz-core.js') }}"></script>
 
     <style>
-    .sc-q8c6tt-3 {
-        bottom: 54px !important;
-    }
+        .sc-q8c6tt-3 {
+            bottom: 54px !important;
+        }
+
+        #search-content a.search-keyboard-focus {
+            background-color: var(--soft-primary);
+            color: var(--dark);
+            outline: 2px solid var(--primary);
+            outline-offset: -2px;
+        }
+
+        input[name="keyword"]:focus,
+        #ai-mode-toggle:focus-visible,
+        #listing-ai-mode-toggle:focus-visible {
+            outline: 3px solid var(--soft-primary);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 575.98px) {
+            .typed-search-box {
+                max-height: min(70vh, 420px);
+                overflow-y: auto;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .typed-search-box,
+            .search-keyboard-focus {
+                scroll-behavior: auto !important;
+                transition: none !important;
+            }
+        }
 
     a[aria-label="Go to GetButton.io website"] {
         display: none !important;
@@ -720,62 +749,171 @@
             }
         });
 
-        $('#search').on('keyup', function(){
-            search();
-        });
+        var searchDebounceTimer = null;
+        var searchRequest = null;
+        var searchRequestToken = 0;
+        var autocompleteIndex = -1;
+        var searchMinLength = Number(@json(config('search.autocomplete.min_length', 2)));
+        var searchMaxLength = Number(@json(config('search.autocomplete.max_length', 80)));
+        var searchDebounceMs = Number(@json(config('search.autocomplete.debounce_ms', 300)));
+        var searchNothingLabel = @json(translate('Sorry, nothing found for'));
+        var searchTooShortLabel = @json(translate('Keep typing to see suggestions.'));
+        var searchTooLongLabel = @json(translate('Your search is too long. Please use fewer words.'));
+        var searchErrorLabel = @json(translate('Search suggestions are temporarily unavailable.'));
 
-        $('#search').on('focus', function(){
-            search();
-        });
+        function activeSearchInput() {
+            var $visibleInput = $('input[name="keyword"]:visible').first();
+            return $visibleInput.length ? $visibleInput : $('#search').first();
+        }
 
-        function search(){
-            var searchKey = $('#search').val();
-            var searchMode = $('#ai-mode-toggle').hasClass('active') ? 'ai' : 'standard';
+        function searchBoxes() {
+            return $('.typed-search-box');
+        }
 
-            if(searchKey.length > 0){
-                $('body').addClass("typed-search-box-shown");
+        function autocompleteItems() {
+            return $('#search-content a:visible');
+        }
 
-                $('.typed-search-box').removeClass('d-none');
-                $('.search-preloader').removeClass('d-none');
-                
-                if(searchMode == 'ai') {
-                    $('#search').addClass('search-input-ai-active');
-                    $('.front-header-search').addClass('ai-active');
-                } else {
-                    $('#search').removeClass('search-input-ai-active');
-                    $('.front-header-search').removeClass('ai-active');
-                }
+        function setAutocompleteExpanded(expanded) {
+            $('input[name="keyword"]').attr('aria-expanded', expanded ? 'true' : 'false');
+        }
 
-                $.post('{{ route('search.ajax') }}', { _token: AIZ.data.csrf, search:searchKey, mode:searchMode}, function(data){
-                    if(data == '0'){
-                        // $('.typed-search-box').addClass('d-none');
-                        $('#search-content').html(null);
-                        $('.typed-search-box .search-nothing').removeClass('d-none').html('{{ translate('Sorry, nothing found for') }} <strong>"'+searchKey+'"</strong>');
-                        $('.search-preloader').addClass('d-none');
+        function prepareAutocompleteResults() {
+            var $content = $('#search-content');
+            $content.find('a').attr({
+                role: 'option',
+                tabindex: '-1',
+                'aria-selected': 'false'
+            });
+            autocompleteIndex = -1;
+        }
 
-                    }
-                    else{
-                        $('.typed-search-box .search-nothing').addClass('d-none').html(null);
-                        $('#search-content').html(data);
-                        $('.search-preloader').addClass('d-none');
-                    }
-                });
-            }
-            else {
-                $('.typed-search-box').addClass('d-none');
-                $('body').removeClass("typed-search-box-shown");
+        function showSearchNothing(message, query) {
+            var $nothing = $('.typed-search-box .search-nothing');
+            $nothing.empty().removeClass('d-none').attr('role', 'status').attr('aria-live', 'polite');
+
+            if (query) {
+                $nothing.append(document.createTextNode(message + ' \"'));
+                $('<strong>').text(query).appendTo($nothing);
+                $nothing.append(document.createTextNode('\"'));
+            } else {
+                $nothing.text(message);
             }
         }
 
-        function toggleAiMode() {
+        function hideSearchNothing() {
+            $('.typed-search-box .search-nothing').addClass('d-none').empty();
+        }
+
+        function moveAutocompleteFocus(direction) {
+            var $items = autocompleteItems();
+            if (!$items.length) {
+                return false;
+            }
+
+            autocompleteIndex = (autocompleteIndex + direction + $items.length) % $items.length;
+            $items.removeClass('search-keyboard-focus').attr('aria-selected', 'false');
+            var $active = $items.eq(autocompleteIndex);
+            $active.addClass('search-keyboard-focus').attr('aria-selected', 'true');
+            $active[0].scrollIntoView({ block: 'nearest' });
+            return true;
+        }
+
+        function scheduleSearch() {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(search, searchDebounceMs);
+        }
+
+        function search() {
+            var $input = activeSearchInput();
+            var rawSearchKey = String($input.val() || '');
+            var searchKey = rawSearchKey.trim();
+            var searchMode = $('#ai-mode-toggle').hasClass('active') ? 'ai' : 'standard';
+            var currentToken = ++searchRequestToken;
+
+            if (searchRequest && searchRequest.readyState !== 4) {
+                searchRequest.abort();
+            }
+
+            if (!searchKey.length) {
+                searchBoxes().addClass('d-none');
+                $('body').removeClass('typed-search-box-shown');
+                setAutocompleteExpanded(false);
+                hideSearchNothing();
+                $('#search-content').empty();
+                return;
+            }
+
+            searchBoxes().removeClass('d-none');
+            $('body').addClass('typed-search-box-shown');
+            setAutocompleteExpanded(true);
+
+            if (searchKey.length < searchMinLength) {
+                $('.search-preloader').addClass('d-none');
+                $('#search-content').empty();
+                showSearchNothing(searchTooShortLabel);
+                return;
+            }
+
+            if (searchKey.length > searchMaxLength) {
+                $('.search-preloader').addClass('d-none');
+                $('#search-content').empty();
+                showSearchNothing(searchTooLongLabel);
+                return;
+            }
+
+            $('.search-preloader').removeClass('d-none');
+            hideSearchNothing();
+
+            if (searchMode === 'ai') {
+                $input.addClass('search-input-ai-active');
+                $('.front-header-search').addClass('ai-active');
+            } else {
+                $input.removeClass('search-input-ai-active');
+                $('.front-header-search').removeClass('ai-active');
+            }
+
+            searchRequest = $.post('{{ route('search.ajax') }}', {
+                _token: AIZ.data.csrf,
+                search: searchKey,
+                mode: searchMode
+            }).done(function(data) {
+                if (currentToken !== searchRequestToken) {
+                    return;
+                }
+
+                if (data === '0') {
+                    $('#search-content').empty();
+                    showSearchNothing(searchNothingLabel, searchKey);
+                } else {
+                    hideSearchNothing();
+                    $('#search-content').html(data);
+                    prepareAutocompleteResults();
+                }
+            }).fail(function(xhr, status) {
+                if (status === 'abort' || currentToken !== searchRequestToken) {
+                    return;
+                }
+
+                $('#search-content').empty();
+                showSearchNothing(searchErrorLabel);
+            }).always(function() {
+                if (currentToken === searchRequestToken) {
+                    $('.search-preloader').addClass('d-none');
+                }
+            });
+        }
+
+        function setAiMode(enabled) {
             const $toggle = $('#ai-mode-toggle');
             const $wrap = $('.ai-mode-toggle-wrap');
-            const $input = $('#search');
-            $toggle.toggleClass('active');
-            $wrap.toggleClass('active');
-            $('#listing-ai-mode-toggle').toggleClass('active', $toggle.hasClass('active'));
-            
-            if ($toggle.hasClass('active')) {
+            const $input = activeSearchInput();
+
+            $toggle.toggleClass('active', enabled).attr('aria-pressed', enabled ? 'true' : 'false');
+            $wrap.toggleClass('active', enabled);
+            $('#listing-ai-mode-toggle').toggleClass('active', enabled);
+
+            if (enabled) {
                 $input.attr('placeholder', '{{ translate('Describe a vibe... (e.g. Warm Cozy Minimal)') }}');
                 $('.front-header-search').addClass('ai-active');
                 $input.addClass('search-input-ai-active');
@@ -784,11 +922,79 @@
                 $('.front-header-search').removeClass('ai-active');
                 $input.removeClass('search-input-ai-active');
             }
-            
-            if ($input.val().length > 0) {
-                search();
-            }
         }
+
+        function toggleAiMode() {
+            setAiMode(!$('#ai-mode-toggle').hasClass('active'));
+            scheduleSearch();
+        }
+
+        $(function() {
+            $('input[name="keyword"]').attr({
+                'aria-label': '{{ translate('Search products') }}',
+                'aria-controls': 'search-content',
+                'aria-autocomplete': 'list',
+                'aria-expanded': 'false',
+                'inputmode': 'search'
+            });
+
+            $('#search-content').attr({
+                role: 'listbox',
+                'aria-label': '{{ translate('Search suggestions') }}'
+            });
+
+            $('#ai-mode-toggle').attr({
+                role: 'button',
+                tabindex: '0',
+                'aria-pressed': 'false',
+                'aria-label': '{{ translate('Toggle AI semantic search') }}'
+            }).off('keydown.searchAccessibility').on('keydown.searchAccessibility', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleAiMode();
+                }
+            });
+
+            $('input[name="keyword"]').off('input.searchEnhancement').on('input.searchEnhancement', function() {
+                scheduleSearch();
+            }).off('focus.searchEnhancement').on('focus.searchEnhancement', function() {
+                if (String($(this).val() || '').trim().length >= searchMinLength) {
+                    scheduleSearch();
+                }
+            }).off('keydown.searchEnhancement').on('keydown.searchEnhancement', function(event) {
+                if (event.key === 'ArrowDown' && moveAutocompleteFocus(1)) {
+                    event.preventDefault();
+                } else if (event.key === 'ArrowUp' && moveAutocompleteFocus(-1)) {
+                    event.preventDefault();
+                } else if (event.key === 'Escape') {
+                    searchBoxes().addClass('d-none');
+                    setAutocompleteExpanded(false);
+                } else if (event.key === 'Enter' && autocompleteIndex >= 0) {
+                    var $items = autocompleteItems();
+                    if ($items.eq(autocompleteIndex).length) {
+                        event.preventDefault();
+                        $items.eq(autocompleteIndex)[0].click();
+                    }
+                }
+            });
+
+            $('form').filter(function() {
+                return $(this).find('input[name="keyword"]').length > 0;
+            }).off('submit.searchMode').on('submit.searchMode', function() {
+                var $modeInput = $(this).find('input.search-mode-state');
+                if (!$modeInput.length) {
+                    $modeInput = $('<input>', {
+                        type: 'hidden',
+                        name: 'mode',
+                        class: 'search-mode-state'
+                    }).appendTo(this);
+                }
+                $modeInput.val($('#ai-mode-toggle').hasClass('active') ? 'ai' : 'standard');
+            });
+
+            var initialMode = new URLSearchParams(window.location.search).get('mode');
+            setAiMode(initialMode === 'ai');
+        });
 
         $(".aiz-user-top-menu").on("mouseover", function (event) {
             $(".hover-user-top-menu").addClass('active');
