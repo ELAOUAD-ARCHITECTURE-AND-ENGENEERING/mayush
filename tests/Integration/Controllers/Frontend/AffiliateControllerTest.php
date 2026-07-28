@@ -108,6 +108,6 @@ class AffiliateControllerTest extends TestCase
     {
         $response = $this->get(route('affiliate.user.index'));
 
-        $response->assertRedirect(route('user.login'));
+        $response->assertRedirect(route('login'));
     }
 }
