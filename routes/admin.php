@@ -479,7 +479,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         // Custom Page
         Route::resource('custom-pages', PageController::class)->parameters(['custom-pages' => 'id'])->except('destroy');
         Route::controller(PageController::class)->group(function () {
-            // Route::get('/custom-pages/edit/{id}', 'edit')->name('custom-pages.edit');
+            Route::post('/custom-pages/{id}', 'update')->name('custom-pages.update.post');
             Route::delete('/custom-pages/destroy/{id}', 'destroy')->name('custom-pages.destroy');
         });
     });

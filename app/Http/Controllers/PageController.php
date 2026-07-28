@@ -144,11 +144,16 @@ class PageController extends Controller
             $data['email'] = $request->email;
             $content = json_encode($data);
         }
-        if (Page::where('id','!=', $id)->where('slug', preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug)))->first() == null) {
-            if($page->type == 'custom_page'){
-              $page->slug           = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
+
+        $slugInput = $request->slug ?? $page->slug ?? '';
+        $cleanSlug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', (string)$slugInput));
+
+        if (empty($cleanSlug) || Page::where('id','!=', $id)->where('slug', $cleanSlug)->first() == null) {
+            if($page->type == 'custom_page' && !empty($cleanSlug)){
+              $page->slug           = $cleanSlug;
             }
-            if($request->lang == env("DEFAULT_LANGUAGE")){
+            $defaultLang = get_setting('default_language', env('DEFAULT_LANGUAGE', 'en'));
+            if(empty($request->lang) || $request->lang == $defaultLang){
               $page->title          = $request->title;
               $page->content        = $content;
             }
@@ -158,7 +163,8 @@ class PageController extends Controller
             $page->meta_image       = $request->meta_image;
             $page->save();
 
-            $page_translation           = PageTranslation::firstOrNew(['lang' => $request->lang, 'page_id' => $page->id]);
+            $langCode = $request->lang ?? $defaultLang;
+            $page_translation           = PageTranslation::firstOrNew(['lang' => $langCode, 'page_id' => $page->id]);
             $page_translation->title    = $request->title;
             $page_translation->content  = $content;
             $page_translation->save();
