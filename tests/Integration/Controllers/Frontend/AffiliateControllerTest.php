@@ -21,7 +21,10 @@ class AffiliateControllerTest extends TestCase
         $response = $this->actingAs($user)->get(route('affiliate.user.index'));
 
         $response->assertStatus(200);
-        $response->assertViewIs('frontend.user.affiliate.index');
+        $expectedView = (addon_is_activated('affiliate_system') && get_setting('affiliate_system_activation') == 1)
+            ? 'frontend.user.affiliate.index'
+            : 'frontend.user.affiliate.coming_soon';
+        $response->assertViewIs($expectedView);
     }
 
     /** @test */
@@ -105,6 +108,6 @@ class AffiliateControllerTest extends TestCase
     {
         $response = $this->get(route('affiliate.user.index'));
 
-        $response->assertRedirect('/login');
+        $response->assertRedirect(route('user.login'));
     }
 }
