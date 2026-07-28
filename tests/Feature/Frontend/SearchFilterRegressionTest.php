@@ -175,4 +175,27 @@ class SearchFilterRegressionTest extends TestCase
         $response->assertSee('Walnut Dining Bench');
         $response->assertDontSee('Dining Pendant');
     }
+
+    public function test_overlong_listing_query_does_not_fall_back_to_all_products(): void
+    {
+        Product::factory()->create([
+            'name' => 'Visible Product That Must Not Leak Into Overlong Search',
+            'slug' => 'overlong-query-guard-product',
+            'added_by' => 'admin',
+        ]);
+
+        $response = $this->getJson(route('suggestion.search2', [
+            'keyword' => str_repeat('x', 121),
+            'mode' => 'standard',
+        ]));
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('total_product_count', 0);
+
+        $this->assertStringNotContainsString(
+            'Visible Product That Must Not Leak Into Overlong Search',
+            $response->json('product_html')
+        );
+    }
 }

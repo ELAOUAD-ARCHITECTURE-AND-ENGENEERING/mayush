@@ -17,6 +17,7 @@ use App\Http\Resources\V2\ProductDetailCollection;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Http\Resources\V2\Seller\BrandCollection;
+use App\Services\SearchQueryNormalizer;
 use App\Utility\CartUtility;
 class ProductController extends Controller
 {
@@ -282,7 +283,9 @@ class ProductController extends Controller
         }
 
         $sort_by = $request->sort_key;
-        $name = $request->name;
+        $rawName = $request->name;
+        $normalizedName = app(SearchQueryNormalizer::class)->normalize($rawName);
+        $name = $normalizedName['is_truncated'] ? '' : $normalizedName['normalized'];
         $min = $request->min;
         $max = $request->max;
 
@@ -290,6 +293,10 @@ class ProductController extends Controller
         $products = Product::query();
 
         $products->where('published', 1);
+
+        if ($normalizedName['is_truncated']) {
+            $products->whereRaw('1 = 0');
+        }
 
         if ($request->digital == 1) {
             $products->digital();
@@ -316,22 +323,29 @@ class ProductController extends Controller
         }
 
         if ($name != null && $name != "") {
-            $products->where(function ($query) use ($name) {
-                foreach (explode(' ', trim($name)) as $word) {
-                    $query->where('name', 'like', '%' . $word . '%')->orWhere('tags', 'like', '%' . $word . '%')->orWhereHas('product_translations', function ($query) use ($word) {
-                        $query->where('name', 'like', '%' . $word . '%');
+            $terms = array_slice($normalizedName['tokens'], 0, (int) config('search.query.max_terms', 12));
+            $products->where(function ($query) use ($terms) {
+                foreach ($terms as $word) {
+                    $query->where(function ($termQuery) use ($word) {
+                        $termQuery->where('name', 'like', '%' . $word . '%')
+                            ->orWhere('tags', 'like', '%' . $word . '%')
+                            ->orWhereHas('product_translations', function ($translationQuery) use ($word) {
+                                $translationQuery->where('name', 'like', '%' . $word . '%');
+                            });
                     });
                 }
             });
-            SearchUtility::store($name);
+            SearchUtility::store($rawName);
             $case1 = $name . '%';
             $case2 = '%' . $name . '%';
 
-            $products->orderByRaw('CASE
-                WHEN name LIKE "'.$case1.'" THEN 1
-                WHEN name LIKE "'.$case2.'" THEN 2
-                ELSE 3
-                END');
+            if (config('search.features.improved_mysql', false)) {
+                $products->orderByRaw('CASE
+                    WHEN name LIKE ? THEN 1
+                    WHEN name LIKE ? THEN 2
+                    ELSE 3
+                    END', [$case1, $case2]);
+            }
         }
 
         if ($min != null && $min != "" && is_numeric($min)) {
