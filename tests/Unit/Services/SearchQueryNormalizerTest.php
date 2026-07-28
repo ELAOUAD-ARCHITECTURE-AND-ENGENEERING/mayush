@@ -47,4 +47,19 @@ class SearchQueryNormalizerTest extends TestCase
         $this->assertSame($result['hash'], app(SearchQueryNormalizer::class)->normalize('chaise confortable')['hash']);
         $this->assertNotSame('chaise confortable', $result['hash']);
     }
+
+    public function test_arabizi_digits_and_numeric_search_tokens_are_preserved(): void
+    {
+        $result = app(SearchQueryNormalizer::class)->normalize('khzana 5zana 3oud 7did 500 DH 160x200');
+
+        $this->assertSame(
+            ['khzana', '5zana', '3oud', '7did', '500', 'dh', '160x200'],
+            $result['tokens']
+        );
+        $this->assertContains('500', $result['tokens']);
+        $this->assertContains('160x200', $result['tokens']);
+        $this->assertNotContains('zana', $result['tokens']);
+        $this->assertNotContains('oud', $result['tokens']);
+        $this->assertNotContains('did', $result['tokens']);
+    }
 }
