@@ -339,11 +339,13 @@ class ProductController extends Controller
             $case1 = $name . '%';
             $case2 = '%' . $name . '%';
 
-            $products->orderByRaw('CASE
-                WHEN name LIKE ? THEN 1
-                WHEN name LIKE ? THEN 2
-                ELSE 3
-                END', [$case1, $case2]);
+            if (config('search.features.improved_mysql', false)) {
+                $products->orderByRaw('CASE
+                    WHEN name LIKE ? THEN 1
+                    WHEN name LIKE ? THEN 2
+                    ELSE 3
+                    END', [$case1, $case2]);
+            }
         }
 
         if ($min != null && $min != "" && is_numeric($min)) {

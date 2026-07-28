@@ -13,6 +13,8 @@ return [
     'backend' => env('SEARCH_BACKEND', 'mysql'),
 
     'features' => [
+        // Security, visibility and correctness guards are always active;
+        // this flag controls optional relevance ordering only.
         'improved_mysql' => (bool) env('MYSQL_IMPROVED_SEARCH', false),
         'frontend_v2' => (bool) env('SEARCH_UX_V2', false),
         'opensearch_poc' => (bool) env('OPENSEARCH_POC_ENABLED', false),

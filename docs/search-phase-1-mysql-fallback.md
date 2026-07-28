@@ -15,6 +15,11 @@ activating OpenSearch:
 - safe attribute filtering reuse;
 - backend minimum and maximum autocomplete query bounds.
 
+The `MYSQL_IMPROVED_SEARCH` flag controls optional relevance ordering. Security,
+visibility, input-boundary and multi-word correctness guards remain active even
+when that optional ranking flag is off, so rollback cannot restore the known
+unsafe query behavior.
+
 ## Local validation
 
 Command:

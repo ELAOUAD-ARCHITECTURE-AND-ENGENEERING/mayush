@@ -381,7 +381,7 @@ class SearchController extends Controller
                         $q->orWhere('name', 'like', $wildcard);
                     }
                 });
-                if (empty($sort_by)) {
+                if (empty($sort_by) && config('search.features.improved_mysql', false)) {
                     $products->orderByRaw(
                         '(MATCH(name, tags) AGAINST (? IN BOOLEAN MODE) * 10) + (num_of_sale * 0.1) + (rating * 2) DESC',
                         [$booleanQuery]
@@ -698,7 +698,7 @@ class SearchController extends Controller
                         $q->orWhere('name', 'like', $wildcard);
                     }
                 });
-                if (empty($sort_by)) {
+                if (empty($sort_by) && config('search.features.improved_mysql', false)) {
                     $products->orderByRaw(
                         '(MATCH(name, tags) AGAINST (? IN BOOLEAN MODE) * 10) + (num_of_sale * 0.1) + (rating * 2) DESC',
                         [$booleanQuery]
