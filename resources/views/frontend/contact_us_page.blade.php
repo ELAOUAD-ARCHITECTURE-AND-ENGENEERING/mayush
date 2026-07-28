@@ -104,12 +104,28 @@
                                 <!-- Email -->
                                 <div class="form-group">
                                     <label for="email" class="fs-14 fw-700 text-soft-dark">{{  translate('Email') }}</label>
-                                    <input type="email" class="form-control rounded-0" value="{{ old('email') }}" placeholder="{{  translate('Enter Email') }}" name="email" required>
+                                    <input type="email" id="contact-email" class="form-control rounded-0" value="{{ old('email') }}" placeholder="{{  translate('Enter Email') }}" name="email" autocomplete="email" inputmode="email" maxlength="255" aria-describedby="contact-email-feedback" required>
+                                    <small id="contact-email-feedback" class="form-text" role="status" aria-live="polite" aria-atomic="true"></small>
                                 </div>
                                 <!-- Phone -->
                                 <div class="form-group">
-                                    <label for="phone" class="fs-14 fw-700 text-soft-dark">{{  translate('Phone no. (optional)') }}</label>
-                                    <input type="tel" class="form-control rounded-0" value="{{ old('phone') }}" placeholder="{{  translate('Enter Phone') }}" name="phone">
+                                    <label for="phone" class="fs-14 fw-700 text-soft-dark">{{  translate('Phone no.') }}</label>
+                                    <input
+                                        type="tel"
+                                        id="contact-phone"
+                                        class="form-control rounded-0"
+                                        value="{{ old('phone') }}"
+                                        placeholder="{{ translate('+212 6 12 34 56 78') }}"
+                                        name="phone"
+                                        autocomplete="tel"
+                                        inputmode="tel"
+                                        maxlength="23"
+                                        pattern="(?:0[5-7](?:[ .\-]?[0-9]){8}|\+212[ .\-]?[5-7](?:[ .\-]?[0-9]){8})"
+                                        title="{{ translate('Enter a valid Moroccan phone number, for example +212 6 12 34 56 78.') }}"
+                                        aria-describedby="contact-phone-feedback"
+                                        required
+                                    >
+                                    <small id="contact-phone-feedback" class="form-text" role="status" aria-live="polite" aria-atomic="true"></small>
                                 </div>
                                 <!-- Query -->
                                 <div class="form-group">
@@ -167,6 +183,87 @@
 @endsection
 
 @section('script')
+    <script type="text/javascript">
+        (function () {
+            const form = document.getElementById('contact-us');
+            const email = document.getElementById('contact-email');
+            const phone = document.getElementById('contact-phone');
+            const emailFeedback = document.getElementById('contact-email-feedback');
+            const phoneFeedback = document.getElementById('contact-phone-feedback');
+            const moroccanPhonePattern = /^(?:0[5-7](?:[ .-]?[0-9]){8}|\+212[ .-]?[5-7](?:[ .-]?[0-9]){8})$/;
+
+            if (!form || !email || !phone || !emailFeedback || !phoneFeedback) {
+                return;
+            }
+
+            const messages = {
+                emailRequired: @json(translate('Email is required.')),
+                emailInvalid: @json(translate('Please enter a valid email address.')),
+                emailValid: @json(translate('Email format looks valid.')),
+                phoneRequired: @json(translate('Phone number is required.')),
+                phoneInvalid: @json(translate('Please enter a valid Moroccan phone number.')),
+                phoneValid: @json(translate('Moroccan phone format looks valid.'))
+            };
+
+            function updateFeedback(input, feedback, valid, message, showFeedback) {
+                input.classList.toggle('is-valid', showFeedback && valid);
+                input.classList.toggle('is-invalid', showFeedback && !valid);
+                input.setAttribute('aria-invalid', String(showFeedback && !valid));
+                feedback.classList.toggle('text-success', showFeedback && valid);
+                feedback.classList.toggle('text-danger', showFeedback && !valid);
+                feedback.textContent = showFeedback ? message : '';
+            }
+
+            function validateEmail(showFeedback) {
+                email.setCustomValidity('');
+                const hasValue = email.value.trim().length > 0;
+                const valid = hasValue && email.checkValidity();
+                const message = valid
+                    ? messages.emailValid
+                    : (hasValue ? messages.emailInvalid : messages.emailRequired);
+
+                email.setCustomValidity(valid ? '' : message);
+                updateFeedback(email, emailFeedback, valid, message, showFeedback || hasValue);
+                return valid;
+            }
+
+            function validatePhone(showFeedback) {
+                phone.setCustomValidity('');
+                const hasValue = phone.value.trim().length > 0;
+                const valid = hasValue && moroccanPhonePattern.test(phone.value.trim()) && phone.checkValidity();
+                const message = valid
+                    ? messages.phoneValid
+                    : (hasValue ? messages.phoneInvalid : messages.phoneRequired);
+
+                phone.setCustomValidity(valid ? '' : message);
+                updateFeedback(phone, phoneFeedback, valid, message, showFeedback || hasValue);
+                return valid;
+            }
+
+            email.addEventListener('input', function () {
+                validateEmail(true);
+            });
+
+            phone.addEventListener('input', function () {
+                validatePhone(true);
+            });
+
+            form.addEventListener('submit', function (event) {
+                const emailIsValid = validateEmail(true);
+                const phoneIsValid = validatePhone(true);
+
+                if (!emailIsValid || !phoneIsValid) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    form.reportValidity();
+                }
+            });
+
+            validateEmail(false);
+            validatePhone(false);
+        })();
+    </script>
+
      @if(get_setting('google_recaptcha') == 1 && get_setting('recaptcha_contact_form') == 1)
         <script src="https://www.google.com/recaptcha/api.js?render={{ env('CAPTCHA_KEY') }}"></script>
         

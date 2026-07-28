@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Page;
 use App\Models\PageTranslation;
 use App\Models\SellerPackage;
+use App\Rules\MoroccanPhoneNumber;
 use Illuminate\Support\Facades\Schema;
 
 class PageController extends Controller
@@ -138,6 +139,13 @@ class PageController extends Controller
         $page = Page::findOrFail($id);
         $content = $request->content;
         if($page->type == 'contact_us_page'){
+            $request->validate([
+                'description' => ['required', 'string', 'max:10000'],
+                'address' => ['required', 'string', 'max:10000'],
+                'phone' => ['required', 'string', 'max:50', new MoroccanPhoneNumber()],
+                'email' => ['required', 'email', 'max:255'],
+            ]);
+
             $data['description'] = $request->description;
             $data['address'] = $request->address;
             $data['phone'] = $request->phone;

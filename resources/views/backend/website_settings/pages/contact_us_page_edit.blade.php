@@ -89,13 +89,13 @@
 			<div class="form-group row">
 				<label class="col-sm-2 col-from-label" for="phone">{{translate('Phone')}} <span class="text-danger">*</span></label>
 				<div class="col-sm-10">
-					<input type="text" class="form-control" placeholder="{{translate('Phone')}}" name="phone" value="{{ $content->phone }}" required>
+					<input type="tel" class="form-control" placeholder="{{translate('+212 6 12 34 56 78')}}" name="phone" value="{{ $content->phone }}" autocomplete="tel" inputmode="tel" maxlength="23" pattern="(?:0[5-7](?:[ .\-]?[0-9]){8}|\+212[ .\-]?[5-7](?:[ .\-]?[0-9]){8})" title="{{ translate('Enter a valid Moroccan phone number, for example +212 6 12 34 56 78.') }}" required>
 				</div>
 			</div>
 			<div class="form-group row">
 				<label class="col-sm-2 col-from-label" for="email">{{translate('Email')}} <span class="text-danger">*</span></label>
 				<div class="col-sm-10">
-					<input type="email" class="form-control" placeholder="{{translate('Email')}}" name="email" value="{{ $content->email }}" required>
+					<input type="email" class="form-control" placeholder="{{translate('Email')}}" name="email" value="{{ $content->email }}" autocomplete="email" inputmode="email" maxlength="255" required>
 				</div>
 			</div>
 		</div>
