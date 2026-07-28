@@ -885,7 +885,12 @@ class SearchController extends Controller
                             $q->orWhere('name', 'like', $wildcard);
                         }
                     })
-                    ->orderByRaw('(MATCH(name, tags) AGAINST (? IN BOOLEAN MODE) * 10) + (num_of_sale * 0.1) + (rating * 2) DESC', [$booleanQuery])
+                    ->when(config('search.features.improved_mysql', false), function ($query) use ($booleanQuery) {
+                        $query->orderByRaw(
+                            '(MATCH(name, tags) AGAINST (? IN BOOLEAN MODE) * 10) + (num_of_sale * 0.1) + (rating * 2) DESC',
+                            [$booleanQuery]
+                        );
+                    })
                     ->limit(5)
                     ->get();
             } else {

@@ -6,16 +6,15 @@ This document records the read-only assessment available from the local Mayush e
 
 ## Local evidence collected
 
+The local database evidence is currently inconsistent and must not be used as a capacity forecast. An earlier read-only capture recorded a populated 202-table database, while the authoritative read-only check performed on **2026-07-28** against `amsadesign_db` returned 77 tables, 1.30 MiB and zero marketplace rows in the key product, translation, seller and variant tables. The earlier capture is retained below as historical evidence only; the populated dataset must be re-established or supplied as an anonymized fixture before the POC relevance and sizing gates can be evaluated.
+
 | Area | Observation | Evidence/command | Interpretation |
 | --- | --- | --- | --- |
-| Database | 202 tables, approximately 201.89 MiB total | `php artisan db:show --counts` | Local data is representative enough for a first mapping/data-shape exercise, but not a production capacity forecast |
-| Products | 891 rows | `php artisan db:show --counts` | Initial POC snapshot size |
-| Product translations | 1,352 rows | `php artisan db:show --counts` | Multilingual mapping must support incomplete translations |
-| Product stocks/variants | 2,267 rows | `php artisan db:show --counts` | Variant/nested-field behavior must be tested explicitly |
-| Sellers/users | 77 users; 35 shops | `php artisan db:show --counts` | Seller visibility and approval states must be represented in fixtures |
-| Categories/attributes | 423 categories; 33 attributes; 1,312 attribute values | `php artisan db:show --counts` | Facets and category ancestry need a representative fixture |
-| Search history | 113 searches | `php artisan db:show --counts` | Not enough for popularity ranking or query-quality conclusions |
-| Existing semantic rows | 426 `semantic_embeddings` rows | `php artisan db:show --counts` | Existing semantic data is not evidence that OpenSearch is installed or suitable |
+| Current database check | 77 tables, approximately 1.30 MiB total; key marketplace tables are empty | `php artisan db:show --counts` on 2026-07-28 | Current local database is not a representative search POC dataset |
+| Historical database capture | 202 tables, approximately 201.89 MiB total | Earlier `php artisan db:show --counts` capture | Historical only; counts are not currently reproducible and must be independently revalidated |
+| Historical product snapshot | 891 products; 1,352 translations; 2,267 stock/variant rows | Earlier `php artisan db:show --counts` capture | Useful as a fixture-shape reference, not evidence of current local data or production scale |
+| Historical seller/category/attribute snapshot | 77 users; 35 shops; 423 categories; 33 attributes; 1,312 attribute values | Earlier `php artisan db:show --counts` capture | Visibility and facet fixtures still need a controlled representative dataset |
+| Historical search/semantic rows | 113 searches; 426 `semantic_embeddings` rows | Earlier `php artisan db:show --counts` capture | Not enough for popularity conclusions and not evidence that OpenSearch is installed or suitable |
 | Search dependencies | No `vendor/elasticsearch/elasticsearch` or `vendor/laravel/scout` directory; neither is a direct `composer.json` dependency | `Test-Path vendor\...`; `Get-Content composer.json` | Composer-lock references are transitive/dev metadata, not an available OpenSearch integration |
 | Container tooling | Docker CLI 29.4.3 is installed, but the Docker daemon is not reachable | `docker --version`; `docker info` | A local POC needs Docker Desktop/daemon access or another isolated engine |
 | Current services | Apache/httpd, MySQL and multiple existing Node processes were observed | `Get-Process httpd,mysqld,redis-server,php,node` | No process was changed; production resource impact is not inferred from these local processes |

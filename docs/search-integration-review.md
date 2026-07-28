@@ -1,6 +1,6 @@
 # Search Integration Review at Checkpoint
 
-Review basis: branch `codex/search-enhancement`, commits through the current local checkpoint. This is a lead-agent review because the requested auditor sub-agent did not return a report and was shut down without changing files.
+Review basis: branch `codex/search-enhancement`, current local implementation and specialist reviews completed on 2026-07-28. The review was limited to the repository and local environment; no production system was changed.
 
 ## Verified facts
 
@@ -13,6 +13,9 @@ Review basis: branch `codex/search-enhancement`, commits through the current loc
 - Improved frontend behavior is now gated by `SEARCH_UX_V2`; the flag-off branch keeps a minimal safe autocomplete binding.
 - Overlong queries are bounded and return no products instead of silently becoming an unfiltered listing.
 - Arabic/Darija/Arabizi vocabulary expansion is documented but inactive; digits remain preserved.
+- MySQL relevance ordering, including autocomplete ordering, is independently guarded by `MYSQL_IMPROVED_SEARCH`.
+- Listing URL synchronization now occurs after first-render category, brand and preorder parameters are added.
+- The local database measurement was rechecked read-only: `amsadesign_db` currently has 77 tables and 1.30 MiB, with empty marketplace tables. An earlier populated count is historical and not currently reproducible.
 
 ## Confirmed validation gaps
 
@@ -31,4 +34,4 @@ Review basis: branch `codex/search-enhancement`, commits through the current loc
 
 ## Required next decision
 
-Do not begin OpenSearch integration or production deployment. First repair/prepare an isolated local or staging database at the current migration level, complete browser/HTTP acceptance, and obtain the infrastructure capacity/cost decision and isolated OpenSearch endpoint. Only then can the POC gate be evaluated.
+Do not begin OpenSearch integration or production deployment. First prepare an isolated local or staging database at the current migration level, complete browser/HTTP acceptance, assign the relevance dataset owner, and obtain the infrastructure capacity/cost decision and isolated OpenSearch endpoint. Only then can the POC gate be evaluated.

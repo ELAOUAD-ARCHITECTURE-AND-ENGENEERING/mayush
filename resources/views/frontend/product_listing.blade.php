@@ -697,7 +697,6 @@
             var aiModeEnabled = $('#listing-ai-mode-toggle').hasClass('active') || $('#ai-mode-toggle').hasClass('active');
             var searchMode = aiModeEnabled ? 'ai' : 'standard';
             formData += '&page=' + page + '&mode=' + searchMode;
-            syncSearchUrl(formData);
 
             // preoerder route to search page time
             if (session_data_first_time) {
@@ -754,6 +753,9 @@
                 $('.preorder-time-hide').fadeIn(400);
                 $('.preorder-time-show').slideUp(400);
             }
+
+            // Sync only after first-render category, brand and preorder state has been added.
+            syncSearchUrl(formData);
 
             // alert(JSON.stringify(formData));
             if (activeSearchRequest && activeSearchRequest.readyState !== 4) {

@@ -33,5 +33,20 @@ class SearchUxContractTest extends TestCase
         $this->assertStringContainsString("window.location.pathname + (queryString ? '?' + queryString : '')", $source);
         $this->assertStringContainsString('window.history.replaceState', $source);
         $this->assertStringContainsString('syncSearchUrl(formData);', $source);
+
+        $syncPosition = strpos($source, 'syncSearchUrl(formData);');
+        $ajaxPosition = strpos($source, 'activeSearchRequest = $.ajax({');
+
+        $this->assertNotFalse($syncPosition);
+        $this->assertNotFalse($ajaxPosition);
+        $this->assertLessThan($ajaxPosition, $syncPosition);
+
+        $preorderPosition = strpos($source, "form_all_preorder_page === 'preorder_product'");
+        $categoryPosition = strpos($source, 'category_page_first_time');
+
+        $this->assertNotFalse($preorderPosition);
+        $this->assertNotFalse($categoryPosition);
+        $this->assertGreaterThan($preorderPosition, $syncPosition);
+        $this->assertGreaterThan($categoryPosition, $syncPosition);
     }
 }
