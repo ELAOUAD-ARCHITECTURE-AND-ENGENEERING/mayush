@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\ContactMailManager;
 use App\Models\Contact;
 use App\Models\User;
+use App\Rules\MoroccanPhoneNumber;
 use App\Rules\Recaptcha;
 use App\Rules\Turnstile;
 use Illuminate\Validation\Rule;
@@ -68,7 +69,7 @@ class ContactController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|max:50',
+            'phone' => ['required', 'string', 'max:50', new MoroccanPhoneNumber()],
             'content' => 'required|string|max:10000',
         ]);
 

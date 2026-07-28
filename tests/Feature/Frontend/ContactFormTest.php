@@ -28,7 +28,13 @@ class ContactFormTest extends TestCase
 
         $this->get('/contact-us')
             ->assertOk()
-            ->assertSee(route('contact.store'), false);
+            ->assertSee(route('contact.store'), false)
+            ->assertSee('id="contact-email"', false)
+            ->assertSee('id="contact-phone"', false)
+            ->assertSee('contact-email-feedback', false)
+            ->assertSee('contact-phone-feedback', false)
+            ->assertSee("email.addEventListener('input'", false)
+            ->assertSee("phone.addEventListener('input'", false);
     }
 
     public function test_guest_can_submit_valid_contact_form(): void
@@ -39,7 +45,7 @@ class ContactFormTest extends TestCase
         $response = $this->from('/contact-us')->post(route('contact.store'), [
             'name' => 'Ada Lovelace',
             'email' => 'ada@example.test',
-            'phone' => '+15551234567',
+            'phone' => '+212612345678',
             'content' => 'I need help with an order.',
         ]);
 
@@ -58,10 +64,26 @@ class ContactFormTest extends TestCase
             ->post(route('contact.store'), [
                 'name' => '',
                 'email' => 'not-an-email',
+                'phone' => '+15551234567',
                 'content' => '',
             ])
             ->assertRedirect('/contact-us')
-            ->assertSessionHasErrors(['name', 'email', 'content']);
+            ->assertSessionHasErrors(['name', 'email', 'phone', 'content']);
+
+        $this->assertSame(0, Contact::count());
+    }
+
+    public function test_contact_phone_is_required(): void
+    {
+        $this->from('/contact-us')
+            ->post(route('contact.store'), [
+                'name' => 'Ada Lovelace',
+                'email' => 'ada@example.test',
+                'phone' => '',
+                'content' => 'I need help with an order.',
+            ])
+            ->assertRedirect('/contact-us')
+            ->assertSessionHasErrors('phone');
 
         $this->assertSame(0, Contact::count());
     }
@@ -89,7 +111,7 @@ class ContactFormTest extends TestCase
         $page->content = json_encode([
             'description' => 'Tell us what you need.',
             'address' => '123 Market Street',
-            'phone' => '+15550001111',
+            'phone' => '+212612345678',
             'email' => 'hello@example.test',
         ]);
         $page->meta_title = 'Contact Mayush';
