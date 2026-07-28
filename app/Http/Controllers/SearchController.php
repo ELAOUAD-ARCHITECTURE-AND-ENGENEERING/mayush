@@ -89,7 +89,10 @@ class SearchController extends Controller
      */
     private function doIndex(Request $request, $category_id = null, $brand_id = null)
     {
-        $query = $this->queryForMatching($request->keyword ?? $request->q);
+        $rawQuery = $request->keyword ?? $request->q;
+        $normalizedQuery = $this->queryNormalizer->normalize($rawQuery);
+        $query = $normalizedQuery['is_truncated'] ? '' : $normalizedQuery['normalized'];
+        $queryTooLong = $normalizedQuery['is_truncated'];
         $sort_by = $request->sort_by;
         $product_type = $request->product_type ?? 'general_product';
         $min_price = $request->min_price;
@@ -148,6 +151,9 @@ class SearchController extends Controller
         if (addon_is_activated('preorder') && $request->product_type == 'preorder_product') {
             $products = PreorderProduct::publiclyVisible();
             $products = filter_preorder_product($products);
+            if ($queryTooLong) {
+                $products->whereRaw('1 = 0');
+            }
             if ($category_id != null) {
                 $category_ids = CategoryUtility::children_ids($category_id);
                 $category_ids[] = $category_id;
@@ -247,6 +253,9 @@ class SearchController extends Controller
         }
 
         $products = Product::where($conditions);
+        if ($queryTooLong) {
+            $products->whereRaw('1 = 0');
+        }
 
         // return "working";
 
@@ -442,7 +451,9 @@ class SearchController extends Controller
         if ($request->has('brand_id')) {
             $brand_id = $request->brand_id;
         }
-        $query = $this->queryForMatching($request->keyword);
+        $normalizedQuery = $this->queryNormalizer->normalize($request->keyword);
+        $query = $normalizedQuery['is_truncated'] ? '' : $normalizedQuery['normalized'];
+        $queryTooLong = $normalizedQuery['is_truncated'];
         $mode = $request->input('mode') === 'ai' ? 'ai' : 'standard';
         $sort_by = $request->sort_by;
         $product_type = $request->product_type ?? 'general_product';
@@ -478,6 +489,9 @@ class SearchController extends Controller
         // return $colors;
         if (addon_is_activated('preorder') && $request->product_type == 'preorder_product') {
             $products = PreorderProduct::publiclyVisible();
+            if ($queryTooLong) {
+                $products->whereRaw('1 = 0');
+            }
 
             if (count($category_list_preorder) > 0) {
                 $products->where(function ($query) use ($category_list_preorder) {
@@ -626,6 +640,9 @@ class SearchController extends Controller
         }
 
         $products = Product::where($conditions);
+        if ($queryTooLong) {
+            $products->whereRaw('1 = 0');
+        }
 
         if (count($category_list) > 0) {
             $this->applyCategoryFilter($products, $category_list);

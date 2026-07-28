@@ -294,6 +294,10 @@ class ProductController extends Controller
 
         $products->where('published', 1);
 
+        if ($normalizedName['is_truncated']) {
+            $products->whereRaw('1 = 0');
+        }
+
         if ($request->digital == 1) {
             $products->digital();
         } else {
