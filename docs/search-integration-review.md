@@ -16,6 +16,7 @@ Review basis: branch `codex/search-enhancement`, current local implementation an
 - MySQL relevance ordering, including autocomplete ordering, is independently guarded by `MYSQL_IMPROVED_SEARCH`.
 - Listing URL synchronization now occurs after first-render category, brand and preorder parameters are added.
 - The local database measurement was rechecked read-only: `amsadesign_db` currently has 77 tables and 1.30 MiB, with empty marketplace tables. An earlier populated count is historical and not currently reproducible.
+- A behavioral contract test now proves that an AI-mode request falls back to lexical MySQL results without contacting the AI provider while semantic search is disabled.
 
 ## Confirmed validation gaps
 
@@ -24,6 +25,19 @@ Review basis: branch `codex/search-enhancement`, current local implementation an
 - Browser-level keyboard, mobile and RTL acceptance has not been completed in a current-migration local/staging fixture.
 - Production capacity, traffic, backup storage, cost and service ownership are not verified.
 - No isolated OpenSearch endpoint is available; therefore no mapping/analyzer/facet/filter/alias/snapshot/fallback POC evidence exists.
+
+## New specialist-review follow-ups not changed in this checkpoint
+
+These items require separate bounded fixes and tests; they were intentionally not
+mixed into the disabled-feature contract action:
+
+- Escape `%` and `_` before user-controlled `LIKE` patterns so wildcard input cannot broaden results unexpectedly.
+- Review whether global raw search-history suggestions expose sensitive customer queries.
+- Add visibility-safe facet-count tests and correct any unrestricted count queries.
+- Add malformed request-shape tests for array/object search parameters.
+- Enforce consistent autocomplete length and `max_terms` boundaries across frontend, API and suggestion paths.
+- Add explicit-sort precedence tests when improved MySQL ranking is enabled.
+- Add concurrent API search-history write protection and semantic-enabled success-path coverage.
 
 ## Backward compatibility review
 

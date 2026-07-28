@@ -40,6 +40,10 @@ Additional regression coverage confirms:
 - API multi-word queries do not return products matching only the last term.
 - API product suggestions require all meaningful terms.
 - Opt-in semantic results exclude unpublished products.
+- When semantic search is disabled, an AI-mode request returns lexical MySQL results without contacting the AI provider (`SearchDisabledFeatureContractTest`).
+
+Current checkpoint regression also passed the production-readiness, search, API,
+SQL-injection and XSS suites: 108 tests and 253 assertions.
 
 ## Production status
 
