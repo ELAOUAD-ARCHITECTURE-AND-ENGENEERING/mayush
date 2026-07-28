@@ -654,17 +654,6 @@
 
         let activeSearchRequest = null;
 
-        function syncSearchUrl(formData) {
-            if (!window.location.pathname.includes('/search') || !window.history || !window.history.replaceState) {
-                return;
-            }
-
-            const params = new URLSearchParams(formData);
-            const queryString = params.toString();
-            const nextUrl = window.location.pathname + (queryString ? '?' + queryString : '');
-            window.history.replaceState({ search: true }, '', nextUrl);
-        }
-
         function toggleListingAiMode(btn) {
             $(btn).toggleClass('active');
             $('#ai-mode-toggle').toggleClass('active', $(btn).hasClass('active'));
@@ -753,9 +742,6 @@
                 $('.preorder-time-hide').fadeIn(400);
                 $('.preorder-time-show').slideUp(400);
             }
-
-            // Sync only after first-render category, brand and preorder state has been added.
-            syncSearchUrl(formData);
 
             // alert(JSON.stringify(formData));
             if (activeSearchRequest && activeSearchRequest.readyState !== 4) {

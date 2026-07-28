@@ -19,25 +19,12 @@ use App\Models\PreorderProduct;
 use App\Models\PreorderProductCategory;
 use App\Models\ProductCategory;
 use App\Utility\CategoryUtility;
-use App\Services\SearchQueryNormalizer;
-use App\Services\SearchTelemetry;
 use Carbon\Carbon;
 
 class SearchController extends Controller
 {
-    public function __construct(
-        private readonly SearchQueryNormalizer $queryNormalizer,
-        private readonly SearchTelemetry $searchTelemetry
-    ) {
-    }
-
     public function index(Request $request, $category_id = null, $brand_id = null)
     {
-        $this->searchTelemetry->record('search.requested', [
-            'query' => $request->keyword ?? $request->q,
-            'mode' => $request->input('mode', 'standard'),
-        ]);
-
         try {
             $response = $this->doIndex($request, $category_id, $brand_id);
             if ($response instanceof \Illuminate\View\View) {
@@ -89,10 +76,7 @@ class SearchController extends Controller
      */
     private function doIndex(Request $request, $category_id = null, $brand_id = null)
     {
-        $rawQuery = $request->keyword ?? $request->q;
-        $normalizedQuery = $this->queryNormalizer->normalize($rawQuery);
-        $query = $normalizedQuery['is_truncated'] ? '' : $normalizedQuery['normalized'];
-        $queryTooLong = $normalizedQuery['is_truncated'];
+        $query = $request->keyword ?? $request->q;
         $sort_by = $request->sort_by;
         $product_type = $request->product_type ?? 'general_product';
         $min_price = $request->min_price;
@@ -151,9 +135,6 @@ class SearchController extends Controller
         if (addon_is_activated('preorder') && $request->product_type == 'preorder_product') {
             $products = PreorderProduct::publiclyVisible();
             $products = filter_preorder_product($products);
-            if ($queryTooLong) {
-                $products->whereRaw('1 = 0');
-            }
             if ($category_id != null) {
                 $category_ids = CategoryUtility::children_ids($category_id);
                 $category_ids[] = $category_id;
@@ -198,16 +179,13 @@ class SearchController extends Controller
 
             if ($query != null) {
 
-                $terms = $this->searchTerms($query);
-                $products->where(function ($q) use ($terms) {
-                    foreach ($terms as $word) {
-                        $q->where(function ($termQuery) use ($word) {
-                            $termQuery->where('product_name', 'like', '%' . $word . '%')
-                                ->orWhere('tags', 'like', '%' . $word . '%')
-                                ->orWhereHas('preorder_product_translations', function ($translationQuery) use ($word) {
-                                    $translationQuery->where('product_name', 'like', '%' . $word . '%');
-                                });
-                        });
+                $products->where(function ($q) use ($query) {
+                    foreach (explode(' ', trim($query)) as $word) {
+                        $q->where('product_name', 'like', '%' . $word . '%')
+                            ->orWhere('tags', 'like', '%' . $word . '%')
+                            ->orWhereHas('preorder_product_translations', function ($q) use ($word) {
+                                $q->where('product_name', 'like', '%' . $word . '%');
+                            });
                     }
                 });
 
@@ -215,10 +193,10 @@ class SearchController extends Controller
                 $case2 = '%' . $query . '%';
 
                 $products->orderByRaw('CASE
-                    WHEN product_name LIKE ? THEN 1
-                    WHEN product_name LIKE ? THEN 2
+                    WHEN product_name LIKE "' . $case1 . '" THEN 1
+                    WHEN product_name LIKE "' . $case2 . '" THEN 2
                     ELSE 3
-                    END', [$case1, $case2]);
+                    END');
             }
 
             switch ($sort_by) {
@@ -253,9 +231,6 @@ class SearchController extends Controller
         }
 
         $products = Product::where($conditions);
-        if ($queryTooLong) {
-            $products->whereRaw('1 = 0');
-        }
 
         // return "working";
 
@@ -363,30 +338,18 @@ class SearchController extends Controller
 
             // ── FULLTEXT SEARCH & TYPO TOLERANCE ──────────────────────────
             if ($this->usesFullTextSearch() && !empty($booleanQuery)) {
-                $translationTerms = $this->searchTerms($query);
-                $products->where(function ($q) use ($booleanQuery, $query, $translationTerms) {
+                $products->where(function ($q) use ($booleanQuery, $query) {
                     $q->whereRaw('MATCH(name, tags) AGAINST (? IN BOOLEAN MODE)', [$booleanQuery])
                       ->orWhereRaw('SOUNDEX(name) = SOUNDEX(?)', [$query]);
-
-                    $q->orWhere(function ($translationMatch) use ($translationTerms) {
-                        foreach ($translationTerms as $term) {
-                            $translationMatch->whereHas('product_translations', function ($translationQuery) use ($term) {
-                                $translationQuery->where('name', 'like', '%' . $term . '%');
-                            });
-                        }
-                    });
                       
                     if (strlen($query) >= 3) {
                         $wildcard = '%' . implode('%', str_split(str_replace(' ', '', $query))) . '%';
                         $q->orWhere('name', 'like', $wildcard);
                     }
-                });
-                if (empty($sort_by) && config('search.features.improved_mysql', false)) {
-                    $products->orderByRaw(
-                        '(MATCH(name, tags) AGAINST (? IN BOOLEAN MODE) * 10) + (num_of_sale * 0.1) + (rating * 2) DESC',
-                        [$booleanQuery]
-                    );
-                }
+                })->orderByRaw(
+                    '(MATCH(name, tags) AGAINST (? IN BOOLEAN MODE) * 10) + (num_of_sale * 0.1) + (rating * 2) DESC',
+                    [$booleanQuery]
+                );
             } else {
                 $this->applyLikeKeywordSearch($products, $query);
             }
@@ -451,10 +414,8 @@ class SearchController extends Controller
         if ($request->has('brand_id')) {
             $brand_id = $request->brand_id;
         }
-        $normalizedQuery = $this->queryNormalizer->normalize($request->keyword);
-        $query = $normalizedQuery['is_truncated'] ? '' : $normalizedQuery['normalized'];
-        $queryTooLong = $normalizedQuery['is_truncated'];
-        $mode = $request->input('mode') === 'ai' ? 'ai' : 'standard';
+        $query = $request->keyword;
+        $mode = $request->mode ?? 'standard';
         $sort_by = $request->sort_by;
         $product_type = $request->product_type ?? 'general_product';
         $min_price = $request->min_price;
@@ -489,9 +450,6 @@ class SearchController extends Controller
         // return $colors;
         if (addon_is_activated('preorder') && $request->product_type == 'preorder_product') {
             $products = PreorderProduct::publiclyVisible();
-            if ($queryTooLong) {
-                $products->whereRaw('1 = 0');
-            }
 
             if (count($category_list_preorder) > 0) {
                 $products->where(function ($query) use ($category_list_preorder) {
@@ -547,16 +505,13 @@ class SearchController extends Controller
 
             if ($query != null) {
 
-                $terms = $this->searchTerms($query);
-                $products->where(function ($q) use ($terms) {
-                    foreach ($terms as $word) {
-                        $q->where(function ($termQuery) use ($word) {
-                            $termQuery->where('product_name', 'like', '%' . $word . '%')
-                                ->orWhere('tags', 'like', '%' . $word . '%')
-                                ->orWhereHas('preorder_product_translations', function ($translationQuery) use ($word) {
-                                    $translationQuery->where('product_name', 'like', '%' . $word . '%');
-                                });
-                        });
+                $products->where(function ($q) use ($query) {
+                    foreach (explode(' ', trim($query)) as $word) {
+                        $q->where('product_name', 'like', '%' . $word . '%')
+                            ->orWhere('tags', 'like', '%' . $word . '%')
+                            ->orWhereHas('preorder_product_translations', function ($q) use ($word) {
+                                $q->where('product_name', 'like', '%' . $word . '%');
+                            });
                     }
                 });
 
@@ -564,10 +519,10 @@ class SearchController extends Controller
                 $case2 = '%' . $query . '%';
 
                 $products->orderByRaw('CASE
-                    WHEN product_name LIKE ? THEN 1
-                    WHEN product_name LIKE ? THEN 2
+                    WHEN product_name LIKE "' . $case1 . '" THEN 1
+                    WHEN product_name LIKE "' . $case2 . '" THEN 2
                     ELSE 3
-                    END', [$case1, $case2]);
+                    END');
             }
 
             switch ($sort_by) {
@@ -640,9 +595,6 @@ class SearchController extends Controller
         }
 
         $products = Product::where($conditions);
-        if ($queryTooLong) {
-            $products->whereRaw('1 = 0');
-        }
 
         if (count($category_list) > 0) {
             $this->applyCategoryFilter($products, $category_list);
@@ -658,17 +610,6 @@ class SearchController extends Controller
             $products->where('user_id', $seller_id);
         }
 
-        // Preserve structured filters for the opt-in semantic branch without
-        // including the lexical query clause in its candidate set.
-        $semanticEligibleProducts = clone $products;
-        $semanticColors = $this->colorsFromRequest($request);
-        if (count($semanticColors) > 0) {
-            $this->applyColorFilter($semanticEligibleProducts, $semanticColors);
-        }
-        if (is_array($request->selected_attribute_values ?? null)) {
-            $this->applyAttributeFilter($semanticEligibleProducts, $request->selected_attribute_values);
-        }
-
         if ($query != null) {
             $this->store($request);
 
@@ -680,30 +621,18 @@ class SearchController extends Controller
 
             // ── FULLTEXT SEARCH & TYPO TOLERANCE ──────────────────────────
             if ($this->usesFullTextSearch() && !empty($booleanQuery)) {
-                $translationTerms = $this->searchTerms($query);
-                $products->where(function ($q) use ($booleanQuery, $query, $translationTerms) {
+                $products->where(function ($q) use ($booleanQuery, $query) {
                     $q->whereRaw('MATCH(name, tags) AGAINST (? IN BOOLEAN MODE)', [$booleanQuery])
                       ->orWhereRaw('SOUNDEX(name) = SOUNDEX(?)', [$query]);
-
-                    $q->orWhere(function ($translationMatch) use ($translationTerms) {
-                        foreach ($translationTerms as $term) {
-                            $translationMatch->whereHas('product_translations', function ($translationQuery) use ($term) {
-                                $translationQuery->where('name', 'like', '%' . $term . '%');
-                            });
-                        }
-                    });
                       
                     if (strlen($query) >= 3) {
                         $wildcard = '%' . implode('%', str_split(str_replace(' ', '', $query))) . '%';
                         $q->orWhere('name', 'like', $wildcard);
                     }
-                });
-                if (empty($sort_by) && config('search.features.improved_mysql', false)) {
-                    $products->orderByRaw(
-                        '(MATCH(name, tags) AGAINST (? IN BOOLEAN MODE) * 10) + (num_of_sale * 0.1) + (rating * 2) DESC',
-                        [$booleanQuery]
-                    );
-                }
+                })->orderByRaw(
+                    '(MATCH(name, tags) AGAINST (? IN BOOLEAN MODE) * 10) + (num_of_sale * 0.1) + (rating * 2) DESC',
+                    [$booleanQuery]
+                );
             } else {
                 $this->applyLikeKeywordSearch($products, $query);
             }
@@ -731,38 +660,35 @@ class SearchController extends Controller
             $this->applyColorFilter($products, $request->colors);
         }
 
-        if (is_array($request->selected_attribute_values ?? null)) {
+        if ($request->has('selected_attribute_values')) {
             $selected_attribute_values = $request->selected_attribute_values;
-            $this->applyAttributeFilter($products, $selected_attribute_values);
+            $products->where(function ($query) use ($selected_attribute_values) {
+                foreach ($selected_attribute_values as $key => $value) {
+                    $str = '"' . $value . '"';
+
+                    $query->orWhere('choice_options', 'like', '%' . $str . '%');
+                }
+            });
         }
 
-        if ($mode === 'ai' && config('search.features.semantic', false) && !empty($query)) {
-            try {
-                $semanticResults = \App\Utility\SemanticUtility::search($query, 48);
-                $semanticResults = $this->filterSemanticResults($semanticResults, $semanticEligibleProducts);
-                if ($semanticResults->isNotEmpty()) {
-                    $products = $semanticResults->pluck('model')->values();
-                    $semantic_scores = $semanticResults->pluck('score', 'model.id');
-
-                    // Semantic results are absolute scores and remain a
-                    // bounded opt-in list until hybrid pagination is ready.
-                    $product_html = view('frontend.product_listing_products', [
-                        'products' => $products,
-                        'semantic_scores' => $semantic_scores,
-                        'is_ai_mode' => true
-                    ])->render();
-
-                    return response()->json([
-                        'success' => true,
-                        'total_product_count' => count($products),
-                        'product_html' => $product_html,
-                        'pagination_html' => ''
-                    ]);
-                }
-            } catch (\Throwable $e) {
-                \Log::warning('Semantic search failed; falling back to MySQL search', [
-                    'message' => $e->getMessage(),
-                    'query_hash' => $this->queryNormalizer->normalize($query)['hash'],
+        if ($mode == 'ai' && !empty($query)) {
+            $semanticResults = \App\Utility\SemanticUtility::search($query, 48);
+            if (count($semanticResults) > 0) {
+                $products = collect($semanticResults)->pluck('model');
+                $semantic_scores = collect($semanticResults)->pluck('score', 'model.id');
+                
+                // Mocking pagination for AI results since they are absolute scores
+                $product_html = view('frontend.product_listing_products', [
+                    'products' => $products,
+                    'semantic_scores' => $semantic_scores,
+                    'is_ai_mode' => true
+                ])->render();
+                
+                return response()->json([
+                    'success' => true,
+                    'total_product_count' => count($products),
+                    'product_html' => $product_html,
+                    'pagination_html' => '' // Disable pagination for AI results for now
                 ]);
             }
         }
@@ -817,38 +743,25 @@ class SearchController extends Controller
     //Suggestional Search (with caching per keyword, Etsy/Airbnb pattern)
     public function ajax_search(Request $request)
     {
-        $normalizedQuery = $this->queryNormalizer->normalize($request->search);
-        if ($normalizedQuery['is_empty'] || $normalizedQuery['is_truncated']) {
-            return '0';
-        }
-
-        $query = $normalizedQuery['normalized'];
-        $mode = $request->input('mode') === 'ai' ? 'ai' : 'standard';
+        $query = $request->search;
+        $mode = $request->mode ?? 'standard';
         $preorder_products = [];
 
-        if (mb_strlen($query, 'UTF-8') < (int) config('search.autocomplete.min_length', 2)) {
+        if (empty(trim($query))) {
             return '0';
         }
 
-        if ($mode === 'ai' && config('search.features.semantic', false)) {
-            try {
-                $semanticResults = \App\Utility\SemanticUtility::search($query, 6);
-                $semanticResults = $this->filterSemanticResults($semanticResults, Product::query());
-                if ($semanticResults->isNotEmpty()) {
-                    return view('frontend.partials.search_content', [
-                        'products' => $semanticResults->pluck('model'),
-                        'semantic_scores' => $semanticResults->pluck('score', 'model.id'),
-                        'categories' => [],
-                        'keywords' => [],
-                        'shops' => [],
-                        'preorder_products' => [],
-                        'is_ai_mode' => true
-                    ]);
-                }
-            } catch (\Throwable $e) {
-                \Log::warning('Semantic autocomplete failed; falling back to standard autocomplete', [
-                    'message' => $e->getMessage(),
-                    'query_hash' => $normalizedQuery['hash'],
+        if ($mode == 'ai') {
+            $semanticResults = \App\Utility\SemanticUtility::search($query, 6);
+            if (count($semanticResults) > 0) {
+                return view('frontend.partials.search_content', [
+                    'products' => collect($semanticResults)->pluck('model'),
+                    'semantic_scores' => collect($semanticResults)->pluck('score', 'model.id'),
+                    'categories' => [],
+                    'keywords' => [],
+                    'shops' => [],
+                    'preorder_products' => [],
+                    'is_ai_mode' => true
                 ]);
             }
         }
@@ -865,32 +778,18 @@ class SearchController extends Controller
 
             // ── FULLTEXT autocomplete & Typo Tolerance ──────────────────────────
             if ($this->usesFullTextSearch() && !empty($booleanQuery)) {
-                $translationTerms = $this->searchTerms($query);
                 $products = filter_products(Product::query())
                     ->where('published', 1)
-                    ->where(function ($q) use ($booleanQuery, $query, $translationTerms) {
+                    ->where(function ($q) use ($booleanQuery, $query) {
                         $q->whereRaw('MATCH(name, tags) AGAINST (? IN BOOLEAN MODE)', [$booleanQuery])
                           ->orWhereRaw('SOUNDEX(name) = SOUNDEX(?)', [$query]);
-
-                        $q->orWhere(function ($translationMatch) use ($translationTerms) {
-                            foreach ($translationTerms as $term) {
-                                $translationMatch->whereHas('product_translations', function ($translationQuery) use ($term) {
-                                    $translationQuery->where('name', 'like', '%' . $term . '%');
-                                });
-                            }
-                        });
                           
                         if (strlen($query) >= 3) {
                             $wildcard = '%' . implode('%', str_split(str_replace(' ', '', $query))) . '%';
                             $q->orWhere('name', 'like', $wildcard);
                         }
                     })
-                    ->when(config('search.features.improved_mysql', false), function ($query) use ($booleanQuery) {
-                        $query->orderByRaw(
-                            '(MATCH(name, tags) AGAINST (? IN BOOLEAN MODE) * 10) + (num_of_sale * 0.1) + (rating * 2) DESC',
-                            [$booleanQuery]
-                        );
-                    })
+                    ->orderByRaw('(MATCH(name, tags) AGAINST (? IN BOOLEAN MODE) * 10) + (num_of_sale * 0.1) + (rating * 2) DESC', [$booleanQuery])
                     ->limit(5)
                     ->get();
             } else {
@@ -1042,56 +941,6 @@ class SearchController extends Controller
             ->unique()
             ->values()
             ->all();
-    }
-
-    private function applyAttributeFilter($products, array $values): void
-    {
-        $values = array_values(array_filter(array_map(
-            static fn ($value) => trim((string) $value),
-            $values
-        )));
-
-        if ($values === []) {
-            return;
-        }
-
-        $products->where(function ($query) use ($values) {
-            foreach ($values as $value) {
-                $str = '"' . addcslashes($value, '"\\') . '"';
-                $query->orWhere('choice_options', 'like', '%' . $str . '%');
-            }
-        });
-    }
-
-    private function filterSemanticResults(array $semanticResults, $eligibleProducts)
-    {
-        $semanticResults = collect($semanticResults);
-        $ids = $semanticResults
-            ->map(fn ($result) => data_get($result, 'model.id'))
-            ->filter()
-            ->values();
-
-        if ($ids->isEmpty()) {
-            return collect();
-        }
-
-        $allowed = filter_products(clone $eligibleProducts)
-            ->whereIn('products.id', $ids->all())
-            ->with('taxes')
-            ->get()
-            ->keyBy('id');
-
-        return $semanticResults->map(function ($result) use ($allowed) {
-            $id = data_get($result, 'model.id');
-            $model = $allowed->get($id);
-
-            if (!$model) {
-                return null;
-            }
-
-            $result['model'] = $model;
-            return $result;
-        })->filter()->values();
     }
 
     /**

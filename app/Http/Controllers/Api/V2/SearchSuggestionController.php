@@ -8,15 +8,12 @@ use App\Models\Product;
 use App\Models\Brand;
 use App\Models\Shop;
 use Illuminate\Http\Request;
-use App\Services\SearchQueryNormalizer;
 
 class SearchSuggestionController extends Controller
 {
     public function getList(Request $request)
     {
-        $rawQueryKey = $request->query_key;
-        $normalizedQueryKey = app(SearchQueryNormalizer::class)->normalize($rawQueryKey);
-        $query_key = $normalizedQueryKey['is_truncated'] ? '' : $normalizedQueryKey['normalized'];
+        $query_key = $request->query_key;
         $type = $request->type;
 
         $search_query  = Search::select('id', 'query', 'count');
@@ -28,15 +25,10 @@ class SearchSuggestionController extends Controller
         if ($type == "product") {
             $product_query = Product::query();
             if ($query_key != "") {
-                $terms = array_slice($normalizedQueryKey['tokens'], 0, (int) config('search.query.max_terms', 12));
-                $product_query->where(function ($query) use ($terms) {
-                    foreach ($terms as $word) {
-                        $query->where(function ($termQuery) use ($word) {
-                            $termQuery->where('name', 'like', '%' . $word . '%')
-                                ->orWhere('tags', 'like', '%' . $word . '%')
-                                ->orWhereHas('product_translations', function ($translationQuery) use ($word) {
-                                    $translationQuery->where('name', 'like', '%' . $word . '%');
-                                });
+                $product_query->where(function ($query) use ($query_key) {
+                    foreach (explode(' ', trim($query_key)) as $word) {
+                        $query->where('name', 'like', '%'.$word.'%')->orWhere('tags', 'like', '%'.$word.'%')->orWhereHas('product_translations', function($query) use ($word){
+                            $query->where('name', 'like', '%'.$word.'%');
                         });
                     }
                 });
