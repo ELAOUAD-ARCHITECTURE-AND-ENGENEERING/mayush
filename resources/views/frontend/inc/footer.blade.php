@@ -367,32 +367,32 @@
                                     {{ translate('Logout') }}
                                 </a>
                             </li>
+                            <li class="mb-2">
+                                <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('purchase_history.index') }}">
+                                    {{ translate('Order History') }}
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('wishlists.index') }}">
+                                    {{ translate('My Wishlist') }}
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('orders.track') }}">
+                                    {{ translate('Track Order') }}
+                                </a>
+                            </li>
+                            @if (addon_is_activated('affiliate_system'))
+                                <li class="mb-2">
+                                    <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('affiliate.user.index') }}">
+                                        {{ translate('Be an affiliate partner')}}
+                                    </a>
+                                </li>
+                            @endif
                         @else
                             <li class="mb-2">
                                 <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('user.login') }}">
                                     {{ translate('Login') }}
-                                </a>
-                            </li>
-                        @endif
-                        <li class="mb-2">
-                            <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('purchase_history.index') }}">
-                                {{ translate('Order History') }}
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('wishlists.index') }}">
-                                {{ translate('My Wishlist') }}
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('orders.track') }}">
-                                {{ translate('Track Order') }}
-                            </a>
-                        </li>
-                        @if (addon_is_activated('affiliate_system'))
-                            <li class="mb-2">
-                                <a class="fs-13 text-soft-light animate-underline-white" href="{{ route('affiliate.user.index') }}">
-                                    {{ translate('Be an affiliate partner')}}
                                 </a>
                             </li>
                         @endif
@@ -530,6 +530,28 @@
                                     {{ translate('Logout') }}
                                 </a>
                             </li>
+                            <li class="mb-2 pb-2 {{ areActiveRoutes(['purchase_history.index'],' active')}}">
+                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('purchase_history.index') }}">
+                                    {{ translate('Order History') }}
+                                </a>
+                            </li>
+                            <li class="mb-2 pb-2 {{ areActiveRoutes(['wishlists.index'],' active')}}">
+                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('wishlists.index') }}">
+                                    {{ translate('My Wishlist') }}
+                                </a>
+                            </li>
+                            <li class="mb-2 pb-2 {{ areActiveRoutes(['orders.track'],' active')}}">
+                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('orders.track') }}">
+                                    {{ translate('Track Order') }}
+                                </a>
+                            </li>
+                            @if (addon_is_activated('affiliate_system'))
+                                <li class="mb-2 pb-2 {{ areActiveRoutes(['affiliate.user.index'],' active')}}">
+                                    <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('affiliate.user.index') }}">
+                                        {{ translate('Be an affiliate partner')}}
+                                    </a>
+                                </li>
+                            @endif
                         @else
                             <li class="mb-2 pb-2 {{ areActiveRoutes(['user.login'],' active')}}">
                                 <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('user.login') }}">
@@ -537,28 +559,6 @@
                                 </a>
                             </li>
                         @endauth
-                        <li class="mb-2 pb-2 {{ areActiveRoutes(['purchase_history.index'],' active')}}">
-                            <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('purchase_history.index') }}">
-                                {{ translate('Order History') }}
-                            </a>
-                        </li>
-                        <li class="mb-2 pb-2 {{ areActiveRoutes(['wishlists.index'],' active')}}">
-                            <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('wishlists.index') }}">
-                                {{ translate('My Wishlist') }}
-                            </a>
-                        </li>
-                        <li class="mb-2 pb-2 {{ areActiveRoutes(['orders.track'],' active')}}">
-                            <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('orders.track') }}">
-                                {{ translate('Track Order') }}
-                            </a>
-                        </li>
-                        @if (addon_is_activated('affiliate_system'))
-                            <li class="mb-2 pb-2 {{ areActiveRoutes(['affiliate.user.index'],' active')}}">
-                                <a class="fs-13 text-soft-light text-sm-secondary animate-underline-white" href="{{ route('affiliate.user.index') }}">
-                                    {{ translate('Be an affiliate partner')}}
-                                </a>
-                            </li>
-                        @endif
                     </ul>
                 </div>
             </div>
