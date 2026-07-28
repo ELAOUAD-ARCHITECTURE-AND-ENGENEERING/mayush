@@ -1039,13 +1039,6 @@ class SearchController extends Controller
             ->all();
     }
 
-    private function queryForMatching(?string $query): string
-    {
-        $normalized = $this->queryNormalizer->normalize($query);
-
-        return $normalized['is_truncated'] ? '' : $normalized['normalized'];
-    }
-
     private function applyAttributeFilter($products, array $values): void
     {
         $values = array_values(array_filter(array_map(
