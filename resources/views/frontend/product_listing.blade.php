@@ -654,6 +654,17 @@
 
         let activeSearchRequest = null;
 
+        function syncSearchUrl(formData) {
+            if (!window.location.pathname.includes('/search') || !window.history || !window.history.replaceState) {
+                return;
+            }
+
+            const params = new URLSearchParams(formData);
+            const queryString = params.toString();
+            const nextUrl = window.location.pathname + (queryString ? '?' + queryString : '');
+            window.history.replaceState({ search: true }, '', nextUrl);
+        }
+
         function toggleListingAiMode(btn) {
             $(btn).toggleClass('active');
             $('#ai-mode-toggle').toggleClass('active', $(btn).hasClass('active'));
@@ -669,13 +680,15 @@
             let skeletonHtml = '';
             for (let i = 0; i < 8; i++) {
                 skeletonHtml += `
-                <div class="col border-right border-bottom p-3 mayush-listing-skeleton">
-                    <div class="skeleton-shimmer mayush-listing-skeleton-media w-100 mb-2 rounded"></div>
-                    <div class="skeleton-shimmer h-15px w-75 mb-2 rounded"></div>
-                    <div class="skeleton-shimmer h-15px w-50 mb-3 rounded"></div>
-                    <div class="d-flex justify-content-between align-items-center mayush-listing-skeleton-footer">
-                        <div class="skeleton-shimmer h-20px w-40px rounded"></div>
-                        <div class="skeleton-shimmer h-30px w-30px rounded-circle"></div>
+                <div class="col border-right border-bottom p-2 p-md-3 mayush-listing-skeleton">
+                    <div class="mayush-skeleton-card h-100 p-2 p-md-3">
+                        <div class="skeleton-shimmer w-100 mb-3 rounded-3" style="aspect-ratio: 1/1; min-height: 160px;"></div>
+                        <div class="skeleton-shimmer h-15px w-85 mb-2 rounded"></div>
+                        <div class="skeleton-shimmer h-12px w-50 mb-3 rounded"></div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <div class="skeleton-shimmer h-18px w-40 rounded"></div>
+                            <div class="skeleton-shimmer rounded-circle" style="width: 32px; height: 32px;"></div>
+                        </div>
                     </div>
                 </div>`;
             }
@@ -743,6 +756,9 @@
                 $('.preorder-time-show').slideUp(400);
             }
 
+            // Sync only after first-render category, brand and preorder state has been added.
+            syncSearchUrl(formData);
+
             // alert(JSON.stringify(formData));
             if (activeSearchRequest && activeSearchRequest.readyState !== 4) {
                 activeSearchRequest.abort();
@@ -773,7 +789,21 @@
                     listing_first_render = false;
                 },
                 error: function(xhr, status, error) {
-                    console.error('Error:', error);
+                    if (status === 'abort') return;
+                    console.error('Search request failed:', error);
+                    $("#search_product_count").show();
+                    $("#searching_product").hide();
+                    $('#products-row').html(`
+                        <div class="col-12 py-5 text-center my-3 w-100">
+                            <div class="badge badge-circle bg-soft-primary text-primary mb-3 p-3 mx-auto d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                                <i class="las la-search fs-28"></i>
+                            </div>
+                            <h4 class="h6 fw-700 text-dark mb-1">${'{{ translate("No products found") }}'}</h4>
+                            <p class="text-muted fs-13 mb-3">${'{{ translate("Try adjusting your search terms or active filters.") }}'}</p>
+                            <button type="button" class="btn btn-sm btn-primary rounded-pill px-4" onclick="filter_data()">${'{{ translate("Retry") }}'}</button>
+                        </div>
+                    `);
+                    $('#pagination').html('');
                 }
             });
         }
