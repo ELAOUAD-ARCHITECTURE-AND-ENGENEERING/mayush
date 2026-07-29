@@ -483,7 +483,7 @@
     $(document).on('click', '.confirm-delete', function(e) {
         e.preventDefault();
         let url = $(this).data('href');
-        $('#delete-link').attr('href', url);
+        $('#delete-form').attr('action', url);
         $('#delete-modal').modal('show');
     });
 

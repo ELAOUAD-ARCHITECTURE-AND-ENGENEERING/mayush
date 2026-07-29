@@ -176,11 +176,12 @@ class ProductController extends Controller
 
         if ($request->search != null) {
             $sort_search = $request->search;
-            $products = $products
-                ->where('name', 'like', '%' . $sort_search . '%')
-                ->orWhereHas('stocks', function ($q) use ($sort_search) {
-                    $q->where('sku', 'like', '%' . $sort_search . '%');
-                });
+            $products = $products->where(function ($query) use ($sort_search) {
+                $query->where('products.name', 'like', '%' . $sort_search . '%')
+                    ->orWhereHas('stocks', function ($q) use ($sort_search) {
+                        $q->where('sku', 'like', '%' . $sort_search . '%');
+                    });
+            });
         }
         if ($request->type != null) {
             $var = explode(",", $request->type);

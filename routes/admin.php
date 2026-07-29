@@ -408,7 +408,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/business-settings/index', 'business_settings')->name('business_settings.index');
         Route::get('/business-settings/select-font-family', 'select_font_family')->name('website.select-font-family');
         Route::post('/business-settings/business-info-update', 'business_info_update')->name('business_info.update');
-        Route::get('/business-settings/custom-product-visitors', 'customProductVisitorsUpdate')->name('custom_product_visitors');
+        Route::get('/business-settings/custom-product-visitors', 'customProductVisitors')->name('custom_product_visitors');
         Route::post('/business-settings/custom-product-visitors-update', 'customProductVisitorsUpdate')->name('custom_product_visitors.update');
     });
 

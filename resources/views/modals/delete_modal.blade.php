@@ -47,8 +47,12 @@
                 <button type="button" id="back-btn"
                     class="bg-transparent border-2 border-gray-400 fs-14 fw-700 rounded-2 py-15px text-success d-block mr-2 w-100"
                     data-dismiss="modal">{{translate('No')}}</button>
-                <a href="" id="delete-link"
-                    class="bg-transparent border border-2 border-gray-400 rounded-2 fs-14 fw-700 py-15px text-danger d-block w-100 text-center">{{translate('Yes')}}</a>
+                <form id="delete-form" action="" method="POST" class="w-100 ml-2">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" id="delete-link"
+                        class="bg-transparent border border-2 border-gray-400 rounded-2 fs-14 fw-700 py-15px text-danger d-block w-100 text-center">{{translate('Yes')}}</button>
+                </form>
             </div>
         </div>
     </div>

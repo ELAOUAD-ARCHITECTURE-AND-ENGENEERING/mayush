@@ -35,7 +35,7 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
         Route::post('/affiliate/pay/store', 'payment_store')->name('affiliate_user.payment_store');
 
         Route::get('/affiliate/payments/show/{id}', 'payment_history')->name('affiliate_user.payment_history');
-        Route::get('/refferal/users', 'refferal_users')->name('refferals.users');
+        Route::get('/refferal/users', 'users')->name('refferals.users');
 
         // Affiliate Withdraw Request
         Route::get('/affiliate/withdraw_requests', 'affiliate_withdraw_requests')->name('affiliate.withdraw_requests');
