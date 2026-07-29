@@ -215,7 +215,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-zoom product-modal" id="modal-size" role="document">
             <div class="modal-content position-relative">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -238,7 +238,7 @@
             <div class="modal-content position-relative">
                 <div class="modal-header">
                     <h5 class="modal-title fw-600 h5">{{ translate('Any query about this product') }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -279,7 +279,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">{{ translate('Bid For Product') }} <small>({{ translate('Min Bid Amount: ').$min_bid_amount }})</small> </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                         </button>
                     </div>
                     <div class="modal-body">
@@ -366,11 +366,11 @@
                 </div>
                 <div class="modal-body c-scrollbar-light">
                     <div class="col-12 col-lg-10 col-xl-8 mx-auto text-center">
-                        <h4 class="fs-20 fw-700 text-dark">Share with Friends</h4>
-                        <span class="fs-14 text-gray fw-400">Trading is more effective when you share products with friends!</span>
+                        <h4 class="fs-20 fw-700 text-dark">{{ translate('Share with Friends') }}</h4>
+                        <span class="fs-14 text-gray fw-400">{{ translate('Trading is more effective when you share products with friends!') }}</span>
                     </div>
                     <div class="my-4 my-lg-5">
-                        <h5 class="fs-16 fw-600 text-dark">Share you link</h5>
+                        <h5 class="fs-16 fw-600 text-dark">{{ translate('Share you link') }}</h5>
                         <div class="py-3 px-3 bg-light rounded-2 border-0 d-flex align-items-center justify-content-between share-link">
                             <span class="fs-14 text-gray fw-400 flex-grow-1 text-truncate-1 has-transition">https://mayushdesign.com/seller/</span>
                             <button type="button" class="border-0 bg-transparent flex-shrink-0 copy-link-btn">
@@ -381,7 +381,7 @@
                         </div>
                     </div>
                      <div class="pb-3">
-                        <h5 class="fs-16 fw-600 text-dark">Share to</h5>
+                        <h5 class="fs-16 fw-600 text-dark">{{ translate('Share to') }}</h5>
                         <div class="aiz-share text-center"></div>
                      </div>
                 </div>
@@ -679,7 +679,7 @@
             var skuText = $('#variant_sku').text().trim();
 
             if (skuText === "") {
-                AIZ.plugins.notify('warning', 'No SKU to copy');
+                AIZ.plugins.notify('warning', '{{ translate('No SKU to copy') }}');
                 return;
             }
 
@@ -737,7 +737,7 @@
                 $('.'+section).html(data);
                 location.hash = page;
             }).fail(function() {
-                alert('Something went worng! Data could not be loaded.');
+                alert('{{ translate('Something went worng! Data could not be loaded.') }}');
             });
         }
 

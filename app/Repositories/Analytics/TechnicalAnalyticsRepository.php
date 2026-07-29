@@ -65,7 +65,7 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
                 $m = now()->subMonths($i);
                 $orders = \App\Models\Order::whereMonth('created_at',$m->month)->whereYear('created_at',$m->year)->count();
                 $refunds = \App\Models\RefundRequest::where('refund_status',1)->whereMonth('created_at',$m->month)->whereYear('created_at',$m->year)->count();
-                return ['date'=>$m->format('M'),'value'=>$orders>0?round(($refunds/$orders)*100,1):0];
+                return ['date'=>$m->locale(app()->getLocale())->translatedFormat('M'),'value'=>$orders>0?round(($refunds/$orders)*100,1):0];
             }, range(6,0)));
         } catch (\Exception $e) { return collect(); }
     }
@@ -76,7 +76,7 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
             return SellerWithdrawRequest::with(['user'])->orderByDesc('created_at')->limit($limit)->get()->map(function($r) {
                 $name = 'Unknown';
                 if ($r->user) { $name = $r->user->name; if ($r->user->relationLoaded('shop') && $r->user->shop) $name = $r->user->shop->name; }
-                return ['vendor'=>$name,'amount'=>(float)$r->amount,'status'=>$r->status==1?'Paid':($r->status==2?'Processing':'Pending'),'date'=>$r->created_at->format('d M Y')];
+                return ['vendor'=>$name,'amount'=>(float)$r->amount,'status'=>$r->status==1?'Paid':($r->status==2?'Processing':'Pending'),'date'=>$r->created_at->locale(app()->getLocale())->translatedFormat('d M Y')];
             });
         } catch (\Exception $e) { return collect(); }
     }
@@ -98,7 +98,7 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
             for ($i=6;$i>=0;$i--) {
                 $m = now()->subMonths($i);
                 $chart[] = [
-                    'month'=>$m->format('M'),
+                    'month'=>$m->locale(app()->getLocale())->translatedFormat('M'),
                     'commission'=>(float)DB::table('commission_history')->whereMonth('created_at',$m->month)->whereYear('created_at',$m->year)->sum('admin_commission'),
                     'refunds'=>(float)\App\Models\RefundRequest::where('refund_status',1)->whereMonth('created_at',$m->month)->whereYear('created_at',$m->year)->count()*100,
                 ];
@@ -245,7 +245,7 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
             for($i=6;$i>=0;$i--) {
                 $m=now()->subMonths($i);
                 $growth[]=[
-                    'month'=>$m->format('M'),
+                    'month'=>$m->locale(app()->getLocale())->translatedFormat('M'),
                     'active'=>$this->approvedVendorQuery()->where('created_at','<=',$m->copy()->endOfMonth())->count(),
                     'new'=>$this->approvedVendorQuery()->whereMonth('created_at',$m->month)->whereYear('created_at',$m->year)->count(),
                     'churned'=>0,
@@ -303,7 +303,7 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
             return \App\Models\Coupon::orderByDesc('created_at')->limit(5)->get()->map(function($c) {
                 $uses = \App\Models\Order::where('coupon_code',$c->code)->count();
                 $rev = \App\Models\Order::where('payment_status','paid')->where('coupon_code',$c->code)->sum('grand_total');
-                return ['code'=>$c->code,'discount'=>$c->discount.($c->discount_type=='amount'?'':'%'),'uses'=>(int)$uses,'revenue'=>(float)$rev,'expires'=>date('d M Y',$c->end_date)];
+                return ['code'=>$c->code,'discount'=>$c->discount.($c->discount_type=='amount'?'':'%'),'uses'=>(int)$uses,'revenue'=>(float)$rev,'expires'=>Carbon::createFromTimestamp($c->end_date)->locale(app()->getLocale())->translatedFormat('d M Y')];
             })->toArray();
         } catch (\Exception $e) { return []; }
     }
@@ -321,7 +321,7 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
                 ->whereBetween('created_at',[$start,$end])
                 ->orderByDesc('created_at')->limit(10)->get()->map(function($e) {
                     $admin = null; try { $admin = \App\Models\User::find($e->admin_id ?? $e->user_id); } catch(\Exception $ex){}
-                    return ['created_at'=>$e->created_at,'admin'=>['name'=>$admin?$admin->name:'System'],'action_type'=>$e->action_type??'','description'=>$e->description??'','ip_address'=>$e->ip_address??''];
+                    return ['created_at'=>$e->created_at,'admin'=>['name'=>$admin?$admin->name:'System'],'action_type'=>$e->action_type??'','description'=>translate_security_event_description($e->description??''),'ip_address'=>$e->ip_address??''];
                 })->toArray();
         } catch (\Exception $e) { Log::warning('[Analytics] Security: '.$e->getMessage()); }
         return $result;
@@ -346,11 +346,11 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
         $insights = [];
         try {
             $recentOrders = \App\Models\Order::where('created_at','>=',now()->subHour())->count();
-            if ($recentOrders > 10) $insights[] = ['level'=>'info','title'=>'High Order Volume','message'=>"$recentOrders orders in the last hour."];
+            if ($recentOrders > 10) $insights[] = ['level'=>'info','title'=>'High Order Volume','message'=>"$recentOrders ".translate('orders in the last hour.')];
             $pendingRefunds = \App\Models\RefundRequest::where('refund_status',0)->count();
-            if ($pendingRefunds > 5) $insights[] = ['level'=>'warning','title'=>'Pending Refunds','message'=>"$pendingRefunds refund requests awaiting review."];
+            if ($pendingRefunds > 5) $insights[] = ['level'=>'warning','title'=>'Pending Refunds','message'=>"$pendingRefunds ".translate('refund requests awaiting review.')];
             $pendingPayouts = SellerWithdrawRequest::where('status',0)->count();
-            if ($pendingPayouts > 3) $insights[] = ['level'=>'info','title'=>'Vendor Payouts Due','message'=>"$pendingPayouts vendors awaiting payout."];
+            if ($pendingPayouts > 3) $insights[] = ['level'=>'info','title'=>'Vendor Payouts Due','message'=>"$pendingPayouts ".translate('vendors awaiting payout.')];
         } catch (\Exception $e) {}
         return $insights;
     }

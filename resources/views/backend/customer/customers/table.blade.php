@@ -63,7 +63,7 @@
                     </div>
                     @endif
                 </td>
-                <td class="align-middle" data-label="Name">
+                <td class="align-middle" data-label="{{ translate('Name') }}">
                     <div class="row gutters-5 w-300px w-md-300px mw-300">
                         <div class="col">
                             <span
@@ -80,7 +80,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-xs" data-label="Email Address">
+                <td class="align-middle hide-xs" data-label="{{ translate('Email Address') }}">
                     <div class="row gutters-5 w-200px w-md-200px mw-200">
                         <div class="col">
                             <span
@@ -88,7 +88,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-md w-200px w-md-200px mw-200" data-label="Phone">
+                <td class="align-middle hide-md w-200px w-md-200px mw-200" data-label="{{ translate('Phone') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span
@@ -96,7 +96,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-7xl w-200px w-md-200px mw-200" data-label="Package">
+                <td class="align-middle hide-7xl w-200px w-md-200px mw-200" data-label="{{ translate('Package') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span
@@ -108,7 +108,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-xxl w-200px w-md-200px mw-200" data-label="Wallet Balance">
+                <td class="align-middle hide-xxl w-200px w-md-200px mw-200" data-label="{{ translate('Wallet Balance') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span
@@ -116,7 +116,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-xl w-200px w-md-200px mw-200" data-label="Verification Status">
+                <td class="align-middle hide-xl w-200px w-md-200px mw-200" data-label="{{ translate('Verification Status') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span
@@ -133,7 +133,7 @@
                     </div>
                 </td>
                 @canany(['delete_customer','ban_customer'])
-                <td class="align-middle hide-s text-right" data-label="Options">
+                <td class="align-middle hide-s text-right" data-label="{{ translate('Options') }}">
                     <div class="d-flex align-items-center justify-content-end">
                         <div class="dropdown float-right">
                             <button

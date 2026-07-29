@@ -30,15 +30,15 @@
                               </g>
                             </g>
                         </svg>
-                        <h1 class="fs-21 fw-700 text-uppercase mt-2" style="color: #3d3d3d;">CHECKING FILE PERMISSIONS</h1>
+                        <h1 class="fs-21 fw-700 text-uppercase mt-2" style="color: #3d3d3d;">{{ translate('CHECKING FILE PERMISSIONS') }}</h1>
                         <p class="fs-12 fw-500" style="color:  #666; line-height: 18px;">
-                            We ran diagnosis on your server. Review the items that have a <span style="color: #fe2b25">red</span> mark on it. <br> If everything is green, you are good to go to the next step.
+                            {{ translate('We ran diagnosis on your server. Review the items that have a') }} <span style="color: #fe2b25">{{ translate('red mark') }}</span> {{ translate('on it.') }} <br> {{ translate('If everything is green, you are good to go to the next step.') }}
                         </p>
                     </div>
 
                     <ul class="list-group rounded-2">
                         <li class="list-group-item fs-12 fw-600 d-flex align-items-center justify-content-between" style="line-height: 18px; color: #666; gap: 7px;">
-                            Php version 8.2
+                            {{ translate('Php version 8.2') }}
 
                             @php
                                 $phpVersion = number_format((float)phpversion(), 2, '.', '');
@@ -54,7 +54,7 @@
                             @endif
                         </li>
                         <li class="list-group-item fs-12 fw-600 d-flex align-items-center justify-content-between" style="line-height: 18px; color: #666; gap: 7px;">
-                            Curl Enabled
+                            {{ translate('Curl Enabled') }}
 
                             @if ($permission['curl_enabled'])
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13.435" height="13.435" viewBox="0 0 13.435 13.435">
@@ -67,7 +67,7 @@
                             @endif
                         </li>
                         <li class="list-group-item fs-12 fw-600 d-flex align-items-center justify-content-between" style="line-height: 18px; color: #666; gap: 7px;">
-                            .env File Permission
+                            {{ translate('.env File Permission') }}
 
                             @if ($permission['db_file_write_perm'])
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13.435" height="13.435" viewBox="0 0 13.435 13.435">
@@ -80,7 +80,7 @@
                             @endif
                         </li>
                         <li class="list-group-item fs-12 fw-600 d-flex align-items-center justify-content-between" style="line-height: 18px; color: #666; gap: 7px;">
-                            RouteServiceProvider.php File Permission
+                            {{ translate('RouteServiceProvider.php File Permission') }}
 
                             @if ($permission['routes_file_write_perm'])
                                 <svg xmlns="http://www.w3.org/2000/svg" width="13.435" height="13.435" viewBox="0 0 13.435 13.435">
@@ -113,12 +113,12 @@
                             </svg>
                         </div>
                         <p class="ml-2 mb-0 fs-12 fw-500 text-justify text-gray-dark" style="color: #666; line-height: 18px;">
-                            Note: Go to your server  and find the php <span class="text-dark fw-900">extension/package</span> and disable <span class="text-dark fw-900">pdo_mysql</span> then enable <span class="text-dark fw-900">nd_mysqli</span> and <span class="text-dark fw-900">nd_pdo_mysql</span> both for preventing value convert issue like an integer to string.
+                            {{ translate('Note: Go to your server and find the php') }} <span class="text-dark fw-900">extension/package</span> {{ translate('and disable') }} <span class="text-dark fw-900">pdo_mysql</span> {{ translate('then enable') }} <span class="text-dark fw-900">nd_mysqli</span> {{ translate('and') }} <span class="text-dark fw-900">nd_pdo_mysql</span> {{ translate('both for preventing value convert issue like an integer to string.') }}
                         </p>
                     </div>
 
                     <p class="mb-4 pb-4 absolute-bottom-left right-0 d-flex justify-content-center">
-                        <a href="{{ url('/') }}" class="back-btn-svg mr-3" title="Go Back" style="box-shadow: 0px 8px 16px rgb(255 88 0 / 16%); border-radius: 50%;">
+                        <a href="{{ url('/') }}" class="back-btn-svg mr-3" title="{{ translate('Go Back') }}" style="box-shadow: 0px 8px 16px rgb(255 88 0 / 16%); border-radius: 50%;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
                                 <g id="Group_22706" data-name="Group 22706" transform="translate(-770 -653)">
                                   <g id="Ellipse_26" data-name="Ellipse 26" transform="translate(770 653)" fill="none" stroke="#cccccc" stroke-width="1">
@@ -131,9 +131,9 @@
                         </a>
                         @if ($permission['curl_enabled'] == 1 && $permission['db_file_write_perm'] == 1 && $permission['routes_file_write_perm'] == 1 && $phpVersion >= 7.20)
                             @if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1')
-                                <a href = "{{ (Route::has('step3') ? route('step3') : '#') }}" class="btn btn-install text-uppercase">Go To Next Step</a>
+                                <a href = "{{ (Route::has('step3') ? route('step3') : '#') }}" class="btn btn-install text-uppercase">{{ translate('Go To Next Step') }}</a>
                             @else
-                                <a href = "{{ (Route::has('step2') ? route('step2') : '#') }}" class="btn btn-install text-uppercase">Go To Next Step</a>
+                                <a href = "{{ (Route::has('step2') ? route('step2') : '#') }}" class="btn btn-install text-uppercase">{{ translate('Go To Next Step') }}</a>
                             @endif
                         @endif
                     </p>

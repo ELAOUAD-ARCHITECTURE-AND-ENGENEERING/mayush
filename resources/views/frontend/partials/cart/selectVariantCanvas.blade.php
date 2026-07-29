@@ -93,7 +93,7 @@
                     <!-- Product Choice options form -->
                     <div class="d-flex align-items-center justify-content-between mt-3 mb-1">
                         <div class="d-inline-flex align-items-center">
-                            <h5 class="fs-16 fw-600 text-secondary mr-2 mb-0">Variation</h5>
+                            <h5 class="fs-16 fw-600 text-secondary mr-2 mb-0">{{ translate('Variation') }}</h5>
                             <span>
                                 <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
                                     width="20px" fill="#9d9da6">
@@ -231,7 +231,7 @@
                 <div class="mt-2">
                     <!--Quantity-->
                     <div class="d-flex align-items-center flex-wrap">
-                        <span class="fs-14 fw-400 text-gray pr-20px">QTY</span>
+                        <span class="fs-14 fw-400 text-gray pr-20px">{{ translate('QTY') }}</span>
                         <div class="d-flex align-items-center aiz-plus-minus border border  border-soft-light rounded-1">
                             <!--Decrement-->
                             <button type="button" data-type="minus" data-field="quantity" disabled="disabled"
@@ -312,7 +312,7 @@
 
 <div class="w-100 px-30px  position-absolute bottom-0 bg-white right-offcavas-footer pt-20px pb-20px border-top border-soft-light" style="box-shadow: none!important;">
     <div class="d-flex flex-wrap flex-md-nowrap align-items-center mb-2">
-        <button type="button" onclick="buyNow()" class="text-white border-0 rounded-1 fs-14 fw-bold bg-black hov-opacity-70 has-transition py-15px px-20px d-block w-100 mb-2 mb-md-0 mr-0 mr-md-2">Buy Now</button>
+        <button type="button" onclick="buyNow()" class="text-white border-0 rounded-1 fs-14 fw-bold bg-black hov-opacity-70 has-transition py-15px px-20px d-block w-100 mb-2 mb-md-0 mr-0 mr-md-2">{{ translate('Buy Now') }}</button>
         <button id="added_to_cart_btn" type="button" onclick="addToCart()" class="text-blue border-0 rounded-1 fs-14 fw-bold bg-soft-blue hov-bg-blue hov-text-white py-15px px-20px d-block w-100">{{ translate('Add to cart') }} <span id="add_to_cart_count"></span></button>
     </div>
     <div class="text-right">

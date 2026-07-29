@@ -21,7 +21,7 @@
                     {{ Str::limit($product->preorder_refund?->note?->description, 100) }} 
                 </span>
                 <span class="d-none preorder-text-light-grey fs-14" id="full-text-{{ $product->preorder_refund?->note?->id }}">{{ $product->preorder_refund?->note?->description }}</span>
-                <a href="javascript:void(0);" onclick="toggleText({{ $product->preorder_refund?->note?->id }})" id="toggle-link-{{ $product->preorder_refund?->note?->id }}">See More</a>
+                <a href="javascript:void(0);" onclick="toggleText({{ $product->preorder_refund?->note?->id }})" id="toggle-link-{{ $product->preorder_refund?->note?->id }}">{{ translate('See More') }}</a>
             </p>
             @endif
         </div>
@@ -39,11 +39,11 @@ function toggleText(id) {
     if (fullText.classList.contains('d-none')) {
         shortText.classList.add('d-none'); 
         fullText.classList.remove('d-none'); 
-        toggleLink.textContent = 'See Less'; 
+        toggleLink.textContent = '{{ translate('See Less') }}';
     } else {
         shortText.classList.remove('d-none'); 
         fullText.classList.add('d-none'); 
-        toggleLink.textContent = 'See More'; 
+        toggleLink.textContent = '{{ translate('See More') }}';
     }
 }
     

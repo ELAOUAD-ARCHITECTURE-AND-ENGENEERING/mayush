@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>Stripe Payment</title>
+    <title>{{ translate('Stripe Payment') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         .loader {
@@ -40,7 +40,7 @@
 <div class="loader"></div>
 <br>
 <br>
-<p style="width: 250px; margin: auto;">Don't close the tab. The payment is being processed . . .</p>
+<p style="width: 250px; margin: auto;">{{ translate("Don't close the tab. The payment is being processed . . .") }}</p>
 <script type="text/javascript">
     // Create an instance of the Stripe object with your publishable API key
     var stripe = Stripe('{{ env("STRIPE_KEY") }}');

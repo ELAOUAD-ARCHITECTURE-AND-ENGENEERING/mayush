@@ -26,7 +26,7 @@
                 class="lazyload mx-auto img-fit has-transition product-hover-image position-absolute"
                 src="{{ static_asset('assets/img/placeholder.jpg') }}"
                 data-src="{{ get_first_product_image($product->photos, $product->thumbnail) }}"
-                alt="{{ \App\Services\SeoService::productAltText($product, 'Photo detail - Livraison Maroc') }}"
+                alt="{{ \App\Services\SeoService::productAltText($product, translate('Photo detail - Livraison Maroc')) }}"
                 title="{{ $product->getTranslation('name') }}"
                 width="300"
                 height="300"

@@ -233,7 +233,7 @@
                                     {{ translate('Download Label') }}
                                 </label>
                                     <a href="{{ route('shiprocket.download.label', $order->id) }}"
-                                class="btn btn-sm btn-install w-auto h-auto d-block " title="Download Label">
+                                class="btn btn-sm btn-install w-auto h-auto d-block " title="{{ translate('Download Label') }}">
                                 <i class="las la-2x la-download"></i>
                                 </a>
                             </div>
@@ -243,7 +243,7 @@
                                         {{ translate('Download Manifest') }}
                                     </label>
                                     <a href="{{ route('shiprocket.download.manifest', $order->id) }}"
-                                    class="btn btn-sm btn-install w-auto h-auto d-block" title="Download Manifest">
+                                    class="btn btn-sm btn-install w-auto h-auto d-block" title="{{ translate('Download Manifest') }}">
                                         <i class="las la-2x la-download"></i>
                                     </a>
                                 </div>
@@ -1201,7 +1201,7 @@
             // Confirm Button
             $('#steadfastConfirmBtn').on('click', function () {
 
-                $('#steadfastConfirmBtn').prop('disabled', true).text('Processing...');
+                $('#steadfastConfirmBtn').prop('disabled', true).text('{{ translate('Processing...') }}');
 
                 $.ajax({
                     url: "{{ route('steadfast.create.order') }}",
@@ -1219,12 +1219,12 @@
                         }
                     },
                     error: function () {
-                        AIZ.plugins.notify('danger', 'Something went wrong');
+                        AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
                     },
                     complete: function () {
                         $('#steadfastConfirmBtn')
                             .prop('disabled', false)
-                            .text('Confirm');
+                            .text('{{ translate('Confirm') }}');
                         $('#steadfastConfirmModal').modal('hide');
                     }
                 });
@@ -1278,7 +1278,7 @@
                         $('#store-list').html(html);
                     },
                     error: function () {
-                        $('#store-list').html('<p class="text-danger">API Error</p>');
+                        $('#store-list').html('<p class="text-danger">{{ translate('API Error') }}</p>');
                     }
                 });
             }

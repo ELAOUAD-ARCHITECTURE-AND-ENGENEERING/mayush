@@ -65,13 +65,13 @@
                
 
                 
-                <td data-label="Thumb" class="w-60px w-md-80px w-md-100px">
+                <td data-label="{{ translate('Thumb') }}" class="w-60px w-md-80px w-md-100px">
                     <div class="w-40px h-40px w-sm-60px h-sm-60px w-md-80px h-md-80px rounded-2 overflow-hidden border">
-                        <img src="{{ uploaded_asset($product->thumbnail_img) }}" alt="Image" class="img-fit">
+                        <img src="{{ uploaded_asset($product->thumbnail_img) }}" alt="{{ translate('Image') }}" class="img-fit">
                     </div>
 
                 </td>
-                <td data-label="Name" class="w-lg-300px">
+                <td data-label="{{ translate('Name') }}" class="w-lg-300px">
                     <div class="row gutters-5 w-sm-180px w-md-200px w-lg-100 mw-100 ml-1 ml-lg-0">
                         <div class="col">
                             <span class="text-truncate-2 fs-12 fs-md-14 fw-400 mr-2">{{ $product->getTranslation('name') }}</span>
@@ -89,7 +89,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="hide-xs" data-label="Owner Category">
+                <td class="hide-xs" data-label="{{ translate('Owner Category') }}">
                      @php $shop = optional(optional($product->user)->shop); @endphp
                     <a href="{{ $shop->id ? route('sellers.profile', encrypt($shop->id)) : '#' }}" class="fs-12 fs-md-14 fw-700 d-block">
                          {{ $shop->name ?? translate('Inhouse') }}
@@ -97,7 +97,7 @@
                     <span class="fs-12 fw-200 text-secondary d-block pt-1">{{ translate('Main Category') }}</span>
                     <p class="fs-12 fs-md-14 fw-700 m-0">{{translate($product->main_category->name ?? '')}}</p> 
                 </td>
-                <td class="hide-sm" data-label="Ratings">
+                <td class="hide-sm" data-label="{{ translate('Ratings') }}">
                     <!--Ratting-->
                     <div class="d-flex align-items-center rattings">
                         <span class="rating rating-mr-1">
@@ -117,7 +117,7 @@
                     </p>
                 </td>
 
-                <td class="hide-md align-middle" data-label="Price Details">
+                <td class="hide-md align-middle" data-label="{{ translate('Price Details') }}">
                     <div class="border-width-3  border-left border-blue px-2 py-0 mb-1">
                         <span class="text-secondary fs-12 fw-400">{{ translate('Price') }}</span>
                         <p class="fs-16 fw-700 m-0">{{ single_price($product->unit_price) }}</p>
@@ -130,7 +130,7 @@
                     </div>
                     @endif
                 </td>
-                <td class="hide-xl" data-label="Info">
+                <td class="hide-xl" data-label="{{ translate('Info') }}">
                     <span class="fs-12 fw-400 text-secondary">{{('Number of Sale')}}</span>
                     <p class="fs-16 fw-700 m-0 pb-10px">{{ $product->num_of_sale }}</p>
                     @if(!$product->draft && !$product->digital)
@@ -139,7 +139,7 @@
                     @endif
                 </td>
                 
-                <td class="hide-xl align-middle" data-label="Stock">
+                <td class="hide-xl align-middle" data-label="{{ translate('Stock') }}">
                     @if(!$product->draft && !$product->digital)
                         @php
                             $total_stock = 0;
@@ -161,7 +161,7 @@
                     @endif
                 </td>
                         
-                <td class="hide-xxl align-middle" data-label="Published">
+                <td class="hide-xxl align-middle" data-label="{{ translate('Published') }}">
                     @if (!$product->draft)
                     <label class="aiz-switch aiz-switch-blue mb-0">
                         <input onchange="update_published(this)" value="{{ $product->id }}"type="checkbox" <?php if ($product->published == 1) {
@@ -172,7 +172,7 @@
                     @endif
                 </td>
                 @if (get_setting('product_approve_by_admin') == 1 && $type == 'seller')
-                <td class="hide-xxl align-middle" data-label="Approved">
+                <td class="hide-xxl align-middle" data-label="{{ translate('Approved') }}">
                      @if (!$product->draft)
                     <label class="aiz-switch aiz-switch-blue mb-0">
                         <input onchange="update_approved(this)" value="{{ $product->id }}"
@@ -185,7 +185,7 @@
                 </td>
                 @endif
 
-                <td class="hide-xxl align-middle" data-label="Featured">
+                <td class="hide-xxl align-middle" data-label="{{ translate('Featured') }}">
                     @if (!$product->draft)
                     <label class="aiz-switch aiz-switch-blue mb-0">
                         <input onchange="update_featured(this)" value="{{ $product->id }}"
@@ -197,7 +197,7 @@
                     @endif
                 </td>
 
-                <td class="hide-xxl align-middle" data-label="TodaysDeal">
+                <td class="hide-xxl align-middle" data-label="{{ translate('TodaysDeal') }}">
                     @if (!$product->draft)
                     <label class="aiz-switch aiz-switch-blue mb-0">
                         <input onchange="update_todays_deal(this)" value="{{ $product->id }}"
@@ -245,7 +245,7 @@
                                                 transform="translate(-120 921)" fill="#414141" />
                                         </svg>
                                     </span>
-                                    <span class="fs-14 text-secondary fw-500 pl-10px">Edit</span>
+                                    <span class="fs-14 text-secondary fw-500 pl-10px">{{ translate('Edit') }}</span>
                                 </a>
                                 @endcan
                                 <!--View Product-->

@@ -17,7 +17,7 @@
                 <!-- Area Wise Shipping Cost -->
                 <div class="col-md-6 col-lg-4 d-flex">
                     <div class="card text-center px-3 py-4 w-100" data-shipping="Area Wise Shipping Cost">
-                        <img src="{{ static_asset('assets/img/shipping/area_wise_flat_shipping.png') }}" class="card-img-top mx-auto" alt="Shipping Icon">
+                        <img src="{{ static_asset('assets/img/shipping/area_wise_flat_shipping.png') }}" class="card-img-top mx-auto" alt="{{ translate('Shipping Icon') }}">
 
                         <div class="text-left mx-4">
                             <div class="d-flex align-items-left justify-content-left mb-2">
@@ -35,7 +35,7 @@
 
                 <div class="col-md-6 col-lg-4 d-flex">
                     <div class="card text-center px-3 py-4 w-100" data-shipping="Product Wise Shipping Cost">
-                        <img src="{{ static_asset('assets/img/shipping/product_wise_shipping.png') }}" class="card-img-top mx-auto" alt="Shipping Icon">
+                        <img src="{{ static_asset('assets/img/shipping/product_wise_shipping.png') }}" class="card-img-top mx-auto" alt="{{ translate('Shipping Icon') }}">
 
                         <div class="text-left mx-4">
                             <div class="d-flex align-items-left justify-content-left mb-2">
@@ -53,7 +53,7 @@
 
                 <div class="col-md-6 col-lg-4 d-flex">
                     <div class="card text-center px-3 py-4 w-100" data-shipping="Flat Rate Shipping Cost">
-                        <img src="{{ static_asset('assets/img/shipping/flat_rate_shipping.png') }}" class="card-img-top mx-auto" alt="Shipping Icon">
+                        <img src="{{ static_asset('assets/img/shipping/flat_rate_shipping.png') }}" class="card-img-top mx-auto" alt="{{ translate('Shipping Icon') }}">
 
                         <div class="text-left mx-4">
                             <div class="d-flex align-items-left justify-content-left mb-2">
@@ -71,7 +71,7 @@
 
                 <div class="col-md-6 col-lg-4 d-flex">
                     <div class="card text-center px-3 py-4 w-100" data-shipping="Seller Wise Shipping Cost">
-                        <img src="{{ static_asset('assets/img/shipping/seller_wise_flat_shipping.png') }}" class="card-img-top mx-auto" alt="Shipping Icon">
+                        <img src="{{ static_asset('assets/img/shipping/seller_wise_flat_shipping.png') }}" class="card-img-top mx-auto" alt="{{ translate('Shipping Icon') }}">
 
                         <div class="text-left mx-4">
                             <div class="d-flex align-items-left justify-content-left mb-2">
@@ -91,7 +91,7 @@
                 <!-- Carrier Wise Shipping Cost -->
                 <div class="col-md-6 col-lg-4 d-flex">
                     <div class="card text-center px-3 py-4 w-100" data-shipping="Carrier Wise Shipping Cost">
-                        <img src="{{ static_asset('assets/img/shipping/carrier_wise_shipping.png') }}" class="card-img-top mx-auto" alt="Shipping Icon">
+                        <img src="{{ static_asset('assets/img/shipping/carrier_wise_shipping.png') }}" class="card-img-top mx-auto" alt="{{ translate('Shipping Icon') }}">
 
                         <div class="text-left mx-4">
                             <div class="d-flex align-items-left justify-content-left mb-2">
@@ -110,7 +110,7 @@
 
             <div class="row mx-1 mb-4">
                 <div class="col-xl-8 ">
-                    <button class="btn bg-blue-color2 text-primary w-100 "><small class="font-weight-bold">You have selected <span id="dynamic-text"> ... </span></small></button>
+                    <button class="btn bg-blue-color2 text-primary w-100 "><small class="font-weight-bold">{{ translate('You have selected') }} <span id="dynamic-text"> ... </span></small></button>
                 </div>
                 <div class="col-xl-4 mt-2 mt-xl-0">
                     <button class="btn btn-primary w-100" type="submit">{{ translate('SET SHIPPING METHOD') }}</button>

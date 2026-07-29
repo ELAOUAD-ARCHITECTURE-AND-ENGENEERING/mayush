@@ -1,8 +1,6 @@
 @extends('frontend.layouts.app')
 
 @section('content')
-    <div class="bg-danger text-white">DEBUG: THIS IS SHIPPING_INFO VIEW</div>
-
     <!-- Steps -->
     @include('frontend.partials.checkout.stepper', ['step' => 2])
 

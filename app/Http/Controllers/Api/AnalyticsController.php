@@ -1110,10 +1110,10 @@ class AnalyticsController extends Controller
             'system_health' => $failedLogins > 10 ? 'danger' : ($failedLogins > 5 ? 'warning' : 'secure'),
             'recent_events' => $recentEvents->map(function($e) {
                 return [
-                    'time' => $e->created_at->diffForHumans(),
+                    'time' => $e->created_at->locale(app()->getLocale())->diffForHumans(),
                     'event' => $e->action_type,
                     'ip' => $e->ip_address,
-                    'description' => $e->description
+                    'description' => translate_security_event_description($e->description)
                 ];
             })
         ]);

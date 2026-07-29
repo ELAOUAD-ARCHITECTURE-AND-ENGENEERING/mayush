@@ -30,7 +30,7 @@
                                         <label class="col-md-3 col-from-label">{{ translate('Background Color') }}</label>
                                         <div class="col-md-9">
                                             <div class="input-group">
-                                                <input type="text" class="form-control aiz-color-input" placeholder="Ex: #e1e1e1"
+                                                <input type="text" class="form-control aiz-color-input" placeholder="{{ translate('Example') }}: #e1e1e1"
                                                     name="background_color" required>
                                                 <div class="input-group-append">
                                                     <span class="input-group-text p-0">

@@ -28,7 +28,7 @@
                 height="480"
                 loading="lazy"
                 decoding="async"
-                alt="{{ \App\Services\SeoService::productAltText($product, 'Photo detail - Livraison Maroc') }}"
+                alt="{{ \App\Services\SeoService::productAltText($product, translate('Photo detail - Livraison Maroc')) }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
         </a>

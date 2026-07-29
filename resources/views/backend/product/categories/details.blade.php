@@ -24,7 +24,7 @@
             <div
                 class="brand-logo-container w-40px h-40px overflow-hidden border border-gray-300 rounded-2 d-flex align-items-center justify-content-center">
                 <img src="{{ uploaded_asset($category->icon) }}" class="img-fluid w-20px h-20px"
-                    alt="Logo">
+                    alt="{{ translate('Logo') }}">
             </div>
         </div>
         @endif
@@ -35,12 +35,12 @@
                 <div
                     class="w-120px h-120px overflow-hidden border border-gray-300 rounded-2 d-flex align-items-center justify-content-center">
                     <img src="{{ isset($category->banner) ? uploaded_asset($category->banner) : static_asset('assets/img/placeholder.jpg') }}"
-                        class="img-fluid w-130px h-130px object-fit-cover object-position-center" alt="Banner">
+                        class="img-fluid w-130px h-130px object-fit-cover object-position-center" alt="{{ translate('Banner') }}">
                 </div>
                 <div
                     class="w-120px h-120px overflow-hidden border border-gray-300  rounded-2 d-flex align-items-center justify-content-center ml-2rem">
                     <img src="{{ isset($category->cover_image) ? uploaded_asset($category->cover_image) : static_asset('assets/img/placeholder.jpg') }}"
-                        class="img-fluid w-130px h-130px object-fit-cover object-position-center" alt="Cover">
+                        class="img-fluid w-130px h-130px object-fit-cover object-position-center" alt="{{ translate('Cover') }}">
                 </div>
 
             </div>
@@ -76,7 +76,7 @@
     </div>
     @if (get_setting('seller_commission_type') == 'category_based')
     <div class="border-bottom-dashed  pt-15px pb-15px">
-        <p class="m-0 fs-14 fw-700 text-dark pb-5px">Commission of Seller's</p>
+        <p class="m-0 fs-14 fw-700 text-dark pb-5px">{{ translate("Commission of Seller's") }}</p>
         <span class="fs-14 fw-400 text-dark">{{ $category->commision_rate }}%</span>
     </div>
     @endif

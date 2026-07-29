@@ -17,7 +17,7 @@
                         
                         <i class="las la-language" id="icon-{{ $language->id }}"></i>
                         <img src="{{ static_asset('assets/img/aiz-loader.gif') }}" width="20" height="20"
-                            alt="Loading" class="d-none" id="loader-{{ $language->id }}">
+                            alt="{{ translate('Loading') }}" class="d-none" id="loader-{{ $language->id }}">
                         <span>{{ translate('Translate By Google') }}</span>
                     </button>
                 @endif
@@ -132,7 +132,7 @@
             })
             .catch(error => {
                 console.error('Translation failed', error);
-                alert('Something went wrong during translation.');
+                alert('{{ translate('Something went wrong during translation.') }}');
             })
             .finally(() => {
                 // Hide loader, show icon again

@@ -31,7 +31,7 @@
                             </g>
                         </svg>
                         <h1 class="fs-21 fw-700 text-uppercase mt-2" style="color: #3d3d3d;">Congratulations!!!</h1>
-                        <p class="fs-12 fw-500" style="color:  #666; line-height: 18px;">You have successfully completed the installation process. Please Login to continue.</p>
+                        <p class="fs-12 fw-500" style="color:  #666; line-height: 18px;">{{ translate('You have successfully completed the installation process. Please Login to continue.') }}</p>
                     </div>
                     <div>
                         <div class="d-flex align-items-center">
@@ -53,14 +53,14 @@
                                 </svg>
                             </div>
                             <h3 class="ml-2 mb-0 fs-12 fw-700" style="color: #666; line-height: 18px;">
-                                Configure the following setting to run the system properly.
+                                {{ translate('Configure the following setting to run the system properly.') }}
                             </h3>
                         </div>
                         <ul class="fs-12 fw-500 mt-2" style="color:  #666; line-height: 18px;">
-                            <li class="py-1">SMTP Setting</li>
-                            <li class="py-1">Payment Method Configuration</li>
-                            <li class="py-1">Social Media Login Configuration</li>
-                            <li class="py-1">Facebook Chat Configuration</li>
+                            <li class="py-1">{{ translate('SMTP Setting') }}</li>
+                            <li class="py-1">{{ translate('Payment Method Configuration') }}</li>
+                            <li class="py-1">{{ translate('Social Media Login Configuration') }}</li>
+                            <li class="py-1">{{ translate('Facebook Chat Configuration') }}</li>
                         </ul>
                     </div>
 
@@ -84,22 +84,22 @@
                                 </svg>
                             </div>
                             <h3 class="ml-2 mb-0 fs-12 fw-700" style="color: #666; line-height: 18px;">
-                                Demo account added for test purpose.
+                                {{ translate('Demo account added for test purpose.') }}
                             </h3>
                         </div>
                         <ul class="list-group rounded-2 mt-2">
                             <li class="list-group-item fs-12 fw-600 d-flex align-items-center justify-content-between" style="line-height: 18px; color: #666; gap: 7px;">
-                                <span>User Type</span>
-                                <span>Email</span>
-                                <span>Password</span>
+                                <span>{{ translate('User Type') }}</span>
+                                <span>{{ translate('Email') }}</span>
+                                <span>{{ translate('Password') }}</span>
                             </li>
                             <li class="list-group-item fs-12 fw-500 d-flex align-items-center justify-content-between" style="line-height: 18px; color: #666; gap: 7px;">
-                                <span>Customer</span>
+                                <span>{{ translate('Customer') }}</span>
                                 <span>customer@example.com</span>
                                 <span>123456</span>
                             </li>
                             <li class="list-group-item fs-12 fw-500 d-flex align-items-center justify-content-between" style="line-height: 18px; color: #666; gap: 7px;">
-                                <span>Seller</span>
+                                <span>{{ translate('Seller') }}</span>
                                 <span>seller@example.com</span>
                                 <span>123456</span>
                             </li>
@@ -107,8 +107,8 @@
                     </div>
 
                     <div class="mb-4 pb-4 absolute-bottom-left right-0 d-flex justify-content-center">
-                        <a href="{{ env('APP_URL') }}" class="btn btn-primary text-uppercase mr-3" style="border-radius: 1.5rem !important;">Go to Frontend Website</a>
-                        <a href="{{ env('APP_URL') }}/admin" class="btn text-uppercase btn-success" style="border-radius: 1.5rem !important;">Login to Admin panel</a>
+                        <a href="{{ env('APP_URL') }}" class="btn btn-primary text-uppercase mr-3" style="border-radius: 1.5rem !important;">{{ translate('Go to Frontend Website') }}</a>
+                        <a href="{{ env('APP_URL') }}/admin" class="btn text-uppercase btn-success" style="border-radius: 1.5rem !important;">{{ translate('Login to Admin panel') }}</a>
                     </div>
                 </div>
 

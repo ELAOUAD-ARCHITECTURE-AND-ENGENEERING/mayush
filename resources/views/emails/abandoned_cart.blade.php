@@ -169,11 +169,11 @@
             </tr>
             <tr>
                 <td class="content">
-                    <h1 class="title">Don't miss out on your favorites!</h1>
-                    <p class="subtitle">We noticed you left some items in your cart. We've reserved them for you, but they won't stay there forever.</p>
+                    <h1 class="title">{{ translate("Don't miss out on your favorites!") }}</h1>
+                    <p class="subtitle">{{ translate("We noticed you left some items in your cart. We've reserved them for you, but they won't stay there forever.") }}</p>
                     
                     <div class="expiry-alert">
-                        <p class="expiry-text">⚠️ <strong>Note:</strong> Your items will be released back to our inventory in just a few hours. Complete your purchase now to secure them.</p>
+                        <p class="expiry-text">⚠️ <strong>{{ translate('Note:') }}</strong> {{ translate('Your items will be released back to our inventory in just a few hours. Complete your purchase now to secure them.') }}</p>
                     </div>
 
                     @foreach ($order->orderDetails as $orderDetail)
@@ -196,14 +196,14 @@
                     @endforeach
 
                     <div class="footer-action">
-                        <a href="{{ route('purchase_history.details', encrypt($order->id)) }}" class="btn">Complete My Order</a>
+                        <a href="{{ route('purchase_history.details', encrypt($order->id)) }}" class="btn">{{ translate('Complete My Order') }}</a>
                     </div>
                 </td>
             </tr>
             <tr>
                 <td class="footer">
                     <p>&copy; {{ date('Y') }} {{ get_setting('site_name') }}. All rights reserved.</p>
-                    <p>If you have any questions, reply to this email or visit our <a href="{{ route('support_ticket.index') }}" style="color: #2563eb; text-decoration: none;">Support Center</a>.</p>
+                    <p>{{ translate('If you have any questions, reply to this email or visit our') }} <a href="{{ route('support_ticket.index') }}" style="color: #2563eb; text-decoration: none;">{{ translate('Support Center') }}</a>.</p>
                 </td>
             </tr>
         </table>

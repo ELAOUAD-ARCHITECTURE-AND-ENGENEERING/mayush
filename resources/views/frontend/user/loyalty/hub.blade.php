@@ -318,7 +318,7 @@
                     <div class="input-group input-group-lg">
                         <input type="number" name="points" id="points-to-convert" class="form-control border-right-0" placeholder="0" min="{{ (float)get_setting('club_point_convert_rate', 10) }}" step="1">
                         <div class="input-group-append">
-                            <span class="input-group-text bg-white border-left-0 text-primary fw-700">PTS</span>
+                            <span class="input-group-text bg-white border-left-0 text-primary fw-700">{{ translate('PTS') }}</span>
                         </div>
                     </div>
                     <div class="d-flex justify-content-between mt-2">
@@ -363,14 +363,14 @@
 
             @php
                 $benefits = [
-                    ['icon' => '🎁', 'title' => 'Priority Support',               'min_tier' => 1],
-                    ['icon' => '🚀', 'title' => 'Early Access to Flash Deals',     'min_tier' => 1],
+                    ['icon' => '🎁', 'title' => translate('Priority Support')',               'min_tier' => 1],
+                    ['icon' => '🚀', 'title' => translate('Early Access to Flash Deals')',     'min_tier' => 1],
                     ['icon' => '💰', 'title' => '1.5x Point Multiplier',           'min_tier' => 1],
-                    ['icon' => '📦', 'title' => 'Free Shipping on Orders',         'min_tier' => 2],
-                    ['icon' => '🏷️', 'title' => 'Exclusive Gold-Only Coupons',    'min_tier' => 2],
+                    ['icon' => '📦', 'title' => translate('Free Shipping on Orders')',         'min_tier' => 2],
+                    ['icon' => '🏷️', 'title' => translate('Exclusive Gold-Only Coupons')',    'min_tier' => 2],
                     ['icon' => '💎', 'title' => '2x Point Multiplier',             'min_tier' => 2],
-                    ['icon' => '👑', 'title' => 'VIP Concierge Service',           'min_tier' => 3],
-                    ['icon' => '🌟', 'title' => 'Birthday Bonus (500 pts)',        'min_tier' => 3],
+                    ['icon' => '👑', 'title' => translate('VIP Concierge Service')',           'min_tier' => 3],
+                    ['icon' => '🌟', 'title' => translate('Birthday Bonus (500 pts)')',        'min_tier' => 3],
                     ['icon' => '⚡', 'title' => '3x Point Multiplier',            'min_tier' => 3],
                 ];
             @endphp

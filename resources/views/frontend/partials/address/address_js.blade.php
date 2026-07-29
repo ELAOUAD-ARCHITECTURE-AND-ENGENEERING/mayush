@@ -179,7 +179,7 @@
             },
             error: function(xhr, status, error) {
                 console.error('get_states AJAX Error:', status, error);
-                alert('DEBUG ERROR: Failed to load states. Status: ' + status + '. ' + error);
+                alert('{{ translate('Failed to load states. Status:') }} ' + status + '. ' + error);
             }
         });
     }
@@ -205,7 +205,7 @@
             },
             error: function(xhr, status, error) {
                 console.error('get_billing_states AJAX Error:', status, error);
-                alert('DEBUG ERROR: Failed to load billing states. Status: ' + status);
+                alert('{{ translate('Failed to load billing states. Status:') }} ' + status);
             }
         });
     }

@@ -991,6 +991,35 @@ if (!function_exists('translate')) {
     }
 }
 
+if (!function_exists('translate_security_event_description')) {
+    /**
+     * Localize the fixed prefixes used by security audit events while keeping
+     * emails, filenames, URLs, and other event-specific values unchanged.
+     */
+    function translate_security_event_description(?string $description): string
+    {
+        $description = trim((string) $description);
+
+        if ($description === '') {
+            return '';
+        }
+
+        foreach ([
+            'User logged in:',
+            'User logged out:',
+            'Failed login attempt for email:',
+            'Infected file rejected:',
+            'Unauthorized access attempt to',
+        ] as $prefix) {
+            if (str_starts_with($description, $prefix)) {
+                return translate($prefix) . substr($description, strlen($prefix));
+            }
+        }
+
+        return $description;
+    }
+}
+
 function remove_invalid_charcaters($str)
 {
     $str = str_ireplace(array("\\"), '', $str);

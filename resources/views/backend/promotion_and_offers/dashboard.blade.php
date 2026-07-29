@@ -13,7 +13,7 @@
                     <div class="card-header justify-content-start align-items-start border-0 p-0">
                         <div
                             class="w-48px h-48px d-flex align-items-center justify-content-center rounded-1 bg-soft-blue overflow-hidden flex-shrink-0">
-                            <img src="{{ static_asset('assets/img/bogo/bulhorn.svg') }}" alt="Bulhorn Icon">
+                            <img src="{{ static_asset('assets/img/bogo/bulhorn.svg') }}" alt="{{ translate('Bulhorn Icon') }}">
                         </div>
                         <div class="flex-grow-1 ml-3 mt-m-6px min-w-0">
                             <div class="d-flex align-items-center justify-content-between gap-12">
@@ -44,7 +44,7 @@
                     <div class="card-header justify-content-start align-items-start border-0 p-0">
                         <div
                             class="w-48px h-48px d-flex align-items-center justify-content-center rounded-1 overflow-hidden flex-shrink-0" style="background-color: #FFEBFF;">
-                            <img src="{{ static_asset('assets/img/bogo/category-wise-discount.svg') }}" alt="Category Wise Discount Icon">
+                            <img src="{{ static_asset('assets/img/bogo/category-wise-discount.svg') }}" alt="{{ translate('Category Wise Discount Icon') }}">
                         </div>
                         <div class="flex-grow-1 ml-3 mt-m-6px min-w-0">
                             <div class="d-flex align-items-center justify-content-between gap-12">
@@ -75,7 +75,7 @@
                     <div class="card-header justify-content-start align-items-start border-0 p-0">
                         <div
                             class="w-48px h-48px d-flex align-items-center justify-content-center rounded-1 bg-soft-danger overflow-hidden flex-shrink-0">
-                            <img src="{{ static_asset('assets/img/bogo/flash.svg') }}" alt="Flash Icon">
+                            <img src="{{ static_asset('assets/img/bogo/flash.svg') }}" alt="{{ translate('Flash Icon') }}">
                         </div>
                         <div class="flex-grow-1 ml-3 mt-m-6px min-w-0">
                             <div class="d-flex align-items-center justify-content-between gap-12">
@@ -106,7 +106,7 @@
                     <div class="card-header justify-content-start align-items-start border-0 p-0">
                         <div class="w-48px h-48px d-flex align-items-center justify-content-center rounded-1 overflow-hidden flex-shrink-0"
                             style="background-color: #FFF4EB;">
-                            <img src="{{ static_asset('assets/img/bogo/clock.svg') }}" alt="Clock Icon">
+                            <img src="{{ static_asset('assets/img/bogo/clock.svg') }}" alt="{{ translate('Clock Icon') }}">
                         </div>
                         <div class="flex-grow-1 ml-3 mt-m-6px min-w-0">
                             <div class="d-flex align-items-center justify-content-between gap-12">
@@ -133,7 +133,7 @@
                         <div class="card-header justify-content-start align-items-start border-0 p-0">
                             <div class="w-48px h-48px d-flex align-items-center justify-content-center rounded-1 overflow-hidden flex-shrink-0"
                                 style="background-color: #FFEBFA;">
-                                <img src="{{ static_asset('assets/img/bogo/cupon.svg') }}" alt="Cupon Icon">
+                                <img src="{{ static_asset('assets/img/bogo/cupon.svg') }}" alt="{{ translate('Cupon Icon') }}">
                             </div>
                             <div class="flex-grow-1 ml-3 mt-m-6px min-w-0">
                                 <div class="d-flex align-items-center justify-content-between gap-12">

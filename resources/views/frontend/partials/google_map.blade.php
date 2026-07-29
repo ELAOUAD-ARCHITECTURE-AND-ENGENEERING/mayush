@@ -44,14 +44,14 @@
             marker.setPosition(event.latLng);
             document.getElementById(id_format + 'latitude').value = event.latLng.lat();
             document.getElementById(id_format + 'longitude').value = event.latLng.lng();
-            infowindow.setContent('Latitude: ' + event.latLng.lat() + '<br>Longitude: ' + event.latLng.lng());
+            infowindow.setContent('{{ translate('Latitude:') }} ' + event.latLng.lat() + '<br>{{ translate('Longitude:') }} ' + event.latLng.lng());
             infowindow.open(map, marker);
         });
 
         google.maps.event.addListener(marker, 'dragend', function(event) {
             document.getElementById(id_format + 'latitude').value = event.latLng.lat();
             document.getElementById(id_format + 'longitude').value = event.latLng.lng();
-            infowindow.setContent('Latitude: ' + event.latLng.lat() + '<br>Longitude: ' + event.latLng.lng());
+            infowindow.setContent('{{ translate('Latitude:') }} ' + event.latLng.lat() + '<br>{{ translate('Longitude:') }} ' + event.latLng.lng());
             infowindow.open(map, marker);
         });
 
@@ -61,7 +61,7 @@
             var place = autocomplete.getPlace();
 
             if (!place.geometry) {
-                window.alert("Autocomplete's returned place contains no geometry");
+                window.alert("{{ translate(\"Autocomplete's returned place contains no geometry\") }}");
                 return;
             }
 

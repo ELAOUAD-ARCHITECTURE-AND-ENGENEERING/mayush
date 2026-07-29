@@ -26,7 +26,7 @@
 
                                         @if ($has_header_preview)
                                             <img src="{{ static_asset($header_preview) }}"
-                                                class="card-img-top mx-auto" alt="header layout">
+                                                class="card-img-top mx-auto" alt="{{ translate('Header layout') }}">
                                         @else
                                             <div class="header-layout-preview header-layout-preview-marketplace mx-auto">
                                                 <div class="preview-top-row">

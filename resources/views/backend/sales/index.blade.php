@@ -278,7 +278,7 @@
                 </table>
 
                 <div class="aiz-pagination">
-                    {{ $orders->appends(request()->input())->links() }}
+                    {{ $orders->appends(request()->except(['_token', '_method', 'id']))->links() }}
                 </div>
 
             </div>
@@ -348,7 +348,7 @@
                 processData: false,
                 success: function(response) {
                     if (response == 1) {
-                        AIZ.plugins.notify('success', 'Selected items deleted successfully');
+                        AIZ.plugins.notify('success', '{{ translate('Selected items deleted successfully') }}');
                         location.reload();
                     }
                 }

@@ -96,7 +96,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-zoom product-modal" id="modal-size" role="document">
         <div class="modal-content position-relative">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -196,7 +196,7 @@
                 $('.'+section).html(data);
                 location.hash = page;
             }).fail(function() {
-                alert('Something went worng! Data could not be loaded.');
+                alert('{{ translate('Something went worng! Data could not be loaded.') }}');
             });
         }
         // Pagination end

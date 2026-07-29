@@ -5,7 +5,7 @@
 <div class="aiz-titlebar text-left mt-2 mb-3">
     <div class="row align-items-center">
         <div class="col-md-6">
-            <h1 class="h3">Live Chat Support Dashboard</h1>
+            <h1 class="h3">{{ translate('Live Chat Support Dashboard') }}</h1>
         </div>
     </div>
 </div>
@@ -15,33 +15,33 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0 h6">Conversations</h5>
+                <h5 class="mb-0 h6">{{ translate('Conversations') }}</h5>
             </div>
             <div class="card-body p-0" style="max-height: 600px; overflow-y: auto;">
                 <ul class="list-group list-group-flush">
                     @forelse($conversations as $conv)
                         <li class="list-group-item list-group-item-action c-pointer chat-item" 
                             data-id="{{ $conv->id }}"
-                            data-token="{{ $conv->guest_token ?? 'User: ' . $conv->user_id }}">
+                            data-token="{{ $conv->guest_token ?? translate('User') . ': ' . $conv->user_id }}">
                             <div class="d-flex w-100 justify-content-between">
                                 <h6 class="mb-1">
                                     @if($conv->user_id)
-                                        <i class="las la-user"></i> {{ $conv->user->name ?? 'User '.$conv->user_id }}
+                                        <i class="las la-user"></i> {{ $conv->user->name ?? translate('User') . ' '.$conv->user_id }}
                                     @else
-                                        <i class="las la-desktop"></i> Guest ({{ substr($conv->guest_token, 0, 5) }}...)
+                                        <i class="las la-desktop"></i> {{ translate('Guest') }} ({{ substr($conv->guest_token, 0, 5) }}...)
                                     @endif
                                 </h6>
                                 <small>{{ $conv->last_activity_at->diffForHumans() }}</small>
                             </div>
                             <p class="mb-1">
-                                Status: 
+                                {{ translate('Status:') }}
                                 <span class="badge badge-inline badge-{{ $conv->status == 'open' ? 'success' : ($conv->status == 'expired' ? 'warning' : 'secondary') }}">
-                                    {{ ucfirst($conv->status) }}
+                                    {{ translate(ucfirst($conv->status)) }}
                                 </span>
                             </p>
                         </li>
                     @empty
-                        <li class="list-group-item text-center text-muted">No conversations found.</li>
+                        <li class="list-group-item text-center text-muted">{{ translate('No conversations found.') }}</li>
                     @endforelse
                 </ul>
             </div>
@@ -52,10 +52,10 @@
     <div class="col-lg-8">
         <div class="card" id="chat-window" style="display: none;">
             <div class="card-header d-flex justify-content-between">
-                <h5 class="mb-0 h6" id="chat-title">Select a conversation</h5>
+                <h5 class="mb-0 h6" id="chat-title">{{ translate('Select a conversation') }}</h5>
                 <form id="close-chat-form" method="POST" action="">
                     @csrf
-                    <button type="submit" class="btn btn-sm btn-danger">Close Conversation</button>
+                    <button type="submit" class="btn btn-sm btn-danger">{{ translate('Close Conversation') }}</button>
                 </form>
             </div>
             <div class="card-body" id="chat-messages" style="height: 450px; overflow-y: auto; background-color: #f8f9fa;">
@@ -65,7 +65,7 @@
                 <div class="input-group">
                     <input type="text" id="chat-input" class="form-control" placeholder="{{ translate('Type your reply here...') }}" disabled>
                     <div class="input-group-append">
-                        <button class="btn btn-primary" id="btn-send" type="button" disabled>Send</button>
+                        <button class="btn btn-primary" id="btn-send" type="button" disabled>{{ translate('Send') }}</button>
                     </div>
                 </div>
             </div>
@@ -74,7 +74,7 @@
         <div class="card" id="chat-placeholder">
             <div class="card-body text-center py-5">
                 <i class="las la-comment-alt la-4x text-muted mb-3"></i>
-                <h5>Select a conversation from the left to start replying</h5>
+                <h5>{{ translate('Select a conversation from the left to start replying') }}</h5>
             </div>
         </div>
     </div>
@@ -99,7 +99,7 @@
         
         $('#chat-placeholder').hide();
         $('#chat-window').show();
-        $('#chat-title').text('Chat: ' + tokenTitle);
+        $('#chat-title').text('{{ translate('Chat:') }} ' + tokenTitle);
         $('#close-chat-form').attr('action', baseUrl + '/' + activeConversationId + '/close');
         
         $('#chat-input').prop('disabled', false).val('');
@@ -133,10 +133,10 @@
         if (context && context.state === 'WAITING_FOR_AGENT') {
             html += `
                 <div class="alert alert-danger mb-3 p-3 rounded" style="border-left: 4px solid #dc3545;">
-                    <h6 class="alert-heading font-weight-bold"><i class="las la-exclamation-triangle"></i> Agent Handoff Required</h6>
-                    <p class="mb-1 text-sm"><strong>Reason:</strong> ${context.reason || 'Customer requested human'}</p>
-                    <p class="mb-1 text-sm"><strong>Language:</strong> ${context.language.toUpperCase()}</p>
-                    <p class="mb-0 text-sm"><strong>Frustration Score:</strong> ${context.frustration}</p>
+                    <h6 class="alert-heading font-weight-bold"><i class="las la-exclamation-triangle"></i> {{ translate('Agent Handoff Required') }}</h6>
+                    <p class="mb-1 text-sm"><strong>{{ translate('Reason:') }}</strong> ${context.reason || '{{ translate('Customer requested human') }}'}</p>
+                    <p class="mb-1 text-sm"><strong>{{ translate('Language:') }}</strong> ${context.language.toUpperCase()}</p>
+                    <p class="mb-0 text-sm"><strong>{{ translate('Frustration Score:') }}</strong> ${context.frustration}</p>
                 </div>
             `;
         }
@@ -183,7 +183,7 @@
             $('#btn-send').prop('disabled', false);
             fetchMessages();
         }).fail(function() {
-            alert('Failed to send message.');
+            alert('{{ translate('Failed to send message.') }}');
             $('#chat-input').prop('disabled', false);
             $('#btn-send').prop('disabled', false);
         });

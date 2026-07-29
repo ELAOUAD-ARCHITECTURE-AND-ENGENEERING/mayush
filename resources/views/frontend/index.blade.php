@@ -473,19 +473,19 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-10 mx-auto text-center">
-                    <h2 class="h3 fw-700 text-dark mb-4">Mayush : marketplace furniture and interior design in Morocco</h2>
+                    <h2 class="h3 fw-700 text-dark mb-4">{{ translate('Mayush : marketplace furniture and interior design in Morocco') }}</h2>
                     <div class="fs-16 text-gray fw-400 lh-1-8">
                         <p class="mb-4">
-                            <strong>Mayush connects customers with furniture, decor, lighting and home-material sellers in Morocco.</strong>
-                            The marketplace helps buyers compare products, discover seller shops and plan interiors with practical product information.
+                            <strong>{{ translate('Mayush connects customers with furniture, decor, lighting and home-material sellers in Morocco.') }}</strong>
+                            {{ translate('The marketplace helps buyers compare products, discover seller shops and plan interiors with practical product information.') }}
                         </p>
                         <div class="row gutters-15 mt-5">
                             <div class="col-md-4 mb-4 mb-md-0">
                                 <div class="p-3 bg-white rounded shadow-sm h-100">
-                                    <h4 class="fs-18 fw-700 text-primary">Product selection</h4>
+                                    <h4 class="fs-18 fw-700 text-primary">{{ translate('Product selection') }}</h4>
                                     <p class="fs-14 m-0">
                                         @if ($homepageStats['published_products'] !== null)
-                                            Explore {{ number_format($homepageStats['published_products']) }} approved published products on Mayush.
+                                            {{ translate('Explore') }} {{ number_format($homepageStats['published_products']) }} {{ translate('approved published products on Mayush.') }}
                                         @else
                                             Explore approved furniture, decor and interior design products on Mayush.
                                         @endif
@@ -494,10 +494,10 @@
                             </div>
                             <div class="col-md-4 mb-4 mb-md-0">
                                 <div class="p-3 bg-white rounded shadow-sm h-100">
-                                    <h4 class="fs-18 fw-700 text-primary">Verified sellers</h4>
+                                    <h4 class="fs-18 fw-700 text-primary">{{ translate('Verified sellers') }}</h4>
                                     <p class="fs-14 m-0">
                                         @if ($homepageStats['verified_sellers'] !== null)
-                                            Shop from {{ number_format($homepageStats['verified_sellers']) }} verified sellers across the marketplace.
+                                        {{ translate('Shop from') }} {{ number_format($homepageStats['verified_sellers']) }} {{ translate('verified sellers across the marketplace.') }}
                                         @else
                                             Shop from sellers listed on the Mayush marketplace.
                                         @endif
@@ -506,10 +506,10 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="p-3 bg-white rounded shadow-sm h-100">
-                                    <h4 class="fs-18 fw-700 text-primary">Delivery confidence</h4>
+                                    <h4 class="fs-18 fw-700 text-primary">{{ translate('Delivery confidence') }}</h4>
                                     <p class="fs-14 m-0">
                                         @if ($homepageStats['delivery_success_rate'] !== null)
-                                            Recent delivered-order rate: {{ $homepageStats['delivery_success_rate'] }}% over the last 180 days.
+                                            {{ translate('Recent delivered-order rate:') }} {{ $homepageStats['delivery_success_rate'] }}% {{ translate('over the last 180 days.') }}
                                         @else
                                             Delivery information is handled by the seller and order workflow for each purchase.
                                         @endif

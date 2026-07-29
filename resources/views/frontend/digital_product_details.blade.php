@@ -738,7 +738,7 @@
                             <!-- Login & Register -->
                             @guest
                                 <p class="fs-14 fw-400 mb-0 px-4 mt-3"><a
-                                        href="{{ route('user.login') }}">{{ translate('Login') }}</a> or <a class="mr-1"
+                                        href="{{ route('user.login') }}">{{ translate('Login') }}</a> {{ translate('or') }} <a class="mr-1"
                                         href="{{ route('user.registration') }}">{{ translate('Register ') }}</a>{{ translate(' to submit your questions to seller') }}
                                 </p>
                             @endguest
@@ -848,7 +848,7 @@
             <div class="modal-content position-relative">
                 <div class="modal-header">
                     <h5 class="modal-title fw-600 heading-5">{{ translate('Any question about this product?')}}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>

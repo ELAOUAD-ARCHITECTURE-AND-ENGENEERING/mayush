@@ -60,7 +60,7 @@ document.querySelectorAll('.edit-btn').forEach(button => {
             currentEditing.setAttribute('readonly', true);
 
             let oldBtn = currentEditing.closest('.prompt-template').querySelector('.edit-btn');
-            oldBtn.innerText = 'Edit';
+            oldBtn.innerText = '{{ translate('Edit') }}';
 
             currentEditing = null;
         }
@@ -70,7 +70,7 @@ document.querySelectorAll('.edit-btn').forEach(button => {
 
             textarea.removeAttribute('readonly');
             textarea.focus();
-            this.innerText = 'Save';
+            this.innerText = '{{ translate('Save') }}';
 
             currentEditing = textarea;
 

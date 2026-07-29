@@ -6,7 +6,7 @@
                 <h5 class="modal-title fs-18 fw-700 text-dark" id="expressBuyModalLabel">
                     ⚡ {{ translate('Express Buy (1-Click)') }}
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>

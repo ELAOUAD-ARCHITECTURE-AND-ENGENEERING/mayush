@@ -298,7 +298,7 @@
                             <i class="las la-tasks aiz-side-nav-icon"></i>
                             <span class="aiz-side-nav-text">{{ translate('POS System') }}</span>
                             @if (env('DEMO_MODE') == 'On')
-                                <span class="badge badge-inline badge-danger">Addon</span>
+                                <span class="badge badge-inline badge-danger">{{ translate('Addon') }}</span>
                             @endif
                             <span class="aiz-side-nav-arrow"></span>
                         </a>
@@ -325,7 +325,7 @@
                             <i class="las la-percentage aiz-side-nav-icon"></i>
                             <span class="aiz-side-nav-text">{{ translate('GST System') }}</span>
                             @if (env('DEMO_MODE') == 'On')
-                                <span class="badge badge-inline badge-danger">Addon</span>
+                                <span class="badge badge-inline badge-danger">{{ translate('Addon') }}</span>
                             @endif
                             <span class="aiz-side-nav-arrow"></span>
                         </a>

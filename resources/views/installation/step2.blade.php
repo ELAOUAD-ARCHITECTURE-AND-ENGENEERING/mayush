@@ -30,23 +30,23 @@
                               </g>
                             </g>
                         </svg>
-                        <h1 class="fs-21 fw-700 text-uppercase mt-2" style="color: #3d3d3d;">Purchase Code</h1>
+                        <h1 class="fs-21 fw-700 text-uppercase mt-2" style="color: #3d3d3d;">{{ translate('Purchase Code') }}</h1>
                         <p class="fs-12 fw-500" style="color:  #666; line-height: 18px;">
                             Provide your codecanyon purchase code.<br>
-                            <a href="https://help.market.envato.com/hc/en-us/articles/202822600-Where-Is-My-Purchase-Code" target="_blank" class="text-blue hov-text-primary"><i>Where to get purchase code?</i></a>
+                            <a href="https://help.market.envato.com/hc/en-us/articles/202822600-Where-Is-My-Purchase-Code" target="_blank" class="text-blue hov-text-primary"><i>{{ translate('Where to get purchase code?') }}</i></a>
                         </p>
                     </div>
 
                     <form method="POST" action="{{ (Route::has('purchase.code') ? route('purchase.code') : '#') }}">
                         @csrf
                         <div class="form-group mb-3">
-                            <label for="purchase_code" class="fs-12 fw-500" style="color: #666;">Purchase Code</label>
+                            <label for="purchase_code" class="fs-12 fw-500" style="color: #666;">{{ translate('Purchase Code') }}</label>
                             <input type="text" class="form-control rounded-2 border" style="height: 36px !important;" id="purchase_code" name="purchase_code" placeholder="**** **** **** ****" required>
                         </div>
                         <div class="form-group">
-                            <label for="system_key" class="fs-12 fw-500" style="color: #666;">System Key</label>
+                            <label for="system_key" class="fs-12 fw-500" style="color: #666;">{{ translate('System Key') }}</label>
                             <input type="text" class="form-control rounded-2 border" style="height: 36px !important;" id="system_key" name="system_key" placeholder="***************************" required>
-                            <p class="text-right fs-11">After activating the application you will get the system key.</p>
+                            <p class="text-right fs-11">{{ translate('After activating the application you will get the system key.') }}</p>
                         </div>
                         <div class="text-center mt-3 pt-4">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="110" height="90" viewBox="0 0 110 90">
@@ -64,7 +64,7 @@
                             </svg>
                         </div>
                         <div class="mb-4 pb-4 absolute-bottom-left right-0 d-flex justify-content-center">
-                          <a href="{{ (Route::has('step1') ? route('step1') : '#') }}" class="back-btn-svg mr-3" title="Go Back" style="box-shadow: 0px 8px 16px rgb(255 88 0 / 16%); border-radius: 50%;">
+                          <a href="{{ (Route::has('step1') ? route('step1') : '#') }}" class="back-btn-svg mr-3" title="{{ translate('Go Back') }}" style="box-shadow: 0px 8px 16px rgb(255 88 0 / 16%); border-radius: 50%;">
                               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
                                   <g id="Group_22706" data-name="Group 22706" transform="translate(-770 -653)">
                                     <g id="Ellipse_26" data-name="Ellipse 26" transform="translate(770 653)" fill="none" stroke="#cccccc" stroke-width="1">
@@ -75,7 +75,7 @@
                                   </g>
                               </svg>
                           </a>
-                            <button type="submit" class="btn btn-install text-uppercase">Continue</button>
+                            <button type="submit" class="btn btn-install text-uppercase">{{ translate('Continue') }}</button>
                         </div>
                     </form>
                 </div>

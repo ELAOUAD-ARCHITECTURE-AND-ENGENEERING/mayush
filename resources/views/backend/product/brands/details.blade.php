@@ -20,7 +20,7 @@
         <h6 class="m-0 fs-14 fw-700 text-dark pb-10px">{{translate('Brand Logo')}}</h6>
         <div
             class="brand-logo-container w-120px h-80px overflow-hidden border border-light bg-light rounded-2 d-flex align-items-center justify-content-center">
-            <img src="{{ uploaded_asset($brand->logo) }}" class="img-fluid img-fit" alt="Logo">
+            <img src="{{ uploaded_asset($brand->logo) }}" class="img-fluid img-fit" alt="{{ translate('Logo') }}">
         </div>
     </div>
     <div class="border-bottom-dashed  pt-15px pb-15px">

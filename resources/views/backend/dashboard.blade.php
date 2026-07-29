@@ -738,7 +738,7 @@
                     @endforeach
                 ],
                 datasets: [{
-                    label: 'Total Sales',
+                    label: '{{ translate('Total Sales') }}',
                     data: [
                         @foreach ($payment_type_wise_inhouse_sale as $row)
                             {{ $row->total_amount }},

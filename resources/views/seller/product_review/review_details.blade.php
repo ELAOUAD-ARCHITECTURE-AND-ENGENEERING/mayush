@@ -15,7 +15,7 @@
     <div class="d-flex justify-content-between">
         <div class="row gutters-5 w-400px w-md-500px align-items-center ml-1">
             <div class="col-auto">
-                <img src="{{ uploaded_asset($product->thumbnail_img)}}" alt="Image" class="size-80px img-fit">
+                <img src="{{ uploaded_asset($product->thumbnail_img)}}" alt="{{ translate('Image') }}" class="size-80px img-fit">
             </div>
             <div class="col">
                 <span class="text-muted text-truncate-2">{{ $product->getTranslation('name') }}</span>
@@ -66,7 +66,7 @@
                         @endphp
                         <div class="row gutters-5 w-200px w-md-300px mw-100 align-items-center">
                             <div class="col-auto">
-                                <img src="{{ $customerAvatar }}" class="size-50px img-fit rounded-circle" alt="Image" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';">
+                                <img src="{{ $customerAvatar }}" class="size-50px img-fit rounded-circle" alt="{{ translate('Image') }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';">
                             </div>
                             <div class="col">
                                 <span class="fw-700 text-truncate-2">{{ $customerName }}</span>

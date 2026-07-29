@@ -34,9 +34,9 @@
                 placeholder="{{ translate('MERCADOPAGO CURRENCY') }}" required>
             <br>
             <div class="alert alert-primary" role="alert">
-                Currency must be <b>es-AR</b> or <b>es-CL</b> or <b>es-CO</b> or <b>es-MX</b> or
-                <b>es-VE</b> or <b>es-UY</b> or <b>es-PE</b> or <b>pt-BR</b><br>
-                If kept empty, <b>en-US</b> will be used automatically
+                {{ translate('Currency must be') }} <b>es-AR</b> {{ translate('or') }} <b>es-CL</b> {{ translate('or') }} <b>es-CO</b> {{ translate('or') }} <b>es-MX</b> {{ translate('or') }}
+                <b>es-VE</b> {{ translate('or') }} <b>es-UY</b> {{ translate('or') }} <b>es-PE</b> {{ translate('or') }} <b>pt-BR</b><br>
+                {{ translate('If kept empty,') }} <b>en-US</b> {{ translate('will be used automatically') }}
             </div>
         </div>
     </div>

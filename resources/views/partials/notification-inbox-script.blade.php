@@ -59,13 +59,13 @@
                             if (!response.ok || result !== '1') throw new Error('Unable to archive notifications.');
 
                             if (window.AIZ?.plugins?.notify) {
-                                window.AIZ.plugins.notify('success', document.documentElement.lang === 'fr' ? 'Notifications archivées.' : 'Notifications archived.');
+                                window.AIZ.plugins.notify('success', @json(translate('Notifications archived.')));
                             }
                             window.setTimeout(function () { window.location.reload(); }, 250);
                         } catch (error) {
                             bulkAction.disabled = false;
                             if (window.AIZ?.plugins?.notify) {
-                                window.AIZ.plugins.notify('danger', document.documentElement.lang === 'fr' ? 'Impossible d’archiver les notifications.' : 'Unable to archive notifications.');
+                                window.AIZ.plugins.notify('danger', @json(translate('Unable to archive notifications.')));
                             }
                         }
                     });

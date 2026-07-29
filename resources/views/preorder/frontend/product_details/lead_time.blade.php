@@ -11,7 +11,7 @@
                 <table class="table table-borderless">
                     <thead>
                         <tr>
-                            <th scope="col">Quantity (Pieces)</th>
+                            <th scope="col">{{ translate('Quantity (Pieces)') }}</th>
                             @foreach($product->preorder_wholesale_prices as $price)
                             <th scope="col">{{$price->wholesale_min_qty}} - {{$price->wholesale_max_qty}}</th>
                             @endforeach
@@ -19,7 +19,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <th scope="row">Lead Time (days)</th>
+                            <th scope="row">{{ translate('Lead Time (days)') }}</th>
                             @foreach($product->preorder_wholesale_prices as $price)
                             <td><strong>{{$price->wholesale_lead_time}}</strong></td>
                             @endforeach

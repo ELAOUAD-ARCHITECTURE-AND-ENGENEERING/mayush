@@ -7,7 +7,7 @@
             <div
                 class="w-60px h-60px rounded-1 d-flex align-items-center justify-content-center overflow-hidden bg-soft-sky-blue flex-shrink-0">
                 <img src="{{ static_asset('assets/img/business-settings/invoice-setting.svg') }}"
-                    alt="Setting Icon">
+                    alt="{{ translate('Setting Icon') }}">
             </div>
             <div>
                 <h6 class="fw-semibold text-dark">{{translate('Invoice Settings')}}</h6>
@@ -235,13 +235,13 @@
                 <h6 class="mt-4 mb-4 fs-12">{{ translate('Invoice Content Fields') }}</h6>
                 @php
                     $fields = [
-                        'show_platform_contact' => 'Show Platform Contact',
-                        'show_seller_contact' => 'Show Seller Contact',
+                        'show_platform_contact' => translate('Show Platform Contact')',
+                        'show_seller_contact' => translate('Show Seller Contact')',
                         'show_customer_name' => 'Show Customer Name',
-                        'show_billing_address' => 'Show Billing Address',
-                        'show_product_image' => 'Show Product Image',
-                        'show_sku' => 'Show SKU',
-                        'show_product_variation' => 'Show Product Variation'
+                        'show_billing_address' => translate('Show Billing Address')',
+                        'show_product_image' => translate('Show Product Image')',
+                        'show_sku' => translate('Show SKU')',
+                        'show_product_variation' => translate('Show Product Variation')'
                     ];
                 @endphp
                 @foreach ($fields as $key => $label)
@@ -267,7 +267,7 @@
                                     <div
                                         class="form-control p-0 border-0 d-flex align-items-center justify-content-center">
                                         <img src="{{ static_asset('assets/img/plus-lg.svg') }}"
-                                            class="w-40px h-40px w-md-64px h-md-64px" alt="generate Icon">
+                                            class="w-40px h-40px w-md-64px h-md-64px" alt="{{ translate('generate Icon') }}">
                                     </div>
                                     <input type="hidden" name="invoice_logo" class="selected-files" value="{{ $invoice_config['invoice_logo'] ?? '' }}">
                                 </div>
@@ -365,7 +365,7 @@
                 iframe.frameBorder = 0;
                 container.appendChild(iframe);
             } else {
-                container.innerHTML = '<p class="text-danger">Unsupported file format.</p>';
+                container.innerHTML = '<p class="text-danger">{{ translate('Unsupported file format.') }}</p>';
             }
 
             $('#filePreviewModal').modal('show');

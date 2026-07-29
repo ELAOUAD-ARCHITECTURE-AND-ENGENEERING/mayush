@@ -63,8 +63,8 @@
                         <li class="list-group-item text-dark">
                             <strong>2. {{ translate('Generate Access Token for CAPI') }}</strong>
                             <ul class="mt-1">
-                                <li>- {{ translate('In Events Manager, go to') }} <strong>Settings → Scroll to Conversion API</strong></li>
-                                <li>- {{ translate('Click on') }} <strong>"Generate Access Token"</strong> {{ translate('button') }}</li>
+                                <li>- {{ translate('In Events Manager, go to') }} <strong>{{ translate('Settings → Scroll to Conversion API') }}</strong></li>
+                                <li>- {{ translate('Click on') }} <strong>{{ translate('"Generate Access Token"') }}</strong> {{ translate('button') }}</li>
                                 <li>- {{ translate('Copy the generated token') }} ({{ translate('starts with EAA...') }})</li>
                                 <li class="text-danger"> {{ translate('Save this token immediately - you won\'t see it again!') }}</li>
                             </ul>

@@ -183,7 +183,7 @@
                 <div class="form-group mb-3">
                     <label class="fw-700">{{ translate('Download Label') }}</label>
                     <a href="{{ route('shiprocket.download.label', $order->id) }}"
-                       class="btn btn-sm btn-install w-auto h-auto d-block" title="Download Label">
+                       class="btn btn-sm btn-install w-auto h-auto d-block" title="{{ translate('Download Label') }}">
                         <i class="las la-2x la-download"></i>
                     </a>
                 </div>
@@ -191,7 +191,7 @@
                     <div class="form-group mb-3">
                         <label class="fw-700">{{ translate('Download Manifest') }}</label>
                         <a href="{{ route('shiprocket.download.manifest', $order->id) }}"
-                           class="btn btn-sm btn-install w-auto h-auto d-block" title="Download Manifest">
+                           class="btn btn-sm btn-install w-auto h-auto d-block" title="{{ translate('Download Manifest') }}">
                             <i class="las la-2x la-download"></i>
                         </a>
                     </div>

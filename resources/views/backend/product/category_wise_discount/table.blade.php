@@ -67,7 +67,7 @@
                                 {{ $key + 1 + ($categories->currentPage() - 1) * $categories->perPage() }}</div>
                         @endif
                     </td>
-                    <td class="hide-md align-middle" data-label="Icon">
+                    <td class="hide-md align-middle" data-label="{{ translate('Icon') }}">
                         <div class="w-100px w-md-100px">
                             @if($category->icon != null)
                                 <span class="avatar avatar-square avatar-sm border border-gray-400">
@@ -78,20 +78,20 @@
                             @endif
                         </div>
                     </td>
-                    <td class="align-middle" data-label="Name">
+                    <td class="align-middle" data-label="{{ translate('Name') }}">
                         <div class="row gutters-5 w-200px w-md-200px pr-4">
                             <div class="col">
                                 <span class="text-dark fs-14 fw-400">
                                     {{ $category->getTranslation('name') }}
                                     @if($category->digital == 1)
                                         <img src="{{ static_asset('assets/img/digital_tag.png') }}" alt="{{translate('Digital')}}"
-                                            class="ml-2 h-25px" style="cursor: pointer;" title="Digital">
+                                            class="ml-2 h-25px" style="cursor: pointer;" title="{{ translate('Digital') }}">
                                     @endif
                                 </span>
                             </div>
                         </div>
                     </td>
-                    <td class="hide-md align-middle" data-label="Parent">
+                    <td class="hide-md align-middle" data-label="{{ translate('Parent') }}">
                         <div class="w-200px w-md-200px">
                             <span
                                 class="text-dark fs-14 fw-400">
@@ -106,7 +106,7 @@
                             </span>
                         </div>
                     </td>
-                    <td class="hide-md align-middle" data-label="Inhouse">
+                    <td class="hide-md align-middle" data-label="{{ translate('Inhouse') }}">
                         <div class="w-100px w-md-100px">
                             <span
                                 class="text-dark fs-14 fw-400">
@@ -114,7 +114,7 @@
                             </span>
                         </div>
                     </td>
-                    <td class="hide-md align-middle" data-label="Seller">
+                    <td class="hide-md align-middle" data-label="{{ translate('Seller') }}">
                         <div class="w-100px w-md-100px">
                             <span class="text-dark fs-14 fw-400">
                                 {{ $category->products->where('added_by', 'seller')->count() }}
@@ -130,7 +130,7 @@
                         $start_date = $category->discount_start_date ? date('d-m-Y H:i:s', $category->discount_start_date) : null;
                         $end_date   = $category->discount_end_date ? date('d-m-Y H:i:s', $category->discount_end_date) : null;
                     @endphp
-                    <td class="hide-sm align-middle w-lg-250px pr-3" data-label="Discount">
+                    <td class="hide-sm align-middle w-lg-250px pr-3" data-label="{{ translate('Discount') }}">
                         <div class="custom-input-pen-clear-field pl-3 pr-2 border border-2 bg-light border-light rounded-1 has-transition w-100 w-sm-300px mr-1">
                             <div class="d-flex align-items-center justify-between">
                                 <div class="flex-grow-1">
@@ -158,7 +158,7 @@
                             </div>
                         </div>
                     </td>
-                    <td class="hide-sm align-middle w-lg-250px pr-3" data-label="Date Range">
+                    <td class="hide-sm align-middle w-lg-250px pr-3" data-label="{{ translate('Date Range') }}">
                         <div class="custom-input-pen-clear-field pl-3 pr-2 border border-2 bg-light border-light rounded-1 has-transition w-100 w-sm-300px mr-1">
                             <div class="d-flex align-items-center justify-between">
                                 <div class="flex-grow-1">

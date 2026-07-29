@@ -1131,6 +1131,11 @@ class SearchController extends Controller
         }
 
         $allowed = filter_products(clone $eligibleProducts)
+            // Keep the public visibility contract explicit at this final
+            // boundary as well; semantic candidates must never reintroduce
+            // drafts or unpublished products after model hydration.
+            ->where('products.published', 1)
+            ->where('products.approved', 1)
             ->whereIn('products.id', $ids->all())
             ->with('taxes')
             ->get()

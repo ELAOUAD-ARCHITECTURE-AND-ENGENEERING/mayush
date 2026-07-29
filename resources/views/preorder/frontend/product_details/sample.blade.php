@@ -14,8 +14,8 @@
                     @if($product->is_sample_order)
                     <p class="text-primary"> {{translate('Sample order is available for this product')}}</p>
                     @endif
-                    <p>Maximum order quantity : 1 {{$product->unit}}</p>
-                    <p>Sample price : <span><b>{{$product->preorder_sample_order?->sample_price}} /piece</b></span></p>
+                    <p>{{ translate('Maximum order quantity :') }} 1 {{$product->unit}}</p>
+                    <p>{{ translate('Sample price :') }} <span><b>{{$product->preorder_sample_order?->sample_price}} /{{ translate('piece') }}</b></span></p>
                     <button type="button"
                         class="btn btn-outline-secondary mr-2 add-to-cart fw-600 min-w-150px rounded-4">
                         {{ translate('Request Sample') }}

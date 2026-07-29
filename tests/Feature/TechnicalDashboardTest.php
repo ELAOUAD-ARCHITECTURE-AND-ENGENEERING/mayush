@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Livewire\Livewire;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Livewire\Analytics\TechnicalDashboard;
 use App\Services\Analytics\TechnicalAnalyticsService;
 use App\Contracts\Analytics\TechnicalAnalyticsRepositoryInterface;
@@ -14,6 +15,8 @@ use Illuminate\Support\Collection;
 
 class TechnicalDashboardTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_it_renders_technical_dashboard_successfully()
     {
         $this->mockService();
@@ -21,9 +24,9 @@ class TechnicalDashboardTest extends TestCase
         Livewire::test(TechnicalDashboard::class)
             ->assertStatus(200)
             ->assertViewIs('livewire.analytics.technical-dashboard')
-            ->assertSee('MarketOps Dashboard', false)
-            ->assertSee('Revenue Analytics & Forecast', false)
-            ->assertSee('System Health');
+            ->assertSee('Tableau de bord MarketOps', false)
+            ->assertSee('Analyse et prévision du chiffre d’affaires', false)
+            ->assertSee('État du système');
     }
 
     public function test_it_updates_metrics_when_date_range_changes()
@@ -35,6 +38,24 @@ class TechnicalDashboardTest extends TestCase
         $component->setDateRange('7D');
 
         $this->assertSame('7D', $component->dateRange);
+    }
+
+    public function test_all_dashboard_tabs_render_active_language_labels()
+    {
+        $this->mockService();
+
+        $tabs = [
+            'Vendors' => 'Répertoire des vendeurs',
+            'Finance' => 'Revenus et sorties de fonds',
+            'Marketing' => 'Performance des campagnes',
+            'Security' => 'Événements de sécurité récents',
+        ];
+
+        foreach ($tabs as $tab => $label) {
+            Livewire::test(TechnicalDashboard::class)
+                ->call('setActiveTab', $tab)
+                ->assertSee($label, false);
+        }
     }
 
     private function mockService()

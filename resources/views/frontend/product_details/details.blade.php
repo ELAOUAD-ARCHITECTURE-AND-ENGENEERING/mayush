@@ -259,7 +259,7 @@
             @if ($detailedProduct->added_by == 'seller' && get_setting('vendor_system_activation') == 1 && !($detailedProduct->user->is_intern ?? false))
                 <div class="d-flex align-items-center bg-light p-20px rounded-2 w-100 mb-2 mb-xl-0 mr-0 mr-xl-2">
                     <div class="store-logo-container w-48px h-48px bg-white border bordre-2 border-gray rounded-1 overflow-hidden mr-3 d-flex flex-shrink-0 align-items-center justify-content-center">
-                        <img src="{{ static_asset('/assets/img/seller_type.svg') }}" alt="seller">
+                        <img src="{{ static_asset('/assets/img/seller_type.svg') }}" alt="{{ translate('seller') }}">
                     </div>
                     <div>
                         <p class="m-0 fs-14">
@@ -295,7 +295,7 @@
                 @if ($detailedProduct->cash_on_delivery)
                     <li class="d-flex align-items-center">
                         <span class="d-block flex-shrink-0">
-                            <img src="{{ static_asset('/assets/img/warranty-check-circle.svg') }}" alt="warranty check circle">
+                            <img src="{{ static_asset('/assets/img/warranty-check-circle.svg') }}" alt="{{ translate('Warranty check circle') }}">
                         </span>
                         <span class="d-block pl-10px pr-25px fs-14 fw-400 text-dark warranty-text">{{ translate('Cash on Delivery Available')}}</span>
                     </li>
@@ -303,7 +303,7 @@
                 @if ($detailedProduct->shipping_type == 'free')
                     <li class="d-flex align-items-center">
                         <span class="d-block flex-shrink-0">
-                            <img src="{{ static_asset('/assets/img/warranty-check-circle.svg') }}" alt="warranty check circle">
+                            <img src="{{ static_asset('/assets/img/warranty-check-circle.svg') }}" alt="{{ translate('Warranty check circle') }}">
                         </span>
                         <span class="d-block pl-10px pr-25px fs-14 fw-400 text-dark warranty-text">{{ translate('Free Shipping') }}</span>
                     </li>
@@ -407,7 +407,7 @@
 
                     <div class="d-flex align-items-center justify-content-between mt-4 mb-2">
                         <div class="d-inline-flex align-items-center">
-                            <h5 class="fs-16 fw-600 text-gray mr-2 mb-0">Variation</h5>
+                            <h5 class="fs-16 fw-600 text-gray mr-2 mb-0">{{ translate('Variation') }}</h5>
                             <span>
                                 <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#9d9da6">
                                     <path d="M454-298h52v-230h-52v230Zm25.79-290.46q11.94 0 20.23-8.08 8.29-8.08 8.29-20.02t-8.08-20.23q-8.08-8.28-20.02-8.28T459.98-637q-8.29 8.08-8.29 20.02t8.08 20.23q8.08 8.29 20.02 8.29Zm.55 472.46q-75.11 0-141.48-28.42-66.37-28.42-116.18-78.21-49.81-49.79-78.25-116.09Q116-405.01 116-480.39q0-75.38 28.42-141.25t78.21-115.68q49.79-49.81 116.09-78.25Q405.01-844 480.39-844q75.38 0 141.25 28.42t115.68 78.21q49.81 49.79 78.25 115.85Q844-555.45 844-480.34q0 75.11-28.42 141.48-28.42 66.37-78.21 116.18-49.79 49.81-115.85 78.25Q555.45-116 480.34-116Zm-.34-52q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 130 91 221t221 91Zm0-312Z"/>
@@ -741,7 +741,7 @@
                         @php
                             $whatsappNumberCustom = '212688018863';
                             $productUrlCustom = URL::to('/product') . '/' . $detailedProduct->slug;
-                            $messageCustom = "i would like to buy this product could help me " . $productUrlCustom;
+                            $messageCustom = translate("I would like to buy this product. Could you help me?") . ' ' . $productUrlCustom;
                             $whatsappUrlCustom = "https://wa.me/{$whatsappNumberCustom}?text=" . urlencode($messageCustom);
                         @endphp
                         <div class="mt-2 w-100">
@@ -765,7 +765,7 @@
                 @if ($detailedProduct->added_by == 'seller' && get_setting('vendor_system_activation') == 1 && !($detailedProduct->user->is_intern ?? false))
                     <div class="d-flex align-items-center bg-light p-20px rounded-2 w-100 mb-2 mb-xl-0 mr-0 mr-xl-2">
                         <div class="store-logo-container w-48px h-48px bg-white border bordre-2 border-gray rounded-1 overflow-hidden mr-3 d-flex flex-shrink-0 align-items-center justify-content-center">
-                            <img src="{{ static_asset('/assets/img/seller_type.svg') }}" alt="seller">
+                            <img src="{{ static_asset('/assets/img/seller_type.svg') }}" alt="{{ translate('seller') }}">
                         </div>
                         <div>
                             <p class="m-0 fs-14">
@@ -807,7 +807,7 @@
                             @endif
                         </div>
                         <div class="w-40px h-40px position-relative flex-shrink-0 overflow-hidden">
-                            <img src="{{ uploaded_asset($detailedProduct->warranty->logo) }}" class="img-fluid position-absolute w-100 h-100" alt="Warranty Circle">
+                            <img src="{{ uploaded_asset($detailedProduct->warranty->logo) }}" class="img-fluid position-absolute w-100 h-100" alt="{{ translate('Warranty Circle') }}">
                         </div>
                     </div>
                 @endif
@@ -815,7 +815,7 @@
                     @if ($detailedProduct->cash_on_delivery)
                         <li class="d-flex align-items-center">
                             <span class="d-block flex-shrink-0">
-                                <img src="{{ static_asset('/assets/img/warranty-check-circle.svg') }}" alt="warranty check circle">
+                                <img src="{{ static_asset('/assets/img/warranty-check-circle.svg') }}" alt="{{ translate('Warranty check circle') }}">
                             </span>
                             <span class="d-block pl-10px pr-25px fs-14 fw-400 text-dark warranty-text">{{ translate('Cash on Delivery Available')}}</span>
                         </li>
@@ -823,7 +823,7 @@
                     @if ($detailedProduct->shipping_type == 'free')
                         <li class="d-flex align-items-center">
                             <span class="d-block flex-shrink-0">
-                                <img src="{{ static_asset('/assets/img/warranty-check-circle.svg') }}" alt="warranty check circle">
+                                <img src="{{ static_asset('/assets/img/warranty-check-circle.svg') }}" alt="{{ translate('Warranty check circle') }}">
                             </span>
                             <span class="d-block pl-10px pr-25px fs-14 fw-400 text-dark warranty-text">{{ translate('Free Shipping') }}</span>
                         </li>
@@ -831,7 +831,7 @@
                     @if (addon_is_activated('refund_request') && $detailedProduct->refundable == 1)
                         <li class="d-flex align-items-center">
                             <span class="d-block flex-shrink-0">
-                                <img src="{{ static_asset('/assets/img/warranty-check-circle.svg') }}" alt="warranty check circle">
+                                <img src="{{ static_asset('/assets/img/warranty-check-circle.svg') }}" alt="{{ translate('Warranty check circle') }}">
                             </span>
                             <span class="d-block pl-10px pr-25px fs-14 fw-400 text-dark warranty-text">{{ translate('Refund Available for this producte') }}</span>
                         </li>

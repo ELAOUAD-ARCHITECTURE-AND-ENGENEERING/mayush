@@ -29,11 +29,11 @@
           <button class="wishlist-btn" onclick="event.stopPropagation(); addToWishList({{ $product->id }})">♡</button>
 
           <div class="mini-timer" data-end="{{ date('Y/m/d H:i:s', $flash_deal->end_date) }}">
-            <div class="mt-block"><span class="mt-num mt-h">00</span><span class="mt-lbl">HRS</span></div>
+            <div class="mt-block"><span class="mt-num mt-h">00</span><span class="mt-lbl">{{ translate('HRS') }}</span></div>
             <span class="mt-sep">:</span>
-            <div class="mt-block"><span class="mt-num mt-m">00</span><span class="mt-lbl">MIN</span></div>
+            <div class="mt-block"><span class="mt-num mt-m">00</span><span class="mt-lbl">{{ translate('MIN') }}</span></div>
             <span class="mt-sep">:</span>
-            <div class="mt-block"><span class="mt-num mt-s">00</span><span class="mt-lbl">SEC</span></div>
+            <div class="mt-block"><span class="mt-num mt-s">00</span><span class="mt-lbl">{{ translate('SEC') }}</span></div>
           </div>
         </div>
 

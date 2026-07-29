@@ -94,7 +94,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">{{ translate('Send A Withdraw Request') }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}"></button>
                 </div>
                 @if (Auth::user()->shop->admin_to_pay > 5) 
                     <form class="" action="{{ route('seller.money_withdraw_request.store') }}" method="post">

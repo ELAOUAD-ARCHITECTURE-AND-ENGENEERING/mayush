@@ -34,8 +34,8 @@
                 placeholder="{{ translate('NGENIUS CURRENCY') }}" required>
             <br>
             <div class="alert alert-primary" role="alert">
-                Currency must be <b>AED</b> or <b>USD</b> or <b>EUR</b><br>
-                If kept empty, <b>AED</b> will be used automatically
+                {{ translate('Currency must be') }} <b>AED</b> {{ translate('or') }} <b>USD</b> {{ translate('or') }} <b>EUR</b><br>
+                {{ translate('If kept empty,') }} <b>AED</b> {{ translate('will be used automatically') }}
             </div>
         </div>
     </div>

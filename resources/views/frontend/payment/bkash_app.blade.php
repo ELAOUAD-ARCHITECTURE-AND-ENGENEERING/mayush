@@ -12,7 +12,7 @@
     <section class="py-4 mb-4 bg-light">
         <div class="container text-center">
           <form action="{{route('api.bkash.checkout',['token'=>$token,'amount'=>$amount])}}" method="get">
-          <button id="bKash_button" class="d-none">Pay With bKash</button>         
+          <button id="bKash_button" class="d-none">{{ translate('Pay With bKash') }}</button>
         </form>   
         </div>
     </section>

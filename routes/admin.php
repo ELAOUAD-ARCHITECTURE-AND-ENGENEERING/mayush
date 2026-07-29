@@ -799,7 +799,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     // Removed duplicate: custom-sale-alerts resource was duplicating custom-alerts resource below
     Route::resource('note', NoteController::class);
     Route::controller(NoteController::class)->group(function () {
-        Route::post('/note/get-single-note', 'get_single_note')->name('get-single-note');
+        Route::match(['get', 'post'], '/note/get-single-note', 'get_single_note')->name('get-single-note');
         Route::post('/note/delete', 'destroy')->name('note.delete');
         Route::post('/note/update-seller-access', 'update_seller_access')->name('note.update-seller-access');
         Route::get('/note/get-notes', 'get_notes')->name('get_notes');

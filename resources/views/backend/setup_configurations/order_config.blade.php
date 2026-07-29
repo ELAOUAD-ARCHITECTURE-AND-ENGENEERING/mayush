@@ -8,7 +8,7 @@
                 <div
                     class="w-60px h-60px rounded-1 d-flex align-items-center justify-content-center overflow-hidden bg-soft-warning flex-shrink-0">
                     <img src="{{ static_asset('assets/img/business-settings/order-configuration.svg') }}"
-                        alt="Setting Icon">
+                        alt="{{ translate('Setting Icon') }}">
                 </div>
                 <div>
                     <h6 class="fw-semibold text-dark">{{translate('Order Configuration')}}</h6>

@@ -642,7 +642,7 @@
                     <a href="{{ route('terms') }}" class="text-reset opacity-70 hov-opacity-100">{{ translate('Terms & conditions') }}</a>
                     <span class="mx-2 opacity-50">|</span>
                     <a href="{{ route('privacypolicy') }}" class="text-reset opacity-70 hov-opacity-100">{{ translate('Privacy Policy') }}</a>
-                    <img src="{{ optimized_static_asset('assets/img/cards/cmi.png', 'small') }}" width="62" height="24" class="ml-3 my-1 mw-100" style="max-height: 24px; filter: brightness(1.1);" alt="CMI Payment Gateway">
+                    <img src="{{ optimized_static_asset('assets/img/cards/cmi.png', 'small') }}" width="62" height="24" class="ml-3 my-1 mw-100" style="max-height: 24px; filter: brightness(1.1);" alt="{{ translate('CMI Payment Gateway') }}">
                 </div>
             </div>
 
@@ -672,22 +672,22 @@
                     <div class="d-flex flex-wrap justify-content-center align-items-center opacity-80 hov-opacity-100 has-transition">
                         <!-- Security Logos -->
                         <div class="px-3 py-2">
-                            <img src="{{ optimized_static_asset('assets/img/cards/verified_by_visa.png', 'small') }}" width="79" height="35" class="mw-100" style="max-height: 35px" alt="Verified by Visa">
+                            <img src="{{ optimized_static_asset('assets/img/cards/verified_by_visa.png', 'small') }}" width="79" height="35" class="mw-100" style="max-height: 35px" alt="{{ translate('Verified by Visa') }}">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ optimized_static_asset('assets/img/cards/secure_code.png', 'small') }}" width="76" height="35" class="mw-100" style="max-height: 35px" alt="Mastercard SecureCode">
+                            <img src="{{ optimized_static_asset('assets/img/cards/secure_code.png', 'small') }}" width="76" height="35" class="mw-100" style="max-height: 35px" alt="{{ translate('Mastercard SecureCode') }}">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ optimized_static_asset('assets/img/cards/amex.png', 'small') }}" width="35" height="35" class="mw-100" style="max-height: 35px" alt="American Express">
+                            <img src="{{ optimized_static_asset('assets/img/cards/amex.png', 'small') }}" width="35" height="35" class="mw-100" style="max-height: 35px" alt="{{ translate('American Express') }}">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ optimized_static_asset('assets/img/cards/cmi.png', 'small') }}" width="44" height="35" class="mw-100" style="max-height: 35px" alt="CMI Payment Gateway">
+                            <img src="{{ optimized_static_asset('assets/img/cards/cmi.png', 'small') }}" width="44" height="35" class="mw-100" style="max-height: 35px" alt="{{ translate('CMI Payment Gateway') }}">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ optimized_static_asset('assets/img/cards/marocpay.png', 'small') }}" width="41" height="35" class="mw-100" style="max-height: 35px" alt="MarocPay">
+                            <img src="{{ optimized_static_asset('assets/img/cards/marocpay.png', 'small') }}" width="41" height="35" class="mw-100" style="max-height: 35px" alt="{{ translate('MarocPay') }}">
                         </div>
                         <div class="px-3 py-2">
-                            <img src="{{ optimized_static_asset('assets/img/cards/unionpay.png', 'small') }}" width="50" height="35" class="mw-100" style="max-height: 35px" alt="UnionPay">
+                            <img src="{{ optimized_static_asset('assets/img/cards/unionpay.png', 'small') }}" width="50" height="35" class="mw-100" style="max-height: 35px" alt="{{ translate('UnionPay') }}">
                         </div>
                     </div>
                 </div>

@@ -20,7 +20,7 @@ class ReportController extends Controller
         $since = now()->subDays(7);
         
         $data = [
-            'report_date' => now()->toFormattedDateString(),
+            'report_date' => now()->locale(app()->getLocale())->translatedFormat('d F Y'),
             'period' => 'Last 7 Days',
             'commerce' => [
                 'total_revenue' => Order::where('created_at', '>=', $since)->sum('grand_total'),

@@ -63,14 +63,14 @@
                         </div>
                     @endif
                 </td>
-                <td class="align-middle w-70px w-lg-100px" data-label="Banner">
+                <td class="align-middle w-70px w-lg-100px" data-label="{{ translate('Banner') }}">
                 
                         <div class="w-50px w-lg-80px h-50px h-lg-80px border border-gray-300 overflow-hidden rounded-1 d-flex justify-content-center align-items-center">
-                            <img src="{{ uploaded_asset($flash_deal->banner) }}" alt="banner" class="img-fit">
+                            <img src="{{ uploaded_asset($flash_deal->banner) }}" alt="{{ translate('Banner') }}" class="img-fit">
                         </div>
                    
                 </td>
-                <td class="align-middle hide-xs" data-label="Title">
+                <td class="align-middle hide-xs" data-label="{{ translate('Title') }}">
                     <div class="row gutters-5 w-200px w-md-200px w-lg-300px">
                         <div class="col">
                             <span
@@ -78,7 +78,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-md w-200px w-md-200px mw-200" data-label="Start Date">
+                <td class="align-middle hide-md w-200px w-md-200px mw-200" data-label="{{ translate('Start Date') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span
@@ -86,7 +86,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-7xl w-200px w-md-200px mw-200" data-label="End Date">
+                <td class="align-middle hide-7xl w-200px w-md-200px mw-200" data-label="{{ translate('End Date') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span
@@ -96,7 +96,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-xxl w-200px w-md-200px mw-200" data-label="Status">
+                <td class="align-middle hide-xxl w-200px w-md-200px mw-200" data-label="{{ translate('Status') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span
@@ -109,7 +109,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-xl w-200px w-md-200px mw-200" data-label="Featured">
+                <td class="align-middle hide-xl w-200px w-md-200px mw-200" data-label="{{ translate('Featured') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span
@@ -128,7 +128,7 @@
                     </div>
                 </td>
                 @canany(['edit_flash_deal','delete_flash_deal'])
-                <td class="align-middle hide-s text-right" data-label="Options">
+                <td class="align-middle hide-s text-right" data-label="{{ translate('Options') }}">
                     <div class="d-flex align-items-center justify-content-end">
                         <div class="dropdown float-right">
                             <button

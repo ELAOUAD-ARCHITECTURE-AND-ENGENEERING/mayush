@@ -67,7 +67,7 @@
 </style>
 
 <div class="promotion-slider-container" id="promotionSliderContainer">
-    <button class="slider-nav-btn slider-prev" id="promoPrev" aria-label="Previous">
+        <button class="slider-nav-btn slider-prev" id="promoPrev" aria-label="{{ translate('Previous') }}">
         <i class="las la-angle-left fs-20"></i>
     </button>
     
@@ -107,7 +107,7 @@
         @endforeach
     </div>
 
-    <button class="slider-nav-btn slider-next" id="promoNext" aria-label="Next">
+    <button class="slider-nav-btn slider-next" id="promoNext" aria-label="{{ translate('Next') }}">
         <i class="las la-angle-right fs-20"></i>
     </button>
 </div>

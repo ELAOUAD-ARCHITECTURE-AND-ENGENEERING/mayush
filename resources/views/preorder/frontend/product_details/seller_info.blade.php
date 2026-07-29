@@ -58,10 +58,10 @@
 
             <div >
                 <p><b>{{translate('Why Choos Us!')}}</b></p>
-                <p class=" m-0 p-0"> <i class="las la-check "></i>  Verified seller at {{env('APP_NAME')}}</p>
-                <p class=" m-0 p-0"> <i class="las la-check "></i>  {{100}} + delivery</p>
-                <p class=" m-0 p-0"> <i class="las la-check "></i>  Capable of wholesale production</p>
-                <p class=" m-0 p-0"> <i class="las la-check "></i>  24/7 Support</p>
+                <p class=" m-0 p-0"> <i class="las la-check "></i>  {{ translate('Verified seller at') }} {{env('APP_NAME')}}</p>
+                <p class=" m-0 p-0"> <i class="las la-check "></i>  {{100}} + {{ translate('delivery') }}</p>
+                <p class=" m-0 p-0"> <i class="las la-check "></i>  {{ translate('Capable of wholesale production') }}</p>
+                <p class=" m-0 p-0"> <i class="las la-check "></i>  {{ translate('24/7 Support') }}</p>
             </div>
 
             <!-- Social Links -->

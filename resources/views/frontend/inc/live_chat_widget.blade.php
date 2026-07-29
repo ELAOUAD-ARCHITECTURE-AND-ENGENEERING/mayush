@@ -616,13 +616,13 @@
                 let avatarHtml = '';
                 if (isUser) {
                     if (userAvatar) {
-                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${userAvatar}" class="lc-message-avatar-img" alt="User"></div>`;
+                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${userAvatar}" class="lc-message-avatar-img" alt="{{ translate('User') }}"></div>`;
                     } else {
-                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="{{ static_asset('assets/img/avatar-place.png') }}" class="lc-message-avatar-img" alt="User"></div>`;
+                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="{{ static_asset('assets/img/avatar-place.png') }}" class="lc-message-avatar-img" alt="{{ translate('User') }}"></div>`;
                     }
                 } else {
                     if (agentAvatar) {
-                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${agentAvatar}" class="lc-message-avatar-img" alt="Agent"></div>`;
+                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${agentAvatar}" class="lc-message-avatar-img" alt="{{ translate('Agent') }}"></div>`;
                     } else {
                         avatarHtml = `<div class="lc-message-avatar-wrap"><img src="{{ static_asset('assets/img/mayush-bot-avatar.png') }}" class="lc-message-avatar-img" alt="Mayush Bot"></div>`;
                     }
@@ -691,7 +691,7 @@
             isExpired = true;
             inputEl.disabled = true;
             sendBtn.disabled = true;
-            inputEl.placeholder = "Conversation expired.";
+            inputEl.placeholder = "{{ translate('Conversation expired.') }}";
             btn.classList.remove('lc-active');
             stopPolling();
             stopPinging();

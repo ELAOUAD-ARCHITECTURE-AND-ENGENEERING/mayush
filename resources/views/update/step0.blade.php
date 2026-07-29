@@ -30,39 +30,39 @@
                               </g>
                             </g>
                         </svg>
-                        <h1 class="fs-21 fw-700 text-uppercase mt-2" style="color: #3d3d3d;">Active eCommerce CMS Update Process</h1>
-                        <p class="fs-12 fw-500" style="color:  #666; line-height: 18px;">You will need to know the following items before proceeding.</p>
+                        <h1 class="fs-21 fw-700 text-uppercase mt-2" style="color: #3d3d3d;">{{ translate('Active eCommerce CMS Update Process') }}</h1>
+                        <p class="fs-12 fw-500" style="color:  #666; line-height: 18px;">{{ translate('You will need to know the following items before proceeding.') }}</p>
                     </div>
                     <ol class="list-group">
                         <li class="list-group-item fs-12 fw-600 d-flex align-items-center" style="line-height: 18px; color: #666; gap: 7px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13.435" height="13.435" viewBox="0 0 13.435 13.435">
                                 <path id="Union_2" data-name="Union 2" d="M-4076.25,7a.75.75,0,0,1-.75-.75V.75a.75.75,0,0,1,.75-.75.75.75,0,0,1,.75.75V5.5h9.75a.75.75,0,0,1,.75.75.75.75,0,0,1-.75.75Z" transform="translate(2882.875 -2874.389) rotate(-45)" fill="#00ac47"/>
                             </svg>
-                            Codecanyon purchase code
+                            {{ translate('Codecanyon purchase code') }}
                         </li>
                         <li class="list-group-item fs-12 fw-600 d-flex align-items-center" style="line-height: 18px; color: #666; gap: 7px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13.435" height="13.435" viewBox="0 0 13.435 13.435">
                                 <path id="Union_2" data-name="Union 2" d="M-4076.25,7a.75.75,0,0,1-.75-.75V.75a.75.75,0,0,1,.75-.75.75.75,0,0,1,.75.75V5.5h9.75a.75.75,0,0,1,.75.75.75.75,0,0,1-.75.75Z" transform="translate(2882.875 -2874.389) rotate(-45)" fill="#00ac47"/>
                             </svg>
-                            Database Name
+                            {{ translate('Database Name') }}
                         </li>
                         <li class="list-group-item fs-12 fw-600 d-flex align-items-center" style="line-height: 18px; color: #666; gap: 7px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13.435" height="13.435" viewBox="0 0 13.435 13.435">
                                 <path id="Union_2" data-name="Union 2" d="M-4076.25,7a.75.75,0,0,1-.75-.75V.75a.75.75,0,0,1,.75-.75.75.75,0,0,1,.75.75V5.5h9.75a.75.75,0,0,1,.75.75.75.75,0,0,1-.75.75Z" transform="translate(2882.875 -2874.389) rotate(-45)" fill="#00ac47"/>
                             </svg>
-                            Database Username
+                            {{ translate('Database Username') }}
                         </li>
                         <li class="list-group-item fs-12 fw-600 d-flex align-items-center" style="line-height: 18px; color: #666; gap: 7px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13.435" height="13.435" viewBox="0 0 13.435 13.435">
                                 <path id="Union_2" data-name="Union 2" d="M-4076.25,7a.75.75,0,0,1-.75-.75V.75a.75.75,0,0,1,.75-.75.75.75,0,0,1,.75.75V5.5h9.75a.75.75,0,0,1,.75.75.75.75,0,0,1-.75.75Z" transform="translate(2882.875 -2874.389) rotate(-45)" fill="#00ac47"/>
                             </svg>
-                            Database Password
+                            {{ translate('Database Password') }}
                         </li>
                         <li class="list-group-item fs-12 fw-600 d-flex align-items-center" style="line-height: 18px; color: #666; gap: 7px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13.435" height="13.435" viewBox="0 0 13.435 13.435">
                                 <path id="Union_2" data-name="Union 2" d="M-4076.25,7a.75.75,0,0,1-.75-.75V.75a.75.75,0,0,1,.75-.75.75.75,0,0,1,.75.75V5.5h9.75a.75.75,0,0,1,.75.75.75.75,0,0,1-.75.75Z" transform="translate(2882.875 -2874.389) rotate(-45)" fill="#00ac47"/>
                             </svg>
-                            Database Hostname
+                            {{ translate('Database Hostname') }}
                         </li>
                     </ol>
 
@@ -85,15 +85,15 @@
                             </svg>
                         </div>
                         <p class="ml-2 mb-0 fs-12 fw-500 text-justify text-gray-dark" style="color: #666; line-height: 18px;">
-                          Note: Go to your server  and find the php <span class="text-dark fw-900">extension/package</span> and disable <span class="text-dark fw-900">pdo_mysql</span> then enable <span class="text-dark fw-900">nd_mysqli</span> and <span class="text-dark fw-900">nd_pdo_mysql</span> both for preventing value convert issue like an integer to string.
+                          {{ translate('Note: Go to your server and find the php') }} <span class="text-dark fw-900">extension/package</span> {{ translate('and disable') }} <span class="text-dark fw-900">pdo_mysql</span> {{ translate('then enable') }} <span class="text-dark fw-900">nd_mysqli</span> {{ translate('and') }} <span class="text-dark fw-900">nd_pdo_mysql</span> {{ translate('both for preventing value convert issue like an integer to string.') }}
                         </p>
                     </div>
                     
                     <div class="mb-4 pb-4 absolute-bottom-left right-0 d-flex justify-content-center">
                         @if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1')
-                            <a href="{{ route('update.step2') }}" class="btn btn-install text-uppercase">Update</a>
+                            <a href="{{ route('update.step2') }}" class="btn btn-install text-uppercase">{{ translate('Update') }}</a>
                         @else
-                            <a href="{{ route('update.step1') }}" class="btn btn-install text-uppercase">Next Step</a>
+                            <a href="{{ route('update.step1') }}" class="btn btn-install text-uppercase">{{ translate('Next Step') }}</a>
                         @endif
                     </div>
                 </div>

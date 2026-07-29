@@ -6,14 +6,14 @@
         <div class="d-flex align-items-center justify-content-between mb-4">
             <div>
                 <h1 class="h3 fw-700 mb-1 text-dark">{{ translate('Operations & System Health') }}</h1>
-                <p class="text-muted mb-0 fs-13">Real-time observability and anomaly detection.</p>
+                <p class="text-muted mb-0 fs-13">{{ translate('Real-time observability and anomaly detection.') }}</p>
             </div>
             <div class="d-flex gap-2">
                 <a href="{{ url(config('pulse.path')) }}" target="_blank" class="btn btn-outline-primary btn-sm fw-600 rounded-pill px-3 shadow-sm d-flex align-items-center">
-                    <i class="las la-chart-pie fs-18 mr-2"></i> Pulse Dashboard
+                    <i class="las la-chart-pie fs-18 mr-2"></i> {{ translate('Pulse Dashboard') }}
                 </a>
                 <a href="{{ url(config('horizon.path')) }}" target="_blank" class="btn btn-dark btn-sm fw-600 rounded-pill px-3 shadow-sm d-flex align-items-center">
-                    <i class="las la-server fs-18 mr-2"></i> Horizon Console
+                    <i class="las la-server fs-18 mr-2"></i> {{ translate('Horizon Console') }}
                 </a>
             </div>
         </div>
@@ -26,7 +26,7 @@
         <div class="card shadow-sm border-0 rounded-xl h-100 overflow-hidden" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);">
             <div class="card-body p-4 position-relative z-1">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-white-50 fs-13 fw-600 mb-0 text-uppercase tracking-wider">Payment Success (24h)</h6>
+                    <h6 class="text-white-50 fs-13 fw-600 mb-0 text-uppercase tracking-wider">{{ translate('Payment Success (24h)') }}</h6>
                     <div class="icon-shape bg-white-10 text-white rounded-circle">
                         <i class="las la-shield-alt fs-22"></i>
                     </div>
@@ -40,7 +40,7 @@
                     </div>
                 </div>
                 <div class="mt-3 text-white-50 fs-12">
-                    <i class="las {{ $successRate >= 95 ? 'la-arrow-up text-success' : 'la-arrow-down text-danger' }} mr-1"></i> Based on total daily attempts
+                    <i class="las {{ $successRate >= 95 ? 'la-arrow-up text-success' : 'la-arrow-down text-danger' }} mr-1"></i> {{ translate('Based on total daily attempts') }}
                 </div>
                 <!-- Decorative background ring -->
                 <div class="position-absolute" style="right: -20px; bottom: -20px; opacity: 0.05; z-index: -1;">
@@ -55,9 +55,9 @@
         <div class="card shadow-sm border-0 rounded-xl h-100">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-muted fs-13 fw-600 mb-0 text-uppercase tracking-wider">Horizon Status</h6>
+                    <h6 class="text-muted fs-13 fw-600 mb-0 text-uppercase tracking-wider">{{ translate('Horizon Status') }}</h6>
                     <span class="badge {{ $horizonStatus === 'Active' ? 'badge-soft-success' : 'badge-soft-danger' }} badge-inline rounded-pill px-3 py-1 fw-600">
-                        {{ $horizonStatus }}
+                        {{ translate($horizonStatus) }}
                     </span>
                 </div>
                 <div class="d-flex align-items-center gap-3">
@@ -65,8 +65,8 @@
                         <i class="las la-server fs-24"></i>
                     </div>
                     <div>
-                        <h3 class="fs-24 fw-700 mb-0 text-dark">{{ $horizonStatus === 'Active' ? 'Online' : 'Offline' }}</h3>
-                        <p class="text-muted fs-12 mb-0 mt-1">Background Queue Workers</p>
+                        <h3 class="fs-24 fw-700 mb-0 text-dark">{{ translate($horizonStatus === 'Active' ? 'Online' : 'Offline') }}</h3>
+                        <p class="text-muted fs-12 mb-0 mt-1">{{ translate('Background Queue Workers') }}</p>
                     </div>
                 </div>
             </div>
@@ -78,7 +78,7 @@
         <div class="card shadow-sm border-0 rounded-xl h-100">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-muted fs-13 fw-600 mb-0 text-uppercase tracking-wider">Failed Jobs</h6>
+                    <h6 class="text-muted fs-13 fw-600 mb-0 text-uppercase tracking-wider">{{ translate('Failed Jobs') }}</h6>
                     <div class="icon-shape bg-soft-warning text-warning rounded-circle">
                         <i class="las la-exclamation-triangle fs-18"></i>
                     </div>
@@ -86,12 +86,12 @@
                 <div class="d-flex align-items-center gap-3">
                     <div>
                         <h3 class="fs-28 fw-700 mb-0 {{ $failedJobs > 0 ? 'text-danger' : 'text-dark' }}">{{ $failedJobs }}</h3>
-                        <p class="text-muted fs-12 mb-0 mt-1">Tasks requiring intervention</p>
+                        <p class="text-muted fs-12 mb-0 mt-1">{{ translate('Tasks requiring intervention') }}</p>
                     </div>
                 </div>
                 @if($failedJobs > 0)
                 <div class="mt-3">
-                    <a href="{{ url(config('horizon.path') . '/failed') }}" target="_blank" class="text-danger fs-12 fw-600 hover-underline">Review Failed Jobs <i class="las la-angle-right"></i></a>
+                    <a href="{{ url(config('horizon.path') . '/failed') }}" target="_blank" class="text-danger fs-12 fw-600 hover-underline">{{ translate('Review Failed Jobs') }} <i class="las la-angle-right"></i></a>
                 </div>
                 @endif
             </div>
@@ -103,7 +103,7 @@
         <div class="card shadow-sm border-0 rounded-xl h-100">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-muted fs-13 fw-600 mb-0 text-uppercase tracking-wider">Critical Anomalies</h6>
+                    <h6 class="text-muted fs-13 fw-600 mb-0 text-uppercase tracking-wider">{{ translate('Critical Anomalies') }}</h6>
                     <div class="icon-shape bg-soft-danger text-danger rounded-circle">
                         <i class="las la-radiation fs-18"></i>
                     </div>
@@ -111,12 +111,12 @@
                 <div class="d-flex align-items-center gap-3">
                     <div>
                         <h3 class="fs-28 fw-700 mb-0 {{ $shippedUnpaid > 0 ? 'text-danger' : 'text-success' }}">{{ $shippedUnpaid }}</h3>
-                        <p class="text-muted fs-12 mb-0 mt-1">Orders Shipped & Unpaid</p>
+                        <p class="text-muted fs-12 mb-0 mt-1">{{ translate('Orders Shipped & Unpaid') }}</p>
                     </div>
                 </div>
                 @if($shippedUnpaid > 0)
                 <div class="mt-3">
-                    <a href="{{ route('all_orders.index') }}" class="text-danger fs-12 fw-600 hover-underline">View Orders <i class="las la-angle-right"></i></a>
+                    <a href="{{ route('all_orders.index') }}" class="text-danger fs-12 fw-600 hover-underline">{{ translate('View Orders') }} <i class="las la-angle-right"></i></a>
                 </div>
                 @endif
             </div>
@@ -128,8 +128,8 @@
     <div class="col-lg-8">
         <div class="card shadow-sm border-0 rounded-xl mb-4">
             <div class="card-header border-bottom-0 pt-4 pb-0 bg-transparent">
-                <h6 class="mb-0 fs-16 fw-700 text-dark">Payment Reliability (7 Days)</h6>
-                <p class="text-muted fs-13">Daily CMI attempts vs payment failures</p>
+                <h6 class="mb-0 fs-16 fw-700 text-dark">{{ translate('Payment Reliability (7 Days)') }}</h6>
+                <p class="text-muted fs-13">{{ translate('Daily CMI attempts vs payment failures') }}</p>
             </div>
             <div class="card-body p-4">
                 <canvas id="paymentReliabilityChart" height="100"></canvas>
@@ -140,13 +140,13 @@
     <div class="col-lg-4">
         <div class="card shadow-sm border-0 rounded-xl mb-4 h-100">
             <div class="card-header border-bottom-0 pt-4 pb-0 bg-transparent">
-                <h6 class="mb-0 fs-16 fw-700 text-dark">System Queue Backlog</h6>
+                <h6 class="mb-0 fs-16 fw-700 text-dark">{{ translate('System Queue Backlog') }}</h6>
             </div>
             <div class="card-body p-4 d-flex flex-column justify-content-center">
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-end mb-2">
                         <div>
-                            <span class="fs-12 text-muted text-uppercase fw-600 tracking-wider d-block">Pending Images</span>
+                            <span class="fs-12 text-muted text-uppercase fw-600 tracking-wider d-block">{{ translate('Pending Images') }}</span>
                             <h4 class="fs-20 fw-700 text-dark mb-0">{{ $pendingImages }}</h4>
                         </div>
                         <i class="las la-images fs-24 text-info"></i>
@@ -159,7 +159,7 @@
                 <div class="mb-4">
                     <div class="d-flex justify-content-between align-items-end mb-2">
                         <div>
-                            <span class="fs-12 text-muted text-uppercase fw-600 tracking-wider d-block">Stuck Payments (24h)</span>
+                            <span class="fs-12 text-muted text-uppercase fw-600 tracking-wider d-block">{{ translate('Stuck Payments (24h)') }}</span>
                             <h4 class="fs-20 fw-700 {{ $stuckPayments > 0 ? 'text-warning' : 'text-dark' }} mb-0">{{ $stuckPayments }}</h4>
                         </div>
                         <i class="las la-money-check-alt fs-24 text-warning"></i>
@@ -168,14 +168,14 @@
                         <div class="progress-bar bg-warning" role="progressbar" style="width: {{ min(100, $stuckPayments * 5) }}%"></div>
                     </div>
                     @if($stuckPayments > 0)
-                        <small class="text-muted fs-11 mt-1 d-block"><i class="las la-info-circle"></i> Will be auto-expired by cron job.</small>
+                        <small class="text-muted fs-11 mt-1 d-block"><i class="las la-info-circle"></i> {{ translate('Will be auto-expired by cron job.') }}</small>
                     @endif
                 </div>
 
                 <div>
                     <div class="d-flex justify-content-between align-items-end mb-2">
                         <div>
-                            <span class="fs-12 text-muted text-uppercase fw-600 tracking-wider d-block">Duplicate CMI Callbacks</span>
+                            <span class="fs-12 text-muted text-uppercase fw-600 tracking-wider d-block">{{ translate('Duplicate CMI Callbacks') }}</span>
                             <h4 class="fs-20 fw-700 {{ $duplicateCmi > 0 ? 'text-primary' : 'text-dark' }} mb-0">{{ $duplicateCmi }}</h4>
                         </div>
                         <i class="las la-copy fs-24 text-primary"></i>
@@ -183,7 +183,7 @@
                     <div class="progress" style="height: 5px;">
                         <div class="progress-bar bg-primary" role="progressbar" style="width: {{ min(100, $duplicateCmi * 2) }}%"></div>
                     </div>
-                    <small class="text-muted fs-11 mt-1 d-block"><i class="las la-shield-alt"></i> Successfully blocked by idempotency locks.</small>
+                        <small class="text-muted fs-11 mt-1 d-block"><i class="las la-shield-alt"></i> {{ translate('Successfully blocked by idempotency locks.') }}</small>
                 </div>
             </div>
         </div>
@@ -219,7 +219,7 @@
                 labels: {!! json_encode($chartDates) !!},
                 datasets: [
                     {
-                        label: 'Total Payment Attempts',
+                        label: {!! json_encode(translate('Total Payment Attempts')) !!},
                         data: {!! json_encode($paymentChartData) !!},
                         borderColor: '#0F172A', // slate-900
                         backgroundColor: gradientPrimary,
@@ -233,7 +233,7 @@
                         tension: 0.4
                     },
                     {
-                        label: 'CMI Failures',
+                        label: {!! json_encode(translate('CMI Failures')) !!},
                         data: {!! json_encode($cmiChartData) !!},
                         borderColor: '#EF4444', // red-500
                         backgroundColor: gradientDanger,

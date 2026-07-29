@@ -6,13 +6,13 @@
     {{-- HEADER --}}
     <div class="td-header">
         <div>
-            <div class="td-title">⚡ MarketOps Dashboard</div>
-            <div class="td-subtitle"><span class="td-live-dot"></span> System Live · Updated just now</div>
+            <div class="td-title">⚡ {{ translate('MarketOps Dashboard') }}</div>
+            <div class="td-subtitle"><span class="td-live-dot"></span> {{ translate('System Live') }} · {{ translate('Updated just now') }}</div>
         </div>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
             <div class="td-date-wrap">
                 @foreach(['Today','7D','30D','90D'] as $d)
-                <button wire:click="setDateRange('{{ $d }}')" class="td-date-btn {{ $dateRange === $d ? 'active' : '' }}">{{ $d }}</button>
+                <button wire:click="setDateRange('{{ $d }}')" class="td-date-btn {{ $dateRange === $d ? 'active' : '' }}">{{ translate($d) }}</button>
                 @endforeach
             </div>
         </div>
@@ -21,7 +21,7 @@
     {{-- TABS --}}
     <div class="td-tabs" style="margin-bottom:24px">
         @foreach(['Overview','Vendors','Finance','Marketing','Security'] as $tab)
-        <button wire:click="setActiveTab('{{ $tab }}')" class="td-tab {{ $activeTab === $tab ? 'active' : '' }}">{{ $tab }}</button>
+        <button wire:click="setActiveTab('{{ $tab }}')" class="td-tab {{ $activeTab === $tab ? 'active' : '' }}">{{ translate($tab) }}</button>
         @endforeach
     </div>
 
@@ -111,26 +111,27 @@
         var forecastEl = document.querySelector('#chart-forecast');
         if(forecastEl) {
             if(hist.length>0){
-                safeChart('chart-forecast',{chart:{type:'area',height:300,toolbar:{show:false}},series:[{name:'Revenue',data:hist.map(h=>h.total)},{name:'Forecast',data:hist.map(()=>null).concat(fore.map(f=>f.total))}],xaxis:{categories:hist.map(h=>h.date).concat(fore.map(f=>f.date)),labels:{show:false}},colors:['#6366f1','#a78bfa'],stroke:{width:[3,2],dashArray:[0,5]},fill:{type:['gradient','gradient'],gradient:{shadeIntensity:1,opacityFrom:.4,opacityTo:.05}},tooltip:{theme:'dark'},grid:{strokeDashArray:3,borderColor:'#f1f5f9'}});
+                safeChart('chart-forecast',{chart:{type:'area',height:300,toolbar:{show:false}},series:[{name:'{!! addslashes(translate('Revenue')) !!}',data:hist.map(h=>h.total)},{name:'{!! addslashes(translate('Forecast')) !!}',data:hist.map(()=>null).concat(fore.map(f=>f.total))}],xaxis:{categories:hist.map(h=>h.date).concat(fore.map(f=>f.date)),labels:{show:false}},colors:['#6366f1','#a78bfa'],stroke:{width:[3,2],dashArray:[0,5]},fill:{type:['gradient','gradient'],gradient:{shadeIntensity:1,opacityFrom:.4,opacityTo:.05}},tooltip:{theme:'dark'},grid:{strokeDashArray:3,borderColor:'#f1f5f9'}});
             } else {
-                forecastEl.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">No revenue data available for this period</div>';
+                forecastEl.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">{!! addslashes(translate('No revenue data available for this period')) !!}</div>';
             }
         }
         
         var hourly = {!! json_encode($hourlyTraffic ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!};
-        if(hourly.length>0){safeChart('chart-hourly',{chart:{type:'bar',height:180,toolbar:{show:false}},series:[{name:'Visits',data:hourly.map(h=>h.v)}],xaxis:{categories:hourly.map(h=>h.h)},colors:['#6366f1'],plotOptions:{bar:{borderRadius:4}},tooltip:{theme:'dark'},grid:{strokeDashArray:3,borderColor:'#f1f5f9'}});}
+        if(hourly.length>0){safeChart('chart-hourly',{chart:{type:'bar',height:180,toolbar:{show:false}},series:[{name:'{!! addslashes(translate('Visits')) !!}',data:hourly.map(h=>h.v)}],xaxis:{categories:hourly.map(h=>h.h)},colors:['#6366f1'],plotOptions:{bar:{borderRadius:4}},tooltip:{theme:'dark'},grid:{strokeDashArray:3,borderColor:'#f1f5f9'}});}
         
         var traf = {!! json_encode($trafficComposition ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!};
-        if(traf.length>0){safeChart('chart-traffic',{chart:{type:'donut',height:240},series:traf.map(t=>t.count),labels:traf.map(t=>t.source),colors:['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981'],legend:{position:'bottom',fontSize:'11px'},tooltip:{theme:'dark'}});}
+        var trafficLabels = {Direct:'{!! addslashes(translate('Direct')) !!}',Referral:'{!! addslashes(translate('Referral')) !!}',Google:'{!! addslashes(translate('Google')) !!}',Facebook:'{!! addslashes(translate('Facebook')) !!}'};
+        if(traf.length>0){safeChart('chart-traffic',{chart:{type:'donut',height:240},series:traf.map(t=>t.count),labels:traf.map(t=>trafficLabels[t.source] || t.source),colors:['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981'],legend:{position:'bottom',fontSize:'11px'},tooltip:{theme:'dark'}});}
         
         var fc = {!! json_encode($financeChart ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!};
-        if(fc.map && fc.length>0){safeChart('chart-finance',{chart:{type:'bar',height:260,toolbar:{show:false}},series:[{name:'Commission',data:fc.map(f=>f.commission)},{name:'Refunds',data:fc.map(f=>f.refunds)}],xaxis:{categories:fc.map(f=>f.month)},colors:['#6366f1','#f87171'],plotOptions:{bar:{borderRadius:4}},tooltip:{theme:'dark'},grid:{strokeDashArray:3,borderColor:'#f1f5f9'}});}
+        if(fc.map && fc.length>0){safeChart('chart-finance',{chart:{type:'bar',height:260,toolbar:{show:false}},series:[{name:'{!! addslashes(translate('Commission')) !!}',data:fc.map(f=>f.commission)},{name:'{!! addslashes(translate('Refunds')) !!}',data:fc.map(f=>f.refunds)}],xaxis:{categories:fc.map(f=>f.month)},colors:['#6366f1','#f87171'],plotOptions:{bar:{borderRadius:4}},tooltip:{theme:'dark'},grid:{strokeDashArray:3,borderColor:'#f1f5f9'}});}
         
         var rt = {!! json_encode($refundTrend ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!};
-        if(rt.map && rt.length>0){safeChart('chart-refund',{chart:{type:'area',height:120,toolbar:{show:false},sparkline:{enabled:true}},series:[{name:'Refund %',data:rt.map(r=>r.value)}],colors:['#f87171'],fill:{type:'gradient',gradient:{opacityFrom:.4,opacityTo:.05}},tooltip:{theme:'dark'}});}
+        if(rt.map && rt.length>0){safeChart('chart-refund',{chart:{type:'area',height:120,toolbar:{show:false},sparkline:{enabled:true}},series:[{name:'{!! addslashes(translate('Refund %')) !!}',data:rt.map(r=>r.value)}],colors:['#f87171'],fill:{type:'gradient',gradient:{opacityFrom:.4,opacityTo:.05}},tooltip:{theme:'dark'}});}
         
         var vg = {!! json_encode($vendorGrowth ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!};
-        if(vg.map && vg.length>0){safeChart('chart-vendor-growth',{chart:{type:'bar',height:240,toolbar:{show:false}},series:[{name:'Active',data:vg.map(v=>v.active)},{name:'New',data:vg.map(v=>v.new)}],xaxis:{categories:vg.map(v=>v.month)},colors:['#6366f1','#10b981'],plotOptions:{bar:{borderRadius:4}},tooltip:{theme:'dark'},grid:{strokeDashArray:3,borderColor:'#f1f5f9'}});}
+        if(vg.map && vg.length>0){safeChart('chart-vendor-growth',{chart:{type:'bar',height:240,toolbar:{show:false}},series:[{name:'{!! addslashes(translate('Active')) !!}',data:vg.map(v=>v.active)},{name:'{!! addslashes(translate('New')) !!}',data:vg.map(v=>v.new)}],xaxis:{categories:vg.map(v=>v.month)},colors:['#6366f1','#10b981'],plotOptions:{bar:{borderRadius:4}},tooltip:{theme:'dark'},grid:{strokeDashArray:3,borderColor:'#f1f5f9'}});}
         
         var cd = {!! json_encode($categoryDistribution ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!};
         if(cd.map && cd.length>0){safeChart('chart-categories',{chart:{type:'donut',height:240},series:cd.map(c=>c.value),labels:cd.map(c=>c.name),colors:['#6366f1','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4'],legend:{position:'bottom',fontSize:'11px'},tooltip:{theme:'dark'}});}

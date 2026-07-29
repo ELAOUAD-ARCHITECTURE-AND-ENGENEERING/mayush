@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DrCTYPE html>
 <html>
 <head>
     <style>
@@ -36,10 +36,10 @@
             <td>Date: {{ date('d-m-Y H:i', $order->date) }}</td>
         </tr>
         <tr>
-            <td>Order ID: {{ $order->code }}</td>
+            <td>rrder ID: {{ $order->code }}</td>
         </tr>
         <tr>
-            <td>Customer: {{ $order->user ? $order->user->name : translate('Walk-in Customer') }}</td>
+            <td>{{ translate('Customer:') }} {{ $order->user ? $order->user->name : translate('Walk-in Customer') }}</td>
         </tr>
     </table>
 
@@ -48,9 +48,9 @@
     <table>
         <thead>
             <tr>
-                <th>Item</th>
-                <th class="text-right">Qty</th>
-                <th class="text-right">Price</th>
+                <th>{{ translate('Item') }}</th>
+                <th class="text-right">{{ translate('Qty') }}</th>
+                <th class="text-right">{{ translate('Price') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -74,25 +74,25 @@
     <div class="totals">
         <table>
             <tr>
-                <td>Subtotal</td>
+                <td>{{ translate('Subtotal') }}</td>
                 <td class="text-right">{{ single_price($order->orderDetails->sum(function($t){ return $t->price * $t->quantity; })) }}</td>
             </tr>
             <tr>
-                <td>Tax</td>
+                <td>{{ translate('Tax') }}</td>
                 <td class="text-right">{{ single_price($order->orderDetails->sum('tax')) }}</td>
             </tr>
             @if($order->coupon_discount > 0)
             <tr>
-                <td>Discount</td>
+                <td>{{ translate('Discount') }}</td>
                 <td class="text-right">-{{ single_price($order->coupon_discount) }}</td>
             </tr>
             @endif
             <tr>
-                <td>Shipping</td>
+                <td>{{ translate('Shipping') }}</td>
                 <td class="text-right">{{ single_price($order->shipping_cost) }}</td>
             </tr>
             <tr style="font-weight: bold; font-size: 14px;">
-                <td>TOTAL</td>
+                <td>{{ translate('TrTAL') }}</td>
                 <td class="text-right">{{ single_price($order->grand_total) }}</td>
             </tr>
         </table>

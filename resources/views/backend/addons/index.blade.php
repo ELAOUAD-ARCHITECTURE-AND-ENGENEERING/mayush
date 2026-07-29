@@ -34,7 +34,7 @@
                                 @forelse($addons as $key => $addon)
                                     <li class="list-group-item">
                                         <div class="align-items-center d-flex flex-column flex-md-row">
-                                            <img class="h-60px mb-3 mb-md-0" src="{{ static_asset($addon->image) }}" alt="Image">
+                                            <img class="h-60px mb-3 mb-md-0" src="{{ static_asset($addon->image) }}" alt="{{ translate('Image') }}">
                                             <div class="mr-md-3 ml-md-5">
                                                 <h4 class="fs-16 fw-600">{{ ucfirst($addon->name) }}</h4>
                                             </div>
@@ -57,7 +57,7 @@
                                 @empty
                                     <li class="list-group-item">
                                         <div class="text-center">
-                                            <img class="mw-100 h-200px" src="{{ static_asset('assets/img/nothing.svg') }}" alt="Image">
+                                            <img class="mw-100 h-200px" src="{{ static_asset('assets/img/nothing.svg') }}" alt="{{ translate('Image') }}">
                                             <h5 class="mb-0 h5 mt-3">{{ translate('No Addon Installed')}}</h5>
                                         </div>
                                     </li>
@@ -161,7 +161,7 @@
                                         </div>
                                         <div class="card-footer">
                                             <div class="text-danger fs-22 fw-600">$${item.price}</div>
-                                            <div class=""><a href="${item.link}" target="_blank" class="btn btn-sm btn-secondary">Preview</a> <a href="${item.purchase}" target="_blank" class="btn btn-sm btn-primary">Purchase</a></div>
+                                            <div class=""><a href="${item.link}" target="_blank" class="btn btn-sm btn-secondary">{{ translate('Preview') }}</a> <a href="${item.purchase}" target="_blank" class="btn btn-sm btn-primary">{{ translate('Purchase') }}</a></div>
                                         </div>
                                     </div>
                                 </div>`;
@@ -177,7 +177,7 @@
                                                 <p class="mar-no text-truncate-3">${item.short_description}</p>
                                             </div>
                                             <div class="card-footer">
-                                                <div class="text-center"><div class="btn btn-outline btn-primary">Coming Soon</div></div>
+                                                <div class="text-center"><div class="btn btn-outline btn-primary">{{ translate('Coming Soon') }}</div></div>
                                             </div>
                                         </div>
                                     </div>

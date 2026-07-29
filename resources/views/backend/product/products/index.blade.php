@@ -104,7 +104,7 @@
                                 </span>
                             </div>
                             <input type="text" class="form-control form-control-sm border-0 px-2 bg-transparent"
-                                id="search_input" name="search" placeholder="Search products…">
+                                id="search_input" name="search" placeholder="{{ translate('Search products…') }}">
                         </div>
                     </div>
 
@@ -152,27 +152,26 @@
                                 class="btn px-3  w-100 d-flex justify-content-between align-items-center dropdown-toggle"
                                 type="button" id="filterMenu" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false">
-                                <span class="text-secondary fs-14 fw-400">Filter</span>
+                                <span class="text-secondary fs-14 fw-400">{{ translate('Filter') }}</span>
                                 <span class="dropdown-toggle-icon"></span>
                             </button>
 
                             <div class="dropdown-menu py-3 w-100" aria-labelledby="filterMenu">
                                 <div class="form-check hover-bg-light py-2 d-flex align-items-center">
                                     <input class="input-check" type="checkbox" id="all">
-                                    <label class="form-check-label fs-14 px-2" for="all">All</label>
+                                    <label class="form-check-label fs-14 px-2" for="all">{{ translate('All') }}</label>
                                 </div>
                                 <div class="form-check hover-bg-light py-2 d-flex align-items-center">
                                     <input class="input-check" type="checkbox" id="all-publish">
-                                    <label class="form-check-label fs-14 px-2" for="all-publish">All Published</label>
+                                    <label class="form-check-label fs-14 px-2" for="all-publish">{{ translate('All Published') }}</label>
                                 </div>
                                 <div class="form-check hover-bg-light py-2 d-flex align-items-center">
                                     <input class="input-check" type="checkbox" id="all-discount">
-                                    <label class="form-check-label fs-14 px-2" for="all-discount">All
-                                        Discounted</label>
+                                    <label class="form-check-label fs-14 px-2" for="all-discount">{{ translate('All Discounted') }}</label>
                                 </div>
                                 <div class="form-check hover-bg-light py-2 d-flex align-items-center">
                                     <input class="input-check" type="checkbox" id="low-stock">
-                                    <label class="form-check-label fs-14 px-2" for="low-stock">Low Stock</label>
+                                    <label class="form-check-label fs-14 px-2" for="low-stock">{{ translate('Low Stock') }}</label>
                                 </div>
                                 @can('product_edit')
                                 <div class="dropdown-divider my-1"></div>
@@ -181,7 +180,7 @@
                                     <label class="form-check-label fs-14 px-2" for="show-unpublished">
                                         <span class="d-flex align-items-center gap-2">
                                             {{ translate('Show Unpublished') }}
-                                            <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:#fff3cd;color:#856404;border:1px solid #ffc107;margin-left:4px;">DRAFT</span>
+                                            <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:#fff3cd;color:#856404;border:1px solid #ffc107;margin-left:4px;">{{ translate('DRAFT') }}</span>
                                         </span>
                                     </label>
                                 </div>
@@ -194,7 +193,7 @@
                     <div class="col-md-2 ml-auto pr-0 pr-md-3 pl-0 inner-select ">
                         <select class="form-control  aiz-selectpicker mb-2 mb-md-0 bg-light" name="type"
                             id="type" onchange="sort_products()">
-                            <option value="" class="hov-text-light text-white fs-14 fw-400">Sort</option>
+                            <option value="" class="hov-text-light text-white fs-14 fw-400">{{ translate('Sort') }}</option>
                             <option value="rating,desc" class="hov-bg-light text-secondary fs-14 fw-40"
                                 @if(isset($col_name) && isset($query)) @if ($col_name == 'rating' && $query == 'desc') selected @endif @endif>
                                 {{ translate('Rating (High > Low)') }}</option>
@@ -438,7 +437,7 @@
                     }
                 },
                 error: function () {
-                    AIZ.plugins.notify('danger', 'Something went wrong');
+                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
                 }
             });
         }
@@ -463,7 +462,7 @@
                     }
                 },
                 error: function () {
-                    AIZ.plugins.notify('danger', 'Something went wrong');
+                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
                 }
             });
         }

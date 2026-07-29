@@ -30,12 +30,12 @@
                               </g>
                             </g>
                         </svg>
-                        <h1 class="fs-21 fw-700 text-uppercase mt-2" style="color: #3d3d3d;">Import SQL</h1>
+                        <h1 class="fs-21 fw-700 text-uppercase mt-2" style="color: #3d3d3d;">{{ translate('Import SQL') }}</h1>
                         <p class="fs-12 fw-500" style="color:  #666; line-height: 18px;">
                             Your database is successfully connected. All you need to do now is hit the ‘Install’ Button. The auto installer will run a sql file, will do all the tiresome works and set up your application automatically.
                         </p>
                      
-                      <p class="text-primary">N.B: If you do not import the demo data now, you will not be able to access it later unless you perform a fresh installation</p>
+                      <p class="text-primary">{{ translate('N.B: If you do not import the demo data now, you will not be able to access it later unless you perform a fresh installation') }}</p>
                     </div>
 
                     <div class="mt-5 pt-2 text-center">
@@ -51,7 +51,7 @@
                     <div class="text-center mar-top pad-top">
                       <div id="loader" style="margin-top: 20px; display: none; transition: all 0.5s;">
                         <img loading="lazy" src="{{ asset('loader.gif') }}" alt="" width="20">
-                        &nbsp; Importing database ....
+                        &nbsp; {{ translate('Importing database ....') }}
                       </div>
                     </div>
 
@@ -59,17 +59,17 @@
                       <div class="d-flex align-items-center justify-content-center mb-3">
                         <label class="d-flex align-items-center mb-0">
                           <input type="radio" name="import_option" value="import_sql_with_demo" id="radio_with_demo" onclick="updateImportHref(this)" checked class="mr-2">
-                          <span class="text-nowrap">Import With Demo </span>
+                          <span class="text-nowrap">{{ translate('Import With Demo') }} </span>
                         </label>
                         <label class="d-flex align-items-center mb-0 ml-3">
                           <input type="radio" name="import_option" value="import_sql" onclick="updateImportHref(this)" id="radio_without_demo" class="mr-2">
-                          <span class="text-nowrap">Import Without Demo</span>
+                          <span class="text-nowrap">{{ translate('Import Without Demo') }}</span>
                         </label>
                       </div>
                     </div>
 
                     <div class="mb-4 pb-4 absolute-bottom-left right-0 d-flex justify-content-center">
-                      <a href="{{ (Route::has('step3') ? route('step3') : '#') }}" class="back-btn-svg mr-3" title="Go Back" style="box-shadow: 0px 8px 16px rgb(255 88 0 / 16%); border-radius: 50%;">
+                      <a href="{{ (Route::has('step3') ? route('step3') : '#') }}" class="back-btn-svg mr-3" title="{{ translate('Go Back') }}" style="box-shadow: 0px 8px 16px rgb(255 88 0 / 16%); border-radius: 50%;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
                           <g id="Group_22706" data-name="Group 22706" transform="translate(-770 -653)">
                             <g id="Ellipse_26" data-name="Ellipse 26" transform="translate(770 653)" fill="none" stroke="#cccccc" stroke-width="1">
@@ -80,7 +80,7 @@
                           </g>
                         </svg>
                       </a>
-                      <a href="{{ (Route::has('import_sql_with_demo') ? route('import_sql_with_demo') : '#') }}" id="importButton" class="btn btn-install text-uppercase" onclick="showLoder()">Import</a>
+                      <a href="{{ (Route::has('import_sql_with_demo') ? route('import_sql_with_demo') : '#') }}" id="importButton" class="btn btn-install text-uppercase" onclick="showLoder()">{{ translate('Import') }}</a>
                     </div>
                   </div>
 

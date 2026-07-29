@@ -6,7 +6,7 @@
                 <!-- Centered Spinner -->
                 <div class="mb-4">
                     <!-- <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
-                        <span class="sr-only">Loading...</span>
+                        <span class="sr-only">{{ translate('Loading...') }}</span>
                     </div> -->
                    <h5 >{{translate('Processing ...')}}</h5>
                    <div class="loading-bar w-250px"></div>

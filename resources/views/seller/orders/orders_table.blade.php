@@ -42,7 +42,7 @@
                     </div>
                 </td>
 
-                <td data-label="Order-Code" class="align-middle">
+                <td data-label="{{ translate('Order-Code') }}" class="align-middle">
                     <a class="text-blue fw-600" href="{{ route('seller.orders.show', encrypt($order->id)) }}">{{ $order->code }}</a>
                     @if ($order->shipping_method == 'shiprocket')
                     <br><span class="fw-bold">{{ translate('Shiprocket Order Id') }}:</span> {{ $order->shiprocket_order_id }}
@@ -73,11 +73,11 @@
                     @endif
                 </td>
 
-                <td class="align-middle" data-label="OrderCount">
+                <td class="align-middle" data-label="{{ translate('OrderCount') }}">
                     {{ count($order->orderDetails) }}
                 </td>
 
-                <td class="hide-xs align-middle" data-label="Customer">
+                <td class="hide-xs align-middle" data-label="{{ translate('Customer') }}">
                     <span class="fs-12 fw-200 text-secondary d-block pt-1">
                         @if ($order->user != null)
                         {{ $order->user->name }}
@@ -87,20 +87,20 @@
                     </span>
                 </td>
 
-                <td class="hide-sm align-middle" data-label="Owner">
+                <td class="hide-sm align-middle" data-label="{{ translate('Owner') }}">
                     @php $shop = optional($order->shop); @endphp
                     <a href="{{ $shop->id ? route('sellers.profile', encrypt($shop->id)) : '#' }}" class="fs-12 fs-md-14 fw-700 d-block text-blue">
                          {{ Str::limit($shop->name, 20)?? '' }}
                     </a>
                 </td>
 
-                <td class="hide-md align-middle" data-label="Price Details">
+                <td class="hide-md align-middle" data-label="{{ translate('Price Details') }}">
                     <div class="border-width-3 border-left border-blue px-2 py-0 mb-1">
                         <p class="fs-16 fw-700 m-0">{{ single_price($order->grand_total) }}</p>
                     </div>
                 </td>
 
-                <td class="hide-xl align-middle" data-label="Delivery Status">
+                <td class="hide-xl align-middle" data-label="{{ translate('Delivery Status') }}">
                     <p class="fs-16 fw-700 m-0 @if( $order->delivery_status == 'delivered' ) text-success @endif">{{ translate(ucfirst(str_replace('_', ' ', $order->delivery_status))) }}</p>
 
                     @if ($order->shipping_method == 'shiprocket')
@@ -112,11 +112,11 @@
                     @endif
                 </td>
 
-                <td class="hide-xxl align-middle" data-label="Payment method">
+                <td class="hide-xxl align-middle" data-label="{{ translate('Payment method') }}">
                     {{ translate(ucfirst(str_replace('_', ' ', $order->payment_type))) }}
                 </td>
 
-                <td class="hide-xxl align-middle" data-label="Payment Status">
+                <td class="hide-xxl align-middle" data-label="{{ translate('Payment Status') }}">
                     @if ($order->payment_status == 'paid')
                     <span class="badge badge-inline badge-success">{{ translate('Paid') }}</span>
                     @else

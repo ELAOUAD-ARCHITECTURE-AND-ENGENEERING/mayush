@@ -199,7 +199,7 @@
         <div class="modal-content ">
             <div class="modal-body">
                 <div style="position: relative;">
-                    <img id="modalReviewImage" src="" class="img-fluid" style="max-height: 40vh; width:100%; object-fit: contain;" alt="Review Image">
+                    <img id="modalReviewImage" src="" class="img-fluid" style="max-height: 40vh; width:100%; object-fit: contain;" alt="{{ translate('Review Image') }}">
 
                     <button class="shadow-lg btn btn-circle btn-icon" id="prevImageBtn" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);">
                         <i class="las la-arrow-left"></i>

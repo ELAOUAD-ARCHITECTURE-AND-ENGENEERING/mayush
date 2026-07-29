@@ -37,7 +37,7 @@
                     </g>
                 </svg>
             </span>
-            <span class="button-text">How to Install</span>
+            <span class="button-text">{{ translate('How to Install') }}</span>
         </a>
     </div>
     <div class="mt-3">
@@ -47,7 +47,7 @@
                     <path id="Union_17" data-name="Union 17" d="M-1986,14a4,4,0,0,1-4-4V4h1v6a3,3,0,0,0,3,3h8v1Zm1-3a2,2,0,0,1-2-2V2a2,2,0,0,1,2-2h7a4,4,0,0,1,4,4V9a2,2,0,0,1-2,2Zm-1-9V9a1,1,0,0,0,1,1h9a1,1,0,0,0,1-1V4h-3a1,1,0,0,1-1-1V1h1V3h2.829A3.006,3.006,0,0,0-1978,1h-7A1,1,0,0,0-1986,2Zm2,6V7h7V8Zm0-2V5h7V6Z" transform="translate(1990)" fill="#fff"/>
                 </svg>
             </span>
-            <span class="button-text">View Documentation</span>
+            <span class="button-text">{{ translate('View Documentation') }}</span>
         </a>
     </div>
 </div>

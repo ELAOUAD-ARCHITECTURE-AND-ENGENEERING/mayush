@@ -157,6 +157,6 @@ class EliteSystemTest extends TestCase
         // Note: CmiController::pay() returns a view 'frontend.payment.cmi'
         $response->assertStatus(200);
         $response->assertViewIs('frontend.payment.cmi');
-        $response->assertSee('Redirecting to CMI');
+        $response->assertSee(translate('Redirecting to CMI...'));
     }
 }

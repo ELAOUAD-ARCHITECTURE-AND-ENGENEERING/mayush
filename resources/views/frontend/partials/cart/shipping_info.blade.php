@@ -209,8 +209,8 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="chooseAddressModalLabel">Choose Address</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h5 class="modal-title" id="chooseAddressModalLabel">{{ translate('Choose Address') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -282,7 +282,7 @@
                     <!-- Single End -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary rounded-0" onclick="changeShippingAddress()">Save changes</button>
+                    <button type="button" class="btn btn-primary rounded-0" onclick="changeShippingAddress()">{{ translate('Save changes') }}</button>
                 </div>
             </div>
         </div>
@@ -294,7 +294,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="chooseAddressModalLabel">{{ translate('Choose Billing Address') }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -366,7 +366,7 @@
                     <!-- Single End -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary rounded-0 close" data-dismiss="modal" aria-label="Close">Save changes</button>
+                    <button type="button" class="btn btn-primary rounded-0 close" data-dismiss="modal" aria-label="{{ translate('Close') }}">{{ translate('Save changes') }}</button>
                 </div>
             </div>
         </div>

@@ -52,7 +52,7 @@
             </div>
         </div>
         <div class="tab-filter-bar">
-            <form class="" id="sort_products" action="" method="GET">
+            <form class="" id="sort_products" action="" method="GET" onsubmit="event.preventDefault(); getProducts(currentTab);">
                 <div class="card-header row  border-0 pb-0 mt-2">
                     <div class="col pl-0 pl-md-3">
                         <div class="input-group mb-0 border border-light px-3 bg-light rounded-1">
@@ -70,7 +70,7 @@
                                 </span>
                             </div>
                             <input type="text" class="form-control form-control-sm border-0 px-2 bg-transparent"
-                                id="search_input" name="search" placeholder="Search products…">
+                                id="search_input" name="search" value="{{ request('search') }}" placeholder="{{ translate('Search products…') }}">
                         </div>
                     </div>
                     
@@ -94,7 +94,7 @@
                                 class="btn px-3  w-100 d-flex justify-content-between align-items-center dropdown-toggle"
                                 type="button" id="filterMenu" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false">
-                                <span class="text-secondary fs-14 fw-400">Filter</span>
+                                <span class="text-secondary fs-14 fw-400">{{ translate('Filter') }}</span>
                                 <span class="dropdown-toggle-icon"></span>
                             </button>
 

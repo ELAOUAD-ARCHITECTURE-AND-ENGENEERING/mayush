@@ -7,7 +7,7 @@
             <div
                 class="w-60px h-60px rounded-1 d-flex align-items-center justify-content-center overflow-hidden bg-soft-danger flex-shrink-0">
                 <img src="{{ static_asset('assets/img/business-settings/thermal-printer.svg') }}"
-                    alt="Setting Icon">
+                    alt="{{ translate('Setting Icon') }}">
             </div>
             <div>
                 <h6 class="fw-semibold text-dark">{{translate('Thermal Printer')}}</h6>
@@ -39,13 +39,13 @@
                 <h6 class="mt-4 mb-4 fs-12">{{ translate('Invoice Content Fields for Thermal Printer') }}</h6>
                 @php
                     $fields = [
-                        'show_logo' => 'Show Logo',
-                        'show_platform_contact' => 'Show Platform Contact',
+                        'show_logo' => translate('Show Logo')',
+                        'show_platform_contact' => translate('Show Platform Contact')',
                         'show_seller_contact' => ' Show Seller Contact',
-                        'show_sku' => 'Show SKU',
-                        'show_product_variation' => 'Show Product Variation',
-                        'show_barcode' => 'Show Barcode',
-                        'show_qr_code' => 'Show QR Code'
+                        'show_sku' => translate('Show SKU')',
+                        'show_product_variation' => translate('Show Product Variation')',
+                        'show_barcode' => translate('Show Barcode')',
+                        'show_qr_code' => translate('Show QR Code')'
                     ];
                 @endphp
                 @foreach ($fields as $key => $label)
@@ -149,7 +149,7 @@
                 iframe.frameBorder = 0;
                 container.appendChild(iframe);
             } else {
-                container.innerHTML = '<p class="text-danger">Unsupported file format.</p>';
+                container.innerHTML = '<p class="text-danger">{{ translate('Unsupported file format.') }}</p>';
             }
 
             $('#filePreviewModal').modal('show');

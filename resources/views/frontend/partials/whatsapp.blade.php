@@ -5,7 +5,7 @@
                 <div class="content-whatsapp -top"><button type="button" class="closePopup">
                       <i class="material-icons icon-font-color">close</i>
                     </button>
-                    <p>Hello, 😊 need help?</p>
+                    <p>{{ translate('Hello, need help?') }} 😊</p>
                 </div>
                 <div class="content-whatsapp -bottom">
                   <input class="whats-input" id="whats-in" type="text" placeholder="{{ translate('Send message...') }}" />
