@@ -235,7 +235,7 @@
                         </div>
                     </div>
                     <!-- Watermark Image -->
-                    <div class="form-group row @if (get_setting('image_watermark_type') == " text") d-none @endif" id="watermark_image">
+                    <div class="form-group row @if (get_setting('image_watermark_type') == 'text') d-none @endif" id="watermark_image">
                         <label class="col-md-3 col-from-label">{{ translate('Watermark Image') }}</label>
                         <div class="col-md-8">
                             <div class="input-group " data-toggle="aizuploader" data-type="image">
@@ -250,7 +250,7 @@
                             <small class="text-muted">{{ translate('Do not use "svg" image.') }}</small>
                         </div>
                     </div>
-                    <div class="@if (in_array(get_setting('image_watermark_type'), [" image", null])) d-none @endif" id="watermark_text">
+                    <div class="@if (in_array(get_setting('image_watermark_type'), ['image', null])) d-none @endif" id="watermark_text">
                         <!-- Watermark Text -->
                         <div class="form-group row">
                             <label class="col-md-3 col-from-label">{{translate('Watermark Text')}}</label>
@@ -273,10 +273,10 @@
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="hidden" name="types[]" value="watermark_text_color">
-                                    <input type="text" class="form-control aiz-color-input" placeholder="Ex: #e1e1e1" name="watermark_text_color" value="{{ get_setting('watermark_text_color') }}">
+                                    <input type="text" class="form-control aiz-color-input" placeholder="Ex: #e1e1e1" name="watermark_text_color" value="{{ get_setting('watermark_text_color') ?: '#e1e1e1' }}">
                                     <div class="input-group-append">
                                         <span class="input-group-text p-0">
-                                            <input class="aiz-color-picker border-0 size-40px" type="color" value="{{ get_setting('watermark_text_color') }}">
+                                            <input class="aiz-color-picker border-0 size-40px" type="color" value="{{ get_setting('watermark_text_color') ?: '#e1e1e1' }}">
                                         </span>
                                     </div>
                                 </div>

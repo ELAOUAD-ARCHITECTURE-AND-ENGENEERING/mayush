@@ -84,11 +84,15 @@ class EliteSubscriptionController extends Controller
             'elite_system_active'  => 'required|in:0,1',
             'elite_monthly_price'  => 'required|numeric|min:0',
             'elite_yearly_price'   => 'required|numeric|min:0',
+            'elite_tax_rate'       => 'nullable|numeric|min:0',
         ]);
 
         \App\Models\BusinessSetting::updateOrCreate(['type' => 'elite_system_active'],  ['value' => $request->elite_system_active]);
         \App\Models\BusinessSetting::updateOrCreate(['type' => 'elite_monthly_price'],  ['value' => $request->elite_monthly_price]);
         \App\Models\BusinessSetting::updateOrCreate(['type' => 'elite_yearly_price'],   ['value' => $request->elite_yearly_price]);
+        if ($request->has('elite_tax_rate')) {
+            \App\Models\BusinessSetting::updateOrCreate(['type' => 'elite_tax_rate'],   ['value' => $request->elite_tax_rate]);
+        }
 
         flash(translate('Elite settings updated successfully.'))->success();
         return back();

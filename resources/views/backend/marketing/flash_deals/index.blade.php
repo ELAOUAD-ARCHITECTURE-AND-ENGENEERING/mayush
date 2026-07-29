@@ -51,8 +51,8 @@
                         <td>{{ ($key+1) + ($flash_deals->currentPage() - 1)*$flash_deals->perPage() }}</td>
                         <td>{{ $flash_deal->getTranslation('title') }}</td>
                         <td><img src="{{ uploaded_asset($flash_deal->banner) }}" alt="banner" class="h-50px"></td>
-                        <td>{{ date('d-m-Y H:i:s', $flash_deal->start_date) }}</td>
-                        <td>{{ date('d-m-Y H:i:s', $flash_deal->end_date) }}</td>
+                        <td>{{ $flash_deal->start_date ? date('d-m-Y H:i:s', (int)$flash_deal->start_date) : '-' }}</td>
+                        <td>{{ $flash_deal->end_date ? date('d-m-Y H:i:s', (int)$flash_deal->end_date) : '-' }}</td>
                         <td>
 							<label class="aiz-switch aiz-switch-success mb-0">
 								<input onchange="update_flash_deal_status(this)" value="{{ $flash_deal->id }}" type="checkbox" <?php if($flash_deal->status == 1) echo "checked";?> >

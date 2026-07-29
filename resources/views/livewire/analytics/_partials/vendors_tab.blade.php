@@ -10,22 +10,22 @@
         ['label'=>'Dispute Rate','value'=>($vk['dispute_rate']??0).'%','icon'=>'⚖️','delta'=>null],
     ]; @endphp
     @foreach($kpis as $k)
-    <div class="td-kpi"><div class="td-kpi-icon">{{ $k['icon'] }}</div><div class="td-kpi-label">{{ $k['label'] }}</div><div class="td-kpi-value">{{ $k['value'] }}</div></div>
+    <div class="td-kpi"><div class="td-kpi-icon">{{ $k['icon'] }}</div><div class="td-kpi-label">{{ translate($k['label']) }}</div><div class="td-kpi-value">{{ $k['value'] }}</div></div>
     @endforeach
 </div>
 
 {{-- GROWTH CHART + CATEGORY PIE --}}
 <div class="td-grid-2" style="margin-bottom:16px">
-    <div class="td-card"><div class="td-card-title">Vendor Growth</div><div class="td-card-sub">Monthly acquisition & retention</div><div id="chart-vendor-growth" style="min-height:240px"></div></div>
-    <div class="td-card"><div class="td-card-title">Sales by Category</div><div class="td-card-sub">Revenue distribution</div><div id="chart-categories" style="min-height:240px"></div></div>
+    <div class="td-card"><div class="td-card-title">{{ translate('Vendor Growth') }}</div><div class="td-card-sub">{{ translate('Monthly acquisition & retention') }}</div><div id="chart-vendor-growth" style="min-height:240px"></div></div>
+    <div class="td-card"><div class="td-card-title">{{ translate('Sales by Category') }}</div><div class="td-card-sub">{{ translate('Revenue distribution') }}</div><div id="chart-categories" style="min-height:240px"></div></div>
 </div>
 
 {{-- VENDOR DIRECTORY --}}
 <div class="td-card">
-    <div class="td-card-title">Vendor Directory</div>
-    <div class="td-card-sub">Real-time performance ranking</div>
+    <div class="td-card-title">{{ translate('Vendor Directory') }}</div>
+    <div class="td-card-sub">{{ translate('Real-time performance ranking') }}</div>
     <table class="td-table">
-        <thead><tr><th>Vendor</th><th>Revenue</th><th>Orders</th><th>Rating</th></tr></thead>
+        <thead><tr><th>{{ translate('Vendor') }}</th><th>{{ translate('Revenue') }}</th><th>{{ translate('Orders') }}</th><th>{{ translate('Rating') }}</th></tr></thead>
         <tbody>
         @forelse($vendorDirectory as $v)
         <tr>
@@ -35,7 +35,7 @@
             <td style="color:#f59e0b;font-weight:700">{{ $v['avg_rating']?'★'.$v['avg_rating']:'—' }}</td>
         </tr>
         @empty
-        <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px">No vendor data</td></tr>
+        <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px">{{ translate('No vendor data') }}</td></tr>
         @endforelse
         </tbody>
     </table>

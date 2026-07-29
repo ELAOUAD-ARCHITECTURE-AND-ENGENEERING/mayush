@@ -278,7 +278,7 @@
                 </table>
 
                 <div class="aiz-pagination">
-                    {{ $orders->appends(request()->input())->links() }}
+                    {{ $orders->appends(request()->except(['_token', '_method', 'id']))->links() }}
                 </div>
 
             </div>

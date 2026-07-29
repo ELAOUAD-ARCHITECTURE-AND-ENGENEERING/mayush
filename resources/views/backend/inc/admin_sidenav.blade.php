@@ -754,9 +754,9 @@
                 @endif
 
                 <!-- Sale -->
-                @canany(['view_all_orders', 'view_inhouse_orders','view_seller_orders','view_pickup_point_orders'])
+                @canany(['view_all_orders', 'view_inhouse_orders','view_seller_orders','view_pickup_point_orders','view_all_unpaid_orders'])
                 <li class="aiz-side-nav-item">
-                    <a href="#" class="aiz-side-nav-link">
+                    <a href="#" class="aiz-side-nav-link {{ areActiveRoutes(['all_orders.index', 'all_orders.show', 'inhouse_orders.index', 'inhouse_orders.show', 'seller_orders.index', 'seller_orders.show', 'pick_up_point.index', 'pick_up_point.order_show', 'unpaid_orders.index'])}}">
                         <div class="aiz-side-nav-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="15.997" height="16" viewBox="0 0 15.997 16">
                                 <g id="Layer_2" data-name="Layer 2" transform="translate(-2 -1.994)">
