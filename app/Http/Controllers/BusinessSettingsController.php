@@ -809,7 +809,12 @@ class BusinessSettingsController extends Controller
     }
 
 
-    public function customProductVisitorsUpdate( Request $request)
+    public function customProductVisitors()
+    {
+        return view('backend.marketing.custom_product_visitors');
+    }
+
+    public function customProductVisitorsUpdate(Request $request)
     {
          $settings = [
             'show_custom_product_visitors' => BusinessSetting::where('type', 'show_custom_product_visitors')->first(),
