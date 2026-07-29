@@ -7,7 +7,7 @@
         ['label'=>'Net Revenue','value'=>$cs.number_format($fk['net_revenue']??0),'delta'=>$fk['net_revenue_delta']??'0%','icon'=>'💰','up'=>!str_contains($fk['net_revenue_delta']??'','-')],
         ['label'=>'Commission','value'=>$cs.number_format($fk['commission']??0),'delta'=>$fk['commission_delta']??'0%','icon'=>'💎','up'=>!str_contains($fk['commission_delta']??'','-')],
         ['label'=>'Refund Rate','value'=>($fk['refund_rate']??0).'%','delta'=>$fk['refund_delta']??'0%','icon'=>'↩️','up'=>str_contains($fk['refund_delta']??'','-')],
-        ['label'=>'Pending Payouts','value'=>$cs.number_format($fk['pending_payouts']??0),'delta'=>($fk['pending_vendors']??0).' vendors','icon'=>'⏳','up'=>false],
+        ['label'=>'Pending Payouts','value'=>$cs.number_format($fk['pending_payouts']??0),'delta'=>($fk['pending_vendors']??0).' '.translate('vendors'),'icon'=>'⏳','up'=>false],
     ]; @endphp
     @foreach($kpis as $k)
     <div class="td-kpi"><div class="td-kpi-icon">{{ $k['icon'] }}</div><div class="td-kpi-label">{{ translate($k['label']) }}</div><div class="td-kpi-value">{{ $k['value'] }}</div>@if($k['delta'])<span class="td-kpi-delta {{ $k['up']?'td-delta-up':'td-delta-down' }}">{{ $k['delta'] }}</span>@endif</div>

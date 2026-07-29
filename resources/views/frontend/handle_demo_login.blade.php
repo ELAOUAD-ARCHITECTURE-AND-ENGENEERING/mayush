@@ -72,29 +72,29 @@
                             <div class="mb-4 text-center">
                                 <img class="h-40px" src="{{ my_asset('assets/img/demo/link/logo.svg') }}" alt="Active eCommerce CMS">
                             </div>
-                            <a href="https://mayushdesign.com/seller/users/login" class="btn btn-block btn-lg btn-soft-primary fs-14 fw-700 mb-3 rounded-2">Login as Customer</a>
-                            <a href="https://mayushdesign.com/seller/login" class="btn btn-block btn-lg btn-soft-info fs-14 fw-700 mb-3 rounded-2">Login as Admin</a>
-                            <a href="https://mayushdesign.com/seller/seller/login" class="btn btn-block btn-lg btn-soft-success fs-14 fw-700 mb-3 rounded-2">Login as Seller</a>
-                            <a href="https://mayushdesign.com/seller/deliveryboy/login" class="btn btn-block btn-lg btn-soft-warning fs-14 fw-700 mb-3 rounded-2">Login as Delivery Boy</a>
-                            <small class="d-block fs-10 text-center" style="color: #78829d;">* The above links of Login will forward you to main demo.</small>
+                            <a href="https://mayushdesign.com/seller/users/login" class="btn btn-block btn-lg btn-soft-primary fs-14 fw-700 mb-3 rounded-2">{{ translate('Login as Customer') }}</a>
+                            <a href="https://mayushdesign.com/seller/login" class="btn btn-block btn-lg btn-soft-info fs-14 fw-700 mb-3 rounded-2">{{ translate('Login as Admin') }}</a>
+                            <a href="https://mayushdesign.com/seller/seller/login" class="btn btn-block btn-lg btn-soft-success fs-14 fw-700 mb-3 rounded-2">{{ translate('Login as Seller') }}</a>
+                            <a href="https://mayushdesign.com/seller/deliveryboy/login" class="btn btn-block btn-lg btn-soft-warning fs-14 fw-700 mb-3 rounded-2">{{ translate('Login as Delivery Boy') }}</a>
+                            <small class="d-block fs-10 text-center" style="color: #78829d;">{{ translate('* The above links of Login will forward you to main demo.') }}</small>
                         </div>
                     </div>
                     <div class="text-center" style="margin-top: 40px;">
-                        <small class="d-block fs-12 text-center mb-3" style="color: #78829d;">Mobile Apps for Active eCommerce CMS</small>
+                        <small class="d-block fs-12 text-center mb-3" style="color: #78829d;">{{ translate('Mobile Apps for Active eCommerce CMS') }}</small>
                         <div class="d-flex flex-wrap justify-content-center mb-3">
-                            <a href="https://codecanyon.net/item/active-ecommerce-flutter-app/31466365" target="_blank" class="fs-14 fw-700 text-primary mx-3 animate-underline-primary">Customer Mobile App</a>
-                            <a href="https://codecanyon.net/item/active-ecommerce-seller-app/38842276" target="_blank" class="fs-14 fw-700 text-primary mx-3 animate-underline-primary">Seller’s Mobile App</a>
-                            <a href="https://codecanyon.net/item/active-ecommerce-delivery-boy-flutter-app/32173746" target="_blank" class="fs-14 fw-700 text-primary mx-3 animate-underline-primary">Delivery Boy Mobile App</a>
+                            <a href="https://codecanyon.net/item/active-ecommerce-flutter-app/31466365" target="_blank" class="fs-14 fw-700 text-primary mx-3 animate-underline-primary">{{ translate('Customer Mobile App') }}</a>
+                            <a href="https://codecanyon.net/item/active-ecommerce-seller-app/38842276" target="_blank" class="fs-14 fw-700 text-primary mx-3 animate-underline-primary">{{ translate('Seller’s Mobile App') }}</a>
+                            <a href="https://codecanyon.net/item/active-ecommerce-delivery-boy-flutter-app/32173746" target="_blank" class="fs-14 fw-700 text-primary mx-3 animate-underline-primary">{{ translate('Delivery Boy Mobile App') }}</a>
                         </div>
                         <div class="mb-5">
-                            <a href="https://codecanyon.net/user/activeitzone/portfolio" target="_blank" class="fs-12 fw-500 hov-text-primary" style="text-decoration: underline; text-transform: uppercase;color: #78829d;">View all Add-ons for Active eCommerce CMS</a>
+                            <a href="https://codecanyon.net/user/activeitzone/portfolio" target="_blank" class="fs-12 fw-500 hov-text-primary" style="text-decoration: underline; text-transform: uppercase;color: #78829d;">{{ translate('View all Add-ons for Active eCommerce CMS') }}</a>
                         </div>
                         <div class="d-flex flex-wrap justify-content-center mb-2">
                             <a href="https://activeitzone.com/docs/active-ecommerce-cms/" target="_blank" class="fs-14 fw-700 text-primary mx-4 d-flex align-items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="16" viewBox="0 0 12 16">
                                     <path id="Google_Docs" data-name="Google Docs" d="M14.9,3.433,11.567.1a.333.333,0,0,0-.233-.1h-7A1.333,1.333,0,0,0,3,1.333V14.667A1.333,1.333,0,0,0,4.333,16h9.333A1.333,1.333,0,0,0,15,14.667v-11a.333.333,0,0,0-.1-.233ZM9.333,12H6a.333.333,0,0,1,0-.667H9.333a.333.333,0,0,1,0,.667ZM12,10.667H6A.333.333,0,0,1,6,10h6a.333.333,0,1,1,0,.667Zm0-1.333H6a.333.333,0,0,1,0-.667h6a.333.333,0,1,1,0,.667ZM12,8H6a.333.333,0,0,1,0-.667h6A.333.333,0,1,1,12,8Zm.333-4.667a.667.667,0,0,1-.667-.667V1.14L13.86,3.333Z" transform="translate(-3)" fill="#1b84ff"/>
                                 </svg>
-                                <span class="ml-2 animate-underline-primary">Docs</span>
+                                <span class="ml-2 animate-underline-primary">{{ translate('Docs') }}</span>
                             </a>
                             <a href="https://www.youtube.com/watch?v=FFjausSYe3M" target="_blank" class="fs-14 fw-700 text-primary mx-4 d-flex align-items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
@@ -103,13 +103,13 @@
                                       <path id="Polygon_6" data-name="Polygon 6" d="M3.333,0,6.667,5.333H0Z" transform="translate(-4425.667 9781.334) rotate(90)" fill="#1b84ff"/>
                                     </g>
                                 </svg>
-                                <span class="ml-2 animate-underline-primary">Tutorial</span>
+                                <span class="ml-2 animate-underline-primary">{{ translate('Tutorial') }}</span>
                             </a>
                             <a href="https://www.youtube.com/watch?v=zW6FwRsaxDk" target="_blank" class="fs-14 fw-700 text-primary mx-4 d-flex align-items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="12" viewBox="0 0 16 12">
                                     <path id="_17d8c74bcbdc9c556fab58cca92da0f6" data-name="17d8c74bcbdc9c556fab58cca92da0f6" d="M15.84,6.586A3.845,3.845,0,0,0,15.2,4.892a2.208,2.208,0,0,0-1.6-.721C11.363,4,8,4,8,4H8S4.638,4,2.4,4.17a2.2,2.2,0,0,0-1.6.721A3.849,3.849,0,0,0,.16,6.586,27.488,27.488,0,0,0,0,9.347v1.294A27.478,27.478,0,0,0,.16,13.4,3.838,3.838,0,0,0,.8,15.1a2.617,2.617,0,0,0,1.764.729C3.84,15.957,8,16,8,16s3.362-.006,5.6-.177a2.216,2.216,0,0,0,1.6-.723A3.844,3.844,0,0,0,15.84,13.4,27.491,27.491,0,0,0,16,10.642V9.347a27.488,27.488,0,0,0-.16-2.761ZM6,13V7l5,3Z" transform="translate(0 -3.997)" fill="#1b84ff"/>
                                 </svg>
-                                <span class="ml-2 animate-underline-primary">Promo</span>
+                                <span class="ml-2 animate-underline-primary">{{ translate('Promo') }}</span>
                             </a>
                         </div>
                         <div class="">

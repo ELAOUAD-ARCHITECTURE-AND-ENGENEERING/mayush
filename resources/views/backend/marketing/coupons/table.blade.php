@@ -67,28 +67,28 @@
                     @endif
                 </td>
                 <!-- Rest of your table cells remain same -->
-                <td class="align-middle hide-xs" data-label="code">
+                <td class="align-middle hide-xs" data-label="{{ translate('code') }}">
                     <div class="row gutters-5 w-200px w-md-200px w-lg-300px">
                         <div class="col">
                             <span class="text-dark fs-14 fw-400 d-block">{{$coupon->code}}</span>
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-xs" data-label="Type">
+                <td class="align-middle hide-xs" data-label="{{ translate('Type') }}">
                     <div class="row gutters-5 w-200px w-md-200px w-lg-300px">
                         <div class="col">
                             <span class="text-dark fs-14 fw-400 d-block text-truncate">{{ translate(Str::headline($coupon->type)) }}</span>
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-md w-200px w-md-200px mw-200" data-label="Start Date">
+                <td class="align-middle hide-md w-200px w-md-200px mw-200" data-label="{{ translate('Start Date') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span class="text-dark fs-14 fw-400">{{ $coupon->type != 'welcome_base' ? date('d-m-Y', $coupon->start_date) : '' }}</span>
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-7xl w-200px w-md-200px mw-200" data-label="End Date">
+                <td class="align-middle hide-7xl w-200px w-md-200px mw-200" data-label="{{ translate('End Date') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span class="text-dark fs-14 fw-400">
@@ -97,7 +97,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-xxl w-200px w-md-200px mw-200" data-label="Validation Days">
+                <td class="align-middle hide-xxl w-200px w-md-200px mw-200" data-label="{{ translate('Validation Days') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span class="text-dark fs-14 fw-400">
@@ -108,7 +108,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="align-middle hide-xxl w-200px w-md-200px mw-200" data-label="Status">
+                <td class="align-middle hide-xxl w-200px w-md-200px mw-200" data-label="{{ translate('Status') }}">
                     <div class="row gutters-5">
                         <div class="col">
                             <span class="text-dark fs-14 fw-400">
@@ -123,7 +123,7 @@
                     </div>
                 </td>
                 @canany(['edit_coupon','delete_coupon'])
-                <td class="align-middle hide-s text-right" data-label="Options">
+                <td class="align-middle hide-s text-right" data-label="{{ translate('Options') }}">
                     <div class="d-flex align-items-center justify-content-end">
                         <div class="dropdown float-right">
                             <button class="btn btn-light w-35px h-35px action-toggle d-flex align-items-center justify-content-center p-0"

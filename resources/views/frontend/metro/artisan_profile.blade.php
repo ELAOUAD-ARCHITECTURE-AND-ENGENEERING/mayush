@@ -18,7 +18,7 @@
     @if($shop->brand_philosophy)
     <div class="philosophy-section text-center py-5" style="background-color: #f8f9fa;">
         <div class="container py-5">
-            <h2 class="mb-4 text-uppercase text-secondary" style="letter-spacing: 2px;">Our Philosophy</h2>
+            <h2 class="mb-4 text-uppercase text-secondary" style="letter-spacing: 2px;">{{ translate('Our Philosophy') }}</h2>
             <blockquote class="blockquote">
                 <p class="mb-0 font-italic" style="font-size: 1.5rem; line-height: 1.8; color: #333; font-family: var(--mayush-font-heading);">
                     "{{ $shop->brand_philosophy }}"
@@ -38,17 +38,17 @@
                     </div>
                 @else
                     <div class="bg-light d-flex align-items-center justify-content-center shadow-sm rounded" style="min-height: 350px;">
-                        <span class="text-muted">A Glimpse Into the Workshop</span>
+                        <span class="text-muted">{{ translate('A Glimpse Into the Workshop') }}</span>
                     </div>
                 @endif
             </div>
             <div class="col-lg-6 pl-lg-5">
-                <h2 class="mb-4 font-weight-bold" style="font-size: 2.5rem; font-family: var(--mayush-font-heading);">The Artisan Story</h2>
+                <h2 class="mb-4 font-weight-bold" style="font-size: 2.5rem; font-family: var(--mayush-font-heading);">{{ translate('The Artisan Story') }}</h2>
                 <div class="text-muted mb-4" style="line-height: 1.8; font-size: 1.1rem;">
                     {!! nl2br(e($shop->artisan_story)) !!}
                 </div>
                 <hr class="w-25 ml-0 border-dark mb-4">
-                <a href="#shop-products" class="btn btn-dark btn-lg px-5 rounded-0 text-uppercase" style="letter-spacing: 1px;">Explore Collection</a>
+                <a href="#shop-products" class="btn btn-dark btn-lg px-5 rounded-0 text-uppercase" style="letter-spacing: 1px;">{{ translate('Explore Collection') }}</a>
             </div>
         </div>
     </div>
@@ -56,8 +56,8 @@
     <!-- Products Grid -->
     <div id="shop-products" class="container py-5">
         <div class="text-center mb-5">
-            <h3 class="font-weight-bold" style="font-family: var(--mayush-font-heading);">Featured Works</h3>
-            <span class="text-muted">Handcrafted with passion</span>
+            <h3 class="font-weight-bold" style="font-family: var(--mayush-font-heading);">{{ translate('Featured Works') }}</h3>
+            <span class="text-muted">{{ translate('Handcrafted with passion') }}</span>
         </div>
         <div class="row gutters-10">
             @foreach($shop->user->products->where('published', 1)->take(12) as $product)

@@ -147,7 +147,7 @@ class SearchFilterRegressionTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('total_product_count', 0);
 
-        $this->assertStringContainsString('No products found', $response->json('product_html'));
+        $this->assertStringContainsString(translate('No products found'), $response->json('product_html'));
     }
 
     public function test_autocomplete_search_uses_sqlite_safe_multi_word_matching(): void

@@ -7,7 +7,7 @@
             <div class="d-flex flex-wrap flex-md-nowrap align-items-center" style="gap: 12px">
                 <div
                     class="w-60px h-60px rounded-1 d-flex align-items-center justify-content-center overflow-hidden bg-soft-blue flex-shrink-0">
-                    <img src="{{ static_asset('assets/img/business-settings/general-settings.svg') }}" alt="Setting Icon">
+                    <img src="{{ static_asset('assets/img/business-settings/general-settings.svg') }}" alt="{{ translate('Setting Icon') }}">
                 </div>
                 <div>
                     <h6 class="fw-semibold text-dark">{{translate('General Settings')}}</h6>
@@ -202,7 +202,7 @@
                                         <div
                                             class="form-control p-0 border-0 d-flex align-items-center justify-content-center">
                                             <img src="{{ static_asset('assets/img/plus-lg.svg') }}"
-                                                class="w-40px h-40px w-md-64px h-md-64px" alt="generate Icon">
+                                                class="w-40px h-40px w-md-64px h-md-64px" alt="{{ translate('generate Icon') }}">
                                         </div>
                                         <input type="hidden" name="shop_logo" class="selected-files"
                                             value="{{ $business_info['shop_logo'] ?? '' }}">
@@ -301,7 +301,7 @@
                 iframe.frameBorder = 0;
                 container.appendChild(iframe);
             } else {
-                container.innerHTML = '<p class="text-danger">Unsupported file format.</p>';
+                container.innerHTML = '<p class="text-danger">{{ translate('Unsupported file format.') }}</p>';
             }
 
             $('#filePreviewModal').modal('show');

@@ -158,8 +158,8 @@
             </div>
                 
             <!-- Button -->
-            <div class="btn-toolbar float-right mb-3" role="toolbar" aria-label="Toolbar with button groups">
-                <div class="btn-group" role="group" aria-label="Second group">
+            <div class="btn-toolbar float-right mb-3" role="toolbar" aria-label="{{ translate('Toolbar with button groups') }}">
+                <div class="btn-group" role="group" aria-label="{{ translate('Second group') }}">
                     <button type="submit" class="btn btn-success w-230px btn-md rounded-2 fs-14 fw-700 shadow-success">{{ translate('Save') }}</button>
                 </div>
             </div>

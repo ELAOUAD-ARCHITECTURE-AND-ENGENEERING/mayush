@@ -132,7 +132,7 @@
                     <div class="py-10px px-20px bg-white border border-soft-light rounded-2 mt-4">
                         <ul class="list-group bg-transparent">
                              <li class="list-group-item pb-3 border-0 px-0 border-bottom-dashed bg-transparent">
-                                <p class="mb-1 fs-14 fw-600 text-dark">Product Condition</p>
+                                <p class="mb-1 fs-14 fw-600 text-dark">{{ translate('Product Condition') }}</p>
                                 <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
                                     @if ($detailedProduct->conditon == 'new')
                                     <span class="fs-14 fw-400 text-white bg-blue px-3 px-md-4 py-1 rounded-pill">{{translate('New')}}</span>
@@ -302,7 +302,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-zoom product-modal" id="modal-size" role="document">
         <div class="modal-content position-relative">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -330,11 +330,11 @@
                 </div>
                 <div class="modal-body c-scrollbar-light">
                     <div class="col-12 col-lg-10 col-xl-8 mx-auto text-center">
-                        <h4 class="fs-20 fw-700 text-dark">Share with Friends</h4>
-                        <span class="fs-14 text-gray fw-400">Trading is more effective when you share products with friends!</span>
+                        <h4 class="fs-20 fw-700 text-dark">{{ translate('Share with Friends') }}</h4>
+                        <span class="fs-14 text-gray fw-400">{{ translate('Trading is more effective when you share products with friends!') }}</span>
                     </div>
                     <div class="my-4 my-lg-5">
-                        <h5 class="fs-16 fw-600 text-dark">Share you link</h5>
+                        <h5 class="fs-16 fw-600 text-dark">{{ translate('Share you link') }}</h5>
                         <div class="py-3 px-3 bg-light rounded-2 border-0 d-flex align-items-center justify-content-between share-link">
                             <span class="fs-14 text-gray fw-400 flex-grow-1 text-truncate-1 has-transition">https://mayushdesign.com/seller/</span>
                             <button type="button" class="border-0 bg-transparent flex-shrink-0 copy-link-btn">
@@ -345,7 +345,7 @@
                         </div>
                     </div>
                      <div class="pb-3">
-                        <h5 class="fs-16 fw-600 text-dark">Share to</h5>
+                        <h5 class="fs-16 fw-600 text-dark">{{ translate('Share to') }}</h5>
                         <div class="aiz-share text-center"></div>
                      </div>
                 </div>

@@ -31,7 +31,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-600" id="modalCopyFrenchTitle">{{ translate('Copier le contenu français') }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -61,7 +61,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-600" id="modalTranslateArabicTitle">{{ translate('Traduire le contenu en arabe') }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <p class="fs-14 mb-0">{{ translate('Certains champs contiennent déjà du texte arabe. Choisissez les champs à traduire.') }}</p>

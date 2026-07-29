@@ -65,7 +65,7 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
                 $m = now()->subMonths($i);
                 $orders = \App\Models\Order::whereMonth('created_at',$m->month)->whereYear('created_at',$m->year)->count();
                 $refunds = \App\Models\RefundRequest::where('refund_status',1)->whereMonth('created_at',$m->month)->whereYear('created_at',$m->year)->count();
-                return ['date'=>$m->format('M'),'value'=>$orders>0?round(($refunds/$orders)*100,1):0];
+                return ['date'=>$m->locale(app()->getLocale())->translatedFormat('M'),'value'=>$orders>0?round(($refunds/$orders)*100,1):0];
             }, range(6,0)));
         } catch (\Exception $e) { return collect(); }
     }
@@ -245,7 +245,7 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
             for($i=6;$i>=0;$i--) {
                 $m=now()->subMonths($i);
                 $growth[]=[
-                    'month'=>$m->format('M'),
+                    'month'=>$m->locale(app()->getLocale())->translatedFormat('M'),
                     'active'=>$this->approvedVendorQuery()->where('created_at','<=',$m->copy()->endOfMonth())->count(),
                     'new'=>$this->approvedVendorQuery()->whereMonth('created_at',$m->month)->whereYear('created_at',$m->year)->count(),
                     'churned'=>0,
@@ -321,7 +321,7 @@ class TechnicalAnalyticsRepository implements TechnicalAnalyticsRepositoryInterf
                 ->whereBetween('created_at',[$start,$end])
                 ->orderByDesc('created_at')->limit(10)->get()->map(function($e) {
                     $admin = null; try { $admin = \App\Models\User::find($e->admin_id ?? $e->user_id); } catch(\Exception $ex){}
-                    return ['created_at'=>$e->created_at,'admin'=>['name'=>$admin?$admin->name:'System'],'action_type'=>$e->action_type??'','description'=>$e->description??'','ip_address'=>$e->ip_address??''];
+                    return ['created_at'=>$e->created_at,'admin'=>['name'=>$admin?$admin->name:'System'],'action_type'=>$e->action_type??'','description'=>translate_security_event_description($e->description??''),'ip_address'=>$e->ip_address??''];
                 })->toArray();
         } catch (\Exception $e) { Log::warning('[Analytics] Security: '.$e->getMessage()); }
         return $result;

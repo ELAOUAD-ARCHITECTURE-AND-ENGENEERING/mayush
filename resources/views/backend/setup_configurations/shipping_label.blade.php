@@ -7,7 +7,7 @@
             <div
                 class="w-60px h-60px rounded-1 d-flex align-items-center justify-content-center overflow-hidden bg-soft-danger flex-shrink-0">
                 <img src="{{ static_asset('assets/img/business-settings/shipping-label.svg') }}"
-                    alt="Setting Icon">
+                    alt="{{ translate('Setting Icon') }}">
             </div>
             <div>
                 <h6 class="fw-semibold text-dark">{{translate('Shipping Label')}}</h6>
@@ -146,8 +146,8 @@
                     $fields = [
                         'sender_name_and_address' => 'Sender Name & Address',
                         'receiver_name_and_address' => 'Receiver Name & Address',
-                        'order_number' => 'Order Number',
-                        'cod_amount' => 'COD Amount (Cash On Delivery)'
+                        'order_number' => translate('Order Number')',
+                        'cod_amount' => translate('COD Amount (Cash On Delivery)')'
                     ];
                 @endphp
                 @foreach ($fields as $key => $label)
@@ -191,7 +191,7 @@
                                 <div
                                     class="form-control p-0 border-0 d-flex align-items-center justify-content-center">
                                     <img src="{{ static_asset('assets/img/plus-lg.svg') }}"
-                                        class="w-40px h-40px w-md-64px h-md-64px" alt="generate Icon">
+                                        class="w-40px h-40px w-md-64px h-md-64px" alt="{{ translate('generate Icon') }}">
                                 </div>
                                 <input type="hidden" name="label_logo" class="selected-files" value="{{ $shipping_label['label_logo'] ?? '' }}">
                             </div>
@@ -288,7 +288,7 @@
                 iframe.frameBorder = 0;
                 container.appendChild(iframe);
             } else {
-                container.innerHTML = '<p class="text-danger">Unsupported file format.</p>';
+                container.innerHTML = '<p class="text-danger">{{ translate('Unsupported file format.') }}</p>';
             }
 
             $('#filePreviewModal').modal('show');

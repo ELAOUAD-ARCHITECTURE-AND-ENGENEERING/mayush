@@ -23,7 +23,7 @@
                         <!-- Code -->
                         <td class="pl-0 d-flex align-items-center">
                             <div class="col-auto">
-                                <img src="{{ uploaded_asset($order->preorder_product?->thumbnail) }}" alt="Image" class="size-50px img-fit" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                                <img src="{{ uploaded_asset($order->preorder_product?->thumbnail) }}" alt="{{ translate('Image') }}" class="size-50px img-fit" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                             </div>
                             <div class="col">
                                 <a href="{{ route('preorder.order_details', encrypt($order->id)) }}">{{ $order->order_code }}</a>

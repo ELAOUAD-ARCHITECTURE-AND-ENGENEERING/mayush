@@ -273,7 +273,7 @@
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <input type="hidden" name="types[]" value="watermark_text_color">
-                                    <input type="text" class="form-control aiz-color-input" placeholder="Ex: #e1e1e1" name="watermark_text_color" value="{{ get_setting('watermark_text_color') ?: '#e1e1e1' }}">
+                                    <input type="text" class="form-control aiz-color-input" placeholder="{{ translate('Example') }}: #e1e1e1" name="watermark_text_color" value="{{ get_setting('watermark_text_color') ?: '#e1e1e1' }}">
                                     <div class="input-group-append">
                                         <span class="input-group-text p-0">
                                             <input class="aiz-color-picker border-0 size-40px" type="color" value="{{ get_setting('watermark_text_color') ?: '#e1e1e1' }}">

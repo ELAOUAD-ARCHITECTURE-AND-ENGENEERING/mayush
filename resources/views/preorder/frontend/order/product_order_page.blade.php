@@ -99,7 +99,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-zoom product-modal" id="modal-size" role="document">
         <div class="modal-content position-relative">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -121,7 +121,7 @@
         <div class="modal-content position-relative">
             <div class="modal-header">
                 <h5 class="modal-title fw-600 h5">{{ translate('Any query about this product') }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -162,7 +162,7 @@ $min_bid_amount = $highest_bid != null ? $highest_bid+1 : $product->starting_bid
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">{{ translate('Bid For Product') }} <small>({{
                         translate('Min Bid Amount: ').$min_bid_amount }})</small> </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}">
                 </button>
             </div>
             <div class="modal-body">

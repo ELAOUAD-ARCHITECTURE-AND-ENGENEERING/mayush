@@ -224,9 +224,9 @@
         @php $degraded_info = Cache::get('system_degraded'); @endphp
         <div id="system-degraded-alert" class="position-fixed fixed-bottom m-3 p-3 bg-warning text-dark border rounded shadow-lg d-flex justify-content-between align-items-center" style="z-index: 99999; max-width: 500px; left: 0;">
             <div>
-                <strong>⚠️ System Notice:</strong> {{ $degraded_info['component'] ?? 'A background service' }} is currently experiencing issues. Core functionalities remain available, but some features may be temporarily offline.
+                <strong>⚠️ {{ translate('System Notice:') }}</strong> {{ $degraded_info['component'] ?? translate('A background service') }} {{ translate('is currently experiencing issues. Core functionalities remain available, but some features may be temporarily offline.') }}
             </div>
-            <button type="button" class="btn btn-sm btn-dark ml-3" onclick="document.getElementById('system-degraded-alert').remove(); sessionStorage.setItem('degraded_alert_dismissed', '1');">Dismiss</button>
+            <button type="button" class="btn btn-sm btn-dark ml-3" onclick="document.getElementById('system-degraded-alert').remove(); sessionStorage.setItem('degraded_alert_dismissed', '1');">{{ translate('Dismiss') }}</button>
         </div>
         <script>
             if(sessionStorage.getItem('degraded_alert_dismissed') === '1') {

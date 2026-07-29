@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Technical Analytics Report</title>
+    <title>{{ translate('Technical Analytics Report') }}</title>
     <style>
         body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; line-height: 1.5; }
         .header { text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 20px; margin-bottom: 30px; }
@@ -23,53 +23,53 @@
 </head>
 <body>
     <div class="header">
-        <h1 class="title">System Performance & Commerce Report</h1>
-        <div class="subtitle">Generated on {{ $report_date }} | Period: {{ $period }}</div>
+        <h1 class="title">{{ translate('System Performance & Commerce Report') }}</h1>
+        <div class="subtitle">{{ translate('Generated on') }} {{ $report_date }} | {{ translate('Period') }}: {{ translate($period) }}</div>
     </div>
 
     <div class="section">
-        <h2 class="section-title">Commerce Overview</h2>
+        <h2 class="section-title">{{ translate('Commerce Overview') }}</h2>
         <div class="grid">
             <div class="card">
-                <div class="metric-label">Total Revenue</div>
+                <div class="metric-label">{{ translate('Total Revenue') }}</div>
                 <div class="metric-value">${{ number_format($commerce['total_revenue'], 2) }}</div>
             </div>
             <div class="card">
-                <div class="metric-label">Total Orders</div>
+                <div class="metric-label">{{ translate('Total Orders') }}</div>
                 <div class="metric-value">{{ $commerce['order_count'] }}</div>
             </div>
             <div class="card">
-                <div class="metric-label">Avg Order Value</div>
+                <div class="metric-label">{{ translate('Avg Order Value') }}</div>
                 <div class="metric-value">${{ number_format($commerce['avg_order_value'], 2) }}</div>
             </div>
         </div>
     </div>
 
     <div class="section">
-        <h2 class="section-title">Technical Health</h2>
+        <h2 class="section-title">{{ translate('Technical Health') }}</h2>
         <div class="grid">
             <div class="card">
-                <div class="metric-label">Total Visits</div>
+                <div class="metric-label">{{ translate('Total Visits') }}</div>
                 <div class="metric-value">{{ number_format($technical['total_visits']) }}</div>
             </div>
             <div class="card">
-                <div class="metric-label">System Errors</div>
+                <div class="metric-label">{{ translate('System Errors') }}</div>
                 <div class="metric-value" style="color: {{ $technical['error_count'] > 0 ? '#e74c3c' : '#27ae60' }}">{{ $technical['error_count'] }}</div>
             </div>
             <div class="card">
-                <div class="metric-label">Avg Latency</div>
+                <div class="metric-label">{{ translate('Avg Latency') }}</div>
                 <div class="metric-value">{{ round($technical['avg_latency'], 2) }}ms</div>
             </div>
         </div>
     </div>
 
     <div class="section">
-        <h2 class="section-title">Traffic Ingress Highlights</h2>
+        <h2 class="section-title">{{ translate('Traffic Ingress Highlights') }}</h2>
         <table>
             <thead>
                 <tr>
-                    <th>Page URL</th>
-                    <th>Visits</th>
+                    <th>{{ translate('Page URL') }}</th>
+                    <th>{{ translate('Visits') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -84,7 +84,7 @@
     </div>
 
     <div class="footer">
-        Confidential Technical Audit - Mayush Platform Intelligence Engine
+        {{ translate('Confidential Technical Audit - Mayush Platform Intelligence Engine') }}
     </div>
 </body>
 </html>

@@ -44,7 +44,7 @@
     <script>
         $(document).ready(function () {
             if (typeof $ === 'undefined') {
-                console.error('jQuery not found. Make sure jQuery is loaded before this script.');
+                console.error('{{ translate('jQuery not found. Make sure jQuery is loaded before this script.') }}');
                 return;
             }
 

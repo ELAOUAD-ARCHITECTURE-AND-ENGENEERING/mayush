@@ -39,10 +39,10 @@
                                     </td>
                                     <td>
                                         <select name="tiers[{{ $tier->id }}][tier_level]" class="form-control form-control-sm" style="width:120px;">
-                                            <option value="0" {{ $tier->tier_level == 0 ? 'selected' : '' }}>0 — Basic</option>
-                                            <option value="1" {{ $tier->tier_level == 1 ? 'selected' : '' }}>1 — Silver</option>
-                                            <option value="2" {{ $tier->tier_level == 2 ? 'selected' : '' }}>2 — Gold</option>
-                                            <option value="3" {{ $tier->tier_level == 3 ? 'selected' : '' }}>3 — Platinum</option>
+                                            <option value="0" {{ $tier->tier_level == 0 ? 'selected' : '' }}>0 — {{ translate('Basic') }}</option>
+                                            <option value="1" {{ $tier->tier_level == 1 ? 'selected' : '' }}>1 — {{ translate('Silver') }}</option>
+                                            <option value="2" {{ $tier->tier_level == 2 ? 'selected' : '' }}>2 — {{ translate('Gold') }}</option>
+                                            <option value="3" {{ $tier->tier_level == 3 ? 'selected' : '' }}>3 — {{ translate('Platinum') }}</option>
                                         </select>
                                     </td>
                                     <td>
@@ -83,9 +83,9 @@
                 <div class="col-md-2">
                     <label class="fs-12">{{ translate('Level') }}</label>
                     <select name="new_tier_level" class="form-control form-control-sm">
-                        <option value="1">1 — Silver</option>
-                        <option value="2">2 — Gold</option>
-                        <option value="3">3 — Platinum</option>
+                        <option value="1">1 — {{ translate('Silver') }}</option>
+                        <option value="2">2 — {{ translate('Gold') }}</option>
+                        <option value="3">3 — {{ translate('Platinum') }}</option>
                     </select>
                 </div>
                 <div class="col-md-3">

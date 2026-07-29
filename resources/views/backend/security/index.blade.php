@@ -73,7 +73,7 @@
             <div class="card-body p-4">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <h2 class="fs-32 fw-700 mb-1 text-uppercase" id="system-health">SECURE</h2>
+                        <h2 class="fs-32 fw-700 mb-1 text-uppercase" id="system-health">{{ strtoupper(translate('Secure')) }}</h2>
                         <div class="fs-14 opacity-60">{{ translate('Overall System Health') }}</div>
                     </div>
                     <div class="opacity-40">
@@ -117,7 +117,20 @@
         $.get('{{ route('api.analytics.security_metrics') }}', function(data) {
             $('#failed-logins').text(data.failed_logins_24h);
             $('#blocked-uploads').text(data.blocked_uploads_24h);
-            $('#system-health').text(data.system_health.toUpperCase());
+            const healthLabels = {
+                secure: @json(strtoupper(translate('Secure'))),
+                warning: @json(strtoupper(translate('Warning'))),
+                danger: @json(strtoupper(translate('Danger'))),
+                error: @json(strtoupper(translate('Error')))
+            };
+            const eventLabels = {
+                LOGIN: @json(translate('Login')),
+                LOGOUT: @json(translate('Logout')),
+                FAILED_LOGIN: @json(translate('Failed Login')),
+                MALWARE_BLOCKED: @json(translate('Malware Blocked')),
+                UNAUTHORIZED_ACCESS: @json(translate('Unauthorized Access'))
+            };
+            $('#system-health').text(healthLabels[data.system_health] || data.system_health.toUpperCase());
             
             // Dynamic health card coloring
             let healthCard = $('#system-health').closest('.card');
@@ -137,7 +150,7 @@
                     
                     eventsHtml += `<tr>
                         <td>${ev.time}</td>
-                        <td><span class="badge ${badgeClass}">${ev.event}</span></td>
+                        <td><span class="badge ${badgeClass}">${eventLabels[ev.event] || ev.event}</span></td>
                         <td>${ev.ip}</td>
                         <td class="text-truncate" style="max-width: 300px;">${ev.description}</td>
                     </tr>`;

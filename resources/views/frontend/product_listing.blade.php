@@ -1037,7 +1037,7 @@
                 const mainUl = $('#category_filter div ul');
 
                 if (mainUl.length === 0) {
-                    return alert("Main UL not found!");
+                    return alert("{{ translate('Main UL not found!') }}");
                 }
 
 
@@ -1086,7 +1086,7 @@
                 const mainUl = $('#category_filter_preorder div ul');
 
                 if (mainUl.length === 0) {
-                    return alert("Main UL not found!");
+                    return alert("{{ translate('Main UL not found!') }}");
                 }
 
 

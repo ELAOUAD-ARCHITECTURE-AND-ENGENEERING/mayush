@@ -20,7 +20,7 @@
                         <div class="my-2">
                             <a href="{{ $order->preorder_product != null ? (route('preorder-product.details',$order->preorder_product?->product_slug)) : '#' }}">
                                 <img src="{{uploaded_asset($order->preorder_product?->thumbnail)}}"
-                                alt="product image" class="h-100px border rounded-2">
+                                alt="{{ translate('product image') }}" class="h-100px border rounded-2">
                             </a>
                         </div>
                         <div class="my-2 ml-4">

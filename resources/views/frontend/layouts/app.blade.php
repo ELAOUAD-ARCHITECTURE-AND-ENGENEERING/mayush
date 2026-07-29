@@ -329,7 +329,7 @@
 <body class="preloader-active">
     <!-- Global Preloader -->
     <div id="global-preloader">
-        <img src="{{ uploaded_asset(get_setting('header_logo')) }}" alt="Mayush Loading" class="preloader-logo" onerror="this.onerror=null;this.style.display='none';">
+        <img src="{{ uploaded_asset(get_setting('header_logo')) }}" alt="{{ translate('Loading') }}" class="preloader-logo" onerror="this.onerror=null;this.style.display='none';">
     </div>
 
     <script>
@@ -593,7 +593,7 @@
                 <div class="c-preloader text-center p-3">
                     <i class="las la-spinner la-spin la-3x"></i>
                 </div>
-                <button type="button" class="close absolute-top-right btn-icon close z-1 btn-circle hov-text-blue bg-light hov-bg-gray has-transition mr-3 mt-3 d-flex justify-content-center align-items-center" data-dismiss="modal" aria-label="Close" style="background: #ededf2; width: calc(2rem + 2px); height: calc(2rem + 2px);">
+                <button type="button" class="close absolute-top-right btn-icon close z-1 btn-circle hov-text-blue bg-light hov-bg-gray has-transition mr-3 mt-3 d-flex justify-content-center align-items-center" data-dismiss="modal" aria-label="{{ translate('Close') }}" style="background: #ededf2; width: calc(2rem + 2px); height: calc(2rem + 2px);">
                      <i class="la la-close fs-20 text-gray hov-text-blue has-transition"></i>
                 </button>
                 <div id="addToCart-modal-body">
@@ -1348,7 +1348,7 @@
 
                             $('#addToCart .modal-body').scrollTop(0);
                         } else {
-                            $('#addToCart-modal-body').html('<div class="text-center p-5 text-danger">Product details not available.</div>');
+                            $('#addToCart-modal-body').html('<div class="text-center p-5 text-danger">{{ translate('Product details not available.') }}</div>');
                         }
                     },
                     error: function() {
@@ -1734,9 +1734,9 @@
         @php $degraded_info = Cache::get('system_degraded'); @endphp
         <div id="system-degraded-alert" class="position-fixed fixed-bottom m-3 p-3 bg-warning text-dark border rounded shadow-lg d-flex justify-content-between align-items-center" style="z-index: 99999; max-width: 500px; left: 0;">
             <div>
-                <strong>⚠️ System Notice:</strong> {{ $degraded_info['component'] ?? 'A background service' }} is currently experiencing issues. Core functionalities remain available, but some features may be temporarily offline.
+                <strong>⚠️ {{ translate('System Notice:') }}</strong> {{ $degraded_info['component'] ?? translate('A background service') }} {{ translate('is currently experiencing issues. Core functionalities remain available, but some features may be temporarily offline.') }}
             </div>
-            <button type="button" class="btn btn-sm btn-dark ml-3" onclick="document.getElementById('system-degraded-alert').remove(); sessionStorage.setItem('degraded_alert_dismissed', '1');">Dismiss</button>
+            <button type="button" class="btn btn-sm btn-dark ml-3" onclick="document.getElementById('system-degraded-alert').remove(); sessionStorage.setItem('degraded_alert_dismissed', '1');">{{ translate('Dismiss') }}</button>
         </div>
         <script>
             if(sessionStorage.getItem('degraded_alert_dismissed') === '1') {

@@ -873,7 +873,7 @@
                 var place = autocomplete.getPlace();
 
                 if (!place.geometry) {
-                    window.alert("Autocomplete's returned place contains no geometry");
+                    window.alert("{{ translate(\"Autocomplete's returned place contains no geometry\") }}");
                     return;
                 }
 
@@ -989,7 +989,7 @@
             iframe.frameBorder = 0;
             container.appendChild(iframe);
         } else {
-            container.innerHTML = '<p class="text-danger">Unsupported file format.</p>';
+            container.innerHTML = '<p class="text-danger">{{ translate('Unsupported file format.') }}</p>';
         }
 
         $('#filePreviewModal').modal('show');

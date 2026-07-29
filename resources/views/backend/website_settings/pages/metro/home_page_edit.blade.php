@@ -1778,12 +1778,12 @@
 												<div class="row gutters-10">
 													<div class="col-md-6">
 														<div class="form-group">
-															<label class="fs-12 fw-600 text-uppercase text-muted">Banner Image</label>
+															<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('Banner Image') }}</label>
 															<div class="input-group" data-toggle="aizuploader" data-type="image">
 																<div class="input-group-prepend">
-																	<div class="input-group-text bg-soft-secondary font-weight-medium">Browse</div>
+																	<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse') }}</div>
 																</div>
-																<div class="form-control file-amount">Choose File</div>
+																<div class="form-control file-amount">{{ translate('Choose File') }}</div>
 																<input type="hidden" name="home_banner4_images[]" class="selected-files" value="">
 															</div>
 															<div class="file-preview box sm"></div>
@@ -1798,13 +1798,13 @@
 												<div class="row gutters-10">
 													<div class="col-md-6">
 														<div class="form-group">
-															<label class="fs-12 fw-600 text-uppercase text-muted">H2 Title</label>
+															<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('H2 Title') }}</label>
 															<textarea class="form-control" rows="3" placeholder="{{ translate('Headline shown over this banner') }}" name="home_banner4_titles[]"></textarea>
 														</div>
 													</div>
 													<div class="col-md-6">
 														<div class="form-group">
-															<label class="fs-12 fw-600 text-uppercase text-muted">Description</label>
+															<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('Description') }}</label>
 															<textarea class="form-control" rows="3" placeholder="{{ translate('Supporting text shown below the title') }}" name="home_banner4_descriptions[]"></textarea>
 														</div>
 													</div>
@@ -1812,20 +1812,20 @@
 												<div class="row gutters-10">
 													<div class="col-md-4">
 														<div class="form-group">
-															<label class="fs-12 fw-600 text-uppercase text-muted">CTA Button Text</label>
+															<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('CTA Button Text') }}</label>
 															<input type="text" class="form-control" placeholder="{{ translate('Acheter maintenant') }}" name="home_banner4_cta_texts[]" value="">
 														</div>
 													</div>
 														<div class="col-md-8">
 														<div class="form-group">
-															<label class="fs-12 fw-600 text-uppercase text-muted">CTA Link</label>
+															<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('CTA Link') }}</label>
 															<input type="text" class="form-control" placeholder="{{ translate('http://') }}" name="home_banner4_links[]" value="">
 														</div>
 													</div>
 													<div class="form-group">
-														<label class="fs-12 fw-600 text-uppercase text-muted">CTA Product Collection</label>
+														<label class="fs-12 fw-600 text-uppercase text-muted">{{ translate('CTA Product Collection') }}</label>
 														<select class="form-control aiz-selectpicker" name="home_banner4_collection_ids[]" data-live-search="true">
-															<option value="">Use custom URL</option>
+															<option value="">{{ translate('Use custom URL') }}</option>
 															@foreach (\App\Models\ProductCollection::orderBy('name')->get() as $productCollection)
 																<option value="{{ $productCollection->id }}">{{ $productCollection->name }}</option>
 															@endforeach
@@ -1834,7 +1834,7 @@
 												</div>
 												<div class="text-right">
 													<button type="button" class="btn btn-soft-primary btn-sm js-banner-preview">
-														<i class="las la-eye mr-1"></i>Preview Banner
+														<i class="las la-eye mr-1"></i>{{ translate('Preview Banner') }}
 													</button>
 												</div>
 											</div>'

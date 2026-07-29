@@ -51,7 +51,7 @@
                     @endif
                 </td>
 
-                <td data-label="Order-Code" class="align-middle">
+                <td data-label="{{ translate('Order-Code') }}" class="align-middle">
                     <a href="{{ route('all_orders.show', encrypt($order->id)) }}" class="fw-600 text-primary">
                     {{ $order->code }}
                     </a>
@@ -89,11 +89,11 @@
                     @endif
                 </td>
 
-                <td data-label="OrderCount" class="fw-600 align-middle">
+                <td data-label="{{ translate('OrderCount') }}" class="fw-600 align-middle">
                     {{ count($order->orderDetails) }}
                 </td>
 
-                <td class="hide-xs align-middle" data-label="Customer">
+                <td class="hide-xs align-middle" data-label="{{ translate('Customer') }}">
                     <span class="fs-12 fw-200 d-block pt-1">
                         @if ($order->user != null)
                         {{ $order->user->name }}
@@ -103,7 +103,7 @@
                     </span>
                 </td>
 
-                <td class="hide-sm align-middle" data-label="Owner">
+                <td class="hide-sm align-middle" data-label="{{ translate('Owner') }}">
                     @php $shop = optional($order->shop); @endphp
                     {{-- max 20 charsthen ..., add title --}}
                     <a href="{{ $shop->id ? route('sellers.profile', encrypt($shop->id)) : '#' }}" title="{{ $shop->name ?? 'Inhouse Product' }}" class="fs-12 fs-md-14 fw-700 d-block">
@@ -111,13 +111,13 @@
                     </a>
                 </td>
 
-                <td class="hide-md align-middle" data-label="Price Details">
+                <td class="hide-md align-middle" data-label="{{ translate('Price Details') }}">
                     <div class="border-width-3 border-left border-blue px-2 py-0 mb-1">
                         <p class="fs-14 fw-700 m-0">{{ single_price($order->grand_total) }}</p>
                     </div>
                 </td>
 
-                <td class="hide-xl align-middle" data-label="Delivery Status">
+                <td class="hide-xl align-middle" data-label="{{ translate('Delivery Status') }}">
                     <p class="fs-14 fw-700 m-0  @if( $order->delivery_status == 'delivered' ) text-success @endif">{{ translate(ucfirst(str_replace('_', ' ', $order->delivery_status))) }}</p>
 
                     @if ($order->shipping_method == 'shiprocket')
@@ -131,11 +131,11 @@
                     @endif
                 </td>
 
-                <td class="hide-xxl align-middle" data-label="Payment method">
+                <td class="hide-xxl align-middle" data-label="{{ translate('Payment method') }}">
                     {{ translate(ucfirst(str_replace('_', ' ', $order->payment_type))) }}
                 </td>
 
-                <td class="hide-xxl align-middle" data-label="Payment Status">
+                <td class="hide-xxl align-middle" data-label="{{ translate('Payment Status') }}">
                     @if ($order->payment_status == 'paid')
                     <span class="badge badge-inline badge-success">{{ translate('Paid') }}</span>
                     @else
@@ -144,7 +144,7 @@
                 </td>
 
                 @if (addon_is_activated('refund_request'))
-                <td class="hide-xxl align-middle" data-label="Refund">
+                <td class="hide-xxl align-middle" data-label="{{ translate('Refund') }}">
                     @if (count($order->refund_requests) > 0)
                     {{ count($order->refund_requests) }} {{ translate('Refund') }}
                     @else

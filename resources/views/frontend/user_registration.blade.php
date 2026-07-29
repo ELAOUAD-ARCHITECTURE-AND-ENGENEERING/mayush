@@ -268,7 +268,7 @@
                 if(response.length == 0)
                 {
                 //reCaptcha not verified
-                    alert("please verify you are humann!");
+                    alert("{{ translate('Please verify you are human!') }}");
                     evt.preventDefault();
                     return false;
                 }

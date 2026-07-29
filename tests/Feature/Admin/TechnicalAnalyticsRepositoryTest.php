@@ -66,7 +66,7 @@ class TechnicalAnalyticsRepositoryTest extends TestCase
 
         DB::table('audit_logs')->insert([
             'action_type' => 'FAILED_LOGIN',
-            'description' => 'Current failed login',
+            'description' => 'Failed login attempt for email: admin@example.com',
             'ip_address' => '127.0.0.1',
             'created_at' => now()->subHour(),
             'updated_at' => now()->subHour(),
@@ -80,7 +80,7 @@ class TechnicalAnalyticsRepositoryTest extends TestCase
         ]);
         DB::table('audit_logs')->insert([
             'action_type' => 'MALWARE_BLOCKED',
-            'description' => 'Current blocked upload',
+            'description' => 'Infected file rejected: malware.pdf',
             'ip_address' => '127.0.0.3',
             'created_at' => now()->subMinutes(30),
             'updated_at' => now()->subMinutes(30),
@@ -94,6 +94,8 @@ class TechnicalAnalyticsRepositoryTest extends TestCase
         $this->assertCount(2, $metrics['recent_events']);
         $this->assertSame('MALWARE_BLOCKED', $metrics['recent_events'][0]['action_type']);
         $this->assertSame('FAILED_LOGIN', $metrics['recent_events'][1]['action_type']);
+        $this->assertSame('Fichier infecté rejeté : malware.pdf', $metrics['recent_events'][0]['description']);
+        $this->assertSame('Échec de connexion pour l’e-mail : admin@example.com', $metrics['recent_events'][1]['description']);
     }
 
     protected function tearDown(): void

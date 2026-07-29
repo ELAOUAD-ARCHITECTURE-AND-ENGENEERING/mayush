@@ -162,8 +162,8 @@
             </tr>
             <tr>
                 <td class="hero">
-                    <h1 class="hero-title">Back In Stock! 🎉</h1>
-                    <p class="hero-subtitle">You wished for it, we got it.</p>
+                    <h1 class="hero-title">{{ translate('Back In Stock!') }} 🎉</h1>
+                    <p class="hero-subtitle">{{ translate('You wished for it, we got it.') }}</p>
                 </td>
             </tr>
             <tr>
@@ -180,7 +180,7 @@
                                 <td class="product-info">
                                     <h3 class="product-name">{{ $product->getTranslation('name') }}</h3>
                                     <p class="product-price">{{ single_price($product->unit_price) }}</p>
-                                    <a href="{{ route('product', $product->slug) }}" class="btn">Shop Now</a>
+                    <a href="{{ route('product', $product->slug) }}" class="btn">{{ translate('Shop Now') }}</a>
                                 </td>
                             </tr>
                         </table>

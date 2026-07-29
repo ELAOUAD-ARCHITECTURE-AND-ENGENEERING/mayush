@@ -92,13 +92,13 @@
                     <tbody>
                         @forelse ($logs as $key => $log)
                             <tr class="data-row">
-                                <td class="align-middle" data-label="Date & Time">
+                                <td class="align-middle" data-label="{{ translate('Date & Time') }}">
                                     <span class="fw-600">
                                         {{ date('d M Y, h:i A', strtotime($log->created_at)) }}
                                     </span>
                                 </td>
 
-                                <td class="align-middle" data-label="User">
+                                <td class="align-middle" data-label="{{ translate('User') }}">
                                     <div class="d-flex align-items-center">
                                         <span class="fs-14 fw-600">
                                             {{ optional($log->user)->name ?? 'System' }}
@@ -106,25 +106,25 @@
                                     </div>
                                 </td>
 
-                                <td class="align-middle" data-label="Model">
+                                <td class="align-middle" data-label="{{ translate('Model') }}">
                                     <span class="badge badge-inline badge-soft-info px-3 py-2">
                                         {{ $log->model }}
                                     </span>
                                 </td>
 
-                                <td class="hide-xs align-middle" data-label="Prompt Tokens">
+                                <td class="hide-xs align-middle" data-label="{{ translate('Prompt Tokens') }}">
                                     <span class="fw-600 text-primary">
                                         {{ number_format($log->prompt_tokens) }}
                                     </span>
                                 </td>
 
-                                <td class="hide-sm align-middle" data-label="Completion Tokens">
+                                <td class="hide-sm align-middle" data-label="{{ translate('Completion Tokens') }}">
                                     <span class="fw-600 text-success">
                                         {{ number_format($log->completion_tokens) }}
                                     </span>
                                 </td>
 
-                                <td class="hide-md align-middle" data-label="Total Tokens">
+                                <td class="hide-md align-middle" data-label="{{ translate('Total Tokens') }}">
                                     <div class="border-width-3 border-left border-primary px-2 py-0">
                                         <p class="fs-14 fw-700 m-0">
                                             {{ number_format($log->total_tokens) }}
@@ -177,7 +177,7 @@
                 <tr>
                     <td colspan="6" class="text-center py-5">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="sr-only">Loading...</span>
+                            <span class="sr-only">{{ translate('Loading...') }}</span>
                         </div>
                         <p class="mt-2">{{ translate('Loading...') }}</p>
                     </td>

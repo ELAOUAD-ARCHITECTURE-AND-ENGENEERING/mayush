@@ -6,7 +6,7 @@
             <div class="text-muted mb-2">{{translate('Total Products')}}</div>
             <div class="d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">{{ App\Models\Product::where('user_id', $shop->user->id)->get()->count() }}</h4>
-                <a href="{{ route('shop.visit', $shop->slug) }}" target="_blank" class="text-primary underline fw-600">Browse Products on Client Side</a>
+                <a href="{{ route('shop.visit', $shop->slug) }}" target="_blank" class="text-primary underline fw-600">{{ translate('Browse Products on Client Side') }}</a>
             </div>
         </div>
 
@@ -223,7 +223,7 @@
 
                         <!-- Address Block 1 -->
                         {{--<div class="border-bottom-dashed2 pb-2">
-                                                <div class="text-color font-weight-bold mb-1">Default Billing Address</div>
+                                                <div class="text-color font-weight-bold mb-1">{{ translate('Default Billing Address') }}</div>
                                                 <div>1713 Greenfelder Plaza, North Winonaport,<br>Florida - 44649, Benin</div>
                                             </div>--}}
 
@@ -231,7 +231,7 @@
                         {{--
                                             <!-- Address Block 3 -->
                                             <div>
-                                                <div class="text-muted font-weight-bold mb-1">Warehouse Address</div>
+                                                <div class="text-muted font-weight-bold mb-1">{{ translate('Warehouse Address') }}</div>
                                                 <div>88 Holly Ridge Drive, Port Elizabeth,<br>New Jersey - 8854, South Africa</div>
                                             </div>
                                             --}}

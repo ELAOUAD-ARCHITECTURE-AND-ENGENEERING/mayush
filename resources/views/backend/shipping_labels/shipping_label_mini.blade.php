@@ -394,7 +394,7 @@
                     <table class="meta-info-table">
                         @if(!empty($flds['order_number']))
                             <tr>
-                                <td class="meta-label">INVOICE</td>
+                                <td class="meta-label">{{ translate('INVOICE') }}</td>
                                 <td class="meta-colon">:</td>
                                 <td>{{ $order->code }}</td>
                             </tr>
@@ -402,25 +402,25 @@
                         
                         @if($order->shipping_type)
                             <tr>
-                                <td class="meta-label">D. Type</td>
+                                <td class="meta-label">{{ translate('Delivery Type') }}</td>
                                 <td class="meta-colon">:</td>
                                 <td>
-                                    @if($order->shipping_type == 'home_delivery') Home
-                                    @elseif($order->shipping_type == 'pickup_point') Pickup
-                                    @elseif($order->shipping_type == 'carrier') {{ $order->carrier->name ?? 'Carrier' }}
-                                    @else N/A
+                                    @if($order->shipping_type == 'home_delivery') {{ translate('Home') }}
+                                    @elseif($order->shipping_type == 'pickup_point') {{ translate('Pickup') }}
+                                    @elseif($order->shipping_type == 'carrier') {{ $order->carrier->name ?? translate('Carrier') }}
+                                    @else {{ translate('N/A') }}
                                     @endif
                                 </td>
                             </tr>
                         @endif
                         @if(!empty($flds['sender_name_and_address']))
                             <tr>
-                                <td class="meta-label">From</td>
+                                <td class="meta-label">{{ translate('From') }}</td>
                                 <td class="meta-colon">:</td>
                                 <td>{{ $sender_name }}</td>
                             </tr>
                             <tr>
-                                <td class="meta-label">Address</td>
+                                <td class="meta-label">{{ translate('Address') }}</td>
                                 <td class="meta-colon">:</td>
                                 <td>{{ get_seller_address($order) }}</td>
                             </tr>
@@ -459,7 +459,7 @@
                     </td>
                 @else
                     <td class="amount-part-paid">
-                        <span style="font-size:12px;"><strong>PAID</strong></span>
+                        <span style="font-size:12px;"><strong>{{ translate('PAID') }}</strong></span>
                     </td>
                 @endif
             </tr>

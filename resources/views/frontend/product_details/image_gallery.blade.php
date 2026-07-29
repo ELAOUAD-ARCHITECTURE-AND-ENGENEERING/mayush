@@ -40,7 +40,7 @@
                                 count($short_video_thumb) == count($short_video) ? $short_video_thumb[$index] : $short_video_thumb[0],
                             )
                             : '' }}"
-                            alt="{{ $detailedProduct->getTranslation('name') }} - Mayush video thumbnail"
+                            alt="{{ $detailedProduct->getTranslation('name') }} - {{ translate('Mayush video thumbnail') }}"
                         width="120"
                         height="120"
                         loading="lazy"
@@ -64,7 +64,7 @@
                             class="swiper-slide position-relative rounded-corner-8px border  border-light-gray bg-light cursor-pointer overflow-hidden d-flex align-items-center justify-content-center" data-variation="youtube">
                             
                                 <img class="img-fluid object-fit-cover object-position-cent" src="{{ $youtube_thumb }}"
-                            alt="{{ $detailedProduct->getTranslation('name') }} - Mayush video preview"
+                            alt="{{ $detailedProduct->getTranslation('name') }} - {{ translate('Mayush video preview') }}"
                             width="120"
                             height="120"
                             loading="lazy"
@@ -150,7 +150,7 @@
                     class="swiper-slide rounded-corner-8px border  border-light-gray bg-light overflow-hidden">
                     <iframe class="w-100 h-100 border-0"
                         src="{{ convertToEmbedUrl($video) }}"
-                        title="YouTube Video"
+                        title="{{ translate('YouTube Video') }}"
                         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen loading="lazy"
                         referrerpolicy="strict-origin-when-cross-origin">

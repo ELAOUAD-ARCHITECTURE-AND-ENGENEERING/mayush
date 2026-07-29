@@ -15,7 +15,7 @@
 
     </div>
     <div class="alert alert-info my-2 text-center">
-       <p class="pt-2 font-weight-bold">If you set commission on the main Category, All the sister category will get that commission unless you change individually.</p>
+       <p class="pt-2 font-weight-bold">{{ translate('If you set commission on the main Category, All the sister category will get that commission unless you change individually.') }}</p>
        @if (get_setting('category_wise_commission') != 1)
        <p class="font-weight-bold text-danger">{{ translate('Commission Type is not Category Based, set commission type ') }} <a href="{{ route('business_settings.vendor_commission') }}">{{ translate('Here') }}</a></p>
        @endif
@@ -64,7 +64,7 @@
                         <td class="align-items-center d-flex fw-800">
                             {{ $category->getTranslation('name') }}
                             @if($category->digital == 1)
-                                <img src="{{ static_asset('assets/img/digital_tag.png') }}" alt="{{translate('Digital')}}" class="ml-2 h-25px" style="cursor: pointer;" title="DIgital">
+                                <img src="{{ static_asset('assets/img/digital_tag.png') }}" alt="{{translate('Digital')}}" class="ml-2 h-25px" style="cursor: pointer;" title="{{ translate('Digital') }}">
                             @endif
                          </td>
                         <td class="fw-600">

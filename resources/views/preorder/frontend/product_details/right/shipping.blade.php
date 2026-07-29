@@ -36,7 +36,7 @@
                         </a>
                     </p>
                 @endif
-                <p class="preorder-text-light-grey"><a href="#product_query" class="preorder-text-secondary">{{translate('Contact Us')}}</a> for shipping time for larger orders.</p>
+        <p class="preorder-text-light-grey"><a href="#product_query" class="preorder-text-secondary">{{translate('Contact Us')}}</a> {{ translate('for shipping time for larger orders.') }}</p>
             </div>
         </div>
 
@@ -90,11 +90,11 @@ function toggleText(id) {
     if (fullText.classList.contains('d-none')) {
         shortText.classList.add('d-none'); 
         fullText.classList.remove('d-none'); 
-        toggleLink.textContent = 'See Less'; 
+        toggleLink.textContent = '{{ translate('See Less') }}';
     } else {
         shortText.classList.remove('d-none'); 
         fullText.classList.add('d-none'); 
-        toggleLink.textContent = 'See More'; 
+        toggleLink.textContent = '{{ translate('See More') }}';
     }
 }
     

@@ -78,16 +78,16 @@
                             <div class="row">
                                 <div id="map"></div>
                                 <ul id="geoData">
-                                    <li style="display: none;">Full Address: <span id="location"></span></li>
-                                    <li style="display: none;">Postal Code: <span id="postal_code"></span></li>
-                                    <li style="display: none;">Country: <span id="country"></span></li>
-                                    <li style="display: none;">Latitude: <span id="lat"></span></li>
-                                    <li style="display: none;">Longitude: <span id="lon"></span></li>
+                                    <li style="display: none;">{{ translate('Full Address:') }} <span id="location"></span></li>
+                                    <li style="display: none;">{{ translate('Postal Code:') }} <span id="postal_code"></span></li>
+                                    <li style="display: none;">{{ translate('Country:') }} <span id="country"></span></li>
+                                    <li style="display: none;">{{ translate('Latitude:') }} <span id="lat"></span></li>
+                                    <li style="display: none;">{{ translate('Longitude:') }} <span id="lon"></span></li>
                                 </ul>
                             </div>
                             <div class="form-group row">
                                 <div class="col-md-2" id="">
-                                    <label for="exampleInputuname">Longitude</label>
+                                    <label for="exampleInputuname">{{ translate('Longitude') }}</label>
                                 </div>
                                 <div class="col-md-10" id="">
                                     <input type="hidden" name="types[]" value="google_map_longtitude">
@@ -96,7 +96,7 @@
                             </div>
                             <div class="form-group row">
                                 <div class="col-md-2" id="">
-                                    <label for="exampleInputuname">Latitude</label>
+                                    <label for="exampleInputuname">{{ translate('Latitude') }}</label>
                                 </div>
                                 <div class="col-md-10" id="">
                                     <input type="hidden" name="types[]" value="google_map_latitude">

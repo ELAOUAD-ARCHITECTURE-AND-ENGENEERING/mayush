@@ -121,7 +121,8 @@
         if(hourly.length>0){safeChart('chart-hourly',{chart:{type:'bar',height:180,toolbar:{show:false}},series:[{name:'{!! addslashes(translate('Visits')) !!}',data:hourly.map(h=>h.v)}],xaxis:{categories:hourly.map(h=>h.h)},colors:['#6366f1'],plotOptions:{bar:{borderRadius:4}},tooltip:{theme:'dark'},grid:{strokeDashArray:3,borderColor:'#f1f5f9'}});}
         
         var traf = {!! json_encode($trafficComposition ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!};
-        if(traf.length>0){safeChart('chart-traffic',{chart:{type:'donut',height:240},series:traf.map(t=>t.count),labels:traf.map(t=>t.source),colors:['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981'],legend:{position:'bottom',fontSize:'11px'},tooltip:{theme:'dark'}});}
+        var trafficLabels = {Direct:'{!! addslashes(translate('Direct')) !!}',Referral:'{!! addslashes(translate('Referral')) !!}',Google:'{!! addslashes(translate('Google')) !!}',Facebook:'{!! addslashes(translate('Facebook')) !!}'};
+        if(traf.length>0){safeChart('chart-traffic',{chart:{type:'donut',height:240},series:traf.map(t=>t.count),labels:traf.map(t=>trafficLabels[t.source] || t.source),colors:['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981'],legend:{position:'bottom',fontSize:'11px'},tooltip:{theme:'dark'}});}
         
         var fc = {!! json_encode($financeChart ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!};
         if(fc.map && fc.length>0){safeChart('chart-finance',{chart:{type:'bar',height:260,toolbar:{show:false}},series:[{name:'{!! addslashes(translate('Commission')) !!}',data:fc.map(f=>f.commission)},{name:'{!! addslashes(translate('Refunds')) !!}',data:fc.map(f=>f.refunds)}],xaxis:{categories:fc.map(f=>f.month)},colors:['#6366f1','#f87171'],plotOptions:{bar:{borderRadius:4}},tooltip:{theme:'dark'},grid:{strokeDashArray:3,borderColor:'#f1f5f9'}});}

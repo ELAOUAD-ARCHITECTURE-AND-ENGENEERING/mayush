@@ -27,9 +27,9 @@
 							<label class="col-xxl-3 col-from-label fs-13">{{translate('Product Name')}} <span class="text-danger">*</span></label>
 							<div class="col-xxl-9">
 								<select name="layout" class="form-control aiz-selectpicker mb-2 mb-md-0" required>
-                                    <option value="classic">Classic</option>
-                                    <!--<option value="metro">Metro</option>-->
-                                    <!--<option value="minima">Minima</option>-->
+                                    <option value="classic">{{ translate('Classic') }}</option>
+                                    <!--<option value="metro">{{ translate('Metro') }}</option>-->
+                                    <!--<option value="minima">{{ translate('Minima') }}</option>-->
                                 </select>
 							</div>
 						</div>

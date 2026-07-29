@@ -85,7 +85,7 @@
             <tbody>
             @forelse($vendorDirectory as $v)
             <tr>
-                <td style="font-weight:600">{{ $v['seller']['shop']['name'] ?? 'N/A' }}</td>
+                <td style="font-weight:600">{{ $v['seller']['shop']['name'] ?? translate('N/A') }}</td>
                 <td style="font-weight:700;color:#6366f1">{{ $cs }}{{ number_format($v['total_revenue']??0) }}</td>
                 <td>{{ $v['total_orders']??0 }}</td>
                 <td style="color:#f59e0b;font-weight:700">{{ $v['avg_rating']?'★'.$v['avg_rating']:'—' }}</td>

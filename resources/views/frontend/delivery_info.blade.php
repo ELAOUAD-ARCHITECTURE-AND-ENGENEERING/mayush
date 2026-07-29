@@ -186,7 +186,7 @@
                                                             <span class="d-flex flex-wrap p-3 aiz-megabox-elem rounded-0">
                                                                 <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                                                 <span class="flex-grow-1 pl-3 fw-600">
-                                                                    <img src="{{ uploaded_asset($carrier->logo)}}" alt="Image" class="w-50px img-fit">
+                                                                    <img src="{{ uploaded_asset($carrier->logo)}}" alt="{{ translate('Image') }}" class="w-50px img-fit">
                                                                 </span>
                                                                 <span class="flex-grow-1 pl-3 fw-700">{{ $carrier->name }}</span>
                                                                 <span class="flex-grow-1 pl-3 fw-600">{{ translate('Transit in').' '.$carrier->transit_time }}</span>
@@ -347,7 +347,7 @@
                                                                     <span class="d-flex flex-wrap p-3 aiz-megabox-elem rounded-0">
                                                                         <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
                                                                         <span class="flex-grow-1 pl-3 fw-600">
-                                                                            <img src="{{ uploaded_asset($carrier->logo)}}" alt="Image" class="w-50px img-fit">
+                                                                            <img src="{{ uploaded_asset($carrier->logo)}}" alt="{{ translate('Image') }}" class="w-50px img-fit">
                                                                         </span>
                                                                         <span class="flex-grow-1 pl-3 fw-700">{{ $carrier->name }}</span>
                                                                         <span class="flex-grow-1 pl-3 fw-600">{{ translate('Transit in').' '.$carrier->transit_time }}</span>

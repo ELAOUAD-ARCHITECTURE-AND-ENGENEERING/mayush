@@ -17,7 +17,7 @@
                     <!-- Links -->
                     <a type="button" class="arrow-next text-white bg-dark view-more-slide-btn d-flex align-items-center" href="{{ route('all_preorder_products') }}">
                         <span><i class="las la-angle-right fs-20 fw-600"></i></span>
-                        <span class="fs-12 mr-2 text">View All</span>
+                        <span class="fs-12 mr-2 text">{{ translate('View All') }}</span>
                     </a> 
                 </div>
                 <div class="d-sm-flex bg-white mb-1">

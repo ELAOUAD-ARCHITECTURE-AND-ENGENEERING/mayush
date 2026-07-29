@@ -51,7 +51,7 @@
         <div class="row">
             <div class="col">
                 <div class="text-center bg-white p-4 border">
-                    <img class="mw-100 h-200px" src="{{ static_asset('assets/img/nothing.svg') }}" alt="Image">
+                    <img class="mw-100 h-200px" src="{{ static_asset('assets/img/nothing.svg') }}" alt="{{ translate('Image') }}">
                     <h5 class="mb-0 h5 mt-3">{{ translate("There isn't anything added yet")}}</h5>
                 </div>
             </div>

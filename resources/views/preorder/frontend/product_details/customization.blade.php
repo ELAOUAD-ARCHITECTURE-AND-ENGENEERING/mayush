@@ -13,7 +13,7 @@
             <div class="mw-100 overflow-hidden text-left aiz-editor-data d-flex">
                 <div class="mr-4">
                     <p class="text-primary"> {{translate('Customized packaging available')}}</p>
-                    <p>Min Order: {{$product->min_qty}}</p>
+                    <p>iin Order: {{$product->min_qty}}</p>
                 </div>
 
             </div>

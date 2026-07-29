@@ -29,7 +29,7 @@
                                     <div class="col-xxl-8">
                                         <div class="input-group">
                                             <input type="text" class="form-control aiz-color-input" name="background_color"
-                                                placeholder="Ex: #e1e1e1" required>
+                                                placeholder="{{ translate('Example') }}: #e1e1e1" required>
                                             <div class="input-group-append">
                                                 <span class="input-group-text p-0">
                                                     <input class="aiz-color-picker border-0 size-40px" type="color">

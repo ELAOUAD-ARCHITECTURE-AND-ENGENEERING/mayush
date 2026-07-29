@@ -36,7 +36,7 @@
                         <div class="waiting-indicator animate-up delay-2">
                             <div class="d-inline-flex align-items-center mb-5 px-4 py-2 rounded-pill bg-soft-primary border border-soft-primary">
                                 <div class="spinner-grow spinner-grow-sm text-primary mr-3" role="status">
-                                    <span class="sr-only">Loading...</span>
+                                    <span class="sr-only">{{ translate('Loading...') }}</span>
                                 </div>
                                 <span class="fs-14 fw-700 text-primary" style="text-transform: uppercase; letter-spacing: 1px;">
                                     {{ translate('Waiting for Confirmation') }}

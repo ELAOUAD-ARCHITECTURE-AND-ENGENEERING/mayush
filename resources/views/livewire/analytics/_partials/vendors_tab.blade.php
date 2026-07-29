@@ -29,7 +29,7 @@
         <tbody>
         @forelse($vendorDirectory as $v)
         <tr>
-            <td><div style="display:flex;align-items:center;gap:8px"><div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">{{ strtoupper(substr($v['seller']['shop']['name']??'?',0,1)) }}</div><div><div style="font-weight:700">{{ $v['seller']['shop']['name']??'N/A' }}</div></div></div></td>
+            <td><div style="display:flex;align-items:center;gap:8px"><div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">{{ strtoupper(substr($v['seller']['shop']['name']??'?',0,1)) }}</div><div><div style="font-weight:700">{{ $v['seller']['shop']['name'] ?? translate('N/A') }}</div></div></div></td>
             <td style="font-weight:700;color:#6366f1">{{ $cs }}{{ number_format($v['total_revenue']??0) }}</td>
             <td>{{ $v['total_orders']??0 }}</td>
             <td style="color:#f59e0b;font-weight:700">{{ $v['avg_rating']?'★'.$v['avg_rating']:'—' }}</td>

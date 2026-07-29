@@ -328,7 +328,7 @@
         <div class="row">
             <div class="col">
                 <div class="text-center bg-white p-4 border">
-                    <img class="mw-100 h-200px" src="{{ static_asset('assets/img/nothing.svg') }}" alt="Image">
+                    <img class="mw-100 h-200px" src="{{ static_asset('assets/img/nothing.svg') }}" alt="{{ translate('Image') }}">
                     <h5 class="mb-0 h5 mt-3">{{ translate("There isn't anything added yet")}}</h5>
                 </div>
             </div>
@@ -347,7 +347,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">{{ translate('Offline Recharge Wallet') }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ translate('Close') }}"></button>
                 </div>
                 <div id="offline_wallet_recharge_modal_body"></div>
             </div>
@@ -627,7 +627,7 @@
             $('#retakeSelfieBtn').addClass('d-none'); // Ensure retake is hidden
 
         } catch (e) {
-            alert('Camera access denied or not supported!');
+            alert('{{ translate('Camera access denied or not supported!') }}');
         }
     }
 

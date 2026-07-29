@@ -80,14 +80,14 @@
                             <div class="form-group">
                                 <label>{{translate('Assign Value Or Template')}}</label>
                                 <select class="form-control aiz-selectpicker" name="point_value" required>
-                                    <optgroup label="Fixed Points">
+                                    <optgroup label="{{ translate('Fixed Points') }}">
                                         <option value="0">{{translate('0 Points (Remove)')}}</option>
-                                        <option value="10">10 Points</option>
-                                        <option value="50">50 Points</option>
-                                        <option value="100">100 Points</option>
-                                        <option value="500">500 Points</option>
+                                        <option value="10">{{ translate('10 Points') }}</option>
+                                        <option value="50">{{ translate('50 Points') }}</option>
+                                        <option value="100">{{ translate('100 Points') }}</option>
+                                        <option value="500">{{ translate('500 Points') }}</option>
                                     </optgroup>
-                                    <optgroup label="Templates">
+                                    <optgroup label="{{ translate('Templates') }}">
                                         @foreach($templates as $template)
                                             <option value="template_{{ $template->id }}">{{ $template->name }}</option>
                                         @endforeach
@@ -169,7 +169,7 @@
                         <td>
                             <div class="row gutters-5 w-200px w-md-300px mw-100">
                                 <div class="col-auto">
-                                    <img src="{{ uploaded_asset($product->thumbnail_img)}}" alt="Image" class="size-50px img-fit">
+                                    <img src="{{ uploaded_asset($product->thumbnail_img)}}" alt="{{ translate('Image') }}" class="size-50px img-fit">
                                 </div>
                                 <div class="col">
                                     <span class="text-muted text-truncate-2">{{ $product->getTranslation('name') }}</span>
@@ -191,14 +191,14 @@
                 </div>
                 <div class="mr-3">
                     <select class="form-control aiz-selectpicker" name="point_value" required>
-                        <optgroup label="Fixed Points">
+                        <optgroup label="{{ translate('Fixed Points') }}">
                             <option value="0">{{translate('0 Points (Remove)')}}</option>
-                            <option value="10">10 Points</option>
-                            <option value="50">50 Points</option>
-                            <option value="100">100 Points</option>
-                            <option value="500">500 Points</option>
+                            <option value="10">{{ translate('10 Points') }}</option>
+                            <option value="50">{{ translate('50 Points') }}</option>
+                            <option value="100">{{ translate('100 Points') }}</option>
+                            <option value="500">{{ translate('500 Points') }}</option>
                         </optgroup>
-                        <optgroup label="Templates">
+                        <optgroup label="{{ translate('Templates') }}">
                             @foreach($templates as $template)
                                 <option value="template_{{ $template->id }}">{{ $template->name }}</option>
                             @endforeach

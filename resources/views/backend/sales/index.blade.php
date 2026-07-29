@@ -348,7 +348,7 @@
                 processData: false,
                 success: function(response) {
                     if (response == 1) {
-                        AIZ.plugins.notify('success', 'Selected items deleted successfully');
+                        AIZ.plugins.notify('success', '{{ translate('Selected items deleted successfully') }}');
                         location.reload();
                     }
                 }

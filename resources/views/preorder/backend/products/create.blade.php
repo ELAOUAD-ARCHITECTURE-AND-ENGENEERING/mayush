@@ -784,11 +784,11 @@
                 </div>
             </div>
             <div class="col-12">
-                <div class="btn-toolbar float-right mb-3" role="toolbar" aria-label="Toolbar with button groups">
-                    <div class="btn-group mr-2" role="group" aria-label="Third group">
+                <div class="btn-toolbar float-right mb-3" role="toolbar" aria-label="{{ translate('Toolbar with button groups') }}">
+                    <div class="btn-group mr-2" role="group" aria-label="{{ translate('Third group') }}">
                         <button type="submit" name="button" value="unpublish" class="btn btn-primary action-btn">{{translate('Save & Unpublish') }}</button>
                     </div>
-                    <div class="btn-group" role="group" aria-label="Second group">
+                    <div class="btn-group" role="group" aria-label="{{ translate('Second group') }}">
                         <button type="submit" name="button" value="publish" class="btn btn-success action-btn">{{translate('Save & Publish') }}</button>
                     </div>
                 </div>

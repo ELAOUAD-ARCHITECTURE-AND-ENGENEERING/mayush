@@ -29,7 +29,7 @@
                 style="top:0; left:0; object-fit: cover; opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease;"
                 src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                 data-src="{{ get_first_product_image($product->photos, $product->thumbnail, 'card') }}"
-                alt="{{ \App\Services\SeoService::productAltText($product, 'Photo detail - Livraison Maroc') }}"
+                alt="{{ \App\Services\SeoService::productAltText($product, translate('Photo detail - Livraison Maroc')) }}"
                 title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
                 onmouseover="this.style.opacity='1'; this.style.transform='scale(1.05)'"

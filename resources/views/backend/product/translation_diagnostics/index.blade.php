@@ -113,7 +113,7 @@
         <div class="card-header d-flex justify-content-between align-items-center"><h2 class="h5 mb-0">État produit par produit</h2><span class="small text-muted">{{ $products->total() }} résultats</span></div>
         <div class="table-responsive">
             <table class="table aiz-table mb-0">
-                <thead><tr><th>Produit</th><th>Français</th><th>Arabe</th><th>Statut</th><th>Champs concernés</th><th class="text-right">Action</th></tr></thead>
+                <thead><tr><th>Produit</th><th>Français</th><th>Arabe</th><th>Statut</th><th>Champs concernés</th><th class="text-right">{{ translate('Action') }}</th></tr></thead>
                 <tbody>
                 @forelse($products as $product)
                     @php $diagnosis = $diagnoses[$product->id] ?? null; $status = $diagnosis['status'] ?? 'missing_arabic'; @endphp

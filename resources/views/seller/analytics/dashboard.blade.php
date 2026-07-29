@@ -233,7 +233,7 @@
                 const container = $('#geo-stats-container');
                 container.empty();
                 if(data.length === 0) {
-                    container.append('<div class="text-center py-4 text-muted">No regional data available.</div>');
+                    container.append('<div class="text-center py-4 text-muted">{{ translate('No regional data available.') }}</div>');
                     return;
                 }
                 const maxRevenue = data[0].revenue || 1;
@@ -263,7 +263,7 @@
                 const tbody = $('#top-products-tbody');
                 tbody.empty();
                 if(data.length === 0) {
-                    tbody.append('<tr><td colspan="5" class="text-center py-4 text-muted">No product performance data found.</td></tr>');
+                    tbody.append('<tr><td colspan="5" class="text-center py-4 text-muted">{{ translate('No product performance data found.') }}</td></tr>');
                     return;
                 }
                 data.forEach(p => {

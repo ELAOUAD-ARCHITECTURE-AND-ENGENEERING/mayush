@@ -22,7 +22,7 @@
         let codeGroup = $('#verification_code').closest('.form-group');
         let originalText = $(btn).html();
 
-        $(btn).prop('disabled', true).text('Sending...');
+        $(btn).prop('disabled', true).text('{{ translate('Sending...') }}');
 
         function ajaxSend(data) {
             $.post('{{ route("customer-reg.verification_code_send") }}', data, function (res) {
@@ -42,7 +42,7 @@
                 }
 
             }).fail(function () {
-                AIZ.plugins.notify('danger', 'Something went wrong');
+                AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
             }).always(function () {
                 $(btn).prop('disabled', false).html(originalText);
             });

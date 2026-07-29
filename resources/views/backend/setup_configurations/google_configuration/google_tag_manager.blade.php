@@ -58,10 +58,10 @@
                             3. {{ translate('After creating container, you will see the installation code snippet.') }}
                         </li>
                         <li class="list-group-item text-dark">
-                            4. {{ translate('Copy the first') }} <strong>&lt;script&gt;</strong> {{ translate('code and paste it in the') }} <strong>"Header script"</strong> {{ translate('field above.') }}
+                            4. {{ translate('Copy the first') }} <strong>&lt;script&gt;</strong> {{ translate('code and paste it in the') }} <strong>{{ translate('Header script') }}</strong> {{ translate('field above.') }}
                         </li>
                         <li class="list-group-item text-dark">
-                            5. {{ translate('Copy the second') }} <strong>&lt;noscript&gt;</strong> {{ translate('code and paste it in the') }} <strong>"Footer GTM script"</strong> {{ translate('field above.') }}
+                            5. {{ translate('Copy the second') }} <strong>&lt;noscript&gt;</strong> {{ translate('code and paste it in the') }} <strong>{{ translate('Footer GTM script') }}</strong> {{ translate('field above.') }}
                         </li>
                     </ul>
                     

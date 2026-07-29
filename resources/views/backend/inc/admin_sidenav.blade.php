@@ -63,7 +63,7 @@
                             <i class="las la-microchip"></i>
                         </div>
                         <span class="aiz-side-nav-text" style="color: #3498db; font-weight: bold;">{{translate('Technical Analytics')}}</span>
-                        <span class="badge badge-inline badge-info">New</span>
+                        <span class="badge badge-inline badge-info">{{ translate('New') }}</span>
                     </a>
                 </li>
 

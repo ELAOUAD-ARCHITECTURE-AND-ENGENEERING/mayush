@@ -110,7 +110,7 @@
                     <div class="form-group">
                         <label>{{ translate('Email provider') }}</label>
                         <select class="form-control aiz-selectpicker" name="blog_email_provider">
-                            @foreach(['local' => 'Local only', 'mailchimp' => 'Mailchimp', 'klaviyo' => 'Klaviyo', 'webhook' => 'Custom webhook'] as $value => $label)
+                            @foreach(['local' => translate('Local only')', 'mailchimp' => 'Mailchimp', 'klaviyo' => 'Klaviyo', 'webhook' => translate('Custom webhook')'] as $value => $label)
                                 <option value="{{ $value }}" @selected(get_setting('blog_email_provider', 'local') === $value)>{{ translate($label) }}</option>
                             @endforeach
                         </select>

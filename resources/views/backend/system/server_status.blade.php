@@ -19,7 +19,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Php versions</td>
+                            <td>{{ translate('PHP version') }}</td>
                             <td>{{ phpversion() }}</td>
                             <td>8.2</td>
                             <td>
@@ -76,12 +76,12 @@
                             <td>file_uploads</td>
                             <td>
                                 @if(ini_get('file_uploads') == 1)
-                                On
+                                {{ translate('On') }}
                                 @else
-                                Off
+                                {{ translate('Off') }}
                                 @endif
                             </td>
-                            <td>On</td>
+                            <td>{{ translate('On') }}</td>
                             <td>
                                 @if (ini_get('file_uploads') == 1)
                                 <i class="las la-check text-success"></i>
@@ -136,12 +136,12 @@
                             <td>allow_url_fopen</td>
                             <td>
                                 @if(ini_get('allow_url_fopen') == 1)
-                                On
+                                {{ translate('On') }}
                                 @else
-                                Off
+                                {{ translate('Off') }}
                                 @endif
                             </td>
-                            <td>On</td>
+                            <td>{{ translate('On') }}</td>
                             <td>
                                 @if (ini_get('allow_url_fopen') == 1)
                                 <i class="las la-check text-success"></i>

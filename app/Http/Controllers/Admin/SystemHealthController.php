@@ -43,7 +43,7 @@ class SystemHealthController extends Controller
 
         // Chart Data: Last 7 Days CMI Failures & Payment Attempts
         $chartDates = collect(range(6, 0))->map(function ($daysAgo) {
-            return now()->subDays($daysAgo)->format('M d');
+            return now()->subDays($daysAgo)->locale(app()->getLocale())->translatedFormat('M d');
         })->values()->toArray();
 
         $cmiChartData = [];

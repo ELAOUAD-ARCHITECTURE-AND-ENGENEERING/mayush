@@ -41,7 +41,7 @@
                         <label class="col-lg-3 col-from-label" for="text_color">{{translate('Text Color')}}</label>
                         <div class="col-lg-9">
                             <select name="text_color" id="text_color" class="form-control demo-select2" required>
-                                <option value="">Select One</option>
+                                <option value="">{{ translate('Select One') }}</option>
                                 <option value="white" @if ($flash_deal->text_color == 'white') selected @endif>{{translate('White')}}</option>
                                 <option value="dark" @if ($flash_deal->text_color == 'dark') selected @endif>{{translate('Dark')}}</option>
                             </select>

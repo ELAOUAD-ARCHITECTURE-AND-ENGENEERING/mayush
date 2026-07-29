@@ -840,7 +840,7 @@ $best_selers = get_best_sellers(10);
                 document.getElementById("simple-mins").textContent = mins.toString().padStart(2, '0');
                 document.getElementById("simple-secs").textContent = secs.toString().padStart(2, '0');
             } else {
-                document.querySelector(".mobile-countdown-simple").textContent = "Sale ended";
+                document.querySelector(".mobile-countdown-simple").textContent = "{{ translate('Sale ended') }}";
                 clearInterval(timer);
             }
         }

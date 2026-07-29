@@ -10,7 +10,7 @@
         </div>
         <div class="col-md-6 text-md-right">
             <a href="{{ route('admin.loyalty.points.dashboard') }}" class="btn btn-outline-secondary">
-                <i class="las la-angle-left"></i> {{translate('Back to Dashboard')}}
+                <i class="las la-angle-left"></i> {{translate('Back to dashboard')}}
             </a>
         </div>
     </div>
@@ -40,13 +40,13 @@
                             <td>{{ $template->name }}</td>
                             <td>
                                 @if($template->type == 'fixed')
-                                    <span class="badge badge-inline badge-info">Fixed: {{ $template->value }} pts</span>
+                                    <span class="badge badge-inline badge-info">{{ translate('Fixed:') }} {{ $template->value }} {{ translate('points') }}</span>
                                 @else
-                                    <span class="badge badge-inline badge-primary">Dynamic: {{ $template->value }}% of Price</span>
+                                    <span class="badge badge-inline badge-primary">{{ translate('Dynamic') }}: {{ $template->value }}% {{ translate('of Price') }}</span>
                                 @endif
                             </td>
-                            <td>{{ $template->min_threshold ?? 'None' }}</td>
-                            <td>{{ $template->max_threshold ?? 'None' }}</td>
+                            <td>{{ $template->min_threshold ?? translate('None') }}</td>
+                            <td>{{ $template->max_threshold ?? translate('None') }}</td>
                             <td class="text-right">
                                 <form action="{{ route('admin.loyalty.points.templates.destroy', $template->id) }}" method="POST" class="d-inline-block">
                                     @csrf

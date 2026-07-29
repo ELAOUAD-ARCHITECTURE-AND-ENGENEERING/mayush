@@ -66,7 +66,7 @@
                     </li>
                     <li class="list-group-item">
                         {{ translate('3. Register your site and get keys from') }}
-                        <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank">Cloudflare Dashboard</a>.
+                        <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank">{{ translate('Cloudflare Dashboard') }}</a>.
                     </li>
                 </ul>
             </div>
@@ -82,15 +82,15 @@
                        <div class="row">
                             @php
                                 $settings = [
-                                    'turnstile_admin_login' => 'Admin Login',
-                                    'turnstile_customer_login' => 'Customer Login',
-                                    'turnstile_customer_register' => 'Customer Registration',
-                                    'turnstile_seller_login' => 'Seller Login',
-                                    'turnstile_seller_register' => 'Seller Registration',
-                                    'turnstile_seller_mail_verification' => 'Seller Mail Verification',
-                                    'turnstile_forgot_password' => 'Forgot Password',
-                                    'turnstile_delivery_boy_login' => 'Delivery Boy Login',
-                                    'turnstile_contact_form' => 'Contact Us Form',
+                                    'turnstile_admin_login' => translate('Admin Login')',
+                                    'turnstile_customer_login' => translate('Customer Login')',
+                                    'turnstile_customer_register' => translate('Customer Registration')',
+                                    'turnstile_seller_login' => translate('Seller Login')',
+                                    'turnstile_seller_register' => translate('Seller Registration')',
+                                    'turnstile_seller_mail_verification' => translate('Seller Mail Verification')',
+                                    'turnstile_forgot_password' => translate('Forgot Password')',
+                                    'turnstile_delivery_boy_login' => translate('Delivery Boy Login')',
+                                    'turnstile_contact_form' => translate('Contact Us Form')',
                                 ]; 
                             @endphp
 
@@ -127,8 +127,8 @@
                     </svg>
                     <p class="mt-3 mb-3 fs-16 fw-700" id="confirmation-message"></p>
                     <div>
-                        <button type="button" class="btn btn-light rounded-2 mt-2 fs-13 fw-700 w-150px" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-warning rounded-2 mt-2 fs-13 fw-700 w-250px" onclick="confirmSettingChange()">Confirm</button>
+                        <button type="button" class="btn btn-light rounded-2 mt-2 fs-13 fw-700 w-150px" data-dismiss="modal">{{ translate('Cancel') }}</button>
+                        <button type="button" class="btn btn-warning rounded-2 mt-2 fs-13 fw-700 w-250px" onclick="confirmSettingChange()">{{ translate('Confirm') }}</button>
                     </div>
                 </div>
             </div>
@@ -144,7 +144,7 @@
     function triggerConfirmation(el, type, label) {
         pendingElement = el;
         pendingType = type;
-        $('#confirm-modal .modal-body p').text(`Are you sure you want to change the Turnstile setting for "${label}"?`);
+        $('#confirm-modal .modal-body p').text(`{{ translate('Are you sure you want to change the Turnstile setting for') }} "${label}"?`);
         $('#confirm-modal').modal('show');
     }
 
@@ -181,7 +181,7 @@
             if (data == 1) {
                 AIZ.plugins.notify('success', '{{ translate('Settings updated successfully') }}');
             } else {
-                AIZ.plugins.notify('danger', 'Something went wrong');
+                AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
             }
         });
     }

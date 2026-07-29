@@ -145,7 +145,7 @@
                                 <td>
                                     <div class="row gutters-5 ">
                                         <div class="col-auto">
-                                            <img src="{{ uploaded_asset($product->thumbnail) }}" alt="Image" class="size-50px img-fit">
+                                            <img src="{{ uploaded_asset($product->thumbnail) }}" alt="{{ translate('Image') }}" class="size-50px img-fit">
                                         </div>
                                     </div>
                                 </td>

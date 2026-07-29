@@ -10,7 +10,7 @@
     <!-- Product Info -->
     <div class="media pb-4 border-bottom-dashed">
         <img src="{{ static_asset('assets/img/placeholder.jpg') }}" data-src="{{ uploaded_asset($product->thumbnail_img) }}"
-            class="mr-4 lazyload size-120px img-fit rounded-1" alt="Product Image" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+            class="mr-4 lazyload size-120px img-fit rounded-1" alt="{{ translate('Product Image') }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
         <div class="media-body text-left d-flex flex-column justify-content-between">
             <h6 class="fs-14 fw-400 text-truncate-2 lh-1-5 m-0">
                 {{  $product->getTranslation('name')  }}
@@ -18,7 +18,7 @@
             <div class="row mt-1">
                 <div class="col-12">
                     <p class="m-0 py-1">
-                        <span class="fs-14 fw-400 text-gray">Quantity</span>
+                        <span class="fs-14 fw-400 text-gray">{{ translate('Quantity') }}</span>
                         <span class="fs-14 fw-600 text-dark">1</span>
                     </p>
                 </div>

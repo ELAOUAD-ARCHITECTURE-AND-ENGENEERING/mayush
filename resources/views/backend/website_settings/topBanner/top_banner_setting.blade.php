@@ -46,7 +46,7 @@
 							<div class="col-xxl-9">
 								<div class="input-group">
                                     <input type="hidden" name="types[]" value="top_banner_background_color">
-									<input type="text" class="form-control aiz-color-input" placeholder="Ex: #e1e1e1"
+									<input type="text" class="form-control aiz-color-input" placeholder="{{ translate('Example') }}: #e1e1e1"
 										name="top_banner_background_color" value="{{ get_setting('top_banner_background_color') }}">
 									<div class="input-group-append">
 										<span class="input-group-text p-0">

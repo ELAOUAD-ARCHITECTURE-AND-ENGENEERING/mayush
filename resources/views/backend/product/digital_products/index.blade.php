@@ -55,7 +55,7 @@
                             <td>{{ optional($product->user)->name }}</td>
                         @endif
                         <td>
-                            <img src="{{ uploaded_asset($product->thumbnail_img)}}" alt="Image" class="w-50px">
+                            <img src="{{ uploaded_asset($product->thumbnail_img)}}" alt="{{ translate('Image') }}" class="w-50px">
                         </td>
                         <td>{{ number_format($product->unit_price,2) }}</td>
                         <td>

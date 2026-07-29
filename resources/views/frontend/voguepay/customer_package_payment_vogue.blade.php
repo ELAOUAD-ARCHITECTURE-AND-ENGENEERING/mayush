@@ -2,7 +2,7 @@
 
 <script>
     closedFunction=function() {
-        alert('window closed');
+        alert('{{ translate('Window closed') }}');
         location.href = '{{ env('APP_URL') }}'
     }
 

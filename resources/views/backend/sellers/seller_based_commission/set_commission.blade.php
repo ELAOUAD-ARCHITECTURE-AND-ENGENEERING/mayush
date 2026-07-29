@@ -66,7 +66,7 @@
                         <td>
                             <div class="row gutters-5  mw-100 align-items-center">
                                 <div class="col-auto">
-                                    <img src="{{ uploaded_asset($shop->logo) }}" class="size-40px img-fit" alt="Image" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                                    <img src="{{ uploaded_asset($shop->logo) }}" class="size-40px img-fit" alt="{{ translate('Image') }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                                 </div>
                                 <div class="col">
                                     <span class="text-truncate-2">{{ $shop->name }}</span>

@@ -112,11 +112,11 @@
                                         transform="translate(6.367 7.309)" fill="#fff" />
                                 </g>
                             </svg>
-                            <span class="ml-1">Orders</span>
+                            <span class="ml-1">{{ translate('Orders') }}</span>
                         </button>
 
                         <!-- Mail Icon -->
-                        <div class="ml-2 icon-container" data-toggle="tooltip" title="Mail Seller">
+                        <div class="ml-2 icon-container" data-toggle="tooltip" title="{{ translate('Mail Seller') }}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
                                 viewBox="0 0 32 32">
                                 <g id="Rectangle_23615" data-name="Rectangle 23615" fill="#fff" stroke="#dce0e6"
@@ -248,7 +248,7 @@
                                             transform="translate(6.367 7.309)" fill="#fff" />
                                     </g>
                                 </svg>
-                                <span class="ml-2">Orders</span>
+                                <span class="ml-2">{{ translate('Orders') }}</span>
                             </button>
                             <a class="dropdown-item d-flex align-items-center" href="#">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
@@ -263,7 +263,7 @@
                                         d="M18,5.6A1.6,1.6,0,0,0,16.4,4H3.6A1.6,1.6,0,0,0,2,5.6v9.6a1.6,1.6,0,0,0,1.6,1.6H16.4A1.6,1.6,0,0,0,18,15.2Zm-1.6,0L10,9.592,3.6,5.6Zm0,9.6H3.6v-8l6.4,4,6.4-4Z"
                                         transform="translate(6 6)" fill="#9393a3" />
                                 </svg>
-                                <span class="ml-2">Mail Seller</span>
+                                <span class="ml-2">{{ translate('Mail Seller') }}</span>
                             </a>
                             <div class="dropdown-divider"></div>
                              @can('login_as_seller')
@@ -432,7 +432,7 @@
             }, 100);
         },
         error: function() {
-            $('#tab-content').html('<div class="text-danger p-4">Failed to load data.</div>');
+            $('#tab-content').html('<div class="text-danger p-4">{{ translate('Failed to load data.') }}</div>');
         }
     });
 }
@@ -528,14 +528,14 @@
                     });
 
                     $('.check-all').prop('checked', false);
-                    AIZ.plugins.notify('success', 'Selected items deleted successfully');
+                    AIZ.plugins.notify('success', '{{ translate('Selected items deleted successfully') }}');
                     $('#bulk-delete-modal').modal('hide');
                 } else {
-                    AIZ.plugins.notify('danger', 'Delete failed. Try again.');
+                    AIZ.plugins.notify('danger', '{{ translate('Delete failed. Try again.') }}');
                 }
             },
             error: function() {
-                AIZ.plugins.notify('danger', 'Something went wrong.');
+                AIZ.plugins.notify('danger', '{{ translate('Something went wrong.') }}');
             }
         });
     }
@@ -572,7 +572,7 @@
                 };
             },
             error: function() {
-                alert('Failed to load invoice for printing.');
+                alert('{{ translate('Failed to load invoice for printing.') }}');
             }
         });
     }

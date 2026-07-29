@@ -25,7 +25,7 @@
         <tbody>
         @forelse($sm['recent_events'] ?? [] as $e)
         <tr>
-            <td style="color:#64748b">{{ \Carbon\Carbon::parse($e['created_at'])->diffForHumans() }}</td>
+            <td style="color:#64748b">{{ \Carbon\Carbon::parse($e['created_at'])->locale(app()->getLocale())->diffForHumans() }}</td>
             <td style="font-weight:600">{{ $e['admin']['name'] ?? translate('System') }}</td>
             <td>
                 <span class="td-badge {{ str_contains($e['action_type'], 'FAIL') || str_contains($e['action_type'], 'BLOCK') ? 'td-badge-err' : 'td-badge-info' }}">
