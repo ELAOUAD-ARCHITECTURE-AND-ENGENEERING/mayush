@@ -14,6 +14,14 @@ class SupportConversation extends Model
         'user_id',
         'assigned_agent_id',
         'status',
+        'conversation_state',
+        'active_case_id',
+        'current_step',
+        'attempt_number',
+        'bot_turn_count',
+        'bot_enabled',
+        'frustration_score',
+        'escalation_reason',
         'last_activity_at',
     ];
 

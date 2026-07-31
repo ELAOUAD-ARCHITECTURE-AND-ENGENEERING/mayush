@@ -25,11 +25,11 @@ class EscalationEngine
         $message = strtolower(trim($message));
         $keywords = [
             // English
-            'human', 'agent', 'support', 'manager', 'person', 'real person', 'real man', 'live agent', 'customer service', 'representative', 'speak to', 'talk to',
+            'human', 'agent', 'manager', 'person', 'real person', 'real man', 'live agent', 'customer service', 'customer support', 'live support', 'representative', 'speak to', 'talk to',
             // French
-            'humain', 'agent', 'support', 'manager', 'personne', 'personne réelle', 'conseiller', 'conseillère', 'service client', 'parler à', 'direct',
+            'humain', 'agent', 'manager', 'personne', 'personne réelle', 'conseiller', 'conseillère', 'service client', 'parler à', 'direct',
             // Arabic
-            'عميل', 'وكيل', 'إنسان', 'بشر', 'شخص', 'دعم', 'مدير', 'تحدث', 'كلم', 'بشري'
+            'عميل', 'وكيل', 'إنسان', 'بشر', 'شخص', 'مدير', 'تحدث', 'كلم', 'بشري'
         ];
         foreach ($keywords as $word) {
             if (str_contains($message, $word)) {
@@ -51,7 +51,7 @@ class EscalationEngine
         
         $conversation->messages()->create([
             'sender_type' => 'system',
-            'message' => 'An agent will join the conversation soon. Please hold on and do not close the conversation.'
+            'message' => translate('An agent will join the conversation soon. Please hold on and do not close the conversation.')
         ]);
         
         // Handoff Record (Section 19)

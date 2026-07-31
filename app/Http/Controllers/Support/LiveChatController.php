@@ -30,6 +30,8 @@ class LiveChatController extends Controller
                 Cookie::queue('guest_token', $guestToken, 60 * 24 * 365);
             }
             
+            $currentLocale = session()->get('locale', \Illuminate\Support\Facades\App::getLocale());
+            $conversation->language = $currentLocale;
             $conversation->save();
             
             // Trigger Bot Initial Greeting
@@ -42,7 +44,8 @@ class LiveChatController extends Controller
             $messageBuilder = new \App\Services\Bot\MessageBuilder();
             $greeting = $messageBuilder->build(
                 "Hello! I am your Mayush automated assistant. How can I help you today?",
-                $categories
+                $categories,
+                $currentLocale
             );
             
             $conversation->messages()->create([
@@ -87,6 +90,8 @@ class LiveChatController extends Controller
             return response()->json(['error' => 'No active conversation'], 404);
         }
 
+        $currentLocale = session()->get('locale', \Illuminate\Support\Facades\App::getLocale());
+        $conversation->language = $currentLocale;
         $conversation->last_activity_at = Carbon::now();
         $conversation->save();
 

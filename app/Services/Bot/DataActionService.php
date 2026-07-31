@@ -11,7 +11,7 @@ class DataActionService
     public function getOrderStatus(string $orderRef, $userContext = null): string
     {
         // TODO: Validate userContext against Order ownership
-        return "Your order #$orderRef is currently in progress.";
+        return sprintf(translate("Your order #%s is currently in progress."), $orderRef);
     }
 
     /**
@@ -20,7 +20,7 @@ class DataActionService
      */
     public function getPaymentStatus(string $orderRef, $userContext = null): string
     {
-        return "Payment for order #$orderRef has been verified.";
+        return sprintf(translate("Payment for order #%s has been verified."), $orderRef);
     }
     
     /**
@@ -29,6 +29,6 @@ class DataActionService
      */
     public function getProductStock(string $productRef): string
     {
-        return "Product $productRef is currently IN STOCK.";
+        return sprintf(translate("Product %s is currently IN STOCK."), $productRef);
     }
 }
