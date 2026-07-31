@@ -75,7 +75,7 @@
                     <header class="mb-blog-article-head">
                         <div class="mb-blog-eyebrow">
                             @if($blog->category != null)
-                                <span>{{ $blog->category->category_name }}</span>
+                                <span>{{ $blog->category->getTranslation() }}</span>
                             @endif
                             @if($blog->badge_label)
                                 <span>{{ $blog->badge_label }}</span>
@@ -234,7 +234,7 @@
                                         </div>
                                         @if($recent_blog->category != null)
                                             <div>
-                                                <small class="fs-12 fw-400 text-blue">{{ $recent_blog->category->category_name }}</small>
+                                                <small class="fs-12 fw-400 text-blue">{{ $recent_blog->category->getTranslation() }}</small>
                                             </div>
                                         @endif
                                     </div>

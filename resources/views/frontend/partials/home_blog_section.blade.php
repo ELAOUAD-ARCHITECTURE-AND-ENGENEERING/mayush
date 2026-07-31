@@ -32,7 +32,7 @@
                                 <div class="fs-12 opacity-60 mb-2">
                                     {{ optional($blog->published_at ? \Carbon\Carbon::parse($blog->published_at) : $blog->created_at)->format('M d, Y') }}
                                     @if($blog->category)
-                                        <span class="mx-1">|</span>{{ $blog->category->category_name }}
+                                        <span class="mx-1">|</span>{{ $blog->category->getTranslation() }}
                                     @endif
                                 </div>
                                 <h3 class="fs-16 fw-700 mb-2 h-40px text-truncate-2">

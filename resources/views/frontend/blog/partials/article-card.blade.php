@@ -18,7 +18,7 @@
     <div class="mb-blog-article-card__body">
         <div class="mb-blog-eyebrow">
             @if($blog->category)
-                <span>{{ $blog->category->category_name }}</span>
+                <span>{{ $blog->category->getTranslation() }}</span>
             @endif
             @if($blog->badge_label)
                 <span>{{ $blog->badge_label }}</span>
