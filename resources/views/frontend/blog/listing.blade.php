@@ -10,7 +10,7 @@
 @section('canonical_url'){{ route('blog') }}@stop
 
 @section('styles')
-    <link rel="stylesheet" href="{{ static_asset('assets/blog/css/blog-conversion.css') }}">
+    <link rel="stylesheet" href="{{ versioned_static_asset('assets/blog/css/blog-conversion.css') }}">
 @endsection
 
 @section('meta')
