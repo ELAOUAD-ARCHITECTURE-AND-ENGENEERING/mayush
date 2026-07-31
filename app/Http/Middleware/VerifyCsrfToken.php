@@ -41,5 +41,7 @@ class VerifyCsrfToken extends Middleware
         '/cmi/callback',
         'api/v2/analytics/*',
         '/api/v2/analytics/*',
+        '/livechat/*',
+        'livechat/*',
     ];
 }
