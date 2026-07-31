@@ -6,8 +6,10 @@ use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\BlogTranslation;
 use App\Models\Tag;
+use App\Models\Translation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 use Tests\Traits\SeedsAppConfigs;
 
@@ -58,6 +60,31 @@ class BlogPlatformTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Guide canape');
+    }
+
+    /** @test */
+    public function blog_listing_renders_category_names_in_the_active_language(): void
+    {
+        $this->createPublishedBlog();
+
+        Translation::create([
+            'lang' => 'en',
+            'lang_key' => 'guides',
+            'lang_value' => 'Guides',
+        ]);
+        Translation::create([
+            'lang' => 'fr',
+            'lang_key' => 'guides',
+            'lang_value' => 'Guides en francais',
+        ]);
+        Cache::forget('translations-en');
+        Cache::forget('translations-fr');
+
+        $response = $this->withSession(['locale' => 'fr'])->get(route('blog'));
+
+        $response->assertStatus(200);
+        $response->assertSeeText('Guides en francais');
+        $this->assertDoesNotMatchRegularExpression('/>\s*Guides\s*<\/a>/', $response->getContent());
     }
 
     /** @test */

@@ -62,7 +62,7 @@
                         <a
                             href="{{ route('blog', array_filter(['category' => $category->slug, 'search' => $search])) }}"
                             class="{{ in_array($category->slug, $selected_categories) ? 'is-active' : '' }}">
-                            {{ $category->category_name }}
+                            {{ $category->getTranslation() }}
                         </a>
                     @endforeach
                 </nav>
@@ -127,7 +127,7 @@
                                         </div>
                                         @if($recent_blog->category != null)
                                             <div>
-                                                <small class="fs-12 fw-400 text-blue">{{ $recent_blog->category->category_name }}</small>
+                                                <small class="fs-12 fw-400 text-blue">{{ $recent_blog->category->getTranslation() }}</small>
                                             </div>
                                         @endif
                                     </div>
