@@ -25,12 +25,17 @@ class BotFlowEngine
 
     public function process(SupportConversation $conversation, string $message): void
     {
+        if (!empty($conversation->language)) {
+            \Illuminate\Support\Facades\App::setLocale($conversation->language);
+        }
+
         // 0. Sanitize message
         $message = $this->security->sanitizeMessage($message);
         
-        // Intercept Go Back
-        $cleanMessage = strtolower(trim($message));
-        if ($cleanMessage === 'go back to main menu' || $cleanMessage === 'back' || $cleanMessage === 'main menu') {
+        // Intercept Greetings or Go Back
+        $cleanMessage = mb_strtolower(trim($message), 'UTF-8');
+        $greetings = ['hello', 'hi', 'hey', 'bonjour', 'salut', 'coucou', 'bonsoir', 'مرحبا', 'سلام', 'أهلا', 'اهلا'];
+        if (in_array($cleanMessage, $greetings) || $cleanMessage === 'go back to main menu' || $cleanMessage === 'back' || $cleanMessage === 'main menu') {
             $this->resetToGreeting($conversation);
             return;
         }
@@ -86,10 +91,13 @@ class BotFlowEngine
     {
         // 1. Check if the user selected a category pill (translated or English)
         $category = null;
+        $cleanMsg = mb_strtolower(trim($message), 'UTF-8');
         $allCategories = DB::table('support_categories')->get();
         foreach ($allCategories as $cat) {
-            if (trim(strtolower($message)) === strtolower(trim($cat->name)) || 
-                trim(strtolower($message)) === strtolower(trim(translate($cat->name)))) {
+            $catName = mb_strtolower(trim($cat->name), 'UTF-8');
+            $transName = mb_strtolower(trim(translate($cat->name)), 'UTF-8');
+            $catCode = mb_strtolower(trim($cat->code ?? ''), 'UTF-8');
+            if ($cleanMsg === $catName || $cleanMsg === $transName || ($catCode && $cleanMsg === $catCode) || str_contains($cleanMsg, $catName) || str_contains($catName, $cleanMsg)) {
                 $category = $cat;
                 break;
             }
@@ -113,8 +121,8 @@ class BotFlowEngine
             
             if (empty($cases)) {
                 $msg = $this->builder->build(
-                    translate("Automated support for '" . $category->name . "' is not yet configured. Would you like to speak to a human or go back?"),
-                    [translate("Speak to a human"), translate("Go back to main menu")]
+                    "Automated support for this category is not yet configured. Would you like to speak to a human or go back?",
+                    ["Speak to a human", "Go back to main menu"]
                 );
                 
                 $conversation->messages()->create([
@@ -128,8 +136,8 @@ class BotFlowEngine
             }
             
             $msg = $this->builder->build(
-                translate("Please select the issue you're facing in " . $category->name . ":"),
-                array_map('translate', $cases)
+                "Please select the issue you're facing:",
+                $cases
             );
             
             $conversation->messages()->create([
@@ -172,10 +180,13 @@ class BotFlowEngine
     protected function handleCaseSelection(SupportConversation $conversation, string $message)
     {
         $case = null;
+        $cleanMsg = mb_strtolower(trim($message), 'UTF-8');
         $allCases = DB::table('support_cases')->get();
         foreach ($allCases as $c) {
-            if (trim(strtolower($message)) === strtolower(trim($c->name)) || 
-                trim(strtolower($message)) === strtolower(trim(translate($c->name)))) {
+            $caseName = mb_strtolower(trim($c->name), 'UTF-8');
+            $transName = mb_strtolower(trim(translate($c->name)), 'UTF-8');
+            $caseCode = mb_strtolower(trim($c->case_code ?? ''), 'UTF-8');
+            if ($cleanMsg === $caseName || $cleanMsg === $transName || ($caseCode && $cleanMsg === $caseCode) || str_contains($cleanMsg, $caseName) || str_contains($caseName, $cleanMsg)) {
                 $case = $c;
                 break;
             }
@@ -279,8 +290,8 @@ class BotFlowEngine
                 ->toArray();
 
             $msg = $this->builder->build(
-                translate('I did not understand your message. Could you please clarify your idea or select one of the options below?'),
-                array_map('translate', $categories)
+                'I did not understand your message. Could you please clarify your idea or select one of the options below?',
+                $categories
             );
 
             $conversation->messages()->create([

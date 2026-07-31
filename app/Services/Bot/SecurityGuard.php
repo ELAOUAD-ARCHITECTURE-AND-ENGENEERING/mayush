@@ -23,8 +23,8 @@ class SecurityGuard
             return $matches[0];
         }, $message);
 
-        // Simple regex for 3-4 digit CVV following keywords like "cvv", "cvc", "security code"
-        $cvvRegex = '/(cvv|cvc|security code|code)[\s:-]*(\d{3,4})/i';
+        // Regex for 3-4 digit CVV following keywords like "cvv", "cvc", "security code", "code"
+        $cvvRegex = '/(cvv|cvc|security code|code)(?:\s+(?:is|est|هو))?[\s:-]*(\d{3,4})/i';
         $message = preg_replace($cvvRegex, '$1 [REDACTED]', $message);
 
         return $message;

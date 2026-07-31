@@ -381,33 +381,87 @@
     }
     
     .chat-topics {
-        margin-top: 8px;
+        margin-top: 10px;
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
-        padding: 4px 0;
+        gap: 6px 6px;
+        padding: 4px 0 2px 0;
         width: 100%;
     }
     .topic-pill {
-        font-size: 12px;
-        font-weight: 600;
-        padding: 6px 12px;
-        border-radius: 16px;
-        background: #ffffff;
-        border: 1px solid #D97434;
-        color: #D97434;
+        font-size: 11.5px;
+        font-weight: 500;
+        letter-spacing: -0.1px;
+        padding: 4px 10px;
+        border-radius: 14px;
         cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-        font-family: inherit;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        border: 1px solid transparent;
+        user-select: none;
+        white-space: nowrap;
+    }
+    .topic-pill.pill-blue {
+        background: #eff6ff;
+        color: #1e40af;
+        border-color: #dbeafe;
+    }
+    .topic-pill.pill-emerald {
+        background: #ecfdf5;
+        color: #047857;
+        border-color: #a7f3d0;
+    }
+    .topic-pill.pill-amber {
+        background: #fefce8;
+        color: #b45309;
+        border-color: #fef08a;
+    }
+    .topic-pill.pill-rose {
+        background: #fff1f2;
+        color: #be123c;
+        border-color: #fecdd3;
+    }
+    .topic-pill.pill-purple {
+        background: #faf5ff;
+        color: #7e22ce;
+        border-color: #e9d5ff;
+    }
+    .topic-pill.pill-teal {
+        background: #f0fdfa;
+        color: #0f766e;
+        border-color: #99f6e4;
+    }
+    .topic-pill.pill-slate {
+        background: #f8fafc;
+        color: #334155;
+        border-color: #e2e8f0;
     }
     .topic-pill:hover {
-        border-color: #C46524;
-        color: white;
-        background: #D97434;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 10px rgba(217,116,52,0.15);
+        transform: translateY(-1.5px);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        filter: brightness(0.97);
     }
+    .topic-pill:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .topic-pill-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+    .pill-blue .topic-pill-dot { background: #3b82f6; }
+    .pill-emerald .topic-pill-dot { background: #10b981; }
+    .pill-amber .topic-pill-dot { background: #f59e0b; }
+    .pill-rose .topic-pill-dot { background: #f43f5e; }
+    .pill-purple .topic-pill-dot { background: #a855f7; }
+    .pill-teal .topic-pill-dot { background: #14b8a6; }
+    .pill-slate .topic-pill-dot { background: #64748b; }
     @media (max-width: 575px) {
         .lc-widget-btn {
             bottom: 20px;
@@ -644,9 +698,11 @@
                     msgText = parts[0];
                     let opts = parts[1].split('\n').map(opt => opt.replace(/^\d+\.\s*/, '').trim()).filter(opt => opt);
                     
+                    const themeList = ['pill-blue', 'pill-emerald', 'pill-amber', 'pill-purple', 'pill-teal', 'pill-rose', 'pill-slate'];
                     optionsHtml = '<div class="chat-topics">';
-                    opts.forEach(opt => {
-                        optionsHtml += `<div class="topic-pill" onclick="sendPillMessage('${opt.replace(/'/g, "\\'")}')">${opt}</div>`;
+                    opts.forEach((opt, idx) => {
+                        let theme = themeList[idx % themeList.length];
+                        optionsHtml += `<div class="topic-pill ${theme}" onclick="sendPillMessage('${opt.replace(/'/g, "\\'")}')"><span class="topic-pill-dot"></span><span>${opt}</span></div>`;
                     });
                     optionsHtml += '</div>';
                 }

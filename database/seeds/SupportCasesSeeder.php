@@ -43,6 +43,150 @@ class SupportCasesSeeder extends Seeder
         
         $catIds = DB::table('support_categories')->pluck('id', 'code')->toArray();
 
+        // 1.1 Seed Category & System Message Translations
+        $categoryTranslations = [
+            'Product Discovery' => [
+                'fr' => 'Découverte de produits',
+                'sa' => 'اكتشاف المنتجات',
+                'ma' => 'اكتشاف المنتجات',
+                'ar' => 'اكتشاف المنتجات',
+            ],
+            'Product Information' => [
+                'fr' => 'Informations produit',
+                'sa' => 'معلومات المنتج',
+                'ma' => 'معلومات المنتج',
+                'ar' => 'معلومات المنتج',
+            ],
+            'Account & Login' => [
+                'fr' => 'Compte & Connexion',
+                'sa' => 'الحساب والدخول',
+                'ma' => 'الحساب والدخول',
+                'ar' => 'الحساب والدخول',
+            ],
+            'Cart & Checkout' => [
+                'fr' => 'Panier & Commande',
+                'sa' => 'السلة والإنهاء',
+                'ma' => 'السلة والإنهاء',
+                'ar' => 'السلة والإنهاء',
+            ],
+            'Payment' => [
+                'fr' => 'Paiement',
+                'sa' => 'الدفع',
+                'ma' => 'الدفع',
+                'ar' => 'الدفع',
+            ],
+            'Orders' => [
+                'fr' => 'Commandes',
+                'sa' => 'الطلبات',
+                'ma' => 'الطلبات',
+                'ar' => 'الطلبات',
+            ],
+            'Delivery' => [
+                'fr' => 'Livraison',
+                'sa' => 'التوصيل',
+                'ma' => 'التوصيل',
+                'ar' => 'التوصيل',
+            ],
+            'Returns & Refunds' => [
+                'fr' => 'Retours & Remboursements',
+                'sa' => 'الإرجاع والاسترداد',
+                'ma' => 'الإرجاع والاسترداد',
+                'ar' => 'الإرجاع والاسترداد',
+            ],
+            'Interior Design & Pro Services' => [
+                'fr' => 'Design d\'intérieur & Pro',
+                'sa' => 'التصميم الداخلي والخدمات',
+                'ma' => 'التصميم الداخلي والخدمات',
+                'ar' => 'التصميم الداخلي والخدمات',
+            ],
+            'Technical Problems' => [
+                'fr' => 'Problèmes techniques',
+                'sa' => 'المشاكل التقنية',
+                'ma' => 'المشاكل التقنية',
+                'ar' => 'المشاكل التقنية',
+            ],
+            'Complaints' => [
+                'fr' => 'Réclamations',
+                'sa' => 'الشكاوى',
+                'ma' => 'الشكاوى',
+                'ar' => 'الشكاوى',
+            ],
+            'Privacy & Security' => [
+                'fr' => 'Confidentialité & Sécurité',
+                'sa' => 'الخصوصية والأمان',
+                'ma' => 'الخصوصية والأمان',
+                'ar' => 'الخصوصية والأمان',
+            ],
+            'Human Support' => [
+                'fr' => 'Parler à un conseiller',
+                'sa' => 'التحدث مع عميل',
+                'ma' => 'التحدث مع عميل',
+                'ar' => 'التحدث مع عميل',
+            ],
+            'Hello! I am your Mayush automated assistant. How can I help you today?' => [
+                'fr' => "Bonjour ! Je suis votre assistant automatisé Mayush. Comment puis-je vous aider aujourd'hui ?",
+                'sa' => "مرحباً! أنا مساعد مايوش الآلي. كيف يمكنني مساعدتك اليوم؟",
+                'ma' => "مرحباً! أنا مساعد مايوش الآلي. كيف يمكنني مساعدتك اليوم؟",
+                'ar' => "مرحباً! أنا مساعد مايوش الآلي. كيف يمكنني مساعدتك اليوم؟",
+            ],
+            'I did not understand your message. Could you please clarify your idea or select one of the options below?' => [
+                'fr' => "Je n'ai pas compris votre message. Pouvez-vous préciser votre demande ou sélectionner l'une des options ci-dessous ?",
+                'sa' => "لم أفهم رسالتك. هل يمكنك توضيح طلبك أو اختيار أحد الخيارات أدناه؟",
+                'ma' => "لم أفهم رسالتك. هل يمكنك توضيح طلبك أو اختيار أحد الخيارات أدناه؟",
+                'ar' => "لم أفهم رسالتك. هل يمكنك توضيح طلبك أو اختيار أحد الخيارات أدناه؟",
+            ],
+            "Please select the issue you're facing:" => [
+                'fr' => "Veuillez sélectionner le problème que vous rencontrez :",
+                'sa' => "يرجى تحديد المشكلة التي تواجهها:",
+                'ma' => "يرجى تحديد المشكلة التي تواجهها:",
+                'ar' => "يرجى تحديد المشكلة التي تواجهها:",
+            ],
+            'Speak to a human' => [
+                'fr' => 'Parler à un humain',
+                'sa' => 'التحدث مع عميل',
+                'ma' => 'التحدث مع عميل',
+                'ar' => 'التحدث مع عميل',
+            ],
+            'Go back to main menu' => [
+                'fr' => 'Retour au menu principal',
+                'sa' => 'العودة للقائمة الرئيسية',
+                'ma' => 'العودة للقائمة الرئيسية',
+                'ar' => 'العودة للقائمة الرئيسية',
+            ],
+            'Did this solve your problem?' => [
+                'fr' => 'Cela a-t-il résolu votre problème ?',
+                'sa' => 'هل حل هذا مشكلتك؟',
+                'ma' => 'هل حل هذا مشكلتك؟',
+                'ar' => 'هل حل هذا مشكلتك؟',
+            ],
+            'Yes' => [
+                'fr' => 'Oui',
+                'sa' => 'نعم',
+                'ma' => 'نعم',
+                'ar' => 'نعم',
+            ],
+            'No' => [
+                'fr' => 'Non',
+                'sa' => 'لا',
+                'ma' => 'لا',
+                'ar' => 'لا',
+            ],
+        ];
+
+        foreach ($categoryTranslations as $original => $langs) {
+            $langKey = preg_replace('/[^A-Za-z0-9\_]/', '', str_replace(' ', '_', strtolower($original)));
+            foreach ($langs as $lang => $val) {
+                DB::table('translations')->updateOrInsert(
+                    ['lang' => $lang, 'lang_key' => $langKey],
+                    ['lang_value' => $val, 'updated_at' => now()]
+                );
+            }
+            DB::table('translations')->updateOrInsert(
+                ['lang' => 'en', 'lang_key' => $langKey],
+                ['lang_value' => $original, 'updated_at' => now()]
+            );
+        }
+
         // 2. Load and Parse LIVE_CHAT_BOT_ANSWERS.md dynamically
         $answersPath = base_path('LIVE_CHAT_BOT_ANSWERS.md');
         if (!file_exists($answersPath)) {

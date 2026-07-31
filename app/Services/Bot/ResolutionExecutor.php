@@ -36,10 +36,10 @@ class ResolutionExecutor
         if (!$step) {
             // Fallback resolution: display the case description and offer to escalate
             $case = DB::table('support_cases')->where('id', $caseId)->first();
-            $caseName = $case ? $case->name : 'this issue';
-            $caseDesc = $case && $case->description ? $case->description : 'I don\'t have automated resolution steps for this specific issue yet.';
+            $caseName = $case ? translate($case->name) : translate('this issue');
+            $caseDesc = $case && $case->description ? translate($case->description) : translate('I don\'t have automated resolution steps for this specific issue yet.');
             
-            $solutionText = "I see you need help with **" . $caseName . "**.\n\n" . $caseDesc . "\n\nWould you like to speak to a human agent to resolve this?";
+            $solutionText = translate("I see you need help with") . " **" . $caseName . "**.\n\n" . $caseDesc . "\n\n" . translate("Would you like to speak to a human agent to resolve this?");
             
             $conversation->messages()->create([
                 'sender_type' => 'system',
@@ -75,10 +75,10 @@ class ResolutionExecutor
             if (method_exists($this->dataService, $action)) {
                 $solutionText = $this->dataService->{$action}($conversation, $collected);
             } else {
-                $solutionText = "I have checked the system based on your details, but I cannot find a specific status at the moment.";
+                $solutionText = translate("I have checked the system based on your details, but I cannot find a specific status at the moment.");
             }
         } elseif ($step->step_type == 'message' && $step->message_template) {
-            $solutionText = $step->message_template;
+            $solutionText = translate($step->message_template);
         }
 
         // Send the solution

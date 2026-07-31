@@ -23,6 +23,10 @@ class ProcessBotResponse implements ShouldQueue
         if (!$conversation->bot_enabled) {
             return;
         }
+
+        if (!empty($conversation->language)) {
+            \Illuminate\Support\Facades\App::setLocale($conversation->language);
+        }
         
         $engine = new \App\Services\Bot\BotFlowEngine();
         $engine->process($conversation, $event->message);

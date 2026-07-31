@@ -40,9 +40,10 @@ class DataCollector
         foreach ($fields as $field) {
             if (!in_array($field->field_key, $collected)) {
                 // We need to ask this field
+                $prompt = $field->bot_prompt ? translate($field->bot_prompt) : sprintf(translate('Please provide %s.'), translate($field->label));
                 $conversation->messages()->create([
                     'sender_type' => 'system',
-                    'message' => $field->bot_prompt ?? 'Please provide ' . $field->label . '.'
+                    'message' => $prompt
                 ]);
                 return; // Wait for user reply
             }
