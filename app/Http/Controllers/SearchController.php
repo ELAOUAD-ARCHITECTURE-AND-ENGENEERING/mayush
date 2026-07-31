@@ -1124,6 +1124,7 @@ class SearchController extends Controller
         $ids = $semanticResults
             ->map(fn ($result) => data_get($result, 'model.id'))
             ->filter()
+            ->unique()
             ->values();
 
         if ($ids->isEmpty()) {
@@ -1141,17 +1142,25 @@ class SearchController extends Controller
             ->get()
             ->keyBy('id');
 
-        return $semanticResults->map(function ($result) use ($allowed) {
-            $id = data_get($result, 'model.id');
-            $model = $allowed->get($id);
+        // Semantic indexes can contain duplicate rows for a product when an
+        // embedding job overlaps with a reindex. Keep the first result because
+        // SemanticUtility sorts by score descending, so it is the strongest
+        // match and the correct one to expose/count.
+        return $semanticResults
+            ->map(function ($result) use ($allowed) {
+                $id = data_get($result, 'model.id');
+                $model = $allowed->get($id);
 
-            if (!$model) {
-                return null;
-            }
+                if (!$model) {
+                    return null;
+                }
 
-            $result['model'] = $model;
-            return $result;
-        })->filter()->values();
+                $result['model'] = $model;
+                return $result;
+            })
+            ->filter()
+            ->unique(fn ($result) => data_get($result, 'model.id'))
+            ->values();
     }
 
     /**
