@@ -13,6 +13,11 @@
                 ->exists();
         }
     }
+
+    // Use the web-root asset URL for chat avatars. The legacy static_asset()
+    // helper may add /public on deployments where that prefix is not served.
+    $liveChatBotAvatar = asset('assets/img/mayush-bot-avatar.png');
+    $liveChatAvatarFallback = asset('assets/img/avatar-place.png');
 @endphp
 <style>
     .lc-widget-btn {
@@ -498,7 +503,7 @@
     <div class="lc-header">
         <div class="lc-header-content">
             <div class="lc-header-avatar-container">
-                <img id="lc-header-avatar" src="{{ static_asset('assets/img/mayush-bot-avatar.png') }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Mayush Bot">
+                <img id="lc-header-avatar" src="{{ $liveChatBotAvatar }}" onerror="this.onerror=null;this.src='{{ $liveChatAvatarFallback }}';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Mayush Bot">
             </div>
             <div class="lc-header-text">
                 <div class="lc-header-title">{{ translate('Mayush Support') }}</div>
@@ -656,7 +661,7 @@
                     headerAvatar.src = agentAvatar;
                     headerSubtitle.textContent = "{{ translate('Agent Connected') }}";
                 } else {
-                    headerAvatar.src = "{{ static_asset('assets/img/mayush-bot-avatar.png') }}";
+                    headerAvatar.src = "{{ $liveChatBotAvatar }}";
                     headerSubtitle.textContent = "{{ translate('Active helper') }}";
                 }
             }
@@ -670,15 +675,15 @@
                 let avatarHtml = '';
                 if (isUser) {
                     if (userAvatar) {
-                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${userAvatar}" class="lc-message-avatar-img" alt="{{ translate('User') }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';"></div>`;
+                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${userAvatar}" class="lc-message-avatar-img" alt="{{ translate('User') }}" onerror="this.onerror=null;this.src='{{ $liveChatAvatarFallback }}';"></div>`;
                     } else {
-                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="{{ static_asset('assets/img/avatar-place.png') }}" class="lc-message-avatar-img" alt="{{ translate('User') }}"></div>`;
+                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="{{ $liveChatAvatarFallback }}" class="lc-message-avatar-img" alt="{{ translate('User') }}"></div>`;
                     }
                 } else {
                     if (agentAvatar) {
-                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${agentAvatar}" class="lc-message-avatar-img" alt="{{ translate('Agent') }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';"></div>`;
+                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${agentAvatar}" class="lc-message-avatar-img" alt="{{ translate('Agent') }}" onerror="this.onerror=null;this.src='{{ $liveChatAvatarFallback }}';"></div>`;
                     } else {
-                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="{{ static_asset('assets/img/mayush-bot-avatar.png') }}" class="lc-message-avatar-img" alt="Mayush Bot" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';"></div>`;
+                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="{{ $liveChatBotAvatar }}" class="lc-message-avatar-img" alt="Mayush Bot" onerror="this.onerror=null;this.src='{{ $liveChatAvatarFallback }}';"></div>`;
                     }
                 }
                 

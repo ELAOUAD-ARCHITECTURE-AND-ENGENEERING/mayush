@@ -107,4 +107,44 @@ class SearchFallbackTest extends TestCase
         $this->assertStringContainsString('Visible Semantic Product', $html);
         $this->assertStringNotContainsString('Hidden Semantic Product', $html);
     }
+
+    /** @test */
+    public function semantic_results_count_each_product_once_when_embeddings_are_duplicated(): void
+    {
+        config([
+            'search.features.semantic' => true,
+            'services.openrouter.key' => '',
+        ]);
+
+        SemanticEmbedding::query()->delete();
+
+        $product = Product::factory()->create([
+            'name' => 'Duplicate Embedding Product',
+            'published' => 1,
+            'approved' => 1,
+            'added_by' => 'admin',
+        ]);
+
+        $vector = SemanticUtility::generateEmbedding('duplicate embedding query');
+        $embedding = [
+            'embeddable_type' => Product::class,
+            'embeddable_id' => $product->id,
+            'vector' => json_encode($vector),
+            'content' => $product->name,
+            'content_hash' => hash('sha256', $product->name),
+            'metadata' => json_encode([]),
+        ];
+
+        SemanticEmbedding::create($embedding);
+        SemanticEmbedding::create($embedding);
+
+        $response = $this->getJson(route('suggestion.search2', [
+            'keyword' => 'duplicate embedding query',
+            'mode' => 'ai',
+        ]));
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('total_product_count', 1);
+    }
 }
