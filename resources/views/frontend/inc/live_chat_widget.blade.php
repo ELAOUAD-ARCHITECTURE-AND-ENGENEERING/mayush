@@ -498,7 +498,7 @@
     <div class="lc-header">
         <div class="lc-header-content">
             <div class="lc-header-avatar-container">
-                <img id="lc-header-avatar" src="{{ static_asset('assets/img/mayush-bot-avatar.png') }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Mayush Bot">
+                <img id="lc-header-avatar" src="{{ static_asset('assets/img/mayush-bot-avatar.png') }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="Mayush Bot">
             </div>
             <div class="lc-header-text">
                 <div class="lc-header-title">{{ translate('Mayush Support') }}</div>
@@ -670,15 +670,15 @@
                 let avatarHtml = '';
                 if (isUser) {
                     if (userAvatar) {
-                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${userAvatar}" class="lc-message-avatar-img" alt="{{ translate('User') }}"></div>`;
+                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${userAvatar}" class="lc-message-avatar-img" alt="{{ translate('User') }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';"></div>`;
                     } else {
                         avatarHtml = `<div class="lc-message-avatar-wrap"><img src="{{ static_asset('assets/img/avatar-place.png') }}" class="lc-message-avatar-img" alt="{{ translate('User') }}"></div>`;
                     }
                 } else {
                     if (agentAvatar) {
-                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${agentAvatar}" class="lc-message-avatar-img" alt="{{ translate('Agent') }}"></div>`;
+                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="${agentAvatar}" class="lc-message-avatar-img" alt="{{ translate('Agent') }}" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';"></div>`;
                     } else {
-                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="{{ static_asset('assets/img/mayush-bot-avatar.png') }}" class="lc-message-avatar-img" alt="Mayush Bot"></div>`;
+                        avatarHtml = `<div class="lc-message-avatar-wrap"><img src="{{ static_asset('assets/img/mayush-bot-avatar.png') }}" class="lc-message-avatar-img" alt="Mayush Bot" onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';"></div>`;
                     }
                 }
                 
