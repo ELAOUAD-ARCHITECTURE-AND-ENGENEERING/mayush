@@ -29,11 +29,13 @@
           <button class="wishlist-btn" onclick="event.stopPropagation(); addToWishList({{ $product->id }})">♡</button>
 
           <div class="mini-timer" data-end="{{ date('Y/m/d H:i:s', $flash_deal->end_date) }}">
-            <div class="mt-block"><span class="mt-num mt-h">00</span><span class="mt-lbl">{{ translate('HRS') }}</span></div>
+            <div class="mt-block"><span class="mt-num mt-d">00</span><span class="mt-lbl">{{ translate('J') }}</span></div>
             <span class="mt-sep">:</span>
-            <div class="mt-block"><span class="mt-num mt-m">00</span><span class="mt-lbl">{{ translate('MIN') }}</span></div>
+            <div class="mt-block"><span class="mt-num mt-h">00</span><span class="mt-lbl">{{ translate('H') }}</span></div>
             <span class="mt-sep">:</span>
-            <div class="mt-block"><span class="mt-num mt-s">00</span><span class="mt-lbl">{{ translate('SEC') }}</span></div>
+            <div class="mt-block"><span class="mt-num mt-m">00</span><span class="mt-lbl">{{ translate('M') }}</span></div>
+            <span class="mt-sep">:</span>
+            <div class="mt-block"><span class="mt-num mt-s">00</span><span class="mt-lbl">{{ translate('S') }}</span></div>
           </div>
         </div>
 
@@ -79,7 +81,7 @@
             <span class="curr-prc" style="color: #ff4500; font-size: 24px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.2;">{{ $discounted_price_fmt }}</span>
             <span class="old-prc" style="font-size: 14px; color: #888; font-weight: 500; text-decoration: line-through;">{{ $base_price_fmt }}</span>
             @if($active_discount_pct > 0)
-              <span class="p-save" style="background-color: #e8f5e9; color: #00c853; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; display: inline-block;">{{ translate('Save') }} {{ $active_discount_pct }}%</span>
+              <span class="p-save" style="background-color: #e8f5e9; color: #00c853; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; display: inline-block;">{{ translate('Discount') }} {{ $active_discount_pct }}%</span>
             @endif
           </div>
 
