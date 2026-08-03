@@ -15,11 +15,20 @@ class Attribute extends Model
     public function getTranslation($field = '', $lang = false){
       $lang = $lang ?: App::getLocale();
       $attribute_translation = $this->attribute_translations->where('lang', $lang)->first();
-      if ($attribute_translation != null && $attribute_translation->$field !== null && $attribute_translation->$field !== $this->$field) {
-          return in_array($field, ['name', 'title']) ? translate($attribute_translation->$field, $lang) : $attribute_translation->$field;
+
+      if ($attribute_translation != null && $attribute_translation->$field !== null && trim((string)$attribute_translation->$field) !== '') {
+          $translated = $attribute_translation->$field;
+          if ($translated !== $this->$field) {
+              return in_array($field, ['name', 'title']) ? translate($translated, $lang) : $translated;
+          }
       }
 
-      return $attribute_translation != null ? $attribute_translation->$field : $this->$field;
+      $base_value = $this->$field;
+      if (in_array($field, ['name', 'title']) && $base_value !== null && trim((string)$base_value) !== '') {
+          return translate($base_value, $lang);
+      }
+
+      return $base_value;
     }
 
     public function attribute_translations(){
