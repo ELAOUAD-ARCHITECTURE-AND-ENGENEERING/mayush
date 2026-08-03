@@ -19,7 +19,9 @@
         
         <div class="main-timer" id="main-countdown" data-end="{{ date('Y/m/d H:i:s', $flash_deal->end_date) }}">
           <span class="timer-label">{{ translate('Expire Dans') }}</span>
-          <div class="t-block"><span class="t-num" id="mt-h">--</span><div class="t-unit">{{ translate('HRS') }}</div></div>
+          <div class="t-block"><span class="t-num" id="mt-d">--</span><div class="t-unit">{{ translate('JOURS') }}</div></div>
+          <span class="t-sep">:</span>
+          <div class="t-block"><span class="t-num" id="mt-h">--</span><div class="t-unit">{{ translate('HEU') }}</div></div>
           <span class="t-sep">:</span>
           <div class="t-block"><span class="t-num" id="mt-m">--</span><div class="t-unit">{{ translate('MIN') }}</div></div>
           <span class="t-sep">:</span>
@@ -42,8 +44,10 @@
 
     <!-- PRODUCT GRID (Deal Specific) -->
     <div class="grid-section">
-      <div class="section-hdr" style="margin-bottom:24px">
-        <h2 class="section-title">{{ translate('Produits de') }} <span>{{ $flash_deal->getTranslation('title') }}</span></h2>
+      <div class="section-hdr" style="margin-bottom:24px; padding-left: max(16px, env(safe-area-inset-left));">
+        <h2 class="section-title" style="font-family: 'Outfit', 'Inter', -apple-system, sans-serif; font-size: clamp(22px, 3.5vw, 32px); font-weight: 700; letter-spacing: -0.02em;">
+          {{ translate('Produits de') }} <span style="color: var(--fire);">{{ $flash_deal->getTranslation('title') }}</span>
+        </h2>
         <span style="font-size:12px;color:var(--ink-3)">{{ count($flash_deal->flash_deal_products) }} {{ translate('articles exclusifs') }}</span>
       </div>
       
@@ -66,20 +70,32 @@
             const now = new Date().getTime();
             const diff = endDate - now;
             if (diff <= 0) return;
-            const h = Math.floor(diff / (1000 * 60 * 60));
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const s = Math.floor((diff % (1000 * 60)) / 1000);
+            const dStr = d.toString().padStart(2, '0');
             const hStr = h.toString().padStart(2, '0');
             const mStr = m.toString().padStart(2, '0');
             const sStr = s.toString().padStart(2, '0');
             if (el.id === 'main-countdown') {
-                document.getElementById('mt-h').textContent = hStr;
-                document.getElementById('mt-m').textContent = mStr;
-                document.getElementById('mt-s').textContent = sStr;
+                const dEl = document.getElementById('mt-d');
+                if (dEl) dEl.textContent = dStr;
+                const hEl = document.getElementById('mt-h');
+                if (hEl) hEl.textContent = hStr;
+                const mEl = document.getElementById('mt-m');
+                if (mEl) mEl.textContent = mStr;
+                const sEl = document.getElementById('mt-s');
+                if (sEl) sEl.textContent = sStr;
             } else if (el.classList.contains('mini-timer')) {
-                el.querySelector('.mt-h').textContent = hStr;
-                el.querySelector('.mt-m').textContent = mStr;
-                el.querySelector('.mt-s').textContent = sStr;
+                const dEl = el.querySelector('.mt-d');
+                if (dEl) dEl.textContent = dStr;
+                const hEl = el.querySelector('.mt-h');
+                if (hEl) hEl.textContent = hStr;
+                const mEl = el.querySelector('.mt-m');
+                if (mEl) mEl.textContent = mStr;
+                const sEl = el.querySelector('.mt-s');
+                if (sEl) sEl.textContent = sStr;
             }
         });
     }

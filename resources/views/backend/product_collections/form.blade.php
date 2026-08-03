@@ -127,8 +127,14 @@
                         <div class="form-group">
                             <label>{{ translate('Default Sort') }}</label>
                             <select class="form-control aiz-selectpicker" name="default_sort">
-                                @foreach (['newest' => translate('Newest')', 'popular' => translate('Popularity')', 'price-asc' => translate('Price low to high')', 'price-desc' => translate('Price high to low')', 'oldest' => translate('Oldest')'] as $value => $label)
-                                    <option value="{{ $value }}" @selected(old('default_sort', $collection->default_sort ?: 'newest') === $value)>{{ translate($label) }}</option>
+                                @foreach ([
+                                    'newest' => translate('Newest'),
+                                    'popular' => translate('Popularity'),
+                                    'price-asc' => translate('Price low to high'),
+                                    'price-desc' => translate('Price high to low'),
+                                    'oldest' => translate('Oldest'),
+                                ] as $value => $label)
+                                    <option value="{{ $value }}" @selected(old('default_sort', $collection->default_sort ?: 'newest') === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
                         </div>

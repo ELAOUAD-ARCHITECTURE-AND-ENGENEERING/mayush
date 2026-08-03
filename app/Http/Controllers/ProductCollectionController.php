@@ -34,13 +34,18 @@ class ProductCollectionController extends Controller
             ->orderBy('name')
             ->get();
 
+        $maxPriceLimit = (int) ceil($service->query($collection)->max('unit_price') ?: 5000);
+        $minPriceLimit = 0;
+
         return view('frontend.product_collections.show', compact(
             'collection',
             'products',
             'bestSellingProducts',
             'recentlyViewedProducts',
             'brands',
-            'sort'
+            'sort',
+            'minPriceLimit',
+            'maxPriceLimit'
         ));
     }
 }
