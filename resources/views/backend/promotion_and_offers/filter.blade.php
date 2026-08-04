@@ -152,6 +152,22 @@
                         </button>
                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-xs">
                             <div class="table-options">
+                                <!--Edit-->
+                                @can('product_edit')
+                                <a href="@if ($product->digital == 1){{ route('digitalproducts.edit', ['digitalproduct' => $product->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}@elseif($product->added_by == 'seller'){{ route('products.seller.edit', ['id' => $product->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}@else{{ route('products.admin.edit', ['id' => $product->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}@endif"
+                                    class="d-flex align-items-center px-20px py-10px hov-bg-light hov-text-blue">
+                                    <span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="11.985"
+                                            height="12" viewBox="0 0 11.985 12">
+                                            <path
+                                                id="edit_square_24dp_9393A3_FILL0_wght400_GRAD0_opsz24"
+                                                d="M121.2-909a1.154,1.154,0,0,1-.846-.352A1.154,1.154,0,0,1,120-910.2v-8.39a1.154,1.154,0,0,1,.352-.846,1.154,1.154,0,0,1,.846-.352h3.91a.541.541,0,0,1,.449.187.645.645,0,0,1,.15.412.626.626,0,0,1-.157.412.563.563,0,0,1-.457.187h-3.9v8.39h8.39v-3.91a.541.541,0,0,1,.187-.449.645.645,0,0,1,.412-.15.645.645,0,0,1,.412.15.541.541,0,0,1,.187.449v3.91a1.154,1.154,0,0,1-.352.846,1.154,1.154,0,0,1-.846.352ZM125.393-914.393Zm-1.8,1.2v-1.453a1.183,1.183,0,0,1,.09-.457,1.165,1.165,0,0,1,.255-.382l5.154-5.154a1.2,1.2,0,0,1,.4-.27,1.2,1.2,0,0,1,.449-.09,1.183,1.183,0,0,1,.457.09,1.219,1.219,0,0,1,.4.27l.839.854a1.347,1.347,0,0,1,.255.4,1.147,1.147,0,0,1,.442.09,1.237,1.237,0,0,1-.082.442,1.122,1.122,0,0,1-.262.4l-5.154,5.154a1.27,1.27,0,0,1-.382.262,1.1,1.1,0,0,1-.457.1h-1.453a.58.58,0,0,1-.427-.172A.58.58,0,0,1,123.6-913.195Zm7.206-5.753-.839-.839Zm-6.007,5.154h.839l3.476-3.476-.419-.419-.434-.419-3.461,3.461Zm3.9-3.9-.434-.419.434.419.419.419Z"
+                                                transform="translate(-120 921)" fill="#414141" />
+                                        </svg>
+                                    </span>
+                                    <span class="fs-14 text-secondary fw-500 pl-10px">{{ translate('Edit') }}</span>
+                                </a>
+                                @endcan
                                 @canany(['remove_from_promotional', 'remove_from_todays_deal'])
                                 <a href="javascript:void(0)"
                                     class="d-flex align-items-center px-20px py-10px hov-bg-light hov-text-blue" onclick="singleDelete({{$product->id}})">

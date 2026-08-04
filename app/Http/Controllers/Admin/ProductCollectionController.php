@@ -14,6 +14,15 @@ use Illuminate\Validation\Rule;
 
 class ProductCollectionController extends Controller
 {
+    public function __construct()
+    {
+        // Staff Permission Check
+        $this->middleware(['permission:view_product_collections'])->only('index');
+        $this->middleware(['permission:add_product_collection'])->only('create', 'store');
+        $this->middleware(['permission:edit_product_collection'])->only('edit', 'update');
+        $this->middleware(['permission:delete_product_collection'])->only('destroy');
+    }
+
     public function index()
     {
         $collections = ProductCollection::latest()->paginate(20);
