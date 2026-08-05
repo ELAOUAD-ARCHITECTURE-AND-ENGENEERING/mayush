@@ -7,9 +7,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/brand/logo-transparent.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F2E8DA"
+      "backgroundColor": "#FCF2E9"
     },
     "ios": {
       "supportsTablet": true
@@ -25,6 +25,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

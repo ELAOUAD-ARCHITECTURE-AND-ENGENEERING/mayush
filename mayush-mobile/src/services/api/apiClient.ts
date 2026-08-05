@@ -7,7 +7,14 @@
 
 import { MvpAppLanguage } from '../../contracts/api/dto';
 
-export const API_BASE_URL = 'http://mayush.test';
+const configuredApiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
+
+/**
+ * The mobile client reads the currently deployed Laravel origin from its own
+ * public environment. Local development intentionally defaults to the active
+ * Laragon host; production must provide EXPO_PUBLIC_API_BASE_URL at build time.
+ */
+export const API_BASE_URL = (configuredApiBaseUrl || 'http://mayush.test').replace(/\/$/, '');
 
 export interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

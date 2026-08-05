@@ -5,17 +5,22 @@
 
 export const fontFamilies = {
   latin: {
-    regular: 'System', // System fallback or Inter
-    medium: 'System',
-    semiBold: 'System',
-    bold: 'System',
+    regular: 'Inter_400Regular',
+    medium: 'Inter_500Medium',
+    semiBold: 'Inter_600SemiBold',
+    bold: 'Inter_700Bold',
   },
   arabic: {
-    regular: 'System', // System fallback or Cairo/Tajawal
-    medium: 'System',
-    semiBold: 'System',
-    bold: 'System',
-  }
+    regular: 'Tajawal_400Regular',
+    medium: 'Tajawal_500Medium',
+    semiBold: 'Tajawal_700Bold',
+    bold: 'Tajawal_700Bold',
+  },
+  display: {
+    regular: 'PlayfairDisplay_400Regular',
+    semiBold: 'PlayfairDisplay_600SemiBold',
+    bold: 'PlayfairDisplay_700Bold',
+  },
 } as const;
 
 export const fontSizes = {

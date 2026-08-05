@@ -1,13 +1,15 @@
 /**
  * SCR-ENT-001: Splash Screen
- * Exact visual match for 01-entry/01-splash-screen-logo.png.
- * Warm cream background (#F2E8DA), centered Mayush logo.
+ * Native launch composition measured from 01-entry/01-splash-screen-logo.png.
+ * The supplied decorative backdrop is retained while the logo and loader remain
+ * live React Native elements.
  */
 
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Image, StyleSheet, View } from 'react-native';
+import { Animated, Easing, ImageBackground, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
 
-const SPLASH_ARTWORK = require('../../../design-reference/mayush-mobile-design/01-entry/01-splash-screen-logo.png');
+const SPLASH_BACKGROUND = require('../../../design-reference/mayush-mobile-design/01-entry/01-splash-screen-logo.png');
 
 export interface SplashScreenProps {
   onFinish?: (nextScreen: 'language' | 'home') => void;
@@ -15,6 +17,8 @@ export interface SplashScreenProps {
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const spin = useRef(new Animated.Value(0)).current;
+  const { width } = useWindowDimensions();
+  const logoWidth = Math.min(Math.max(width * 0.54, 190), 300);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -46,9 +50,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const rotation = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
 
   return (
-    <View style={styles.container} accessibilityLabel="Mayush Design">
-      <Image source={SPLASH_ARTWORK} resizeMode="stretch" style={styles.artwork} />
-      <View pointerEvents="none" style={styles.loaderMask}>
+    <ImageBackground source={SPLASH_BACKGROUND} resizeMode="stretch" style={styles.container} accessibilityLabel="Mayush Design">
+      <View pointerEvents="none" style={styles.logoAnchor}>
+        <MayushLogo width={logoWidth} height={logoWidth * (54 / 154)} />
+      </View>
+      <View pointerEvents="none" style={styles.loaderAnchor}>
         <Animated.View
           accessibilityRole="progressbar"
           accessibilityLabel="Chargement"
@@ -61,7 +67,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           <View style={styles.loaderHead} />
         </Animated.View>
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
@@ -69,8 +75,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  artwork: { width: '100%', height: '100%' },
-  loaderMask: {
+  logoAnchor: {
+    position: 'absolute',
+    top: '38.5%',
+    left: 0,
+    right: 0,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loaderAnchor: {
     position: 'absolute',
     top: '70.8%',
     alignSelf: 'center',
@@ -79,7 +93,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FCF2E8',
+    backgroundColor: '#FCF2E9',
   },
   loaderOrbit: {
     width: 48,

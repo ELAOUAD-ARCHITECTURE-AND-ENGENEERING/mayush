@@ -4,13 +4,14 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { Animated, Easing, ImageBackground, StyleSheet, View } from 'react-native';
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { colors } from '../../design-system/tokens/colors';
 import { useTheme } from '../../design-system/theme/useTheme';
 
 const PREPARING_DURATION = 3600;
+const PREPARING_BACKGROUND = require('../../../design-reference/mayush-mobile-design/01-entry/01-loading-screen-preparing-experience.png');
 
 export interface PreparingExperienceScreenProps {
   onFinish?: () => void;
@@ -84,11 +85,10 @@ export const PreparingExperienceScreen: React.FC<PreparingExperienceScreenProps>
     : 'Pr\u00e9paration de votre exp\u00e9rience\u2026';
 
   return (
-    <View style={styles.screen} accessibilityLabel={label}>
-      <View pointerEvents="none" style={styles.leftArch} />
-      <Animated.View pointerEvents="none" style={[styles.rightLeaf, { opacity: ambience }]} />
-      <View pointerEvents="none" style={styles.bottomCurve} />
+    <ImageBackground source={PREPARING_BACKGROUND} resizeMode="stretch" style={styles.screen} accessibilityLabel={label}>
       <View style={styles.content}>
+        <Animated.View pointerEvents="none" style={[styles.ambientVeil, { opacity: ambience }]} />
+        <View pointerEvents="none" style={styles.referenceContentMask} />
         <Animated.View style={[styles.logoLockup, {
           opacity: logoReveal,
           transform: [{ translateY: logoReveal.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }],
@@ -105,16 +105,18 @@ export const PreparingExperienceScreen: React.FC<PreparingExperienceScreenProps>
         </View>
         <MayushText variant="body" color={colors.neutral.gray700} align="center" style={styles.label}>{label}</MayushText>
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, overflow: 'hidden', backgroundColor: '#FCF2E8' },
+  screen: { flex: 1, overflow: 'hidden' },
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28, paddingBottom: 20, zIndex: 1 },
-  leftArch: { position: 'absolute', left: -104, top: 134, width: 223, height: 438, borderTopRightRadius: 112, borderTopLeftRadius: 112, backgroundColor: '#F4E5D2', borderRightWidth: 10, borderColor: '#E6CFAE', opacity: 0.86 },
-  rightLeaf: { position: 'absolute', right: -82, top: 158, width: 166, height: 300, borderTopLeftRadius: 150, borderBottomLeftRadius: 150, backgroundColor: '#F3E1CB', borderLeftWidth: 1, borderColor: '#E6CFAE', transform: [{ rotate: '-20deg' }] },
-  bottomCurve: { position: 'absolute', right: -98, bottom: -118, width: 360, height: 255, borderRadius: 180, borderWidth: 1, borderColor: '#E7CFAF' },
+  ambientVeil: { position: 'absolute', width: 360, height: 360, borderRadius: 180, backgroundColor: 'rgba(255,250,244,0.12)' },
+  // The supplied reference is used only for its decorative background. This
+  // neutral mask removes its static logo/indicator/copy before live controls
+  // are layered in exactly the same zone.
+  referenceContentMask: { position: 'absolute', top: '35%', width: '68%', height: '30%', borderRadius: 28, backgroundColor: '#FCF2E8' },
   logoLockup: { alignItems: 'center' },
   progressGroup: { alignItems: 'center', marginTop: 70 },
   dots: { flexDirection: 'row', alignItems: 'center', gap: 14 },
