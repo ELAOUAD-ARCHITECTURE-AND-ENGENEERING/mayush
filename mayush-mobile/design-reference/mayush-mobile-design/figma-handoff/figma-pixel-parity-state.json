@@ -1,0 +1,48 @@
+{
+  "runId": "mayush-figma-pixel-parity",
+  "guidelineLoaded": true,
+  "figmaFileName": "Mayush Mobile — Design System & Buyer App",
+  "figmaFileKey": "wAdLNmlKanvI0AEPyEbrMs",
+  "activeFeature": "Entry",
+  "activeSourceFilename": "01-language-selection-french-arabic.png",
+  "activeSourceFrameId": "18:3",
+  "activeEditableFrameId": "67:9",
+  "pixelParityPassed": [],
+  "pixelParityRenderingDifferences": [
+    {
+      "screen": "UI / Entry / Splash / FR / Loading",
+      "status": "BLOCKED_BY_MISSING_ASSET",
+      "difference": "The decorative background is available only inside the flattened source screenshot; no isolated original asset exists in the uploaded asset set.",
+      "qaFrameId": "187:20",
+      "screenshotComparison": "https://www.figma.com/api/mcp/asset/b7cabe99-484c-4438-9b2b-68260f598cdb",
+      "checkedAt": "2026-08-03T00:00:00Z"
+    },
+    {
+      "screen": "UI / Entry / Language Selection / FR + AR / Default",
+      "status": "BLOCKED_BY_MISSING_ASSET",
+      "difference": "Compared directly against SRC / 01-language-selection-french-arabic.png on 130 — Complete Source Archive. The exact Arabic marker and bottom-right decorative asset are not isolated; the production frame uses editable closest layers and the official logo.",
+      "qaFrameId": "197:147",
+      "sourcePage": "130 — Complete Source Archive",
+      "sourceFrameId": "18:3",
+      "screenshotComparison": "https://www.figma.com/api/mcp/asset/66d62dd9-6cc4-455b-8ba6-c532be5c1cb7",
+      "checkedAt": "2026-08-03T00:00:00Z"
+    }
+  ],
+  "screensNeedingCorrection": [],
+  "screensBlockedByMissingAsset": [
+    "UI / Entry / Splash / FR / Loading",
+    "UI / Entry / Language Selection / FR + AR / Default"
+  ],
+  "lastOverlayComparison": "QA / Entry / Language Selection / Overlay Comparison (197:147)",
+  "lastScreenshotComparison": "https://www.figma.com/api/mcp/asset/66d62dd9-6cc4-455b-8ba6-c532be5c1cb7",
+  "lastSuccessfulOperation": "Retried language selection against the authoritative 130 — Complete Source Archive frame 18:3, corrected width/position geometry, refreshed the locked overlay, and captured the result",
+  "measurement": {
+    "sourceDimensions": "N/A — project cover checkpoint",
+    "editableDimensions": "393x852",
+    "scaleFactorFromSourceWidth": 0.4176,
+    "restartPoint": "00 — Cover & Project Index",
+    "completedPhase": "02 — Components",
+    "nextGate": "Entry / Onboarding 01"
+  },
+  "nextOperation": "Correct UI / Entry / Onboarding 01 / FR / Default against SRC / 01-onboarding-step1-discover-interior-fr.png, starting with hero-image crop and CTA geometry."
+}

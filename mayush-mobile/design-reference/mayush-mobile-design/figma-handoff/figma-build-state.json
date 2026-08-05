@@ -1,0 +1,538 @@
+﻿{
+    "runId":  "mayush-mobile-figma",
+    "figmaFile":  "Mayush Mobile â€” Design System \u0026 Buyer App",
+    "figmaFileKey":  "wAdLNmlKanvI0AEPyEbrMs",
+    "figmaFileName":  "Mayush Mobile â€” Design System \u0026 Buyer App",
+    "requiredSkills":  [
+                           "figma-use",
+                           "figma-generate-design",
+                           "figma-generate-library",
+                           "figma-code-connect-components"
+                       ],
+    "activePhase":  "cover-restart",
+    "discoveredImageCount":  395,
+    "importedImageCount":  395,
+    "failedImageCount":  0,
+    "completedFolders":  [
+                             "00-foundation",
+                             "01-entry",
+                             "02-discovery",
+                             "03-product",
+                             "04-auth",
+                             "05-cart-wishlist",
+                             "06-checkout",
+                             "07-orders",
+                             "08-account",
+                             "09-support-settings",
+                             "10-system-states",
+                             "11-arabic-rtl",
+                             "assetsl"
+                         ],
+    "currentBatch":  [
+
+                     ],
+    "lastSuccessfulSourceIndex":  395,
+    "pages":  {
+
+              },
+    "sections":  {
+
+                 },
+    "sourceFrames":  {
+
+                     },
+    "archiveFrames":  {
+
+                      },
+    "editableScreens":  {
+
+                        },
+    "components":  {
+
+                   },
+    "variables":  {
+
+                  },
+    "currentPhase":  "Phase 2 â€” source archive import and validation",
+    "currentFolder":  "",
+    "currentScreen":  "00-cover-project-index",
+    "completedPages":  [
+                           {
+                               "id":  "0:1",
+                               "name":  "00 â€” Cover \u0026 Project Index"
+                           },
+                           {
+                               "id":  "4:2",
+                               "name":  "01 â€” Foundations, Components \u0026 Patterns"
+                           },
+                           {
+                               "id":  "4:3",
+                               "name":  "02 â€” Buyer App, Source Archive \u0026 Handoff"
+                           }
+                       ],
+    "completedSourceImports":  [
+                                   {
+                                       "sourcePath":  "00-foundation/00-brand-essence-color-typography-summary.png",
+                                       "sourceFrameId":  "6:3",
+                                       "metadataFrameId":  "11:2",
+                                       "metadataTextId":  "11:3",
+                                       "imageHash":  "8413f132200be74c5cb091a4f69569ad2066c70a",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "00-foundation/00-brand-moodboard-ui-kit-overview.png",
+                                       "sourceFrameId":  "12:2",
+                                       "metadataFrameId":  "12:3",
+                                       "metadataTextId":  "12:4",
+                                       "imageHash":  "2fff595808609795798bb29152d6fc167bd078b2",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "00-foundation/00-controls-form-components-icons.png",
+                                       "sourceFrameId":  "14:2",
+                                       "metadataFrameId":  "15:2",
+                                       "metadataTextId":  "15:3",
+                                       "imageHash":  "49bfd0c8d9df111910c8051577301ee3bdce51ce",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "00-foundation/00-design-system-10-section-overview.png",
+                                       "sourceFrameId":  "14:3",
+                                       "metadataFrameId":  "15:4",
+                                       "metadataTextId":  "15:5",
+                                       "imageHash":  "966758ac7ef8396f9e392e68a02c9fdaefccd27a",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "00-foundation/00-design-system-tokens-components-sheet.png",
+                                       "sourceFrameId":  "14:4",
+                                       "metadataFrameId":  "16:2",
+                                       "metadataTextId":  "16:3",
+                                       "imageHash":  "da428df731ac26b88664ce4d3d2afc717afccfab",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "00-foundation/00-full-foundation-with-screen-previews.png",
+                                       "sourceFrameId":  "14:5",
+                                       "metadataFrameId":  "16:4",
+                                       "metadataTextId":  "16:5",
+                                       "imageHash":  "b820488cc11a900708b2be43f591ae01988b313e",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "00-foundation/00-navigation-layout-component-board.png",
+                                       "sourceFrameId":  "17:2",
+                                       "metadataFrameId":  "17:5",
+                                       "metadataTextId":  "17:6",
+                                       "imageHash":  "8aa4bf423164438ae84902e240f6b5520f3c7ae9",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "00-foundation/00-product-commerce-component-board.png",
+                                       "sourceFrameId":  "17:3",
+                                       "metadataFrameId":  "17:7",
+                                       "metadataTextId":  "17:8",
+                                       "imageHash":  "9b782fc2733a32b745e1594da9907d8d14960462",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "00-foundation/00-ui-states-feedback-patterns.png",
+                                       "sourceFrameId":  "17:4",
+                                       "metadataFrameId":  "17:9",
+                                       "metadataTextId":  "17:10",
+                                       "imageHash":  "ccf8f3c73867c08cb80d3d4f183845e78718d45f",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "01-entry/01-splash-screen-logo.png",
+                                       "sourceFrameId":  "18:2",
+                                       "metadataFrameId":  "19:2",
+                                       "metadataTextId":  "19:3",
+                                       "imageHash":  "7e1ad0cad3986f4a0b31591937ed2efcc43f20d7",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "01-entry/01-language-selection-french-arabic.png",
+                                       "sourceFrameId":  "18:3",
+                                       "metadataFrameId":  "19:4",
+                                       "metadataTextId":  "19:5",
+                                       "imageHash":  "05afbbec179fb2874c29a6f29cc105648df4857f",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "01-entry/01-loading-screen-preparing-experience.png",
+                                       "sourceFrameId":  "18:4",
+                                       "metadataFrameId":  "19:6",
+                                       "metadataTextId":  "19:7",
+                                       "imageHash":  "4f9d1403ff380230530ca96568e35018a870725a",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "01-entry/01-onboarding-step1-discover-interior-fr.png",
+                                       "sourceFrameId":  "18:5",
+                                       "metadataFrameId":  "19:8",
+                                       "metadataTextId":  "19:9",
+                                       "imageHash":  "5210ddec2230b0876d05718d2485f13542fc8129",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "01-entry/01-onboarding-step1-discover-interior-ar.png",
+                                       "sourceFrameId":  "18:6",
+                                       "metadataFrameId":  "19:10",
+                                       "metadataTextId":  "19:11",
+                                       "imageHash":  "12d17228b4dc44ecb740097413072017b262a318",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "01-entry/01-onboarding-step2-choose-with-confidence-fr.png",
+                                       "sourceFrameId":  "18:7",
+                                       "metadataFrameId":  "19:12",
+                                       "metadataTextId":  "19:13",
+                                       "imageHash":  "f5b1f6e719e11fb5d368f216ec8f609073cc7e68",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "01-entry/01-onboarding-step2-choose-with-confidence-ar.png",
+                                       "sourceFrameId":  "18:8",
+                                       "metadataFrameId":  "19:14",
+                                       "metadataTextId":  "19:15",
+                                       "imageHash":  "71bd6ea0395c5f10dcea43266d3c1f86e81e2bd5",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "01-entry/01-onboarding-step3-order-simply-fr.png",
+                                       "sourceFrameId":  "18:9",
+                                       "metadataFrameId":  "19:16",
+                                       "metadataTextId":  "19:17",
+                                       "imageHash":  "95b2747248ea548691a28111bc49906d971c13b9",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   },
+                                   {
+                                       "sourcePath":  "01-entry/01-onboarding-step3-order-simply-ar.png",
+                                       "sourceFrameId":  "18:10",
+                                       "metadataFrameId":  "19:18",
+                                       "metadataTextId":  "19:19",
+                                       "imageHash":  "776a1fa967442ac7a83df9c354d1096f54a3bd8d",
+                                       "locked":  true,
+                                       "validated":  true,
+                                       "validation":  {
+                                                          "metadataChecked":  true,
+                                                          "screenshotChecked":  true,
+                                                          "validatedAt":  "2026-08-03T00:00:00Z"
+                                                      }
+                                   }
+                               ],
+    "completedEditableScreens":  [
+
+                                 ],
+    "completedComponents":  [
+
+                            ],
+    "completedVariables":  [
+                               "Mayush / Primitives (13)",
+                               "Mayush / Color (17)",
+                               "Mayush / Spacing (10)",
+                               "Mayush / Radius \u0026 Layout (12)",
+                               "Mayush / Typography (10)"
+                           ],
+    "completedPrototypeFlows":  [
+
+                                ],
+    "createdNodeIds":  {
+                           "coverPage":  "0:1",
+                           "foundationPage":  "4:2",
+                           "buyerAppPage":  "4:3",
+                           "coverFrame":  "5:2",
+                           "sourceArchiveSection":  "6:2",
+                           "foundationSourceFrame":  "6:3",
+                           "foundationSourceMetadata":  "11:2",
+                           "foundationSourceMetadataText":  "11:3",
+                           "moodboardSourceFrame":  "12:2",
+                           "moodboardSourceMetadata":  "12:3",
+                           "moodboardSourceMetadataText":  "12:4",
+                           "foundationBatch1SourceFrames":  [
+                                                                "14:2",
+                                                                "14:3",
+                                                                "14:4",
+                                                                "14:5"
+                                                            ],
+                           "controlsSourceMetadata":  "15:2",
+                           "controlsSourceMetadataText":  "15:3",
+                           "designSystemOverviewSourceMetadata":  "15:4",
+                           "designSystemOverviewSourceMetadataText":  "15:5",
+                           "designSystemTokensSourceMetadata":  "16:2",
+                           "designSystemTokensSourceMetadataText":  "16:3",
+                           "fullFoundationSourceMetadata":  "16:4",
+                           "fullFoundationSourceMetadataText":  "16:5",
+                           "foundationBatch2SourceFrames":  [
+                                                                "17:2",
+                                                                "17:3",
+                                                                "17:4"
+                                                            ],
+                           "navigationBoardSourceMetadata":  "17:5",
+                           "navigationBoardSourceMetadataText":  "17:6",
+                           "commerceBoardSourceMetadata":  "17:7",
+                           "commerceBoardSourceMetadataText":  "17:8",
+                           "uiStatesBoardSourceMetadata":  "17:9",
+                           "uiStatesBoardSourceMetadataText":  "17:10",
+                           "entrySourceFrames":  {
+                                                     "splash":  "18:2",
+                                                     "languageSelection":  "18:3",
+                                                     "loading":  "18:4",
+                                                     "onboardingStep1Fr":  "18:5",
+                                                     "onboardingStep1Ar":  "18:6",
+                                                     "onboardingStep2Fr":  "18:7",
+                                                     "onboardingStep2Ar":  "18:8",
+                                                     "onboardingStep3Fr":  "18:9",
+                                                     "onboardingStep3Ar":  "18:10"
+                                                 },
+                           "entryBatch1Metadata":  {
+                                                       "splash":  [
+                                                                      "19:2",
+                                                                      "19:3"
+                                                                  ],
+                                                       "languageSelection":  [
+                                                                                 "19:4",
+                                                                                 "19:5"
+                                                                             ],
+                                                       "loading":  [
+                                                                       "19:6",
+                                                                       "19:7"
+                                                                   ]
+                                                   },
+                           "entryBatch2Metadata":  {
+                                                       "onboardingStep1Fr":  [
+                                                                                 "19:8",
+                                                                                 "19:9"
+                                                                             ],
+                                                       "onboardingStep1Ar":  [
+                                                                                 "19:10",
+                                                                                 "19:11"
+                                                                             ],
+                                                       "onboardingStep2Fr":  [
+                                                                                 "19:12",
+                                                                                 "19:13"
+                                                                             ]
+                                                   },
+                           "entryBatch3Metadata":  {
+                                                       "onboardingStep2Ar":  [
+                                                                                 "19:14",
+                                                                                 "19:15"
+                                                                             ],
+                                                       "onboardingStep3Fr":  [
+                                                                                 "19:16",
+                                                                                 "19:17"
+                                                                             ],
+                                                       "onboardingStep3Ar":  [
+                                                                                 "19:18",
+                                                                                 "19:19"
+                                                                             ]
+                                                   },
+                           "discoveryBatch1SourceFrames":  [
+                                                               "22:2",
+                                                               "22:3",
+                                                               "22:4",
+                                                               "22:5",
+                                                               "22:6",
+                                                               "22:7",
+                                                               "22:8",
+                                                               "22:9"
+                                                           ],
+                           "discoveryBatch2SourceFrames":  [
+                                                               "23:2",
+                                                               "23:3",
+                                                               "23:4",
+                                                               "23:5",
+                                                               "23:6",
+                                                               "23:7",
+                                                               "23:8",
+                                                               "23:9"
+                                                           ],
+                           "discoveryBatch1Metadata":  {
+                                                           "categoriesAr":  [
+                                                                                "23:10",
+                                                                                "23:11"
+                                                                            ],
+                                                           "categoriesFr":  [
+                                                                                "23:12",
+                                                                                "23:13"
+                                                                            ],
+                                                           "categoryLandingAr":  [
+                                                                                     "23:14",
+                                                                                     "23:15"
+                                                                                 ]
+                                                       },
+                           "discoveryBatch2Metadata":  {
+                                                           "categoryLandingFr":  [
+                                                                                     "23:16",
+                                                                                     "23:17"
+                                                                                 ],
+                                                           "collectionSalon":  [
+                                                                                   "23:18",
+                                                                                   "23:19"
+                                                                               ],
+                                                           "filterPanel":  [
+                                                                               "23:20",
+                                                                               "23:21"
+                                                                           ]
+                                                       },
+                           "discoveryBatch3Metadata":  {
+                                                           "flashDeals":  [
+                                                                              "23:22",
+                                                                              "23:23"
+                                                                          ],
+                                                           "homeHeroFr":  [
+                                                                              "23:24",
+                                                                              "23:25"
+                                                                          ],
+                                                           "homeHeroAr":  [
+                                                                              "23:26",
+                                                                              "23:27"
+                                                                          ]
+                                                       },
+                           "discoveryBatch4Metadata":  {
+                                                           "homePersonalized":  [
+                                                                                    "23:28",
+                                                                                    "23:29"
+                                                                                ],
+                                                           "promotions":  [
+                                                                              "23:30",
+                                                                              "23:31"
+                                                                          ],
+                                                           "recentlyViewed":  [
+                                                                                  "23:32",
+                                                                                  "23:33"
+                                                                              ]
+                                                       },
+                           "discoveryBatch5Metadata":  {
+                                                           "searchNoResults":  [
+                                                                                   "23:34",
+                                                                                   "23:35"
+                                                                               ],
+                                                           "searchRecent":  [
+                                                                                "23:36",
+                                                                                "23:37"
+                                                                            ]
+                                                       }
+                       },
+    "pendingItems":  [
+                         "Import all 395 source images with exact filenames and metadata",
+                         "Create foundation documentation and reusable components",
+                         "Reconstruct editable screens and RTL mappings",
+                         "Connect buyer-flow prototypes and developer handoff"
+                     ],
+    "failedItems":  [
+                        "19-page structure rejected by Starter plan; consolidated to 3 user-approved pages",
+                        "Initial asset-upload call was rejected by a Starter-plan MCP call-limit paywall",
+                        "Figma metadata and screenshot validation for source frame 6:3 was temporarily rejected by the MCP rate limit; validation later completed successfully"
+                    ],
+    "lastSuccessfulOperation":  "final-source-archive-reconciliation",
+    "nextOperation":  "re-analyse-foundations-from-cover",
+    "stateReconciliation":  {
+                                "inventoryStatus":  "reconciled-through-source-index-42",
+                                "liveFigmaArchiveVerifiedCount":  52,
+                                "remainingPendingCount":  343
+                            }
+}

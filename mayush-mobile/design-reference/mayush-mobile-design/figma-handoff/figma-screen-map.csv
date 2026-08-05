@@ -1,0 +1,13 @@
+source_folder,feature,suggested_route,screen_type,locale_strategy,figma_page,figma_section,status
+01-entry,Entry,/entry/language,screen,FR and AR variants,02 — Buyer App\, Source Archive & Handoff,10 — Entry,Planned
+02-discovery,Discovery,/(tabs)/home,screen,FR and AR variants,02 — Buyer App\, Source Archive & Handoff,20 — Discovery,Planned
+03-product,Product,/product/[slug],screen + overlays,FR primary and AR mapping,02 — Buyer App\, Source Archive & Handoff,30 — Product,Planned
+04-auth,Authentication,/auth/login,screen + overlay,FR and AR variants,02 — Buyer App\, Source Archive & Handoff,40 — Authentication,Planned
+05-cart-wishlist,Cart & Wishlist,/(tabs)/cart,screen + dialog + sheet,FR and AR variants,02 — Buyer App\, Source Archive & Handoff,50 — Cart & Wishlist,Planned
+06-checkout,Checkout,/checkout/address,screen + terminal state,FR primary and AR mapping,02 — Buyer App\, Source Archive & Handoff,60 — Checkout,Planned
+07-orders,Orders,/orders/[id],screen + state,FR and AR variants,02 — Buyer App\, Source Archive & Handoff,70 — Orders,Planned
+08-account,Account,/(tabs)/account,screen + dialog,FR and AR variants,02 — Buyer App\, Source Archive & Handoff,80 — Account,Planned
+09-support-settings,Support & Settings,/support,screen + state,FR and AR variants,02 — Buyer App\, Source Archive & Handoff,90 — Support & Settings,Planned
+10-system-states,System,/system/offline,state,FR and AR variants,02 — Buyer App\, Source Archive & Handoff,100 — System States,Planned
+11-arabic-rtl,Arabic RTL,N/A,RTL reference,Arabic mapping source of truth,02 — Buyer App\, Source Archive & Handoff,110 — Arabic RTL,Planned
+assetsl,Assets,N/A,asset sheet,Shared,02 — Buyer App\, Source Archive & Handoff,120 — Assets,Planned
