@@ -1,0 +1,32 @@
+{
+  "screenName": "06-add-new-address-form-v2-fr",
+  "figmaNodeId": "309:681",
+  "applicationScreenKey": "add-address",
+  "implementationFile": "mayush-mobile/src/screens/checkout/AddAddressFormScreen.tsx",
+  "sourceDimensions": {
+    "width": 393,
+    "height": 852
+  },
+  "applicationDimensions": null,
+  "comparisonDate": "2026-08-06",
+  "captureMethod": {
+    "source": "Figma get_screenshot at maxDimension 852",
+    "application": null,
+    "limitation": "No compliant 393×852 application capture was available: Android SDK/device/emulator are absent, iOS cannot run on this Windows host, and the available Expo web browser surface is fixed at 1280×720 with no viewport control."
+  },
+  "correctedFiles": [],
+  "remainingDifferences": [
+    "A source frame has been recorded at 393×852; a corresponding running-app capture, side-by-side, 50% overlay, and pixel-difference image remain required.",
+    "No native visual parity status can be promoted without real Android or an approved mobile-capable capture surface."
+  ],
+  "missingAssets": [],
+  "finalStatus": "NEEDS_PIXEL_CORRECTION",
+  "evidencePaths": {
+    "figmaSource": "figma-source-393x852.png",
+    "appBefore": null,
+    "overlayBefore": null,
+    "appAfter": null,
+    "overlayAfter": null,
+    "pixelDiff": null
+  }
+}

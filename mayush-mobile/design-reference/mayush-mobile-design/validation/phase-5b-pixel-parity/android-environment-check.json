@@ -1,0 +1,18 @@
+{
+  "checkedAt": "2026-08-06",
+  "platform": "Android",
+  "status": "NATIVE_EVIDENCE_BLOCKED_BY_ENVIRONMENT",
+  "checks": {
+    "adbInPath": null,
+    "ANDROID_HOME": null,
+    "ANDROID_SDK_ROOT": null,
+    "localAppDataSdk": "C:\\Users\\benjk\\AppData\\Local\\Android\\Sdk",
+    "localAppDataSdkExists": false,
+    "platformToolsAdbExists": false,
+    "emulatorExecutableExists": false,
+    "connectedDevices": [],
+    "availableAvds": []
+  },
+  "commandEvidence": "PowerShell checked adb, ANDROID_HOME, ANDROID_SDK_ROOT, %LOCALAPPDATA%\\Android\\Sdk, platform-tools\\adb.exe, emulator\\emulator.exe, adb devices, and emulator -list-avds. No SDK, executable, device, or AVD was available.",
+  "nextRequiredAction": "Provide an Expo-compatible Android emulator or connected Android device with USB debugging enabled. Do not install SDK packages automatically."
+}

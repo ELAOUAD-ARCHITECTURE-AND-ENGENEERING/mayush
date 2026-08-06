@@ -3,19 +3,20 @@
   "guidelineLoaded": true,
   "figmaFileName": "Mayush Mobile — Design System & Buyer App",
   "figmaFileKey": "wAdLNmlKanvI0AEPyEbrMs",
-  "activeFeature": "Entry",
-  "activeSourceFilename": "01-language-selection-french-arabic.png",
-  "activeSourceFrameId": "18:3",
+  "activeFeature": "Full buyer purchase flow reconciliation",
+  "activeSourceFilename": "06-order-processing-loading-state-fr.png",
+  "activeSourceFrameId": "309:706",
   "activeEditableFrameId": "67:9",
   "pixelParityPassed": [],
   "pixelParityRenderingDifferences": [
     {
       "screen": "UI / Entry / Splash / FR / Loading",
       "status": "BLOCKED_BY_MISSING_ASSET",
-      "difference": "The decorative background is available only inside the flattened source screenshot; no isolated original asset exists in the uploaded asset set.",
+      "difference": "The Figma decorative export is a flattened complete screen, so it cannot be a runtime background. The implementation now uses a native cream/lamp/curve fallback with the shared transparent logo and live native loader; exact foliage remains unavailable. See asset-investigation.json.",
       "qaFrameId": "187:20",
       "screenshotComparison": "https://www.figma.com/api/mcp/asset/b7cabe99-484c-4438-9b2b-68260f598cdb",
-      "checkedAt": "2026-08-03T00:00:00Z"
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "assetInvestigationPath": "validation/phase-5b-pixel-parity/asset-investigation.json"
     },
     {
       "screen": "UI / Entry / Language Selection / FR + AR / Default",
@@ -25,24 +26,271 @@
       "sourcePage": "130 — Complete Source Archive",
       "sourceFrameId": "18:3",
       "screenshotComparison": "https://www.figma.com/api/mcp/asset/66d62dd9-6cc4-455b-8ba6-c532be5c1cb7",
-      "checkedAt": "2026-08-03T00:00:00Z"
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "assetInvestigationPath": "validation/phase-5b-pixel-parity/asset-investigation.json"
+    },
+    {
+      "screen": "03-product-gallery-zoom-thumbnails",
+      "figmaNodeId": "309:605",
+      "status": "BLOCKED_BY_MISSING_ASSET",
+      "difference": "The native screen is editable and uses the approved isolated Luna product artwork. The exact gallery chair photograph is only available inside the flattened source-screen image, which cannot be used as a runtime screen background under the Phase 5B rules.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "assetInvestigationPath": "validation/phase-5b-pixel-parity/asset-investigation.json"
+    },
+    {
+      "screen": "03-product-added-to-cart-confirmation",
+      "figmaNodeId": "309:611",
+      "status": "BLOCKED_BY_MISSING_ASSET",
+      "difference": "The confirmation is native and editable, including the dimmed native storefront backdrop. Its exact sofa product photograph is only present inside the flattened source-screen image; no isolated approved source for that exact image is available.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "assetInvestigationPath": "validation/phase-5b-pixel-parity/asset-investigation.json"
+    },
+    {
+      "screen": "05-cart-items-promo-code-summary-fr",
+      "figmaNodeId": "309:658",
+      "status": "BLOCKED_BY_MISSING_ASSET",
+      "difference": "The Cart is native and cart-backed. The exact reference products are only available inside the flattened screen reference; the approved isolated product artwork is used instead.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "assetInvestigationPath": "validation/phase-5b-pixel-parity/asset-investigation.json"
+    },
+    {
+      "screen": "06-checkout-summary-4step-overview-v2-fr",
+      "figmaNodeId": "309:679",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Figma source was captured at 393×852. The live Expo screen was reached through the cart flow, but the available browser host is fixed at 1280×720 and exposes no viewport control, so an honest 393×852 overlay is blocked. At the host size, the fixture's three vendor groups/three product lines differ from the persisted live cart. See the Phase 5B result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-checkout-summary-4step-overview-v2-fr/result.json"
+    },
+    {
+      "screen": "06-choose-address-saved-list-v2-fr",
+      "figmaNodeId": "309:680",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-choose-address-saved-list-v2-fr/result.json"
+    },
+    {
+      "screen": "06-choose-delivery-standard-express-relay-v2-fr",
+      "figmaNodeId": "309:687",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-choose-delivery-standard-express-relay-v2-fr/result.json"
+    },
+    {
+      "screen": "06-choose-payment-cmi-cod-wallet-v2-fr",
+      "figmaNodeId": "309:690",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-choose-payment-cmi-cod-wallet-v2-fr/result.json"
+    },
+    {
+      "screen": "06-payment-confirmed-success-v2-fr",
+      "figmaNodeId": "309:698",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-payment-confirmed-success-v2-fr/result.json"
+    },
+    {
+      "screen": "06-order-thank-you-confirmation-summary-v2-fr",
+      "figmaNodeId": "309:705",
+      "status": "BLOCKED_BY_MISSING_ASSET",
+      "difference": "Native thank-you state is implemented. Its exact reference product imagery is only inside the flattened screen source; approved isolated product artwork is used instead.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "assetInvestigationPath": "validation/phase-5b-pixel-parity/asset-investigation.json"
+    },
+    {
+      "screen": "07-orders-list-all-tabs-fr",
+      "figmaNodeId": "309:712",
+      "status": "BLOCKED_BY_MISSING_ASSET",
+      "difference": "Native orders list is implemented and refreshes from checkout state. Its exact reference product imagery is only inside the flattened screen source; approved isolated product artwork is used instead.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "assetInvestigationPath": "validation/phase-5b-pixel-parity/asset-investigation.json"
+    },
+    {
+      "screen": "07-order-detail-in-preparation-timeline-fr",
+      "figmaNodeId": "309:716",
+      "status": "BLOCKED_BY_MISSING_ASSET",
+      "difference": "Native order details and back route are implemented. Its exact reference product imagery is only inside the flattened screen source; approved isolated product artwork is used instead.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "assetInvestigationPath": "validation/phase-5b-pixel-parity/asset-investigation.json"
+    },
+    {
+      "screen": "04-welcome-sign-in-create-account-guest-fr",
+      "figmaNodeId": "309:613",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/04-welcome-sign-in-create-account-guest-fr/result.json"
+    },
+    {
+      "screen": "06-add-new-address-form-v2-fr",
+      "figmaNodeId": "309:681",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-add-new-address-form-v2-fr/result.json"
+    },
+    {
+      "screen": "06-add-address-validation-errors-fr",
+      "figmaNodeId": "309:682",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-add-address-validation-errors-fr/result.json"
+    },
+    {
+      "screen": "06-payment-step-intro-step3-v2-fr",
+      "figmaNodeId": "309:693",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-payment-step-intro-step3-v2-fr/result.json"
+    },
+    {
+      "screen": "06-secure-payment-redirect-v2-fr",
+      "figmaNodeId": "309:694",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-secure-payment-redirect-v2-fr/result.json"
+    },
+    {
+      "screen": "06-secure-payment-redirect-loading-fr",
+      "figmaNodeId": "309:695",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-secure-payment-redirect-loading-fr/result.json"
+    },
+    {
+      "screen": "06-payment-verification-processing-fr",
+      "figmaNodeId": "309:696",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-payment-verification-processing-fr/result.json"
+    },
+    {
+      "screen": "06-cash-on-delivery-confirmation-fr",
+      "figmaNodeId": "309:697",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-cash-on-delivery-confirmation-fr/result.json"
+    },
+    {
+      "screen": "06-payment-failed-retry-fr",
+      "figmaNodeId": "309:699",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-payment-failed-retry-fr/result.json"
+    },
+    {
+      "screen": "06-payment-cancelled-resume-fr",
+      "figmaNodeId": "309:700",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-payment-cancelled-resume-fr/result.json"
+    },
+    {
+      "screen": "06-order-review-confirm-multi-vendor-v2-fr",
+      "figmaNodeId": "309:703",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-order-review-confirm-multi-vendor-v2-fr/result.json"
+    },
+    {
+      "screen": "06-order-processing-loading-state-fr",
+      "figmaNodeId": "309:706",
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "difference": "Exact Figma source capture is recorded at 393×852. A compliant native or 393×852 web application capture is not available in this environment: Android is absent, iOS is unavailable on Windows, and the browser host is fixed at 1280×720. Overlay and pixel-difference evidence remain required; see result.json.",
+      "checkedAt": "2026-08-06T00:00:00Z",
+      "evidencePath": "validation/phase-5b-pixel-parity/06-order-processing-loading-state-fr/result.json"
     }
   ],
-  "screensNeedingCorrection": [],
+  "screensNeedingCorrection": [
+    "06-checkout-summary-4step-overview-v2-fr",
+    "06-choose-address-saved-list-v2-fr",
+    "06-choose-delivery-standard-express-relay-v2-fr",
+    "06-choose-payment-cmi-cod-wallet-v2-fr",
+    "06-payment-confirmed-success-v2-fr",
+    "04-welcome-sign-in-create-account-guest-fr",
+    "06-add-new-address-form-v2-fr",
+    "06-add-address-validation-errors-fr",
+    "06-payment-step-intro-step3-v2-fr",
+    "06-secure-payment-redirect-v2-fr",
+    "06-secure-payment-redirect-loading-fr",
+    "06-payment-verification-processing-fr",
+    "06-cash-on-delivery-confirmation-fr",
+    "06-payment-failed-retry-fr",
+    "06-payment-cancelled-resume-fr",
+    "06-order-review-confirm-multi-vendor-v2-fr",
+    "06-order-processing-loading-state-fr"
+  ],
   "screensBlockedByMissingAsset": [
     "UI / Entry / Splash / FR / Loading",
-    "UI / Entry / Language Selection / FR + AR / Default"
+    "UI / Entry / Language Selection / FR + AR / Default",
+    "03-product-gallery-zoom-thumbnails",
+    "03-product-added-to-cart-confirmation",
+    "05-cart-items-promo-code-summary-fr",
+    "06-order-thank-you-confirmation-summary-v2-fr",
+    "07-orders-list-all-tabs-fr",
+    "07-order-detail-in-preparation-timeline-fr"
   ],
   "lastOverlayComparison": "QA / Entry / Language Selection / Overlay Comparison (197:147)",
   "lastScreenshotComparison": "https://www.figma.com/api/mcp/asset/66d62dd9-6cc4-455b-8ba6-c532be5c1cb7",
-  "lastSuccessfulOperation": "Retried language selection against the authoritative 130 — Complete Source Archive frame 18:3, corrected width/position geometry, refreshed the locked overlay, and captured the result",
+  "lastSuccessfulOperation": "Implemented native checkout restoration plus the Add Address, order review, secure-payment, verification, cash-on-delivery, cancellation, and payment-failure prototype branches.",
   "measurement": {
-    "sourceDimensions": "N/A — project cover checkpoint",
-    "editableDimensions": "393x852",
-    "scaleFactorFromSourceWidth": 0.4176,
-    "restartPoint": "00 — Cover & Project Index",
-    "completedPhase": "02 — Components",
-    "nextGate": "Entry / Onboarding 01"
+    "sourceDimensions": "393×852 Figma source frame",
+    "applicationDimensions": "Not yet captured at compliant 393×852 viewport",
+    "scaleFactorFromSourceWidth": 1,
+    "comparisonMethod": "Figma source capture, application capture, 50% opacity overlay, and pixel difference when available",
+    "historicalCheckpoint": "Historical Phase 5A measurements retained in comparison entries; stale cover/components/onboarding gates removed."
   },
-  "nextOperation": "Correct UI / Entry / Onboarding 01 / FR / Default against SRC / 01-onboarding-step1-discover-interior-fr.png, starting with hero-image crop and CTA geometry."
+  "nextOperation": "Provision or connect an Expo-compatible Android device/emulator (or an approved 393×852 mobile-capable web capture surface), then capture the running app and create overlays/diffs sequentially for the 17 scoped frames.",
+  "currentPhase": "Phase 5B — Buyer Purchase Flow Validation",
+  "completion": {
+    "fullPrototypeStatus": {
+      "status": "NOT_COMPLETE_OUT_OF_SCOPE_FOR_PHASE_5B",
+      "detail": "206 prototype screens exist; 170 complete-app screens are intentionally outside the scoped Buyer MVP completion gate."
+    },
+    "buyerMvpFunctionalStatus": {
+      "status": "FUNCTIONAL_PASS_WEB_VALIDATED",
+      "detail": "The native custom RootNavigator buyer path reaches Order Details and the existing 77 automated tests passed at the verified baseline."
+    },
+    "buyerMvpVisualStatus": {
+      "status": "NEEDS_PIXEL_CORRECTION",
+      "detail": "The 17 scoped purchase-flow frames require fresh 393×852 capture and overlay evidence before visual completion can be claimed."
+    },
+    "androidEvidenceStatus": {
+      "status": "NATIVE_EVIDENCE_BLOCKED_BY_ENVIRONMENT",
+      "detail": "adb is not in PATH; ANDROID_HOME and ANDROID_SDK_ROOT are unset; %LOCALAPPDATA%\\Android\\Sdk, platform-tools\\adb.exe, and emulator\\emulator.exe do not exist; no device or AVD is available.",
+      "evidencePath": "validation/phase-5b-pixel-parity/android-environment-check.json"
+    },
+    "iosEvidenceStatus": {
+      "status": "NATIVE_EVIDENCE_BLOCKED_BY_ENVIRONMENT",
+      "detail": "The validation host is Windows. iOS requires macOS/Xcode Simulator or an approved physical-device workflow.",
+      "evidencePath": "validation/phase-5b-pixel-parity/ios-validation-checklist.md"
+    }
+  },
+  "assetInvestigation": {
+    "status": "COMPLETED",
+    "evidencePath": "validation/phase-5b-pixel-parity/asset-investigation.json",
+    "finding": "All eight inspected Figma product/order references resolve to flattened screen exports or contain non-isolated visual artwork. No replacement artwork was generated or adopted."
+  },
+  "captureInventory": {
+    "requiredSourceFrames": 17,
+    "sourceFramesCapturedAt393x852": 17,
+    "compliantApplicationCapturesAt393x852": 0,
+    "sideBySideComparisons": 0,
+    "opacityOverlays": 0,
+    "pixelDifferenceImages": 0,
+    "exception": "One live checkout-summary browser capture was retained at 1280×720 as functional evidence only; it is not used as a parity overlay."
+  }
 }

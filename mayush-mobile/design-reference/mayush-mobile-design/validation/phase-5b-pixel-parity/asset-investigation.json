@@ -1,0 +1,121 @@
++{
+  "phase": "Phase 5B — Buyer Purchase Flow Validation",
+  "checkedAt": "2026-08-06",
+  "localSearchesPerformed": [
+    "rg --files mayush-mobile | rg -i '(splash|language|gallery|thumbnail|luna|sofa|cart|thank|order|preparation|nori|kyoto|product|chair|canap)'",
+    "Get-ChildItem -Recurse -File mayush-mobile/assets",
+    "rg --files C:\\laragon\\www\\mayush | rg -i '(product-sofa-dune|product-table-noya|product-chair-luna|product-coffee-table-orbit|product-pendant-lune|product-cushion|velvet|tiznit|laaroussa|ouarain)'"
+  ],
+  "findings": [
+    {
+      "screen": "UI / Entry / Splash / FR / Loading",
+      "sourceNode": "187:20",
+      "figmaDescendantInspection": "Figma supplies the immutable logo component and loading-dot SVGs, but the decorative crop f62ab4ce-8d6b-4206-bee2-41dece5e007f.png visually contains the whole splash UI: logo, text, loader, lamp, foliage, and curves.",
+      "localCandidatesInspected": [
+        "assets/brand/logo-transparent.png",
+        "assets/splash-icon.png",
+        "design-reference/.../01-entry/01-splash-screen-logo.png"
+      ],
+      "validIsolatedAssetFound": false,
+      "missingElement": "Exact foliage and decorative background composition without embedded interface content.",
+      "approvedFallback": "Native cream field, native lamp/curves, shared transparent logo, and live native dot loader in src/screens/entry/SplashScreen.tsx.",
+      "geometryCanPassIndependentlyOfImageDifference": true
+    },
+    {
+      "screen": "UI / Entry / Language Selection / FR + AR / Default",
+      "sourceNode": "18:3",
+      "figmaDescendantInspection": "The node is one full-screen image a4c2ca1a-487b-42cb-9824-4daed835b0e3.png with interior photography, vase, lamp, logos, labels, flags, and controls baked together.",
+      "localCandidatesInspected": [
+        "assets/brand/logo-transparent.png",
+        "assets/reference-art/*",
+        "design-reference/.../01-entry/01-language-selection-french-arabic.png"
+      ],
+      "validIsolatedAssetFound": false,
+      "missingElement": "Left-side interior/vase photography and exact Arabic-language emblem.",
+      "approvedFallback": "Editable native language screen with the shared logo and native controls in src/screens/entry/LanguageSelectionScreen.tsx.",
+      "geometryCanPassIndependentlyOfImageDifference": true
+    },
+    {
+      "screen": "03-product-gallery-zoom-thumbnails",
+      "sourceNode": "309:605",
+      "figmaDescendantInspection": "The Figma node resolves to a single full-screen PNG 117250d6-c642-43fd-b5aa-e63fbd84ba7a.png.",
+      "localCandidatesInspected": [
+        "assets/reference-art/home-new-luna.png",
+        "design-reference/.../assetsl/12-product-reference-images.png"
+      ],
+      "validIsolatedAssetFound": false,
+      "missingElement": "Exact gallery chair photograph and thumbnails.",
+      "approvedFallback": "Approved isolated Luna artwork in src/screens/product/ProductGalleryScreen.tsx.",
+      "geometryCanPassIndependentlyOfImageDifference": true
+    },
+    {
+      "screen": "03-product-added-to-cart-confirmation",
+      "sourceNode": "309:611",
+      "figmaDescendantInspection": "The Figma node resolves to a single full-screen PNG 814333cd-cc50-4dd9-b148-fbb7ecbd0463.png.",
+      "localCandidatesInspected": [
+        "assets/reference-art/home-new-luna.png",
+        "assets/reference-art/home-best-solis.png"
+      ],
+      "validIsolatedAssetFound": false,
+      "missingElement": "Exact reference sofa photograph.",
+      "approvedFallback": "Native confirmation with the cart's isolated product artwork in src/screens/commerce/AddedToCartConfirmationScreen.tsx.",
+      "geometryCanPassIndependentlyOfImageDifference": true
+    },
+    {
+      "screen": "05-cart-items-promo-code-summary-fr",
+      "sourceNode": "309:658",
+      "figmaDescendantInspection": "The Figma node resolves to a single full-screen PNG 53823547-2d97-4f93-8acd-8c5cf7037e31.png.",
+      "localCandidatesInspected": [
+        "assets/reference-art/home-new-luna.png",
+        "assets/reference-art/home-new-nori.png",
+        "assets/reference-art/home-new-kyoto.png"
+      ],
+      "validIsolatedAssetFound": false,
+      "missingElement": "Exact reference product-image set.",
+      "approvedFallback": "Native, persistent cart using isolated project artwork in src/screens/commerce/CartScreen.tsx.",
+      "geometryCanPassIndependentlyOfImageDifference": true
+    },
+    {
+      "screen": "06-order-thank-you-confirmation-summary-v2-fr",
+      "sourceNode": "309:705",
+      "figmaDescendantInspection": "The Figma node resolves to a single full-screen PNG eebba3aa-252a-42ae-b3d4-7e23fab3a195.png.",
+      "localCandidatesInspected": [
+        "assets/reference-art/home-new-luna.png",
+        "assets/reference-art/home-new-nori.png",
+        "assets/reference-art/home-new-kyoto.png"
+      ],
+      "validIsolatedAssetFound": false,
+      "missingElement": "Exact confirmation product imagery.",
+      "approvedFallback": "Native order summary driven by PrototypeOrder in src/screens/orders/OrderThankYouScreen.tsx.",
+      "geometryCanPassIndependentlyOfImageDifference": true
+    },
+    {
+      "screen": "07-orders-list-all-tabs-fr",
+      "sourceNode": "309:712",
+      "figmaDescendantInspection": "The Figma node resolves to a single full-screen PNG 44a29347-1c94-45ba-aed0-0a31ac634516.png.",
+      "localCandidatesInspected": [
+        "assets/reference-art/home-new-luna.png",
+        "assets/reference-art/home-new-nori.png",
+        "assets/reference-art/home-new-kyoto.png"
+      ],
+      "validIsolatedAssetFound": false,
+      "missingElement": "Exact order thumbnail set.",
+      "approvedFallback": "Native refreshed order list driven by PrototypeOrder in src/screens/orders/OrdersListScreen.tsx.",
+      "geometryCanPassIndependentlyOfImageDifference": true
+    },
+    {
+      "screen": "07-order-detail-in-preparation-timeline-fr",
+      "sourceNode": "309:716",
+      "figmaDescendantInspection": "The Figma node resolves to a single full-screen PNG 3cbb1691-edd6-4fcb-b07b-26826888db4f.png.",
+      "localCandidatesInspected": [
+        "assets/reference-art/home-new-luna.png",
+        "assets/reference-art/home-new-nori.png",
+        "assets/reference-art/home-new-kyoto.png"
+      ],
+      "validIsolatedAssetFound": false,
+      "missingElement": "Exact order-detail product thumbnail set.",
+      "approvedFallback": "Native order details driven by PrototypeOrder in src/screens/orders/OrderDetailsScreen.tsx.",
+      "geometryCanPassIndependentlyOfImageDifference": true
+    }
+  ]
+}

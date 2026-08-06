@@ -15,12 +15,13 @@ export interface ProductDetailsScreenProps {
   productId?: number;
   initialProduct?: ProductMiniDto;
   onBack?: () => void;
+  onOpenGallery?: () => void;
   onOpenVariantSheet?: (product: ProductDetailDto) => void;
   onNavigateTab?: (tab: TabKey) => void;
   activeTab?: TabKey;
 }
 
-export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({ productId = 1, initialProduct, onBack, onOpenVariantSheet, onNavigateTab, activeTab = 'home' }) => {
+export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({ productId = 1, initialProduct, onBack, onOpenGallery, onOpenVariantSheet, onNavigateTab, activeTab = 'home' }) => {
   const { language, isRTL } = useTheme();
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState<ProductDetailDto | null>(null);
@@ -59,7 +60,7 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({ prod
             {imageItems.map((url, index) => <Image key={`${url}-${index}`} source={{ uri: url }} style={styles.galleryImage} resizeMode="cover" />)}
           </ScrollView>
           {product?.has_discount || initialProduct?.has_discount ? <View style={styles.discount}><MayushText variant="strongBody" color={colors.surface.white}>{product?.discount || initialProduct?.discount || '-15%'}</MayushText></View> : null}
-          <View style={styles.imageCount}><MayushText variant="body" color={colors.surface.white}>{activeImage + 1} / {Math.max(imageItems.length, 6)}</MayushText></View>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Ouvrir la galerie produit', '\u0641\u062a\u062d \u0645\u0639\u0631\u0636 \u0627\u0644\u0645\u0646\u062a\u062c')} onPress={onOpenGallery} style={styles.imageCount}><MayushText variant="body" color={colors.surface.white}>{activeImage + 1} / {Math.max(imageItems.length, 6)}</MayushText></TouchableOpacity>
           <View style={styles.galleryDots}>{imageItems.slice(0, 6).map((_, index) => <View key={index} style={[styles.dot, index === activeImage && styles.dotActive]} />)}</View>
         </View>
 
