@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { formatMadPrice } from '../../commerce/cartState';
-import { PrototypeOrder } from '../../commerce/orderState';
+import { getPaymentStatusLabel, PrototypeOrder } from '../../commerce/orderState';
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
@@ -10,9 +10,10 @@ import { colors } from '../../design-system/tokens/colors';
 
 export const PaymentSuccessScreen: React.FC<{ order: PrototypeOrder; onNext: () => void; onContinueShopping: () => void }> = ({ order, onNext, onContinueShopping }) => {
   const { language } = useTheme();
+  const paymentConfirmed = order.paymentStatus === 'confirmed';
   const copy = language === 'ar'
     ? { title: '\u062a\u0645 \u062a\u0623\u0643\u064a\u062f \u0627\u0644\u062f\u0641\u0639', body: '\u0634\u0643\u0631\u0627\u064b \u0644\u062b\u0642\u062a\u0643!\n\u062a\u0645 \u062a\u0633\u062c\u064a\u0644 \u0637\u0644\u0628\u0643 \u0628\u0646\u062c\u0627\u062d.', amount: '\u0627\u0644\u0645\u0628\u0644\u063a \u0627\u0644\u0645\u062f\u0641\u0648\u0639', number: '\u0631\u0642\u0645 \u0627\u0644\u0637\u0644\u0628', reference: '\u0645\u0631\u062c\u0639 \u0627\u0644\u062f\u0641\u0639', view: '\u0639\u0631\u0636 \u0627\u0644\u0637\u0644\u0628', continue: '\u0645\u062a\u0627\u0628\u0639\u0629 \u0627\u0644\u062a\u0633\u0648\u0642' }
-    : { title: 'Paiement confirmé', body: 'Merci pour votre confiance !\nVotre commande a été reçue avec succès.', amount: 'Montant payé', number: 'Numéro de commande', reference: 'Référence de paiement', view: 'Voir la commande', continue: 'Continuer mes achats' };
+    : { title: paymentConfirmed ? 'Paiement confirmé' : 'Commande enregistrée', body: paymentConfirmed ? 'Merci pour votre confiance !\nVotre paiement a été confirmé.' : `Votre commande a été enregistrée.\n${getPaymentStatusLabel(order.paymentStatus)}.`, amount: paymentConfirmed ? 'Montant payé' : 'Total de la commande', number: 'Numéro de commande', reference: 'Référence de paiement', view: 'Voir la commande', continue: 'Continuer mes achats' };
   return <View style={styles.screen} accessibilityLabel={copy.title}><MayushLogo width={203} height={60} style={styles.logo} /><View style={styles.successCircle}><MayushIcon name="check" size={72} color={colors.brand.orange500} strokeWidth={2.2} /></View><MayushText variant="pageTitle" color={colors.brand.navy900} align="center" style={styles.title}>{copy.title}</MayushText><MayushText variant="body" color={colors.neutral.gray700} align="center" style={styles.body}>{copy.body}</MayushText><View style={styles.infoCard}><Info icon="shopping-bag" label={copy.amount} value={formatMadPrice(order.totalMad)} /><View style={styles.rule} /><Info icon="clipboard" label={copy.number} value={order.id} /><View style={styles.rule} /><Info icon="shield" label={copy.reference} value={order.paymentReference} /></View><TouchableOpacity accessibilityRole="button" onPress={onNext} style={styles.primary}><MayushText variant="button" color={colors.surface.white}>{copy.view}</MayushText><MayushIcon name="arrow-right" size={21} color={colors.surface.white} /></TouchableOpacity><TouchableOpacity accessibilityRole="button" onPress={onContinueShopping} style={styles.secondary}><MayushText variant="button" color={colors.brand.orange500}>{copy.continue}</MayushText><MayushIcon name="arrow-right" size={21} color={colors.brand.orange500} /></TouchableOpacity><View style={styles.secure}><MayushIcon name="shield" size={15} color={colors.brand.orange500} /><MayushText variant="caption" color={colors.neutral.gray700}>{language === 'ar' ? '\u062f\u0641\u0639 \u0622\u0645\u0646 \u0648\u0645\u062d\u0645\u064a 100%' : 'Paiement sécurisé et 100% protégé'}</MayushText></View></View>;
 };
 

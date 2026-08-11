@@ -1,75 +1,323 @@
-import React from 'react';
-import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+/**
+ * WishlistScreen (Figma Nodes 309:670 - 309:675)
+ * Dual-state wishlist supporting populated grid, price drop alerts, out-of-stock alternatives,
+ * remove confirmation dialog, move-to-cart variant selection, and empty state.
+ */
+
+import React, { useState } from 'react';
+import {
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { ProductMiniDto } from '../../contracts/api/dto';
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
 import { BottomTabBar, TabKey } from '../../design-system/components/navigation/BottomTabBar';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
+import { radii } from '../../design-system/tokens/radii';
 
-const RECOMMENDATIONS = [
-  { name: 'Canap\u00e9s', count: '23 produits', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=350&auto=format&fit=crop' },
-  { name: '\u00c9tables \u00e0 manger', count: '18 produits', image: 'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?q=80&w=350&auto=format&fit=crop' },
-  { name: 'Buffets & rangements', count: '21 produits', image: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?q=80&w=350&auto=format&fit=crop' },
-  { name: 'Fauteuils', count: '16 produits', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=350&auto=format&fit=crop' },
-];
-const WISHLIST_ARTWORK = require('../../../assets/illustrations/wishlist-empty-scene.png');
+const CANAPE_IMG = require('../../../assets/reference-art/home-new-luna.png');
+const FAUTEUIL_IMG = require('../../../assets/reference-art/home-new-nori.png');
+const WISHLIST_EMPTY_ARTWORK = require('../../../assets/illustrations/wishlist-empty-scene.png');
 
 export interface WishlistScreenProps {
   onNavigateTab?: (tab: TabKey) => void;
   onBrowseCollections?: () => void;
+  onSelectProduct?: (product: ProductMiniDto) => void;
+  onMoveToCart?: (product: ProductMiniDto) => void;
 }
 
-export const WishlistScreen: React.FC<WishlistScreenProps> = ({ onNavigateTab, onBrowseCollections }) => {
-  const { isRTL, language } = useTheme();
+export const WishlistScreen: React.FC<WishlistScreenProps> = ({
+  onNavigateTab,
+  onBrowseCollections,
+  onSelectProduct,
+  onMoveToCart,
+}) => {
+  const { language } = useTheme();
+
+  const [wishlistItems, setWishlistItems] = useState<(ProductMiniDto & { inStock: boolean; oldPriceMad?: number })[]>([
+    { id: 701, name: 'Fauteuil Nori Accent · Vert Sauge', priceMad: 1500, oldPriceMad: 1800, formattedPrice: '1 500 MAD', inStock: true, thumbnail_image: '', has_discount: true, discount: '-17%', stroked_price: '1 800 MAD', main_price: '1 500 MAD', rating: 5, sales: 12, links: { details: '' } },
+    { id: 702, name: 'Canapé Luna 3 Places · Bouclé', priceMad: 4500, formattedPrice: '4 500 MAD', inStock: true, thumbnail_image: '', has_discount: false, discount: null, stroked_price: '4 500 MAD', main_price: '4 500 MAD', rating: 5, sales: 8, links: { details: '' } },
+    { id: 703, name: 'Table Basse Oval Plâtre', priceMad: 2200, formattedPrice: '2 200 MAD', inStock: false, thumbnail_image: '', has_discount: false, discount: null, stroked_price: '2 200 MAD', main_price: '2 200 MAD', rating: 5, sales: 5, links: { details: '' } },
+  ]);
+
+  const [itemToRemove, setItemToRemove] = useState<number | null>(null);
+  const [altModalVisible, setAltModalVisible] = useState(false);
+
+  const handleRemoveConfirm = () => {
+    if (itemToRemove !== null) {
+      setWishlistItems((prev) => prev.filter((i) => i.id !== itemToRemove));
+      setItemToRemove(null);
+    }
+  };
+
   const copy = language === 'ar'
-    ? { title: '\u0645\u0641\u0636\u0644\u062a\u064a', empty: '\u0642\u0627\u0626\u0645\u0629 \u0631\u063a\u0628\u0627\u062a\u0643 \u0641\u0627\u0631\u063a\u0629', body: '\u0627\u062d\u0641\u0638 \u0627\u0644\u0623\u062b\u0627\u062b \u0648\u0627\u0644\u062f\u064a\u0643\u0648\u0631 \u0627\u0644\u0630\u064a \u062a\u062d\u0628\u0647 \u0644\u062a\u062c\u062f\u0647 \u0647\u0646\u0627.', cta: '\u0627\u0643\u062a\u0634\u0641 \u0627\u0644\u0645\u062c\u0645\u0648\u0639\u0627\u062a', section: '\u0627\u0643\u062a\u0634\u0641 \u0627\u062e\u062a\u064a\u0627\u0631\u0627\u062a\u0646\u0627', all: '\u0639\u0631\u0636 \u0627\u0644\u0643\u0644' }
-    : { title: 'Mes favoris', empty: 'Votre liste d\u2019envies est vide', body: 'Enregistrez vos meubles et d\u00e9corations pr\u00e9f\u00e9r\u00e9s\npour les retrouver facilement ici.', cta: 'D\u00e9couvrir les collections', section: 'D\u00e9couvrez nos s\u00e9lections', all: 'Voir tout' };
+    ? { title: 'مفضلتي', empty: 'قائمة رغباتك فارغة', body: 'احفظ الأثاث والديكور الذي تحبه لتجده هنا.', cta: 'اكتشف المجموعات' }
+    : { title: 'Mes favoris', empty: 'Votre liste d’envies est vide', body: 'Enregistrez vos meubles et décorations préférés pour les retrouver ici.', cta: 'Découvrir les collections' };
 
   return (
     <View style={styles.screen} accessibilityLabel={copy.title}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        <View style={[styles.header, isRTL && styles.rowReverse]}>
-          <MayushLogo width={145} height={43} />
-          <View style={[styles.headerActions, isRTL && styles.rowReverse]}>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel={copy.cta} onPress={onBrowseCollections} style={styles.iconButton}><MayushIcon name="search" size={25} color={colors.brand.navy900} /></TouchableOpacity>
-            <View style={styles.iconButton}><MayushIcon name="bell" size={25} color={colors.brand.navy900} /></View>
+      <View style={styles.header}>
+        <MayushLogo width={132} height={39} />
+        <MayushText variant="sectionTitle" color={colors.brand.navy900} style={styles.headerTitle}>
+          {copy.title} ({wishlistItems.length})
+        </MayushText>
+        <TouchableOpacity accessibilityRole="button" onPress={onBrowseCollections} style={styles.iconBtn}>
+          <MayushIcon name="search" size={22} color={colors.brand.navy900} />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {wishlistItems.some((i) => i.oldPriceMad) ? (
+          <View style={styles.priceDropBanner}>
+            <MayushIcon name="trending-down" size={20} color={colors.semantic.error} />
+            <View style={styles.bannerTextCol}>
+              <MayushText variant="strongBody" color={colors.brand.navy900}>
+                {language === 'ar' ? 'انخفاض في السعر!' : 'Baisse de prix détectée !'}
+              </MayushText>
+              <MayushText variant="caption" color={colors.neutral.gray700}>
+                {language === 'ar' ? 'وفر 300 درهم على كرسي نوري الأخضر' : 'Économisez 300 MAD sur Fauteuil Nori Accent'}
+              </MayushText>
+            </View>
+          </View>
+        ) : null}
+
+        {wishlistItems.length > 0 ? (
+          <View style={styles.grid}>
+            {wishlistItems.map((item) => (
+              <View key={item.id} style={styles.card}>
+                <TouchableOpacity onPress={() => onSelectProduct?.(item)} style={styles.imgBox}>
+                  <Image source={item.id % 2 === 1 ? FAUTEUIL_IMG : CANAPE_IMG} style={styles.productImg} resizeMode="cover" />
+                  <TouchableOpacity style={styles.removeBtn} onPress={() => setItemToRemove(item.id)}>
+                    <MayushIcon name="x" size={16} color={colors.brand.navy900} />
+                  </TouchableOpacity>
+                  {!item.inStock ? (
+                    <View style={styles.outOfStockBadge}>
+                      <MayushText variant="caption" color={colors.surface.white} style={styles.badgeText}>
+                        Rupture
+                      </MayushText>
+                    </View>
+                  ) : null}
+                </TouchableOpacity>
+
+                <View style={styles.cardBody}>
+                  <MayushText variant="strongBody" color={colors.brand.navy900} numberOfLines={1}>
+                    {item.name}
+                  </MayushText>
+                  <View style={styles.priceRow}>
+                    <MayushText variant="priceRegular" color={colors.brand.orange500}>
+                      {item.formattedPrice}
+                    </MayushText>
+                    {item.oldPriceMad ? (
+                      <MayushText variant="caption" color={colors.neutral.gray500} style={styles.oldPrice}>
+                        {item.oldPriceMad} MAD
+                      </MayushText>
+                    ) : null}
+                  </View>
+
+                  {item.inStock ? (
+                    <TouchableOpacity style={styles.moveCartBtn} onPress={() => onMoveToCart?.(item)}>
+                      <MayushIcon name="shopping-bag" size={14} color={colors.surface.white} />
+                      <MayushText variant="caption" color={colors.surface.white} style={styles.moveCartText}>
+                        {language === 'ar' ? 'إضافة للسلة' : 'Ajouter au panier'}
+                      </MayushText>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity style={styles.altBtn} onPress={() => setAltModalVisible(true)}>
+                      <MayushText variant="caption" color={colors.brand.orange500}>
+                        {language === 'ar' ? 'بدائل مشابهة' : 'Voir les alternatives'}
+                      </MayushText>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View style={styles.emptyCard}>
+            <Image source={WISHLIST_EMPTY_ARTWORK} style={styles.emptyImg} resizeMode="contain" />
+            <MayushText variant="pageTitle" color={colors.brand.navy900} align="center" style={styles.emptyTitle}>
+              {copy.empty}
+            </MayushText>
+            <MayushText variant="body" color={colors.neutral.gray700} align="center" style={styles.emptyCopy}>
+              {copy.body}
+            </MayushText>
+            <TouchableOpacity style={styles.browseBtn} onPress={onBrowseCollections}>
+              <MayushText variant="button" color={colors.surface.white}>
+                {copy.cta}
+              </MayushText>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Remove Confirmation Dialog (Node 309:674) */}
+      <Modal visible={itemToRemove !== null} transparent animationType="fade" onRequestClose={() => setItemToRemove(null)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.dialogCard}>
+            <MayushText variant="sectionTitle" color={colors.brand.navy900} align="center">
+              Retirer des favoris ?
+            </MayushText>
+            <MayushText variant="smallBody" color={colors.neutral.gray700} align="center" style={styles.dialogCopy}>
+              Voulez-vous vraiment retirer cet article de votre liste de favoris ?
+            </MayushText>
+            <View style={styles.dialogActions}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => setItemToRemove(null)}>
+                <MayushText variant="strongBody" color={colors.brand.navy900}>
+                  Annuler
+                </MayushText>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.confirmBtn} onPress={handleRemoveConfirm}>
+                <MayushText variant="strongBody" color={colors.surface.white}>
+                  Retirer
+                </MayushText>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-        <MayushText variant="display" color={colors.brand.navy900} style={[styles.pageTitle, isRTL && styles.rtlText]}>{copy.title}</MayushText>
+      </Modal>
 
-        <View pointerEvents="none" style={styles.emptyBlock}><Image source={WISHLIST_ARTWORK} resizeMode="contain" style={styles.referenceArtwork} /></View>
-        <MayushText variant="pageTitle" color={colors.brand.navy900} align="center" style={[styles.emptyTitle, isRTL && styles.rtlText]}>{copy.empty}</MayushText>
-        <MayushText variant="body" color={colors.neutral.gray700} align="center" style={[styles.emptyCopy, isRTL && styles.rtlText]}>{copy.body}</MayushText>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={copy.cta} activeOpacity={0.84} onPress={onBrowseCollections} style={styles.primaryButton}>
-          <MayushText variant="button" color={colors.surface.white} style={styles.primaryLabel}>{copy.cta}</MayushText>
-          <MayushIcon name={isRTL ? 'arrow-left' : 'arrow-right'} size={25} color={colors.surface.white} />
-        </TouchableOpacity>
-
-        <View style={[styles.sectionHeader, isRTL && styles.rowReverse]}><MayushText variant="sectionTitle" color={colors.brand.navy900}>{copy.section}</MayushText><TouchableOpacity onPress={onBrowseCollections} style={styles.allButton}><MayushText variant="body" color={colors.brand.orange500} style={styles.allLabel}>{copy.all}</MayushText><MayushIcon name={isRTL ? 'arrow-left' : 'arrow-right'} size={19} color={colors.brand.orange500} /></TouchableOpacity></View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendations}>
-          {RECOMMENDATIONS.map((item) => <TouchableOpacity key={item.name} accessibilityRole="button" accessibilityLabel={item.name} activeOpacity={0.82} onPress={onBrowseCollections} style={styles.recommendationCard}><Image source={{ uri: item.image }} style={styles.recommendationImage} /><MayushText variant="smallBody" color={colors.brand.navy900} numberOfLines={1} style={styles.recommendationName}>{item.name}</MayushText><MayushText variant="caption" color={colors.neutral.gray700}>{item.count}</MayushText></TouchableOpacity>)}
-        </ScrollView>
-        <View style={styles.benefitBar}>
-          <Benefit icon="heart" label={language === 'ar' ? '\u0645\u0641\u0636\u0644\u062a\u0643\n\u0641\u064a \u0645\u0643\u0627\u0646 \u0648\u0627\u062d\u062f' : 'Vos coups de c\u0153ur\nau m\u00eame endroit'} />
-          <Benefit icon="bell" label={language === 'ar' ? '\u062a\u0644\u0642\u0651 \u0625\u0634\u0639\u0627\u0631\u0627\u062a\n\u0627\u0644\u0623\u0633\u0639\u0627\u0631' : 'Soyez notifi\u00e9 des\nbaisses de prix'} />
-          <Benefit icon="shopping-bag" label={language === 'ar' ? '\u0623\u0636\u0641 \u0625\u0644\u0649 \u0627\u0644\u0633\u0644\u0629\n\u0628\u0646\u0642\u0631\u0629' : 'Ajoutez au panier\nen un clic'} />
+      {/* Out of Stock Alternatives Modal (Node 309:672) */}
+      <Modal visible={altModalVisible} transparent animationType="slide" onRequestClose={() => setAltModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.altSheet}>
+            <View style={styles.altHeader}>
+              <MayushText variant="sectionTitle" color={colors.brand.navy900}>
+                Articles similaires disponibles
+              </MayushText>
+              <TouchableOpacity onPress={() => setAltModalVisible(false)}>
+                <MayushIcon name="x" size={22} color={colors.brand.navy900} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView contentContainerStyle={styles.altBody}>
+              <TouchableOpacity style={styles.altItemRow} onPress={() => { setAltModalVisible(false); onBrowseCollections?.(); }}>
+                <Image source={CANAPE_IMG} style={styles.altThumb} />
+                <View style={styles.altMeta}>
+                  <MayushText variant="strongBody" color={colors.brand.navy900}>
+                    Canapé Luna 2 Places · Bouclé
+                  </MayushText>
+                  <MayushText variant="priceRegular" color={colors.brand.orange500}>
+                    3 800 MAD
+                  </MayushText>
+                </View>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
         </View>
-      </ScrollView>
+      </Modal>
+
       <BottomTabBar activeTab="wishlist" onTabPress={(tab) => onNavigateTab?.(tab)} />
     </View>
   );
 };
 
-const Benefit: React.FC<{ icon: 'heart' | 'bell' | 'shopping-bag'; label: string }> = ({ icon, label }) => <View style={styles.benefit}><MayushIcon name={icon} size={27} color={colors.brand.orange500} /><MayushText variant="caption" color={colors.brand.navy900} style={styles.benefitLabel}>{label}</MayushText></View>;
-
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F9F9F8' }, content: { paddingBottom: 26 },
-  header: { minHeight: 78, paddingHorizontal: 22, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#EEE7DE' }, headerActions: { flexDirection: 'row', gap: 8 }, rowReverse: { flexDirection: 'row-reverse' }, iconButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  pageTitle: { marginTop: 25, marginHorizontal: 24, fontSize: 31, lineHeight: 37 }, rtlText: { writingDirection: 'rtl' },
-  emptyBlock: { height: 195, marginTop: 16, alignItems: 'center', justifyContent: 'center' }, referenceArtwork: { width: '100%', height: '100%' },
-  emptyTitle: { marginTop: 1, marginHorizontal: 22, fontSize: 25, lineHeight: 31 }, emptyCopy: { marginTop: 12, marginHorizontal: 30, fontSize: 16, lineHeight: 24 },
-  primaryButton: { height: 58, marginHorizontal: 30, marginTop: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 15, borderRadius: 16, backgroundColor: colors.brand.orange500, shadowColor: colors.brand.orange500, shadowOpacity: 0.24, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 4 }, primaryLabel: { fontSize: 18, fontWeight: '700' },
-  sectionHeader: { marginTop: 34, marginHorizontal: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, allButton: { flexDirection: 'row', alignItems: 'center', gap: 6 }, allLabel: { fontWeight: '700' }, recommendations: { paddingHorizontal: 24, paddingTop: 16, gap: 12 }, recommendationCard: { width: 132 }, recommendationImage: { width: 132, height: 104, borderRadius: 14, backgroundColor: '#F0E7DD' }, recommendationName: { marginTop: 8, fontWeight: '700' },
-  benefitBar: { minHeight: 86, marginHorizontal: 22, marginTop: 27, paddingVertical: 11, flexDirection: 'row', borderRadius: 17, backgroundColor: '#FFF4E9' }, benefit: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 5, paddingHorizontal: 4 }, benefitLabel: { textAlign: 'center', fontSize: 10, lineHeight: 13 },
+  screen: { flex: 1, backgroundColor: colors.surface.white },
+  header: {
+    height: 64,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.surface.borderWarm,
+  },
+  iconBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  headerTitle: { fontSize: 17, fontWeight: '700' },
+  content: { padding: 16, paddingBottom: 80 },
+  priceDropBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: radii.lg,
+    backgroundColor: colors.brand.orange100,
+    borderWidth: 1,
+    borderColor: colors.surface.borderWarm,
+    marginBottom: 16,
+    gap: 10,
+  },
+  bannerTextCol: { flex: 1 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  card: {
+    width: '48%',
+    borderRadius: radii.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.surface.borderWarm,
+    backgroundColor: colors.surface.white,
+  },
+  imgBox: { position: 'relative', height: 130 },
+  productImg: { width: '100%', height: '100%' },
+  removeBtn: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  outOfStockBadge: {
+    position: 'absolute',
+    bottom: 6,
+    left: 6,
+    backgroundColor: colors.neutral.gray700,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: radii.sm,
+  },
+  badgeText: { fontSize: 10, fontWeight: '700' },
+  cardBody: { padding: 10 },
+  priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginVertical: 4 },
+  oldPrice: { textDecorationLine: 'line-through' },
+  moveCartBtn: {
+    marginTop: 6,
+    height: 34,
+    borderRadius: radii.md,
+    backgroundColor: colors.brand.orange500,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  moveCartText: { fontWeight: '700' },
+  altBtn: {
+    marginTop: 6,
+    height: 34,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.brand.orange500,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyCard: { alignItems: 'center', paddingVertical: 32 },
+  emptyImg: { width: 160, height: 160, marginBottom: 16 },
+  emptyTitle: { fontSize: 20, marginBottom: 8 },
+  emptyCopy: { lineHeight: 20, maxWidth: 280, marginBottom: 20 },
+  browseBtn: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: radii.lg,
+    backgroundColor: colors.brand.orange500,
+  },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  dialogCard: { width: '100%', padding: 20, borderRadius: radii.xl, backgroundColor: colors.surface.white, alignItems: 'center' },
+  dialogCopy: { marginVertical: 12, lineHeight: 18 },
+  dialogActions: { flexDirection: 'row', gap: 12, width: '100%', marginTop: 8 },
+  cancelBtn: { flex: 1, height: 44, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.surface.borderWarm, alignItems: 'center', justifyContent: 'center' },
+  confirmBtn: { flex: 1, height: 44, borderRadius: radii.lg, backgroundColor: colors.semantic.error, alignItems: 'center', justifyContent: 'center' },
+  altSheet: { width: '100%', maxHeight: '60%', backgroundColor: colors.surface.white, borderRadius: radii.xl, padding: 16 },
+  altHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  altBody: { paddingBottom: 16 },
+  altItemRow: { flexDirection: 'row', alignItems: 'center', padding: 10, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.surface.borderWarm, gap: 12 },
+  altThumb: { width: 50, height: 50, borderRadius: radii.md },
+  altMeta: { flex: 1 },
 });

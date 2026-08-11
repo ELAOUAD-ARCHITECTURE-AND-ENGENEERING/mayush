@@ -7,13 +7,13 @@ import { typographyStyles } from '../tokens/typography';
 import { createTheme } from '../theme/theme';
 
 export const runTokenAssertions = () => {
-  if (colors.brand.orange500 !== '#FF7900') {
+  if (colors.brand.orange500 !== '#D97434') {
     throw new Error('Assertion failed: orange500 color mismatch');
   }
-  if (colors.brand.navy900 !== '#101D35') {
+  if (colors.brand.navy900 !== '#1F2A3A') {
     throw new Error('Assertion failed: navy900 color mismatch');
   }
-  if (colors.surface.cream !== '#FFF9F1') {
+  if (colors.surface.cream !== '#F2E8DA') {
     throw new Error('Assertion failed: cream color mismatch');
   }
 
@@ -23,13 +23,13 @@ export const runTokenAssertions = () => {
 
   const themeFr = createTheme('fr');
   if (themeFr.language !== 'fr' || themeFr.isRTL !== false) {
-    throw new Error('Assertion failed: French theme mismatch');
+    throw new Error('Assertion failed: French theme should be LTR');
   }
 
   const themeAr = createTheme('ar');
   if (themeAr.language !== 'ar' || themeAr.isRTL !== true) {
-    throw new Error('Assertion failed: Arabic theme mismatch');
+    throw new Error('Assertion failed: Arabic theme should be RTL');
   }
 
-  return true;
+  console.log('All token assertions passed');
 };

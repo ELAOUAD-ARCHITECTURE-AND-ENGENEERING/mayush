@@ -65,7 +65,7 @@ export const AddAddressFormScreen: React.FC<AddAddressFormScreenProps> = ({ draf
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.select({ ios: 'padding', default: undefined })}>
       <View style={styles.header}>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={language === 'ar' ? 'رجوع' : 'Retour'} onPress={onBack} style={styles.back}>
-          <MayushIcon name={isRTL ? 'arrow-right' : 'arrow-left'} size={25} color={colors.brand.navy900} />
+          <MayushIcon name={isRTL ? 'arrow-right' : 'arrow-left'} size={24} color={colors.brand.navy900} />
         </TouchableOpacity>
         <MayushLogo width={132} height={39} />
         <View style={styles.headerSpacer} />
@@ -93,7 +93,7 @@ export const AddAddressFormScreen: React.FC<AddAddressFormScreenProps> = ({ draf
         </View>
         <View style={styles.defaultRow}>
           <MayushText variant="caption" color={colors.brand.navy900}>{copy.default}</MayushText>
-          <Switch value={draft.isDefault} onValueChange={(value) => onChange(update(draft, 'isDefault', value))} trackColor={{ false: '#E8E8E8', true: '#FFC083' }} thumbColor={draft.isDefault ? colors.brand.orange500 : colors.surface.white} />
+          <Switch value={draft.isDefault} onValueChange={(value) => onChange(update(draft, 'isDefault', value))} trackColor={{ false: '#E8E8E8', true: '#F8E6D7' }} thumbColor={draft.isDefault ? colors.brand.orange500 : colors.surface.white} />
         </View>
         <TouchableOpacity accessibilityRole="button" onPress={onSave} style={styles.saveButton}>
           <MayushIcon name="clipboard" size={18} color={colors.surface.white} />
@@ -127,19 +127,18 @@ const FormField: React.FC<{
 );
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#FFFDF9' },
-  header: { height: 76, paddingHorizontal: 25, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  back: { width: 28, height: 36, justifyContent: 'center' },
-  headerSpacer: { width: 28 },
-  content: { paddingHorizontal: 26, paddingBottom: 32 },
-  title: { fontSize: 26, lineHeight: 32 },
-  subtitle: { marginTop: 1, marginBottom: 14 },
+  screen: { flex: 1, backgroundColor: colors.surface.white },
+  header: { height: 64, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.surface.white, borderBottomWidth: 1, borderBottomColor: colors.surface.borderWarm },
+  back: { width: 36, height: 36, justifyContent: 'center' },
+  headerSpacer: { width: 36 },
+  content: { paddingHorizontal: 20, paddingBottom: 24 },
+  title: { fontSize: 24, lineHeight: 30, marginTop: 12 },
+  subtitle: { marginTop: 2, marginBottom: 12 },
   field: { marginTop: 6 },
   sectionLabel: { marginTop: 12, marginBottom: 7 },
-  labels: { flexDirection: 'row', gap: 7 },
-  labelChoice: { flex: 1, height: 31, borderWidth: 1, borderColor: colors.surface.borderWarm, borderRadius: 7, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, backgroundColor: colors.surface.white },
-  labelChoiceSelected: { borderColor: colors.brand.orange500, backgroundColor: '#FFFCF7' },
+  labels: { flexDirection: 'row', gap: 8 },
+  labelChoice: { flex: 1, height: 36, borderWidth: 1, borderColor: colors.surface.borderWarm, borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: colors.surface.white },
+  labelChoiceSelected: { borderColor: colors.brand.orange500, backgroundColor: colors.brand.orange100 },
   defaultRow: { height: 44, marginTop: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  saveButton: { height: 39, marginTop: 4, borderRadius: 7, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.brand.orange500 },
+  saveButton: { height: 44, marginTop: 12, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.brand.orange500 },
 });
-

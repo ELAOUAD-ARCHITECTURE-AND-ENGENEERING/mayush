@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { useTheme } from '../../design-system/theme/useTheme';
+import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { STORE_CURRENCY_CODE } from '../../config/currency';
+import { ProductDetailDto, ProductMiniDto } from '../../contracts/api/dto';
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
-import { MayushText } from '../../design-system/components/typography/MayushText';
+import { Skeleton } from '../../design-system/components/feedback/Skeleton';
 import { BottomTabBar, TabKey } from '../../design-system/components/navigation/BottomTabBar';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
-import { Skeleton } from '../../design-system/components/feedback/Skeleton';
+import { MayushText } from '../../design-system/components/typography/MayushText';
+import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
-import { STORE_CURRENCY_CODE } from '../../config/currency';
 import { catalogService } from '../../services/api/catalogService';
-import { ProductDetailDto, ProductMiniDto } from '../../contracts/api/dto';
 
 export interface ProductDetailsScreenProps {
   productId?: number;
@@ -17,11 +17,27 @@ export interface ProductDetailsScreenProps {
   onBack?: () => void;
   onOpenGallery?: () => void;
   onOpenVariantSheet?: (product: ProductDetailDto) => void;
+  onOpenDescription?: () => void;
+  onOpenSpecifications?: () => void;
+  onOpenDeliveryReturns?: () => void;
+  onOpenReviews?: () => void;
   onNavigateTab?: (tab: TabKey) => void;
   activeTab?: TabKey;
 }
 
-export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({ productId = 1, initialProduct, onBack, onOpenGallery, onOpenVariantSheet, onNavigateTab, activeTab = 'home' }) => {
+export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
+  productId = 1,
+  initialProduct,
+  onBack,
+  onOpenGallery,
+  onOpenVariantSheet,
+  onOpenDescription,
+  onOpenSpecifications,
+  onOpenDeliveryReturns,
+  onOpenReviews,
+  onNavigateTab,
+  activeTab = 'home',
+}) => {
   const { language, isRTL } = useTheme();
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState<ProductDetailDto | null>(null);
@@ -60,21 +76,57 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({ prod
             {imageItems.map((url, index) => <Image key={`${url}-${index}`} source={{ uri: url }} style={styles.galleryImage} resizeMode="cover" />)}
           </ScrollView>
           {product?.has_discount || initialProduct?.has_discount ? <View style={styles.discount}><MayushText variant="strongBody" color={colors.surface.white}>{product?.discount || initialProduct?.discount || '-15%'}</MayushText></View> : null}
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Ouvrir la galerie produit', '\u0641\u062a\u062d \u0645\u0639\u0631\u0636 \u0627\u0644\u0645\u0646\u062a\u062c')} onPress={onOpenGallery} style={styles.imageCount}><MayushText variant="body" color={colors.surface.white}>{activeImage + 1} / {Math.max(imageItems.length, 6)}</MayushText></TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Ouvrir la galerie produit', 'فتح معرض المنتج')} onPress={onOpenGallery} style={styles.imageCount}><MayushText variant="body" color={colors.surface.white}>{activeImage + 1} / {Math.max(imageItems.length, 6)}</MayushText></TouchableOpacity>
           <View style={styles.galleryDots}>{imageItems.slice(0, 6).map((_, index) => <View key={index} style={[styles.dot, index === activeImage && styles.dotActive]} />)}</View>
         </View>
 
         {loading ? <View style={styles.skeletonStack}><Skeleton height={34} width="70%" /><Skeleton height={24} width="45%" /><Skeleton height={72} borderRadius="xl" /></View> : <View style={styles.info}>
           <MayushText variant="display" color={colors.brand.navy900} style={styles.productTitle}>{title}</MayushText>
-          <MayushText variant="body" color={colors.neutral.gray700}>{heading('Tissu bouclé • Beige', '\u0646\u0633\u064a\u062c \u0628\u0648\u0643\u0644\u064a\u0647 \u2022 \u0628\u064a\u062c')}</MayushText>
-          <View style={[styles.ratingRow, isRTL && styles.rowReverse]}><MayushText variant="sectionTitle" color={colors.brand.orange500}>★★★★★</MayushText><MayushText variant="body" color={colors.neutral.gray700}>4,6 (128 avis)</MayushText><View style={styles.seller}><View style={styles.sellerCircle}><MayushIcon name="shopping-bag" size={17} color={colors.brand.navy900} /></View><MayushText variant="strongBody" color={colors.brand.navy900}>{product?.shop_name || 'Mayush Design'}</MayushText><MayushIcon name="chevron-right" size={21} color={colors.brand.orange500} /></View></View>
-          <View style={[styles.priceStock, isRTL && styles.rowReverse]}><View style={styles.priceBlock}><MayushText variant="display" color={colors.brand.orange500} numberOfLines={1} style={styles.price}>{displayPrice}</MayushText><MayushText variant="body" color={colors.neutral.gray500} numberOfLines={1} style={styles.struck}>{displayOriginalPrice}</MayushText></View><View style={styles.stockPill}><MayushIcon name="check-circle" size={18} color="#3C7544" /><MayushText variant="strongBody" color="#3C7544">{heading('En stock', '\u0645\u062a\u0648\u0641\u0631')}</MayushText></View></View>
-          <TouchableOpacity activeOpacity={0.8} onPress={() => product && onOpenVariantSheet?.(product)} style={[styles.optionCard, isRTL && styles.rowReverse]}><View style={styles.variantImage}><Image source={{ uri: imageItems[0] }} style={{ width: '100%', height: '100%' }} /></View><View style={{ flex: 1 }}><MayushText variant="smallBody" color={colors.neutral.gray700}>{heading('Variation sélectionnée', '\u0627\u0644\u062e\u064a\u0627\u0631 \u0627\u0644\u0645\u062d\u062f\u062f')}</MayushText><MayushText variant="strongBody" color={colors.brand.navy900} style={{ marginTop: 3 }}>{heading('Tissu bouclé • Beige', '\u0646\u0633\u064a\u062c \u0628\u0648\u0643\u0644\u064a\u0647 \u2022 \u0628\u064a\u062c')}</MayushText><MayushText variant="smallBody" color={colors.neutral.gray700}>{heading('Pieds bois naturel', '\u0623\u0631\u062c\u0644 \u062e\u0634\u0628\u064a\u0629 \u0637\u0628\u064a\u0639\u064a\u0629')}</MayushText></View><MayushIcon name={isRTL ? 'chevron-left' : 'chevron-right'} size={22} color={colors.brand.orange500} /></TouchableOpacity>
-          <View style={[styles.quantityCard, isRTL && styles.rowReverse]}><MayushText variant="strongBody" color={colors.brand.navy900}>{heading('Quantité', '\u0627\u0644\u0643\u0645\u064a\u0629')}</MayushText><View style={styles.stepper}><TouchableOpacity style={styles.stepperButton}><MayushIcon name="minus" size={23} color={colors.brand.navy900} /></TouchableOpacity><MayushText variant="sectionTitle" color={colors.brand.navy900}>1</MayushText><TouchableOpacity style={styles.stepperButton}><MayushIcon name="plus" size={26} color={colors.brand.navy900} /></TouchableOpacity></View></View>
-          <TouchableOpacity style={[styles.deliveryCard, isRTL && styles.rowReverse]}><MayushIcon name="truck-outline" size={33} color={colors.brand.orange500} /><View style={{ flex: 1 }}><MayushText variant="strongBody" color={colors.brand.navy900}>{heading('Livraison à Casablanca', '\u0627\u0644\u062a\u0648\u0635\u064a\u0644 \u0625\u0644\u0649 \u0627\u0644\u062f\u0627\u0631 \u0627\u0644\u0628\u064a\u0636\u0627\u0621')}</MayushText><MayushText variant="smallBody" color={colors.neutral.gray700}>{heading('Entre le 27 et le 30 mai', '\u0628\u064a\u0646 27 \u0648 30 \u0645\u0627\u064a')}</MayushText></View><MayushIcon name={isRTL ? 'chevron-left' : 'chevron-right'} size={22} color={colors.brand.orange500} /></TouchableOpacity>
+          <MayushText variant="body" color={colors.neutral.gray700}>{heading('Tissu bouclé • Beige', 'نسيج بوكليه • بيج')}</MayushText>
+
+          <TouchableOpacity onPress={onOpenReviews} style={[styles.ratingRow, isRTL && styles.rowReverse]}>
+            <MayushText variant="sectionTitle" color={colors.brand.orange500}>★★★★★</MayushText>
+            <MayushText variant="body" color={colors.neutral.gray700}>4,9 (32 avis)</MayushText>
+            <View style={styles.seller}>
+              <View style={styles.sellerCircle}><MayushIcon name="shopping-bag" size={17} color={colors.brand.navy900} /></View>
+              <MayushText variant="strongBody" color={colors.brand.navy900}>{product?.shop_name || 'Mayush Design'}</MayushText>
+              <MayushIcon name={isRTL ? 'chevron-left' : 'chevron-right'} size={21} color={colors.brand.orange500} />
+            </View>
+          </TouchableOpacity>
+
+          <View style={[styles.priceStock, isRTL && styles.rowReverse]}><View style={styles.priceBlock}><MayushText variant="display" color={colors.brand.orange500} numberOfLines={1} style={styles.price}>{displayPrice}</MayushText><MayushText variant="body" color={colors.neutral.gray500} numberOfLines={1} style={styles.struck}>{displayOriginalPrice}</MayushText></View><View style={styles.stockPill}><MayushIcon name="check-circle" size={18} color="#3C7544" /><MayushText variant="strongBody" color="#3C7544">{heading('En stock', 'متوفر')}</MayushText></View></View>
+
+          <TouchableOpacity activeOpacity={0.8} onPress={() => product && onOpenVariantSheet?.(product)} style={[styles.optionCard, isRTL && styles.rowReverse]}><View style={styles.variantImage}><Image source={{ uri: imageItems[0] }} style={{ width: '100%', height: '100%' }} /></View><View style={{ flex: 1 }}><MayushText variant="smallBody" color={colors.neutral.gray700}>{heading('Variation sélectionnée', 'الخيار المحدد')}</MayushText><MayushText variant="strongBody" color={colors.brand.navy900} style={{ marginTop: 3 }}>{heading('Tissu bouclé • Beige', 'نسيج بوكليه • بيج')}</MayushText><MayushText variant="smallBody" color={colors.neutral.gray700}>{heading('Pieds bois naturel', 'أرجل خشبية طبيعية')}</MayushText></View><MayushIcon name={isRTL ? 'chevron-left' : 'chevron-right'} size={22} color={colors.brand.orange500} /></TouchableOpacity>
+
+          <View style={[styles.quantityCard, isRTL && styles.rowReverse]}><MayushText variant="strongBody" color={colors.brand.navy900}>{heading('Quantité', 'الكمية')}</MayushText><View style={styles.stepper}><TouchableOpacity style={styles.stepperButton}><MayushIcon name="minus" size={23} color={colors.brand.navy900} /></TouchableOpacity><MayushText variant="sectionTitle" color={colors.brand.navy900}>1</MayushText><TouchableOpacity style={styles.stepperButton}><MayushIcon name="plus" size={26} color={colors.brand.navy900} /></TouchableOpacity></View></View>
+
+          <TouchableOpacity activeOpacity={0.8} onPress={onOpenDescription} style={[styles.detailLinkCard, isRTL && styles.rowReverse]}>
+            <MayushIcon name="file-text" size={22} color={colors.brand.navy900} />
+            <MayushText variant="strongBody" color={colors.brand.navy900} style={styles.detailLinkTitle}>
+              {heading('Description détaillée & Artisanat', 'الوصف التفصيلي والحرفية')}
+            </MayushText>
+            <MayushIcon name={isRTL ? 'chevron-left' : 'chevron-right'} size={22} color={colors.brand.orange500} />
+          </TouchableOpacity>
+
+          <TouchableOpacity activeOpacity={0.8} onPress={onOpenSpecifications} style={[styles.detailLinkCard, isRTL && styles.rowReverse]}>
+            <MayushIcon name="sliders" size={22} color={colors.brand.navy900} />
+            <MayushText variant="strongBody" color={colors.brand.navy900} style={styles.detailLinkTitle}>
+              {heading('Fiche technique & Dimensions', 'المواصفات التقنية والأبعاد')}
+            </MayushText>
+            <MayushIcon name={isRTL ? 'chevron-left' : 'chevron-right'} size={22} color={colors.brand.orange500} />
+          </TouchableOpacity>
+
+          <TouchableOpacity activeOpacity={0.8} onPress={onOpenDeliveryReturns} style={[styles.deliveryCard, isRTL && styles.rowReverse]}>
+            <MayushIcon name="truck-outline" size={33} color={colors.brand.orange500} />
+            <View style={{ flex: 1 }}>
+              <MayushText variant="strongBody" color={colors.brand.navy900}>{heading('Livraison & Retours au Maroc', 'التوصيل والإرجاع بالمغرب')}</MayushText>
+              <MayushText variant="smallBody" color={colors.neutral.gray700}>{heading('Gratuit dès 3 000 MAD • Retours 14j', 'مجاني فوق 3000 درهم • إرجاع خلال 14 يوماً')}</MayushText>
+            </View>
+            <MayushIcon name={isRTL ? 'chevron-left' : 'chevron-right'} size={22} color={colors.brand.orange500} />
+          </TouchableOpacity>
         </View>}
       </ScrollView>
-      <View style={styles.ctaShell}><TouchableOpacity disabled={loading} onPress={() => product && onOpenVariantSheet?.(product)} style={styles.cta}><MayushIcon name="shopping-bag" size={27} color={colors.surface.white} /><MayushText variant="sectionTitle" color={colors.surface.white} style={styles.ctaLabel}>{heading('Ajouter au panier', '\u0623\u0636\u0641 \u0625\u0644\u0649 \u0627\u0644\u0633\u0644\u0629')}</MayushText><View style={styles.ctaDivider} /><MayushText variant="sectionTitle" color={colors.surface.white}>{displayPrice}</MayushText></TouchableOpacity></View>
+      <View style={styles.ctaShell}><TouchableOpacity disabled={loading} onPress={() => product && onOpenVariantSheet?.(product)} style={styles.cta}><MayushIcon name="shopping-bag" size={27} color={colors.surface.white} /><MayushText variant="sectionTitle" color={colors.surface.white} style={styles.ctaLabel}>{heading('Ajouter au panier', 'أضف إلى السلة')}</MayushText><View style={styles.ctaDivider} /><MayushText variant="sectionTitle" color={colors.surface.white}>{displayPrice}</MayushText></TouchableOpacity></View>
       <BottomTabBar activeTab={activeTab} onTabPress={(tab) => onNavigateTab?.(tab)} cartBadgeCount={3} />
     </View>
   );
@@ -98,22 +150,24 @@ const styles = StyleSheet.create({
   skeletonStack: { padding: 20, gap: 14 },
   info: { paddingHorizontal: 20, paddingTop: 18, gap: 12 },
   productTitle: { fontSize: 29, lineHeight: 35 },
-  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 11, flexWrap: 'wrap' },
-  seller: { marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 7 },
-  sellerCircle: { width: 37, height: 37, borderRadius: 19, backgroundColor: '#F7F1E9', alignItems: 'center', justifyContent: 'center' },
-  priceStock: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  priceBlock: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'baseline', gap: 8 },
-  price: { fontSize: 26, lineHeight: 32 },
-  struck: { textDecorationLine: 'line-through' },
-  stockPill: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: 12, paddingHorizontal: 8, paddingVertical: 7, backgroundColor: '#EFF8EC' },
-  optionCard: { minHeight: 100, flexDirection: 'row', alignItems: 'center', gap: 13, borderWidth: 1, borderColor: colors.surface.borderWarm, borderRadius: 14, backgroundColor: colors.surface.white, padding: 12 },
-  variantImage: { width: 61, height: 61, borderRadius: 9, overflow: 'hidden', backgroundColor: colors.surface.cream },
-  quantityCard: { minHeight: 76, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: colors.surface.borderWarm, borderRadius: 14, backgroundColor: colors.surface.white, paddingHorizontal: 14 },
-  stepper: { flexDirection: 'row', alignItems: 'center', gap: 22 },
-  stepperButton: { width: 46, height: 46, borderRadius: 11, borderWidth: 1, borderColor: colors.surface.borderWarm, alignItems: 'center', justifyContent: 'center' },
-  deliveryCard: { minHeight: 82, flexDirection: 'row', alignItems: 'center', gap: 14, borderWidth: 1, borderColor: colors.surface.borderWarm, borderRadius: 14, backgroundColor: colors.surface.white, paddingHorizontal: 15 },
-  ctaShell: { paddingHorizontal: 20, paddingVertical: 8, backgroundColor: colors.surface.creamLight, borderTopWidth: 1, borderTopColor: colors.surface.borderWarm },
-  cta: { height: 58, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 13, paddingHorizontal: 18, backgroundColor: colors.brand.orange500, borderRadius: 15, shadowColor: colors.brand.orange500, shadowOpacity: 0.27, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
-  ctaLabel: { flex: 1, textAlign: 'center', fontSize: 19 },
-  ctaDivider: { width: 1, height: 32, backgroundColor: 'rgba(255,255,255,0.45)' },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  seller: { flexDirection: 'row', alignItems: 'center', gap: 6, marginLeft: 'auto' },
+  sellerCircle: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.surface.cream, alignItems: 'center', justifyContent: 'center' },
+  priceStock: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
+  priceBlock: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
+  price: { fontSize: 26, fontWeight: '800' },
+  struck: { textDecorationLine: 'line-through', fontSize: 16 },
+  stockPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#E8F5E9' },
+  optionCard: { padding: 12, borderRadius: 16, borderWidth: 1, borderColor: colors.surface.borderWarm, backgroundColor: colors.surface.white, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  variantImage: { width: 44, height: 44, borderRadius: 8, overflow: 'hidden' },
+  quantityCard: { padding: 12, borderRadius: 16, borderWidth: 1, borderColor: colors.surface.borderWarm, backgroundColor: colors.surface.white, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  stepper: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  stepperButton: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: colors.surface.borderWarm, alignItems: 'center', justifyContent: 'center' },
+  deliveryCard: { padding: 14, borderRadius: 16, borderWidth: 1, borderColor: colors.surface.borderWarm, backgroundColor: colors.surface.white, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  detailLinkCard: { padding: 14, borderRadius: 16, borderWidth: 1, borderColor: colors.surface.borderWarm, backgroundColor: colors.surface.white, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  detailLinkTitle: { flex: 1 },
+  ctaShell: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.surface.creamLight },
+  cta: { height: 54, borderRadius: 16, backgroundColor: colors.brand.orange500, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, paddingHorizontal: 16 },
+  ctaLabel: { fontSize: 17, fontWeight: '700' },
+  ctaDivider: { width: 1, height: 20, backgroundColor: 'rgba(255,255,255,0.4)' },
 });

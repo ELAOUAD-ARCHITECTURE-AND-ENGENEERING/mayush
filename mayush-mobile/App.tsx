@@ -23,9 +23,10 @@ import {
   Tajawal_700Bold,
 } from '@expo-google-fonts/tajawal';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { VisualQaApp, getQaScreenFromEnvironment } from './src/dev/visual-qa';
 
 export default function App() {
-  useFonts({
+  const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
@@ -37,6 +38,18 @@ export default function App() {
     Tajawal_500Medium,
     Tajawal_700Bold,
   });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  const isVisualQaMode =
+    process.env.EXPO_PUBLIC_VISUAL_QA === 'true' ||
+    (typeof window !== 'undefined' && window.location && window.location.search.includes('qaScreen='));
+
+  if (isVisualQaMode) {
+    return <VisualQaApp screenKey={getQaScreenFromEnvironment()} />;
+  }
 
   return (
     <>

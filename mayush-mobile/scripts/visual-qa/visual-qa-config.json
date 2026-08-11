@@ -1,0 +1,99 @@
+{
+  "viewport": {
+    "width": 393,
+    "height": 852,
+    "deviceScaleFactor": 1
+  },
+  "locale": "fr-FR",
+  "timezone": "UTC",
+  "screensDir": "design-reference/mayush-mobile-design/validation/phase-5b-pixel-parity",
+  "webBuildDir": "dist",
+  "port": 8085,
+  "screens": [
+    {
+      "name": "06-checkout-summary-4step-overview-v2-fr",
+      "figmaNodeId": "309:679",
+      "qaScreenKey": "06-checkout-summary-4step-overview-v2-fr"
+    },
+    {
+      "name": "06-choose-address-saved-list-v2-fr",
+      "figmaNodeId": "309:680",
+      "qaScreenKey": "06-choose-address-saved-list-v2-fr"
+    },
+    {
+      "name": "06-add-new-address-form-v2-fr",
+      "figmaNodeId": "309:681",
+      "qaScreenKey": "06-add-new-address-form-v2-fr"
+    },
+    {
+      "name": "06-add-address-validation-errors-fr",
+      "figmaNodeId": "309:682",
+      "qaScreenKey": "06-add-address-validation-errors-fr"
+    },
+    {
+      "name": "06-choose-delivery-standard-express-relay-v2-fr",
+      "figmaNodeId": "309:687",
+      "qaScreenKey": "06-choose-delivery-standard-express-relay-v2-fr"
+    },
+    {
+      "name": "06-choose-payment-cmi-cod-wallet-v2-fr",
+      "figmaNodeId": "309:690",
+      "qaScreenKey": "06-choose-payment-cmi-cod-wallet-v2-fr"
+    },
+    {
+      "name": "04-welcome-sign-in-create-account-guest-fr",
+      "figmaNodeId": "309:613",
+      "qaScreenKey": "04-welcome-sign-in-create-account-guest-fr"
+    },
+    {
+      "name": "06-payment-step-intro-step3-v2-fr",
+      "figmaNodeId": "309:693",
+      "qaScreenKey": "06-payment-step-intro-step3-v2-fr"
+    },
+    {
+      "name": "06-secure-payment-redirect-v2-fr",
+      "figmaNodeId": "309:694",
+      "qaScreenKey": "06-secure-payment-redirect-v2-fr"
+    },
+    {
+      "name": "06-secure-payment-redirect-loading-fr",
+      "figmaNodeId": "309:695",
+      "qaScreenKey": "06-secure-payment-redirect-loading-fr"
+    },
+    {
+      "name": "06-payment-verification-processing-fr",
+      "figmaNodeId": "309:696",
+      "qaScreenKey": "06-payment-verification-processing-fr"
+    },
+    {
+      "name": "06-cash-on-delivery-confirmation-fr",
+      "figmaNodeId": "309:697",
+      "qaScreenKey": "06-cash-on-delivery-confirmation-fr"
+    },
+    {
+      "name": "06-payment-confirmed-success-v2-fr",
+      "figmaNodeId": "309:698",
+      "qaScreenKey": "06-payment-confirmed-success-v2-fr"
+    },
+    {
+      "name": "06-payment-failed-retry-fr",
+      "figmaNodeId": "309:699",
+      "qaScreenKey": "06-payment-failed-retry-fr"
+    },
+    {
+      "name": "06-payment-cancelled-resume-fr",
+      "figmaNodeId": "309:700",
+      "qaScreenKey": "06-payment-cancelled-resume-fr"
+    },
+    {
+      "name": "06-order-review-confirm-multi-vendor-v2-fr",
+      "figmaNodeId": "309:703",
+      "qaScreenKey": "06-order-review-confirm-multi-vendor-v2-fr"
+    },
+    {
+      "name": "06-order-processing-loading-state-fr",
+      "figmaNodeId": "309:706",
+      "qaScreenKey": "06-order-processing-loading-state-fr"
+    }
+  ]
+}

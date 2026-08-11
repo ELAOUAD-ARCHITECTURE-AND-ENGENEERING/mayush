@@ -46,3 +46,11 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# temporary visual-QA comparison captures (reproducible, never checkpointed)
+design-reference/mayush-mobile-design/validation/phase-5b-pixel-parity/**/app-*-393x852.png
+design-reference/mayush-mobile-design/validation/phase-5b-pixel-parity/**/figma-source-live.png
+design-reference/mayush-mobile-design/validation/phase-5b-pixel-parity/**/overlay-*.png
+design-reference/mayush-mobile-design/validation/phase-5b-pixel-parity/**/pixel-diff-*.png
+design-reference/mayush-mobile-design/validation/phase-5b-pixel-parity/**/side-by-side-*.png
+docs/frontend-completion/previews/

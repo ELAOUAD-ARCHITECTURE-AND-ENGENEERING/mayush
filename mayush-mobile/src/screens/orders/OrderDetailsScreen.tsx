@@ -2,6 +2,8 @@ import React from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { formatMadPrice } from '../../commerce/cartState';
 import { PrototypeOrder } from '../../commerce/orderState';
+
+// LEGACY_ORDER_DETAIL_PRE_STEP_8B: this placeholder is not Figma node 309:716.
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';

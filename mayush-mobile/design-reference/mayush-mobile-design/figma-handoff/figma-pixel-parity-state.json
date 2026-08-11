@@ -248,13 +248,13 @@
   "lastSuccessfulOperation": "Implemented native checkout restoration plus the Add Address, order review, secure-payment, verification, cash-on-delivery, cancellation, and payment-failure prototype branches.",
   "measurement": {
     "sourceDimensions": "393×852 Figma source frame",
-    "applicationDimensions": "Not yet captured at compliant 393×852 viewport",
+    "applicationDimensions": "393×852 Playwright Chromium application capture",
     "scaleFactorFromSourceWidth": 1,
     "comparisonMethod": "Figma source capture, application capture, 50% opacity overlay, and pixel difference when available",
     "historicalCheckpoint": "Historical Phase 5A measurements retained in comparison entries; stale cover/components/onboarding gates removed."
   },
-  "nextOperation": "Provision or connect an Expo-compatible Android device/emulator (or an approved 393×852 mobile-capable web capture surface), then capture the running app and create overlays/diffs sequentially for the 17 scoped frames.",
-  "currentPhase": "Phase 5B — Buyer Purchase Flow Validation",
+  "nextOperation": "Sequentially correct the 17 scoped screens and generate after-correction captures, overlays, and pixel differences.",
+  "currentPhase": "Phase 5D — Sequential Pixel Correction",
   "completion": {
     "fullPrototypeStatus": {
       "status": "NOT_COMPLETE_OUT_OF_SCOPE_FOR_PHASE_5B",
@@ -287,10 +287,9 @@
   "captureInventory": {
     "requiredSourceFrames": 17,
     "sourceFramesCapturedAt393x852": 17,
-    "compliantApplicationCapturesAt393x852": 0,
-    "sideBySideComparisons": 0,
-    "opacityOverlays": 0,
-    "pixelDifferenceImages": 0,
-    "exception": "One live checkout-summary browser capture was retained at 1280×720 as functional evidence only; it is not used as a parity overlay."
+    "compliantApplicationCapturesAt393x852": 17,
+    "sideBySideComparisons": 17,
+    "opacityOverlays": 17,
+    "pixelDifferenceImages": 17
   }
 }

@@ -95,9 +95,21 @@ export type PaymentMethod = 'cmi' | 'cash-on-delivery' | 'wallet';
 
 export const CHECKOUT_SESSION_KEY = 'mayush-mobile:checkout-session';
 
+export interface CheckoutStorage {
+  getItem(key: string): Promise<string | null>;
+  setItem(key: string, value: string): Promise<void>;
+  removeItem(key: string): Promise<void>;
+}
+
+export const createLocalCheckoutAttemptId = (
+  now: number = Date.now(),
+  entropy: string = Math.random().toString(36).slice(2, 10),
+): string => `checkout-${now}-${entropy}`;
+
 export type ResumableCheckoutScreen = 'checkout-summary' | 'address-selection' | 'add-address' | 'delivery-method' | 'payment-method' | 'order-review';
 
 export interface CheckoutSession {
+  checkoutAttemptId: string;
   screen: ResumableCheckoutScreen;
   selectedAddressId: string;
   deliveryMethod: DeliveryMethod;
@@ -120,6 +132,7 @@ export const parseCheckoutSession = (value: string | null): CheckoutSession | nu
     const parsed = JSON.parse(value) as Partial<CheckoutSession>;
     if (
       !parsed.screen
+      || !parsed.checkoutAttemptId
       || !isResumableCheckoutScreen(parsed.screen)
       || !parsed.selectedAddressId
       || !parsed.deliveryMethod
@@ -130,4 +143,17 @@ export const parseCheckoutSession = (value: string | null): CheckoutSession | nu
   } catch {
     return null;
   }
+};
+
+export const saveCheckoutSession = async (
+  storage: CheckoutStorage,
+  session: CheckoutSession,
+): Promise<void> => storage.setItem(CHECKOUT_SESSION_KEY, JSON.stringify(session));
+
+export const loadCheckoutSession = async (
+  storage: CheckoutStorage,
+): Promise<CheckoutSession | null> => parseCheckoutSession(await storage.getItem(CHECKOUT_SESSION_KEY));
+
+export const clearCheckoutSession = async (storage: CheckoutStorage): Promise<void> => {
+  await storage.removeItem(CHECKOUT_SESSION_KEY);
 };

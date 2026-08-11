@@ -555,10 +555,6 @@ export const catalogService = {
         stock_txt: 'In Stock',
         digital: 0,
         variant: payload.variants || 'Default',
-        variation: payload.variants || 'Default',
-        max_limit: 10,
-        in_stock: 1,
-        image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800&auto=format&fit=crop',
       },
     };
   },

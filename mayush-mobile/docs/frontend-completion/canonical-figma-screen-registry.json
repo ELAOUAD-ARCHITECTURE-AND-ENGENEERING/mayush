@@ -1,0 +1,3489 @@
+{
+  "schemaVersion": "2.0.0",
+  "inventoryScope": "prototype-connected-nodes",
+  "sourceCapturedAt": "2026-08-05",
+  "totalPrototypeConnectedNodes": 207,
+  "unconnectedPrototypeScreenNodes": "NOT_AUDITED",
+  "totalRelevantFigmaNodes": 207,
+  "implementedNodes": 151,
+  "missingNodes": 56,
+  "screenCompletionPercentage": "72.9%",
+  "nodes": [
+    {
+      "figmaNodeId": "309:583",
+      "frameName": "01-splash-screen-logo",
+      "domain": "Entry / Onboarding",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-001"
+      ],
+      "destinationConnectionIds": [],
+      "component": "SplashScreen.tsx",
+      "sourceFile": "src/screens/entry/SplashScreen.tsx",
+      "route": "splash",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:584",
+      "frameName": "01-loading-screen-preparing-experience",
+      "domain": "Entry / Onboarding",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-002"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-001"
+      ],
+      "component": "PreparingExperienceScreen.tsx",
+      "sourceFile": "src/screens/entry/PreparingExperienceScreen.tsx",
+      "route": "preparing",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:585",
+      "frameName": "01-language-selection-french-arabic",
+      "domain": "Entry / Onboarding",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-003"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-002"
+      ],
+      "component": "LanguageSelectionScreen.tsx",
+      "sourceFile": "src/screens/entry/LanguageSelectionScreen.tsx",
+      "route": "language",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:586",
+      "frameName": "01-onboarding-step1-discover-interior-fr",
+      "domain": "Entry / Onboarding",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-004"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-003"
+      ],
+      "component": "OnboardingScreen.tsx",
+      "sourceFile": "src/screens/entry/OnboardingScreen.tsx",
+      "route": "onboarding-1",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:587",
+      "frameName": "01-onboarding-step2-choose-with-confidence-fr",
+      "domain": "Entry / Onboarding",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-005"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-004"
+      ],
+      "component": "OnboardingScreen.tsx",
+      "sourceFile": "src/screens/entry/OnboardingScreen.tsx",
+      "route": "onboarding-2",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:588",
+      "frameName": "01-onboarding-step3-order-simply-fr",
+      "domain": "Entry / Onboarding",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-006"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-005"
+      ],
+      "component": "OnboardingScreen.tsx",
+      "sourceFile": "src/screens/entry/OnboardingScreen.tsx",
+      "route": "onboarding-3",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:590",
+      "frameName": "02-home-hero-new-arrivals-best-sellers-fr",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-007"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-006",
+        "FIGMA-PROT-031",
+        "FIGMA-PROT-040"
+      ],
+      "component": "HomeScreen.tsx",
+      "sourceFile": "src/screens/discovery/HomeScreen.tsx",
+      "route": "home",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:591",
+      "frameName": "02-home-logged-in-personalized-recommendations",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-008"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:592",
+      "frameName": "02-categories-photo-grid-fr",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-009"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-007",
+        "FIGMA-PROT-008"
+      ],
+      "component": "CategoriesScreen.tsx",
+      "sourceFile": "src/screens/discovery/CategoriesScreen.tsx",
+      "route": "categories",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:593",
+      "frameName": "02-category-landing-salon-collections-fr",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-010"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-009"
+      ],
+      "component": "CategoryLandingScreen.tsx",
+      "sourceFile": "src/screens/discovery/CategoryLandingScreen.tsx",
+      "route": "category-landing",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:594",
+      "frameName": "02-subcategory-canapes-filtered-list",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-011"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-010"
+      ],
+      "component": "CategoryProductListScreen.tsx",
+      "sourceFile": "src/screens/discovery/CategoryProductListScreen.tsx",
+      "route": "category-products",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:595",
+      "frameName": "02-collection-salon-contemporain-shop-the-look",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-012"
+      ],
+      "destinationConnectionIds": [],
+      "component": "CollectionShopTheLookScreen.tsx",
+      "sourceFile": "src/screens/discovery/CollectionShopTheLookScreen.tsx",
+      "route": "collection-shop-the-look",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:596",
+      "frameName": "02-filter-panel-category-price-color-material",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-013"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-012"
+      ],
+      "component": "FilterPanelModal.tsx",
+      "sourceFile": "src/screens/discovery/FilterPanelModal.tsx",
+      "route": null,
+      "implementationType": "SHEET",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:597",
+      "frameName": "02-flash-deals-countdown-timer",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-014"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-013"
+      ],
+      "component": "FlashDealsScreen.tsx",
+      "sourceFile": "src/screens/promotions/FlashDealsScreen.tsx",
+      "route": "flash-deals",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:598",
+      "frameName": "02-promotions-campaigns-offers",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-015"
+      ],
+      "destinationConnectionIds": [],
+      "component": "PromotionsCampaignsScreen.tsx",
+      "sourceFile": "src/screens/promotions/PromotionsCampaignsScreen.tsx",
+      "route": "promotions-campaigns",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:599",
+      "frameName": "02-recently-viewed-products",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-016"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-015"
+      ],
+      "component": "RecentlyViewedScreen.tsx",
+      "sourceFile": "src/screens/discovery/RecentlyViewedScreen.tsx",
+      "route": "recently-viewed",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:600",
+      "frameName": "02-search-recent-popular-trending-categories",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-017"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-016",
+        "FIGMA-PROT-019"
+      ],
+      "component": "SearchLandingScreen.tsx",
+      "sourceFile": "src/screens/search/SearchLandingScreen.tsx",
+      "route": "search-landing",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:601",
+      "frameName": "02-search-results-grid-fauteuil",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-018"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-017"
+      ],
+      "component": "SearchResultsScreen.tsx",
+      "sourceFile": "src/screens/search/SearchResultsScreen.tsx",
+      "route": "search-results",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:602",
+      "frameName": "02-search-no-results-found",
+      "domain": "Discovery & Search",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-019"
+      ],
+      "destinationConnectionIds": [],
+      "component": "SearchNoResultsScreen.tsx",
+      "sourceFile": "src/screens/search/SearchNoResultsScreen.tsx",
+      "route": "search-no-results",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:604",
+      "frameName": "03-product-detail-image-carousel-add-to-cart",
+      "domain": "Product Detail",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-020"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-011",
+        "FIGMA-PROT-014",
+        "FIGMA-PROT-018",
+        "FIGMA-PROT-021"
+      ],
+      "component": "ProductDetailsScreen.tsx",
+      "sourceFile": "src/screens/product/ProductDetailsScreen.tsx",
+      "route": "product-details",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:605",
+      "frameName": "03-product-gallery-zoom-thumbnails",
+      "domain": "Product Detail",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-021"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-020"
+      ],
+      "component": "ProductGalleryScreen.tsx",
+      "sourceFile": "src/screens/product/ProductGalleryScreen.tsx",
+      "route": "product-gallery",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:606",
+      "frameName": "03-product-detail-full-description-reviews-specs",
+      "domain": "Product Detail",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-022"
+      ],
+      "destinationConnectionIds": [],
+      "component": "ProductFullDescriptionScreen.tsx",
+      "sourceFile": "src/screens/product/ProductFullDescriptionScreen.tsx",
+      "route": "product-description",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:607",
+      "frameName": "03-product-variant-selector-color-material-size",
+      "domain": "Product Detail",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-023"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-022"
+      ],
+      "component": "VariantSelectorSheet.tsx",
+      "sourceFile": "src/screens/product/VariantSelectorSheet.tsx",
+      "route": null,
+      "implementationType": "SHEET",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:608",
+      "frameName": "03-product-specifications-table",
+      "domain": "Product Detail",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-024"
+      ],
+      "destinationConnectionIds": [],
+      "component": "ProductSpecificationsScreen.tsx",
+      "sourceFile": "src/screens/product/ProductSpecificationsScreen.tsx",
+      "route": "product-specifications",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:609",
+      "frameName": "03-product-delivery-returns-info",
+      "domain": "Product Detail",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-025"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-024"
+      ],
+      "component": "ProductDeliveryReturnsScreen.tsx",
+      "sourceFile": "src/screens/product/ProductDeliveryReturnsScreen.tsx",
+      "route": "product-delivery-returns",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:610",
+      "frameName": "03-product-customer-reviews-ratings",
+      "domain": "Product Detail",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-026"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-025"
+      ],
+      "component": "ProductReviewsRatingsScreen.tsx",
+      "sourceFile": "src/screens/product/ProductReviewsRatingsScreen.tsx",
+      "route": "product-reviews",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:611",
+      "frameName": "03-product-added-to-cart-confirmation",
+      "domain": "Product Detail",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-027"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-023",
+        "FIGMA-PROT-026"
+      ],
+      "component": "AddedToCartConfirmationScreen.tsx",
+      "sourceFile": "src/screens/commerce/AddedToCartConfirmationScreen.tsx",
+      "route": "added-to-cart",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:613",
+      "frameName": "04-welcome-sign-in-create-account-guest-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-028"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-152"
+      ],
+      "component": "AuthenticationGateScreen.tsx",
+      "sourceFile": "src/screens/checkout/AuthenticationGateScreen.tsx",
+      "route": "auth-gate",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:614",
+      "frameName": "04-login-email-phone-password-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-029"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-030",
+        "FIGMA-PROT-137"
+      ],
+      "component": "LoginScreen.tsx",
+      "sourceFile": "src/screens/auth/LoginScreen.tsx",
+      "route": "login",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:618",
+      "frameName": "04-login-error-incorrect-credentials-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-030"
+      ],
+      "destinationConnectionIds": [],
+      "component": "LoginErrorScreen.tsx",
+      "sourceFile": "src/screens/auth/LoginErrorScreen.tsx",
+      "route": "login-error",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:622",
+      "frameName": "04-login-loading-state-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-031"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-029"
+      ],
+      "component": "LoginLoadingScreen.tsx",
+      "sourceFile": "src/screens/auth/LoginLoadingScreen.tsx",
+      "route": "login-loading",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:626",
+      "frameName": "04-forgot-password-enter-email-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-032"
+      ],
+      "destinationConnectionIds": [],
+      "component": "ForgotPasswordScreen.tsx",
+      "sourceFile": "src/screens/auth/ForgotPasswordScreen.tsx",
+      "route": "forgot-password",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:630",
+      "frameName": "04-email-verification-link-sent-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-033"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-032"
+      ],
+      "component": "EmailVerificationSentScreen.tsx",
+      "sourceFile": "src/screens/auth/EmailVerificationSentScreen.tsx",
+      "route": "recovery-email-sent",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:634",
+      "frameName": "04-otp-phone-verification-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-034"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-038"
+      ],
+      "component": "PhoneOtpVerificationScreen.tsx",
+      "sourceFile": "src/screens/auth/PhoneOtpVerificationScreen.tsx",
+      "route": "otp-verification",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:638",
+      "frameName": "04-otp-verification-error-incorrect-code-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-035"
+      ],
+      "destinationConnectionIds": [],
+      "component": "OtpErrorScreen.tsx",
+      "sourceFile": "src/screens/auth/OtpErrorScreen.tsx",
+      "route": "otp-error",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:639",
+      "frameName": "04-create-new-password-requirements-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-036"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-033",
+        "FIGMA-PROT-035"
+      ],
+      "component": "CreateNewPasswordScreen.tsx",
+      "sourceFile": "src/screens/auth/CreateNewPasswordScreen.tsx",
+      "route": "create-new-password",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:643",
+      "frameName": "04-password-changed-success-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-037"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-134"
+      ],
+      "component": "PasswordChangedSuccessScreen.tsx",
+      "sourceFile": "src/screens/auth/PasswordChangedSuccessScreen.tsx",
+      "route": "password-changed-success",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:644",
+      "frameName": "04-consent-terms-privacy-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-038"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-037",
+        "FIGMA-PROT-039"
+      ],
+      "component": "TermsConsentScreen.tsx",
+      "sourceFile": "src/screens/auth/TermsConsentScreen.tsx",
+      "route": "terms-consent",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:648",
+      "frameName": "04-registration-form-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-039"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-028"
+      ],
+      "component": "RegistrationScreen.tsx",
+      "sourceFile": "src/screens/auth/RegistrationScreen.tsx",
+      "route": "registration",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:649",
+      "frameName": "04-account-created-success-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-040"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-034"
+      ],
+      "component": "AccountCreatedSuccessScreen.tsx",
+      "sourceFile": "src/screens/auth/AccountCreatedSuccessScreen.tsx",
+      "route": "account-created",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:653",
+      "frameName": "04-login-prompt-overlay-favorites-fr",
+      "domain": "Authentication & Recovery",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-041"
+      ],
+      "destinationConnectionIds": [],
+      "component": "FavoritesAuthPromptOverlay.tsx",
+      "sourceFile": "src/screens/auth/FavoritesAuthPromptOverlay.tsx",
+      "route": "favorites-auth-prompt",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:658",
+      "frameName": "05-cart-items-promo-code-summary-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-042"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-027",
+        "FIGMA-PROT-041"
+      ],
+      "component": "CartScreen.tsx",
+      "sourceFile": "src/screens/commerce/CartScreen.tsx",
+      "route": "cart",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:659",
+      "frameName": "05-cart-quantity-update-toast-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-043"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:660",
+      "frameName": "05-cart-modify-variant-bottom-sheet-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-044"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-043"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:661",
+      "frameName": "05-cart-multi-vendor-grouped-by-seller-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-045"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-044"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:662",
+      "frameName": "05-cart-invalid-promo-code-error-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-046"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-045"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:663",
+      "frameName": "05-cart-promo-applied-order-summary-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-047"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-046",
+        "FIGMA-PROT-048"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:664",
+      "frameName": "05-cart-promo-code-modal-available-offers-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-048"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-047"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:665",
+      "frameName": "05-cart-remove-item-confirmation-dialog-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-049"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:666",
+      "frameName": "05-cart-update-needed-price-stock-changes-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-050"
+      ],
+      "destinationConnectionIds": [],
+      "component": "CartUpdateAlert.tsx",
+      "sourceFile": "src/components/cart/CartUpdateAlert.tsx",
+      "route": "cart",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:667",
+      "frameName": "05-cart-skeleton-loading-state",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-051"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-050"
+      ],
+      "component": "CartSkeleton.tsx",
+      "sourceFile": "src/components/cart/CartSkeleton.tsx",
+      "route": "cart",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:668",
+      "frameName": "05-cart-empty-state-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-052"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-049",
+        "FIGMA-PROT-051"
+      ],
+      "component": "CartEmptyState.tsx",
+      "sourceFile": "src/components/cart/CartEmptyState.tsx",
+      "route": "cart",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:669",
+      "frameName": "05-cart-error-loading-state-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-053"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-052"
+      ],
+      "component": "CartErrorState.tsx",
+      "sourceFile": "src/components/cart/CartErrorState.tsx",
+      "route": "cart",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:670",
+      "frameName": "05-wishlist-items-grid-with-prices-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-054"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-053"
+      ],
+      "component": "WishlistScreen.tsx",
+      "sourceFile": "src/screens/commerce/WishlistScreen.tsx",
+      "route": "wishlist",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:671",
+      "frameName": "05-wishlist-move-to-cart-variant-sheet-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-055"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-054"
+      ],
+      "component": "WishlistScreen.tsx",
+      "sourceFile": "src/screens/commerce/WishlistScreen.tsx",
+      "route": "wishlist",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:672",
+      "frameName": "05-wishlist-out-of-stock-alternatives-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-056"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-055"
+      ],
+      "component": "WishlistScreen.tsx",
+      "sourceFile": "src/screens/commerce/WishlistScreen.tsx",
+      "route": "wishlist",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:673",
+      "frameName": "05-wishlist-price-change-notifications-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-057"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-056"
+      ],
+      "component": "WishlistScreen.tsx",
+      "sourceFile": "src/screens/commerce/WishlistScreen.tsx",
+      "route": "wishlist",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:674",
+      "frameName": "05-wishlist-remove-confirmation-dialog-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-058"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-057"
+      ],
+      "component": "WishlistScreen.tsx",
+      "sourceFile": "src/screens/commerce/WishlistScreen.tsx",
+      "route": "wishlist",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:675",
+      "frameName": "05-wishlist-empty-state-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-059"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-058"
+      ],
+      "component": "WishlistScreen.tsx",
+      "sourceFile": "src/screens/commerce/WishlistScreen.tsx",
+      "route": "wishlist",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:676",
+      "frameName": "05-saved-for-later-items-list-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-060"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-059"
+      ],
+      "component": "SavedForLaterList.tsx",
+      "sourceFile": "src/components/cart/SavedForLaterList.tsx",
+      "route": "cart",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:677",
+      "frameName": "05-cart-merge-guest-account-fusion-fr",
+      "domain": "Cart & Wishlist",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-061"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-060"
+      ],
+      "component": "CartMergeSummary.tsx",
+      "sourceFile": "src/components/cart/CartMergeSummary.tsx",
+      "route": "cart",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:679",
+      "frameName": "06-checkout-summary-4step-overview-v2-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-062"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-042",
+        "FIGMA-PROT-061"
+      ],
+      "component": "CheckoutSummaryScreen.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutSummaryScreen.tsx",
+      "route": "checkout-summary",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:680",
+      "frameName": "06-choose-address-saved-list-v2-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-063"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-062",
+        "FIGMA-PROT-064"
+      ],
+      "component": "AddressSelectionScreen.tsx",
+      "sourceFile": "src/screens/checkout/AddressSelectionScreen.tsx",
+      "route": "address-selection",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:681",
+      "frameName": "06-add-new-address-form-v2-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-064"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-065"
+      ],
+      "component": "AddAddressFormScreen.tsx",
+      "sourceFile": "src/screens/checkout/AddAddressFormScreen.tsx",
+      "route": "add-address",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:682",
+      "frameName": "06-add-address-validation-errors-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-065"
+      ],
+      "destinationConnectionIds": [],
+      "component": "AddAddressFormScreen.tsx",
+      "sourceFile": "src/screens/checkout/AddAddressFormScreen.tsx",
+      "route": "add-address-errors",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:683",
+      "frameName": "06-city-selector-list-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-066"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:684",
+      "frameName": "06-delivery-zone-selector-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-067"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-066"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:685",
+      "frameName": "06-edit-address-form-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-068"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-067"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:686",
+      "frameName": "06-no-address-saved-empty-state-v2-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-069"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-068"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:687",
+      "frameName": "06-choose-delivery-standard-express-relay-v2-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-070"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-063",
+        "FIGMA-PROT-069"
+      ],
+      "component": "DeliveryMethodScreen.tsx",
+      "sourceFile": "src/screens/checkout/DeliveryMethodScreen.tsx",
+      "route": "delivery-method",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:688",
+      "frameName": "06-delivery-by-vendor-multi-seller-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-071"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:689",
+      "frameName": "06-delivery-unavailable-address-error-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-072"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-071"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:690",
+      "frameName": "06-choose-payment-cmi-cod-wallet-v2-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-073"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-070",
+        "FIGMA-PROT-072",
+        "FIGMA-PROT-082",
+        "FIGMA-PROT-083"
+      ],
+      "component": "PaymentMethodScreen.tsx",
+      "sourceFile": "src/screens/checkout/PaymentMethodScreen.tsx",
+      "route": "payment-method",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:691",
+      "frameName": "06-pay-with-wallet-balance-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-074"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:692",
+      "frameName": "06-saved-payment-cards-visa-mastercard-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-075"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-074"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:693",
+      "frameName": "06-payment-step-intro-step3-v2-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-076"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-075"
+      ],
+      "component": "PaymentStepIntroScreen.tsx",
+      "sourceFile": "src/screens/checkout/PaymentStepIntroScreen.tsx",
+      "route": "payment-step-intro",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:694",
+      "frameName": "06-secure-payment-redirect-v2-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-077"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-076"
+      ],
+      "component": "PaymentFlowScreens.tsx",
+      "sourceFile": "src/screens/checkout/PaymentFlowScreens.tsx",
+      "route": "secure-payment-redirect",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:695",
+      "frameName": "06-secure-payment-redirect-loading-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-078"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-077"
+      ],
+      "component": "PaymentFlowScreens.tsx",
+      "sourceFile": "src/screens/checkout/PaymentFlowScreens.tsx",
+      "route": "secure-payment-loading",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:696",
+      "frameName": "06-payment-verification-processing-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-079"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-078"
+      ],
+      "component": "PaymentFlowScreens.tsx",
+      "sourceFile": "src/screens/checkout/PaymentFlowScreens.tsx",
+      "route": "payment-verification",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:697",
+      "frameName": "06-cash-on-delivery-confirmation-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-080"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-079"
+      ],
+      "component": "PaymentFlowScreens.tsx",
+      "sourceFile": "src/screens/checkout/PaymentFlowScreens.tsx",
+      "route": "cash-on-delivery-confirmation",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:698",
+      "frameName": "06-payment-confirmed-success-v2-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-081"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-073",
+        "FIGMA-PROT-080",
+        "FIGMA-PROT-089"
+      ],
+      "component": "PaymentSuccessScreen.tsx",
+      "sourceFile": "src/screens/checkout/PaymentSuccessScreen.tsx",
+      "route": "payment-success",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:699",
+      "frameName": "06-payment-failed-retry-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-082"
+      ],
+      "destinationConnectionIds": [],
+      "component": "PaymentFlowScreens.tsx",
+      "sourceFile": "src/screens/checkout/PaymentFlowScreens.tsx",
+      "route": "payment-failed",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:700",
+      "frameName": "06-payment-cancelled-resume-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-083"
+      ],
+      "destinationConnectionIds": [],
+      "component": "PaymentFlowScreens.tsx",
+      "sourceFile": "src/screens/checkout/PaymentFlowScreens.tsx",
+      "route": "payment-cancelled",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:701",
+      "frameName": "06-payment-confirmation-taking-longer-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-084"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:702",
+      "frameName": "06-payment-pending-confirmation-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-085"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-084"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:703",
+      "frameName": "06-order-review-confirm-multi-vendor-v2-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-086"
+      ],
+      "destinationConnectionIds": [],
+      "component": "OrderReviewScreen.tsx",
+      "sourceFile": "src/screens/checkout/OrderReviewScreen.tsx",
+      "route": "order-review",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:704",
+      "frameName": "06-terms-conditions-confirmation-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-087"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:705",
+      "frameName": "06-order-thank-you-confirmation-summary-v2-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-088"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-081",
+        "FIGMA-PROT-087"
+      ],
+      "component": "OrderThankYouScreen.tsx",
+      "sourceFile": "src/screens/orders/OrderThankYouScreen.tsx",
+      "route": "order-thank-you",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:706",
+      "frameName": "06-order-processing-loading-state-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-089"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-086"
+      ],
+      "component": "OrderProcessingScreen.tsx",
+      "sourceFile": "src/screens/checkout/OrderProcessingScreen.tsx",
+      "route": "order-processing",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:707",
+      "frameName": "06-order-already-in-progress-duplicate-check-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-090"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:708",
+      "frameName": "06-order-needs-update-price-stock-changes-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-091"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-090"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:709",
+      "frameName": "06-checkout-skeleton-loading-state",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-092"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-091"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:710",
+      "frameName": "06-checkout-error-loading-state-fr",
+      "domain": "Checkout & Payment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-093"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-092"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:712",
+      "frameName": "07-orders-list-all-tabs-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-094"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-085",
+        "FIGMA-PROT-088",
+        "FIGMA-PROT-093"
+      ],
+      "component": "OrdersListScreen.tsx",
+      "sourceFile": "src/screens/orders/OrdersListScreen.tsx",
+      "route": "orders-list",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+    },
+    {
+      "figmaNodeId": "309:713",
+      "frameName": "07-orders-in-progress-tab-statuses-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-095"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:714",
+      "frameName": "07-orders-completed-tab-reorder-review-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-096"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:715",
+      "frameName": "07-orders-cancelled-tab-refund-statuses-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-097"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-096"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:716",
+      "frameName": "07-order-detail-in-preparation-timeline-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-098"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-094",
+        "FIGMA-PROT-095",
+        "FIGMA-PROT-097"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:717",
+      "frameName": "07-order-detail-shipped-tracking-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-099"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:718",
+      "frameName": "07-order-tracking-timeline-realtime-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-100"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-098",
+        "FIGMA-PROT-099"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:719",
+      "frameName": "07-order-detail-delivered-actions-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-101"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-100"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:720",
+      "frameName": "07-order-detail-multi-vendor-packages-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-102"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:721",
+      "frameName": "07-multiple-packages-split-shipment-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-103"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-102"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:722",
+      "frameName": "07-package-detail-items-shipping-info-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-104"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-103"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:723",
+      "frameName": "07-invoice-detail-download-share-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-105"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-104"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:724",
+      "frameName": "07-cancel-order-confirmation-dialog-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-106"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-105"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:725",
+      "frameName": "07-cancel-order-reason-form-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-107"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-106"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:726",
+      "frameName": "07-cancellation-request-registered-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-108"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-107"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:727",
+      "frameName": "07-order-cannot-be-cancelled-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-109"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-108"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:728",
+      "frameName": "07-rate-order-review-products-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-110"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-101",
+        "FIGMA-PROT-109"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:729",
+      "frameName": "07-reorder-articles-changed-unavailable-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-111"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-110"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:730",
+      "frameName": "07-reorder-items-added-to-cart-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-112"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-111"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:731",
+      "frameName": "07-reorder-with-availability-changes-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-113"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-112"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:732",
+      "frameName": "07-request-return-item-selection-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-114"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-113"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:733",
+      "frameName": "07-return-detail-items-refund-status-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-115"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-114"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:734",
+      "frameName": "07-return-tracking-timeline-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-116"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-115"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:735",
+      "frameName": "07-request-refund-cancelled-order-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-117"
+      ],
+      "destinationConnectionIds": [],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:736",
+      "frameName": "07-refund-completed-success-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-118"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-116",
+        "FIGMA-PROT-117"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:737",
+      "frameName": "07-delivery-delayed-notification-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-119"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-118"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:738",
+      "frameName": "07-delivery-failed-reschedule-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-120"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-119"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:739",
+      "frameName": "07-support-order-contact-form-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-121"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-120"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:740",
+      "frameName": "07-tracking-unavailable-in-preparation-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-122"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-121"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:741",
+      "frameName": "07-order-not-found-error-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-123"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-122"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:742",
+      "frameName": "07-orders-empty-state-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-124"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-123"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:743",
+      "frameName": "07-orders-error-loading-state-fr",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-125"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-124"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:744",
+      "frameName": "07-orders-skeleton-loading-state",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-126"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-125"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:745",
+      "frameName": "07-order-detail-skeleton-loading-state",
+      "domain": "Buyer Orders & Fulfillment",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-127"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-126"
+      ],
+      "component": null,
+      "sourceFile": null,
+      "route": null,
+      "implementationType": "UNIMPLEMENTED",
+      "screenStatus": "MISSING",
+      "evidenceSource": null
+    },
+    {
+      "figmaNodeId": "309:747",
+      "frameName": "08-account-dashboard-profile-menu-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-128"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-127",
+        "FIGMA-PROT-131"
+      ],
+      "component": "AccountScreen.tsx",
+      "sourceFile": "src/screens/commerce/AccountScreen.tsx",
+      "route": "account",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:748",
+      "frameName": "08-account-settings-menu-photo-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-129"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-128"
+      ],
+      "component": "AccountSettingsScreen.tsx",
+      "sourceFile": "src/screens/account/AccountSettingsScreen.tsx",
+      "route": "account-settings",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:749",
+      "frameName": "08-my-information-personal-details-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-130"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-129"
+      ],
+      "component": "MyInformationScreen.tsx",
+      "sourceFile": "src/screens/account/MyInformationScreen.tsx",
+      "route": "my-information",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:750",
+      "frameName": "08-edit-profile-form-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-131"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-130"
+      ],
+      "component": "EditProfileScreen.tsx",
+      "sourceFile": "src/screens/account/EditProfileScreen.tsx",
+      "route": "edit-profile",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:751",
+      "frameName": "08-complete-profile-progress-60-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-132"
+      ],
+      "destinationConnectionIds": [],
+      "component": "AccountScreen.tsx",
+      "sourceFile": "src/screens/commerce/AccountScreen.tsx",
+      "route": "my-information",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:752",
+      "frameName": "08-change-email-form-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-133"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-132"
+      ],
+      "component": "ChangeEmailScreen.tsx",
+      "sourceFile": "src/screens/account/ChangeEmailScreen.tsx",
+      "route": "change-email",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:753",
+      "frameName": "08-change-password-form-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-134"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-133"
+      ],
+      "component": "ChangePasswordFormScreen.tsx",
+      "sourceFile": "src/screens/account/ChangePasswordFormScreen.tsx",
+      "route": "change-password",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:754",
+      "frameName": "08-change-phone-number-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-135"
+      ],
+      "destinationConnectionIds": [],
+      "component": "ChangePhoneScreen.tsx",
+      "sourceFile": "src/screens/account/ChangePhoneScreen.tsx",
+      "route": "change-phone",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:755",
+      "frameName": "08-verify-phone-otp-code-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-136"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-135"
+      ],
+      "component": "AccountVerifyPhoneOtpScreen.tsx",
+      "sourceFile": "src/screens/account/AccountVerifyPhoneOtpScreen.tsx",
+      "route": "account-verify-phone",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:756",
+      "frameName": "08-password-changed-success-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-137"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-036",
+        "FIGMA-PROT-136"
+      ],
+      "component": "PasswordChangedSuccessScreen.tsx",
+      "sourceFile": "src/screens/auth/PasswordChangedSuccessScreen.tsx",
+      "route": "password-changed-success",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:757",
+      "frameName": "08-account-security-overview-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-138"
+      ],
+      "destinationConnectionIds": [],
+      "component": "AccountSecurityScreen.tsx",
+      "sourceFile": "src/screens/account/AccountSecurityScreen.tsx",
+      "route": "account-security",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:758",
+      "frameName": "08-security-privacy-full-menu-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-139"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-138"
+      ],
+      "component": "SecurityPrivacyMenuScreen.tsx",
+      "sourceFile": "src/screens/account/SecurityPrivacyMenuScreen.tsx",
+      "route": "security-privacy",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:759",
+      "frameName": "08-security-privacy-with-2fa-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-140"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-139"
+      ],
+      "component": "TwoFactorAuthScreen.tsx",
+      "sourceFile": "src/screens/account/TwoFactorAuthScreen.tsx",
+      "route": "security-2fa",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:760",
+      "frameName": "08-active-sessions-devices-v2-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-141"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-140"
+      ],
+      "component": "ActiveSessionsScreen.tsx",
+      "sourceFile": "src/screens/account/ActiveSessionsScreen.tsx",
+      "route": "active-sessions",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:761",
+      "frameName": "08-disconnect-device-confirmation-v2-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-142"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-141"
+      ],
+      "component": "DisconnectSessionModal.tsx",
+      "sourceFile": "src/screens/account/DisconnectSessionModal.tsx",
+      "route": null,
+      "implementationType": "MODAL",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:762",
+      "frameName": "08-my-addresses-list-labels-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-143"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-142"
+      ],
+      "component": "MyAddressesListScreen.tsx",
+      "sourceFile": "src/screens/account/MyAddressesListScreen.tsx",
+      "route": "my-addresses",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:763",
+      "frameName": "08-my-addresses-list-v2-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-144"
+      ],
+      "destinationConnectionIds": [],
+      "component": "MyAddressesListV2Screen.tsx",
+      "sourceFile": "src/screens/account/MyAddressesListV2Screen.tsx",
+      "route": "my-addresses-v2",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:764",
+      "frameName": "08-add-address-form-v2-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-145"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-144"
+      ],
+      "component": "AccountAddAddressV2Screen.tsx",
+      "sourceFile": "src/screens/account/AccountAddAddressV2Screen.tsx",
+      "route": "account-add-address",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:765",
+      "frameName": "08-add-address-simple-form-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-146"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-143",
+        "FIGMA-PROT-145"
+      ],
+      "component": "AccountAddAddressSimpleScreen.tsx",
+      "sourceFile": "src/screens/account/AccountAddAddressSimpleScreen.tsx",
+      "route": "account-add-address-simple",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:766",
+      "frameName": "08-edit-address-form-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-147"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-146"
+      ],
+      "component": "AccountEditAddressScreen.tsx",
+      "sourceFile": "src/screens/account/AccountEditAddressScreen.tsx",
+      "route": "account-edit-address",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:767",
+      "frameName": "08-delete-address-confirmation-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-148"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-147"
+      ],
+      "component": "DeleteAddressModal.tsx",
+      "sourceFile": "src/screens/account/DeleteAddressModal.tsx",
+      "route": null,
+      "implementationType": "MODAL",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:768",
+      "frameName": "08-payment-methods-card-cod-wallet-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-149"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-148"
+      ],
+      "component": "PaymentMethodsScreen.tsx",
+      "sourceFile": "src/screens/account/PaymentMethodsScreen.tsx",
+      "route": "payment-methods",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:769",
+      "frameName": "08-language-region-preferences-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-150"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-149"
+      ],
+      "component": "LanguageRegionPreferencesScreen.tsx",
+      "sourceFile": "src/screens/account/LanguageRegionPreferencesScreen.tsx",
+      "route": "language-region",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:770",
+      "frameName": "08-language-selection-3-languages-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-151"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-150"
+      ],
+      "component": "LanguageSelectionAccountScreen.tsx",
+      "sourceFile": "src/screens/account/LanguageSelectionAccountScreen.tsx",
+      "route": "language-selection",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:771",
+      "frameName": "08-logout-confirmation-dialog-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-152"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-151"
+      ],
+      "component": "LogoutConfirmationModal.tsx",
+      "sourceFile": "src/screens/account/LogoutConfirmationModal.tsx",
+      "route": "logout-confirmation",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:772",
+      "frameName": "08-marketing-preferences-cart-reminders-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-153"
+      ],
+      "destinationConnectionIds": [],
+      "component": "MarketingCartRemindersScreen.tsx",
+      "sourceFile": "src/screens/account/MarketingCartRemindersScreen.tsx",
+      "route": "marketing-cart-reminders",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:773",
+      "frameName": "08-marketing-preferences-detailed-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-154"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-153"
+      ],
+      "component": "MarketingDetailedPreferencesScreen.tsx",
+      "sourceFile": "src/screens/account/MarketingDetailedPreferencesScreen.tsx",
+      "route": "marketing-detailed-preferences",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:774",
+      "frameName": "08-marketing-preferences-toggles-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-155"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-154"
+      ],
+      "component": "MarketingTogglesScreen.tsx",
+      "sourceFile": "src/screens/account/MarketingTogglesScreen.tsx",
+      "route": "marketing-toggles",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:775",
+      "frameName": "08-notification-management-channels-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-156"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-155"
+      ],
+      "component": "NotificationChannelsScreen.tsx",
+      "sourceFile": "src/screens/account/NotificationChannelsScreen.tsx",
+      "route": "notification-channels",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:776",
+      "frameName": "08-notification-settings-toggles-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-157"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-156"
+      ],
+      "component": "NotificationSettingsTogglesScreen.tsx",
+      "sourceFile": "src/screens/account/NotificationSettingsTogglesScreen.tsx",
+      "route": "notification-settings-toggles",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:777",
+      "frameName": "08-notification-detail-order-preparation-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-158"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-157"
+      ],
+      "component": "NotificationDetailPrepScreen.tsx",
+      "sourceFile": "src/screens/account/NotificationDetailPrepScreen.tsx",
+      "route": "notification-detail-prep",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:778",
+      "frameName": "08-notification-detail-order-shipped-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-159"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-158"
+      ],
+      "component": "NotificationDetailShippedScreen.tsx",
+      "sourceFile": "src/screens/account/NotificationDetailShippedScreen.tsx",
+      "route": "notification-detail-shipped",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:779",
+      "frameName": "08-silent-hours-day-selection-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-160"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-159"
+      ],
+      "component": "SilentHoursDaySelectionScreen.tsx",
+      "sourceFile": "src/screens/account/SilentHoursDaySelectionScreen.tsx",
+      "route": "silent-hours-day-selection",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:780",
+      "frameName": "08-silent-hours-do-not-disturb-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-161"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-160"
+      ],
+      "component": "SilentHoursDoNotDisturbScreen.tsx",
+      "sourceFile": "src/screens/account/SilentHoursDoNotDisturbScreen.tsx",
+      "route": "silent-hours-dnd",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:781",
+      "frameName": "08-faq-accordion-questions-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-162"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-161"
+      ],
+      "component": "FaqAccordionScreen.tsx",
+      "sourceFile": "src/screens/support/FaqAccordionScreen.tsx",
+      "route": "faq",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:782",
+      "frameName": "08-faq-detail-expanded-answer-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-163"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-162"
+      ],
+      "component": "FaqDetailScreen.tsx",
+      "sourceFile": "src/screens/support/FaqDetailScreen.tsx",
+      "route": "faq-detail",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:783",
+      "frameName": "08-faq-tab-categories-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-164"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-163",
+        "FIGMA-PROT-185"
+      ],
+      "component": "FaqCategoriesScreen.tsx",
+      "sourceFile": "src/screens/support/FaqCategoriesScreen.tsx",
+      "route": "faq-categories",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:784",
+      "frameName": "08-help-center-categories-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-165"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-164"
+      ],
+      "component": "HelpCenterCategoriesScreen.tsx",
+      "sourceFile": "src/screens/support/HelpCenterCategoriesScreen.tsx",
+      "route": "help-center",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:785",
+      "frameName": "08-help-center-with-recent-requests-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-166"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-165"
+      ],
+      "component": "HelpCenterRequestsScreen.tsx",
+      "sourceFile": "src/screens/support/HelpCenterRequestsScreen.tsx",
+      "route": "help-center-requests",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:786",
+      "frameName": "08-help-support-faq-categories-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-167"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-166"
+      ],
+      "component": "HelpSupportHubScreen.tsx",
+      "sourceFile": "src/screens/support/HelpSupportHubScreen.tsx",
+      "route": "help-support",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:787",
+      "frameName": "08-account-guest-welcome-login-fr",
+      "domain": "Account & Buyer Preferences",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-168"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-167"
+      ],
+      "component": "AccountScreen.tsx",
+      "sourceFile": "src/screens/commerce/AccountScreen.tsx",
+      "route": "account",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:789",
+      "frameName": "09-settings-menu-full-list-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-169"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-168"
+      ],
+      "component": "SettingsScreen.tsx",
+      "sourceFile": "src/screens/account/SettingsScreen.tsx",
+      "route": "settings",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:790",
+      "frameName": "09-about-app-version-info-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-170"
+      ],
+      "destinationConnectionIds": [],
+      "component": "AboutAppVersionScreen.tsx",
+      "sourceFile": "src/screens/account/AboutAppVersionScreen.tsx",
+      "route": "about-app",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:791",
+      "frameName": "09-about-mayush-design-company-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-171"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-170"
+      ],
+      "component": "AboutMayushCompanyScreen.tsx",
+      "sourceFile": "src/screens/account/AboutMayushCompanyScreen.tsx",
+      "route": "about-mayush",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:792",
+      "frameName": "09-accessibility-settings-text-contrast-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-172"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-171"
+      ],
+      "component": "AccessibilitySettingsScreen.tsx",
+      "sourceFile": "src/screens/account/AccessibilitySettingsScreen.tsx",
+      "route": "accessibility",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:793",
+      "frameName": "09-app-permissions-camera-photos-location-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-173"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-172"
+      ],
+      "component": "AppPermissionsScreen.tsx",
+      "sourceFile": "src/screens/account/AppPermissionsScreen.tsx",
+      "route": "app-permissions",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:794",
+      "frameName": "09-data-usage-image-quality-wifi-cache-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-174"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-173"
+      ],
+      "component": "DataUsageScreen.tsx",
+      "sourceFile": "src/screens/account/DataUsageScreen.tsx",
+      "route": "data-usage",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:795",
+      "frameName": "09-storage-cache-management-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-175"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-174"
+      ],
+      "component": "StorageCacheScreen.tsx",
+      "sourceFile": "src/screens/account/StorageCacheScreen.tsx",
+      "route": "storage-cache",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:796",
+      "frameName": "09-clear-cache-confirmation-dialog-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-176"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-175"
+      ],
+      "component": "ClearCacheConfirmationModal.tsx",
+      "sourceFile": "src/screens/account/ClearCacheConfirmationModal.tsx",
+      "route": null,
+      "implementationType": "MODAL",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:797",
+      "frameName": "09-choose-language-french-arabic-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-177"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-176"
+      ],
+      "component": "LanguageSelectionAccountScreen.tsx",
+      "sourceFile": "src/screens/account/LanguageSelectionAccountScreen.tsx",
+      "route": "language-selection",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:798",
+      "frameName": "09-notification-settings-matrix-grid-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-178"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-177"
+      ],
+      "component": "NotificationSettingsTogglesScreen.tsx",
+      "sourceFile": "src/screens/account/NotificationSettingsTogglesScreen.tsx",
+      "route": "notification-settings-toggles",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:799",
+      "frameName": "09-marketing-preferences-detailed-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-179"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-178"
+      ],
+      "component": "MarketingDetailedPreferencesScreen.tsx",
+      "sourceFile": "src/screens/account/MarketingDetailedPreferencesScreen.tsx",
+      "route": "marketing-detailed-preferences",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:800",
+      "frameName": "09-silent-hours-day-selection-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-180"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-179"
+      ],
+      "component": "SilentHoursDaySelectionScreen.tsx",
+      "sourceFile": "src/screens/account/SilentHoursDaySelectionScreen.tsx",
+      "route": "silent-hours-day-selection",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:801",
+      "frameName": "09-offline-mode-limited-functionality-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-181"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-180"
+      ],
+      "component": "OfflineModeScreen.tsx",
+      "sourceFile": "src/screens/account/OfflineModeScreen.tsx",
+      "route": "offline-mode",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:802",
+      "frameName": "09-legal-center-terms-policies-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-182"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-181"
+      ],
+      "component": "LegalCenterScreen.tsx",
+      "sourceFile": "src/screens/account/LegalCenterScreen.tsx",
+      "route": "legal-center",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:803",
+      "frameName": "09-privacy-data-policies-delete-account-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-183"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-182"
+      ],
+      "component": "PrivacyDataManagementScreen.tsx",
+      "sourceFile": "src/screens/account/PrivacyDataManagementScreen.tsx",
+      "route": "privacy-data",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:804",
+      "frameName": "09-privacy-policy-full-document-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-184"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-183"
+      ],
+      "component": "PrivacyPolicyDocumentScreen.tsx",
+      "sourceFile": "src/screens/account/PrivacyPolicyDocumentScreen.tsx",
+      "route": "privacy-policy",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:805",
+      "frameName": "09-help-center-home-categories-requests-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-185"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-169",
+        "FIGMA-PROT-184"
+      ],
+      "component": "HelpCenterHomeScreen.tsx",
+      "sourceFile": "src/screens/support/HelpCenterHomeScreen.tsx",
+      "route": "help-center-home",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:806",
+      "frameName": "09-help-category-orders-delivery-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-186"
+      ],
+      "destinationConnectionIds": [],
+      "component": "HelpCategoryOrdersDeliveryScreen.tsx",
+      "sourceFile": "src/screens/support/HelpCategoryOrdersDeliveryScreen.tsx",
+      "route": "help-category-orders-delivery",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:807",
+      "frameName": "09-help-center-search-results-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-187"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-186"
+      ],
+      "component": "HelpCenterSearchResultsScreen.tsx",
+      "sourceFile": "src/screens/support/HelpCenterSearchResultsScreen.tsx",
+      "route": "help-center-search-results",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:808",
+      "frameName": "09-faq-tab-categories-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-188"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-187"
+      ],
+      "component": "FaqTabCategoriesScreen.tsx",
+      "sourceFile": "src/screens/support/FaqTabCategoriesScreen.tsx",
+      "route": "faq-tab-categories",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:809",
+      "frameName": "09-faq-article-track-order-steps-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-189"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-188"
+      ],
+      "component": "FaqArticleTrackOrderStepsScreen.tsx",
+      "sourceFile": "src/screens/support/FaqArticleTrackOrderStepsScreen.tsx",
+      "route": "faq-article-track-order-steps",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:810",
+      "frameName": "09-my-support-tickets-list-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-190"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-189"
+      ],
+      "component": "MySupportTicketsListScreen.tsx",
+      "sourceFile": "src/screens/support/MySupportTicketsListScreen.tsx",
+      "route": "my-support-tickets-list",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:811",
+      "frameName": "09-no-support-requests-empty-state-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-191"
+      ],
+      "destinationConnectionIds": [],
+      "component": "NoSupportRequestsEmptyStateScreen.tsx",
+      "sourceFile": "src/screens/support/NoSupportRequestsEmptyStateScreen.tsx",
+      "route": "no-support-requests-empty-state",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:812",
+      "frameName": "09-contact-support-form-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-192"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-191"
+      ],
+      "component": "ContactSupportFormScreen.tsx",
+      "sourceFile": "src/screens/support/ContactSupportFormScreen.tsx",
+      "route": "contact-support-form",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:813",
+      "frameName": "09-attach-files-documents-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-193"
+      ],
+      "destinationConnectionIds": [],
+      "component": "AttachFilesDocumentsScreen.tsx",
+      "sourceFile": "src/screens/support/AttachFilesDocumentsScreen.tsx",
+      "route": "attach-files-documents",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:814",
+      "frameName": "09-review-send-support-request-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-194"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-192",
+        "FIGMA-PROT-193"
+      ],
+      "component": "ReviewSendSupportRequestScreen.tsx",
+      "sourceFile": "src/screens/support/ReviewSendSupportRequestScreen.tsx",
+      "route": "review-send-support-request",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:815",
+      "frameName": "09-select-order-for-support-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-195"
+      ],
+      "destinationConnectionIds": [],
+      "component": "SelectOrderForSupportScreen.tsx",
+      "sourceFile": "src/screens/support/SelectOrderForSupportScreen.tsx",
+      "route": "select-order-for-support",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:816",
+      "frameName": "09-reply-to-support-message-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-196"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-195"
+      ],
+      "component": "ReplyToSupportMessageScreen.tsx",
+      "sourceFile": "src/screens/support/ReplyToSupportMessageScreen.tsx",
+      "route": "reply-to-support-message",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:817",
+      "frameName": "09-ticket-detail-conversation-thread-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-197"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-190",
+        "FIGMA-PROT-196"
+      ],
+      "component": "TicketDetailConversationThreadScreen.tsx",
+      "sourceFile": "src/screens/support/TicketDetailConversationThreadScreen.tsx",
+      "route": "ticket-detail-conversation-thread",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:818",
+      "frameName": "09-close-request-confirmation-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-198"
+      ],
+      "destinationConnectionIds": [],
+      "component": "CloseRequestConfirmationScreen.tsx",
+      "sourceFile": "src/screens/support/CloseRequestConfirmationScreen.tsx",
+      "route": "close-request-confirmation",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:819",
+      "frameName": "09-support-request-sent-success-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-199"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-194",
+        "FIGMA-PROT-198"
+      ],
+      "component": "SupportRequestSentSuccessScreen.tsx",
+      "sourceFile": "src/screens/support/SupportRequestSentSuccessScreen.tsx",
+      "route": "support-request-sent-success",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:820",
+      "frameName": "09-ticket-resolved-rating-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-200"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-197",
+        "FIGMA-PROT-199"
+      ],
+      "component": "TicketResolvedRatingScreen.tsx",
+      "sourceFile": "src/screens/support/TicketResolvedRatingScreen.tsx",
+      "route": "ticket-resolved-rating",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:821",
+      "frameName": "09-support-connection-error-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-201"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-200"
+      ],
+      "component": "SupportConnectionErrorScreen.tsx",
+      "sourceFile": "src/screens/support/SupportConnectionErrorScreen.tsx",
+      "route": "support-connection-error",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:822",
+      "frameName": "09-support-temporarily-unavailable-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-202"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-201"
+      ],
+      "component": "SupportTemporarilyUnavailableScreen.tsx",
+      "sourceFile": "src/screens/support/SupportTemporarilyUnavailableScreen.tsx",
+      "route": "support-temporarily-unavailable",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:823",
+      "frameName": "09-maintenance-mode-services-impacted-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-203"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-202"
+      ],
+      "component": "MaintenanceModeServicesImpactedScreen.tsx",
+      "sourceFile": "src/screens/support/MaintenanceModeServicesImpactedScreen.tsx",
+      "route": "maintenance-mode-services-impacted",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:824",
+      "frameName": "09-app-update-available-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-204"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-203"
+      ],
+      "component": "AppUpdateAvailableScreen.tsx",
+      "sourceFile": "src/screens/support/AppUpdateAvailableScreen.tsx",
+      "route": "app-update-available",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:825",
+      "frameName": "09-forced-update-required-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-205"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-204"
+      ],
+      "component": "ForcedUpdateRequiredScreen.tsx",
+      "sourceFile": "src/screens/support/ForcedUpdateRequiredScreen.tsx",
+      "route": "forced-update-required",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:826",
+      "frameName": "09-settings-error-loading-state-fr",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [
+        "FIGMA-PROT-206"
+      ],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-205"
+      ],
+      "component": "SettingsErrorLoadingStateScreen.tsx",
+      "sourceFile": "src/screens/support/SettingsErrorLoadingStateScreen.tsx",
+      "route": "settings-error-loading-state",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    },
+    {
+      "figmaNodeId": "309:827",
+      "frameName": "09-settings-skeleton-loading-state",
+      "domain": "Settings, Support & System",
+      "sourceConnectionIds": [],
+      "destinationConnectionIds": [
+        "FIGMA-PROT-206"
+      ],
+      "component": "SettingsSkeletonLoadingStateScreen.tsx",
+      "sourceFile": "src/screens/support/SettingsSkeletonLoadingStateScreen.tsx",
+      "route": "settings-skeleton-loading-state",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+    }
+  ]
+}

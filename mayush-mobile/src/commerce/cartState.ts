@@ -2,12 +2,21 @@ export const CART_STORAGE_KEY = 'mayush-mobile:cart-state';
 
 export interface CartLine {
   id: string;
-  productId: number;
+  productId: number | string;
   name: string;
+  /** Alias for display name in cart cards */
+  productName?: string;
   variant: string;
+  /** Stable variant identity supplied by the selector/API when available. */
+  variantId?: string;
+  /** Alias for variant label in cart cards */
+  selectedVariantText?: string;
   quantity: number;
   unitPriceMad: number;
   imageUri?: string;
+  /** Alias for product image asset source */
+  imageAsset?: string;
+  sellerId?: string;
 }
 
 export interface CartState {
@@ -22,6 +31,34 @@ export interface CartTotals {
 export const emptyCartState = (): CartState => ({ lines: [] });
 
 const normalizedQuantity = (quantity: number) => Math.max(1, Math.floor(quantity));
+
+export interface SelectedVariantCartInput {
+  productId: number | string;
+  name: string;
+  variant: string;
+  quantity: number;
+  unitPriceMad: number;
+  imageUri?: string;
+  sellerId?: string;
+}
+
+export const createSelectedVariantCartLine = (input: SelectedVariantCartInput): CartLine => {
+  const variant = input.variant.trim() || 'Standard';
+  return {
+    id: `${input.productId}:${variant}`,
+    productId: input.productId,
+    name: input.name,
+    productName: input.name,
+    variant,
+    variantId: variant,
+    selectedVariantText: variant,
+    quantity: normalizedQuantity(input.quantity),
+    unitPriceMad: input.unitPriceMad,
+    imageUri: input.imageUri,
+    imageAsset: input.imageUri,
+    sellerId: input.sellerId,
+  };
+};
 
 export const addCartLine = (state: CartState, line: CartLine): CartState => {
   const quantity = normalizedQuantity(line.quantity);

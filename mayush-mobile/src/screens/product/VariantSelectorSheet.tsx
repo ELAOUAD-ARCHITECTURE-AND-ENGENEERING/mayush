@@ -47,12 +47,12 @@ export const VariantSelectorSheet: React.FC<VariantSelectorSheetProps> = ({ visi
     let active = true;
     const variantText = [selectedColor, materialOptions[selectedMaterial]?.label, `L ${selectedDimension === 0 ? '78' : selectedDimension === 1 ? '88' : '98'} cm`].filter(Boolean).join('-');
     setCalculating(true);
-    catalogService.getVariantPrice({ slug: String(product.id), variants: variantText, color: selectedColor.replace('#', ''), quantity }, language)
+    catalogService.getVariantPrice({ slug: String(product.id), variants: variantText, color: selectedColor.replace('#', '') }, language)
       .then((response) => {
         if (!active || !response.result || !response.data) return;
         setPrice(response.data.price);
         setStock(response.data.stock);
-        setInStock(response.data.in_stock === 1 && response.data.stock > 0);
+        setInStock(response.data.stock > 0);
         setVariant(response.data.variant || variantText);
       })
       .catch(() => {

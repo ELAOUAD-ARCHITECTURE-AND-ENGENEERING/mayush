@@ -50,43 +50,88 @@ export type MayushIconName =
   | 'phone'
   | 'chair-rolling'
   | 'outdoor-lamp'
-  | 'truck-outline';
+  | 'truck-outline'
+  | 'trending-down'
+  | 'trending-up'
+  | 'truck'
+  | 'refresh-cw'
+  | 'shield-check'
+  | 'file-text'
+  | 'thumbs-up'
+  | 'x-circle'
+  | 'alert-circle'
+  | 'lock'
+  | 'eye'
+  | 'eye-off'
+  | 'circle'
+  | 'credit-card'
+  | 'globe'
+  | 'log-out'
+  | 'wallet'
+  | 'help-circle'
+  | 'chevron-up'
+  | 'life-buoy'
+  | 'rotate-ccw'
+  | 'box'
+  | 'mail'
+  | 'message-circle'
+  | 'headphones'
+  | 'thumbs-down'
+  | 'external-link'
+  | 'inbox'
+  | 'send'
+  | 'paperclip'
+  | 'edit-3'
+  | 'sun'
+  | 'message-square'
+  | 'align-left'
+  | 'image'
+  | 'plus-circle'
+  | 'alert-triangle'
+  | 'star-filled'
+  | 'download'
+  | 'list'
+  | 'wrench'
+  | 'wifi-off';
 
 interface MayushIconProps {
   name: MayushIconName;
   size?: number;
   color?: ColorValue;
   strokeWidth?: number;
+  style?: any;
 }
 
-const materialIcons = new Set<MayushIconName>([
-  'sofa',
-  'bed',
-  'lamp',
-  'table-furniture',
-  'rug',
-  'package-variant-closed',
-  'chair-rolling',
-  'outdoor-lamp',
-  'truck-outline',
-]);
+const MATERIAL_MAP: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+  'arrow-down-up': 'arrow-up-down',
+  'sliders-horizontal': 'tune-variant',
+  sofa: 'sofa-outline',
+  bed: 'bed-outline',
+  lamp: 'lamp-outline',
+  'table-furniture': 'table-furniture',
+  rug: 'rug',
+  'package-variant-closed': 'package-variant-closed',
+  'chair-rolling': 'chair-rolling',
+  'outdoor-lamp': 'outdoor-lamp',
+  'truck-outline': 'truck-outline',
+  'shield-check': 'shield-check-outline',
+  wallet: 'wallet-outline',
+  'star-filled': 'star',
+};
 
-export const MayushIcon: React.FC<MayushIconProps> = ({
-  name,
-  size = 24,
-  color = '#101D35',
-  strokeWidth = 1.9,
-}) => {
-  if (materialIcons.has(name)) {
-    return <MaterialCommunityIcons name={name as never} size={size} color={color} />;
+export const MayushIcon: React.FC<MayushIconProps> = ({ name, size = 24, color = '#1F2A3A', strokeWidth, style }) => {
+  const materialGlyph = MATERIAL_MAP[name];
+  if (materialGlyph) {
+    return <MaterialCommunityIcons name={materialGlyph} size={size} color={color as string} style={style} />;
   }
 
-  const featherName = name === 'sliders-horizontal'
-    ? 'sliders'
-    : name === 'share'
-      ? 'share-2'
-      : name === 'arrow-down-up'
-        ? 'repeat'
-        : name;
-  return <Feather name={featherName as never} size={size} color={color} strokeWidth={strokeWidth} />;
+  return (
+    <Feather
+      name={name as keyof typeof Feather.glyphMap}
+      size={size}
+      color={color as string}
+      strokeWidth={strokeWidth}
+      style={style}
+    />
+  );
 };
