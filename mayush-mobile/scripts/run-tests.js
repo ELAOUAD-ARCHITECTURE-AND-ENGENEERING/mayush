@@ -200,7 +200,7 @@ try {
   assert(orderStateContent.includes('order.checkoutAttemptId === input.checkoutAttemptId'), 'Duplicate checkout submission is idempotent by checkout attempt identity');
   assert(navigatorContent.includes('paymentLock') && navigatorContent.includes('setPaymentProcessing(true)') && navigatorContent.includes("setCurrentScreen('payment-success')"), 'Payment processing is locked before successful routing');
   assert(navigatorContent.includes("setCurrentScreen('checkout-summary')") && navigatorContent.includes("setCurrentScreen('address-selection')") && navigatorContent.includes("setCurrentScreen('delivery-method')") && navigatorContent.includes("setCurrentScreen('payment-method')"), 'Cart, checkout summary, address, delivery, and payment routes are connected in sequence');
-  assert(navigatorContent.includes("setCurrentScreen('order-thank-you')") && navigatorContent.includes("setCurrentScreen('orders-list')") && navigatorContent.includes("setCurrentScreen('order-details')"), 'Payment success refreshes the Orders path through Order Details');
+  assert(navigatorContent.includes("setCurrentScreen('order-thank-you')") && navigatorContent.includes("setCurrentScreen('orders-list')") && navigatorContent.includes('getCanonicalOrderDetailRoute'), 'Payment success refreshes the Orders path through canonical Order Details');
 
   // 8. Audit API Repositories & Client
   assert(fs.existsSync(path.join(__dirname, '../src/services/api/apiClient.ts')), 'apiClient HTTP service exists');

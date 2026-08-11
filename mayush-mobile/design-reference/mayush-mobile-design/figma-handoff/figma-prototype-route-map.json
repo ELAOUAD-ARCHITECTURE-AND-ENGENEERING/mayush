@@ -19,13 +19,56 @@
     "comparisonFinding": "There are no configured Expo Router routes in the Phase 5A baseline. The route map documents the existing RootNavigator screen key and an Expo-Router-compatible target pathname separately."
   },
   "statusCounts": {
-    "MISMATCHED": 17,
-    "IMPLEMENTED": 43,
-    "MISSING": 146
+    "MISMATCHED": 42,
+    "IMPLEMENTED": 61,
+    "MISSING": 103
   },
   "connectionStatusOverrides": {
+    "FIGMA-PROT-043": "MISMATCHED",
+    "FIGMA-PROT-044": "MISMATCHED",
+    "FIGMA-PROT-045": "MISMATCHED",
+    "FIGMA-PROT-046": "MISMATCHED",
+    "FIGMA-PROT-047": "IMPLEMENTED",
+    "FIGMA-PROT-048": "IMPLEMENTED",
+    "FIGMA-PROT-049": "IMPLEMENTED",
+    "FIGMA-PROT-066": "IMPLEMENTED",
+    "FIGMA-PROT-067": "IMPLEMENTED",
+    "FIGMA-PROT-068": "MISMATCHED",
+    "FIGMA-PROT-069": "MISMATCHED",
+    "FIGMA-PROT-071": "MISMATCHED",
+    "FIGMA-PROT-072": "MISMATCHED",
     "FIGMA-PROT-073": "MISMATCHED",
-    "FIGMA-PROT-094": "MISMATCHED",
+    "FIGMA-PROT-074": "MISMATCHED",
+    "FIGMA-PROT-075": "MISMATCHED",
+    "FIGMA-PROT-094": "IMPLEMENTED",
+    "FIGMA-PROT-098": "IMPLEMENTED",
+    "FIGMA-PROT-099": "IMPLEMENTED",
+    "FIGMA-PROT-101": "IMPLEMENTED",
+    "FIGMA-PROT-102": "IMPLEMENTED",
+    "FIGMA-PROT-103": "IMPLEMENTED",
+    "FIGMA-PROT-104": "IMPLEMENTED",
+    "FIGMA-PROT-105": "MISMATCHED",
+    "FIGMA-PROT-106": "IMPLEMENTED",
+    "FIGMA-PROT-107": "IMPLEMENTED",
+    "FIGMA-PROT-108": "MISMATCHED",
+    "FIGMA-PROT-109": "MISMATCHED",
+    "FIGMA-PROT-110": "MISMATCHED",
+    "FIGMA-PROT-111": "IMPLEMENTED",
+    "FIGMA-PROT-112": "MISMATCHED",
+    "FIGMA-PROT-113": "MISMATCHED",
+    "FIGMA-PROT-114": "IMPLEMENTED",
+    "FIGMA-PROT-115": "IMPLEMENTED",
+    "FIGMA-PROT-116": "MISMATCHED",
+    "FIGMA-PROT-117": "IMPLEMENTED",
+    "FIGMA-PROT-118": "MISMATCHED",
+    "FIGMA-PROT-119": "MISMATCHED",
+    "FIGMA-PROT-120": "MISMATCHED",
+    "FIGMA-PROT-121": "MISMATCHED",
+    "FIGMA-PROT-122": "MISMATCHED",
+    "FIGMA-PROT-123": "MISMATCHED",
+    "FIGMA-PROT-124": "MISMATCHED",
+    "FIGMA-PROT-125": "MISMATCHED",
+    "FIGMA-PROT-126": "MISMATCHED",
     "FIGMA-PROT-185": "MISMATCHED",
     "FIGMA-PROT-186": "MISMATCHED",
     "FIGMA-PROT-189": "MISMATCHED",
@@ -6015,10 +6058,10 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "order-reorder-availability"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
+      "existingImplementationFile": "mayush-mobile/src/screens/orders/OrderReorderScreens.tsx",
+      "status": "MISMATCHED",
       "automatedTestCoverage": "No focused connection test exists yet.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
@@ -6068,10 +6111,10 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "order-return-selection"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
+      "existingImplementationFile": "mayush-mobile/src/screens/orders/OrderReturnScreens.tsx",
+      "status": "IMPLEMENTED",
       "automatedTestCoverage": "No focused connection test exists yet.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
@@ -6121,10 +6164,10 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "order-return-detail"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
+      "existingImplementationFile": "mayush-mobile/src/screens/orders/OrderReturnScreens.tsx",
+      "status": "IMPLEMENTED",
       "automatedTestCoverage": "No focused connection test exists yet.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
@@ -6174,10 +6217,10 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "order-return-tracking"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
+      "existingImplementationFile": "mayush-mobile/src/screens/orders/OrderReturnScreens.tsx",
+      "status": "MISMATCHED",
       "automatedTestCoverage": "No focused connection test exists yet.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
@@ -6227,10 +6270,10 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "order-refund-request"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
+      "existingImplementationFile": "mayush-mobile/src/screens/orders/OrderRefundScreens.tsx",
+      "status": "IMPLEMENTED",
       "automatedTestCoverage": "No focused connection test exists yet.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
@@ -6280,9 +6323,9 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "order-refund-completed"
       },
-      "existingImplementationFile": null,
+      "existingImplementationFile": "mayush-mobile/src/screens/orders/OrderRefundScreens.tsx",
       "status": "MISSING",
       "automatedTestCoverage": "No focused connection test exists yet.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",

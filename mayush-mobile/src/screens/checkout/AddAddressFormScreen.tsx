@@ -22,11 +22,13 @@ export interface AddAddressFormScreenProps {
   onChange: (next: AddressDraft) => void;
   onBack: () => void;
   onSave: () => void;
+  onChooseCity?: () => void;
+  onChooseZone?: () => void;
 }
 
 const update = (draft: AddressDraft, key: keyof AddressDraft, value: string | boolean): AddressDraft => ({ ...draft, [key]: value });
 
-export const AddAddressFormScreen: React.FC<AddAddressFormScreenProps> = ({ draft, errors, onChange, onBack, onSave }) => {
+export const AddAddressFormScreen: React.FC<AddAddressFormScreenProps> = ({ draft, errors, onChange, onBack, onSave, onChooseCity, onChooseZone }) => {
   const { isRTL, language } = useTheme();
   const copy = language === 'ar'
     ? {
@@ -75,8 +77,8 @@ export const AddAddressFormScreen: React.FC<AddAddressFormScreenProps> = ({ draf
         <MayushText variant="caption" color={colors.neutral.gray700} style={[styles.subtitle, { textAlign }]}>{copy.subtitle}</MayushText>
         <FormField label={copy.name} icon="user" value={draft.name} error={errors.name} placeholder={language === 'ar' ? 'أدخل اسمك الكامل' : 'Entrez votre nom complet'} onChangeText={(value) => onChange(update(draft, 'name', value))} />
         <FormField label={copy.phone} icon="phone" value={draft.phone} error={errors.phone} keyboardType="phone-pad" placeholder="+212 6 XX XX XX XX" onChangeText={(value) => onChange(update(draft, 'phone', value))} />
-        <FormField label={copy.city} icon="map-pin" value={draft.city} error={errors.city} placeholder={language === 'ar' ? 'اختر مدينتك' : 'Sélectionnez votre ville'} onChangeText={(value) => onChange(update(draft, 'city', value))} />
-        <FormField label={copy.zone} icon="map" value={draft.zone} error={errors.zone} placeholder={language === 'ar' ? 'اختر منطقة التوصيل' : 'Sélectionnez votre zone de livraison'} onChangeText={(value) => onChange(update(draft, 'zone', value))} />
+        <FormSelector label={copy.city} icon="map-pin" value={draft.city} error={errors.city} placeholder={language === 'ar' ? 'اختر مدينتك' : 'Sélectionnez votre ville'} onPress={onChooseCity || (() => undefined)} />
+        <FormSelector label={copy.zone} icon="map" value={draft.zone} error={errors.zone} placeholder={language === 'ar' ? 'اختر منطقة التوصيل' : 'Sélectionnez votre zone de livraison'} onPress={onChooseZone || (() => undefined)} />
         <FormField label={copy.address} icon="home" value={draft.addressLine} error={errors.addressLine} placeholder={language === 'ar' ? 'رقم، شارع، حي...' : 'Numéro, rue, quartier…'} onChangeText={(value) => onChange(update(draft, 'addressLine', value))} />
         <FormField label={copy.apartment} icon="briefcase" value={draft.apartment} placeholder={language === 'ar' ? 'اختياري' : 'Appartement, étage, bâtiment… (facultatif)'} onChangeText={(value) => onChange(update(draft, 'apartment', value))} />
         <FormField label={copy.postcode} icon="clipboard" value={draft.postcode} error={errors.postcode} keyboardType="numeric" placeholder={language === 'ar' ? 'أدخل الرمز البريدي' : 'Entrez votre code postal'} onChangeText={(value) => onChange(update(draft, 'postcode', value))} />
@@ -126,6 +128,18 @@ const FormField: React.FC<{
   />
 );
 
+const FormSelector: React.FC<{ label: string; icon: React.ComponentProps<typeof MayushIcon>['name']; value: string; placeholder: string; error?: string; onPress: () => void }> = ({ label, icon, value, placeholder, error, onPress }) => (
+  <View style={styles.field}>
+    <MayushText variant="inputLabel" color={colors.brand.navy900}>{label}</MayushText>
+    <TouchableOpacity accessibilityRole="button" onPress={onPress} style={[styles.selector, error && styles.selectorError]}>
+      <MayushIcon name={icon} size={18} color={colors.brand.navy900} />
+      <MayushText variant="body" color={value ? colors.brand.navy900 : colors.neutral.gray500} style={styles.selectorText}>{value || placeholder}</MayushText>
+      <MayushIcon name="chevron-right" size={18} color={colors.neutral.gray500} />
+    </TouchableOpacity>
+    {error ? <MayushText variant="caption" color="#B42318">{error}</MayushText> : null}
+  </View>
+);
+
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.surface.white },
   header: { height: 64, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.surface.white, borderBottomWidth: 1, borderBottomColor: colors.surface.borderWarm },
@@ -135,6 +149,9 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, lineHeight: 30, marginTop: 12 },
   subtitle: { marginTop: 2, marginBottom: 12 },
   field: { marginTop: 6 },
+  selector: { height: 48, marginTop: 6, paddingHorizontal: 12, borderWidth: 1, borderColor: colors.surface.borderWarm, borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 9, backgroundColor: colors.surface.white },
+  selectorError: { borderColor: '#B42318' },
+  selectorText: { flex: 1 },
   sectionLabel: { marginTop: 12, marginBottom: 7 },
   labels: { flexDirection: 'row', gap: 8 },
   labelChoice: { flex: 1, height: 36, borderWidth: 1, borderColor: colors.surface.borderWarm, borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: colors.surface.white },

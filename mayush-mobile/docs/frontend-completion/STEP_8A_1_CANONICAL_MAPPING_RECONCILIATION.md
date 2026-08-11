@@ -1,18 +1,21 @@
 # STEP 8A.1 — Canonical mapping reconciliation (superseded metrics repaired)
 
-This generated artifact is retained for historical continuity. The current implementation audit and Step 8B.0 preparation supersede earlier inferred node maps and invented filenames.
+This generated artifact is retained for historical continuity. The current implementation audit through Step 8C supersedes earlier inferred node maps and invented filenames.
 
 ## Deterministic canonical metrics
 
-- Figma screen/state completeness: **151/207 (72.9%)**
-- Exact prototype connection completeness: **45/206 (21.8%)**
-- Mismatched connections: **15**
-- Missing connections: **146**
+- Figma screen/state completeness: **199/207 (96.1%)**
+- Exact prototype connection completeness: **63/206 (30.6%)**
+- Mismatched connections: **40**
+- Missing connections: **103**
 
 ## Order-node correction
 
 - `309:712`: Buyer Orders list — implemented by `OrdersListScreen.tsx`.
-- `309:716`: canonical buyer order detail in preparation — **MISSING** until Step 8B.
+- `309:716–723`: canonical buyer order detail, tracking, packages, and invoice — **IMPLEMENTED** in Step 8B.
+- `309:724–731`: buyer cancellation, review, and reorder states — **IMPLEMENTED** in Step 8C as three semantically separate flows.
+- `309:732–309:736`: return and refund workflow — **IMPLEMENTED** in Step 8D.
+- `309:737+`: delivery issues, order support, and order system states — **MISSING** and deferred to Step 8E.
 - `309:737`: delivery-delay notification — **MISSING** and not the legacy Order Detail.
 - Nodes whose frame names begin `07-` are classified **Buyer Orders & Fulfillment**, not seller/admin mobile functionality.
 

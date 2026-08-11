@@ -100,7 +100,7 @@ class NotificationPreferencesStateManager {
       title: 'Commande expédiée',
       subtitle: 'Votre colis #MY-84920 a été remis au livreur.',
       orderNumber: '#MY-84920',
-      orderId: 'MAY-2026-001842',
+      orderId: 'MAY-2026-001841',
       date: '06 Août 2026 à 09:15',
       statusText: 'Expédiée',
       description: 'Votre commande a quitté notre entrepôt logistique. Le livreur vous contactera par téléphone le jour de la livraison.',

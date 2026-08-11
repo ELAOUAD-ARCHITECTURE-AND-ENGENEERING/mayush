@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CartState, formatMadPrice, getCartTotals } from '../../commerce/cartState';
-import { DeliveryMethod, PaymentMethod, SavedAddress } from '../../commerce/checkoutState';
+import { DeliveryMethod, getCheckoutGrandTotalMad, PaymentMethod, SavedAddress } from '../../commerce/checkoutState';
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
@@ -19,11 +19,12 @@ export interface CheckoutSummaryScreenProps {
   address: SavedAddress;
   deliveryMethod: DeliveryMethod;
   paymentMethod: PaymentMethod;
+  deliveryFeeMad?: number;
   onBack: () => void;
   onChooseAddress: () => void;
 }
 
-export const CheckoutSummaryScreen: React.FC<CheckoutSummaryScreenProps> = ({ cart, address, deliveryMethod, paymentMethod, onBack, onChooseAddress }) => {
+export const CheckoutSummaryScreen: React.FC<CheckoutSummaryScreenProps> = ({ cart, address, deliveryMethod, paymentMethod, deliveryFeeMad = 0, onBack, onChooseAddress }) => {
   const { isRTL, language } = useTheme();
   const totals = getCartTotals(cart);
   const copy = language === 'ar'
@@ -79,7 +80,7 @@ export const CheckoutSummaryScreen: React.FC<CheckoutSummaryScreenProps> = ({ ca
         <CheckoutCard icon="shopping-bag" title={copy.payment} detail={paymentDetail} editLabel={copy.edit} direction={direction} onPress={onChooseAddress} />
         <MayushText variant="strongBody" color={colors.brand.navy900} style={styles.sectionTitle}>{copy.articles}</MayushText>
         <View style={styles.articleCard}>{cart.lines.map((line, index) => <View key={line.id} style={[styles.articleRow, direction]}><Image source={line.imageUri ? { uri: line.imageUri } : PRODUCT_IMAGES[index % PRODUCT_IMAGES.length]} style={styles.articleImage} /><View style={styles.articleCopy}><MayushText variant="strongBody" color={colors.brand.navy900} numberOfLines={1}>{line.name}</MayushText><MayushText variant="caption" color={colors.neutral.gray700}>{line.variant}</MayushText><MayushText variant="caption" color={colors.neutral.gray700}>{language === 'ar' ? 'الكمية' : 'Quantité'} : {line.quantity}</MayushText></View><MayushText variant="strongBody" color={colors.brand.navy900}>{formatMadPrice(line.unitPriceMad * line.quantity)}</MayushText></View>)}</View>
-        <View style={styles.summary}><MayushText variant="strongBody" color={colors.brand.navy900}>{copy.summary}</MayushText><Summary label={copy.subtotal} value={formatMadPrice(totals.subtotalMad)} /><Summary label={copy.reduction} value="- 0 MAD" accent /><Summary label={copy.deliveryFee} value={language === 'ar' ? '\u0645\u062c\u0627\u0646\u064a' : 'Gratuite'} accent /><View style={styles.rule} /><Summary label={copy.total} value={formatMadPrice(totals.subtotalMad)} total /></View>
+        <View style={styles.summary}><MayushText variant="strongBody" color={colors.brand.navy900}>{copy.summary}</MayushText><Summary label={copy.subtotal} value={formatMadPrice(totals.subtotalMad)} /><Summary label={copy.reduction} value={`− ${formatMadPrice(totals.discountMad)}`} accent /><Summary label={copy.deliveryFee} value={formatMadPrice(deliveryFeeMad)} /><View style={styles.rule} /><Summary label={copy.total} value={formatMadPrice(getCheckoutGrandTotalMad(totals.totalMad, deliveryFeeMad))} total /></View>
       </ScrollView>
       <View style={styles.bottom}><TouchableOpacity accessibilityRole="button" accessibilityLabel={copy.continue} onPress={onChooseAddress} style={styles.continueButton}><MayushText variant="button" color={colors.surface.white}>{copy.continue}</MayushText></TouchableOpacity></View>
     </View>

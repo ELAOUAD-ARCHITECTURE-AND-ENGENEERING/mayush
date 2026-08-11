@@ -87,6 +87,8 @@ export interface ContactDraft {
   email: string;
   preferredChannel: 'Email' | 'WhatsApp';
   selectedOrderId?: string;
+  returnRequestId?: string;
+  refundId?: string;
   attachments: SupportAttachment[];
 }
 
@@ -721,6 +723,8 @@ class SupportStateManager {
       email: 'a•••••••e@gmail.com',
       preferredChannel: 'Email',
       selectedOrderId: undefined,
+      returnRequestId: undefined,
+      refundId: undefined,
       attachments: [],
     };
     this.notify();

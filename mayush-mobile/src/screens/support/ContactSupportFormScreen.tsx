@@ -13,6 +13,7 @@ import { spacing } from '../../design-system/tokens/spacing';
 import { supportState, ContactDraft } from '../../commerce/supportState';
 import { accountPreferencesState } from '../../commerce/accountPreferencesState';
 import { TabKey } from '../../design-system/components/navigation/BottomTabBar';
+import { BuyerOrder } from '../../commerce/orderState';
 
 interface ContactSupportFormScreenProps {
   onNavigateTab: (tab: TabKey) => void;
@@ -20,6 +21,7 @@ interface ContactSupportFormScreenProps {
   onNavigateAttachFiles: () => void;
   onNavigateSelectOrder: () => void;
   onNavigateReview: () => void;
+  orderContext?: BuyerOrder;
 }
 
 const SUBJECT_OPTIONS = [
@@ -37,6 +39,7 @@ export const ContactSupportFormScreen: React.FC<ContactSupportFormScreenProps> =
   onNavigateAttachFiles,
   onNavigateSelectOrder,
   onNavigateReview,
+  orderContext,
 }) => {
   const [draft, setDraft] = useState<ContactDraft>(supportState.getContactDraft());
   const [language, setLanguage] = useState(accountPreferencesState.getLanguage());
@@ -99,14 +102,26 @@ export const ContactSupportFormScreen: React.FC<ContactSupportFormScreenProps> =
             <MayushIcon name="headphones" size={28} color={colors.brand.orange500} />
           </View>
           <MayushText variant="pageTitle" color={colors.brand.navy900} style={[styles.title, isRTL && styles.rtlText]}>
-            {isRTL ? 'التواصل مع الدعم' : 'Contacter le support'}
+            {isRTL ? 'التواصل مع الدعم' : orderContext ? 'Support - commande' : 'Contacter le support'}
           </MayushText>
           <MayushText variant="body" color={colors.neutral.gray500} style={[styles.subtitle, isRTL && styles.rtlText]}>
             {isRTL
               ? 'نحن هنا لمساعدتك. أرسل لنا رسالة وسنرد عليك في أقرب وقت.'
-              : 'Nous sommes là pour vous aider. Envoyez-nous un message et nous vous répondrons rapidement.'}
+              : orderContext ? 'Besoin d’aide concernant votre commande ? Nous sommes là pour vous accompagner.' : 'Nous sommes là pour vous aider. Envoyez-nous un message et nous vous répondrons rapidement.'}
           </MayushText>
         </View>
+
+        {orderContext ? (
+          <View style={styles.orderContextCard} accessibilityLabel={`Commande sélectionnée ${orderContext.orderId}`}>
+            <View style={styles.orderContextIcon}><MayushIcon name="clipboard" size={21} color={colors.brand.orange500} /></View>
+            <View style={styles.orderContextCopy}>
+              <MayushText variant="caption" color={colors.neutral.gray700}>COMMANDE SÉLECTIONNÉE</MayushText>
+              <MayushText variant="sectionTitle" color={colors.brand.navy900}>{orderContext.orderId}</MayushText>
+              <MayushText variant="caption" color={colors.neutral.gray700}>{new Date(orderContext.createdAt).toLocaleDateString('fr-MA')}</MayushText>
+            </View>
+            <View style={styles.orderContextBadge}><MayushText variant="caption" color={colors.brand.orange500}>Commande liée</MayushText></View>
+          </View>
+        ) : null}
 
         {errorMsg ? (
           <View style={styles.errorBox}>
@@ -320,6 +335,10 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1 },
   scrollContent: { padding: spacing.md, paddingBottom: 40 },
   titleSection: { alignItems: 'center', marginBottom: spacing.md },
+  orderContextCard: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 13, marginBottom: spacing.sm, borderRadius: 10, backgroundColor: colors.surface.white, borderWidth: 1, borderColor: colors.surface.borderWarm },
+  orderContextIcon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFF4E9' },
+  orderContextCopy: { flex: 1, gap: 2 },
+  orderContextBadge: { paddingHorizontal: 8, paddingVertical: 5, borderRadius: 7, backgroundColor: '#FFF4E9' },
   headsetCircle: {
     width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(232,125,62,0.1)',
     alignItems: 'center', justifyContent: 'center', marginBottom: spacing.xs,

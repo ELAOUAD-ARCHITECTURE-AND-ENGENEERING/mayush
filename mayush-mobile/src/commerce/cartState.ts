@@ -1,5 +1,15 @@
 export const CART_STORAGE_KEY = 'mayush-mobile:cart-state';
 
+export interface CartVariantOption {
+  variantId: string;
+  label: string;
+  unitPriceMad: number;
+}
+
+export interface CartVariantSelection extends CartVariantOption {
+  quantity?: number;
+}
+
 export interface CartLine {
   id: string;
   productId: number | string;
@@ -17,20 +27,151 @@ export interface CartLine {
   /** Alias for product image asset source */
   imageAsset?: string;
   sellerId?: string;
+  sellerName?: string;
+  maxQuantity?: number;
+  /** Product-owned choices available to the cart variant editor. */
+  variantOptions?: CartVariantOption[];
+}
+
+export type CartPromotionType = 'fixed' | 'percentage';
+
+export interface CartPromotion {
+  promoId: string;
+  code: string;
+  type: CartPromotionType;
+  value: number;
+  minimumSubtotalMad?: number;
+  sellerId?: string;
+  expiresAt?: string;
+  visible: boolean;
+  title: string;
+  expiryLabel?: string;
+}
+
+export type PromotionValidationCode =
+  | 'VALID'
+  | 'INVALID_CODE'
+  | 'MINIMUM_NOT_REACHED'
+  | 'NOT_ELIGIBLE'
+  | 'EXPIRED';
+
+export interface PromotionValidationResult {
+  code: PromotionValidationCode;
+  promotion?: CartPromotion;
+  discountMad: number;
 }
 
 export interface CartState {
   lines: CartLine[];
+  /** Durable identity only. Modal, toast, and validation UI never live here. */
+  appliedPromotionId?: string;
 }
 
 export interface CartTotals {
   itemCount: number;
   subtotalMad: number;
+  discountMad: number;
+  totalMad: number;
+  appliedPromotionId?: string;
+  promotionCode?: string;
 }
+
+export interface SellerCartProjection {
+  sellerId: string;
+  sellerName: string;
+  lines: CartLine[];
+  subtotalMad: number;
+}
+
+/**
+ * The promotion clock is deliberately fixed for these frontend-only prototype
+ * fixtures so the Figma offer dates remain deterministic on every machine.
+ */
+export const PROMOTION_FIXTURE_NOW = '2025-05-15T12:00:00.000Z';
+
+export const CART_PROMOTION_CATALOG: readonly CartPromotion[] = [
+  { promoId: 'promo-mayush10', code: 'MAYUSH10', type: 'fixed', value: 450, minimumSubtotalMad: 1000, expiresAt: '2027-12-31T23:59:59.000Z', visible: false, title: '450 MAD de réduction' },
+  { promoId: 'promo-welcome15', code: 'WELCOME15', type: 'percentage', value: 15, minimumSubtotalMad: 1000, expiresAt: '2025-05-31T23:59:59.000Z', visible: true, title: '-15% sur votre commande', expiryLabel: '31/05/2025' },
+  { promoId: 'promo-deco100', code: 'DECO100', type: 'fixed', value: 100, minimumSubtotalMad: 1500, expiresAt: '2025-06-15T23:59:59.000Z', visible: true, title: '100 MAD de réduction', expiryLabel: '15/06/2025' },
+  { promoId: 'promo-maison10', code: 'MAISON10', type: 'percentage', value: 10, minimumSubtotalMad: 2000, expiresAt: '2025-06-30T23:59:59.000Z', visible: true, title: '-10% sur votre commande', expiryLabel: '30/06/2025' },
+  { promoId: 'promo-extra200', code: 'EXTRA200', type: 'fixed', value: 200, minimumSubtotalMad: 3000, expiresAt: '2025-07-10T23:59:59.000Z', visible: true, title: '200 MAD de réduction', expiryLabel: '10/07/2025' },
+  { promoId: 'promo20-incompatible', code: 'PROMO20', type: 'percentage', value: 20, sellerId: 'seller-promo20-only', expiresAt: '2027-12-31T23:59:59.000Z', visible: false, title: '-20% sur une sélection partenaire' },
+] as const;
 
 export const emptyCartState = (): CartState => ({ lines: [] });
 
-const normalizedQuantity = (quantity: number) => Math.max(1, Math.floor(quantity));
+const normalizedQuantity = (quantity: number, maxQuantity?: number) => {
+  const normalized = Math.max(1, Math.floor(quantity));
+  return typeof maxQuantity === 'number' ? Math.min(normalized, Math.max(1, Math.floor(maxQuantity))) : normalized;
+};
+
+const getSubtotalMad = (state: CartState): number => state.lines.reduce(
+  (subtotal, line) => subtotal + (Math.max(0, Math.round(line.unitPriceMad)) * line.quantity),
+  0,
+);
+
+export const getPromotionById = (promoId?: string): CartPromotion | undefined =>
+  promoId ? CART_PROMOTION_CATALOG.find((promotion) => promotion.promoId === promoId) : undefined;
+
+export const getPromotionByCode = (code: string): CartPromotion | undefined => {
+  const normalizedCode = code.trim().toUpperCase();
+  return CART_PROMOTION_CATALOG.find((promotion) => promotion.code === normalizedCode);
+};
+
+export const calculatePromotionDiscountMad = (subtotalMad: number, promotion: CartPromotion): number => {
+  const safeSubtotal = Math.max(0, Math.round(subtotalMad));
+  const rawDiscount = promotion.type === 'percentage'
+    ? Math.round((safeSubtotal * promotion.value) / 100)
+    : Math.round(promotion.value);
+  return Math.min(safeSubtotal, Math.max(0, rawDiscount));
+};
+
+export const validatePromotion = (
+  state: CartState,
+  promotionOrCode: CartPromotion | string | undefined,
+  at: string = PROMOTION_FIXTURE_NOW,
+): PromotionValidationResult => {
+  const promotion = typeof promotionOrCode === 'string'
+    ? getPromotionByCode(promotionOrCode)
+    : promotionOrCode;
+  if (!promotion) return { code: 'INVALID_CODE', discountMad: 0 };
+
+  const subtotalMad = getSubtotalMad(state);
+  if (promotion.expiresAt && Date.parse(promotion.expiresAt) < Date.parse(at)) {
+    return { code: 'EXPIRED', promotion, discountMad: 0 };
+  }
+  if (typeof promotion.minimumSubtotalMad === 'number' && subtotalMad < promotion.minimumSubtotalMad) {
+    return { code: 'MINIMUM_NOT_REACHED', promotion, discountMad: 0 };
+  }
+  if (promotion.sellerId && !state.lines.some((line) => line.sellerId === promotion.sellerId)) {
+    return { code: 'NOT_ELIGIBLE', promotion, discountMad: 0 };
+  }
+  return { code: 'VALID', promotion, discountMad: calculatePromotionDiscountMad(subtotalMad, promotion) };
+};
+
+export const revalidateCartPromotion = (state: CartState): CartState => {
+  if (!state.appliedPromotionId) return state;
+  const promotion = getPromotionById(state.appliedPromotionId);
+  const validation = validatePromotion(state, promotion);
+  return validation.code === 'VALID' ? state : { ...state, appliedPromotionId: undefined };
+};
+
+export const applyPromotionCode = (
+  state: CartState,
+  code: string,
+): { cart: CartState; validation: PromotionValidationResult } => {
+  const validation = validatePromotion(state, code);
+  if (validation.code !== 'VALID' || !validation.promotion) return { cart: state, validation };
+  return { cart: { ...state, appliedPromotionId: validation.promotion.promoId }, validation };
+};
+
+export const removeCartPromotion = (state: CartState): CartState => (
+  state.appliedPromotionId ? { ...state, appliedPromotionId: undefined } : state
+);
+
+export const getAvailablePromotions = (state: CartState): CartPromotion[] => CART_PROMOTION_CATALOG
+  .filter((promotion) => promotion.visible && validatePromotion(state, promotion).code === 'VALID')
+  .map((promotion) => ({ ...promotion }));
 
 export interface SelectedVariantCartInput {
   productId: number | string;
@@ -40,6 +181,9 @@ export interface SelectedVariantCartInput {
   unitPriceMad: number;
   imageUri?: string;
   sellerId?: string;
+  sellerName?: string;
+  maxQuantity?: number;
+  variantOptions?: CartVariantOption[];
 }
 
 export const createSelectedVariantCartLine = (input: SelectedVariantCartInput): CartLine => {
@@ -52,42 +196,153 @@ export const createSelectedVariantCartLine = (input: SelectedVariantCartInput): 
     variant,
     variantId: variant,
     selectedVariantText: variant,
-    quantity: normalizedQuantity(input.quantity),
-    unitPriceMad: input.unitPriceMad,
+    quantity: normalizedQuantity(input.quantity, input.maxQuantity),
+    unitPriceMad: Math.max(0, Math.round(input.unitPriceMad)),
     imageUri: input.imageUri,
     imageAsset: input.imageUri,
     sellerId: input.sellerId,
+    sellerName: input.sellerName,
+    maxQuantity: input.maxQuantity,
+    variantOptions: input.variantOptions,
   };
 };
 
-export const addCartLine = (state: CartState, line: CartLine): CartState => {
-  const quantity = normalizedQuantity(line.quantity);
-  const existingIndex = state.lines.findIndex((item) => item.id === line.id);
-  if (existingIndex === -1) {
-    return { lines: [...state.lines, { ...line, quantity }] };
-  }
+const equivalentLine = (left: CartLine, right: CartLine): boolean =>
+  String(left.productId) === String(right.productId)
+  && (left.variantId || left.variant) === (right.variantId || right.variant);
 
-  return {
-    lines: state.lines.map((item, index) => index === existingIndex
-      ? { ...item, quantity: item.quantity + quantity, unitPriceMad: line.unitPriceMad, imageUri: line.imageUri || item.imageUri }
-      : item),
-  };
+export const addCartLine = (state: CartState, line: CartLine): CartState => {
+  const quantity = normalizedQuantity(line.quantity, line.maxQuantity);
+  const existingIndex = state.lines.findIndex((item) => item.id === line.id || equivalentLine(item, line));
+  const nextState = existingIndex === -1
+    ? { ...state, lines: [...state.lines, { ...line, quantity }] }
+    : {
+      ...state,
+      lines: state.lines.map((item, index) => index === existingIndex
+        ? {
+          ...item,
+          quantity: normalizedQuantity(item.quantity + quantity, item.maxQuantity),
+          unitPriceMad: Math.max(0, Math.round(line.unitPriceMad)),
+          imageUri: line.imageUri || item.imageUri,
+        }
+        : item),
+    };
+  return revalidateCartPromotion(nextState);
 };
 
 export const updateCartLineQuantity = (state: CartState, lineId: string, quantity: number): CartState => {
-  if (quantity <= 0) {
-    return { lines: state.lines.filter((item) => item.id !== lineId) };
+  const line = state.lines.find((item) => item.id === lineId);
+  if (!line) return state;
+  const nextState = quantity <= 0
+    ? { ...state, lines: state.lines.filter((item) => item.id !== lineId) }
+    : {
+      ...state,
+      lines: state.lines.map((item) => item.id === lineId
+        ? { ...item, quantity: normalizedQuantity(quantity, item.maxQuantity) }
+        : item),
+    };
+  return revalidateCartPromotion(nextState);
+};
+
+export interface CartVariantUpdateResult {
+  cart: CartState;
+  updated: boolean;
+  mergedIntoLineId?: string;
+}
+
+export const updateCartLineVariant = (
+  state: CartState,
+  lineId: string,
+  selection: CartVariantSelection,
+): CartVariantUpdateResult => {
+  const line = state.lines.find((item) => item.id === lineId);
+  if (!line) return { cart: state, updated: false };
+  const options = line.variantOptions || [{
+    variantId: line.variantId || line.variant,
+    label: line.selectedVariantText || line.variant,
+    unitPriceMad: line.unitPriceMad,
+  }];
+  const validOption = options.find((option) => option.variantId === selection.variantId);
+  if (!validOption) return { cart: state, updated: false };
+
+  const nextQuantity = normalizedQuantity(selection.quantity ?? line.quantity, line.maxQuantity);
+  const duplicate = state.lines.find((item) => item.id !== lineId
+    && String(item.productId) === String(line.productId)
+    && (item.variantId || item.variant) === validOption.variantId);
+  if (duplicate) {
+    const nextState = {
+      ...state,
+      lines: state.lines
+        .filter((item) => item.id !== lineId)
+        .map((item) => item.id === duplicate.id
+          ? { ...item, quantity: normalizedQuantity(item.quantity + nextQuantity, item.maxQuantity), unitPriceMad: validOption.unitPriceMad }
+          : item),
+    };
+    return { cart: revalidateCartPromotion(nextState), updated: true, mergedIntoLineId: duplicate.id };
   }
 
+  const nextState = {
+    ...state,
+    lines: state.lines.map((item) => item.id === lineId
+      ? {
+        ...item,
+        variant: validOption.label,
+        variantId: validOption.variantId,
+        selectedVariantText: validOption.label,
+        unitPriceMad: Math.max(0, Math.round(validOption.unitPriceMad)),
+        quantity: nextQuantity,
+      }
+      : item),
+  };
+  return { cart: revalidateCartPromotion(nextState), updated: true };
+};
+
+export const groupCartLinesBySeller = (state: CartState): SellerCartProjection[] => {
+  const groups = new Map<string, SellerCartProjection>();
+  state.lines.forEach((line) => {
+    const sellerId = line.sellerId || 'seller-mayush';
+    const current = groups.get(sellerId) || {
+      sellerId,
+      sellerName: line.sellerName || (sellerId === 'seller-mayush' ? 'Mayush Design' : sellerId),
+      lines: [],
+      subtotalMad: 0,
+    };
+    current.lines.push(line);
+    current.subtotalMad += Math.max(0, Math.round(line.unitPriceMad)) * line.quantity;
+    groups.set(sellerId, current);
+  });
+  return [...groups.values()].map((group) => ({ ...group, lines: [...group.lines] }));
+};
+
+export const getCartTotals = (state: CartState): CartTotals => {
+  const subtotalMad = getSubtotalMad(state);
+  const itemCount = state.lines.reduce((count, line) => count + line.quantity, 0);
+  const promotion = getPromotionById(state.appliedPromotionId);
+  const validation = validatePromotion(state, promotion);
+  const discountMad = validation.code === 'VALID' ? validation.discountMad : 0;
   return {
-    lines: state.lines.map((item) => item.id === lineId ? { ...item, quantity: normalizedQuantity(quantity) } : item),
+    itemCount,
+    subtotalMad,
+    discountMad,
+    totalMad: Math.max(0, subtotalMad - discountMad),
+    appliedPromotionId: validation.code === 'VALID' ? promotion?.promoId : undefined,
+    promotionCode: validation.code === 'VALID' ? promotion?.code : undefined,
   };
 };
 
-export const getCartTotals = (state: CartState): CartTotals => state.lines.reduce<CartTotals>((totals, line) => ({
-  itemCount: totals.itemCount + line.quantity,
-  subtotalMad: totals.subtotalMad + (line.unitPriceMad * line.quantity),
-}), { itemCount: 0, subtotalMad: 0 });
+export const hydrateCartState = (value: unknown): CartState => {
+  if (!value || typeof value !== 'object' || !Array.isArray((value as CartState).lines)) return emptyCartState();
+  const parsed = value as CartState;
+  const safeLines = parsed.lines.filter((line) => line
+    && typeof line.id === 'string'
+    && (typeof line.productId === 'string' || typeof line.productId === 'number')
+    && typeof line.quantity === 'number'
+    && typeof line.unitPriceMad === 'number');
+  return revalidateCartPromotion({
+    lines: safeLines.map((line) => ({ ...line, quantity: normalizedQuantity(line.quantity, line.maxQuantity) })),
+    appliedPromotionId: typeof parsed.appliedPromotionId === 'string' ? parsed.appliedPromotionId : undefined,
+  });
+};
 
 export const parseMadPrice = (value: string): number => {
   const normalized = value.replace(/[^0-9,.-]/g, '').replace(',', '.');

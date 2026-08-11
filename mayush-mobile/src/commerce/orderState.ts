@@ -61,17 +61,23 @@ export interface OrderAddressSnapshot {
 export interface OrderTrackingEvent {
   trackingEventId: string;
   status: DeliveryStatus;
-  occurredAt: string;
+  occurredAt?: string;
   labelKey: string;
   location?: string;
+  state: 'completed' | 'current' | 'upcoming';
 }
 
 export interface OrderPackage {
   packageId: string;
   sellerId?: string;
+  sellerName: string;
   status: DeliveryStatus;
   orderLineIds: string[];
+  carrier?: string;
   trackingNumber?: string;
+  shippedAt?: string;
+  estimatedDeliveryAt?: string;
+  trackingEvents: OrderTrackingEvent[];
 }
 
 export interface OrderInvoiceMetadata {
@@ -79,6 +85,11 @@ export interface OrderInvoiceMetadata {
   invoiceNumber: string;
   issuedAt: string;
   downloadState: 'not_requested' | 'frontend_fixture' | 'backend_pending';
+  previewAvailable: boolean;
+  billingName: string;
+  billingEmail?: string;
+  billingPhone?: string;
+  billingAddress: OrderAddressSnapshot;
 }
 
 export interface BuyerOrder {
@@ -87,13 +98,25 @@ export interface BuyerOrder {
   createdAt: string;
   paymentReference: string;
   paymentMethod: PaymentMethod;
+  paymentPreferenceId?: string;
+  paymentCardLast4?: string;
   paymentStatus: PaymentStatus;
   deliveryMethod: DeliveryMethod;
   orderStatus: OrderStatus;
   deliveryStatus: DeliveryStatus;
   address: OrderAddressSnapshot;
   lines: OrderLine[];
+  deliveryFeeMad: number;
+  deliveryPackageCount?: number;
+  discountMad: number;
   totalMad: number;
+  promotionId?: string;
+  promotionCode?: string;
+  carrier?: string;
+  trackingNumber?: string;
+  shippedAt?: string;
+  estimatedDeliveryAt?: string;
+  deliveredAt?: string;
   trackingEvents: OrderTrackingEvent[];
   packages: OrderPackage[];
   invoice: OrderInvoiceMetadata | null;
@@ -114,6 +137,10 @@ export interface CreateBuyerOrderInput {
   deliveryMethod: DeliveryMethod;
   paymentMethod: PaymentMethod;
   checkoutAttemptId: string;
+  deliveryFeeMad?: number;
+  deliveryPackageCount?: number;
+  paymentPreferenceId?: string;
+  paymentCardLast4?: string;
   createdAt?: string;
 }
 
@@ -139,7 +166,7 @@ interface BuyerOrderRepositoryOptions {
   initialSequence?: number;
 }
 
-const seedOrder: BuyerOrder = {
+const legacySeedOrder: BuyerOrder = {
   orderId: 'MAY-2026-001842',
   checkoutAttemptId: 'seed-order-001842',
   createdAt: '2026-05-28T10:24:00.000Z',
@@ -168,6 +195,8 @@ const seedOrder: BuyerOrder = {
     id: 'seed-line-luna',
     variant: 'Tissu bouclé • Beige',
   }],
+  deliveryFeeMad: 0,
+  discountMad: 0,
   totalMad: 2950,
   trackingEvents: [],
   packages: [],
@@ -177,6 +206,211 @@ const seedOrder: BuyerOrder = {
   createdAtLabel: '28 mai 2026 Ã  10:24',
 };
 
+const standardAddress: OrderAddressSnapshot = {
+  name: 'Ahmed Mansouri',
+  phone: '+212 6 12 34 56 78',
+  addressLine: '12 Rue des Oiseaux, Appt 5',
+  city: 'Casablanca',
+  postcode: '20000',
+  zone: 'Maarif',
+};
+
+const billingAddress: OrderAddressSnapshot = {
+  name: 'Youssef El Amrani',
+  phone: '+212 6 12 34 56 78',
+  addressLine: '25, Rue des Alizés, Quartier Oasis',
+  city: 'Casablanca',
+  postcode: '20250',
+  zone: 'Oasis',
+};
+
+const makeLine = (
+  orderLineId: string,
+  productId: number,
+  name: string,
+  variantLabel: string,
+  unitPriceMad: number,
+  sellerId: string,
+  quantity = 1,
+): OrderLine => ({
+  orderLineId,
+  productId,
+  name,
+  variantLabel,
+  quantity,
+  unitPriceMad,
+  sellerId,
+  id: orderLineId,
+  variant: variantLabel,
+});
+
+const preparationOrder: BuyerOrder = {
+  ...legacySeedOrder,
+  paymentStatus: 'confirmed',
+  address: standardAddress,
+  lines: [
+    makeLine('line-1842-dune', 201, 'Canapé Dune 3 places', 'Couleur : Beige · Tissu : Lin naturel', 7890, 'seller-atlas'),
+    makeLine('line-1842-noya', 202, 'Table à manger Noya', 'Bois : Chêne massif · Finition : Naturelle', 5490, 'seller-atlas'),
+  ],
+  deliveryFeeMad: 0,
+  discountMad: 850,
+  totalMad: 12530,
+  estimatedDeliveryAt: '2026-06-02T18:00:00.000Z',
+  trackingEvents: [
+    { trackingEventId: 'track-1842-confirmed', status: 'preparing', occurredAt: '2026-05-28T10:24:00.000Z', labelKey: 'confirmed', state: 'completed' },
+    { trackingEventId: 'track-1842-preparing', status: 'preparing', occurredAt: '2026-05-28T11:15:00.000Z', labelKey: 'preparing', state: 'current' },
+    { trackingEventId: 'track-1842-shipped', status: 'shipped', labelKey: 'shipped', state: 'upcoming' },
+    { trackingEventId: 'track-1842-transit', status: 'in_transit', labelKey: 'in_transit', state: 'upcoming' },
+    { trackingEventId: 'track-1842-delivered', status: 'delivered', labelKey: 'delivered', state: 'upcoming' },
+  ],
+  createdAtLabel: '28 mai 2026 à 10:24',
+};
+
+const shippedOrder: BuyerOrder = {
+  ...preparationOrder,
+  orderId: 'MAY-2026-001841',
+  checkoutAttemptId: 'seed-order-001841',
+  paymentReference: 'PROTOTYPE-PAY-001841',
+  orderStatus: 'shipped',
+  deliveryStatus: 'shipped',
+  deliveryFeeMad: 30,
+  discountMad: 0,
+  totalMad: 13410,
+  carrier: 'Mayush Delivery',
+  trackingNumber: 'TRK-798654321MA',
+  shippedAt: '2026-05-28T14:32:00.000Z',
+  trackingEvents: [
+    { trackingEventId: 'track-1841-confirmed', status: 'preparing', occurredAt: '2026-05-28T10:24:00.000Z', labelKey: 'confirmed', state: 'completed' },
+    { trackingEventId: 'track-1841-preparing', status: 'preparing', occurredAt: '2026-05-28T11:15:00.000Z', labelKey: 'preparing', state: 'completed' },
+    { trackingEventId: 'track-1841-carrier', status: 'shipped', occurredAt: '2026-05-28T14:32:00.000Z', labelKey: 'handed_to_carrier', state: 'current' },
+    { trackingEventId: 'track-1841-transit', status: 'in_transit', labelKey: 'in_transit', state: 'upcoming' },
+    { trackingEventId: 'track-1841-out', status: 'in_transit', labelKey: 'out_for_delivery', state: 'upcoming' },
+    { trackingEventId: 'track-1841-delivered', status: 'delivered', labelKey: 'delivered', state: 'upcoming' },
+  ],
+  id: 'MAY-2026-001841',
+  idempotencyKey: 'seed-order-001841',
+};
+
+const deliveredOrder: BuyerOrder = {
+  ...preparationOrder,
+  orderId: 'MAY-2026-001838',
+  checkoutAttemptId: 'seed-order-001838',
+  paymentReference: 'PROTOTYPE-PAY-001838',
+  orderStatus: 'delivered',
+  deliveryStatus: 'delivered',
+  lines: [
+    makeLine('line-1838-dune', 201, 'CanapÃ© Dune 3 places', 'Couleur : Beige Â· Tissu : Lin naturel', 7890, 'seller-atlas'),
+    makeLine('line-1838-noya', 202, 'Table Ã  manger Noya', 'Bois : ChÃªne massif Â· Finition : Naturelle', 5490, 'seller-atlas'),
+    makeLine('line-1838-lune', 203, 'Suspension Lune Noire', 'Couleur : Noir mat', 890, 'seller-noya'),
+  ],
+  deliveryFeeMad: 30,
+  discountMad: 0,
+  totalMad: 14300,
+  carrier: 'Mayush Delivery',
+  trackingNumber: 'MYD587392641',
+  shippedAt: '2026-05-28T14:32:00.000Z',
+  estimatedDeliveryAt: '2026-05-30T18:00:00.000Z',
+  deliveredAt: '2026-05-30T12:15:00.000Z',
+  trackingEvents: [
+    { trackingEventId: 'track-1838-confirmed', status: 'preparing', occurredAt: '2026-05-28T10:24:00.000Z', labelKey: 'confirmed', state: 'completed' },
+    { trackingEventId: 'track-1838-preparing', status: 'preparing', occurredAt: '2026-05-28T11:15:00.000Z', labelKey: 'preparing', state: 'completed' },
+    { trackingEventId: 'track-1838-shipped', status: 'shipped', occurredAt: '2026-05-28T14:32:00.000Z', labelKey: 'shipped', state: 'completed' },
+    { trackingEventId: 'track-1838-transit', status: 'in_transit', occurredAt: '2026-05-29T08:45:00.000Z', labelKey: 'in_transit', state: 'completed' },
+    { trackingEventId: 'track-1838-delivered', status: 'delivered', occurredAt: '2026-05-30T12:15:00.000Z', labelKey: 'delivered', state: 'completed' },
+  ],
+  invoice: {
+    invoiceId: 'invoice-1838', invoiceNumber: 'FAC-2026-001838', issuedAt: '2026-05-30T12:15:00.000Z',
+    downloadState: 'frontend_fixture', previewAvailable: true, billingName: billingAddress.name,
+    billingEmail: 'youssef.elamrani@email.com', billingPhone: billingAddress.phone, billingAddress,
+  },
+  id: 'MAY-2026-001838',
+  idempotencyKey: 'seed-order-001838',
+};
+
+const multiPackageOrder: BuyerOrder = {
+  ...deliveredOrder,
+  orderId: 'MAY-2026-001835',
+  checkoutAttemptId: 'seed-order-001835',
+  paymentReference: 'PROTOTYPE-PAY-001835',
+  orderStatus: 'in_transit',
+  deliveryStatus: 'in_transit',
+  deliveredAt: undefined,
+  lines: [
+    makeLine('line-1835-dune', 201, 'Canapé Dune 3 places', 'Couleur : Beige', 7890, 'seller-atlas'),
+    makeLine('line-1835-noya', 202, 'Table à manger Noya', 'Couleur : Chêne naturel', 5490, 'seller-home'),
+    makeLine('line-1835-lune', 203, 'Suspension Lune Noire', 'Couleur : Noir mat', 890, 'seller-atlas'),
+    makeLine('line-1835-cushion', 204, 'Coussin Lin Beige', 'Lin naturel', 500, 'seller-deco', 2),
+  ],
+  deliveryFeeMad: 0,
+  totalMad: 15270,
+  carrier: undefined,
+  trackingNumber: undefined,
+  invoice: {
+    invoiceId: 'invoice-1835', invoiceNumber: 'FAC-2026-001835', issuedAt: '2026-05-28T10:24:00.000Z',
+    downloadState: 'frontend_fixture', previewAvailable: true, billingName: billingAddress.name,
+    billingEmail: 'youssef.elamrani@email.com', billingPhone: billingAddress.phone, billingAddress,
+  },
+  packages: [
+    {
+      packageId: 'MAY-2026-001835-01', sellerId: 'seller-atlas', sellerName: 'Maison Atlas', status: 'in_transit',
+      orderLineIds: ['line-1835-dune', 'line-1835-lune'], carrier: 'Mayush Delivery', trackingNumber: 'MDL826479312FR',
+      shippedAt: '2026-05-19T11:30:00.000Z', estimatedDeliveryAt: '2026-05-28T18:00:00.000Z',
+      trackingEvents: [
+        { trackingEventId: 'pkg-01-confirmed', status: 'preparing', occurredAt: '2026-05-18T16:40:00.000Z', labelKey: 'confirmed', state: 'completed' },
+        { trackingEventId: 'pkg-01-ready', status: 'preparing', occurredAt: '2026-05-19T09:15:00.000Z', labelKey: 'preparation_complete', state: 'completed' },
+        { trackingEventId: 'pkg-01-shipped', status: 'shipped', occurredAt: '2026-05-19T11:30:00.000Z', labelKey: 'package_shipped', state: 'current' },
+      ],
+    },
+    {
+      packageId: 'MAY-2026-001835-02', sellerId: 'seller-home', sellerName: 'Home & Living', status: 'shipped',
+      orderLineIds: ['line-1835-noya'], carrier: 'Aramex', trackingNumber: 'ARX00183502',
+      shippedAt: '2026-05-27T08:30:00.000Z', estimatedDeliveryAt: '2026-05-30T18:00:00.000Z', trackingEvents: [],
+    },
+    {
+      packageId: 'MAY-2026-001835-03', sellerId: 'seller-deco', sellerName: 'Deco Casa', status: 'shipped',
+      orderLineIds: ['line-1835-cushion'], carrier: 'Chronopost', trackingNumber: 'CHR00183503',
+      shippedAt: '2026-05-27T12:00:00.000Z', estimatedDeliveryAt: '2026-06-02T18:00:00.000Z', trackingEvents: [],
+    },
+  ],
+  id: 'MAY-2026-001835',
+  idempotencyKey: 'seed-order-001835',
+};
+
+const cancelledRefundEligibleOrder: BuyerOrder = {
+  ...preparationOrder,
+  orderId: 'MAY-2026-001257',
+  checkoutAttemptId: 'seed-order-001257',
+  createdAt: '2026-05-10T09:12:00.000Z',
+  paymentReference: 'PROTOTYPE-PAY-001257',
+  paymentMethod: 'cmi',
+  paymentStatus: 'confirmed',
+  orderStatus: 'cancelled',
+  deliveryStatus: 'cancelled',
+  lines: [makeLine('line-1257-cushion', 204, 'Coussin DÃ©co Lin Beige', 'Lin naturel', 450, 'seller-deco')],
+  deliveryFeeMad: 0,
+  discountMad: 0,
+  totalMad: 450,
+  carrier: undefined,
+  trackingNumber: undefined,
+  shippedAt: undefined,
+  estimatedDeliveryAt: undefined,
+  deliveredAt: undefined,
+  trackingEvents: [],
+  packages: [],
+  invoice: null,
+  id: 'MAY-2026-001257',
+  idempotencyKey: 'seed-order-001257',
+  createdAtLabel: '10 mai 2026 Ã  09:12',
+};
+
+export const canonicalBuyerOrderFixtures: BuyerOrder[] = [
+  preparationOrder,
+  shippedOrder,
+  deliveredOrder,
+  multiPackageOrder,
+  cancelledRefundEligibleOrder,
+];
+
 const cloneOrder = (order: BuyerOrder): BuyerOrder => {
   const { selectedPackageId: _legacyUiSelection, ...orderData } = order as BuyerOrder & {
     selectedPackageId?: string | null;
@@ -184,14 +418,29 @@ const cloneOrder = (order: BuyerOrder): BuyerOrder => {
   return {
     ...orderData,
     address: { ...order.address },
+    deliveryFeeMad: order.deliveryFeeMad ?? 0,
+    discountMad: order.discountMad ?? 0,
     lines: order.lines.map((line) => ({
       ...line,
       id: line.orderLineId,
       variant: line.variantLabel,
     })),
-    trackingEvents: order.trackingEvents.map((event) => ({ ...event })),
-    packages: order.packages.map((pkg) => ({ ...pkg, orderLineIds: [...pkg.orderLineIds] })),
-    invoice: order.invoice ? { ...order.invoice } : null,
+    trackingEvents: order.trackingEvents.map((event) => ({
+      ...event,
+      state: event.state ?? (event.occurredAt ? 'completed' : 'upcoming'),
+    })),
+    packages: order.packages.map((pkg) => ({
+      ...pkg,
+      sellerName: pkg.sellerName || pkg.sellerId || 'Mayush Design',
+      orderLineIds: [...pkg.orderLineIds],
+      trackingEvents: (pkg.trackingEvents || []).map((event) => ({ ...event })),
+    })),
+    invoice: order.invoice ? {
+      ...order.invoice,
+      previewAvailable: order.invoice.previewAvailable ?? false,
+      billingName: order.invoice.billingName || order.address.name,
+      billingAddress: { ...(order.invoice.billingAddress || order.address) },
+    } : null,
     id: order.orderId,
     idempotencyKey: order.checkoutAttemptId,
     createdAtLabel: new Date(order.createdAt).toLocaleString('fr-MA'),
@@ -224,7 +473,7 @@ export class BuyerOrderRepository {
     private readonly storage: OrderStorage,
     options: BuyerOrderRepositoryOptions = {},
   ) {
-    this.orders = (options.seedOrders ?? [seedOrder]).map(cloneOrder);
+    this.orders = (options.seedOrders ?? canonicalBuyerOrderFixtures).map(cloneOrder);
     this.selectedOrderId = this.orders[0]?.orderId || null;
     this.nextOrderSequence = options.initialSequence ?? 1843;
   }
@@ -289,6 +538,17 @@ export class BuyerOrderRepository {
     return this.selectedPackageId;
   }
 
+  public getSelectedPackage(): OrderPackage | null {
+    const order = this.getSelectedOrder();
+    if (!order || !this.selectedPackageId) return null;
+    const selectedPackage = order.packages.find((pkg) => pkg.packageId === this.selectedPackageId);
+    return selectedPackage ? {
+      ...selectedPackage,
+      orderLineIds: [...selectedPackage.orderLineIds],
+      trackingEvents: selectedPackage.trackingEvents.map((event) => ({ ...event })),
+    } : null;
+  }
+
   public selectPackage(packageId: string | null): boolean {
     if (packageId !== null) {
       const selectedOrder = this.getSelectedOrder();
@@ -320,14 +580,19 @@ export class BuyerOrderRepository {
 
     const orderId = `MAY-${new Date(input.createdAt || Date.now()).getUTCFullYear()}-${String(this.nextOrderSequence).padStart(6, '0')}`;
     this.nextOrderSequence += 1;
+    const cartTotals = getCartTotals(input.cart);
     const order: BuyerOrder = {
       orderId,
       checkoutAttemptId: input.checkoutAttemptId,
       createdAt: input.createdAt || new Date().toISOString(),
       paymentReference: input.paymentMethod === 'cash-on-delivery'
         ? `PROTOTYPE-COD-${orderId}`
-        : `PROTOTYPE-PENDING-${orderId}`,
+        : input.paymentMethod === 'wallet'
+          ? `PROTOTYPE-WALLET-${orderId}`
+          : `PROTOTYPE-CARD-${input.paymentCardLast4 || 'SAFE'}-${orderId}`,
       paymentMethod: input.paymentMethod,
+      paymentPreferenceId: input.paymentPreferenceId,
+      paymentCardLast4: input.paymentCardLast4,
       paymentStatus: input.paymentMethod === 'cash-on-delivery'
         ? 'cash_on_delivery_pending'
         : 'prototype_pending_confirmation',
@@ -355,7 +620,12 @@ export class BuyerOrderRepository {
         id: line.id,
         variant: line.selectedVariantText || line.variant,
       })),
-      totalMad: getCartTotals(input.cart).subtotalMad,
+      deliveryFeeMad: Math.max(0, Math.round(input.deliveryFeeMad || 0)),
+      deliveryPackageCount: input.deliveryPackageCount,
+      discountMad: cartTotals.discountMad,
+      totalMad: cartTotals.totalMad + Math.max(0, Math.round(input.deliveryFeeMad || 0)),
+      promotionId: cartTotals.appliedPromotionId,
+      promotionCode: cartTotals.promotionCode,
       trackingEvents: [],
       packages: [],
       invoice: null,
@@ -398,6 +668,54 @@ export const createBuyerOrderRepository = (
 ): BuyerOrderRepository => new BuyerOrderRepository(storage, options);
 
 export const orderState = createBuyerOrderRepository(AsyncStorage);
+
+export type CanonicalOrderDetailRoute =
+  | 'order-detail-preparing'
+  | 'order-detail-shipped'
+  | 'order-detail-delivered'
+  | 'order-detail-multi-vendor'
+  | 'order-refund-request';
+
+export const getCanonicalOrderDetailRoute = (order: BuyerOrder): CanonicalOrderDetailRoute => {
+  if (order.orderStatus === 'cancelled' && order.deliveryStatus === 'cancelled') return 'order-refund-request';
+  if (order.packages.length > 1) return 'order-detail-multi-vendor';
+  if (order.orderStatus === 'delivered') return 'order-detail-delivered';
+  if (order.orderStatus === 'shipped' || order.orderStatus === 'in_transit') return 'order-detail-shipped';
+  return 'order-detail-preparing';
+};
+
+export const getOrderPackageLines = (order: BuyerOrder, packageId: string): OrderLine[] => {
+  const pkg = order.packages.find((candidate) => candidate.packageId === packageId);
+  if (!pkg) return [];
+  const linesById = new Map(order.lines.map((line) => [line.orderLineId, line]));
+  if (pkg.orderLineIds.some((lineId) => !linesById.has(lineId))) return [];
+  return pkg.orderLineIds.map((lineId) => ({ ...linesById.get(lineId)! }));
+};
+
+export interface OrderPackageValidationResult {
+  valid: boolean;
+  missingLineIds: string[];
+  duplicateLineIds: string[];
+}
+
+export const validateOrderPackages = (order: BuyerOrder): OrderPackageValidationResult => {
+  const validLineIds = new Set(order.lines.map((line) => line.orderLineId));
+  const seenLineIds = new Set<string>();
+  const missingLineIds = new Set<string>();
+  const duplicateLineIds = new Set<string>();
+  order.packages.forEach((pkg) => {
+    pkg.orderLineIds.forEach((lineId) => {
+      if (!validLineIds.has(lineId)) missingLineIds.add(lineId);
+      if (seenLineIds.has(lineId)) duplicateLineIds.add(lineId);
+      seenLineIds.add(lineId);
+    });
+  });
+  return {
+    valid: missingLineIds.size === 0 && duplicateLineIds.size === 0,
+    missingLineIds: [...missingLineIds],
+    duplicateLineIds: [...duplicateLineIds],
+  };
+};
 
 export const getOrderCreatedAtLabel = (order: BuyerOrder, locale: 'fr' | 'ar' = 'fr'): string => {
   try {

@@ -8,6 +8,7 @@ import { StyleSheet, View } from 'react-native';
 import { CartLine, formatMadPrice } from '../../commerce/cartState';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
+import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
 import { radii } from '../../design-system/tokens/radii';
 
@@ -22,24 +23,26 @@ export const SellerCartGroup: React.FC<SellerCartGroupProps> = ({
   lines,
   children,
 }) => {
+  const { isRTL, language } = useTheme();
   const sellerSubtotal = lines.reduce((acc, line) => acc + (line.unitPriceMad * line.quantity), 0);
+  const direction = isRTL ? styles.rowReverse : styles.row;
 
   return (
     <View style={styles.groupCard} accessibilityLabel={`Seller Group ${sellerName}`}>
-      <View style={styles.sellerHeader}>
+      <View style={[styles.sellerHeader, direction]}>
         <View style={styles.badgeCircle}>
           <MayushIcon name="shopping-bag" size={16} color={colors.brand.navy900} />
         </View>
         <MayushText variant="strongBody" color={colors.brand.navy900} style={styles.sellerTitle}>
-          Vendu et expédié par : {sellerName}
+          {language === 'ar' ? `يباع ويشحن بواسطة: ${sellerName}` : `Vendu et expédié par : ${sellerName}`}
         </MayushText>
       </View>
 
       <View style={styles.body}>{children}</View>
 
-      <View style={styles.sellerFooter}>
+      <View style={[styles.sellerFooter, direction]}>
         <MayushText variant="caption" color={colors.neutral.gray700}>
-          Sous-total vendeur ({lines.length} art.) :
+          {language === 'ar' ? `المجموع الفرعي للبائع (${lines.length})` : `Sous-total vendeur (${lines.length} art.) :`}
         </MayushText>
         <MayushText variant="strongBody" color={colors.brand.orange500}>
           {formatMadPrice(sellerSubtotal)}
@@ -50,6 +53,8 @@ export const SellerCartGroup: React.FC<SellerCartGroupProps> = ({
 };
 
 const styles = StyleSheet.create({
+  row: { flexDirection: 'row' },
+  rowReverse: { flexDirection: 'row-reverse' },
   groupCard: {
     borderRadius: radii.xl,
     borderWidth: 1,

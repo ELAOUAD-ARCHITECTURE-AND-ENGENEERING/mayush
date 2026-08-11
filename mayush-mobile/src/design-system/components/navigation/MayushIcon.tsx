@@ -36,6 +36,7 @@ export type MayushIconName =
   | 'star'
   | 'tag'
   | 'trash-2'
+  | 'trash'
   | 'edit-2'
   | 'user'
   | 'x'

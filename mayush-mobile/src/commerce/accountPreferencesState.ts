@@ -10,6 +10,7 @@ export interface PaymentMethodFixture {
   expiry?: string;
   brand?: string;
   isDefault: boolean;
+  balanceMad?: number;
 }
 
 export type AppLanguage = 'fr' | 'ar' | 'en';
@@ -41,12 +42,23 @@ class AccountPreferencesStateManager {
       id: 'pm-card',
       type: 'card',
       title: 'Carte bancaire (Attijariwafa / CMI)',
-      subtitle: '•••• •••• •••• 4242 (Expire 12/28)',
+      subtitle: '•••• •••• •••• 4242 (Expire 06/26)',
       iconName: 'credit-card',
       last4: '4242',
-      expiry: '12/28',
+      expiry: '06/26',
       brand: 'Visa',
       isDefault: true,
+    },
+    {
+      id: 'pm-mastercard',
+      type: 'card',
+      title: 'MasterCard',
+      subtitle: '•••• •••• •••• 8731 (Expire 11/27)',
+      iconName: 'credit-card',
+      last4: '8731',
+      expiry: '11/27',
+      brand: 'MasterCard',
+      isDefault: false,
     },
     {
       id: 'pm-cod',
@@ -62,6 +74,7 @@ class AccountPreferencesStateManager {
       title: 'Mayush Wallet',
       subtitle: 'Solde disponible : 1,250 MAD',
       iconName: 'wallet',
+      balanceMad: 1250,
       isDefault: false,
     },
   ];
@@ -129,6 +142,10 @@ class AccountPreferencesStateManager {
     return this.selectedPaymentMethodId;
   }
 
+  public getWalletBalanceMad(): number {
+    return this.paymentMethods.find((method) => method.type === 'wallet')?.balanceMad || 0;
+  }
+
   public setSelectedPaymentMethod(id: string) {
     if (this.paymentMethods.some((pm) => pm.id === id)) {
       this.selectedPaymentMethodId = id;
@@ -176,12 +193,23 @@ class AccountPreferencesStateManager {
         id: 'pm-card',
         type: 'card',
         title: 'Carte bancaire (Attijariwafa / CMI)',
-        subtitle: '•••• •••• •••• 4242 (Expire 12/28)',
+        subtitle: '•••• •••• •••• 4242 (Expire 06/26)',
         iconName: 'credit-card',
         last4: '4242',
-        expiry: '12/28',
+        expiry: '06/26',
         brand: 'Visa',
         isDefault: true,
+      },
+      {
+        id: 'pm-mastercard',
+        type: 'card',
+        title: 'MasterCard',
+        subtitle: '•••• •••• •••• 8731 (Expire 11/27)',
+        iconName: 'credit-card',
+        last4: '8731',
+        expiry: '11/27',
+        brand: 'MasterCard',
+        isDefault: false,
       },
       {
         id: 'pm-cod',
@@ -197,6 +225,7 @@ class AccountPreferencesStateManager {
         title: 'Mayush Wallet',
         subtitle: 'Solde disponible : 1,250 MAD',
         iconName: 'wallet',
+        balanceMad: 1250,
         isDefault: false,
       },
     ];

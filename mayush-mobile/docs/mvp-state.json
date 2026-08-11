@@ -35,10 +35,16 @@
     "step-7c-ticket-resolution-system-states-update-frontend",
     "step-7d-forced-update-settings-states-frontend",
     "step-8a-remaining-prototype-gap-audit",
-    "step-8b0-order-foundation-preparation"
+    "step-8b0-order-foundation-preparation",
+    "step-8b-buyer-order-detail-tracking-packages",
+    "step-8c-buyer-order-cancellation-review-reorder",
+    "step-8d-buyer-returns-refunds-tracking",
+    "step-8e-delivery-support-order-system-states",
+    "step-8f-cart-interactions-promotions",
+    "step-8g-checkout-address-delivery-payment"
   ],
-  "currentTask": "STEP 8B.0 — ORDER FOUNDATION & PRE-IMPLEMENTATION REPAIR",
-  "nextTask": "STEP 8B — BUYER ORDER DETAIL, TRACKING & MULTI-PACKAGE FULFILLMENT",
+  "currentTask": "STEP 8G — CHECKOUT ADDRESS, DELIVERY & PAYMENT OPTION STATES",
+  "nextTask": "STEP 8H — CHECKOUT PAYMENT CONFIRMATION, CONFLICT & SYSTEM STATES",
   "phase5Status": "FUNCTIONALLY_COMPLETE_VISUAL_CORRECTION_IN_PROGRESS",
   "groupCStatus": "ATTEMPTED_NO_PARITY_GAIN",
   "step1DiscoveryStatus": "FRONTEND_CLUSTER_COMPLETE_92_TESTS_PASSING",
@@ -66,21 +72,27 @@
   "step8aAuditStatus": "AUDIT_COMPLETE_417_TESTS_PASSING",
   "step8a1CanonicalReconciliationStatus": "CANONICAL_RECONCILED_417_TESTS_PASSING",
   "step8b0OrderFoundationStatus": "FOUNDATION_PREPARED_417_REGRESSION_PLUS_11_BEHAVIOR_TESTS_PASSING",
+  "step8bOrderFulfillmentStatus": "FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING_417_REGRESSION_PLUS_11_FOUNDATION_PLUS_17_STEP8B_BEHAVIOR_TESTS_PASSING",
+  "step8cOrderActionsStatus": "FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING_417_REGRESSION_PLUS_11_FOUNDATION_PLUS_17_STEP8B_PLUS_23_STEP8C_BEHAVIOR_TESTS_PASSING",
+  "step8dReturnsRefundsStatus": "FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING_417_REGRESSION_PLUS_11_FOUNDATION_PLUS_17_STEP8B_PLUS_23_STEP8C_PLUS_24_STEP8D_BEHAVIOR_TESTS_PASSING",
+  "step8eDeliveryOrderStatesStatus": "FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING_417_REGRESSION_PLUS_11_FOUNDATION_PLUS_17_STEP8B_PLUS_23_STEP8C_PLUS_24_STEP8D_PLUS_28_STEP8E_BEHAVIOR_TESTS_PASSING",
+  "step8fCartInteractionsPromotionsStatus": "FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING_417_REGRESSION_PLUS_11_FOUNDATION_PLUS_17_STEP8B_PLUS_23_STEP8C_PLUS_24_STEP8D_PLUS_28_STEP8E_PLUS_32_STEP8F_BEHAVIOR_TESTS_PASSING",
+  "step8gCheckoutAddressDeliveryPaymentStatus": "FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING_417_REGRESSION_PLUS_11_FOUNDATION_PLUS_17_STEP8B_PLUS_23_STEP8C_PLUS_24_STEP8D_PLUS_28_STEP8E_PLUS_32_STEP8F_PLUS_37_STEP8G_BEHAVIOR_TESTS_PASSING",
   "designSystemStatus": "VISUAL_BASELINE_CAPTURED_NEEDS_CORRECTION",
   "contractStatus": "LOCKED_WITH_RELEASE_DEPENDENCIES",
   "buyerFunctionalStatus": "FUNCTIONAL_PASS_WEB_VALIDATED",
   "screenInventoryMetrics": {
-    "implemented": 151,
-    "missing": 56,
+    "implemented": 199,
+    "missing": 8,
     "total": 207,
-    "completionPercentage": "72.9%"
+    "completionPercentage": "96.1%"
   },
   "prototypeConnectionMetrics": {
-    "implemented": 45,
-    "mismatched": 15,
-    "missing": 146,
+    "implemented": 63,
+    "mismatched": 40,
+    "missing": 103,
     "total": 206,
-    "completionPercentage": "21.8%"
+    "completionPercentage": "30.6%"
   },
   "unitTestMetrics": {
     "passed": 417,
@@ -91,5 +103,35 @@
     "passed": 11,
     "failed": 0,
     "total": 11
+  },
+  "step8bBehaviorTestMetrics": {
+    "passed": 17,
+    "failed": 0,
+    "total": 17
+  },
+  "step8cBehaviorTestMetrics": {
+    "passed": 23,
+    "failed": 0,
+    "total": 23
+  },
+  "step8dBehaviorTestMetrics": {
+    "passed": 24,
+    "failed": 0,
+    "total": 24
+  },
+  "step8eBehaviorTestMetrics": {
+    "passed": 28,
+    "failed": 0,
+    "total": 28
+  },
+  "step8fBehaviorTestMetrics": {
+    "passed": 32,
+    "failed": 0,
+    "total": 32
+  },
+  "step8gBehaviorTestMetrics": {
+    "passed": 37,
+    "failed": 0,
+    "total": 37
   }
 }

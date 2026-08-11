@@ -100,6 +100,8 @@ export const mockOrder: PrototypeOrder = {
     id: line.id,
     variant: line.variant,
   })),
+  deliveryFeeMad: 0,
+  discountMad: 0,
   totalMad: 6300,
   trackingEvents: [],
   packages: [],

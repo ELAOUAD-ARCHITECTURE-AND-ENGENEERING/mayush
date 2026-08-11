@@ -9,7 +9,7 @@
  * 6. Guest-Account Cart Fusion Merge (309:677)
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Image,
   Modal,
@@ -19,7 +19,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { CartLine, CartState, formatMadPrice, getCartTotals } from '../../commerce/cartState';
+import {
+  CartLine,
+  CartState,
+  CartVariantSelection,
+  PromotionValidationResult,
+  formatMadPrice,
+  getAvailablePromotions,
+  getCartTotals,
+  groupCartLinesBySeller,
+} from '../../commerce/cartState';
 import { CartEmptyState } from '../../components/cart/CartEmptyState';
 import { CartErrorState } from '../../components/cart/CartErrorState';
 import { CartMergeSummary } from '../../components/cart/CartMergeSummary';
@@ -55,7 +64,9 @@ export interface CartScreenProps {
   onViewWishlist?: () => void;
   onSelectProduct?: (productId: number) => void;
   onUpdateQuantity?: (lineId: string, delta: number) => void;
-  onUpdateVariantText?: (lineId: string, newVariantText: string) => void;
+  onUpdateVariant?: (lineId: string, selection: CartVariantSelection) => boolean;
+  onApplyPromotion?: (code: string) => PromotionValidationResult;
+  onRemovePromotion?: () => void;
   onCheckout?: () => void;
   onMergeCartLines?: (mergedLines: CartLine[]) => void;
 }
@@ -70,13 +81,17 @@ export const CartScreen: React.FC<CartScreenProps> = ({
   onViewWishlist,
   onSelectProduct,
   onUpdateQuantity,
-  onUpdateVariantText,
+  onUpdateVariant,
+  onApplyPromotion,
+  onRemovePromotion,
   onCheckout,
   onMergeCartLines,
 }) => {
   const { isRTL, language } = useTheme();
   const activeCart = cart || { lines: [] };
   const totals = getCartTotals(activeCart);
+  const sellerGroups = groupCartLinesBySeller(activeCart);
+  const availablePromotions = getAvailablePromotions(activeCart);
 
   // Free shipping threshold state (3000 MAD)
   const FREE_SHIPPING_THRESHOLD = 3000;
@@ -113,16 +128,21 @@ export const CartScreen: React.FC<CartScreenProps> = ({
   // Toast feedback state (Node 309:659)
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const triggerToast = (msg: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
     setToastMessage(msg);
     setToastVisible(true);
-    setTimeout(() => setToastVisible(false), 2500);
+    toastTimer.current = setTimeout(() => setToastVisible(false), 1600);
   };
+
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
 
   // Promo code state (Nodes 309:662 - 309:664)
   const [promoInput, setPromoInput] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountMad: number } | null>(null);
   const [promoError, setPromoError] = useState<string | null>(null);
   const [vouchersModalVisible, setVouchersModalVisible] = useState(false);
 
@@ -161,24 +181,22 @@ export const CartScreen: React.FC<CartScreenProps> = ({
   const handleApplyPromo = () => {
     setPromoError(null);
     const cleanCode = promoInput.trim().toUpperCase();
-    if (cleanCode === 'WELCOME10') {
-      const discount = Math.round(totals.subtotalMad * 0.1);
-      setAppliedPromo({ code: 'WELCOME10', discountMad: discount });
+    const validation = onApplyPromotion?.(cleanCode);
+    if (validation?.code === 'VALID' && validation.promotion) {
       setPromoInput('');
-      triggerToast('Code promo WELCOME10 appliqué (-10%)');
-    } else if (cleanCode === 'SALON15') {
-      const discount = Math.round(totals.subtotalMad * 0.15);
-      setAppliedPromo({ code: 'SALON15', discountMad: discount });
-      setPromoInput('');
-      triggerToast('Code promo SALON15 appliqué (-15%)');
+      triggerToast(`Code promotionnel ${validation.promotion.code} appliqué`);
     } else {
-      setPromoError(language === 'ar' ? 'رمز التخفيض غير صالح أو منتهي الصلاحية' : 'Code promo non valide ou expiré');
+      setPromoError(language === 'ar'
+        ? 'رمز التخفيض هذا غير قابل للتطبيق على المنتجات الموجودة في سلتك.'
+        : validation?.code === 'MINIMUM_NOT_REACHED'
+          ? 'Le montant minimum requis pour ce code n’est pas atteint.'
+          : 'Ce code promotionnel n’est pas applicable aux produits présents dans votre panier.');
     }
   };
 
   const handleIncrementQuantity = (line: CartLine) => {
     onUpdateQuantity?.(line.id, 1);
-    triggerToast(`Quantité mise à jour (${line.quantity + 1} x ${line.productName || line.name})`);
+    triggerToast(language === 'ar' ? 'جارٍ تحديث السلة' : 'Mise à jour du panier');
   };
 
   const handleDecrementQuantity = (line: CartLine) => {
@@ -186,7 +204,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({
       setLineToRemove(line);
     } else {
       onUpdateQuantity?.(line.id, -1);
-      triggerToast(`Quantité mise à jour (${line.quantity - 1} x ${line.productName || line.name})`);
+      triggerToast(language === 'ar' ? 'جارٍ تحديث السلة' : 'Mise à jour du panier');
     }
   };
 
@@ -215,9 +233,8 @@ export const CartScreen: React.FC<CartScreenProps> = ({
     }
   };
 
-  const handleConfirmVariantChange = (lineId: string, newVariantText: string) => {
-    onUpdateVariantText?.(lineId, newVariantText);
-    triggerToast('Variante mise à jour avec succès');
+  const handleConfirmVariantChange = (lineId: string, selection: CartVariantSelection) => {
+    if (onUpdateVariant?.(lineId, selection)) triggerToast('Variante mise à jour avec succès');
   };
 
   const handleMergeBothCarts = (mergedLines: CartLine[]) => {
@@ -226,7 +243,13 @@ export const CartScreen: React.FC<CartScreenProps> = ({
     triggerToast('Paniers fusionnés avec succès !');
   };
 
-  const finalTotalMad = Math.max(0, totals.subtotalMad - (appliedPromo?.discountMad || 0));
+  const applyOffer = (code: string) => {
+    const validation = onApplyPromotion?.(code);
+    if (validation?.code !== 'VALID' || !validation.promotion) return;
+    setPromoError(null);
+    setVouchersModalVisible(false);
+    triggerToast(`Code promotionnel ${validation.promotion.code} appliqué`);
+  };
 
   const copy = language === 'ar'
     ? {
@@ -337,21 +360,25 @@ export const CartScreen: React.FC<CartScreenProps> = ({
 
             {/* Cart Items List or Seller Grouped Cards */}
             {groupBySeller ? (
-              <SellerCartGroup sellerName="Atelier Mayush Casablanca" lines={activeCart.lines}>
-                {activeCart.lines.map((line, idx) => (
-                  <CartItemRow
-                    key={line.id}
-                    line={line}
-                    fallbackImg={FALLBACK_IMAGES[idx % FALLBACK_IMAGES.length]}
-                    onEditVariant={() => setLineToEditVariant(line)}
-                    onIncrement={() => handleIncrementQuantity(line)}
-                    onDecrement={() => handleDecrementQuantity(line)}
-                    onRemove={() => setLineToRemove(line)}
-                    onSaveLater={() => handleMoveToLater(line)}
-                    onSelectProduct={onSelectProduct}
-                  />
+              <View>
+                {sellerGroups.map((group, groupIndex) => (
+                  <SellerCartGroup key={group.sellerId} sellerName={group.sellerName} lines={group.lines}>
+                    {group.lines.map((line, lineIndex) => (
+                      <CartItemRow
+                        key={line.id}
+                        line={line}
+                        fallbackImg={FALLBACK_IMAGES[(groupIndex + lineIndex) % FALLBACK_IMAGES.length]}
+                        onEditVariant={() => setLineToEditVariant(line)}
+                        onIncrement={() => handleIncrementQuantity(line)}
+                        onDecrement={() => handleDecrementQuantity(line)}
+                        onRemove={() => setLineToRemove(line)}
+                        onSaveLater={() => handleMoveToLater(line)}
+                        onSelectProduct={onSelectProduct}
+                      />
+                    ))}
+                  </SellerCartGroup>
                 ))}
-              </SellerCartGroup>
+              </View>
             ) : (
               <View style={styles.lineList}>
                 {activeCart.lines.map((line, idx) => (
@@ -383,18 +410,18 @@ export const CartScreen: React.FC<CartScreenProps> = ({
                 </TouchableOpacity>
               </View>
 
-              {appliedPromo ? (
+              {totals.promotionCode ? (
                 <View style={styles.appliedPromoBadge}>
                   <MayushIcon name="check-circle" size={16} color={colors.semantic.success} />
                   <MayushText variant="caption" color={colors.brand.navy900} style={styles.appliedPromoText}>
-                    Code {appliedPromo.code} appliqué (-{formatMadPrice(appliedPromo.discountMad)})
+                    Code {totals.promotionCode} appliqué (-{formatMadPrice(totals.discountMad)})
                   </MayushText>
-                  <TouchableOpacity onPress={() => { setAppliedPromo(null); triggerToast('Code promo retiré'); }}>
+                  <TouchableOpacity onPress={() => { onRemovePromotion?.(); triggerToast('Code promo retiré'); }}>
                     <MayushIcon name="x" size={16} color={colors.neutral.gray500} />
                   </TouchableOpacity>
                 </View>
               ) : (
-                <View style={styles.promoInputRow}>
+                <View style={[styles.promoInputRow, isRTL && styles.rowReverse]}>
                   <TextInput
                     style={styles.promoInput}
                     placeholder={language === 'ar' ? 'أدخل الرمز' : 'Entrez votre code'}
@@ -411,9 +438,19 @@ export const CartScreen: React.FC<CartScreenProps> = ({
               )}
 
               {promoError ? (
-                <MayushText variant="caption" color={colors.semantic.error} style={styles.promoErrorText}>
-                  {promoError}
-                </MayushText>
+                <View style={styles.promoErrorPanel}>
+                  <MayushText variant="caption" color={colors.semantic.error} style={styles.promoErrorText}>
+                    {promoError}
+                  </MayushText>
+                  <View style={[styles.promoErrorActions, isRTL && styles.rowReverse]}>
+                    <TouchableOpacity onPress={() => { setPromoInput(''); setPromoError(null); }}>
+                      <MayushText variant="caption" color={colors.brand.navy900}>{language === 'ar' ? 'جرّب رمزاً آخر' : 'Essayer un autre code'}</MayushText>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setVouchersModalVisible(true)}>
+                      <MayushText variant="caption" color={colors.brand.orange500}>{language === 'ar' ? 'عرض العروض المتاحة' : 'Voir les offres disponibles'}</MayushText>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               ) : null}
             </View>
 
@@ -431,13 +468,13 @@ export const CartScreen: React.FC<CartScreenProps> = ({
                 </MayushText>
               </View>
 
-              {appliedPromo ? (
+              {totals.promotionCode ? (
                 <View style={styles.summaryRow}>
                   <MayushText variant="body" color={colors.semantic.success}>
-                    Réduction ({appliedPromo.code})
+                    Réduction ({totals.promotionCode})
                   </MayushText>
                   <MayushText variant="strongBody" color={colors.semantic.success}>
-                    -{formatMadPrice(appliedPromo.discountMad)}
+                    -{formatMadPrice(totals.discountMad)}
                   </MayushText>
                 </View>
               ) : null}
@@ -458,7 +495,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({
                   Total provisoire
                 </MayushText>
                 <MayushText variant="display" color={colors.brand.orange500}>
-                  {formatMadPrice(finalTotalMad)}
+                  {formatMadPrice(totals.totalMad)}
                 </MayushText>
               </View>
             </View>
@@ -499,6 +536,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({
       <RemoveItemDialog
         visible={lineToRemove !== null}
         productName={lineToRemove?.productName || lineToRemove?.name}
+        imageUri={lineToRemove?.imageUri}
         onCancel={() => setLineToRemove(null)}
         onConfirm={confirmRemoveLine}
       />
@@ -517,44 +555,34 @@ export const CartScreen: React.FC<CartScreenProps> = ({
           <View style={styles.voucherSheet}>
             <View style={styles.sheetHeader}>
               <MayushText variant="sectionTitle" color={colors.brand.navy900}>
-                Offres et codes promo disponibles
+                {language === 'ar' ? 'رمز التخفيض' : 'Code promotionnel'}
               </MayushText>
               <TouchableOpacity onPress={() => setVouchersModalVisible(false)}>
                 <MayushIcon name="x" size={22} color={colors.brand.navy900} />
               </TouchableOpacity>
             </View>
             <ScrollView contentContainerStyle={styles.sheetBody}>
-              <TouchableOpacity
-                style={styles.voucherItem}
-                onPress={() => {
-                  setAppliedPromo({ code: 'WELCOME10', discountMad: Math.round(totals.subtotalMad * 0.1) });
-                  setVouchersModalVisible(false);
-                  triggerToast('Code WELCOME10 appliqué (-10%)');
-                }}
-              >
-                <MayushText variant="strongBody" color={colors.brand.navy900}>
-                  WELCOME10 (10% de réduction)
-                </MayushText>
-                <MayushText variant="caption" color={colors.neutral.gray700}>
-                  Valable sur toute votre commande
-                </MayushText>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.voucherItem}
-                onPress={() => {
-                  setAppliedPromo({ code: 'SALON15', discountMad: Math.round(totals.subtotalMad * 0.15) });
-                  setVouchersModalVisible(false);
-                  triggerToast('Code SALON15 appliqué (-15%)');
-                }}
-              >
-                <MayushText variant="strongBody" color={colors.brand.navy900}>
-                  SALON15 (15% de réduction)
-                </MayushText>
-                <MayushText variant="caption" color={colors.neutral.gray700}>
-                  Valable sur la sélection Salon
-                </MayushText>
-              </TouchableOpacity>
+              <View style={[styles.promoInputRow, isRTL && styles.rowReverse]}>
+                <TextInput style={styles.promoInput} placeholder={language === 'ar' ? 'أدخل رمزك' : 'Saisissez votre code'} value={promoInput} onChangeText={setPromoInput} autoCapitalize="characters" />
+                <TouchableOpacity style={styles.applyBtn} onPress={handleApplyPromo}><MayushText variant="strongBody" color={colors.surface.white}>{language === 'ar' ? 'تطبيق' : 'Appliquer'}</MayushText></TouchableOpacity>
+              </View>
+              <MayushText variant="strongBody" color={colors.brand.navy900}>{language === 'ar' ? 'العروض المتاحة' : 'Offres disponibles'}</MayushText>
+              {availablePromotions.map((promotion) => (
+                <TouchableOpacity key={promotion.promoId} style={styles.voucherItem} onPress={() => applyOffer(promotion.code)}>
+                  <View style={[styles.voucherTitleRow, isRTL && styles.rowReverse]}>
+                    <MayushText variant="strongBody" color={colors.brand.navy900}>{promotion.code}</MayushText>
+                    {totals.appliedPromotionId === promotion.promoId ? <MayushText variant="caption" color={colors.semantic.success}>{language === 'ar' ? 'مطبّق' : 'Appliqué'}</MayushText> : null}
+                  </View>
+                  <MayushText variant="smallBody" color={colors.brand.orange500}>{promotion.title}</MayushText>
+                  <MayushText variant="caption" color={colors.neutral.gray700}>
+                    {promotion.minimumSubtotalMad ? `${language === 'ar' ? 'ابتداءً من' : 'À partir de'} ${formatMadPrice(promotion.minimumSubtotalMad)}` : ''}
+                    {promotion.expiryLabel ? ` · ${language === 'ar' ? 'ينتهي في' : 'Expire le'} ${promotion.expiryLabel}` : ''}
+                  </MayushText>
+                </TouchableOpacity>
+              ))}
+              <MayushText variant="caption" color={colors.neutral.gray700} align={isRTL ? 'right' : 'left'}>
+                {language === 'ar' ? 'اجمع ووفر! يمكن دمج بعض الرموز مع عروض أخرى.' : 'Cumulez et économisez ! Certains codes peuvent être combinés avec d’autres offres.'}
+              </MayushText>
             </ScrollView>
           </View>
         </View>
@@ -565,7 +593,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({
           <TouchableOpacity accessibilityRole="button" onPress={onCheckout} style={styles.checkoutButton}>
             <MayushIcon name="shopping-bag" size={22} color={colors.surface.white} />
             <MayushText variant="button" color={colors.surface.white}>
-              {copy.checkout} ({formatMadPrice(finalTotalMad)})
+              {copy.checkout} ({formatMadPrice(totals.totalMad)})
             </MayushText>
           </TouchableOpacity>
         </View>
@@ -736,6 +764,9 @@ const styles = StyleSheet.create({
   },
   appliedPromoText: { flex: 1, fontWeight: '600' },
   promoErrorText: { marginTop: 6 },
+  promoErrorPanel: { gap: 9 },
+  promoErrorActions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+  rowReverse: { flexDirection: 'row-reverse' },
   summaryCard: {
     padding: 16,
     borderRadius: radii.xl,
@@ -747,11 +778,12 @@ const styles = StyleSheet.create({
   summaryTitle: { fontSize: 17, marginBottom: 12 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   summaryDivider: { height: 1, backgroundColor: colors.surface.borderWarm, marginVertical: 8 },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
-  voucherSheet: { width: '100%', maxHeight: '60%', backgroundColor: colors.surface.white, borderRadius: radii.xl, padding: 16 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  voucherSheet: { width: '100%', maxHeight: '78%', backgroundColor: colors.surface.white, borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, padding: 20, paddingBottom: 28 },
   sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  sheetBody: { paddingBottom: 16 },
+  sheetBody: { paddingBottom: 16, gap: 10 },
   voucherItem: { padding: 12, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.surface.borderWarm, marginBottom: 8 },
+  voucherTitleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   checkoutShell: { padding: 16, backgroundColor: colors.surface.white, borderTopWidth: 1, borderTopColor: colors.surface.borderWarm },
   checkoutButton: { height: 50, borderRadius: radii.xl, backgroundColor: colors.brand.orange500, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
 });

@@ -128,8 +128,56 @@ const manualMappings = {
   '309:607': { frameName: '03-product-variant-selector-color-material-size', file: 'src/screens/product/VariantSelectorSheet.tsx', route: null, implementationType: 'SHEET' },
   '309:611': { frameName: '03-product-added-to-cart-confirmation', file: 'src/screens/commerce/AddedToCartConfirmationScreen.tsx', route: 'added-to-cart', implementationType: 'ROUTE' },
   '309:658': { frameName: '05-cart-items-promo-code-summary-fr', file: 'src/screens/commerce/CartScreen.tsx', route: 'cart', implementationType: 'ROUTE' },
+  '309:659': { frameName: '05-cart-quantity-update-toast-fr', file: 'src/components/cart/CartToast.tsx', route: null, implementationType: 'TOAST' },
+  '309:660': { frameName: '05-cart-modify-variant-bottom-sheet-fr', file: 'src/components/cart/VariantEditSheet.tsx', route: null, implementationType: 'BOTTOM_SHEET' },
+  '309:661': { frameName: '05-cart-multi-vendor-grouped-by-seller-fr', file: 'src/components/cart/SellerCartGroup.tsx', route: null, implementationType: 'INLINE_STATE' },
+  '309:662': { frameName: '05-cart-invalid-promo-code-error-fr', file: 'src/screens/commerce/CartScreen.tsx', route: null, implementationType: 'INLINE_STATE' },
+  '309:663': { frameName: '05-cart-promo-applied-order-summary-fr', file: 'src/screens/commerce/CartScreen.tsx', route: null, implementationType: 'INLINE_STATE' },
+  '309:664': { frameName: '05-cart-promo-code-modal-available-offers-fr', file: 'src/screens/commerce/CartScreen.tsx', route: null, implementationType: 'BOTTOM_SHEET' },
+  '309:665': { frameName: '05-cart-remove-item-confirmation-dialog-fr', file: 'src/components/cart/RemoveItemDialog.tsx', route: null, implementationType: 'BOTTOM_SHEET' },
+  '309:683': { frameName: '06-city-selector-list-fr', file: 'src/screens/checkout/CheckoutAddressStateScreens.tsx', route: 'city-selector', implementationType: 'ROUTE' },
+  '309:684': { frameName: '06-delivery-zone-selector-fr', file: 'src/screens/checkout/CheckoutAddressStateScreens.tsx', route: 'delivery-zone-selector', implementationType: 'ROUTE' },
+  '309:685': { frameName: '06-edit-address-form-fr', file: 'src/screens/checkout/CheckoutAddressStateScreens.tsx', route: 'edit-checkout-address', implementationType: 'ROUTE' },
+  '309:686': { frameName: '06-no-address-saved-empty-state-v2-fr', file: 'src/screens/checkout/CheckoutAddressStateScreens.tsx', route: 'no-saved-address', implementationType: 'ROUTE' },
+  '309:688': { frameName: '06-delivery-by-vendor-multi-seller-fr', file: 'src/screens/checkout/CheckoutDeliveryStateScreens.tsx', route: 'delivery-by-vendor', implementationType: 'ROUTE' },
+  '309:689': { frameName: '06-delivery-unavailable-address-error-fr', file: 'src/screens/checkout/CheckoutDeliveryStateScreens.tsx', route: 'delivery-unavailable', implementationType: 'ROUTE' },
+  '309:691': { frameName: '06-pay-with-wallet-balance-fr', file: 'src/screens/checkout/CheckoutPaymentDetailScreens.tsx', route: 'wallet-balance', implementationType: 'ROUTE' },
+  '309:692': { frameName: '06-saved-payment-cards-visa-mastercard-fr', file: 'src/screens/checkout/CheckoutPaymentDetailScreens.tsx', route: 'saved-payment-cards', implementationType: 'ROUTE' },
   '309:705': { frameName: '06-order-thank-you-confirmation-summary-v2-fr', file: 'src/screens/orders/OrderThankYouScreen.tsx', route: 'order-thank-you', implementationType: 'ROUTE' },
   '309:712': { frameName: '07-orders-list-all-tabs-fr', file: 'src/screens/orders/OrdersListScreen.tsx', route: 'orders-list', implementationType: 'ROUTE' },
+  '309:713': { frameName: '07-orders-in-progress-tab-statuses-fr', file: 'src/screens/orders/OrdersListScreen.tsx', route: null, implementationType: 'INLINE_STATE' },
+  '309:714': { frameName: '07-orders-completed-tab-reorder-review-fr', file: 'src/screens/orders/OrdersListScreen.tsx', route: null, implementationType: 'INLINE_STATE' },
+  '309:715': { frameName: '07-orders-cancelled-tab-refund-statuses-fr', file: 'src/screens/orders/OrdersListScreen.tsx', route: null, implementationType: 'INLINE_STATE' },
+  '309:716': { frameName: '07-order-detail-in-preparation-timeline-fr', file: 'src/screens/orders/OrderDetailsScreen.tsx', route: 'order-detail-preparing', implementationType: 'ROUTE' },
+  '309:717': { frameName: '07-order-detail-shipped-tracking-fr', file: 'src/screens/orders/OrderDetailsScreen.tsx', route: 'order-detail-shipped', implementationType: 'ROUTE' },
+  '309:718': { frameName: '07-order-tracking-timeline-realtime-fr', file: 'src/screens/orders/OrderTrackingScreen.tsx', route: 'order-tracking', implementationType: 'ROUTE' },
+  '309:719': { frameName: '07-order-detail-delivered-actions-fr', file: 'src/screens/orders/OrderDetailsScreen.tsx', route: 'order-detail-delivered', implementationType: 'ROUTE' },
+  '309:720': { frameName: '07-order-detail-multi-vendor-packages-fr', file: 'src/screens/orders/OrderDetailsScreen.tsx', route: 'order-detail-multi-vendor', implementationType: 'ROUTE' },
+  '309:721': { frameName: '07-multiple-packages-split-shipment-fr', file: 'src/screens/orders/OrderPackagesScreen.tsx', route: 'order-packages', implementationType: 'ROUTE' },
+  '309:722': { frameName: '07-package-detail-items-shipping-info-fr', file: 'src/screens/orders/OrderPackageDetailsScreen.tsx', route: 'order-package-detail', implementationType: 'ROUTE' },
+  '309:723': { frameName: '07-invoice-detail-download-share-fr', file: 'src/screens/orders/OrderInvoiceScreen.tsx', route: 'order-invoice', implementationType: 'ROUTE' },
+  '309:724': { frameName: '07-cancel-order-confirmation-dialog-fr', file: 'src/screens/orders/OrderCancellationScreens.tsx', route: 'order-cancel-confirmation', implementationType: 'ROUTE' },
+  '309:725': { frameName: '07-cancel-order-reason-form-fr', file: 'src/screens/orders/OrderCancellationScreens.tsx', route: 'order-cancel-reason', implementationType: 'ROUTE' },
+  '309:726': { frameName: '07-cancellation-request-registered-fr', file: 'src/screens/orders/OrderCancellationScreens.tsx', route: 'order-cancel-registered', implementationType: 'ROUTE' },
+  '309:727': { frameName: '07-order-cannot-be-cancelled-fr', file: 'src/screens/orders/OrderCancellationScreens.tsx', route: 'order-cannot-cancel', implementationType: 'ROUTE' },
+  '309:728': { frameName: '07-rate-order-review-products-fr', file: 'src/screens/orders/OrderProductReviewScreen.tsx', route: 'order-product-review', implementationType: 'ROUTE' },
+  '309:729': { frameName: '07-reorder-articles-changed-unavailable-fr', file: 'src/screens/orders/OrderReorderScreens.tsx', route: 'order-reorder-changes', implementationType: 'ROUTE' },
+  '309:730': { frameName: '07-reorder-items-added-to-cart-fr', file: 'src/screens/orders/OrderReorderScreens.tsx', route: 'order-reorder-added', implementationType: 'ROUTE' },
+  '309:731': { frameName: '07-reorder-with-availability-changes-fr', file: 'src/screens/orders/OrderReorderScreens.tsx', route: 'order-reorder-availability', implementationType: 'ROUTE' },
+  '309:732': { frameName: '07-request-return-item-selection-fr', file: 'src/screens/orders/OrderReturnScreens.tsx', route: 'order-return-selection', implementationType: 'ROUTE' },
+  '309:733': { frameName: '07-return-detail-items-refund-status-fr', file: 'src/screens/orders/OrderReturnScreens.tsx', route: 'order-return-detail', implementationType: 'ROUTE' },
+  '309:734': { frameName: '07-return-tracking-timeline-fr', file: 'src/screens/orders/OrderReturnScreens.tsx', route: 'order-return-tracking', implementationType: 'ROUTE' },
+  '309:735': { frameName: '07-request-refund-cancelled-order-fr', file: 'src/screens/orders/OrderRefundScreens.tsx', route: 'order-refund-request', implementationType: 'ROUTE' },
+  '309:736': { frameName: '07-refund-completed-success-fr', file: 'src/screens/orders/OrderRefundScreens.tsx', route: 'order-refund-completed', implementationType: 'ROUTE' },
+  '309:737': { frameName: '07-delivery-delayed-notification-fr', file: 'src/screens/orders/OrderDeliveryIssueScreens.tsx', route: 'delivery-delayed', implementationType: 'ROUTE' },
+  '309:738': { frameName: '07-delivery-failed-reschedule-fr', file: 'src/screens/orders/OrderDeliveryIssueScreens.tsx', route: 'delivery-failed', implementationType: 'ROUTE' },
+  '309:739': { frameName: '07-support-order-contact-form-fr', file: 'src/screens/support/ContactSupportFormScreen.tsx', route: 'order-support-contact', implementationType: 'ROUTE' },
+  '309:740': { frameName: '07-tracking-unavailable-in-preparation-fr', file: 'src/screens/orders/OrderDeliveryIssueScreens.tsx', route: 'tracking-unavailable', implementationType: 'ROUTE' },
+  '309:741': { frameName: '07-order-not-found-error-fr', file: 'src/screens/orders/OrderSystemStateScreens.tsx', route: 'order-not-found', implementationType: 'ROUTE' },
+  '309:742': { frameName: '07-orders-empty-state-fr', file: 'src/screens/orders/OrderSystemStateScreens.tsx', route: 'orders-empty', implementationType: 'ROUTE' },
+  '309:743': { frameName: '07-orders-error-loading-state-fr', file: 'src/screens/orders/OrderSystemStateScreens.tsx', route: 'orders-error', implementationType: 'ROUTE' },
+  '309:744': { frameName: '07-orders-skeleton-loading-state', file: 'src/screens/orders/OrderSystemStateScreens.tsx', route: 'orders-skeleton', implementationType: 'ROUTE' },
+  '309:745': { frameName: '07-order-detail-skeleton-loading-state', file: 'src/screens/orders/OrderSystemStateScreens.tsx', route: 'order-detail-skeleton', implementationType: 'ROUTE' },
 };
 
 const nonRouteCsvMappings = {
@@ -187,13 +235,12 @@ for (const [figmaNodeId, mapping] of mappings.entries()) {
     if (!mapping.route || !screenKeys.has(mapping.route)) {
       fail(`Mapped route for ${figmaNodeId} is not a real ScreenKey: ${mapping.route || '<empty>'}.`);
     }
-  } else if (!['MODAL', 'SHEET', 'INLINE_STATE'].includes(mapping.implementationType)) {
+  } else if (!['MODAL', 'SHEET', 'BOTTOM_SHEET', 'TOAST', 'INLINE_STATE'].includes(mapping.implementationType)) {
     fail(`Unsupported non-route implementationType for ${figmaNodeId}: ${mapping.implementationType}.`);
   }
 }
 
-if (mappings.has('309:716')) fail('309:716 must remain MISSING until Step 8B implements the canonical order detail.');
-if (mappings.has('309:737')) fail('309:737 is a delivery-delay notification and must not map to legacy Order Detail.');
+if (mappings.get('309:737')?.file === 'src/screens/orders/OrderDetailsScreen.tsx') fail('309:737 must not map to legacy Order Detail.');
 
 const requiredCorrectMappings = {
   '309:789': ['src/screens/account/SettingsScreen.tsx', 'settings'],
@@ -272,8 +319,8 @@ const connectionEntries = connections.map((connection) => {
 
 const connectionCounts = countStatuses(connectionEntries, (entry) => entry.connectionStatus);
 if (registryEntries.length !== 207) fail(`Expected 207 prototype-connected nodes, found ${registryEntries.length}.`);
-if ((screenCounts.IMPLEMENTED || 0) !== 151) fail(`Expected evidence-backed screen count 151, found ${screenCounts.IMPLEMENTED || 0}.`);
-if ((connectionCounts.IMPLEMENTED || 0) !== 45) fail(`Expected exact connection count 45, found ${connectionCounts.IMPLEMENTED || 0}.`);
+if ((screenCounts.IMPLEMENTED || 0) !== 199) fail(`Expected evidence-backed screen count 199, found ${screenCounts.IMPLEMENTED || 0}.`);
+if ((connectionCounts.IMPLEMENTED || 0) !== 63) fail(`Expected exact connection count 63, found ${connectionCounts.IMPLEMENTED || 0}.`);
 
 const canonicalRegistry = {
   schemaVersion: '2.0.0',
@@ -309,7 +356,7 @@ const prototypeGapAudit = {
 
 const reconciliationMd = `# STEP 8A.1 — Canonical mapping reconciliation (superseded metrics repaired)
 
-This generated artifact is retained for historical continuity. The current implementation audit and Step 8B.0 preparation supersede earlier inferred node maps and invented filenames.
+This generated artifact is retained for historical continuity. The current implementation audit through Step 8C supersedes earlier inferred node maps and invented filenames.
 
 ## Deterministic canonical metrics
 
@@ -321,7 +368,10 @@ This generated artifact is retained for historical continuity. The current imple
 ## Order-node correction
 
 - \`309:712\`: Buyer Orders list — implemented by \`OrdersListScreen.tsx\`.
-- \`309:716\`: canonical buyer order detail in preparation — **MISSING** until Step 8B.
+- \`309:716–723\`: canonical buyer order detail, tracking, packages, and invoice — **IMPLEMENTED** in Step 8B.
+- \`309:724–731\`: buyer cancellation, review, and reorder states — **IMPLEMENTED** in Step 8C as three semantically separate flows.
+- \`309:732–309:736\`: return and refund workflow — **IMPLEMENTED** in Step 8D.
+- \`309:737+\`: delivery issues, order support, and order system states — **MISSING** and deferred to Step 8E.
 - \`309:737\`: delivery-delay notification — **MISSING** and not the legacy Order Detail.
 - Nodes whose frame names begin \`07-\` are classified **Buyer Orders & Fulfillment**, not seller/admin mobile functionality.
 

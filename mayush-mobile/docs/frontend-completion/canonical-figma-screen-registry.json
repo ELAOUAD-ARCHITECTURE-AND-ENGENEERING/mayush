@@ -5,9 +5,9 @@
   "totalPrototypeConnectedNodes": 207,
   "unconnectedPrototypeScreenNodes": "NOT_AUDITED",
   "totalRelevantFigmaNodes": 207,
-  "implementedNodes": 151,
-  "missingNodes": 56,
-  "screenCompletionPercentage": "72.9%",
+  "implementedNodes": 199,
+  "missingNodes": 8,
+  "screenCompletionPercentage": "96.1%",
   "nodes": [
     {
       "figmaNodeId": "309:583",
@@ -721,12 +721,12 @@
         "FIGMA-PROT-043"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
+      "component": "CartToast.tsx",
+      "sourceFile": "src/components/cart/CartToast.tsx",
       "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "implementationType": "TOAST",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:660",
@@ -738,12 +738,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-043"
       ],
-      "component": null,
-      "sourceFile": null,
+      "component": "VariantEditSheet.tsx",
+      "sourceFile": "src/components/cart/VariantEditSheet.tsx",
       "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "implementationType": "BOTTOM_SHEET",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:661",
@@ -755,12 +755,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-044"
       ],
-      "component": null,
-      "sourceFile": null,
+      "component": "SellerCartGroup.tsx",
+      "sourceFile": "src/components/cart/SellerCartGroup.tsx",
       "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "implementationType": "INLINE_STATE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:662",
@@ -772,12 +772,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-045"
       ],
-      "component": null,
-      "sourceFile": null,
+      "component": "CartScreen.tsx",
+      "sourceFile": "src/screens/commerce/CartScreen.tsx",
       "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "implementationType": "INLINE_STATE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:663",
@@ -790,12 +790,12 @@
         "FIGMA-PROT-046",
         "FIGMA-PROT-048"
       ],
-      "component": null,
-      "sourceFile": null,
+      "component": "CartScreen.tsx",
+      "sourceFile": "src/screens/commerce/CartScreen.tsx",
       "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "implementationType": "INLINE_STATE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:664",
@@ -807,12 +807,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-047"
       ],
-      "component": null,
-      "sourceFile": null,
+      "component": "CartScreen.tsx",
+      "sourceFile": "src/screens/commerce/CartScreen.tsx",
       "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "implementationType": "BOTTOM_SHEET",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:665",
@@ -822,12 +822,12 @@
         "FIGMA-PROT-049"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
+      "component": "RemoveItemDialog.tsx",
+      "sourceFile": "src/components/cart/RemoveItemDialog.tsx",
       "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "implementationType": "BOTTOM_SHEET",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:666",
@@ -1108,12 +1108,12 @@
         "FIGMA-PROT-066"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutAddressStateScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutAddressStateScreens.tsx",
+      "route": "city-selector",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:684",
@@ -1125,12 +1125,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-066"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutAddressStateScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutAddressStateScreens.tsx",
+      "route": "delivery-zone-selector",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:685",
@@ -1142,12 +1142,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-067"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutAddressStateScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutAddressStateScreens.tsx",
+      "route": "edit-checkout-address",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:686",
@@ -1159,12 +1159,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-068"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutAddressStateScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutAddressStateScreens.tsx",
+      "route": "no-saved-address",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:687",
@@ -1192,12 +1192,12 @@
         "FIGMA-PROT-071"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutDeliveryStateScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutDeliveryStateScreens.tsx",
+      "route": "delivery-by-vendor",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:689",
@@ -1209,12 +1209,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-071"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutDeliveryStateScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutDeliveryStateScreens.tsx",
+      "route": "delivery-unavailable",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:690",
@@ -1244,12 +1244,12 @@
         "FIGMA-PROT-074"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutPaymentDetailScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutPaymentDetailScreens.tsx",
+      "route": "wallet-balance",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:692",
@@ -1261,12 +1261,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-074"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutPaymentDetailScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutPaymentDetailScreens.tsx",
+      "route": "saved-payment-cards",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:693",
@@ -1592,12 +1592,12 @@
         "FIGMA-PROT-095"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
+      "component": "OrdersListScreen.tsx",
+      "sourceFile": "src/screens/orders/OrdersListScreen.tsx",
       "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "implementationType": "INLINE_STATE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:714",
@@ -1607,12 +1607,12 @@
         "FIGMA-PROT-096"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
+      "component": "OrdersListScreen.tsx",
+      "sourceFile": "src/screens/orders/OrdersListScreen.tsx",
       "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "implementationType": "INLINE_STATE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:715",
@@ -1624,12 +1624,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-096"
       ],
-      "component": null,
-      "sourceFile": null,
+      "component": "OrdersListScreen.tsx",
+      "sourceFile": "src/screens/orders/OrdersListScreen.tsx",
       "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "implementationType": "INLINE_STATE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:716",
@@ -1643,12 +1643,12 @@
         "FIGMA-PROT-095",
         "FIGMA-PROT-097"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderDetailsScreen.tsx",
+      "sourceFile": "src/screens/orders/OrderDetailsScreen.tsx",
+      "route": "order-detail-preparing",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:717",
@@ -1658,12 +1658,12 @@
         "FIGMA-PROT-099"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderDetailsScreen.tsx",
+      "sourceFile": "src/screens/orders/OrderDetailsScreen.tsx",
+      "route": "order-detail-shipped",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:718",
@@ -1676,12 +1676,12 @@
         "FIGMA-PROT-098",
         "FIGMA-PROT-099"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderTrackingScreen.tsx",
+      "sourceFile": "src/screens/orders/OrderTrackingScreen.tsx",
+      "route": "order-tracking",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:719",
@@ -1693,12 +1693,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-100"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderDetailsScreen.tsx",
+      "sourceFile": "src/screens/orders/OrderDetailsScreen.tsx",
+      "route": "order-detail-delivered",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:720",
@@ -1708,12 +1708,12 @@
         "FIGMA-PROT-102"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderDetailsScreen.tsx",
+      "sourceFile": "src/screens/orders/OrderDetailsScreen.tsx",
+      "route": "order-detail-multi-vendor",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:721",
@@ -1725,12 +1725,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-102"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderPackagesScreen.tsx",
+      "sourceFile": "src/screens/orders/OrderPackagesScreen.tsx",
+      "route": "order-packages",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:722",
@@ -1742,12 +1742,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-103"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderPackageDetailsScreen.tsx",
+      "sourceFile": "src/screens/orders/OrderPackageDetailsScreen.tsx",
+      "route": "order-package-detail",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:723",
@@ -1759,12 +1759,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-104"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderInvoiceScreen.tsx",
+      "sourceFile": "src/screens/orders/OrderInvoiceScreen.tsx",
+      "route": "order-invoice",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:724",
@@ -1776,12 +1776,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-105"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderCancellationScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderCancellationScreens.tsx",
+      "route": "order-cancel-confirmation",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:725",
@@ -1793,12 +1793,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-106"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderCancellationScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderCancellationScreens.tsx",
+      "route": "order-cancel-reason",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:726",
@@ -1810,12 +1810,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-107"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderCancellationScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderCancellationScreens.tsx",
+      "route": "order-cancel-registered",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:727",
@@ -1827,12 +1827,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-108"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderCancellationScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderCancellationScreens.tsx",
+      "route": "order-cannot-cancel",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:728",
@@ -1845,12 +1845,12 @@
         "FIGMA-PROT-101",
         "FIGMA-PROT-109"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderProductReviewScreen.tsx",
+      "sourceFile": "src/screens/orders/OrderProductReviewScreen.tsx",
+      "route": "order-product-review",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:729",
@@ -1862,12 +1862,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-110"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderReorderScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderReorderScreens.tsx",
+      "route": "order-reorder-changes",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:730",
@@ -1879,12 +1879,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-111"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderReorderScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderReorderScreens.tsx",
+      "route": "order-reorder-added",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:731",
@@ -1896,12 +1896,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-112"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderReorderScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderReorderScreens.tsx",
+      "route": "order-reorder-availability",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:732",
@@ -1913,12 +1913,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-113"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderReturnScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderReturnScreens.tsx",
+      "route": "order-return-selection",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:733",
@@ -1930,12 +1930,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-114"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderReturnScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderReturnScreens.tsx",
+      "route": "order-return-detail",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:734",
@@ -1947,12 +1947,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-115"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderReturnScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderReturnScreens.tsx",
+      "route": "order-return-tracking",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:735",
@@ -1962,12 +1962,12 @@
         "FIGMA-PROT-117"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderRefundScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderRefundScreens.tsx",
+      "route": "order-refund-request",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:736",
@@ -1980,12 +1980,12 @@
         "FIGMA-PROT-116",
         "FIGMA-PROT-117"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderRefundScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderRefundScreens.tsx",
+      "route": "order-refund-completed",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:737",
@@ -1997,12 +1997,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-118"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderDeliveryIssueScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderDeliveryIssueScreens.tsx",
+      "route": "delivery-delayed",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:738",
@@ -2014,12 +2014,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-119"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderDeliveryIssueScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderDeliveryIssueScreens.tsx",
+      "route": "delivery-failed",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:739",
@@ -2031,12 +2031,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-120"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "ContactSupportFormScreen.tsx",
+      "sourceFile": "src/screens/support/ContactSupportFormScreen.tsx",
+      "route": "order-support-contact",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:740",
@@ -2048,12 +2048,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-121"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderDeliveryIssueScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderDeliveryIssueScreens.tsx",
+      "route": "tracking-unavailable",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:741",
@@ -2065,12 +2065,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-122"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderSystemStateScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderSystemStateScreens.tsx",
+      "route": "order-not-found",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:742",
@@ -2082,12 +2082,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-123"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderSystemStateScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderSystemStateScreens.tsx",
+      "route": "orders-empty",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:743",
@@ -2099,12 +2099,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-124"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderSystemStateScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderSystemStateScreens.tsx",
+      "route": "orders-error",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:744",
@@ -2116,12 +2116,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-125"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderSystemStateScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderSystemStateScreens.tsx",
+      "route": "orders-skeleton",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:745",
@@ -2133,12 +2133,12 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-126"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "OrderSystemStateScreens.tsx",
+      "sourceFile": "src/screens/orders/OrderSystemStateScreens.tsx",
+      "route": "order-detail-skeleton",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
     },
     {
       "figmaNodeId": "309:747",

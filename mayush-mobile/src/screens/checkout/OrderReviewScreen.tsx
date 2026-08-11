@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CartState, formatMadPrice, getCartTotals } from '../../commerce/cartState';
-import { DeliveryMethod, PaymentMethod, SavedAddress } from '../../commerce/checkoutState';
+import { DeliveryMethod, getCheckoutGrandTotalMad, PaymentMethod, SavedAddress } from '../../commerce/checkoutState';
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
@@ -14,6 +14,7 @@ export interface OrderReviewScreenProps {
   address: SavedAddress;
   deliveryMethod: DeliveryMethod;
   paymentMethod: PaymentMethod;
+  deliveryFeeMad?: number;
   onBack: () => void;
   onConfirm: () => void;
 }
@@ -21,7 +22,7 @@ export interface OrderReviewScreenProps {
 const deliveryLabel = (method: DeliveryMethod) => method === 'express' ? 'Livraison express' : method === 'relay' ? 'Point relais' : 'Livraison standard (2 à 4 jours ouvrés)';
 const paymentLabel = (method: PaymentMethod) => method === 'cmi' ? 'Visa •••• 4242' : method === 'wallet' ? 'Portefeuille Mayush' : 'Paiement à la livraison';
 
-export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({ cart, address, deliveryMethod, paymentMethod, onBack, onConfirm }) => {
+export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({ cart, address, deliveryMethod, paymentMethod, deliveryFeeMad = 0, onBack, onConfirm }) => {
   const totals = getCartTotals(cart);
   const [termsAccepted, setTermsAccepted] = useState(false);
   return <View style={styles.screen} accessibilityLabel="Vérifier et confirmer">
@@ -34,11 +35,11 @@ export const OrderReviewScreen: React.FC<OrderReviewScreenProps> = ({ cart, addr
         {cart.lines.map((line) => <View key={line.id} style={styles.line}><Image source={line.imageUri ? { uri: line.imageUri } : FALLBACK_PRODUCT} style={styles.image} /><View style={styles.lineCopy}><MayushText variant="caption" color={colors.brand.navy900} numberOfLines={1}>{line.name}</MayushText><MayushText variant="caption" color={colors.neutral.gray700}>{line.variant} × {line.quantity}</MayushText></View><MayushText variant="caption" color={colors.brand.navy900}>{formatMadPrice(line.quantity * line.unitPriceMad)}</MayushText></View>)}
       </ReviewCard>
       <ReviewCard icon="map-pin" title="Adresse de livraison"><MayushText variant="caption" color={colors.neutral.gray700}>{address.addressLine}{'\n'}{address.postcode} {address.city}, Maroc</MayushText></ReviewCard>
-      <ReviewCard icon="truck-outline" title="Méthode de livraison" action="Gratuit"><MayushText variant="caption" color={colors.neutral.gray700}>{deliveryLabel(deliveryMethod)}</MayushText></ReviewCard>
+      <ReviewCard icon="truck-outline" title="Méthode de livraison" action={formatMadPrice(deliveryFeeMad)}><MayushText variant="caption" color={colors.neutral.gray700}>{deliveryLabel(deliveryMethod)}</MayushText></ReviewCard>
       <ReviewCard icon="shopping-bag" title="Méthode de paiement"><MayushText variant="caption" color={colors.neutral.gray700}>{paymentLabel(paymentMethod)}</MayushText></ReviewCard>
-      <View style={styles.totals}><Total label="Sous-total" value={formatMadPrice(totals.subtotalMad)} /><Total label="Réduction" value="− 0 MAD" green /><Total label="Livraison" value="Gratuit" green /><View style={styles.totalRule} /><Total label="Total à payer" value={formatMadPrice(totals.subtotalMad)} strong /></View>
+      <View style={styles.totals}><Total label="Sous-total" value={formatMadPrice(totals.subtotalMad)} /><Total label="Réduction" value={`− ${formatMadPrice(totals.discountMad)}`} green /><Total label="Livraison" value={formatMadPrice(deliveryFeeMad)} /><View style={styles.totalRule} /><Total label="Total à payer" value={formatMadPrice(getCheckoutGrandTotalMad(totals.totalMad, deliveryFeeMad))} strong /></View>
       <TouchableOpacity accessibilityRole="checkbox" accessibilityState={{ checked: termsAccepted }} onPress={() => setTermsAccepted(!termsAccepted)} style={styles.terms}><View style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}>{termsAccepted ? <MayushIcon name="check" size={14} color={colors.surface.white} /> : null}</View><MayushText variant="caption" color={colors.neutral.gray700} style={styles.termsCopy}>J’accepte les Conditions Générales de Vente et la Politique de confidentialité.</MayushText></TouchableOpacity>
-      <TouchableOpacity disabled={!termsAccepted} accessibilityRole="button" onPress={onConfirm} style={[styles.payButton, !termsAccepted && styles.payButtonDisabled]}><MayushIcon name="shopping-bag" size={22} color={colors.surface.white} /><MayushText variant="button" color={colors.surface.white}>Payer {formatMadPrice(totals.subtotalMad)}</MayushText></TouchableOpacity>
+      <TouchableOpacity disabled={!termsAccepted} accessibilityRole="button" onPress={onConfirm} style={[styles.payButton, !termsAccepted && styles.payButtonDisabled]}><MayushIcon name="shopping-bag" size={22} color={colors.surface.white} /><MayushText variant="button" color={colors.surface.white}>Payer {formatMadPrice(getCheckoutGrandTotalMad(totals.totalMad, deliveryFeeMad))}</MayushText></TouchableOpacity>
       <View style={styles.footer}><MayushIcon name="shield" size={16} color={colors.brand.navy900} /><MayushText variant="caption" color={colors.brand.navy900}>Paiement sécurisé 100%</MayushText><MayushIcon name="arrow-down-up" size={16} color={colors.brand.navy900} /><MayushText variant="caption" color={colors.brand.navy900}>Satisfait ou remboursé</MayushText></View>
     </ScrollView>
   </View>;

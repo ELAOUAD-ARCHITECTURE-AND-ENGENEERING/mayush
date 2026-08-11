@@ -1,9 +1,28 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { AddressDraft, clearCheckoutSession, createLocalCheckoutAttemptId, createSavedAddress, defaultSavedAddresses, DeliveryMethod, emptyAddressDraft, isResumableCheckoutScreen, loadCheckoutSession, PaymentMethod, ResumableCheckoutScreen, saveCheckoutSession, validateAddressDraft } from '../commerce/checkoutState';
-import { CART_STORAGE_KEY, CartLine, CartState, addCartLine, createSelectedVariantCartLine, emptyCartState, parseMadPrice, updateCartLineQuantity } from '../commerce/cartState';
-import { orderState } from '../commerce/orderState';
+import { AddressDraft, addressToDraft, buildSellerDeliveryProjection, clearCheckoutSession, createLocalCheckoutAttemptId, createSavedAddress, defaultSavedAddresses, DeliveryMethod, emptyAddressDraft, getCheckoutGrandTotalMad, getCityById, isResumableCheckoutScreen, loadCheckoutSession, PaymentMethod, ResumableCheckoutScreen, saveCheckoutSession, setAddressDraftCity, setAddressDraftZone, validateAddressDraft } from '../commerce/checkoutState';
+import {
+  CART_STORAGE_KEY,
+  CartLine,
+  CartState,
+  CartVariantSelection,
+  addCartLine,
+  applyPromotionCode,
+  createSelectedVariantCartLine,
+  emptyCartState,
+  getCartTotals,
+  hydrateCartState,
+  parseMadPrice,
+  removeCartPromotion,
+  revalidateCartPromotion,
+  updateCartLineQuantity,
+  updateCartLineVariant,
+} from '../commerce/cartState';
+import { getCanonicalOrderDetailRoute, orderState } from '../commerce/orderState';
+import { canCancelOrder, orderActionState, ReorderCartResult } from '../commerce/orderActionState';
+import { hasOrderTrackingMetadata, orderViewState } from '../commerce/orderViewState';
+import { supportState } from '../commerce/supportState';
 import { CategoryDto, MvpAppLanguage, ProductDetailDto, ProductMiniDto } from '../contracts/api/dto';
 import { TabKey } from '../design-system/components/navigation/BottomTabBar';
 import { ThemeProvider } from '../design-system/theme/ThemeProvider';
@@ -23,6 +42,9 @@ import { CashOnDeliveryConfirmationScreen, PaymentCancelledScreen, PaymentFailur
 import { PaymentMethodScreen } from '../screens/checkout/PaymentMethodScreen';
 import { PaymentStepIntroScreen } from '../screens/checkout/PaymentStepIntroScreen';
 import { PaymentSuccessScreen } from '../screens/checkout/PaymentSuccessScreen';
+import { CitySelectorScreen, DeliveryZoneSelectorScreen, EditCheckoutAddressScreen, NoSavedAddressScreen } from '../screens/checkout/CheckoutAddressStateScreens';
+import { DeliveryByVendorScreen, DeliveryUnavailableScreen } from '../screens/checkout/CheckoutDeliveryStateScreens';
+import { SavedPaymentCardsScreen, WalletBalanceScreen } from '../screens/checkout/CheckoutPaymentDetailScreens';
 
 import { AuthenticationWelcomeScreen } from '../screens/auth/AuthenticationWelcomeScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
@@ -39,6 +61,7 @@ import { OtpErrorScreen } from '../screens/auth/OtpErrorScreen';
 import { CreateNewPasswordScreen } from '../screens/auth/CreateNewPasswordScreen';
 import { PasswordChangedSuccessScreen } from '../screens/auth/PasswordChangedSuccessScreen';
 import { authState, createCheckoutAuthReturnDestination } from '../commerce/authState';
+import { accountPreferencesState } from '../commerce/accountPreferencesState';
 import { notificationPreferencesState } from '../commerce/notificationPreferencesState';
 
 import { AccountSettingsScreen } from '../screens/account/AccountSettingsScreen';
@@ -126,8 +149,19 @@ import { PreparingExperienceScreen } from '../screens/entry/PreparingExperienceS
 import { SplashScreen } from '../screens/entry/SplashScreen';
 
 import { OrderDetailsScreen } from '../screens/orders/OrderDetailsScreen';
+import { OrderInvoiceScreen } from '../screens/orders/OrderInvoiceScreen';
+import { OrderPackageDetailsScreen } from '../screens/orders/OrderPackageDetailsScreen';
+import { OrderPackagesScreen } from '../screens/orders/OrderPackagesScreen';
+import { OrderTrackingScreen } from '../screens/orders/OrderTrackingScreen';
 import { OrdersListScreen } from '../screens/orders/OrdersListScreen';
 import { OrderThankYouScreen } from '../screens/orders/OrderThankYouScreen';
+import { OrderCancellationConfirmationScreen, OrderCancellationReasonScreen, OrderCancellationRegisteredScreen, OrderCannotBeCancelledScreen } from '../screens/orders/OrderCancellationScreens';
+import { OrderProductReviewScreen } from '../screens/orders/OrderProductReviewScreen';
+import { OrderReorderAddedScreen, OrderReorderAvailabilityScreen, OrderReorderChangesScreen } from '../screens/orders/OrderReorderScreens';
+import { OrderReturnDetailScreen, OrderReturnSelectionScreen, OrderReturnTrackingScreen } from '../screens/orders/OrderReturnScreens';
+import { OrderCancelledRefundRequestScreen, OrderRefundCompletedScreen } from '../screens/orders/OrderRefundScreens';
+import { DeliveryDelayedScreen, DeliveryFailedScreen, TrackingUnavailableScreen } from '../screens/orders/OrderDeliveryIssueScreens';
+import { OrderDetailSkeletonScreen, OrderNotFoundScreen, OrdersEmptyScreen, OrdersErrorScreen, OrdersSkeletonScreen } from '../screens/orders/OrderSystemStateScreens';
 
 import { ProductDeliveryReturnsScreen } from '../screens/product/ProductDeliveryReturnsScreen';
 import { ProductDetailsScreen } from '../screens/product/ProductDetailsScreen';
@@ -245,8 +279,16 @@ export type ScreenKey =
   | 'address-selection'
   | 'add-address'
   | 'add-address-errors'
+  | 'city-selector'
+  | 'delivery-zone-selector'
+  | 'edit-checkout-address'
+  | 'no-saved-address'
   | 'delivery-method'
+  | 'delivery-by-vendor'
+  | 'delivery-unavailable'
   | 'payment-method'
+  | 'wallet-balance'
+  | 'saved-payment-cards'
   | 'auth-gate'
   | 'auth-welcome'
   | 'login'
@@ -274,7 +316,36 @@ export type ScreenKey =
   | 'payment-success'
   | 'order-thank-you'
   | 'orders-list'
-  | 'order-details';
+  | 'order-detail-preparing'
+  | 'order-detail-shipped'
+  | 'order-tracking'
+  | 'order-detail-delivered'
+  | 'order-detail-multi-vendor'
+  | 'order-packages'
+  | 'order-package-detail'
+  | 'order-invoice'
+  | 'order-cancel-confirmation'
+  | 'order-cancel-reason'
+  | 'order-cancel-registered'
+  | 'order-cannot-cancel'
+  | 'order-product-review'
+  | 'order-reorder-changes'
+  | 'order-reorder-added'
+  | 'order-reorder-availability'
+  | 'order-return-selection'
+  | 'order-return-detail'
+  | 'order-return-tracking'
+  | 'order-refund-request'
+  | 'order-refund-completed'
+  | 'delivery-delayed'
+  | 'delivery-failed'
+  | 'order-support-contact'
+  | 'tracking-unavailable'
+  | 'order-not-found'
+  | 'orders-empty'
+  | 'orders-error'
+  | 'orders-skeleton'
+  | 'order-detail-skeleton';
 
 const ONBOARDING_COMPLETE_KEY = 'mayush-mobile:onboarding-complete';
 const LANGUAGE_KEY = 'mayush-mobile:language';
@@ -300,9 +371,10 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('Fauteuil');
   const [cart, setCart] = useState<CartState>(emptyCartState);
-  const [savedAddresses, setSavedAddresses] = useState(defaultSavedAddresses);
   const [selectedAddressId, setSelectedAddressId] = useState(defaultSavedAddresses[0].id);
   const [addressDraft, setAddressDraft] = useState<AddressDraft>(emptyAddressDraft);
+  const [addressEditorMode, setAddressEditorMode] = useState<'add' | 'edit'>('add');
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('standard');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cmi');
   const [paymentProcessing, setPaymentProcessing] = useState(false);
@@ -314,10 +386,159 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const [favoritesPromptVisible, setFavoritesPromptVisible] = useState(false);
   const [favoritesPromptItemId, setFavoritesPromptItemId] = useState<string | undefined>();
   const [isClearCacheModalVisible, setIsClearCacheModalVisible] = useState(false);
+  const [lastReorderResult, setLastReorderResult] = useState<ReorderCartResult | null>(null);
   const paymentLock = useRef(false);
   const isAuthenticated = authState.isAuthenticated();
+  const savedAddresses = authState.getSavedAddresses();
+  const paymentPreferences = accountPreferencesState.getPaymentMethods();
+  const selectedPaymentPreferenceId = accountPreferencesState.getSelectedPaymentMethodId();
   const orders = orderState.getOrders();
   const activeOrder = orderState.getSelectedOrder();
+  const activePackage = orderState.getSelectedPackage();
+  const cancellationDraft = orderActionState.getCancellationDraft();
+  const cancellationRequest = activeOrder ? orderActionState.getCancellationRequest(activeOrder.orderId) : null;
+  const reviewDraft = orderActionState.getReviewDraft();
+  const reorderPlan = orderActionState.getReorderPlan();
+  const returnDraft = orderActionState.getReturnDraft();
+  const activeReturnRequest = orderActionState.getSelectedReturnRequest();
+  const cancelledRefundDraft = orderActionState.getCancelledOrderRefundDraft();
+  const activeRefund = orderActionState.getSelectedRefund();
+  const activeDeliveryIssue = orderActionState.getSelectedDeliveryIssue();
+  const activeRescheduleRequest = activeDeliveryIssue
+    ? orderActionState.getDeliveryRescheduleRequests(activeDeliveryIssue.orderId).find((request) => request.deliveryIssueId === activeDeliveryIssue.deliveryIssueId) || null
+    : null;
+  const orderViewSnapshot = orderViewState.getSnapshot();
+
+  const openActiveOrderDetails = () => {
+    const selectedOrder = orderState.getSelectedOrder();
+    if (!selectedOrder) { setCurrentScreen('orders-list'); return; }
+    const route = getCanonicalOrderDetailRoute(selectedOrder);
+    if (route === 'order-refund-request') orderActionState.beginCancelledOrderRefund(selectedOrder);
+    setCurrentScreen(route);
+  };
+
+  const openOrderById = async (orderId: string) => {
+    orderViewState.beginDetailLoad(orderId);
+    setCurrentScreen('order-detail-skeleton');
+    const selected = await orderState.selectOrder(orderId);
+    const selectedOrder = selected ? orderState.getSelectedOrder() : null;
+    orderViewState.resolveDetail(selectedOrder);
+    if (!selectedOrder) { await orderState.selectOrder(null); setCurrentScreen('order-not-found'); return; }
+    const route = getCanonicalOrderDetailRoute(selectedOrder);
+    if (route === 'order-refund-request') orderActionState.beginCancelledOrderRefund(selectedOrder);
+    setCurrentScreen(route);
+  };
+
+  const openOrdersList = () => {
+    orderViewState.beginListLoad();
+    setCurrentScreen('orders-skeleton');
+    Promise.resolve().then(() => {
+      const status = orderViewState.resolveList(orderState.getOrders());
+      setCurrentScreen(status === 'empty' ? 'orders-empty' : 'orders-list');
+    }).catch(() => { orderViewState.failListLoad(); setCurrentScreen('orders-error'); });
+  };
+
+  const openSupportForActiveOrder = (returnRequestId?: string, refundId?: string) => {
+    if (activeOrder) supportState.setContactDraft({ selectedOrderId: activeOrder.orderId, returnRequestId, refundId });
+    setCurrentScreen('contact-support-form');
+  };
+
+  const openOrderSupport = () => {
+    if (activeOrder) supportState.setContactDraft({ selectedOrderId: activeOrder.orderId });
+    setCurrentScreen('order-support-contact');
+  };
+
+  const openTrackingForActiveOrder = (packageId?: string) => {
+    if (!activeOrder) return;
+    const issue = orderActionState.selectDeliveryIssueForOrder(activeOrder, packageId);
+    if (issue?.type === 'delayed') { setCurrentScreen('delivery-delayed'); return; }
+    if (issue?.type === 'delivery_failed') { setCurrentScreen('delivery-failed'); return; }
+    if (!hasOrderTrackingMetadata(activeOrder, packageId)) { setCurrentScreen('tracking-unavailable'); return; }
+    setCurrentScreen('order-tracking');
+  };
+
+  const submitDeliveryReschedule = async (slot: string): Promise<boolean> => {
+    if (!activeOrder || !activeDeliveryIssue) return false;
+    return Boolean(await orderActionState.requestDeliveryReschedule(activeOrder, activeDeliveryIssue.deliveryIssueId, slot));
+  };
+
+  const openReturnForActiveOrder = () => {
+    if (!activeOrder || !orderActionState.beginReturn(activeOrder)) return;
+    setCurrentScreen('order-return-selection');
+  };
+
+  const submitReturnForActiveOrder = async (): Promise<boolean> => {
+    if (!activeOrder) return false;
+    const request = await orderActionState.submitReturnRequest(activeOrder);
+    if (!request) return false;
+    setCurrentScreen('order-return-detail');
+    return true;
+  };
+
+  const confirmCancelledRefund = async (): Promise<boolean> => {
+    if (!activeOrder) return false;
+    const processing = await orderActionState.requestCancelledOrderRefund(activeOrder);
+    if (!processing) return false;
+    const completed = await orderActionState.completeRefundFixture(processing.refundId);
+    if (!completed) return false;
+    setCurrentScreen('order-refund-completed');
+    return true;
+  };
+
+  const openCancellationForActiveOrder = () => {
+    if (!activeOrder) return;
+    const eligibility = orderActionState.beginCancellation(activeOrder);
+    setCurrentScreen(eligibility === 'eligible' ? 'order-cancel-confirmation' : 'order-cannot-cancel');
+  };
+
+  const continueCancellationForActiveOrder = () => {
+    if (!activeOrder) return;
+    const draft = orderActionState.getCancellationDraft();
+    setCurrentScreen(canCancelOrder(activeOrder) && draft?.orderId === activeOrder.orderId ? 'order-cancel-reason' : 'order-cannot-cancel');
+  };
+
+  const submitCancellationForActiveOrder = async (): Promise<boolean> => {
+    if (!activeOrder) return false;
+    const request = await orderActionState.submitCancellationRequest(activeOrder);
+    if (!request) return false;
+    setCurrentScreen('order-cancel-registered');
+    return true;
+  };
+
+  const openReviewForActiveOrder = () => {
+    if (!activeOrder || !orderActionState.beginReview(activeOrder)) return;
+    setCurrentScreen('order-product-review');
+  };
+
+  const submitReviewForActiveOrder = async (): Promise<boolean> => {
+    if (!activeOrder) return false;
+    const reviews = await orderActionState.submitProductReviews(activeOrder);
+    if (!reviews) return false;
+    openActiveOrderDetails();
+    return true;
+  };
+
+  const commitReorderToCart = (): boolean => {
+    const result = orderActionState.addSelectedReorderItemsToCart(cart);
+    if (!result || result.addedLineIds.length === 0) return false;
+    setCart(result.cart);
+    setLastReorderResult(result);
+    void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(result.cart)).catch(() => undefined);
+    setCurrentScreen('order-reorder-added');
+    return true;
+  };
+
+  const openReorderForActiveOrder = () => {
+    if (!activeOrder) return;
+    setLastReorderResult(null);
+    const plan = orderActionState.beginReorder(activeOrder);
+    if (plan.resultVariant === 'changed_unavailable') setCurrentScreen('order-reorder-changes');
+    else if (plan.resultVariant === 'availability_changes') setCurrentScreen('order-reorder-availability');
+    else {
+      plan.lines.forEach((line) => orderActionState.setReorderLineSelected(line.orderLineId, true));
+      commitReorderToCart();
+    }
+  };
 
   const resumeAuthReturnDestination = () => {
     const destination = authState.getReturnDestination();
@@ -357,18 +578,26 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   useEffect(() => {
     const refresh = () => setDomainRevision((revision) => revision + 1);
     const unsubscribeAuth = authState.subscribe(refresh);
+    const unsubscribePreferences = accountPreferencesState.subscribe(refresh);
     const unsubscribeOrders = orderState.subscribe(refresh);
+    const unsubscribeOrderActions = orderActionState.subscribe(refresh);
+    const unsubscribeOrderViews = orderViewState.subscribe(refresh);
     void orderState.hydrate().finally(() => setOrderRepositoryResolved(true));
-    return () => { unsubscribeAuth(); unsubscribeOrders(); };
+    void orderActionState.hydrate();
+    return () => { unsubscribeAuth(); unsubscribePreferences(); unsubscribeOrders(); unsubscribeOrderActions(); unsubscribeOrderViews(); };
   }, []);
+
+  useEffect(() => {
+    if (currentScreen !== 'order-package-detail' || activePackage) return;
+    setCurrentScreen(activeOrder?.packages.length ? 'order-packages' : 'orders-list');
+  }, [activeOrder?.orderId, activeOrder?.packages.length, activePackage?.packageId, currentScreen]);
 
   useEffect(() => {
     let isMounted = true;
     void AsyncStorage.getItem(CART_STORAGE_KEY).then((storedCart) => {
       if (!isMounted || !storedCart) return;
       try {
-        const parsed = JSON.parse(storedCart) as CartState;
-        if (Array.isArray(parsed.lines)) setCart(parsed);
+        setCart(hydrateCartState(JSON.parse(storedCart)));
       } catch {
         setCart(emptyCartState());
       }
@@ -386,7 +615,10 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         setSelectedAddressId(parsedSession.selectedAddressId);
         setDeliveryMethod(parsedSession.deliveryMethod);
         setPaymentMethod(parsedSession.paymentMethod);
-        setSavedAddresses(parsedSession.savedAddresses);
+        authState.replaceSavedAddresses(parsedSession.savedAddresses);
+        if (parsedSession.selectedPaymentPreferenceId) {
+          accountPreferencesState.setSelectedPaymentMethod(parsedSession.selectedPaymentPreferenceId);
+        }
       }
       setCheckoutSessionResolved(true);
     }).catch(() => {
@@ -405,9 +637,10 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         deliveryMethod,
         paymentMethod,
         savedAddresses,
+        selectedPaymentPreferenceId,
       }).catch(() => undefined);
     }
-  }, [checkoutAttemptId, checkoutSessionResolved, currentScreen, deliveryMethod, paymentMethod, savedAddresses, selectedAddressId]);
+  }, [checkoutAttemptId, checkoutSessionResolved, currentScreen, deliveryMethod, paymentMethod, savedAddresses, selectedAddressId, selectedPaymentPreferenceId]);
 
 
   const updateCartQuantity = (lineId: string, delta: number) => {
@@ -434,6 +667,11 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         quantity,
         unitPriceMad,
         imageUri: primaryImage,
+        variantOptions: /fauteuil|louna|luna/i.test(lineName) ? [
+          { variantId: 'louna-70', label: 'Bouclé · Beige · 70cm P', unitPriceMad: 2250 },
+          { variantId: 'louna-75', label: 'Bouclé · Beige · 75cm P', unitPriceMad: 2450 },
+          { variantId: 'louna-80', label: 'Bouclé · Beige · 80cm P', unitPriceMad: 2650 },
+        ] : [{ variantId: variant, label: variant, unitPriceMad }],
       }));
       void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
       return nextCart;
@@ -472,12 +710,47 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
     }
     const newId = `address-${Date.now()}`;
     const newAddress = createSavedAddress(addressDraft, newId);
-    setSavedAddresses((prev) => [newAddress, ...prev]);
+    authState.addAddress(newAddress);
     setSelectedAddressId(newId);
     setCurrentScreen('address-selection');
   };
 
-  const selectedAddress = savedAddresses.find((item) => item.id === selectedAddressId) || savedAddresses[0];
+  const saveEditedAddress = () => {
+    const errors = validateAddressDraft(addressDraft);
+    if (!editingAddressId || Object.keys(errors).length > 0) return;
+    authState.updateAddress(editingAddressId, createSavedAddress(addressDraft, editingAddressId));
+    setSelectedAddressId(editingAddressId);
+    setCurrentScreen('address-selection');
+  };
+
+  const openAddCheckoutAddress = () => {
+    setAddressEditorMode('add');
+    setEditingAddressId(null);
+    setAddressDraft(emptyAddressDraft());
+    setCurrentScreen('city-selector');
+  };
+
+  const openEditCheckoutAddress = () => {
+    const address = savedAddresses.find((item) => item.id === selectedAddressId) || savedAddresses[0];
+    if (!address) { setCurrentScreen('no-saved-address'); return; }
+    setAddressEditorMode('edit');
+    setEditingAddressId(address.id);
+    setAddressDraft(addressToDraft(address));
+    setCurrentScreen('edit-checkout-address');
+  };
+
+  const selectedAddress = savedAddresses.find((item) => item.id === selectedAddressId) || savedAddresses.find((item) => item.isDefault) || savedAddresses[0];
+  const deliveryProjection = buildSellerDeliveryProjection(cart.lines, selectedAddress, deliveryMethod);
+  const checkoutTotalMad = getCheckoutGrandTotalMad(getCartTotals(cart).totalMad, deliveryProjection.deliveryFeeMad);
+
+  useEffect(() => {
+    if (!checkoutSessionResolved || !isResumableCheckoutScreen(currentScreen)) return;
+    const needsAddress = !['checkout-summary', 'address-selection', 'add-address', 'city-selector', 'delivery-zone-selector', 'no-saved-address'].includes(currentScreen);
+    if (needsAddress && !selectedAddress) { setCurrentScreen('no-saved-address'); return; }
+    if (selectedAddressId && savedAddresses.length && !savedAddresses.some((address) => address.id === selectedAddressId)) {
+      setSelectedAddressId(savedAddresses.find((address) => address.isDefault)?.id || savedAddresses[0].id);
+    }
+  }, [checkoutSessionResolved, currentScreen, savedAddresses, selectedAddress, selectedAddressId]);
 
   const navigateTab = (tab: TabKey) => {
     if (tab === 'home') setCurrentScreen('home');
@@ -491,7 +764,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
     const attemptId = createLocalCheckoutAttemptId();
     setCheckoutAttemptId(attemptId);
     setRestoredCheckoutScreen(null);
-    setCurrentScreen('checkout-summary');
+    setCurrentScreen(savedAddresses.length ? 'checkout-summary' : 'no-saved-address');
   };
 
   const finishOrderProcessing = () => {
@@ -507,11 +780,17 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
 
   const completeCheckout = () => {
     if (paymentMethod === 'wallet' && !isAuthenticated) {
-      authState.setReturnDestination(createCheckoutAuthReturnDestination(checkoutAttemptId));
+      authState.setReturnDestination(createCheckoutAuthReturnDestination(checkoutAttemptId, 'wallet-balance'));
       setCurrentScreen('auth-gate');
       return;
     }
     setCurrentScreen('order-review');
+  };
+
+  const continueFromPaymentMethod = () => {
+    if (paymentMethod === 'wallet') { setCurrentScreen('wallet-balance'); return; }
+    if (paymentMethod === 'cmi') { setCurrentScreen('saved-payment-cards'); return; }
+    completeCheckout();
   };
 
   const openSelectedNotificationOrder = () => {
@@ -520,13 +799,11 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       setCurrentScreen('orders-list');
       return;
     }
-    void orderState.selectOrder(orderId).then((selected) => {
-      setCurrentScreen(selected ? 'order-details' : 'orders-list');
-    });
+    void openOrderById(orderId);
   };
 
   const beginOrderReview = async () => {
-    if (paymentLock.current) return;
+    if (paymentLock.current || !selectedAddress || !deliveryProjection.available) return;
     paymentLock.current = true;
     setPaymentProcessing(true);
     await orderState.createOrder({
@@ -535,6 +812,10 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       deliveryMethod,
       paymentMethod,
       checkoutAttemptId,
+      deliveryFeeMad: deliveryProjection.deliveryFeeMad,
+      deliveryPackageCount: deliveryProjection.packageCount,
+      paymentPreferenceId: selectedPaymentPreferenceId,
+      paymentCardLast4: paymentPreferences.find((method) => method.id === selectedPaymentPreferenceId)?.last4,
     });
     setCurrentScreen('order-processing');
   };
@@ -548,19 +829,31 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
     }
   };
 
-  const updateCartVariantText = (lineId: string, newVariantText: string) => {
-    setCart((prev) => {
-      const nextLines = prev.lines.map((l) =>
-        l.id === lineId ? { ...l, variant: newVariantText, selectedVariantText: newVariantText } : l
-      );
-      const nextCart = { ...prev, lines: nextLines };
-      void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
-      return nextCart;
-    });
+  const updateCartVariant = (lineId: string, selection: CartVariantSelection): boolean => {
+    const result = updateCartLineVariant(cart, lineId, selection);
+    if (!result.updated) return false;
+    setCart(result.cart);
+    void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(result.cart)).catch(() => undefined);
+    return true;
+  };
+
+  const applyCartPromotion = (code: string) => {
+    const result = applyPromotionCode(cart, code);
+    if (result.validation.code === 'VALID') {
+      setCart(result.cart);
+      void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(result.cart)).catch(() => undefined);
+    }
+    return result.validation;
+  };
+
+  const clearCartPromotion = () => {
+    const nextCart = removeCartPromotion(cart);
+    setCart(nextCart);
+    void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
   };
 
   const handleMergeCartLines = (mergedLines: CartLine[]) => {
-    const nextCart = { lines: mergedLines };
+    const nextCart = revalidateCartPromotion({ ...cart, lines: mergedLines });
     setCart(nextCart);
     void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
   };
@@ -588,7 +881,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       {currentScreen === 'search-no-results' ? <SearchNoResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen('search-landing')} onClearSearch={() => setCurrentScreen('search-landing')} onBrowseCategories={() => setCurrentScreen('categories')} /> : null}
 
       {currentScreen === 'wishlist' ? <WishlistScreen onNavigateTab={navigateTab} onBrowseCollections={() => setCurrentScreen('categories')} onSelectProduct={selectProduct} onMoveToCart={moveWishlistItemToCart} /> : null}
-      {currentScreen === 'cart' ? <CartScreen cart={cart} onNavigateTab={navigateTab} onStartShopping={() => setCurrentScreen('home')} onViewWishlist={() => setCurrentScreen('wishlist')} onSelectProduct={(pid) => selectProduct({ id: pid, name: 'Produit Mayush', thumbnail_image: '', has_discount: false, discount: '', stroked_price: '', priceMad: 1000, formattedPrice: '1 000 MAD', main_price: '1 000 MAD', rating: 5, sales: 1, links: { details: '' } })} onUpdateQuantity={updateCartQuantity} onUpdateVariantText={updateCartVariantText} onCheckout={startCheckout} onMergeCartLines={handleMergeCartLines} /> : null}
+      {currentScreen === 'cart' ? <CartScreen cart={cart} onNavigateTab={navigateTab} onStartShopping={() => setCurrentScreen('home')} onViewWishlist={() => setCurrentScreen('wishlist')} onSelectProduct={(pid) => selectProduct({ id: pid, name: 'Produit Mayush', thumbnail_image: '', has_discount: false, discount: '', stroked_price: '', priceMad: 1000, formattedPrice: '1 000 MAD', main_price: '1 000 MAD', rating: 5, sales: 1, links: { details: '' } })} onUpdateQuantity={updateCartQuantity} onUpdateVariant={updateCartVariant} onApplyPromotion={applyCartPromotion} onRemovePromotion={clearCartPromotion} onCheckout={startCheckout} onMergeCartLines={handleMergeCartLines} /> : null}
       {currentScreen === 'account' ? (
         <AccountScreen
           onNavigateTab={navigateTab}
@@ -1015,6 +1308,17 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         />
       ) : null}
 
+      {currentScreen === 'order-support-contact' && activeOrder ? (
+        <ContactSupportFormScreen
+          orderContext={activeOrder}
+          onNavigateTab={navigateTab}
+          onBack={openActiveOrderDetails}
+          onNavigateAttachFiles={() => setCurrentScreen('attach-files-documents')}
+          onNavigateSelectOrder={openOrdersList}
+          onNavigateReview={() => setCurrentScreen('review-send-support-request')}
+        />
+      ) : null}
+
       {currentScreen === 'attach-files-documents' ? (
         <AttachFilesDocumentsScreen
           onNavigateTab={navigateTab}
@@ -1265,11 +1569,20 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       {currentScreen === 'product-reviews' ? <ProductReviewsRatingsScreen productTitle={selectedProduct?.name || 'Fauteuil Lounge Luna'} onBack={() => setCurrentScreen('product-details')} /> : null}
       {currentScreen === 'added-to-cart' ? <AddedToCartConfirmationScreen cart={cart} onViewCart={() => setCurrentScreen('cart')} /> : null}
 
-      {currentScreen === 'checkout-summary' ? <CheckoutSummaryScreen cart={cart} address={selectedAddress} deliveryMethod={deliveryMethod} paymentMethod={paymentMethod} onBack={() => setCurrentScreen('cart')} onChooseAddress={() => setCurrentScreen('address-selection')} /> : null}
-      {currentScreen === 'address-selection' ? <AddressSelectionScreen addresses={savedAddresses} selectedAddressId={selectedAddressId} onBack={() => setCurrentScreen('checkout-summary')} onSelect={setSelectedAddressId} onContinue={() => setCurrentScreen('delivery-method')} onAddAddress={() => { setAddressDraft(emptyAddressDraft()); setCurrentScreen('add-address'); }} /> : null}
-      {currentScreen === 'add-address' || currentScreen === 'add-address-errors' ? <AddAddressFormScreen draft={addressDraft} errors={currentScreen === 'add-address-errors' ? validateAddressDraft(addressDraft) : {}} onChange={(next) => { setAddressDraft(next); if (currentScreen === 'add-address-errors') setCurrentScreen('add-address'); }} onBack={() => setCurrentScreen('address-selection')} onSave={saveAddress} /> : null}
-      {currentScreen === 'delivery-method' ? <DeliveryMethodScreen address={selectedAddress} selectedMethod={deliveryMethod} onBack={() => setCurrentScreen('address-selection')} onSelect={setDeliveryMethod} onContinue={() => setCurrentScreen('payment-method')} /> : null}
-      {currentScreen === 'payment-method' ? <PaymentMethodScreen totalMad={cart.lines.reduce((total, line) => total + (line.unitPriceMad * line.quantity), 0)} selectedMethod={paymentMethod} processing={paymentProcessing} onBack={() => setCurrentScreen('delivery-method')} onSelect={setPaymentMethod} onContinue={completeCheckout} /> : null}
+      {currentScreen === 'checkout-summary' && selectedAddress ? <CheckoutSummaryScreen cart={cart} address={selectedAddress} deliveryMethod={deliveryMethod} paymentMethod={paymentMethod} deliveryFeeMad={deliveryProjection.deliveryFeeMad} onBack={() => setCurrentScreen('cart')} onChooseAddress={() => setCurrentScreen(savedAddresses.length ? 'address-selection' : 'no-saved-address')} /> : null}
+      {currentScreen === 'checkout-summary' && !selectedAddress ? <NoSavedAddressScreen onBack={() => setCurrentScreen('cart')} onAddAddress={openAddCheckoutAddress} /> : null}
+      {currentScreen === 'address-selection' ? <AddressSelectionScreen addresses={savedAddresses} selectedAddressId={selectedAddressId} onBack={() => setCurrentScreen('checkout-summary')} onSelect={setSelectedAddressId} onContinue={() => setCurrentScreen(savedAddresses.length ? 'delivery-method' : 'no-saved-address')} onAddAddress={openAddCheckoutAddress} onEdit={(addressId) => { setSelectedAddressId(addressId); const address = savedAddresses.find((item) => item.id === addressId); if (!address) return; setAddressEditorMode('edit'); setEditingAddressId(address.id); setAddressDraft(addressToDraft(address)); setCurrentScreen('edit-checkout-address'); }} /> : null}
+      {currentScreen === 'add-address' || currentScreen === 'add-address-errors' ? <AddAddressFormScreen draft={addressDraft} errors={currentScreen === 'add-address-errors' ? validateAddressDraft(addressDraft) : {}} onChange={(next) => { setAddressDraft(next); if (currentScreen === 'add-address-errors') setCurrentScreen('add-address'); }} onBack={() => setCurrentScreen(savedAddresses.length ? 'address-selection' : 'no-saved-address')} onSave={saveAddress} onChooseCity={() => { setAddressEditorMode('add'); setCurrentScreen('city-selector'); }} onChooseZone={() => setCurrentScreen(addressDraft.cityId ? 'delivery-zone-selector' : 'city-selector')} /> : null}
+      {currentScreen === 'city-selector' ? <CitySelectorScreen selectedCityId={addressDraft.cityId} onBack={() => setCurrentScreen(addressEditorMode === 'edit' ? 'edit-checkout-address' : (savedAddresses.length ? 'address-selection' : 'no-saved-address'))} onSelect={(city) => { setAddressDraft((draft) => setAddressDraftCity(draft, city.cityId)); setCurrentScreen('delivery-zone-selector'); }} /> : null}
+      {currentScreen === 'delivery-zone-selector' && getCityById(addressDraft.cityId) ? <DeliveryZoneSelectorScreen city={getCityById(addressDraft.cityId)!} selectedZoneId={addressDraft.zoneId} onBack={() => setCurrentScreen('city-selector')} onSelect={(zone) => setAddressDraft((draft) => setAddressDraftZone(draft, zone.zoneId))} onContinue={() => setCurrentScreen(addressEditorMode === 'edit' ? 'edit-checkout-address' : 'add-address')} /> : null}
+      {currentScreen === 'edit-checkout-address' ? <EditCheckoutAddressScreen draft={addressDraft} errors={validateAddressDraft(addressDraft)} onChange={setAddressDraft} onBack={() => setCurrentScreen('address-selection')} onChooseCity={() => setCurrentScreen('city-selector')} onChooseZone={() => setCurrentScreen(addressDraft.cityId ? 'delivery-zone-selector' : 'city-selector')} onSave={saveEditedAddress} onDelete={() => { if (!editingAddressId) return; authState.deleteAddress(editingAddressId); const remaining = authState.getSavedAddresses(); setSelectedAddressId(remaining.find((address) => address.isDefault)?.id || remaining[0]?.id || ''); setEditingAddressId(null); setCurrentScreen(remaining.length ? 'address-selection' : 'no-saved-address'); }} /> : null}
+      {currentScreen === 'no-saved-address' ? <NoSavedAddressScreen onBack={() => setCurrentScreen('cart')} onAddAddress={openAddCheckoutAddress} /> : null}
+      {currentScreen === 'delivery-method' && selectedAddress ? <DeliveryMethodScreen address={selectedAddress} selectedMethod={deliveryMethod} onBack={() => setCurrentScreen('address-selection')} onSelect={setDeliveryMethod} onContinue={() => { const next = buildSellerDeliveryProjection(cart.lines, selectedAddress, deliveryMethod); setCurrentScreen(!next.available ? 'delivery-unavailable' : next.groups.length > 1 ? 'delivery-by-vendor' : 'payment-method'); }} /> : null}
+      {currentScreen === 'delivery-by-vendor' ? <DeliveryByVendorScreen projection={deliveryProjection} onBack={() => setCurrentScreen('delivery-method')} onContinue={() => setCurrentScreen('payment-method')} /> : null}
+      {currentScreen === 'delivery-unavailable' && selectedAddress ? <DeliveryUnavailableScreen address={selectedAddress} lines={cart.lines} onBack={() => setCurrentScreen('delivery-method')} onEditAddress={openEditCheckoutAddress} onRemoveAffected={() => { setCart(emptyCartState()); void AsyncStorage.removeItem(CART_STORAGE_KEY).catch(() => undefined); setCurrentScreen('cart'); }} onSupport={() => setCurrentScreen('contact-support-form')} /> : null}
+      {currentScreen === 'payment-method' ? <PaymentMethodScreen totalMad={checkoutTotalMad} selectedMethod={paymentMethod} processing={paymentProcessing} onBack={() => setCurrentScreen(deliveryProjection.groups.length > 1 ? 'delivery-by-vendor' : 'delivery-method')} onSelect={setPaymentMethod} onContinue={continueFromPaymentMethod} /> : null}
+      {currentScreen === 'wallet-balance' ? <WalletBalanceScreen balanceMad={accountPreferencesState.getWalletBalanceMad()} totalMad={checkoutTotalMad} onBack={() => setCurrentScreen('payment-method')} onUseWallet={() => { accountPreferencesState.setSelectedPaymentMethod('pm-wallet'); completeCheckout(); }} /> : null}
+      {currentScreen === 'saved-payment-cards' ? <SavedPaymentCardsScreen methods={paymentPreferences} selectedId={selectedPaymentPreferenceId} onBack={() => setCurrentScreen('payment-method')} onSelect={(id) => accountPreferencesState.setSelectedPaymentMethod(id)} onDelete={(id) => accountPreferencesState.removePaymentMethod(id)} onAdd={() => undefined} onContinue={() => { setPaymentMethod('cmi'); completeCheckout(); }} /> : null}
       {currentScreen === 'auth-gate' || currentScreen === 'auth-welcome' ? (
         <AuthenticationWelcomeScreen
           onSignIn={() => setCurrentScreen('login')}
@@ -1372,7 +1685,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         />
       ) : null}
 
-      {currentScreen === 'order-review' ? <OrderReviewScreen cart={cart} address={selectedAddress} deliveryMethod={deliveryMethod} paymentMethod={paymentMethod} onBack={() => setCurrentScreen('payment-method')} onConfirm={beginOrderReview} /> : null}
+      {currentScreen === 'order-review' && selectedAddress ? <OrderReviewScreen cart={cart} address={selectedAddress} deliveryMethod={deliveryMethod} paymentMethod={paymentMethod} deliveryFeeMad={deliveryProjection.deliveryFeeMad} onBack={() => setCurrentScreen('payment-method')} onConfirm={beginOrderReview} /> : null}
       {currentScreen === 'order-processing' && activeOrder ? <OrderProcessingScreen order={activeOrder} onFinish={finishOrderProcessing} /> : null}
       {currentScreen === 'payment-step-intro' && activeOrder ? <PaymentStepIntroScreen order={activeOrder} onBack={() => setCurrentScreen('payment-method')} onContinue={() => setCurrentScreen('secure-payment-redirect')} /> : null}
       {currentScreen === 'secure-payment-redirect' && activeOrder ? <SecurePaymentRedirectScreen order={activeOrder} onContinue={() => setCurrentScreen('secure-payment-loading')} onCancel={() => setCurrentScreen('payment-cancelled')} /> : null}
@@ -1382,9 +1695,37 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       {currentScreen === 'payment-failed' && activeOrder ? <PaymentFailureScreen order={activeOrder} onContinue={() => setCurrentScreen('payment-method')} /> : null}
       {currentScreen === 'payment-cancelled' && activeOrder ? <PaymentCancelledScreen order={activeOrder} onContinue={() => setCurrentScreen('payment-method')} /> : null}
       {currentScreen === 'payment-success' && activeOrder ? <PaymentSuccessScreen order={activeOrder} onNext={() => setCurrentScreen('order-thank-you')} onContinueShopping={() => setCurrentScreen('home')} /> : null}
-      {currentScreen === 'order-thank-you' && activeOrder ? <OrderThankYouScreen order={activeOrder} onTrack={() => setCurrentScreen('orders-list')} onContinueShopping={() => setCurrentScreen('home')} /> : null}
-      {currentScreen === 'orders-list' ? <OrdersListScreen orders={orders} onOpenOrder={(orderId) => { void orderState.selectOrder(orderId).then((selected) => { if (selected) setCurrentScreen('order-details'); }); }} onNavigateTab={navigateTab} /> : null}
-      {currentScreen === 'order-details' && activeOrder ? <OrderDetailsScreen order={activeOrder} onBack={() => setCurrentScreen('orders-list')} /> : null}
+      {currentScreen === 'order-thank-you' && activeOrder ? <OrderThankYouScreen order={activeOrder} onTrack={openOrdersList} onContinueShopping={() => setCurrentScreen('home')} /> : null}
+      {currentScreen === 'orders-list' ? <OrdersListScreen orders={orders} onOpenOrder={(orderId) => { void openOrderById(orderId); }} onNavigateTab={navigateTab} /> : null}
+      {currentScreen === 'order-detail-preparing' && activeOrder ? <OrderDetailsScreen order={activeOrder} variant="preparing" onBack={openOrdersList} onTrack={() => openTrackingForActiveOrder()} onOpenPackages={() => setCurrentScreen('order-packages')} onOpenInvoice={() => setCurrentScreen('order-invoice')} onSupport={openOrderSupport} onCancel={openCancellationForActiveOrder} onReorder={openReorderForActiveOrder} onRate={openReviewForActiveOrder} onReturn={openReturnForActiveOrder} /> : null}
+      {currentScreen === 'order-detail-shipped' && activeOrder ? <OrderDetailsScreen order={activeOrder} variant="shipped" onBack={openOrdersList} onTrack={() => openTrackingForActiveOrder()} onOpenPackages={() => setCurrentScreen('order-packages')} onOpenInvoice={() => setCurrentScreen('order-invoice')} onSupport={openOrderSupport} onCancel={openCancellationForActiveOrder} onReorder={openReorderForActiveOrder} onRate={openReviewForActiveOrder} onReturn={openReturnForActiveOrder} /> : null}
+      {currentScreen === 'order-detail-delivered' && activeOrder ? <OrderDetailsScreen order={activeOrder} variant="delivered" onBack={() => setCurrentScreen('orders-list')} onTrack={() => setCurrentScreen('order-tracking')} onOpenPackages={() => setCurrentScreen('order-packages')} onOpenInvoice={() => setCurrentScreen('order-invoice')} onSupport={openSupportForActiveOrder} onCancel={openCancellationForActiveOrder} onReorder={openReorderForActiveOrder} onRate={openReviewForActiveOrder} onReturn={openReturnForActiveOrder} /> : null}
+      {currentScreen === 'order-detail-multi-vendor' && activeOrder ? <OrderDetailsScreen order={activeOrder} variant="multi-vendor" onBack={() => setCurrentScreen('orders-list')} onTrack={() => setCurrentScreen('order-tracking')} onOpenPackages={() => setCurrentScreen('order-packages')} onOpenInvoice={() => setCurrentScreen('order-invoice')} onSupport={openSupportForActiveOrder} onCancel={openCancellationForActiveOrder} onReorder={openReorderForActiveOrder} onRate={openReviewForActiveOrder} onReturn={openReturnForActiveOrder} /> : null}
+      {currentScreen === 'order-tracking' && activeOrder ? <OrderTrackingScreen order={activeOrder} onBack={openActiveOrderDetails} onOpenDetails={openActiveOrderDetails} onSupport={openSupportForActiveOrder} /> : null}
+      {currentScreen === 'order-packages' && activeOrder ? <OrderPackagesScreen order={activeOrder} onBack={openActiveOrderDetails} onOpenPackage={(packageId) => { if (orderState.selectPackage(packageId)) setCurrentScreen('order-package-detail'); }} /> : null}
+      {currentScreen === 'order-package-detail' && activeOrder && activePackage ? <OrderPackageDetailsScreen order={activeOrder} orderPackage={activePackage} onBack={() => setCurrentScreen('order-packages')} onTrack={() => openTrackingForActiveOrder(activePackage.packageId)} onOpenInvoice={() => setCurrentScreen('order-invoice')} onSupport={openOrderSupport} /> : null}
+      {currentScreen === 'order-invoice' && activeOrder ? <OrderInvoiceScreen order={activeOrder} onBack={openActiveOrderDetails} onOpenOrder={openActiveOrderDetails} /> : null}
+      {currentScreen === 'order-cancel-confirmation' && activeOrder ? <OrderCancellationConfirmationScreen order={activeOrder} onBack={openActiveOrderDetails} onContinue={continueCancellationForActiveOrder} /> : null}
+      {currentScreen === 'order-cancel-reason' && activeOrder && cancellationDraft?.orderId === activeOrder.orderId ? <OrderCancellationReasonScreen order={activeOrder} draft={cancellationDraft} onBack={() => setCurrentScreen('order-cancel-confirmation')} onReasonChange={(reason) => orderActionState.setCancellationReason(reason)} onMessageChange={(message) => orderActionState.setCancellationMessage(message)} onSubmit={submitCancellationForActiveOrder} /> : null}
+      {currentScreen === 'order-cancel-registered' && activeOrder && cancellationRequest ? <OrderCancellationRegisteredScreen order={activeOrder} request={cancellationRequest} onBack={openActiveOrderDetails} onOpenOrders={() => setCurrentScreen('orders-list')} onContinueShopping={() => setCurrentScreen('home')} /> : null}
+      {currentScreen === 'order-cannot-cancel' && activeOrder ? <OrderCannotBeCancelledScreen order={activeOrder} onBack={openActiveOrderDetails} onSupport={openSupportForActiveOrder} /> : null}
+      {currentScreen === 'order-product-review' && activeOrder && reviewDraft?.orderId === activeOrder.orderId ? <OrderProductReviewScreen order={activeOrder} entries={reviewDraft.entries} onBack={openActiveOrderDetails} onRate={(lineId, rating) => { orderActionState.setReviewRating(lineId, rating); }} onSubmit={submitReviewForActiveOrder} onLater={openActiveOrderDetails} /> : null}
+      {currentScreen === 'order-reorder-changes' && activeOrder && reorderPlan?.orderId === activeOrder.orderId ? <OrderReorderChangesScreen order={activeOrder} plan={reorderPlan} onBack={openActiveOrderDetails} onSelect={(lineId, selected) => { orderActionState.setReorderLineSelected(lineId, selected); }} onOpenSelection={() => setCurrentScreen('order-reorder-availability')} onAddSelected={commitReorderToCart} /> : null}
+      {currentScreen === 'order-reorder-availability' && activeOrder && reorderPlan?.orderId === activeOrder.orderId ? <OrderReorderAvailabilityScreen order={activeOrder} plan={reorderPlan} onBack={() => setCurrentScreen('order-reorder-changes')} onSelect={(lineId, selected) => { orderActionState.setReorderLineSelected(lineId, selected); }} onAddSelected={commitReorderToCart} onOpenCart={() => setCurrentScreen('cart')} /> : null}
+      {currentScreen === 'order-reorder-added' && activeOrder && lastReorderResult ? <OrderReorderAddedScreen order={activeOrder} result={lastReorderResult} onBack={openActiveOrderDetails} onOpenCart={() => setCurrentScreen('cart')} onContinueShopping={() => setCurrentScreen('home')} /> : null}
+      {currentScreen === 'order-return-selection' && activeOrder && returnDraft?.orderId === activeOrder.orderId ? <OrderReturnSelectionScreen order={activeOrder} draft={returnDraft} onBack={openActiveOrderDetails} onSelect={(lineId, selected) => { orderActionState.setReturnLineSelected(activeOrder, lineId, selected); }} onQuantity={(lineId, quantity) => { orderActionState.setReturnLineQuantity(activeOrder, lineId, quantity); }} onReason={(reason) => orderActionState.setReturnReason(reason)} onMessage={(message) => orderActionState.setReturnMessage(message)} onSubmit={submitReturnForActiveOrder} /> : null}
+      {currentScreen === 'order-return-detail' && activeOrder && activeReturnRequest?.orderId === activeOrder.orderId ? <OrderReturnDetailScreen order={activeOrder} request={activeReturnRequest} onBack={openActiveOrderDetails} onTrack={() => setCurrentScreen('order-return-tracking')} onSupport={() => openSupportForActiveOrder(activeReturnRequest.returnRequestId)} /> : null}
+      {currentScreen === 'order-return-tracking' && activeOrder && activeReturnRequest?.orderId === activeOrder.orderId ? <OrderReturnTrackingScreen order={activeOrder} request={activeReturnRequest} onBack={() => setCurrentScreen('order-return-detail')} onDetails={() => setCurrentScreen('order-return-detail')} onSupport={() => openSupportForActiveOrder(activeReturnRequest.returnRequestId)} /> : null}
+      {currentScreen === 'order-refund-request' && activeOrder && cancelledRefundDraft?.orderId === activeOrder.orderId ? <OrderCancelledRefundRequestScreen order={activeOrder} draft={cancelledRefundDraft} onBack={() => setCurrentScreen('orders-list')} onConfirm={confirmCancelledRefund} /> : null}
+      {currentScreen === 'order-refund-completed' && activeOrder && activeRefund?.orderId === activeOrder.orderId && activeRefund.status === 'completed' ? <OrderRefundCompletedScreen order={activeOrder} refund={activeRefund} returnRequest={activeRefund.returnRequestId ? activeReturnRequest : null} onOrders={() => setCurrentScreen('orders-list')} onShop={() => setCurrentScreen('home')} /> : null}
+      {currentScreen === 'delivery-delayed' && activeOrder && activeDeliveryIssue?.type === 'delayed' ? <DeliveryDelayedScreen order={activeOrder} issue={activeDeliveryIssue} onBack={openActiveOrderDetails} onTrack={() => setCurrentScreen('order-tracking')} onSupport={openOrderSupport} /> : null}
+      {currentScreen === 'delivery-failed' && activeOrder && activeDeliveryIssue?.type === 'delivery_failed' ? <DeliveryFailedScreen order={activeOrder} issue={activeDeliveryIssue} request={activeRescheduleRequest} onBack={openActiveOrderDetails} onReschedule={submitDeliveryReschedule} onSupport={openOrderSupport} /> : null}
+      {currentScreen === 'tracking-unavailable' && activeOrder ? <TrackingUnavailableScreen order={activeOrder} onBack={openActiveOrderDetails} onRefresh={() => openTrackingForActiveOrder()} onDetails={openActiveOrderDetails} /> : null}
+      {currentScreen === 'order-not-found' ? <OrderNotFoundScreen orderId={orderViewSnapshot.requestedOrderId} onOrders={openOrdersList} onSupport={() => setCurrentScreen('contact-support-form')} /> : null}
+      {currentScreen === 'orders-empty' ? <OrdersEmptyScreen onDiscover={() => setCurrentScreen('home')} onFavorites={() => setCurrentScreen('wishlist')} /> : null}
+      {currentScreen === 'orders-error' ? <OrdersErrorScreen onRetry={openOrdersList} onAccount={() => setCurrentScreen('account')} /> : null}
+      {currentScreen === 'orders-skeleton' ? <OrdersSkeletonScreen /> : null}
+      {currentScreen === 'order-detail-skeleton' ? <OrderDetailSkeletonScreen onBack={openOrdersList} /> : null}
 
       <VariantSelectorSheet visible={variantSheetVisible} product={variantProduct} onClose={() => setVariantSheetVisible(false)} onConfirmAddToCart={addSelectedVariantToCart} />
       <FilterPanelModal visible={filterModalVisible} onClose={() => setFilterModalVisible(false)} onApplyFilters={() => setFilterModalVisible(false)} />

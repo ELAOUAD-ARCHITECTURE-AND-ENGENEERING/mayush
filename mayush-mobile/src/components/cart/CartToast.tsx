@@ -4,8 +4,7 @@
  */
 
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { colors } from '../../design-system/tokens/colors';
 import { radii } from '../../design-system/tokens/radii';
@@ -20,8 +19,8 @@ export const CartToast: React.FC<CartToastProps> = ({ visible, message }) => {
 
   return (
     <View style={styles.toastCard} accessibilityLabel="Cart Update Toast">
-      <MayushIcon name="check-circle" size={18} color={colors.surface.white} />
-      <MayushText variant="smallBody" color={colors.surface.white} style={styles.message}>
+      <ActivityIndicator size="small" color={colors.brand.orange500} />
+      <MayushText variant="strongBody" color={colors.brand.navy900} style={styles.message}>
         {message}
       </MayushText>
     </View>
@@ -31,22 +30,22 @@ export const CartToast: React.FC<CartToastProps> = ({ visible, message }) => {
 const styles = StyleSheet.create({
   toastCard: {
     position: 'absolute',
-    top: 70,
-    left: 20,
-    right: 20,
+    top: '42%',
+    left: 62,
+    right: 62,
     zIndex: 999,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: radii.xl,
-    backgroundColor: colors.brand.navy900,
+    backgroundColor: colors.surface.white,
     gap: 10,
     elevation: 6,
     shadowColor: '#000',
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.18,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
   },
-  message: { flex: 1, fontWeight: '600' },
+  message: { flex: 1, fontWeight: '700', textAlign: 'center' },
 });

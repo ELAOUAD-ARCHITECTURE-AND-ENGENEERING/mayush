@@ -1,6 +1,84 @@
 # Mayush Mobile MVP Progress Log
 
-> Canonical metric notice (2026-08-11): older entries below are historical. The current deterministic values are 151/207 implemented Figma states (72.9%) and 45/206 exact implemented prototype connections (21.8%). Screen and connection metrics are intentionally separate.
+> Canonical metric notice (2026-08-11): older entries below are historical. The current deterministic values are 199/207 implemented Figma states (96.1%) and 63/206 exact implemented prototype connections (30.6%). Screen and connection metrics are intentionally separate.
+
+## STEP 8G — Checkout Address, Delivery & Payment Option States
+
+- **Status**: Completed (`FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING`)
+- **Date**: 2026-08-11
+- **Scope**: Live nodes `309:683`, `684`, `685`, `686`, `688`, `689`, `691`, and `692`; stable Morocco city/zone selection, edit/empty address states, multi-seller delivery, deterministic unavailable delivery, wallet balance, and safe saved-card selection
+- **Architecture**: Canonical account address book owns buyer addresses; checkout persists selection/session facts; cart seller identities drive delivery projections; account payment preferences supply card/wallet metadata; `BuyerOrder` snapshots address, delivery fee, safe payment reference, promotion, discount, and final integer-MAD total
+- **Tests**: 417 regression assertions + 11 Step 8B.0 + 17 Step 8B + 23 Step 8C + 24 Step 8D + 28 Step 8E + 32 Step 8F + 37 Step 8G assertions, all passing
+- **Metrics**: 199/207 canonical screens (96.1%); 63/206 exact prototype interactions (30.6%); checkout `309:679–710` is 25/32 screen states implemented and its relevant interactions are 19 implemented / 7 mismatched / 8 missing
+- **Boundaries**: No Laravel changes, delivery/wallet/payment backend claims, PAN/CVV, seller/admin mobile state, Discovery `309:591`, later nodes `309:701+`, pixel-parity work, or native validation claim
+- **Next task**: STEP 8H — CHECKOUT PAYMENT CONFIRMATION, CONFLICT & SYSTEM STATES (`309:701`, `702`, `704`, `707–710`); verified from the canonical missing inventory, not executed
+
+---
+
+## STEP 8F — Cart Interaction & Promotion States
+
+- **Status**: Completed (`FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING`)
+- **Date**: 2026-08-11
+- **Scope**: Live nodes `309:659–665`; quantity feedback, cart-line variant editing, seller grouping, promotion validation/application/offers, and exact-line removal with conditional empty state
+- **Architecture**: Reused RootNavigator-owned `CartState`, cart AsyncStorage key, checkout cart consumption, existing 309:666–669 states, reorder integration, and immutable `BuyerOrder` snapshots; only `appliedPromotionId` was added as a durable cart fact
+- **Tests**: 417 regression assertions + 11 Step 8B.0 + 17 Step 8B + 23 Step 8C + 24 Step 8D + 28 Step 8E + 32 Step 8F assertions, all passing
+- **Metrics**: 191/207 canonical screens (92.3%); 61/206 exact prototype interactions (29.6%); cart states `309:658–669` are 12/12 implemented
+- **Boundaries**: No coupon backend, seller/admin mobile state, new cart identity, Checkout gap-node implementation, Discovery `309:591`, pixel-parity work, or native validation claim
+- **Next task**: STEP 8G — CHECKOUT ADDRESS, DELIVERY & PAYMENT OPTION STATES (`309:683–692`, exact cluster to be reverified before execution)
+
+---
+
+## STEP 8E — Delivery Issues, Order Support & Order System States
+
+- **Status**: Completed (`FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING`)
+- **Date**: 2026-08-11
+- **Scope**: Live nodes `309:737–745`, plus canonical reconciliation of existing Orders List inline-tab states `309:713–715`
+- **Architecture**: `BuyerOrderRepository` remains the sole order identity source; focused delivery issue/reschedule records share `BuyerOrderActionRepository`; support reuses `supportState`; list/detail load state is transient
+- **Tests**: 417 regression assertions + 11 Step 8B.0 + 17 Step 8B + 23 Step 8C + 24 Step 8D + 28 Step 8E assertions, all passing
+- **Metrics**: 184/207 canonical screens (88.9%); 58/206 exact prototype interactions (28.2%); Buyer Orders & Fulfillment has zero missing nodes
+- **Boundaries**: No carrier/order/support backend, live ETA, polling, provider confirmation, seller/admin state, or native validation claim
+- **Next task**: STEP 8F — CART INTERACTION & PROMOTION STATES (`309:659–665`)
+
+---
+
+## STEP 8D — Buyer Returns, Refunds & Return Tracking
+
+- **Status**: Completed (`FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING`)
+- **Date**: 2026-08-11
+- **Scope**: Live nodes `309:732–736`, delivered-order return selection, durable local return details, return-owned deterministic timeline, cancelled-order refund request, and explicit local completion
+- **Architecture**: `BuyerOrderRepository` remains the identity source; transient drafts and durable return/refund action records reference stable IDs without cloning orders
+- **Tests**: 417 regression assertions + 11 Step 8B.0 + 17 Step 8B + 23 Step 8C + 24 Step 8D assertions, all passing
+- **Metrics**: 172/207 canonical screens (83.1%); 58/206 exact prototype interactions (28.2%)
+- **Boundaries**: No backend acceptance, live carrier/bank state, polling, notification UI, seller/admin state, node `309:737+`, or native validation claim
+- **Next task**: STEP 8E — DELIVERY ISSUES, ORDER SUPPORT & ORDER SYSTEM STATES
+
+---
+
+## STEP 8C — Buyer Order Cancellation, Review & Reorder
+
+- **Status**: Completed (`FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING`)
+- **Date**: 2026-08-11
+- **Scope**: Live nodes `309:724–731`, cancellation eligibility/reason/request states, delivered-order product rating, deterministic historical-vs-current reorder planning, and existing-cart integration
+- **Architecture**: Preserved immutable `BuyerOrder` snapshots; focused action records reference only `orderId`, `orderLineId`, and `productId`
+- **Tests**: 417 regression assertions + 11 Step 8B.0 + 17 Step 8B + 23 Step 8C assertions, all passing
+- **Metrics**: 167/207 canonical screens (80.7%); 55/206 exact prototype interactions (26.7%)
+- **Boundaries**: No backend cancellation acceptance, refund completion, public review publication, seller/admin state, or return workflow
+- **Next task**: STEP 8D — Buyer Returns, Refunds & Return Tracking
+
+---
+
+## STEP 8B — Buyer Order Detail, Tracking & Multi-Package Fulfillment
+
+- **Status**: Completed (`FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING`)
+- **Date**: 2026-08-11
+- **Scope**: Live nodes `309:716–723`, shared buyer order details, deterministic tracking, multi-vendor package grouping, split shipments, package detail, and frontend invoice preview
+- **Architecture**: Reused `BuyerOrderRepository`; `selectedOrderId` remains persisted and `selectedPackageId` remains transient
+- **Tests**: 417 regression assertions + 11 Step 8B.0 assertions + 17 Step 8B assertions, all passing
+- **Metrics**: 159/207 canonical screens (76.8%); 51/206 exact prototype interactions (24.8%)
+- **Boundaries**: No backend carrier tracking, seller/admin mobile state, legal invoice issuance, PDF/share dependency, cancellation, return, review, or reorder workflow
+- **Next task**: STEP 8C — Buyer Order Cancellation, Review & Reorder
+
+---
 
 ## STEP 8B.0 — Order Foundation & Pre-Implementation Repair
 

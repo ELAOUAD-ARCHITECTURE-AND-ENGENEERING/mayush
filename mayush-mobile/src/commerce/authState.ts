@@ -458,6 +458,12 @@ export class AuthStateManager {
     return [...this.savedAddresses];
   }
 
+  /** Hydrates the canonical address book from checkout's durable session. */
+  public replaceSavedAddresses(addresses: SavedAddress[]) {
+    this.savedAddresses = addresses.map((address) => ({ ...address }));
+    this.notify();
+  }
+
   public addAddress(address: SavedAddress) {
     if (address.isDefault) {
       this.savedAddresses = this.savedAddresses.map((a) => ({ ...a, isDefault: false }));
@@ -571,8 +577,8 @@ export class AuthStateManager {
 
 export const authState = AuthStateManager.getInstance();
 
-export const createCheckoutAuthReturnDestination = (checkoutAttemptId: string): ReturnDestination => ({
-  route: 'payment-method',
+export const createCheckoutAuthReturnDestination = (checkoutAttemptId: string, route: 'payment-method' | 'wallet-balance' = 'payment-method'): ReturnDestination => ({
+  route,
   params: { checkoutAttemptId },
   pendingAction: 'checkout',
 });
