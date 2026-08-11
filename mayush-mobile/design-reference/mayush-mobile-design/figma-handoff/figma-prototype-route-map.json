@@ -19,11 +19,12 @@
     "comparisonFinding": "There are no configured Expo Router routes in the Phase 5A baseline. The route map documents the existing RootNavigator screen key and an Expo-Router-compatible target pathname separately."
   },
   "statusCounts": {
-    "MISMATCHED": 42,
-    "IMPLEMENTED": 61,
-    "MISSING": 103
+    "MISMATCHED": 47,
+    "IMPLEMENTED": 64,
+    "MISSING": 95
   },
   "connectionStatusOverrides": {
+    "FIGMA-PROT-008": "MISMATCHED",
     "FIGMA-PROT-043": "MISMATCHED",
     "FIGMA-PROT-044": "MISMATCHED",
     "FIGMA-PROT-045": "MISMATCHED",
@@ -40,6 +41,13 @@
     "FIGMA-PROT-073": "MISMATCHED",
     "FIGMA-PROT-074": "MISMATCHED",
     "FIGMA-PROT-075": "MISMATCHED",
+    "FIGMA-PROT-084": "IMPLEMENTED",
+    "FIGMA-PROT-085": "IMPLEMENTED",
+    "FIGMA-PROT-087": "MISMATCHED",
+    "FIGMA-PROT-090": "MISMATCHED",
+    "FIGMA-PROT-091": "IMPLEMENTED",
+    "FIGMA-PROT-092": "MISMATCHED",
+    "FIGMA-PROT-093": "MISMATCHED",
     "FIGMA-PROT-094": "IMPLEMENTED",
     "FIGMA-PROT-098": "IMPLEMENTED",
     "FIGMA-PROT-099": "IMPLEMENTED",
@@ -432,7 +440,7 @@
         "implementation": "Figma navigation action; no overlay behavior is specified."
       },
       "backNavigationBehavior": "No back action is attached to this Figma hotspot. Native system/header back behavior remains required by Phase 5B.",
-      "requiredUserOrApplicationState": "French buyer discovery state; selected category or product as implied by the screen label. Figma has no conditional variables on this connection.",
+      "requiredUserOrApplicationState": "Authenticated buyer Home variant derived from authState. The live Figma whole-frame click targets Categories; runtime exposes explicit category, collection, and Voir tout controls instead.",
       "expoRouterRoute": {
         "targetPathname": "/prototype/02-home-hero-new-arrivals-best-sellers-fr",
         "configuredInCurrentApp": false,
@@ -493,11 +501,11 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "home"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
-      "automatedTestCoverage": "No focused connection test exists yet.",
+      "existingImplementationFile": "src/screens/discovery/HomeScreen.tsx",
+      "status": "MISMATCHED",
+      "automatedTestCoverage": "Step 8I verifies authenticated Home category and Voir tout controls route through the existing Categories path; the live whole-frame hotspot is intentionally not reproduced.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
     },
@@ -4521,11 +4529,11 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "payment-confirmation-delayed"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
-      "automatedTestCoverage": "No focused connection test exists yet.",
+      "existingImplementationFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "status": "IMPLEMENTED",
+      "automatedTestCoverage": "Step 8H: explicit check-again action preserves the order and moves delayed verification to truthful pending presentation.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
     },
@@ -4574,11 +4582,11 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "payment-pending"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
-      "automatedTestCoverage": "No focused connection test exists yet.",
+      "existingImplementationFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "status": "IMPLEMENTED",
+      "automatedTestCoverage": "Step 8H: explicit View my order action opens Orders without confirming payment.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
     },
@@ -4680,11 +4688,11 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "checkout-terms-confirmation"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
-      "automatedTestCoverage": "No focused connection test exists yet.",
+      "existingImplementationFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "status": "MISMATCHED",
+      "automatedTestCoverage": "Step 8H: accepting terms proceeds through idempotent order processing and never jumps directly to Thank You.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
     },
@@ -4839,11 +4847,11 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "order-already-in-progress"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
-      "automatedTestCoverage": "No focused connection test exists yet.",
+      "existingImplementationFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "status": "MISMATCHED",
+      "automatedTestCoverage": "Step 8H: duplicate-attempt recovery resolves the existing order; it does not imply an unrelated price/stock conflict.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
     },
@@ -4892,11 +4900,11 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "order-needs-update"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
-      "automatedTestCoverage": "No focused connection test exists yet.",
+      "existingImplementationFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "status": "IMPLEMENTED",
+      "automatedTestCoverage": "Step 8H: explicit update acceptance mutates canonical cart facts, revalidates promotion/delivery, and enters transient checkout loading.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
     },
@@ -4945,11 +4953,11 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "checkout-skeleton"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
-      "automatedTestCoverage": "No focused connection test exists yet.",
+      "existingImplementationFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "status": "MISMATCHED",
+      "automatedTestCoverage": "Step 8H: loading resolves to ready normally and to error only on a conditional failure.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
     },
@@ -4998,11 +5006,11 @@
       },
       "currentNavigator": {
         "implementation": "custom RootNavigator state machine",
-        "screenKey": null
+        "screenKey": "checkout-error"
       },
-      "existingImplementationFile": null,
-      "status": "MISSING",
-      "automatedTestCoverage": "No focused connection test exists yet.",
+      "existingImplementationFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "status": "MISMATCHED",
+      "automatedTestCoverage": "Step 8H: retry revalidates and restores checkout without creating an order; it does not navigate to Orders.",
       "manualAndroidEvidence": "NOT RUN — no Android device or emulator evidence captured for this connection in Phase 5B.",
       "manualIosEvidence": "NOT RUN — no iOS simulator or device evidence captured for this connection in Phase 5B."
     },

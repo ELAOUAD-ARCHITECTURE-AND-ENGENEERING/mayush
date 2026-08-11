@@ -9,7 +9,17 @@ import { MayushText } from '../../design-system/components/typography/MayushText
 import { TextField } from '../../design-system/components/forms/TextField';
 import { colors } from '../../design-system/tokens/colors';
 import { useTheme } from '../../design-system/theme/useTheme';
-import { formatStorePrice } from '../../config/currency';
+import { MockUser } from '../../commerce/authState';
+import { BuyerOrder } from '../../commerce/orderState';
+import {
+  getHomeCatalogProductById,
+  getAuthenticatedHomeFirstName,
+  getHomeRecommendationIds,
+  HOME_BEST_SELLER_IDS,
+  HOME_NEW_ARRIVAL_IDS,
+  HOME_RECENT_FALLBACK_IDS,
+  resolveHomeProducts,
+} from './homeCatalog';
 
 const HERO_SCENE = require('../../../assets/reference-art/home-hero-scene.png');
 const PREMIUM_HERO_SCENE = require('../../../assets/reference-art/home-hero-premium-scene.png');
@@ -37,6 +47,11 @@ const INSPIRATION_ARTWORK: ImageSourcePropType[] = [
   require('../../../assets/reference-art/home-inspiration-japandi.png'),
   require('../../../assets/reference-art/home-inspiration-natural.png'),
 ];
+const PERSONALIZED_ARTWORK: Record<number, ImageSourcePropType> = {
+  101: NEW_ARTWORK[0], 102: NEW_ARTWORK[1], 103: NEW_ARTWORK[2], 104: NEW_ARTWORK[3],
+  201: BEST_ARTWORK[0], 202: BEST_ARTWORK[1], 203: BEST_ARTWORK[2], 204: BEST_ARTWORK[3],
+  205: BEST_ARTWORK[2], 206: CATEGORY_ARTWORK[1], 207: NEW_ARTWORK[3], 208: BEST_ARTWORK[3],
+};
 
 interface ShowcaseCategory {
   category: CategoryDto;
@@ -99,19 +114,6 @@ const category = (id: number, name: string): CategoryDto => ({
   links: { products: '', sub_categories: '' },
 });
 
-const product = (id: number, name: string, price: string, rating = 0, sales = 0): ProductMiniDto => ({
-  id,
-  name,
-  thumbnail_image: '',
-  has_discount: false,
-  discount: null,
-  stroked_price: '',
-  main_price: price,
-  rating,
-  sales,
-  links: { details: '' },
-});
-
 const CATEGORIES: ShowcaseCategory[] = [
   { category: category(1, 'Salon'), art: CATEGORY_ARTWORK[0] },
   { category: category(2, '\u0053alle \u00e0 manger'), art: CATEGORY_ARTWORK[1] },
@@ -121,17 +123,11 @@ const CATEGORIES: ShowcaseCategory[] = [
 ];
 
 const NEW_ARRIVALS: ShowcaseProduct[] = [
-  { product: product(101, 'Fauteuil Luna', formatStorePrice('589,00')), art: NEW_ARTWORK[0] },
-  { product: product(102, 'Buffet Kyoto', formatStorePrice('1 249,00')), art: NEW_ARTWORK[1] },
-  { product: product(103, 'Table basse \u00c8ve', formatStorePrice('479,00')), art: NEW_ARTWORK[2] },
-  { product: product(104, 'Suspension Nori', formatStorePrice('199,00')), art: NEW_ARTWORK[3] },
+  ...HOME_NEW_ARRIVAL_IDS.map((id, index) => ({ product: getHomeCatalogProductById(id)!, art: NEW_ARTWORK[index] })),
 ];
 
 const BEST_SELLERS: ShowcaseProduct[] = [
-  { product: product(201, 'Canap\u00e9 modulable Solis', formatStorePrice('1 890,00'), 5, 128), art: BEST_ARTWORK[0] },
-  { product: product(202, '\u0054able \u00e0 manger Aria', formatStorePrice('1 390,00'), 5, 96), art: BEST_ARTWORK[1] },
-  { product: product(203, 'Chaise Velours \u00c9l\u00e9gance', formatStorePrice('189,00'), 5, 75), art: BEST_ARTWORK[2] },
-  { product: product(204, '\u00c9tag\u00e8re Linea', formatStorePrice('329,00'), 5, 64), art: BEST_ARTWORK[3] },
+  ...HOME_BEST_SELLER_IDS.map((id, index) => ({ product: getHomeCatalogProductById(id)!, art: BEST_ARTWORK[index] })),
 ];
 
 export interface HomeScreenProps {
@@ -139,9 +135,20 @@ export interface HomeScreenProps {
   onSelectProduct?: (product: ProductMiniDto) => void;
   onNavigateTab?: (tab: TabKey) => void;
   activeTab?: TabKey;
+  isAuthenticated?: boolean;
+  authenticatedUser?: MockUser | null;
+  orders?: BuyerOrder[];
+  cartProductIds?: number[];
+  wishlistedProductIds?: number[];
+  onToggleWishlist?: (product: ProductMiniDto) => void;
+  onOpenWishlist?: () => void;
+  onOpenOrder?: (orderId: string) => void;
+  onOpenPromotions?: () => void;
+  onOpenRecentlyViewed?: () => void;
+  cartBadgeCount?: number;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectCategory, onSelectProduct, onNavigateTab, activeTab = 'home' }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectCategory, onSelectProduct, onNavigateTab, activeTab = 'home', isAuthenticated = false, authenticatedUser = null, orders = [], cartProductIds = [], wishlistedProductIds = [], onToggleWishlist, onOpenWishlist, onOpenOrder, onOpenPromotions, onOpenRecentlyViewed, cartBadgeCount = 2 }) => {
   const { language, isRTL } = useTheme();
   const { width } = useWindowDimensions();
   const contentPadding = Math.max(20, Math.round(width * 0.031));
@@ -179,6 +186,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectCategory, onSele
       name: heading(entry.category.name, ['\u0635\u0627\u0644\u0648\u0646', '\u063a\u0631\u0641\u0629 \u0627\u0644\u0637\u0639\u0627\u0645', '\u063a\u0631\u0641\u0629 \u0627\u0644\u0646\u0648\u0645', '\u0625\u0636\u0627\u0621\u0629', '\u062f\u064a\u0643\u0648\u0631'][index]),
     },
   }));
+
+  if (isAuthenticated) {
+    return (
+      <PersonalizedHome
+        user={authenticatedUser}
+        orders={orders}
+        contentPadding={contentPadding}
+        contentWidth={contentWidth}
+        productWidth={productWidth}
+        categorySize={categorySize}
+        isRTL={isRTL}
+        language={language}
+        activeTab={activeTab}
+        cartProductIds={cartProductIds}
+        wishlistedProductIds={wishlistedProductIds}
+        cartBadgeCount={cartBadgeCount}
+        onSelectCategory={onSelectCategory}
+        onSelectProduct={onSelectProduct}
+        onNavigateTab={onNavigateTab}
+        onToggleWishlist={onToggleWishlist}
+        onOpenWishlist={onOpenWishlist}
+        onOpenOrder={onOpenOrder}
+        onOpenRecentlyViewed={onOpenRecentlyViewed}
+      />
+    );
+  }
 
   return (
     <View style={styles.container} accessibilityLabel={heading('Accueil', '\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629')}>
@@ -253,7 +286,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectCategory, onSele
         <View style={styles.offerBanner}>
           <View style={styles.offerIcon}><MayushIcon name="tag" size={23} color={colors.brand.orange500} /></View>
           <View style={styles.offerCopy}><MayushText variant="sectionTitle" color={colors.brand.navy900} style={styles.offerTitle}>{heading('Offres du moment', '\u0639\u0631\u0648\u0636 \u0627\u0644\u0644\u062d\u0638\u0629')}</MayushText><MayushText variant="smallBody" color={colors.neutral.gray700}>{heading('Jusqu\u2019\u00e0 -20% sur une s\u00e9lection de pi\u00e8ces d\u2019exception.', '\u062d\u062a\u0649 20% \u0639\u0644\u0649 \u0645\u0646\u062a\u062c\u0627\u062a \u0645\u062e\u062a\u0627\u0631\u0629.')}</MayushText></View>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Profiter des offres', '\u0627\u0633\u062a\u0641\u062f \u0645\u0646 \u0627\u0644\u0639\u0631\u0648\u0636')} style={styles.offerButton}><MayushText variant="smallBody" color={colors.brand.orange500} style={styles.offerButtonLabel}>{heading('En profiter', '\u0627\u0633\u062a\u0641\u062f')}</MayushText></TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Profiter des offres', '\u0627\u0633\u062a\u0641\u062f \u0645\u0646 \u0627\u0644\u0639\u0631\u0648\u0636')} onPress={onOpenPromotions} style={styles.offerButton}><MayushText variant="smallBody" color={colors.brand.orange500} style={styles.offerButtonLabel}>{heading('En profiter', '\u0627\u0633\u062a\u0641\u062f')}</MayushText></TouchableOpacity>
         </View>
 
         <SectionHeader label={heading('Inspiration du moment', '\u0625\u0644\u0647\u0627\u0645 \u0627\u0644\u064a\u0648\u0645')} action={heading('Voir tout', '\u0639\u0631\u0636 \u0627\u0644\u0643\u0644')} />
@@ -262,10 +295,196 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectCategory, onSele
           <InspirationCard source={INSPIRATION_ARTWORK[1]} width={Math.round(contentWidth * 0.488)} />
         </ScrollView>
       </ScrollView>
-      <BottomTabBar activeTab={activeTab} onTabPress={onNavigateTab ?? (() => undefined)} cartBadgeCount={2} />
+      <BottomTabBar activeTab={activeTab} onTabPress={onNavigateTab ?? (() => undefined)} cartBadgeCount={cartBadgeCount} />
     </View>
   );
 };
+
+interface PersonalizedHomeProps {
+  user: MockUser | null;
+  orders: BuyerOrder[];
+  contentPadding: number;
+  contentWidth: number;
+  productWidth: number;
+  categorySize: number;
+  isRTL: boolean;
+  language: 'fr' | 'ar';
+  activeTab: TabKey;
+  cartProductIds: number[];
+  wishlistedProductIds: number[];
+  cartBadgeCount: number;
+  onSelectCategory?: (category: CategoryDto) => void;
+  onSelectProduct?: (product: ProductMiniDto) => void;
+  onNavigateTab?: (tab: TabKey) => void;
+  onToggleWishlist?: (product: ProductMiniDto) => void;
+  onOpenWishlist?: () => void;
+  onOpenOrder?: (orderId: string) => void;
+  onOpenRecentlyViewed?: () => void;
+}
+
+const PersonalizedHome: React.FC<PersonalizedHomeProps> = ({
+  user,
+  orders,
+  contentPadding,
+  contentWidth,
+  productWidth,
+  categorySize,
+  isRTL,
+  language,
+  activeTab,
+  cartProductIds,
+  wishlistedProductIds,
+  cartBadgeCount,
+  onSelectCategory,
+  onSelectProduct,
+  onNavigateTab,
+  onToggleWishlist,
+  onOpenWishlist,
+  onOpenOrder,
+  onOpenRecentlyViewed,
+}) => {
+  const fr = language !== 'ar';
+  const copy = (frCopy: string, arCopy: string) => fr ? frCopy : arCopy;
+  const firstName = getAuthenticatedHomeFirstName(user) || copy('Bonjour', 'مرحباً');
+  const recommendationIds = getHomeRecommendationIds({
+    wishlistProductIds: wishlistedProductIds,
+    cartProductIds,
+  });
+  const recommendations = resolveHomeProducts(recommendationIds);
+  const recentlyViewed = resolveHomeProducts(HOME_RECENT_FALLBACK_IDS);
+  const currentOrder = orders.find((order) => !['delivered', 'cancelled', 'returned', 'refunded'].includes(order.orderStatus));
+  const categoryEntries = [
+    { item: category(1, copy('Salon', 'صالون')), art: CATEGORY_ARTWORK[0] },
+    { item: category(2, copy('Salle à manger', 'غرفة الطعام')), art: CATEGORY_ARTWORK[1] },
+    { item: category(3, copy('Chambre', 'غرفة النوم')), art: CATEGORY_ARTWORK[2] },
+    { item: category(6, copy('Bureau', 'مكتب')), art: CATEGORY_ARTWORK[0] },
+    { item: category(4, copy('Éclairage', 'إضاءة')), art: CATEGORY_ARTWORK[3] },
+    { item: category(5, copy('Décoration', 'ديكور')), art: CATEGORY_ARTWORK[4] },
+    { item: category(7, copy('Rangement', 'تخزين')), art: CATEGORY_ARTWORK[1] },
+  ];
+  const estimatedDate = currentOrder?.estimatedDeliveryAt
+    ? new Intl.DateTimeFormat(fr ? 'fr-FR' : 'ar-MA', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(currentOrder.estimatedDeliveryAt))
+    : null;
+
+  return (
+    <View style={styles.container} accessibilityLabel={copy('Accueil personnalisé', 'الرئيسية المخصصة')}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.personalizedContent, { paddingHorizontal: contentPadding }]}>
+        <View style={[styles.personalizedHeader, isRTL && styles.rowReverse]}>
+          <MayushLogo width={118} height={37} />
+          <View style={[styles.headerActions, isRTL && styles.rowReverse]}>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel={copy('Notifications', 'الإشعارات')} style={styles.headerButton}>
+              <MayushIcon name="bell" size={24} color={colors.brand.navy900} />
+              <View style={styles.notificationBadge}><MayushText variant="caption" color={colors.surface.white} style={styles.badgeText}>3</MayushText></View>
+            </TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel={copy('Panier', 'السلة')} onPress={() => onNavigateTab?.('cart')} style={styles.headerButton}>
+              <MayushIcon name="shopping-cart" size={26} color={colors.brand.navy900} />
+              {cartBadgeCount > 0 ? <View style={styles.cartBadge}><MayushText variant="caption" color={colors.surface.white} style={styles.badgeText}>{cartBadgeCount}</MayushText></View> : null}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={[styles.greetingRow, isRTL && styles.rowReverse]}>
+          <View style={styles.avatar}><MayushText variant="sectionTitle" color={colors.surface.white}>{firstName.charAt(0).toUpperCase()}</MayushText></View>
+          <View style={styles.greetingCopy}>
+            <MayushText variant="sectionTitle" color={colors.brand.navy900} style={isRTL && styles.rtlText}>{copy(`Bonjour ${firstName} 👋`, `مرحباً ${firstName} 👋`)}</MayushText>
+            <MayushText variant="smallBody" color={colors.neutral.gray700} style={isRTL && styles.rtlText}>{copy('Ravi de vous revoir ! Découvrez\nnos nouveautés sélectionnées pour vous.', 'سعداء بعودتك! اكتشف\nمختاراتنا الجديدة لك.')}</MayushText>
+          </View>
+        </View>
+
+        <View style={[styles.personalizedHero, { height: Math.round(contentWidth * 0.55) }]}>
+          <Image source={PREMIUM_HERO_SCENE} resizeMode="cover" style={styles.personalizedHeroImage} />
+          <View style={[styles.personalizedHeroCopy, isRTL && styles.personalizedHeroCopyRtl]}>
+            <MayushText variant="caption" color={colors.brand.orange500} style={[styles.premiumEyebrow, isRTL && styles.rtlText]}>{copy('♛ COLLECTION PREMIUM', '♛ مجموعة فاخرة')}</MayushText>
+            <MayushText variant="display" color={colors.surface.white} style={[styles.personalizedHeroTitle, isRTL && styles.rtlText]}>{copy('Design. Qualité.\nExcellence.', 'تصميم. جودة.\nتميّز.')}</MayushText>
+            <MayushText variant="smallBody" color={colors.surface.white} style={[styles.personalizedHeroBody, isRTL && styles.rtlText]}>{copy('Des pièces uniques pour sublimer\nvos espaces.', 'قطع مميزة ترتقي\nبمساحاتك.')}</MayushText>
+            <TouchableOpacity accessibilityRole="button" onPress={() => onNavigateTab?.('categories')} style={styles.personalizedHeroCta}>
+              <MayushText variant="button" color={colors.surface.white}>{copy('Découvrir maintenant', 'اكتشف الآن')}</MayushText>
+            </TouchableOpacity>
+          </View>
+          <View style={[styles.personalizedDots, isRTL && styles.rowReverse]}><View style={[styles.dot, styles.dotActive]} /><View style={styles.dot} /><View style={styles.dot} /></View>
+        </View>
+
+        {currentOrder ? (
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={copy('Voir le suivi de la commande', 'عرض تتبع الطلب')} onPress={() => onOpenOrder?.(currentOrder.orderId)} activeOpacity={0.82} style={[styles.orderProgressCard, isRTL && styles.rowReverse]}>
+            <View style={styles.orderIcon}><MayushIcon name="package-variant-closed" size={23} color={colors.brand.orange500} /></View>
+            <View style={styles.orderProgressCopy}>
+              <MayushText variant="strongBody" color={colors.brand.navy900} style={isRTL && styles.rtlText}>{copy('Commande en cours', 'طلب قيد التنفيذ')}</MayushText>
+              <MayushText variant="caption" color={colors.neutral.gray700} style={isRTL && styles.rtlText}>{currentOrder.orderId}</MayushText>
+              {estimatedDate ? <MayushText variant="caption" color={colors.neutral.gray700} style={isRTL && styles.rtlText}>{copy(`Livraison estimée : ${estimatedDate}`, `التوصيل المتوقع: ${estimatedDate}`)}</MayushText> : null}
+            </View>
+            <View style={[styles.orderTrackingAction, isRTL && styles.rowReverse]}>
+              <MayushText variant="caption" color={colors.brand.orange500} style={styles.orderTrackingLabel}>{copy('Voir le suivi', 'عرض التتبع')}</MayushText>
+              <MayushIcon name={isRTL ? 'chevron-left' : 'chevron-right'} size={16} color={colors.brand.orange500} />
+            </View>
+          </TouchableOpacity>
+        ) : null}
+
+        <ActionSectionHeader label={copy('Recommandé pour vous', 'موصى به لك')} action={copy('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.productRail}>
+          {recommendations.map((item) => (
+            <ProductCard
+              key={item.id}
+              name={item.name}
+              thumbnailUrl=""
+              thumbnailSource={PERSONALIZED_ARTWORK[item.id]}
+              currentPriceFormatted={item.main_price}
+              width={productWidth}
+              isFavorite={wishlistedProductIds.includes(item.id)}
+              onFavoritePress={() => onToggleWishlist?.(item)}
+              onPress={() => onSelectProduct?.(item)}
+            />
+          ))}
+        </ScrollView>
+
+        <ActionSectionHeader label={copy('Récemment consultés', 'شوهدت مؤخراً')} action={copy('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenRecentlyViewed} />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentRail}>
+          {recentlyViewed.map((item) => (
+            <TouchableOpacity key={item.id} accessibilityRole="button" accessibilityLabel={item.name} onPress={() => onSelectProduct?.(item)} style={styles.recentCard}>
+              <Image source={PERSONALIZED_ARTWORK[item.id]} resizeMode="cover" style={styles.recentImage} />
+              <View style={styles.recentEye}><MayushIcon name="eye" size={16} color={colors.surface.white} /></View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <ActionSectionHeader label={copy('Inspiration wishlist', 'إلهام المفضلة')} action={copy('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenWishlist} />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.inspirationRail}>
+          {[
+            [INSPIRATION_ARTWORK[0], copy('Salon Moderne', 'صالون عصري'), 12],
+            [INSPIRATION_ARTWORK[1], copy('Chambre Douce', 'غرفة هادئة'), 8],
+            [CATEGORY_HERO_SCENE, copy('Bureau Inspirant', 'مكتب ملهم'), 6],
+          ].map(([source, label, count]) => (
+            <TouchableOpacity key={String(label)} onPress={onOpenWishlist} style={[styles.wishlistInspirationCard, { width: Math.round(contentWidth * 0.52) }]}>
+              <Image source={source as ImageSourcePropType} resizeMode="cover" style={styles.inspirationImage} />
+              <View style={styles.inspirationShade} />
+              <MayushText variant="strongBody" color={colors.surface.white} style={[styles.inspirationLabel, isRTL && styles.rtlText]}>{String(label)}</MayushText>
+              <View style={[styles.inspirationCount, isRTL && styles.rowReverse]}><MayushIcon name="heart" size={15} color={colors.surface.white} /><MayushText variant="caption" color={colors.surface.white}>{String(count)}</MayushText></View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <ActionSectionHeader label={copy('Catégories', 'الفئات')} action={copy('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
+          {categoryEntries.map(({ item, art }) => (
+            <TouchableOpacity key={item.id} accessibilityRole="button" accessibilityLabel={item.name} onPress={() => onSelectCategory?.(item)} style={[styles.categoryItem, { width: categorySize }]}>
+              <Image source={art} style={{ width: categorySize, height: categorySize, borderRadius: categorySize / 2 }} resizeMode="cover" />
+              <MayushText variant="caption" color={colors.brand.navy900} align="center" numberOfLines={2} style={styles.categoryLabel}>{item.name}</MayushText>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </ScrollView>
+      <BottomTabBar activeTab={activeTab} onTabPress={onNavigateTab ?? (() => undefined)} cartBadgeCount={cartBadgeCount} />
+    </View>
+  );
+};
+
+const ActionSectionHeader: React.FC<{ label: string; action: string; isRTL: boolean; onPress?: () => void }> = ({ label, action, isRTL, onPress }) => (
+  <View style={[styles.sectionHeader, isRTL && styles.rowReverse]}>
+    <MayushText variant="sectionTitle" color={colors.brand.navy900} style={[styles.sectionTitle, isRTL && styles.rtlText]}>{label}</MayushText>
+    <TouchableOpacity accessibilityRole="button" accessibilityLabel={action} onPress={onPress}>
+      <MayushText variant="smallBody" color={colors.brand.orange500} style={styles.seeAll}>{action}</MayushText>
+    </TouchableOpacity>
+  </View>
+);
 
 const SectionHeader: React.FC<{ label: string; action: string }> = ({ label, action }) => <View style={styles.sectionHeader}><MayushText variant="sectionTitle" color={colors.brand.navy900} style={styles.sectionTitle}>{label}</MayushText><MayushText variant="smallBody" color={colors.brand.orange500} style={styles.seeAll}>{action}</MayushText></View>;
 
@@ -280,6 +499,35 @@ const InspirationCard: React.FC<{ source: ImageSourcePropType; width: number }> 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFCF8' },
   content: { paddingTop: 18, paddingBottom: 28, gap: 20 },
+  personalizedContent: { paddingTop: 10, paddingBottom: 28, gap: 16 },
+  personalizedHeader: { height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  notificationBadge: { position: 'absolute', right: 1, top: 1, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: colors.brand.orange500, alignItems: 'center', justifyContent: 'center' },
+  greetingRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 2 },
+  avatar: { width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brand.orange500 },
+  greetingCopy: { flex: 1, gap: 2 },
+  personalizedHero: { width: '100%', overflow: 'hidden', borderRadius: 18, backgroundColor: colors.brand.navy900 },
+  personalizedHeroImage: { position: 'absolute', right: 0, width: '68%', height: '100%', opacity: 0.76 },
+  personalizedHeroCopy: { flex: 1, width: '64%', paddingLeft: 22, justifyContent: 'center', alignItems: 'flex-start', zIndex: 1 },
+  personalizedHeroCopyRtl: { alignItems: 'flex-end', alignSelf: 'flex-end', paddingLeft: 0, paddingRight: 22 },
+  premiumEyebrow: { fontSize: 10, fontWeight: '800', letterSpacing: 0.8 },
+  personalizedHeroTitle: { marginTop: 6, fontFamily: 'Georgia', fontSize: 25, lineHeight: 28, fontWeight: '700' },
+  personalizedHeroBody: { marginTop: 7, fontSize: 12, lineHeight: 17 },
+  personalizedHeroCta: { marginTop: 11, borderRadius: 9, backgroundColor: colors.brand.orange500, paddingHorizontal: 13, paddingVertical: 9 },
+  personalizedDots: { position: 'absolute', left: 22, bottom: 9, flexDirection: 'row', alignItems: 'center', gap: 7 },
+  orderProgressCard: { minHeight: 88, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderWidth: 1, borderColor: colors.surface.borderWarm, borderRadius: 14, backgroundColor: colors.surface.white },
+  orderIcon: { width: 42, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brand.orange100 },
+  orderProgressCopy: { flex: 1, gap: 1 },
+  orderTrackingAction: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  orderTrackingLabel: { fontWeight: '700' },
+  recentRail: { gap: 12, paddingRight: 8 },
+  recentCard: { width: 112, height: 82, borderRadius: 12, overflow: 'hidden', backgroundColor: colors.surface.cream },
+  recentImage: { width: '100%', height: '100%' },
+  recentEye: { position: 'absolute', right: 7, bottom: 7, width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(16,29,53,0.72)' },
+  wishlistInspirationCard: { height: 112, overflow: 'hidden', borderRadius: 14, backgroundColor: colors.brand.navy900 },
+  inspirationShade: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(16,29,53,0.26)' },
+  inspirationLabel: { position: 'absolute', left: 12, bottom: 10, right: 48 },
+  inspirationCount: { position: 'absolute', right: 10, top: 10, flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 12, paddingHorizontal: 7, paddingVertical: 4, backgroundColor: 'rgba(16,29,53,0.62)' },
   header: { height: 65, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   rowReverse: { flexDirection: 'row-reverse' },
   headerButton: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center', position: 'relative' },

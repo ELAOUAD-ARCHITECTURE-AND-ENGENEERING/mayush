@@ -41,10 +41,12 @@
     "step-8d-buyer-returns-refunds-tracking",
     "step-8e-delivery-support-order-system-states",
     "step-8f-cart-interactions-promotions",
-    "step-8g-checkout-address-delivery-payment"
+    "step-8g-checkout-address-delivery-payment",
+    "step-8h-checkout-payment-conflict-system-states",
+    "step-8i-final-discovery-canonical-completion"
   ],
-  "currentTask": "STEP 8G — CHECKOUT ADDRESS, DELIVERY & PAYMENT OPTION STATES",
-  "nextTask": "STEP 8H — CHECKOUT PAYMENT CONFIRMATION, CONFLICT & SYSTEM STATES",
+  "currentTask": "STEP 8I — FINAL DISCOVERY GAP & CANONICAL FRONTEND COMPLETION",
+  "nextTask": "STEP 9A — CANONICAL FRONTEND COMPLETION AUDIT & NATIVE VALIDATION READINESS",
   "phase5Status": "FUNCTIONALLY_COMPLETE_VISUAL_CORRECTION_IN_PROGRESS",
   "groupCStatus": "ATTEMPTED_NO_PARITY_GAIN",
   "step1DiscoveryStatus": "FRONTEND_CLUSTER_COMPLETE_92_TESTS_PASSING",
@@ -78,21 +80,23 @@
   "step8eDeliveryOrderStatesStatus": "FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING_417_REGRESSION_PLUS_11_FOUNDATION_PLUS_17_STEP8B_PLUS_23_STEP8C_PLUS_24_STEP8D_PLUS_28_STEP8E_BEHAVIOR_TESTS_PASSING",
   "step8fCartInteractionsPromotionsStatus": "FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING_417_REGRESSION_PLUS_11_FOUNDATION_PLUS_17_STEP8B_PLUS_23_STEP8C_PLUS_24_STEP8D_PLUS_28_STEP8E_PLUS_32_STEP8F_BEHAVIOR_TESTS_PASSING",
   "step8gCheckoutAddressDeliveryPaymentStatus": "FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING_417_REGRESSION_PLUS_11_FOUNDATION_PLUS_17_STEP8B_PLUS_23_STEP8C_PLUS_24_STEP8D_PLUS_28_STEP8E_PLUS_32_STEP8F_PLUS_37_STEP8G_BEHAVIOR_TESTS_PASSING",
+  "step8hCheckoutPaymentConflictSystemStatus": "FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING_417_REGRESSION_PLUS_11_FOUNDATION_PLUS_17_STEP8B_PLUS_23_STEP8C_PLUS_24_STEP8D_PLUS_28_STEP8E_PLUS_32_STEP8F_PLUS_37_STEP8G_PLUS_44_STEP8H_BEHAVIOR_TESTS_PASSING",
+  "step8iFinalDiscoveryCanonicalCompletionStatus": "FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING_207_OF_207_CANONICAL_SCREENS_417_REGRESSION_PLUS_33_STEP8I_BEHAVIOR_TESTS_PASSING",
   "designSystemStatus": "VISUAL_BASELINE_CAPTURED_NEEDS_CORRECTION",
   "contractStatus": "LOCKED_WITH_RELEASE_DEPENDENCIES",
   "buyerFunctionalStatus": "FUNCTIONAL_PASS_WEB_VALIDATED",
   "screenInventoryMetrics": {
-    "implemented": 199,
-    "missing": 8,
+    "implemented": 207,
+    "missing": 0,
     "total": 207,
-    "completionPercentage": "96.1%"
+    "completionPercentage": "100.0%"
   },
   "prototypeConnectionMetrics": {
-    "implemented": 63,
-    "mismatched": 40,
-    "missing": 103,
+    "implemented": 66,
+    "mismatched": 45,
+    "missing": 95,
     "total": 206,
-    "completionPercentage": "30.6%"
+    "completionPercentage": "32.0%"
   },
   "unitTestMetrics": {
     "passed": 417,
@@ -133,5 +137,15 @@
     "passed": 37,
     "failed": 0,
     "total": 37
+  },
+  "step8hBehaviorTestMetrics": {
+    "passed": 44,
+    "failed": 0,
+    "total": 44
+  },
+  "step8iBehaviorTestMetrics": {
+    "passed": 33,
+    "failed": 0,
+    "total": 33
   }
 }

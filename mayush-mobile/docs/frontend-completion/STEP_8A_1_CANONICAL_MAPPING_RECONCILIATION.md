@@ -4,10 +4,10 @@ This generated artifact is retained for historical continuity. The current imple
 
 ## Deterministic canonical metrics
 
-- Figma screen/state completeness: **199/207 (96.1%)**
-- Exact prototype connection completeness: **63/206 (30.6%)**
-- Mismatched connections: **40**
-- Missing connections: **103**
+- Figma screen/state completeness: **207/207 (100.0%)**
+- Exact prototype connection completeness: **66/206 (32.0%)**
+- Mismatched connections: **45**
+- Missing connections: **95**
 
 ## Order-node correction
 

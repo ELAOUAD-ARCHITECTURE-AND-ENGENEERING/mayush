@@ -121,7 +121,8 @@ export const renderVisualQaScreen = (screenKey: VisualQaScreenKey): React.ReactE
     case '06-payment-failed-retry-fr':
       return React.createElement(PaymentFailureScreen, {
         order: fixture.order,
-        onContinue: noop,
+        onRetry: noop,
+        onChangePayment: noop,
       });
     case '06-payment-cancelled-resume-fr':
       return React.createElement(PaymentCancelledScreen, {

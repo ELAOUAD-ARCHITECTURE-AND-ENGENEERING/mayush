@@ -83,6 +83,12 @@ export interface SellerCartProjection {
   subtotalMad: number;
 }
 
+export type CartConflictChange =
+  | { kind: 'price'; lineId: string; oldPriceMad: number; newPriceMad: number }
+  | { kind: 'stock'; lineId: string; oldQuantity: number; newQuantity: number }
+  | { kind: 'unavailable'; lineId: string }
+  | { kind: 'promotion_invalidated'; promotionId: string };
+
 /**
  * The promotion clock is deliberately fixed for these frontend-only prototype
  * fixtures so the Figma offer dates remain deterministic on every machine.
@@ -242,6 +248,32 @@ export const updateCartLineQuantity = (state: CartState, lineId: string, quantit
         : item),
     };
   return revalidateCartPromotion(nextState);
+};
+
+/**
+ * Applies buyer-acknowledged catalog conflicts through the canonical CartState.
+ * Historical BuyerOrder snapshots are intentionally outside this mutation path.
+ */
+export const applyCartConflictChanges = (
+  state: CartState,
+  changes: readonly CartConflictChange[],
+): CartState => {
+  const byLineId = new Map(changes
+    .filter((change): change is Exclude<CartConflictChange, { kind: 'promotion_invalidated' }> => change.kind !== 'promotion_invalidated')
+    .map((change) => [change.lineId, change]));
+  const invalidatesPromotion = changes.some((change) => change.kind === 'promotion_invalidated'
+    && change.promotionId === state.appliedPromotionId);
+  const lines = state.lines.flatMap((line) => {
+    const change = byLineId.get(line.id);
+    if (!change) return [{ ...line }];
+    if (change.kind === 'unavailable' || (change.kind === 'stock' && change.newQuantity <= 0)) return [];
+    if (change.kind === 'price') return [{ ...line, unitPriceMad: Math.max(0, Math.round(change.newPriceMad)) }];
+    return [{ ...line, quantity: normalizedQuantity(Math.min(line.quantity, change.newQuantity), line.maxQuantity) }];
+  });
+  return revalidateCartPromotion({
+    lines,
+    appliedPromotionId: invalidatesPromotion ? undefined : state.appliedPromotionId,
+  });
 };
 
 export interface CartVariantUpdateResult {

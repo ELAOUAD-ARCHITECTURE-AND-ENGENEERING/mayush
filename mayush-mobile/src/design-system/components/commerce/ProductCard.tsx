@@ -23,6 +23,7 @@ export interface ProductCardProps {
   style?: StyleProp<ViewStyle>;
   onPress: () => void;
   onFavoritePress?: () => void;
+  isFavorite?: boolean;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -42,6 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   style,
   onPress,
   onFavoritePress,
+  isFavorite = false,
 }) => {
   const grid = variant === 'grid';
   const cardWidth = width ?? (grid ? '48%' : 164);
@@ -65,7 +67,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             accessibilityRole="button"
             accessibilityLabel="Ajouter aux favoris"
           >
-            <MayushIcon name="heart" size={grid ? 22 : 20} color={colors.brand.navy900} />
+            <MayushIcon name="heart" size={grid ? 22 : 20} color={isFavorite ? colors.brand.orange500 : colors.brand.navy900} />
           </TouchableOpacity>
         </View>
 

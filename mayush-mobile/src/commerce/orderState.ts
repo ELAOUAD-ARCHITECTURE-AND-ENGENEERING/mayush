@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CartState, getCartTotals } from './cartState';
-import { DeliveryMethod, PaymentMethod, SavedAddress } from './checkoutState';
+import { DeliveryMethod, FrontendPaymentVerificationScenario, PaymentMethod, SavedAddress } from './checkoutState';
 
 export const BUYER_ORDER_STORAGE_KEY = 'mayush-mobile:buyer-orders:v1';
 
@@ -100,6 +100,7 @@ export interface BuyerOrder {
   paymentMethod: PaymentMethod;
   paymentPreferenceId?: string;
   paymentCardLast4?: string;
+  paymentVerificationScenario?: FrontendPaymentVerificationScenario;
   paymentStatus: PaymentStatus;
   deliveryMethod: DeliveryMethod;
   orderStatus: OrderStatus;
@@ -141,7 +142,15 @@ export interface CreateBuyerOrderInput {
   deliveryPackageCount?: number;
   paymentPreferenceId?: string;
   paymentCardLast4?: string;
+  paymentVerificationScenario?: FrontendPaymentVerificationScenario;
   createdAt?: string;
+}
+
+export interface RetryBuyerOrderPaymentInput {
+  paymentMethod: PaymentMethod;
+  paymentPreferenceId?: string;
+  paymentCardLast4?: string;
+  paymentVerificationScenario?: FrontendPaymentVerificationScenario;
 }
 
 export interface CreateBuyerOrderResult {
@@ -526,6 +535,11 @@ export class BuyerOrderRepository {
     return order ? cloneOrder(order) : null;
   }
 
+  public getOrderByCheckoutAttemptId(checkoutAttemptId: string): BuyerOrder | null {
+    const order = this.orders.find((candidate) => candidate.checkoutAttemptId === checkoutAttemptId);
+    return order ? cloneOrder(order) : null;
+  }
+
   public getSelectedOrderId(): string | null {
     return this.selectedOrderId;
   }
@@ -593,6 +607,7 @@ export class BuyerOrderRepository {
       paymentMethod: input.paymentMethod,
       paymentPreferenceId: input.paymentPreferenceId,
       paymentCardLast4: input.paymentCardLast4,
+      paymentVerificationScenario: input.paymentVerificationScenario,
       paymentStatus: input.paymentMethod === 'cash-on-delivery'
         ? 'cash_on_delivery_pending'
         : 'prototype_pending_confirmation',
@@ -640,6 +655,53 @@ export class BuyerOrderRepository {
     this.notify();
     await this.persist();
     return { order: cloneOrder(order), created: true };
+  }
+
+  public async transitionPaymentStatus(checkoutAttemptId: string, nextStatus: PaymentStatus): Promise<BuyerOrder | null> {
+    const index = this.orders.findIndex((order) => order.checkoutAttemptId === checkoutAttemptId);
+    if (index < 0) return null;
+    const current = this.orders[index];
+    const allowed: Record<PaymentStatus, readonly PaymentStatus[]> = {
+      prototype_pending_confirmation: ['confirmed', 'failed', 'cancelled'],
+      cash_on_delivery_pending: ['confirmed', 'cancelled'],
+      confirmed: [],
+      failed: ['prototype_pending_confirmation'],
+      cancelled: ['prototype_pending_confirmation'],
+    };
+    if (current.paymentStatus !== nextStatus && !allowed[current.paymentStatus].includes(nextStatus)) return null;
+    this.orders[index] = { ...current, paymentStatus: nextStatus };
+    this.selectedOrderId = current.orderId;
+    this.notify();
+    await this.persist();
+    return cloneOrder(this.orders[index]);
+  }
+
+  public async preparePaymentRetry(checkoutAttemptId: string, input: RetryBuyerOrderPaymentInput): Promise<BuyerOrder | null> {
+    const index = this.orders.findIndex((order) => order.checkoutAttemptId === checkoutAttemptId);
+    if (index < 0 || this.orders[index].paymentStatus === 'confirmed') return null;
+    const current = this.orders[index];
+    const paymentStatus: PaymentStatus = input.paymentMethod === 'cash-on-delivery'
+      ? 'cash_on_delivery_pending'
+      : 'prototype_pending_confirmation';
+    const paymentReference = input.paymentMethod === 'cash-on-delivery'
+      ? `PROTOTYPE-COD-${current.orderId}`
+      : input.paymentMethod === 'wallet'
+        ? `PROTOTYPE-WALLET-${current.orderId}`
+        : `PROTOTYPE-CARD-${input.paymentCardLast4 || 'SAFE'}-${current.orderId}`;
+    this.orders[index] = {
+      ...current,
+      paymentMethod: input.paymentMethod,
+      paymentPreferenceId: input.paymentPreferenceId,
+      paymentCardLast4: input.paymentCardLast4,
+      paymentVerificationScenario: input.paymentVerificationScenario,
+      paymentReference,
+      paymentStatus,
+    };
+    this.selectedOrderId = current.orderId;
+    this.selectedPackageId = null;
+    this.notify();
+    await this.persist();
+    return cloneOrder(this.orders[index]);
   }
 
   public async clearPrototypeOrders(): Promise<void> {

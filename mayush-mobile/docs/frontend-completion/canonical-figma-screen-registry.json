@@ -1,13 +1,13 @@
 {
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "3.0.0",
   "inventoryScope": "prototype-connected-nodes",
   "sourceCapturedAt": "2026-08-05",
   "totalPrototypeConnectedNodes": 207,
   "unconnectedPrototypeScreenNodes": "NOT_AUDITED",
   "totalRelevantFigmaNodes": 207,
-  "implementedNodes": 199,
-  "missingNodes": 8,
-  "screenCompletionPercentage": "96.1%",
+  "implementedNodes": 207,
+  "missingNodes": 0,
+  "screenCompletionPercentage": "100.0%",
   "nodes": [
     {
       "figmaNodeId": "309:583",
@@ -22,7 +22,12 @@
       "route": "splash",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "initial-runtime-route"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:584",
@@ -39,7 +44,12 @@
       "route": "preparing",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:preparing"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:585",
@@ -56,7 +66,12 @@
       "route": "language",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "initial-runtime-route"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:586",
@@ -73,7 +88,12 @@
       "route": "onboarding-1",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:onboarding-1"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:587",
@@ -90,7 +110,12 @@
       "route": "onboarding-2",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:onboarding-2"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:588",
@@ -107,7 +132,12 @@
       "route": "onboarding-3",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:onboarding-3"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:590",
@@ -126,7 +156,12 @@
       "route": "home",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:home"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:591",
@@ -136,12 +171,19 @@
         "FIGMA-PROT-008"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
+      "component": "HomeScreen.tsx",
+      "sourceFile": "src/screens/discovery/HomeScreen.tsx",
       "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "implementationType": "INLINE_STATE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "INTERACTIVE_STATE",
+      "runtimeEvidence": [
+        "PersonalizedHome",
+        "isAuthenticated",
+        "authenticatedUser"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:592",
@@ -159,7 +201,12 @@
       "route": "categories",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:categories"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:593",
@@ -176,7 +223,12 @@
       "route": "category-landing",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:category-landing"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:594",
@@ -193,7 +245,12 @@
       "route": "category-products",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:category-products"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:595",
@@ -208,7 +265,12 @@
       "route": "collection-shop-the-look",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:collection-shop-the-look"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:596",
@@ -225,7 +287,13 @@
       "route": null,
       "implementationType": "SHEET",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "INTERACTIVE_OVERLAY",
+      "runtimeEvidence": [
+        "FilterPanelModal",
+        "filterModalVisible"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:597",
@@ -242,7 +310,12 @@
       "route": "flash-deals",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:flash-deals"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:598",
@@ -257,7 +330,13 @@
       "route": "promotions-campaigns",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "onOpenPromotions",
+        "resolveHomeCanonicalDestination('promotions')"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:599",
@@ -274,7 +353,13 @@
       "route": "recently-viewed",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "onOpenRecentlyViewed",
+        "resolveHomeCanonicalDestination('recently_viewed')"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:600",
@@ -292,7 +377,12 @@
       "route": "search-landing",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:search-landing"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:601",
@@ -309,7 +399,12 @@
       "route": "search-results",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:search-results"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:602",
@@ -324,7 +419,12 @@
       "route": "search-no-results",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:search-no-results"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:604",
@@ -344,7 +444,12 @@
       "route": "product-details",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:product-details"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:605",
@@ -361,7 +466,12 @@
       "route": "product-gallery",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:product-gallery"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:606",
@@ -376,7 +486,12 @@
       "route": "product-description",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:product-description"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:607",
@@ -393,7 +508,13 @@
       "route": null,
       "implementationType": "SHEET",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "INTERACTIVE_OVERLAY",
+      "runtimeEvidence": [
+        "VariantSelectorSheet",
+        "variantSheetVisible"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:608",
@@ -408,7 +529,12 @@
       "route": "product-specifications",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:product-specifications"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:609",
@@ -425,7 +551,12 @@
       "route": "product-delivery-returns",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:product-delivery-returns"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:610",
@@ -442,7 +573,12 @@
       "route": "product-reviews",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:product-reviews"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:611",
@@ -460,7 +596,12 @@
       "route": "added-to-cart",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:added-to-cart"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:613",
@@ -477,7 +618,12 @@
       "route": "auth-gate",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:auth-gate"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:614",
@@ -495,7 +641,12 @@
       "route": "login",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:login"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:618",
@@ -510,7 +661,12 @@
       "route": "login-error",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:login-error"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:622",
@@ -527,7 +683,12 @@
       "route": "login-loading",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:login-loading"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:626",
@@ -542,7 +703,12 @@
       "route": "forgot-password",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:forgot-password"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:630",
@@ -559,7 +725,12 @@
       "route": "recovery-email-sent",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:recovery-email-sent"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:634",
@@ -576,7 +747,12 @@
       "route": "otp-verification",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:otp-verification"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:638",
@@ -591,7 +767,12 @@
       "route": "otp-error",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:otp-error"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:639",
@@ -609,7 +790,12 @@
       "route": "create-new-password",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:create-new-password"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:643",
@@ -626,7 +812,12 @@
       "route": "password-changed-success",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:password-changed-success"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:644",
@@ -644,7 +835,12 @@
       "route": "terms-consent",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:terms-consent"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:648",
@@ -661,7 +857,12 @@
       "route": "registration",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:registration"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:649",
@@ -678,7 +879,12 @@
       "route": "account-created",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:account-created"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:653",
@@ -690,10 +896,16 @@
       "destinationConnectionIds": [],
       "component": "FavoritesAuthPromptOverlay.tsx",
       "sourceFile": "src/screens/auth/FavoritesAuthPromptOverlay.tsx",
-      "route": "favorites-auth-prompt",
-      "implementationType": "ROUTE",
+      "route": null,
+      "implementationType": "MODAL",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "INTERACTIVE_OVERLAY",
+      "runtimeEvidence": [
+        "FavoritesAuthPromptOverlay",
+        "favoritesPromptVisible"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:658",
@@ -711,7 +923,12 @@
       "route": "cart",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:cart"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:659",
@@ -726,7 +943,14 @@
       "route": null,
       "implementationType": "TOAST",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "TRANSIENT_FEEDBACK",
+      "runtimeEvidence": [
+        "CartToast",
+        "toastVisible",
+        "toastMessage"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:660",
@@ -743,7 +967,13 @@
       "route": null,
       "implementationType": "BOTTOM_SHEET",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "INTERACTIVE_OVERLAY",
+      "runtimeEvidence": [
+        "VariantEditSheet",
+        "lineToEditVariant"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:661",
@@ -760,7 +990,13 @@
       "route": null,
       "implementationType": "INLINE_STATE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "INTERACTIVE_STATE",
+      "runtimeEvidence": [
+        "SellerCartGroup",
+        "groupBySeller"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:662",
@@ -777,7 +1013,13 @@
       "route": null,
       "implementationType": "INLINE_STATE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "INTERACTIVE_STATE",
+      "runtimeEvidence": [
+        "promoError",
+        "handleApplyPromo"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:663",
@@ -795,7 +1037,13 @@
       "route": null,
       "implementationType": "INLINE_STATE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "INTERACTIVE_STATE",
+      "runtimeEvidence": [
+        "appliedPromotion",
+        "discountMad"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:664",
@@ -812,7 +1060,13 @@
       "route": null,
       "implementationType": "BOTTOM_SHEET",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "INTERACTIVE_OVERLAY",
+      "runtimeEvidence": [
+        "vouchersModalVisible",
+        "getAvailablePromotions"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:665",
@@ -827,7 +1081,13 @@
       "route": null,
       "implementationType": "BOTTOM_SHEET",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "INTERACTIVE_OVERLAY",
+      "runtimeEvidence": [
+        "RemoveItemDialog",
+        "lineToRemove"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:666",
@@ -842,7 +1102,12 @@
       "route": "cart",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:cart"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:667",
@@ -859,7 +1124,12 @@
       "route": "cart",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:cart"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:668",
@@ -877,7 +1147,12 @@
       "route": "cart",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:cart"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:669",
@@ -894,7 +1169,12 @@
       "route": "cart",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:cart"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:670",
@@ -911,7 +1191,12 @@
       "route": "wishlist",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:wishlist"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:671",
@@ -928,7 +1213,12 @@
       "route": "wishlist",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:wishlist"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:672",
@@ -945,7 +1235,12 @@
       "route": "wishlist",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:wishlist"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:673",
@@ -962,7 +1257,12 @@
       "route": "wishlist",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:wishlist"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:674",
@@ -979,7 +1279,12 @@
       "route": "wishlist",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:wishlist"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:675",
@@ -996,7 +1301,12 @@
       "route": "wishlist",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:wishlist"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:676",
@@ -1013,7 +1323,12 @@
       "route": "cart",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:cart"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:677",
@@ -1030,7 +1345,12 @@
       "route": "cart",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:cart"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:679",
@@ -1048,7 +1368,12 @@
       "route": "checkout-summary",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:checkout-summary"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:680",
@@ -1066,7 +1391,12 @@
       "route": "address-selection",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:address-selection"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:681",
@@ -1083,7 +1413,12 @@
       "route": "add-address",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:add-address"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:682",
@@ -1098,7 +1433,12 @@
       "route": "add-address-errors",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:add-address-errors"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:683",
@@ -1113,7 +1453,12 @@
       "route": "city-selector",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:city-selector"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:684",
@@ -1130,7 +1475,12 @@
       "route": "delivery-zone-selector",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:delivery-zone-selector"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:685",
@@ -1147,7 +1497,12 @@
       "route": "edit-checkout-address",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:edit-checkout-address"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:686",
@@ -1164,7 +1519,12 @@
       "route": "no-saved-address",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:no-saved-address"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:687",
@@ -1182,7 +1542,12 @@
       "route": "delivery-method",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:delivery-method"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:688",
@@ -1197,7 +1562,12 @@
       "route": "delivery-by-vendor",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:delivery-by-vendor"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:689",
@@ -1214,7 +1584,12 @@
       "route": "delivery-unavailable",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:delivery-unavailable"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:690",
@@ -1234,7 +1609,12 @@
       "route": "payment-method",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:payment-method"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:691",
@@ -1249,7 +1629,12 @@
       "route": "wallet-balance",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:wallet-balance"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:692",
@@ -1266,7 +1651,12 @@
       "route": "saved-payment-cards",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:saved-payment-cards"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:693",
@@ -1283,7 +1673,13 @@
       "route": "payment-step-intro",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "finishOrderProcessing",
+        "resolveOrderProcessingDestination"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:694",
@@ -1300,7 +1696,12 @@
       "route": "secure-payment-redirect",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:secure-payment-redirect"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:695",
@@ -1317,7 +1718,12 @@
       "route": "secure-payment-loading",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:secure-payment-loading"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:696",
@@ -1334,7 +1740,12 @@
       "route": "payment-verification",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:payment-verification"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:697",
@@ -1351,7 +1762,12 @@
       "route": "cash-on-delivery-confirmation",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:cash-on-delivery-confirmation"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:698",
@@ -1370,7 +1786,12 @@
       "route": "payment-success",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:payment-success"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:699",
@@ -1385,7 +1806,13 @@
       "route": "payment-failed",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "verifyActivePayment",
+        "resolvePaymentVerificationDestination(outcome)"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:700",
@@ -1400,7 +1827,13 @@
       "route": "payment-cancelled",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "cancelActivePayment",
+        "resolvePaymentVerificationDestination('cancelled')"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:701",
@@ -1410,12 +1843,17 @@
         "FIGMA-PROT-084"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutPaymentConflictSystemScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "route": "payment-confirmation-delayed",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:payment-confirmation-delayed"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:702",
@@ -1427,12 +1865,17 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-084"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutPaymentConflictSystemScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "route": "payment-pending",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:payment-pending"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:703",
@@ -1447,7 +1890,12 @@
       "route": "order-review",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-review"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:704",
@@ -1457,12 +1905,17 @@
         "FIGMA-PROT-087"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutPaymentConflictSystemScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "route": "checkout-terms-confirmation",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:checkout-terms-confirmation"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:705",
@@ -1480,7 +1933,12 @@
       "route": "order-thank-you",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-thank-you"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:706",
@@ -1497,7 +1955,12 @@
       "route": "order-processing",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-processing"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:707",
@@ -1507,12 +1970,17 @@
         "FIGMA-PROT-090"
       ],
       "destinationConnectionIds": [],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutPaymentConflictSystemScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "route": "order-already-in-progress",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-already-in-progress"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:708",
@@ -1524,12 +1992,17 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-090"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutPaymentConflictSystemScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "route": "order-needs-update",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-needs-update"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:709",
@@ -1541,12 +2014,17 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-091"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutPaymentConflictSystemScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "route": "checkout-skeleton",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:checkout-skeleton"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:710",
@@ -1558,12 +2036,17 @@
       "destinationConnectionIds": [
         "FIGMA-PROT-092"
       ],
-      "component": null,
-      "sourceFile": null,
-      "route": null,
-      "implementationType": "UNIMPLEMENTED",
-      "screenStatus": "MISSING",
-      "evidenceSource": null
+      "component": "CheckoutPaymentConflictSystemScreens.tsx",
+      "sourceFile": "src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx",
+      "route": "checkout-error",
+      "implementationType": "ROUTE",
+      "screenStatus": "IMPLEMENTED",
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:checkout-error"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:712",
@@ -1582,7 +2065,12 @@
       "route": "orders-list",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:orders-list"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:713",
@@ -1597,7 +2085,14 @@
       "route": null,
       "implementationType": "INLINE_STATE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "INTERACTIVE_STATE",
+      "runtimeEvidence": [
+        "selectedOrderTab",
+        "setSelectedOrderTab",
+        "filterOrdersByTab"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:714",
@@ -1612,7 +2107,14 @@
       "route": null,
       "implementationType": "INLINE_STATE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "INTERACTIVE_STATE",
+      "runtimeEvidence": [
+        "selectedOrderTab",
+        "setSelectedOrderTab",
+        "filterOrdersByTab"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:715",
@@ -1629,7 +2131,14 @@
       "route": null,
       "implementationType": "INLINE_STATE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "INTERACTIVE_STATE",
+      "runtimeEvidence": [
+        "selectedOrderTab",
+        "setSelectedOrderTab",
+        "filterOrdersByTab"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:716",
@@ -1648,7 +2157,12 @@
       "route": "order-detail-preparing",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "dynamic-order-detail-route"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:717",
@@ -1663,7 +2177,12 @@
       "route": "order-detail-shipped",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "dynamic-order-detail-route"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:718",
@@ -1681,7 +2200,12 @@
       "route": "order-tracking",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-tracking"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:719",
@@ -1698,7 +2222,12 @@
       "route": "order-detail-delivered",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "dynamic-order-detail-route"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:720",
@@ -1713,7 +2242,12 @@
       "route": "order-detail-multi-vendor",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "dynamic-order-detail-route"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:721",
@@ -1730,7 +2264,12 @@
       "route": "order-packages",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-packages"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:722",
@@ -1747,7 +2286,12 @@
       "route": "order-package-detail",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-package-detail"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:723",
@@ -1764,7 +2308,12 @@
       "route": "order-invoice",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-invoice"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:724",
@@ -1781,7 +2330,12 @@
       "route": "order-cancel-confirmation",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-cancel-confirmation"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:725",
@@ -1798,7 +2352,12 @@
       "route": "order-cancel-reason",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "conditional-order-cancellation-route"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:726",
@@ -1815,7 +2374,12 @@
       "route": "order-cancel-registered",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-cancel-registered"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:727",
@@ -1832,7 +2396,12 @@
       "route": "order-cannot-cancel",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-cannot-cancel"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:728",
@@ -1850,7 +2419,12 @@
       "route": "order-product-review",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-product-review"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:729",
@@ -1867,7 +2441,12 @@
       "route": "order-reorder-changes",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-reorder-changes"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:730",
@@ -1884,7 +2463,12 @@
       "route": "order-reorder-added",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-reorder-added"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:731",
@@ -1901,7 +2485,12 @@
       "route": "order-reorder-availability",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-reorder-availability"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:732",
@@ -1918,7 +2507,12 @@
       "route": "order-return-selection",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-return-selection"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:733",
@@ -1935,7 +2529,12 @@
       "route": "order-return-detail",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-return-detail"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:734",
@@ -1952,7 +2551,12 @@
       "route": "order-return-tracking",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-return-tracking"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:735",
@@ -1967,7 +2571,12 @@
       "route": "order-refund-request",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "dynamic-order-detail-route"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:736",
@@ -1985,7 +2594,12 @@
       "route": "order-refund-completed",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-refund-completed"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:737",
@@ -2002,7 +2616,12 @@
       "route": "delivery-delayed",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:delivery-delayed"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:738",
@@ -2019,7 +2638,12 @@
       "route": "delivery-failed",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:delivery-failed"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:739",
@@ -2036,7 +2660,12 @@
       "route": "order-support-contact",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-support-contact"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:740",
@@ -2053,7 +2682,12 @@
       "route": "tracking-unavailable",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:tracking-unavailable"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:741",
@@ -2070,7 +2704,12 @@
       "route": "order-not-found",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-not-found"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:742",
@@ -2087,7 +2726,12 @@
       "route": "orders-empty",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:orders-empty"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:743",
@@ -2104,7 +2748,12 @@
       "route": "orders-error",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:orders-error"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:744",
@@ -2121,7 +2770,12 @@
       "route": "orders-skeleton",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:orders-skeleton"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:745",
@@ -2138,7 +2792,12 @@
       "route": "order-detail-skeleton",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT"
+      "evidenceSource": "MANUAL_SOURCE_REACHABILITY_AUDIT",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:order-detail-skeleton"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:747",
@@ -2156,7 +2815,12 @@
       "route": "account",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:account"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:748",
@@ -2173,7 +2837,12 @@
       "route": "account-settings",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:account-settings"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:749",
@@ -2190,7 +2859,12 @@
       "route": "my-information",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:my-information"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:750",
@@ -2207,7 +2881,12 @@
       "route": "edit-profile",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:edit-profile"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:751",
@@ -2222,7 +2901,12 @@
       "route": "my-information",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:my-information"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:752",
@@ -2239,7 +2923,12 @@
       "route": "change-email",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:change-email"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:753",
@@ -2256,7 +2945,12 @@
       "route": "change-password",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:change-password"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:754",
@@ -2271,7 +2965,12 @@
       "route": "change-phone",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:change-phone"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:755",
@@ -2288,7 +2987,12 @@
       "route": "account-verify-phone",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:account-verify-phone"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:756",
@@ -2306,7 +3010,12 @@
       "route": "password-changed-success",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:password-changed-success"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:757",
@@ -2321,7 +3030,12 @@
       "route": "account-security",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:account-security"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:758",
@@ -2338,7 +3052,12 @@
       "route": "security-privacy",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:security-privacy"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:759",
@@ -2355,7 +3074,12 @@
       "route": "security-2fa",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:security-2fa"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:760",
@@ -2372,7 +3096,12 @@
       "route": "active-sessions",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:active-sessions"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:761",
@@ -2389,7 +3118,13 @@
       "route": null,
       "implementationType": "MODAL",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "INTERACTIVE_OVERLAY",
+      "runtimeEvidence": [
+        "DisconnectSessionModal",
+        "visible"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:762",
@@ -2406,7 +3141,12 @@
       "route": "my-addresses",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:my-addresses"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:763",
@@ -2421,7 +3161,12 @@
       "route": "my-addresses-v2",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:my-addresses-v2"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:764",
@@ -2438,7 +3183,12 @@
       "route": "account-add-address",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:account-add-address"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:765",
@@ -2456,7 +3206,12 @@
       "route": "account-add-address-simple",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:account-add-address-simple"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:766",
@@ -2473,7 +3228,12 @@
       "route": "account-edit-address",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:account-edit-address"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:767",
@@ -2490,7 +3250,13 @@
       "route": null,
       "implementationType": "MODAL",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "INTERACTIVE_OVERLAY",
+      "runtimeEvidence": [
+        "DeleteAddressModal",
+        "visible"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:768",
@@ -2507,7 +3273,12 @@
       "route": "payment-methods",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:payment-methods"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:769",
@@ -2524,7 +3295,12 @@
       "route": "language-region",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:language-region"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:770",
@@ -2541,7 +3317,12 @@
       "route": "language-selection",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:language-selection"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:771",
@@ -2555,10 +3336,16 @@
       ],
       "component": "LogoutConfirmationModal.tsx",
       "sourceFile": "src/screens/account/LogoutConfirmationModal.tsx",
-      "route": "logout-confirmation",
-      "implementationType": "ROUTE",
+      "route": null,
+      "implementationType": "MODAL",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "INTERACTIVE_OVERLAY",
+      "runtimeEvidence": [
+        "LogoutConfirmationModal",
+        "logoutModalVisible"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:772",
@@ -2573,7 +3360,12 @@
       "route": "marketing-cart-reminders",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:marketing-cart-reminders"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:773",
@@ -2590,7 +3382,12 @@
       "route": "marketing-detailed-preferences",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:marketing-detailed-preferences"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:774",
@@ -2607,7 +3404,12 @@
       "route": "marketing-toggles",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:marketing-toggles"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:775",
@@ -2624,7 +3426,12 @@
       "route": "notification-channels",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:notification-channels"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:776",
@@ -2641,7 +3448,12 @@
       "route": "notification-settings-toggles",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:notification-settings-toggles"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:777",
@@ -2658,7 +3470,12 @@
       "route": "notification-detail-prep",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:notification-detail-prep"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:778",
@@ -2675,7 +3492,12 @@
       "route": "notification-detail-shipped",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:notification-detail-shipped"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:779",
@@ -2692,7 +3514,12 @@
       "route": "silent-hours-day-selection",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:silent-hours-day-selection"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:780",
@@ -2709,7 +3536,12 @@
       "route": "silent-hours-dnd",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:silent-hours-dnd"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:781",
@@ -2726,7 +3558,12 @@
       "route": "faq",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:faq"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:782",
@@ -2743,7 +3580,12 @@
       "route": "faq-detail",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:faq-detail"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:783",
@@ -2761,7 +3603,12 @@
       "route": "faq-categories",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:faq-categories"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:784",
@@ -2778,7 +3625,12 @@
       "route": "help-center",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:help-center"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:785",
@@ -2795,7 +3647,12 @@
       "route": "help-center-requests",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:help-center-requests"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:786",
@@ -2812,7 +3669,12 @@
       "route": "help-support",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:help-support"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:787",
@@ -2829,7 +3691,12 @@
       "route": "account",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:account"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:789",
@@ -2846,7 +3713,12 @@
       "route": "settings",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:settings"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:790",
@@ -2861,7 +3733,12 @@
       "route": "about-app",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:about-app"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:791",
@@ -2878,7 +3755,13 @@
       "route": "about-mayush",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "onNavigateAboutMayush",
+        "resolveSettingsAboutDestination()"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:792",
@@ -2895,7 +3778,12 @@
       "route": "accessibility",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:accessibility"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:793",
@@ -2912,7 +3800,12 @@
       "route": "app-permissions",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:app-permissions"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:794",
@@ -2929,7 +3822,12 @@
       "route": "data-usage",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:data-usage"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:795",
@@ -2946,7 +3844,12 @@
       "route": "storage-cache",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:storage-cache"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:796",
@@ -2963,7 +3866,13 @@
       "route": null,
       "implementationType": "MODAL",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "INTERACTIVE_OVERLAY",
+      "runtimeEvidence": [
+        "ClearCacheConfirmationModal",
+        "visible"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:797",
@@ -2980,7 +3889,12 @@
       "route": "language-selection",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:language-selection"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:798",
@@ -2997,7 +3911,12 @@
       "route": "notification-settings-toggles",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:notification-settings-toggles"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:799",
@@ -3014,7 +3933,12 @@
       "route": "marketing-detailed-preferences",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:marketing-detailed-preferences"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:800",
@@ -3031,7 +3955,12 @@
       "route": "silent-hours-day-selection",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:silent-hours-day-selection"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:801",
@@ -3048,7 +3977,12 @@
       "route": "offline-mode",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:offline-mode"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:802",
@@ -3065,7 +3999,12 @@
       "route": "legal-center",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:legal-center"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:803",
@@ -3082,7 +4021,12 @@
       "route": "privacy-data",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:privacy-data"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:804",
@@ -3099,7 +4043,12 @@
       "route": "privacy-policy",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:privacy-policy"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:805",
@@ -3117,7 +4066,12 @@
       "route": "help-center-home",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:help-center-home"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:806",
@@ -3132,7 +4086,12 @@
       "route": "help-category-orders-delivery",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:help-category-orders-delivery"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:807",
@@ -3149,7 +4108,12 @@
       "route": "help-center-search-results",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:help-center-search-results"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:808",
@@ -3166,7 +4130,12 @@
       "route": "faq-tab-categories",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:faq-tab-categories"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:809",
@@ -3183,7 +4152,12 @@
       "route": "faq-article-track-order-steps",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:faq-article-track-order-steps"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:810",
@@ -3200,7 +4174,12 @@
       "route": "my-support-tickets-list",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:my-support-tickets-list"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:811",
@@ -3215,7 +4194,12 @@
       "route": "no-support-requests-empty-state",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:no-support-requests-empty-state"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:812",
@@ -3232,7 +4216,12 @@
       "route": "contact-support-form",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:contact-support-form"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:813",
@@ -3247,7 +4236,12 @@
       "route": "attach-files-documents",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:attach-files-documents"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:814",
@@ -3265,7 +4259,12 @@
       "route": "review-send-support-request",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:review-send-support-request"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:815",
@@ -3280,7 +4279,12 @@
       "route": "select-order-for-support",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:select-order-for-support"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:816",
@@ -3297,7 +4301,12 @@
       "route": "reply-to-support-message",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:reply-to-support-message"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:817",
@@ -3315,7 +4324,12 @@
       "route": "ticket-detail-conversation-thread",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:ticket-detail-conversation-thread"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:818",
@@ -3330,7 +4344,12 @@
       "route": "close-request-confirmation",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:close-request-confirmation"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:819",
@@ -3348,7 +4367,12 @@
       "route": "support-request-sent-success",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:support-request-sent-success"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:820",
@@ -3366,7 +4390,12 @@
       "route": "ticket-resolved-rating",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:ticket-resolved-rating"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:821",
@@ -3383,7 +4412,12 @@
       "route": "support-connection-error",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:support-connection-error"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:822",
@@ -3400,7 +4434,12 @@
       "route": "support-temporarily-unavailable",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:support-temporarily-unavailable"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:823",
@@ -3417,7 +4456,12 @@
       "route": "maintenance-mode-services-impacted",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:maintenance-mode-services-impacted"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:824",
@@ -3434,7 +4478,12 @@
       "route": "app-update-available",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:app-update-available"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:825",
@@ -3451,7 +4500,12 @@
       "route": "forced-update-required",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:forced-update-required"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:826",
@@ -3468,7 +4522,12 @@
       "route": "settings-error-loading-state",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:settings-error-loading-state"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     },
     {
       "figmaNodeId": "309:827",
@@ -3483,7 +4542,12 @@
       "route": "settings-skeleton-loading-state",
       "implementationType": "ROUTE",
       "screenStatus": "IMPLEMENTED",
-      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS"
+      "evidenceSource": "CURRENT_SCREEN_STATUS_FUNCTIONAL_AND_TEST_PASS",
+      "evidenceKind": "RUNTIME_ROUTE",
+      "runtimeEvidence": [
+        "literal-transition:settings-skeleton-loading-state"
+      ],
+      "reachability": "RUNTIME_REACHABLE"
     }
   ]
 }

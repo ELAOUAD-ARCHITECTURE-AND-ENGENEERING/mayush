@@ -72,6 +72,11 @@ function countStatuses(records, selector) {
 const routeMapData = JSON.parse(fs.readFileSync(routeMapJsonPath, 'utf8'));
 const csvRows = parseCsv(fs.readFileSync(currentScreenCsvPath, 'utf8'));
 const navigatorCode = fs.readFileSync(rootNavigatorPath, 'utf8');
+const collectSourceFiles = (directory) => fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+  const absolute = path.join(directory, entry.name);
+  return entry.isDirectory() ? collectSourceFiles(absolute) : /\.(?:ts|tsx)$/.test(entry.name) ? [absolute] : [];
+});
+const allApplicationSource = collectSourceFiles(path.join(rootDir, 'src')).map((file) => fs.readFileSync(file, 'utf8')).join('\n');
 const connections = routeMapData.connections || [];
 const statusOverrides = routeMapData.connectionStatusOverrides || {};
 
@@ -80,6 +85,39 @@ if (connections.length !== 206) fail(`Expected 206 prototype connections, found 
 const screenKeyMatch = navigatorCode.match(/export type ScreenKey\s*=([\s\S]*?);\s*\n/);
 if (!screenKeyMatch) fail('Unable to parse ScreenKey from RootNavigator.tsx.');
 const screenKeys = new Set([...screenKeyMatch[1].matchAll(/'([^']+)'/g)].map((match) => match[1]));
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const literalTransitionCount = (route) => (navigatorCode.match(new RegExp(`setCurrentScreen\\((?:(?!\\))[\\s\\S]){0,300}?['"]${escapeRegex(route)}['"]`, 'g')) || []).length;
+const hasRenderBranch = (route) => new RegExp(`currentScreen\\s*===\\s*['"]${escapeRegex(route)}['"]`).test(navigatorCode);
+
+const routeRuntimeEvidenceOverrides = {
+  '309:598': ['onOpenPromotions', "resolveHomeCanonicalDestination('promotions')"],
+  '309:599': ['onOpenRecentlyViewed', "resolveHomeCanonicalDestination('recently_viewed')"],
+  '309:693': ['finishOrderProcessing', 'resolveOrderProcessingDestination'],
+  '309:699': ['verifyActivePayment', 'resolvePaymentVerificationDestination(outcome)'],
+  '309:700': ['cancelActivePayment', "resolvePaymentVerificationDestination('cancelled')"],
+  '309:791': ['onNavigateAboutMayush', 'resolveSettingsAboutDestination()'],
+};
+
+const nonRouteRuntimeEvidence = {
+  '309:591': { evidenceKind: 'INTERACTIVE_STATE', tokens: ['PersonalizedHome', 'isAuthenticated', 'authenticatedUser'] },
+  '309:596': { evidenceKind: 'INTERACTIVE_OVERLAY', tokens: ['FilterPanelModal', 'filterModalVisible'] },
+  '309:607': { evidenceKind: 'INTERACTIVE_OVERLAY', tokens: ['VariantSelectorSheet', 'variantSheetVisible'] },
+  '309:653': { evidenceKind: 'INTERACTIVE_OVERLAY', tokens: ['FavoritesAuthPromptOverlay', 'favoritesPromptVisible'] },
+  '309:659': { evidenceKind: 'TRANSIENT_FEEDBACK', tokens: ['CartToast', 'toastVisible', 'toastMessage'] },
+  '309:660': { evidenceKind: 'INTERACTIVE_OVERLAY', tokens: ['VariantEditSheet', 'lineToEditVariant'] },
+  '309:661': { evidenceKind: 'INTERACTIVE_STATE', tokens: ['SellerCartGroup', 'groupBySeller'] },
+  '309:662': { evidenceKind: 'INTERACTIVE_STATE', tokens: ['promoError', 'handleApplyPromo'] },
+  '309:663': { evidenceKind: 'INTERACTIVE_STATE', tokens: ['appliedPromotion', 'discountMad'] },
+  '309:664': { evidenceKind: 'INTERACTIVE_OVERLAY', tokens: ['vouchersModalVisible', 'getAvailablePromotions'] },
+  '309:665': { evidenceKind: 'INTERACTIVE_OVERLAY', tokens: ['RemoveItemDialog', 'lineToRemove'] },
+  '309:713': { evidenceKind: 'INTERACTIVE_STATE', tokens: ['selectedOrderTab', 'setSelectedOrderTab', 'filterOrdersByTab'] },
+  '309:714': { evidenceKind: 'INTERACTIVE_STATE', tokens: ['selectedOrderTab', 'setSelectedOrderTab', 'filterOrdersByTab'] },
+  '309:715': { evidenceKind: 'INTERACTIVE_STATE', tokens: ['selectedOrderTab', 'setSelectedOrderTab', 'filterOrdersByTab'] },
+  '309:761': { evidenceKind: 'INTERACTIVE_OVERLAY', tokens: ['DisconnectSessionModal', 'visible'] },
+  '309:767': { evidenceKind: 'INTERACTIVE_OVERLAY', tokens: ['DeleteAddressModal', 'visible'] },
+  '309:771': { evidenceKind: 'INTERACTIVE_OVERLAY', tokens: ['LogoutConfirmationModal', 'logoutModalVisible'] },
+  '309:796': { evidenceKind: 'INTERACTIVE_OVERLAY', tokens: ['ClearCacheConfirmationModal', 'visible'] },
+};
 
 const nodes = new Map();
 function registerNode(figmaNodeId, frameName, connectionId, direction) {
@@ -121,6 +159,7 @@ const manualMappings = {
   '309:587': { frameName: '01-onboarding-step2-choose-with-confidence-fr', file: 'src/screens/entry/OnboardingScreen.tsx', route: 'onboarding-2', implementationType: 'ROUTE' },
   '309:588': { frameName: '01-onboarding-step3-order-simply-fr', file: 'src/screens/entry/OnboardingScreen.tsx', route: 'onboarding-3', implementationType: 'ROUTE' },
   '309:590': { frameName: '02-home-hero-new-arrivals-best-sellers-fr', file: 'src/screens/discovery/HomeScreen.tsx', route: 'home', implementationType: 'ROUTE' },
+  '309:591': { frameName: '02-home-logged-in-personalized-recommendations', file: 'src/screens/discovery/HomeScreen.tsx', route: null, implementationType: 'INLINE_STATE' },
   '309:592': { frameName: '02-categories-photo-grid-fr', file: 'src/screens/discovery/CategoriesScreen.tsx', route: 'categories', implementationType: 'ROUTE' },
   '309:594': { frameName: '02-subcategory-canapes-filtered-list', file: 'src/screens/discovery/CategoryProductListScreen.tsx', route: 'category-products', implementationType: 'ROUTE' },
   '309:604': { frameName: '03-product-detail-image-carousel-add-to-cart', file: 'src/screens/product/ProductDetailsScreen.tsx', route: 'product-details', implementationType: 'ROUTE' },
@@ -143,7 +182,14 @@ const manualMappings = {
   '309:689': { frameName: '06-delivery-unavailable-address-error-fr', file: 'src/screens/checkout/CheckoutDeliveryStateScreens.tsx', route: 'delivery-unavailable', implementationType: 'ROUTE' },
   '309:691': { frameName: '06-pay-with-wallet-balance-fr', file: 'src/screens/checkout/CheckoutPaymentDetailScreens.tsx', route: 'wallet-balance', implementationType: 'ROUTE' },
   '309:692': { frameName: '06-saved-payment-cards-visa-mastercard-fr', file: 'src/screens/checkout/CheckoutPaymentDetailScreens.tsx', route: 'saved-payment-cards', implementationType: 'ROUTE' },
+  '309:701': { frameName: '06-payment-confirmation-taking-longer-fr', file: 'src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx', route: 'payment-confirmation-delayed', implementationType: 'ROUTE' },
+  '309:702': { frameName: '06-payment-pending-confirmation-fr', file: 'src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx', route: 'payment-pending', implementationType: 'ROUTE' },
+  '309:704': { frameName: '06-terms-conditions-confirmation-fr', file: 'src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx', route: 'checkout-terms-confirmation', implementationType: 'ROUTE' },
   '309:705': { frameName: '06-order-thank-you-confirmation-summary-v2-fr', file: 'src/screens/orders/OrderThankYouScreen.tsx', route: 'order-thank-you', implementationType: 'ROUTE' },
+  '309:707': { frameName: '06-order-already-in-progress-duplicate-check-fr', file: 'src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx', route: 'order-already-in-progress', implementationType: 'ROUTE' },
+  '309:708': { frameName: '06-order-needs-update-price-stock-changes-fr', file: 'src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx', route: 'order-needs-update', implementationType: 'ROUTE' },
+  '309:709': { frameName: '06-checkout-skeleton-loading-state', file: 'src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx', route: 'checkout-skeleton', implementationType: 'ROUTE' },
+  '309:710': { frameName: '06-checkout-error-loading-state-fr', file: 'src/screens/checkout/CheckoutPaymentConflictSystemScreens.tsx', route: 'checkout-error', implementationType: 'ROUTE' },
   '309:712': { frameName: '07-orders-list-all-tabs-fr', file: 'src/screens/orders/OrdersListScreen.tsx', route: 'orders-list', implementationType: 'ROUTE' },
   '309:713': { frameName: '07-orders-in-progress-tab-statuses-fr', file: 'src/screens/orders/OrdersListScreen.tsx', route: null, implementationType: 'INLINE_STATE' },
   '309:714': { frameName: '07-orders-completed-tab-reorder-review-fr', file: 'src/screens/orders/OrdersListScreen.tsx', route: null, implementationType: 'INLINE_STATE' },
@@ -182,8 +228,10 @@ const manualMappings = {
 
 const nonRouteCsvMappings = {
   '309:596': { implementationType: 'SHEET' },
+  '309:653': { implementationType: 'MODAL' },
   '309:761': { implementationType: 'MODAL' },
   '309:767': { implementationType: 'MODAL' },
+  '309:771': { implementationType: 'MODAL' },
   '309:796': { implementationType: 'MODAL' },
 };
 
@@ -235,8 +283,34 @@ for (const [figmaNodeId, mapping] of mappings.entries()) {
     if (!mapping.route || !screenKeys.has(mapping.route)) {
       fail(`Mapped route for ${figmaNodeId} is not a real ScreenKey: ${mapping.route || '<empty>'}.`);
     }
+    if (!hasRenderBranch(mapping.route)) fail(`Mapped route for ${figmaNodeId} has no render branch: ${mapping.route}.`);
+    const literalTriggers = literalTransitionCount(mapping.route);
+    const dynamicOrderRoute = /^order-(?:detail|refund)/.test(mapping.route) && navigatorCode.includes('setCurrentScreen(route)');
+    const conditionalRoute = mapping.route === 'order-cancel-reason' && navigatorCode.includes("? 'order-cancel-reason' : 'order-cannot-cancel'");
+    const initialRoute = mapping.route === 'splash' || (mapping.route === 'language' && navigatorCode.includes("restoredCheckoutScreen || 'home') : 'language'"));
+    const overrideTokens = routeRuntimeEvidenceOverrides[figmaNodeId] || [];
+    const overrideSatisfied = overrideTokens.length > 0 && overrideTokens.every((token) => allApplicationSource.includes(token));
+    if (!literalTriggers && !dynamicOrderRoute && !conditionalRoute && !initialRoute && !overrideSatisfied) {
+      fail(`Mapped route for ${figmaNodeId} has no runtime reachability evidence: ${mapping.route}.`);
+    }
+    mapping.evidenceKind = 'RUNTIME_ROUTE';
+    mapping.runtimeEvidence = overrideTokens.length
+      ? overrideTokens
+      : [literalTriggers ? `literal-transition:${mapping.route}` : dynamicOrderRoute ? 'dynamic-order-detail-route' : conditionalRoute ? 'conditional-order-cancellation-route' : 'initial-runtime-route'];
+    mapping.reachability = 'RUNTIME_REACHABLE';
   } else if (!['MODAL', 'SHEET', 'BOTTOM_SHEET', 'TOAST', 'INLINE_STATE'].includes(mapping.implementationType)) {
     fail(`Unsupported non-route implementationType for ${figmaNodeId}: ${mapping.implementationType}.`);
+  } else {
+    const evidence = nonRouteRuntimeEvidence[figmaNodeId];
+    if (!evidence || !evidence.tokens.length) fail(`Non-route ${figmaNodeId} lacks explicit runtime evidence metadata.`);
+    if (mapping.implementationType === 'INLINE_STATE' && evidence.evidenceKind !== 'INTERACTIVE_STATE') {
+      fail(`INLINE_STATE ${figmaNodeId} must use INTERACTIVE_STATE evidence, not ${evidence.evidenceKind}.`);
+    }
+    const missingTokens = evidence.tokens.filter((token) => !allApplicationSource.includes(token));
+    if (missingTokens.length) fail(`Non-route ${figmaNodeId} runtime evidence is missing: ${missingTokens.join(', ')}.`);
+    mapping.evidenceKind = evidence.evidenceKind;
+    mapping.runtimeEvidence = [...evidence.tokens];
+    mapping.reachability = 'RUNTIME_REACHABLE';
   }
 }
 
@@ -285,6 +359,9 @@ const registryEntries = [...nodes.values()]
       implementationType: mapping?.implementationType || 'UNIMPLEMENTED',
       screenStatus: mapping?.screenStatus || 'MISSING',
       evidenceSource: mapping?.evidenceSource || null,
+      evidenceKind: mapping?.evidenceKind || null,
+      runtimeEvidence: mapping?.runtimeEvidence || [],
+      reachability: mapping?.reachability || 'UNREACHABLE',
     };
   });
 
@@ -319,11 +396,11 @@ const connectionEntries = connections.map((connection) => {
 
 const connectionCounts = countStatuses(connectionEntries, (entry) => entry.connectionStatus);
 if (registryEntries.length !== 207) fail(`Expected 207 prototype-connected nodes, found ${registryEntries.length}.`);
-if ((screenCounts.IMPLEMENTED || 0) !== 199) fail(`Expected evidence-backed screen count 199, found ${screenCounts.IMPLEMENTED || 0}.`);
-if ((connectionCounts.IMPLEMENTED || 0) !== 63) fail(`Expected exact connection count 63, found ${connectionCounts.IMPLEMENTED || 0}.`);
+if ((screenCounts.IMPLEMENTED || 0) !== 207) fail(`Expected evidence-backed screen count 207, found ${screenCounts.IMPLEMENTED || 0}.`);
+if ((connectionCounts.IMPLEMENTED || 0) !== 66) fail(`Expected exact connection count 66, found ${connectionCounts.IMPLEMENTED || 0}.`);
 
 const canonicalRegistry = {
-  schemaVersion: '2.0.0',
+  schemaVersion: '3.0.0',
   inventoryScope: 'prototype-connected-nodes',
   sourceCapturedAt: routeMapData.capturedAt,
   totalPrototypeConnectedNodes: registryEntries.length,

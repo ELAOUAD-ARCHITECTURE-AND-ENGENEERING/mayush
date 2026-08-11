@@ -1,13 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { AddressDraft, addressToDraft, buildSellerDeliveryProjection, clearCheckoutSession, createLocalCheckoutAttemptId, createSavedAddress, defaultSavedAddresses, DeliveryMethod, emptyAddressDraft, getCheckoutGrandTotalMad, getCityById, isResumableCheckoutScreen, loadCheckoutSession, PaymentMethod, ResumableCheckoutScreen, saveCheckoutSession, setAddressDraftCity, setAddressDraftZone, validateAddressDraft } from '../commerce/checkoutState';
+import { acceptCheckoutTerms, AddressDraft, addressToDraft, buildSellerDeliveryProjection, CheckoutTermsAcceptance, clearCheckoutSession, createCheckoutMaterialSignature, createLocalCheckoutAttemptId, createSavedAddress, defaultSavedAddresses, DeliveryMethod, emptyAddressDraft, getCheckoutGrandTotalMad, getCityById, isCheckoutTermsAcceptanceValid, isResumableCheckoutScreen, loadCheckoutSession, PaymentMethod, resolveCheckoutRecovery, resolveFrontendPaymentVerificationOutcome, ResumableCheckoutScreen, saveCheckoutSession, setAddressDraftCity, setAddressDraftZone, validateAddressDraft } from '../commerce/checkoutState';
 import {
   CART_STORAGE_KEY,
   CartLine,
   CartState,
   CartVariantSelection,
   addCartLine,
+  applyCartConflictChanges,
   applyPromotionCode,
   createSelectedVariantCartLine,
   emptyCartState,
@@ -45,6 +46,7 @@ import { PaymentSuccessScreen } from '../screens/checkout/PaymentSuccessScreen';
 import { CitySelectorScreen, DeliveryZoneSelectorScreen, EditCheckoutAddressScreen, NoSavedAddressScreen } from '../screens/checkout/CheckoutAddressStateScreens';
 import { DeliveryByVendorScreen, DeliveryUnavailableScreen } from '../screens/checkout/CheckoutDeliveryStateScreens';
 import { SavedPaymentCardsScreen, WalletBalanceScreen } from '../screens/checkout/CheckoutPaymentDetailScreens';
+import { CheckoutErrorScreen, CheckoutSkeletonScreen, CheckoutTermsConfirmationScreen, OrderAlreadyInProgressScreen, OrderNeedsUpdateScreen, PaymentConfirmationTakingLongerScreen, PaymentPendingConfirmationScreen } from '../screens/checkout/CheckoutPaymentConflictSystemScreens';
 
 import { AuthenticationWelcomeScreen } from '../screens/auth/AuthenticationWelcomeScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
@@ -61,6 +63,7 @@ import { OtpErrorScreen } from '../screens/auth/OtpErrorScreen';
 import { CreateNewPasswordScreen } from '../screens/auth/CreateNewPasswordScreen';
 import { PasswordChangedSuccessScreen } from '../screens/auth/PasswordChangedSuccessScreen';
 import { authState, createCheckoutAuthReturnDestination } from '../commerce/authState';
+import { wishlistState } from '../commerce/wishlistState';
 import { accountPreferencesState } from '../commerce/accountPreferencesState';
 import { notificationPreferencesState } from '../commerce/notificationPreferencesState';
 
@@ -142,6 +145,8 @@ import { CollectionShopTheLookScreen } from '../screens/discovery/CollectionShop
 import { FilterPanelModal } from '../screens/discovery/FilterPanelModal';
 import { HomeScreen } from '../screens/discovery/HomeScreen';
 import { RecentlyViewedScreen } from '../screens/discovery/RecentlyViewedScreen';
+import { getRecentlyViewedFallbackProducts } from '../screens/discovery/homeCatalog';
+import { resolveAboutMayushBackDestination, resolveHomeCanonicalDestination, resolveOrderProcessingDestination, resolvePaymentFailureRecoveryDestination, resolvePaymentVerificationDestination, resolveSettingsAboutDestination } from './canonicalRuntime';
 
 import { LanguageSelectionScreen } from '../screens/entry/LanguageSelectionScreen';
 import { OnboardingScreen } from '../screens/entry/OnboardingScreen';
@@ -305,11 +310,18 @@ export type ScreenKey =
   | 'create-new-password'
   | 'password-changed-success'
   | 'order-review'
+  | 'checkout-terms-confirmation'
+  | 'order-already-in-progress'
+  | 'order-needs-update'
+  | 'checkout-skeleton'
+  | 'checkout-error'
   | 'order-processing'
   | 'payment-step-intro'
   | 'secure-payment-redirect'
   | 'secure-payment-loading'
   | 'payment-verification'
+  | 'payment-confirmation-delayed'
+  | 'payment-pending'
   | 'cash-on-delivery-confirmation'
   | 'payment-failed'
   | 'payment-cancelled'
@@ -379,9 +391,11 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cmi');
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [checkoutAttemptId, setCheckoutAttemptId] = useState(createLocalCheckoutAttemptId);
+  const [termsAcceptance, setTermsAcceptance] = useState<CheckoutTermsAcceptance>();
   const [restoredCheckoutScreen, setRestoredCheckoutScreen] = useState<ResumableCheckoutScreen | null>(null);
   const [checkoutSessionResolved, setCheckoutSessionResolved] = useState(false);
   const [orderRepositoryResolved, setOrderRepositoryResolved] = useState(false);
+  const [authRepositoryResolved, setAuthRepositoryResolved] = useState(false);
   const [, setDomainRevision] = useState(0);
   const [favoritesPromptVisible, setFavoritesPromptVisible] = useState(false);
   const [favoritesPromptItemId, setFavoritesPromptItemId] = useState<string | undefined>();
@@ -389,9 +403,12 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const [lastReorderResult, setLastReorderResult] = useState<ReorderCartResult | null>(null);
   const paymentLock = useRef(false);
   const isAuthenticated = authState.isAuthenticated();
+  const authenticatedUser = authState.getUser();
+  const wishlistedProductIds = wishlistState.getProductIds();
   const savedAddresses = authState.getSavedAddresses();
   const paymentPreferences = accountPreferencesState.getPaymentMethods();
   const selectedPaymentPreferenceId = accountPreferencesState.getSelectedPaymentMethodId();
+  const selectedPaymentPreference = paymentPreferences.find((method) => method.id === selectedPaymentPreferenceId);
   const orders = orderState.getOrders();
   const activeOrder = orderState.getSelectedOrder();
   const activePackage = orderState.getSelectedPackage();
@@ -571,20 +588,22 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           : 'home';
 
   useEffect(() => {
-    if (!splashFinished || hasCompletedOnboarding === null || !checkoutSessionResolved || !orderRepositoryResolved) return;
+    if (!splashFinished || hasCompletedOnboarding === null || !checkoutSessionResolved || !orderRepositoryResolved || !authRepositoryResolved) return;
     setCurrentScreen(hasCompletedOnboarding ? (restoredCheckoutScreen || 'home') : 'language');
-  }, [hasCompletedOnboarding, splashFinished, checkoutSessionResolved, orderRepositoryResolved, restoredCheckoutScreen]);
+  }, [hasCompletedOnboarding, splashFinished, checkoutSessionResolved, orderRepositoryResolved, authRepositoryResolved, restoredCheckoutScreen]);
 
   useEffect(() => {
     const refresh = () => setDomainRevision((revision) => revision + 1);
     const unsubscribeAuth = authState.subscribe(refresh);
+    const unsubscribeWishlist = wishlistState.subscribe(refresh);
     const unsubscribePreferences = accountPreferencesState.subscribe(refresh);
     const unsubscribeOrders = orderState.subscribe(refresh);
     const unsubscribeOrderActions = orderActionState.subscribe(refresh);
     const unsubscribeOrderViews = orderViewState.subscribe(refresh);
     void orderState.hydrate().finally(() => setOrderRepositoryResolved(true));
+    void authState.hydrate().finally(() => setAuthRepositoryResolved(true));
     void orderActionState.hydrate();
-    return () => { unsubscribeAuth(); unsubscribePreferences(); unsubscribeOrders(); unsubscribeOrderActions(); unsubscribeOrderViews(); };
+    return () => { unsubscribeAuth(); unsubscribeWishlist(); unsubscribePreferences(); unsubscribeOrders(); unsubscribeOrderActions(); unsubscribeOrderViews(); };
   }, []);
 
   useEffect(() => {
@@ -615,6 +634,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         setSelectedAddressId(parsedSession.selectedAddressId);
         setDeliveryMethod(parsedSession.deliveryMethod);
         setPaymentMethod(parsedSession.paymentMethod);
+        setTermsAcceptance(parsedSession.termsAcceptance);
         authState.replaceSavedAddresses(parsedSession.savedAddresses);
         if (parsedSession.selectedPaymentPreferenceId) {
           accountPreferencesState.setSelectedPaymentMethod(parsedSession.selectedPaymentPreferenceId);
@@ -638,9 +658,10 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         paymentMethod,
         savedAddresses,
         selectedPaymentPreferenceId,
+        termsAcceptance,
       }).catch(() => undefined);
     }
-  }, [checkoutAttemptId, checkoutSessionResolved, currentScreen, deliveryMethod, paymentMethod, savedAddresses, selectedAddressId, selectedPaymentPreferenceId]);
+  }, [checkoutAttemptId, checkoutSessionResolved, currentScreen, deliveryMethod, paymentMethod, savedAddresses, selectedAddressId, selectedPaymentPreferenceId, termsAcceptance]);
 
 
   const updateCartQuantity = (lineId: string, delta: number) => {
@@ -742,6 +763,13 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const selectedAddress = savedAddresses.find((item) => item.id === selectedAddressId) || savedAddresses.find((item) => item.isDefault) || savedAddresses[0];
   const deliveryProjection = buildSellerDeliveryProjection(cart.lines, selectedAddress, deliveryMethod);
   const checkoutTotalMad = getCheckoutGrandTotalMad(getCartTotals(cart).totalMad, deliveryProjection.deliveryFeeMad);
+  const checkoutMaterialSignature = createCheckoutMaterialSignature({ cart, selectedAddressId, deliveryMethod, paymentMethod, deliveryFeeMad: deliveryProjection.deliveryFeeMad });
+
+  useEffect(() => {
+    if (termsAcceptance && !isCheckoutTermsAcceptanceValid(termsAcceptance, checkoutAttemptId, checkoutMaterialSignature)) {
+      setTermsAcceptance(undefined);
+    }
+  }, [checkoutAttemptId, checkoutMaterialSignature, termsAcceptance]);
 
   useEffect(() => {
     if (!checkoutSessionResolved || !isResumableCheckoutScreen(currentScreen)) return;
@@ -763,19 +791,73 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const startCheckout = () => {
     const attemptId = createLocalCheckoutAttemptId();
     setCheckoutAttemptId(attemptId);
+    setTermsAcceptance(undefined);
     setRestoredCheckoutScreen(null);
-    setCurrentScreen(savedAddresses.length ? 'checkout-summary' : 'no-saved-address');
+    setCurrentScreen('checkout-skeleton');
+    Promise.resolve().then(() => setCurrentScreen(savedAddresses.length ? 'checkout-summary' : 'no-saved-address')).catch(() => setCurrentScreen('checkout-error'));
   };
 
-  const finishOrderProcessing = () => {
+  const finalizeSuccessfulCheckout = () => {
     paymentLock.current = false;
     setPaymentProcessing(false);
     setCart(emptyCartState());
     void AsyncStorage.removeItem(CART_STORAGE_KEY).catch(() => undefined);
     void clearCheckoutSession(AsyncStorage).catch(() => undefined);
     setCheckoutAttemptId(createLocalCheckoutAttemptId());
+    setTermsAcceptance(undefined);
     setRestoredCheckoutScreen(null);
     setCurrentScreen('payment-success');
+  };
+
+  const finishOrderProcessing = async () => {
+    paymentLock.current = false;
+    setPaymentProcessing(false);
+    const order = orderState.getSelectedOrder();
+    if (!order) { setCurrentScreen('checkout-error'); return; }
+    const destination = resolveOrderProcessingDestination(order.paymentMethod);
+    if (destination === 'payment-step-intro' || destination === 'cash-on-delivery-confirmation') {
+      setCurrentScreen(destination);
+      return;
+    }
+    await orderState.transitionPaymentStatus(order.checkoutAttemptId, 'confirmed');
+    finalizeSuccessfulCheckout();
+  };
+
+  const verifyActivePayment = async () => {
+    const order = orderState.getSelectedOrder();
+    if (!order) { setCurrentScreen('checkout-error'); return; }
+    const outcome = resolveFrontendPaymentVerificationOutcome(order);
+    if (outcome === 'not_applicable') {
+      setCurrentScreen('cash-on-delivery-confirmation');
+      return;
+    }
+    if (outcome === 'pending') {
+      const pendingDestination = resolvePaymentVerificationDestination('pending');
+      setCurrentScreen(pendingDestination === 'payment-confirmation-delayed' ? 'payment-confirmation-delayed' : 'payment-pending');
+      return;
+    }
+    const updated = await orderState.transitionPaymentStatus(order.checkoutAttemptId, outcome);
+    if (!updated) { setCurrentScreen('payment-pending'); return; }
+    if (outcome === 'confirmed') {
+      finalizeSuccessfulCheckout();
+      return;
+    }
+    setCurrentScreen(resolvePaymentVerificationDestination(outcome));
+  };
+
+  const cancelActivePayment = async () => {
+    const order = orderState.getSelectedOrder();
+    if (!order) { setCurrentScreen('checkout-error'); return; }
+    await orderState.transitionPaymentStatus(order.checkoutAttemptId, 'cancelled');
+    setCurrentScreen(resolvePaymentVerificationDestination('cancelled'));
+  };
+
+  const recoverActivePayment = async (action: 'retry' | 'change_method') => {
+    const order = orderState.getSelectedOrder();
+    if (!order) { setCurrentScreen('checkout-error'); return; }
+    const updated = await orderState.transitionPaymentStatus(order.checkoutAttemptId, 'prototype_pending_confirmation');
+    if (!updated) { setCurrentScreen('payment-pending'); return; }
+    setCurrentScreen(resolvePaymentFailureRecoveryDestination(action));
   };
 
   const completeCheckout = () => {
@@ -802,11 +884,36 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
     void openOrderById(orderId);
   };
 
-  const beginOrderReview = async () => {
+  const beginOrderReview = async (acceptedTerms?: CheckoutTermsAcceptance) => {
     if (paymentLock.current || !selectedAddress || !deliveryProjection.available) return;
+    const hasCheckoutConflict = cart.lines.some((line) => line.id === 'line-fs-1023' && line.unitPriceMad === 2890)
+      || cart.lines.some((line) => line.id === 'line-tb-2045' && line.quantity > 2);
+    if (hasCheckoutConflict) {
+      setTermsAcceptance(undefined);
+      setCurrentScreen('order-needs-update');
+      return;
+    }
+    const effectiveAcceptance = acceptedTerms || termsAcceptance;
+    if (!isCheckoutTermsAcceptanceValid(effectiveAcceptance, checkoutAttemptId, checkoutMaterialSignature)) {
+      setCurrentScreen('checkout-terms-confirmation');
+      return;
+    }
     paymentLock.current = true;
     setPaymentProcessing(true);
-    await orderState.createOrder({
+    const existingOrder = orderState.getOrderByCheckoutAttemptId(checkoutAttemptId);
+    if (existingOrder && existingOrder.paymentStatus !== 'confirmed') {
+      const resumedOrder = await orderState.preparePaymentRetry(checkoutAttemptId, {
+        paymentMethod,
+        paymentPreferenceId: selectedPaymentPreferenceId,
+        paymentCardLast4: selectedPaymentPreference?.last4,
+        paymentVerificationScenario: selectedPaymentPreference?.verificationScenario,
+      });
+      if (resumedOrder) {
+        setCurrentScreen('order-processing');
+        return;
+      }
+    }
+    const result = await orderState.createOrder({
       cart,
       address: selectedAddress,
       deliveryMethod,
@@ -815,9 +922,43 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       deliveryFeeMad: deliveryProjection.deliveryFeeMad,
       deliveryPackageCount: deliveryProjection.packageCount,
       paymentPreferenceId: selectedPaymentPreferenceId,
-      paymentCardLast4: paymentPreferences.find((method) => method.id === selectedPaymentPreferenceId)?.last4,
+      paymentCardLast4: selectedPaymentPreference?.last4,
+      paymentVerificationScenario: selectedPaymentPreference?.verificationScenario,
     });
+    if (!result.created) {
+      paymentLock.current = false;
+      setPaymentProcessing(false);
+      setCurrentScreen('order-already-in-progress');
+      return;
+    }
     setCurrentScreen('order-processing');
+  };
+
+  const acceptCheckoutTermsAndContinue = () => {
+    const acceptance = acceptCheckoutTerms(checkoutAttemptId, checkoutMaterialSignature);
+    setTermsAcceptance(acceptance);
+    void beginOrderReview(acceptance);
+  };
+
+  const acceptCheckoutConflictChanges = () => {
+    const nextCart = applyCartConflictChanges(cart, [
+      { kind: 'price', lineId: 'line-fs-1023', oldPriceMad: 2890, newPriceMad: 3190 },
+      { kind: 'stock', lineId: 'line-tb-2045', oldQuantity: 5, newQuantity: 2 },
+      ...(cart.appliedPromotionId ? [{ kind: 'promotion_invalidated' as const, promotionId: cart.appliedPromotionId }] : []),
+    ]);
+    setCart(nextCart);
+    setTermsAcceptance(undefined);
+    void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
+    setCurrentScreen('checkout-skeleton');
+    Promise.resolve().then(() => setCurrentScreen('order-review')).catch(() => setCurrentScreen('checkout-error'));
+  };
+
+  const retryCheckoutLoad = () => {
+    setCurrentScreen('checkout-skeleton');
+    Promise.resolve().then(() => {
+      const recovery = resolveCheckoutRecovery({ cart, selectedAddress, deliveryMethod });
+      setCurrentScreen(recovery.destination);
+    }).catch(() => setCurrentScreen('checkout-error'));
   };
 
   const handleSearchSubmit = (query: string) => {
@@ -867,14 +1008,14 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       {currentScreen === 'onboarding-2' ? <OnboardingScreen step={2} onNext={() => setCurrentScreen('onboarding-3')} onSkip={onOnboardingCompleted} /> : null}
       {currentScreen === 'onboarding-3' ? <OnboardingScreen step={3} onNext={onOnboardingCompleted} onSkip={onOnboardingCompleted} /> : null}
 
-      {currentScreen === 'home' ? <HomeScreen activeTab={activeTab} onSelectCategory={selectCategory} onSelectProduct={selectProduct} onNavigateTab={navigateTab} /> : null}
+      {currentScreen === 'home' ? <HomeScreen activeTab={activeTab} isAuthenticated={isAuthenticated} authenticatedUser={authenticatedUser} orders={orders} cartProductIds={cart.lines.map((line) => Number(line.productId)).filter(Number.isFinite)} wishlistedProductIds={wishlistedProductIds} cartBadgeCount={cart.lines.reduce((sum, line) => sum + line.quantity, 0)} onSelectCategory={selectCategory} onSelectProduct={selectProduct} onNavigateTab={navigateTab} onOpenWishlist={() => setCurrentScreen('wishlist')} onOpenPromotions={() => setCurrentScreen(resolveHomeCanonicalDestination('promotions'))} onOpenRecentlyViewed={() => setCurrentScreen(resolveHomeCanonicalDestination('recently_viewed'))} onOpenOrder={(orderId) => { void openOrderById(orderId); }} onToggleWishlist={(product) => { if (!isAuthenticated) { setFavoritesPromptItemId(String(product.id)); setFavoritesPromptVisible(true); return; } wishlistState.toggle(product); }} /> : null}
       {currentScreen === 'categories' ? <CategoriesScreen activeTab={activeTab} onSelectCategory={(cat) => { setSelectedCategory(cat); setCurrentScreen('category-landing'); }} onNavigateTab={navigateTab} /> : null}
       {currentScreen === 'category-landing' ? <CategoryLandingScreen category={selectedCategory} onBack={() => setCurrentScreen('categories')} onSelectSubcategory={() => setCurrentScreen('category-products')} onOpenCollection={() => setCurrentScreen('collection-shop-the-look')} onSelectProduct={selectProduct} onOpenSearch={() => setCurrentScreen('search-landing')} /> : null}
       {currentScreen === 'category-products' ? <CategoryProductListScreen activeTab={activeTab} category={selectedCategory} onBack={() => setCurrentScreen('category-landing')} onSelectProduct={selectProduct} onNavigateTab={navigateTab} /> : null}
       {currentScreen === 'collection-shop-the-look' ? <CollectionShopTheLookScreen onBack={() => setCurrentScreen('category-landing')} onSelectProduct={selectProduct} onAddAllToCart={() => setCurrentScreen('cart')} /> : null}
       {currentScreen === 'flash-deals' ? <FlashDealsScreen onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} /> : null}
       {currentScreen === 'promotions-campaigns' ? <PromotionsCampaignsScreen onBack={() => setCurrentScreen('home')} onExploreDeals={() => setCurrentScreen('flash-deals')} /> : null}
-      {currentScreen === 'recently-viewed' ? <RecentlyViewedScreen onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} /> : null}
+      {currentScreen === 'recently-viewed' ? <RecentlyViewedScreen products={getRecentlyViewedFallbackProducts()} onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} /> : null}
 
       {currentScreen === 'search-landing' ? <SearchLandingScreen onBack={() => setCurrentScreen('home')} onSearchSubmit={handleSearchSubmit} onSelectCategoryShortcut={() => setCurrentScreen('category-landing')} /> : null}
       {currentScreen === 'search-results' ? <SearchResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen('search-landing')} onOpenFilter={() => setFilterModalVisible(true)} onSelectProduct={selectProduct} onToggleWishlist={(pid) => { if (!isAuthenticated) { setFavoritesPromptItemId(String(pid)); setFavoritesPromptVisible(true); } }} /> : null}
@@ -1106,6 +1247,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateSilentHours={() => setCurrentScreen('silent-hours-dnd')}
           onNavigateHelpCenter={() => setCurrentScreen('help-center-home')}
           onNavigateAboutApp={() => setCurrentScreen('about-app')}
+          onNavigateAboutMayush={() => setCurrentScreen(resolveSettingsAboutDestination())}
           onNavigateAccessibility={() => setCurrentScreen('accessibility')}
           onNavigateAppPermissions={() => setCurrentScreen('app-permissions')}
           onNavigateDataUsage={() => setCurrentScreen('data-usage')}
@@ -1125,7 +1267,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       {currentScreen === 'about-mayush' ? (
         <AboutMayushCompanyScreen
           onNavigateTab={navigateTab}
-          onBack={() => setCurrentScreen('settings')}
+          onBack={() => setCurrentScreen(resolveAboutMayushBackDestination())}
         />
       ) : null}
 
@@ -1685,15 +1827,22 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         />
       ) : null}
 
-      {currentScreen === 'order-review' && selectedAddress ? <OrderReviewScreen cart={cart} address={selectedAddress} deliveryMethod={deliveryMethod} paymentMethod={paymentMethod} deliveryFeeMad={deliveryProjection.deliveryFeeMad} onBack={() => setCurrentScreen('payment-method')} onConfirm={beginOrderReview} /> : null}
+      {currentScreen === 'order-review' && selectedAddress ? <OrderReviewScreen cart={cart} address={selectedAddress} deliveryMethod={deliveryMethod} paymentMethod={paymentMethod} deliveryFeeMad={deliveryProjection.deliveryFeeMad} onBack={() => setCurrentScreen('payment-method')} onConfirm={() => void beginOrderReview()} /> : null}
+      {currentScreen === 'checkout-terms-confirmation' ? <CheckoutTermsConfirmationScreen onBack={() => setCurrentScreen('order-review')} onAccept={acceptCheckoutTermsAndContinue} onTerms={() => setCurrentScreen('legal-center')} onPrivacy={() => setCurrentScreen('privacy-policy')} /> : null}
+      {currentScreen === 'order-already-in-progress' && activeOrder ? <OrderAlreadyInProgressScreen order={activeOrder} onBack={() => setCurrentScreen('order-review')} onOrder={openActiveOrderDetails} onStatus={() => setCurrentScreen(activeOrder.paymentStatus === 'prototype_pending_confirmation' ? 'payment-pending' : getCanonicalOrderDetailRoute(activeOrder))} onSupport={openOrderSupport} /> : null}
+      {currentScreen === 'order-needs-update' ? <OrderNeedsUpdateScreen onBack={() => setCurrentScreen('order-review')} onAccept={acceptCheckoutConflictChanges} onCart={() => setCurrentScreen('cart')} /> : null}
+      {currentScreen === 'checkout-skeleton' ? <CheckoutSkeletonScreen /> : null}
+      {currentScreen === 'checkout-error' ? <CheckoutErrorScreen onBack={() => setCurrentScreen('cart')} onRetry={retryCheckoutLoad} onCart={() => setCurrentScreen('cart')} /> : null}
       {currentScreen === 'order-processing' && activeOrder ? <OrderProcessingScreen order={activeOrder} onFinish={finishOrderProcessing} /> : null}
       {currentScreen === 'payment-step-intro' && activeOrder ? <PaymentStepIntroScreen order={activeOrder} onBack={() => setCurrentScreen('payment-method')} onContinue={() => setCurrentScreen('secure-payment-redirect')} /> : null}
-      {currentScreen === 'secure-payment-redirect' && activeOrder ? <SecurePaymentRedirectScreen order={activeOrder} onContinue={() => setCurrentScreen('secure-payment-loading')} onCancel={() => setCurrentScreen('payment-cancelled')} /> : null}
+      {currentScreen === 'secure-payment-redirect' && activeOrder ? <SecurePaymentRedirectScreen order={activeOrder} onContinue={() => setCurrentScreen('secure-payment-loading')} onCancel={() => { void cancelActivePayment(); }} /> : null}
       {currentScreen === 'secure-payment-loading' && activeOrder ? <SecurePaymentLoadingScreen order={activeOrder} onContinue={() => setCurrentScreen('payment-verification')} /> : null}
-      {currentScreen === 'payment-verification' && activeOrder ? <PaymentVerificationScreen order={activeOrder} onContinue={() => setCurrentScreen('cash-on-delivery-confirmation')} /> : null}
-      {currentScreen === 'cash-on-delivery-confirmation' && activeOrder ? <CashOnDeliveryConfirmationScreen order={activeOrder} onContinue={() => setCurrentScreen('payment-success')} /> : null}
-      {currentScreen === 'payment-failed' && activeOrder ? <PaymentFailureScreen order={activeOrder} onContinue={() => setCurrentScreen('payment-method')} /> : null}
-      {currentScreen === 'payment-cancelled' && activeOrder ? <PaymentCancelledScreen order={activeOrder} onContinue={() => setCurrentScreen('payment-method')} /> : null}
+      {currentScreen === 'payment-verification' && activeOrder ? <PaymentVerificationScreen order={activeOrder} onContinue={() => { void verifyActivePayment(); }} /> : null}
+      {currentScreen === 'payment-confirmation-delayed' && activeOrder ? <PaymentConfirmationTakingLongerScreen order={activeOrder} onCheckAgain={() => setCurrentScreen('payment-pending')} onOrder={openActiveOrderDetails} onSupport={openOrderSupport} /> : null}
+      {currentScreen === 'payment-pending' && activeOrder ? <PaymentPendingConfirmationScreen order={activeOrder} onRefresh={() => setCurrentScreen('payment-pending')} onOrder={openOrdersList} onSupport={openOrderSupport} /> : null}
+      {currentScreen === 'cash-on-delivery-confirmation' && activeOrder ? <CashOnDeliveryConfirmationScreen order={activeOrder} onContinue={finalizeSuccessfulCheckout} /> : null}
+      {currentScreen === 'payment-failed' && activeOrder ? <PaymentFailureScreen order={activeOrder} onRetry={() => { void recoverActivePayment('retry'); }} onChangePayment={() => { void recoverActivePayment('change_method'); }} /> : null}
+      {currentScreen === 'payment-cancelled' && activeOrder ? <PaymentCancelledScreen order={activeOrder} onContinue={() => { void recoverActivePayment('change_method'); }} /> : null}
       {currentScreen === 'payment-success' && activeOrder ? <PaymentSuccessScreen order={activeOrder} onNext={() => setCurrentScreen('order-thank-you')} onContinueShopping={() => setCurrentScreen('home')} /> : null}
       {currentScreen === 'order-thank-you' && activeOrder ? <OrderThankYouScreen order={activeOrder} onTrack={openOrdersList} onContinueShopping={() => setCurrentScreen('home')} /> : null}
       {currentScreen === 'orders-list' ? <OrdersListScreen orders={orders} onOpenOrder={(orderId) => { void openOrderById(orderId); }} onNavigateTab={navigateTab} /> : null}
@@ -1745,7 +1894,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         onConfirmLogout={() => {
           authState.logout();
           setLogoutModalVisible(false);
-          setCurrentScreen('auth-welcome');
+          setCurrentScreen('home');
         }}
       />
     </View>

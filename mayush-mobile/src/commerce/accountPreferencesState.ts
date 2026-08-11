@@ -9,6 +9,7 @@ export interface PaymentMethodFixture {
   last4?: string;
   expiry?: string;
   brand?: string;
+  verificationScenario?: 'confirmed_fixture' | 'failed_fixture' | 'pending_fixture';
   isDefault: boolean;
   balanceMad?: number;
 }
@@ -47,6 +48,7 @@ class AccountPreferencesStateManager {
       last4: '4242',
       expiry: '06/26',
       brand: 'Visa',
+      verificationScenario: 'pending_fixture',
       isDefault: true,
     },
     {
@@ -58,6 +60,7 @@ class AccountPreferencesStateManager {
       last4: '8731',
       expiry: '11/27',
       brand: 'MasterCard',
+      verificationScenario: 'failed_fixture',
       isDefault: false,
     },
     {
@@ -198,6 +201,7 @@ class AccountPreferencesStateManager {
         last4: '4242',
         expiry: '06/26',
         brand: 'Visa',
+        verificationScenario: 'pending_fixture',
         isDefault: true,
       },
       {
@@ -209,6 +213,7 @@ class AccountPreferencesStateManager {
         last4: '8731',
         expiry: '11/27',
         brand: 'MasterCard',
+        verificationScenario: 'failed_fixture',
         isDefault: false,
       },
       {

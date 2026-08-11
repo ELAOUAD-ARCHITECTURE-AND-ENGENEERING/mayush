@@ -1,3 +1,5 @@
+import { CartState, CartTotals, getCartTotals } from './cartState';
+
 export type MoroccoCityId = 'casablanca' | 'rabat' | 'marrakech' | 'tanger' | 'agadir' | 'fes' | 'mohammedia' | 'temara';
 
 export interface MoroccoCity { cityId: MoroccoCityId; nameFr: string; nameAr: string; recent: boolean }
@@ -200,13 +202,18 @@ export const getCheckoutGrandTotalMad = (cartTotalMad: number, deliveryFeeMad: n
 export const CHECKOUT_SESSION_KEY = 'mayush-mobile:checkout-session';
 export interface CheckoutStorage { getItem(key: string): Promise<string | null>; setItem(key: string, value: string): Promise<void>; removeItem(key: string): Promise<void> }
 export const createLocalCheckoutAttemptId = (now: number = Date.now(), entropy: string = Math.random().toString(36).slice(2, 10)): string => `checkout-${now}-${entropy}`;
-export type ResumableCheckoutScreen = 'checkout-summary' | 'address-selection' | 'add-address' | 'city-selector' | 'delivery-zone-selector' | 'edit-checkout-address' | 'no-saved-address' | 'delivery-method' | 'delivery-by-vendor' | 'delivery-unavailable' | 'payment-method' | 'wallet-balance' | 'saved-payment-cards' | 'order-review';
-export interface CheckoutSession { checkoutAttemptId: string; screen: ResumableCheckoutScreen; selectedAddressId: string; deliveryMethod: DeliveryMethod; paymentMethod: PaymentMethod; savedAddresses: SavedAddress[]; selectedPaymentPreferenceId?: string }
-export const isResumableCheckoutScreen = (screen: string): screen is ResumableCheckoutScreen => ['checkout-summary','address-selection','add-address','city-selector','delivery-zone-selector','edit-checkout-address','no-saved-address','delivery-method','delivery-by-vendor','delivery-unavailable','payment-method','wallet-balance','saved-payment-cards','order-review'].includes(screen);
+export type ResumableCheckoutScreen = 'checkout-summary' | 'checkout-skeleton' | 'checkout-error' | 'address-selection' | 'add-address' | 'city-selector' | 'delivery-zone-selector' | 'edit-checkout-address' | 'no-saved-address' | 'delivery-method' | 'delivery-by-vendor' | 'delivery-unavailable' | 'payment-method' | 'wallet-balance' | 'saved-payment-cards' | 'order-review' | 'checkout-terms-confirmation' | 'order-already-in-progress' | 'order-needs-update' | 'payment-step-intro' | 'payment-failed' | 'payment-cancelled' | 'payment-confirmation-delayed' | 'payment-pending';
+export interface CheckoutTermsAcceptance { checkoutAttemptId: string; materialSignature: string; acceptedAt: string }
+export interface CheckoutSession { checkoutAttemptId: string; screen: ResumableCheckoutScreen; selectedAddressId: string; deliveryMethod: DeliveryMethod; paymentMethod: PaymentMethod; savedAddresses: SavedAddress[]; selectedPaymentPreferenceId?: string; termsAcceptance?: CheckoutTermsAcceptance }
+export const isResumableCheckoutScreen = (screen: string): screen is ResumableCheckoutScreen => ['checkout-summary','checkout-skeleton','checkout-error','address-selection','add-address','city-selector','delivery-zone-selector','edit-checkout-address','no-saved-address','delivery-method','delivery-by-vendor','delivery-unavailable','payment-method','wallet-balance','saved-payment-cards','order-review','checkout-terms-confirmation','order-already-in-progress','order-needs-update','payment-step-intro','payment-failed','payment-cancelled','payment-confirmation-delayed','payment-pending'].includes(screen);
 export const getDurableCheckoutScreen = (screen: ResumableCheckoutScreen): ResumableCheckoutScreen => {
+  if (['checkout-skeleton','checkout-error'].includes(screen)) return 'checkout-summary';
   if (['city-selector','delivery-zone-selector','edit-checkout-address','no-saved-address'].includes(screen)) return 'address-selection';
   if (['delivery-by-vendor','delivery-unavailable'].includes(screen)) return 'delivery-method';
   if (['wallet-balance','saved-payment-cards'].includes(screen)) return 'payment-method';
+  if (screen === 'checkout-terms-confirmation' || screen === 'order-needs-update') return 'order-review';
+  if (screen === 'payment-failed' || screen === 'payment-cancelled') return 'payment-method';
+  if (screen === 'order-already-in-progress' || screen === 'payment-confirmation-delayed') return 'payment-pending';
   return screen;
 };
 
@@ -226,9 +233,112 @@ export const parseCheckoutSession = (value: string | null): CheckoutSession | nu
     if (!parsed.screen || !parsed.checkoutAttemptId || !isResumableCheckoutScreen(parsed.screen) || !parsed.deliveryMethod || !parsed.paymentMethod || !Array.isArray(parsed.savedAddresses)) return null;
     const savedAddresses = parsed.savedAddresses.map(inferAddressIds).filter((address): address is SavedAddress => Boolean(address));
     const selectedAddressId = savedAddresses.some((address) => address.id === parsed.selectedAddressId) ? parsed.selectedAddressId || '' : savedAddresses.find((address) => address.isDefault)?.id || savedAddresses[0]?.id || '';
-    return { checkoutAttemptId: parsed.checkoutAttemptId, screen: parsed.screen, selectedAddressId, deliveryMethod: parsed.deliveryMethod, paymentMethod: parsed.paymentMethod, savedAddresses, selectedPaymentPreferenceId: typeof parsed.selectedPaymentPreferenceId === 'string' ? parsed.selectedPaymentPreferenceId : undefined };
+    const termsAcceptance = parsed.termsAcceptance
+      && parsed.termsAcceptance.checkoutAttemptId === parsed.checkoutAttemptId
+      && typeof parsed.termsAcceptance.materialSignature === 'string'
+      && typeof parsed.termsAcceptance.acceptedAt === 'string'
+      ? { ...parsed.termsAcceptance }
+      : undefined;
+    return { checkoutAttemptId: parsed.checkoutAttemptId, screen: parsed.screen, selectedAddressId, deliveryMethod: parsed.deliveryMethod, paymentMethod: parsed.paymentMethod, savedAddresses, selectedPaymentPreferenceId: typeof parsed.selectedPaymentPreferenceId === 'string' ? parsed.selectedPaymentPreferenceId : undefined, termsAcceptance };
   } catch { return null; }
 };
 export const saveCheckoutSession = async (storage: CheckoutStorage, session: CheckoutSession): Promise<void> => storage.setItem(CHECKOUT_SESSION_KEY, JSON.stringify({ ...session, screen: getDurableCheckoutScreen(session.screen) }));
 export const loadCheckoutSession = async (storage: CheckoutStorage): Promise<CheckoutSession | null> => parseCheckoutSession(await storage.getItem(CHECKOUT_SESSION_KEY));
 export const clearCheckoutSession = async (storage: CheckoutStorage): Promise<void> => { await storage.removeItem(CHECKOUT_SESSION_KEY); };
+
+export interface CheckoutMaterialFacts {
+  cart: CartState;
+  selectedAddressId: string;
+  deliveryMethod: DeliveryMethod;
+  paymentMethod: PaymentMethod;
+  deliveryFeeMad: number;
+}
+
+export const createCheckoutMaterialSignature = (facts: CheckoutMaterialFacts): string => JSON.stringify({
+  lines: facts.cart.lines.map((line) => ({
+    id: line.id,
+    productId: String(line.productId),
+    variantId: line.variantId || line.variant,
+    quantity: line.quantity,
+    unitPriceMad: Math.max(0, Math.round(line.unitPriceMad)),
+    sellerId: line.sellerId || 'seller-mayush',
+  })),
+  appliedPromotionId: facts.cart.appliedPromotionId || null,
+  selectedAddressId: facts.selectedAddressId,
+  deliveryMethod: facts.deliveryMethod,
+  paymentMethod: facts.paymentMethod,
+  deliveryFeeMad: Math.max(0, Math.round(facts.deliveryFeeMad)),
+});
+
+export const acceptCheckoutTerms = (
+  checkoutAttemptId: string,
+  materialSignature: string,
+  acceptedAt: string = new Date().toISOString(),
+): CheckoutTermsAcceptance => ({ checkoutAttemptId, materialSignature, acceptedAt });
+
+export const isCheckoutTermsAcceptanceValid = (
+  acceptance: CheckoutTermsAcceptance | undefined,
+  checkoutAttemptId: string,
+  materialSignature: string,
+): boolean => Boolean(acceptance
+  && acceptance.checkoutAttemptId === checkoutAttemptId
+  && acceptance.materialSignature === materialSignature);
+
+export type CheckoutViewStatus = 'idle' | 'loading' | 'ready' | 'error';
+export type CheckoutRecoveryDestination = 'checkout-summary' | 'cart' | 'address-selection' | 'delivery-unavailable';
+
+export interface CheckoutRecoverySnapshot {
+  cart: CartState;
+  selectedAddress?: SavedAddress;
+  deliveryMethod: DeliveryMethod;
+}
+
+export interface CheckoutRecoveryResult {
+  destination: CheckoutRecoveryDestination;
+  cartTotals: CartTotals;
+  deliveryProjection?: CheckoutDeliveryProjection;
+}
+
+/** Pure, non-destructive retry projection over the existing durable domains. */
+export const resolveCheckoutRecovery = (snapshot: CheckoutRecoverySnapshot): CheckoutRecoveryResult => {
+  const cartTotals = getCartTotals(snapshot.cart);
+  if (!snapshot.cart.lines.length) return { destination: 'cart', cartTotals };
+  if (!snapshot.selectedAddress) return { destination: 'address-selection', cartTotals };
+  const deliveryProjection = buildSellerDeliveryProjection(snapshot.cart.lines, snapshot.selectedAddress, snapshot.deliveryMethod);
+  return {
+    destination: deliveryProjection.available ? 'checkout-summary' : 'delivery-unavailable',
+    cartTotals,
+    deliveryProjection,
+  };
+};
+
+export type PaymentVerificationPresentation = 'not_applicable' | 'taking_longer' | 'pending' | 'confirmed' | 'failed' | 'cancelled';
+export interface PaymentStatusLike { paymentMethod: PaymentMethod; paymentStatus: 'prototype_pending_confirmation' | 'cash_on_delivery_pending' | 'confirmed' | 'failed' | 'cancelled' }
+export type FrontendPaymentVerificationScenario = 'confirmed_fixture' | 'failed_fixture' | 'pending_fixture';
+export type FrontendPaymentVerificationOutcome = 'confirmed' | 'failed' | 'cancelled' | 'pending' | 'not_applicable';
+
+export const getPaymentVerificationPresentation = (
+  order: PaymentStatusLike,
+  prolonged = false,
+): PaymentVerificationPresentation => {
+  if (order.paymentMethod !== 'cmi') return 'not_applicable';
+  if (order.paymentStatus === 'confirmed') return 'confirmed';
+  if (order.paymentStatus === 'failed') return 'failed';
+  if (order.paymentStatus === 'cancelled') return 'cancelled';
+  return prolonged ? 'taking_longer' : 'pending';
+};
+
+/**
+ * Deterministic frontend-only verification used by the prototype. It does not
+ * contact CMI or claim settlement; the explicit saved-card fixture chooses the
+ * outcome so failure is reproducible and never random.
+ */
+export const resolveFrontendPaymentVerificationOutcome = (
+  order: PaymentStatusLike & { paymentVerificationScenario?: FrontendPaymentVerificationScenario },
+): FrontendPaymentVerificationOutcome => {
+  if (order.paymentMethod !== 'cmi') return 'not_applicable';
+  if (order.paymentStatus === 'confirmed' || order.paymentStatus === 'failed' || order.paymentStatus === 'cancelled') return order.paymentStatus;
+  if (order.paymentVerificationScenario === 'confirmed_fixture') return 'confirmed';
+  if (order.paymentVerificationScenario === 'failed_fixture') return 'failed';
+  return 'pending';
+};

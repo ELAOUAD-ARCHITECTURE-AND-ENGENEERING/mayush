@@ -3,16 +3,16 @@
   "sourceCapturedAt": "2026-08-05",
   "screenInventory": {
     "totalRelevantFigmaNodes": 207,
-    "implementedNodes": 199,
-    "missingNodes": 8,
-    "screenCompletionPercentage": "96.1%"
+    "implementedNodes": 207,
+    "missingNodes": 0,
+    "screenCompletionPercentage": "100.0%"
   },
   "prototypeConnections": {
     "totalConnections": 206,
-    "implementedConnections": 63,
-    "mismatchedConnections": 40,
-    "missingConnections": 103,
-    "interactionCompletionPercentage": "30.6%"
+    "implementedConnections": 66,
+    "mismatchedConnections": 45,
+    "missingConnections": 95,
+    "interactionCompletionPercentage": "32.0%"
   },
   "connections": [
     {
@@ -68,7 +68,7 @@
       "connectionId": "FIGMA-PROT-008",
       "sourceFigmaNodeId": "309:591",
       "destinationFigmaNodeId": "309:592",
-      "connectionStatus": "MISSING",
+      "connectionStatus": "MISMATCHED",
       "implementationType": "USER_INTERACTION"
     },
     {
@@ -600,14 +600,14 @@
       "connectionId": "FIGMA-PROT-084",
       "sourceFigmaNodeId": "309:701",
       "destinationFigmaNodeId": "309:702",
-      "connectionStatus": "MISSING",
+      "connectionStatus": "IMPLEMENTED",
       "implementationType": "USER_INTERACTION"
     },
     {
       "connectionId": "FIGMA-PROT-085",
       "sourceFigmaNodeId": "309:702",
       "destinationFigmaNodeId": "309:712",
-      "connectionStatus": "MISSING",
+      "connectionStatus": "IMPLEMENTED",
       "implementationType": "USER_INTERACTION"
     },
     {
@@ -621,7 +621,7 @@
       "connectionId": "FIGMA-PROT-087",
       "sourceFigmaNodeId": "309:704",
       "destinationFigmaNodeId": "309:705",
-      "connectionStatus": "MISSING",
+      "connectionStatus": "MISMATCHED",
       "implementationType": "USER_INTERACTION"
     },
     {
@@ -642,28 +642,28 @@
       "connectionId": "FIGMA-PROT-090",
       "sourceFigmaNodeId": "309:707",
       "destinationFigmaNodeId": "309:708",
-      "connectionStatus": "MISSING",
+      "connectionStatus": "MISMATCHED",
       "implementationType": "USER_INTERACTION"
     },
     {
       "connectionId": "FIGMA-PROT-091",
       "sourceFigmaNodeId": "309:708",
       "destinationFigmaNodeId": "309:709",
-      "connectionStatus": "MISSING",
+      "connectionStatus": "IMPLEMENTED",
       "implementationType": "USER_INTERACTION"
     },
     {
       "connectionId": "FIGMA-PROT-092",
       "sourceFigmaNodeId": "309:709",
       "destinationFigmaNodeId": "309:710",
-      "connectionStatus": "MISSING",
+      "connectionStatus": "MISMATCHED",
       "implementationType": "USER_INTERACTION"
     },
     {
       "connectionId": "FIGMA-PROT-093",
       "sourceFigmaNodeId": "309:710",
       "destinationFigmaNodeId": "309:712",
-      "connectionStatus": "MISSING",
+      "connectionStatus": "MISMATCHED",
       "implementationType": "USER_INTERACTION"
     },
     {

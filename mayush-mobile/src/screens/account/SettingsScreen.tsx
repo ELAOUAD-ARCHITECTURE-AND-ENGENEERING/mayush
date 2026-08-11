@@ -16,6 +16,7 @@ export interface SettingsScreenProps {
   onNavigateSilentHours?: () => void;
   onNavigateHelpCenter?: () => void;
   onNavigateAboutApp?: () => void;
+  onNavigateAboutMayush?: () => void;
   onNavigateAccessibility?: () => void;
   onNavigateAppPermissions?: () => void;
   onNavigateDataUsage?: () => void;
@@ -33,6 +34,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onNavigateSilentHours,
   onNavigateHelpCenter,
   onNavigateAboutApp,
+  onNavigateAboutMayush,
   onNavigateAccessibility,
   onNavigateAppPermissions,
   onNavigateDataUsage,
@@ -132,6 +134,14 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           label: isRTL ? 'حول التطبيق' : 'À propos de l\'application',
           detail: 'Mayush Mobile v1.0.0',
           onPress: onNavigateAboutApp,
+          isImplemented: true,
+        },
+        {
+          id: 'about-mayush',
+          icon: 'info' as MayushIconName,
+          label: isRTL ? '\u062d\u0648\u0644 Mayush Design' : 'À propos de Mayush Design',
+          detail: isRTL ? '\u0627\u0644\u0634\u0631\u0643\u0629 \u0648\u0627\u0644\u0642\u064a\u0645 \u0648\u0627\u0644\u062a\u0648\u0627\u0635\u0644' : 'Entreprise, valeurs et contact',
+          onPress: onNavigateAboutMayush,
           isImplemented: true,
         },
         {

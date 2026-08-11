@@ -1,6 +1,32 @@
 # Mayush Mobile MVP Progress Log
 
-> Canonical metric notice (2026-08-11): older entries below are historical. The current deterministic values are 199/207 implemented Figma states (96.1%) and 63/206 exact implemented prototype connections (30.6%). Screen and connection metrics are intentionally separate.
+> Canonical metric notice (2026-08-11): older entries below are historical. The current deterministic values are 207/207 implemented Figma states (100.0%) and 66/206 exact implemented prototype connections (32.0%). Screen and connection metrics are intentionally separate.
+
+## STEP 8I — Final Discovery Gap & Canonical Frontend Completion
+
+- **Status**: Completed (`FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING`)
+- **Date**: 2026-08-11
+- **Scope**: Live node `309:591` only; authenticated personalized Home variant with profile greeting, deterministic catalog-ID recommendations, current-order tracking entry, recently viewed fallback, wishlist inspiration, categories, and shared buyer navigation
+- **Architecture**: `authState` is authoritative and hydrated before Home selection; `HomeScreen` owns both guest `309:590` and authenticated `309:591` variants; recommendations resolve stable IDs through one Home catalog; `wishlistState`, normal Product Details, Cart, Categories, and Buyer Orders paths remain shared
+- **Tests**: 417 regression assertions + all prior Step 8 suites + 33 Step 8I behavior assertions, all passing
+- **Metrics**: 207/207 canonical screens (100.0%); 66/206 exact prototype interactions (32.0%); 45 mismatched and 95 missing interactions
+- **Boundaries**: No Laravel/backend, Figma writes, Command Center, seller/admin, recommendation API/AI claim, pixel-parity work, or native-validation claim
+- **Next task**: STEP 9A — CANONICAL FRONTEND COMPLETION AUDIT & NATIVE VALIDATION READINESS; not executed
+
+---
+
+## STEP 8H — Checkout Payment Confirmation, Conflict & System States
+
+- **Status**: Completed (`FRONTEND_COMPLETE_WEB_CHECKED_NATIVE_VALIDATION_PENDING`)
+- **Date**: 2026-08-11
+- **Scope**: Live nodes `309:701`, `702`, `704`, `707`, `708`, `709`, and `710`; payment delay/pending, attempt-scoped terms, duplicate-attempt recovery, explicit cart-conflict acknowledgement, checkout skeleton, and non-destructive error retry
+- **Architecture**: Existing `checkoutAttemptId`, checkout session, `CartState`, promotion pricing, seller delivery projection, and `BuyerOrderRepository` remain authoritative; transient loading/error presentation is normalized out of persistence
+- **Tests**: 417 regression assertions + 11 Step 8B.0 + 17 Step 8B + 23 Step 8C + 24 Step 8D + 28 Step 8E + 32 Step 8F + 37 Step 8G + 44 Step 8H assertions, all passing
+- **Metrics**: 206/207 canonical screens (99.5%); 66/206 exact prototype interactions (32.0%); checkout `309:679–710` has no missing screen/state nodes
+- **Boundaries**: No Laravel, Figma, Command Center, seller/admin, polling/provider settlement, pixel-parity, native-validation claim, or Discovery `309:591` implementation
+- **Next task**: STEP 8I — FINAL DISCOVERY GAP & CANONICAL FRONTEND COMPLETION (`309:591` only); not executed
+
+---
 
 ## STEP 8G — Checkout Address, Delivery & Payment Option States
 

@@ -3,6 +3,9 @@
  * Maintain deterministic local/mock auth state without backend side-effects.
  */
 import { SavedAddress, defaultSavedAddresses } from './checkoutState';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export const AUTH_SESSION_STORAGE_KEY = 'mayush-mobile:auth-session:v1';
 
 export interface MockUser {
   id: string;
@@ -59,6 +62,7 @@ export interface ActiveSession {
 }
 
 export type AuthStatus =
+  | 'hydrating'
   | 'guest'
   | 'logging-in'
   | 'authenticated'
@@ -75,6 +79,7 @@ export class AuthStateManager {
 
   private status: AuthStatus = 'guest';
   private user: MockUser | null = null;
+  private hydrated = false;
   private loginError: string | null = null;
   private registrationDraft: RegistrationDraft = {
     fullName: '',
@@ -163,6 +168,49 @@ export class AuthStateManager {
     this.listeners.forEach((l) => l());
   }
 
+  private async persistSession(): Promise<void> {
+    if (!this.user || !this.isAuthenticated()) {
+      await AsyncStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
+      return;
+    }
+    await AsyncStorage.setItem(AUTH_SESSION_STORAGE_KEY, JSON.stringify({
+      status: 'authenticated',
+      user: this.user,
+    }));
+  }
+
+  public async hydrate(): Promise<void> {
+    if (this.hydrated) return;
+    this.status = 'hydrating';
+    this.notify();
+    try {
+      const stored = await AsyncStorage.getItem(AUTH_SESSION_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as { status?: AuthStatus; user?: MockUser };
+        if (parsed.status === 'authenticated' && parsed.user?.id && parsed.user.fullName) {
+          this.user = { ...parsed.user };
+          this.status = 'authenticated';
+        } else {
+          this.user = null;
+          this.status = 'guest';
+        }
+      } else {
+        this.user = null;
+        this.status = 'guest';
+      }
+    } catch {
+      this.user = null;
+      this.status = 'guest';
+    } finally {
+      this.hydrated = true;
+      this.notify();
+    }
+  }
+
+  public isHydrated(): boolean {
+    return this.hydrated;
+  }
+
   public getStatus(): AuthStatus {
     return this.status;
   }
@@ -201,6 +249,8 @@ export class AuthStateManager {
     this.status = 'guest';
     this.user = null;
     this.loginError = null;
+    this.hydrated = true;
+    void this.persistSession();
     this.notify();
   }
 
@@ -239,6 +289,8 @@ export class AuthStateManager {
       birthDate: this.user.birthDate || '1992-06-15',
     };
     this.loginError = null;
+    this.hydrated = true;
+    void this.persistSession();
     this.notify();
   }
 
@@ -273,6 +325,8 @@ export class AuthStateManager {
       gender: 'm',
       birthDate: '1995-01-01',
     };
+    this.hydrated = true;
+    void this.persistSession();
     this.notify();
   }
 
@@ -311,6 +365,7 @@ export class AuthStateManager {
         profileCompletionPercent: 85,
       };
       this.notify();
+      void this.persistSession();
       return this.user;
     }
     return null;
@@ -333,6 +388,7 @@ export class AuthStateManager {
       this.user.email = newEmail;
       this.user.emailOrPhone = newEmail;
       this.profileDraft.email = newEmail;
+      void this.persistSession();
       this.notify();
     }
   }
@@ -342,6 +398,7 @@ export class AuthStateManager {
       this.user.phone = newPhone;
       this.user.emailOrPhone = newPhone;
       this.profileDraft.phone = newPhone;
+      void this.persistSession();
       this.notify();
     }
   }
@@ -349,6 +406,7 @@ export class AuthStateManager {
   public changeAvatar(avatarUrl: string | null) {
     if (this.user) {
       this.user.avatarUrl = avatarUrl;
+      void this.persistSession();
       this.notify();
     }
   }
@@ -357,6 +415,8 @@ export class AuthStateManager {
     this.status = 'guest';
     this.user = null;
     this.loginError = null;
+    this.hydrated = true;
+    void this.persistSession();
     this.notify();
   }
 
@@ -523,6 +583,7 @@ export class AuthStateManager {
   public reset() {
     this.status = 'guest';
     this.user = null;
+    this.hydrated = false;
     this.loginError = null;
     this.registrationDraft = {
       fullName: '',

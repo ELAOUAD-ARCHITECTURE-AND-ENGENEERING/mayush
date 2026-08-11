@@ -62,8 +62,14 @@ export const CashOnDeliveryConfirmationScreen: React.FC<PaymentFlowProps> = ({ o
   <FlowShell><View style={styles.loading}><View style={styles.successCircle}><MayushIcon name="check" size={54} color={colors.brand.orange500} /></View><MayushText variant="pageTitle" color={colors.brand.navy900} align="center" style={styles.loadingTitle}>Commande confirmée</MayushText><MayushText variant="body" color={colors.neutral.gray700} align="center">Votre commande sera réglée à la livraison.</MayushText><OrderSummary order={order} /><TouchableOpacity accessibilityRole="button" onPress={onContinue} style={styles.primary}><MayushText variant="button" color={colors.surface.white}>Voir la confirmation</MayushText><MayushIcon name="arrow-right" size={21} color={colors.surface.white} /></TouchableOpacity></View></FlowShell>
 );
 
-export const PaymentFailureScreen: React.FC<PaymentFlowProps> = ({ order, onContinue }) => (
-  <FlowShell><View style={styles.loading}><View style={styles.failureCircle}><MayushIcon name="x" size={44} color={colors.semantic.error} /></View><MayushText variant="pageTitle" color={colors.brand.navy900} align="center" style={styles.loadingTitle}>Le paiement n’a pas abouti</MayushText><MayushText variant="body" color={colors.brand.navy900} align="center">Aucun paiement confirmé n’a été enregistré pour cette tentative. Vous n’avez pas été débité.</MayushText><OrderSummary order={order} /><TouchableOpacity accessibilityRole="button" onPress={onContinue} style={styles.primary}><MayushIcon name="arrow-down-up" size={19} color={colors.surface.white} /><MayushText variant="button" color={colors.surface.white}>Réessayer le paiement</MayushText></TouchableOpacity><TouchableOpacity accessibilityRole="button" onPress={onContinue} style={styles.secondary}><MayushIcon name="shopping-bag" size={19} color={colors.brand.navy900} /><MayushText variant="button" color={colors.brand.navy900}>Changer de mode de paiement</MayushText><MayushIcon name="chevron-right" size={18} color={colors.brand.navy900} /></TouchableOpacity></View></FlowShell>
+export interface PaymentFailureScreenProps {
+  order: PrototypeOrder;
+  onRetry: () => void;
+  onChangePayment: () => void;
+}
+
+export const PaymentFailureScreen: React.FC<PaymentFailureScreenProps> = ({ order, onRetry, onChangePayment }) => (
+  <FlowShell><View style={styles.loading}><View style={styles.failureCircle}><MayushIcon name="x" size={44} color={colors.semantic.error} /></View><MayushText variant="pageTitle" color={colors.brand.navy900} align="center" style={styles.loadingTitle}>Le paiement n’a pas abouti</MayushText><MayushText variant="body" color={colors.brand.navy900} align="center">Aucun paiement confirmé n’a été enregistré pour cette tentative. Vous n’avez pas été débité.</MayushText><OrderSummary order={order} /><TouchableOpacity accessibilityRole="button" onPress={onRetry} style={styles.primary}><MayushIcon name="arrow-down-up" size={19} color={colors.surface.white} /><MayushText variant="button" color={colors.surface.white}>Réessayer le paiement</MayushText></TouchableOpacity><TouchableOpacity accessibilityRole="button" onPress={onChangePayment} style={styles.secondary}><MayushIcon name="shopping-bag" size={19} color={colors.brand.navy900} /><MayushText variant="button" color={colors.brand.navy900}>Changer de mode de paiement</MayushText><MayushIcon name="chevron-right" size={18} color={colors.brand.navy900} /></TouchableOpacity></View></FlowShell>
 );
 
 export const PaymentCancelledScreen: React.FC<PaymentFlowProps> = ({ order, onContinue }) => (
@@ -95,4 +101,3 @@ const styles = StyleSheet.create({
   failureCircle: { width: 82, height: 82, borderRadius: 41, borderWidth: 2, borderColor: colors.semantic.error, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFF0ED' },
   secondary: { width: '100%', height: 43, marginTop: 9, borderRadius: 8, borderWidth: 1, borderColor: colors.brand.orange500, paddingHorizontal: 13, flexDirection: 'row', alignItems: 'center', gap: 9 },
 });
-

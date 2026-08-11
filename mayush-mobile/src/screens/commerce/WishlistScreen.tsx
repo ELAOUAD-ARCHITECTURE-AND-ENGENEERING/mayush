@@ -4,7 +4,7 @@
  * remove confirmation dialog, move-to-cart variant selection, and empty state.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   Modal,
@@ -21,6 +21,7 @@ import { MayushText } from '../../design-system/components/typography/MayushText
 import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
 import { radii } from '../../design-system/tokens/radii';
+import { wishlistState } from '../../commerce/wishlistState';
 
 const CANAPE_IMG = require('../../../assets/reference-art/home-new-luna.png');
 const FAUTEUIL_IMG = require('../../../assets/reference-art/home-new-nori.png');
@@ -41,18 +42,17 @@ export const WishlistScreen: React.FC<WishlistScreenProps> = ({
 }) => {
   const { language } = useTheme();
 
-  const [wishlistItems, setWishlistItems] = useState<(ProductMiniDto & { inStock: boolean; oldPriceMad?: number })[]>([
-    { id: 701, name: 'Fauteuil Nori Accent · Vert Sauge', priceMad: 1500, oldPriceMad: 1800, formattedPrice: '1 500 MAD', inStock: true, thumbnail_image: '', has_discount: true, discount: '-17%', stroked_price: '1 800 MAD', main_price: '1 500 MAD', rating: 5, sales: 12, links: { details: '' } },
-    { id: 702, name: 'Canapé Luna 3 Places · Bouclé', priceMad: 4500, formattedPrice: '4 500 MAD', inStock: true, thumbnail_image: '', has_discount: false, discount: null, stroked_price: '4 500 MAD', main_price: '4 500 MAD', rating: 5, sales: 8, links: { details: '' } },
-    { id: 703, name: 'Table Basse Oval Plâtre', priceMad: 2200, formattedPrice: '2 200 MAD', inStock: false, thumbnail_image: '', has_discount: false, discount: null, stroked_price: '2 200 MAD', main_price: '2 200 MAD', rating: 5, sales: 5, links: { details: '' } },
-  ]);
+  const [, setWishlistRevision] = useState(0);
+  const wishlistItems = wishlistState.getItems();
+
+  useEffect(() => wishlistState.subscribe(() => setWishlistRevision((revision) => revision + 1)), []);
 
   const [itemToRemove, setItemToRemove] = useState<number | null>(null);
   const [altModalVisible, setAltModalVisible] = useState(false);
 
   const handleRemoveConfirm = () => {
     if (itemToRemove !== null) {
-      setWishlistItems((prev) => prev.filter((i) => i.id !== itemToRemove));
+      wishlistState.remove(itemToRemove);
       setItemToRemove(null);
     }
   };
