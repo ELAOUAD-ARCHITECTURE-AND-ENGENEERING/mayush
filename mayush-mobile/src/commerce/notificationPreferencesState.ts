@@ -47,6 +47,7 @@ const NOTIF_PREFERENCES_STORAGE_KEY = 'mayush-mobile:notification-preferences';
 
 class NotificationPreferencesStateManager {
   private static instance: NotificationPreferencesStateManager;
+  private hydrated: boolean = false;
 
   private marketingPreferences: MarketingPreferences = {
     abandonedCartReminders: true,
@@ -115,7 +116,7 @@ class NotificationPreferencesStateManager {
   private listeners: (() => void)[] = [];
 
   private constructor() {
-    this.loadFromStorage();
+    void this.loadFromStorage();
   }
 
   public static getInstance(): NotificationPreferencesStateManager {
@@ -123,6 +124,10 @@ class NotificationPreferencesStateManager {
       NotificationPreferencesStateManager.instance = new NotificationPreferencesStateManager();
     }
     return NotificationPreferencesStateManager.instance;
+  }
+
+  public isHydrated(): boolean {
+    return this.hydrated;
   }
 
   private async loadFromStorage() {
@@ -148,6 +153,12 @@ class NotificationPreferencesStateManager {
     } catch {
       // Ignore storage read errors
     }
+    this.hydrated = true;
+    this.notifyListeners();
+  }
+
+  private notifyListeners() {
+    this.listeners.forEach((l) => l());
   }
 
   private async persistToStorage() {

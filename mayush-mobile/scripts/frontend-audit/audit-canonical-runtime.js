@@ -168,14 +168,15 @@ const connectionClassCounts = classifiedConnections.reduce((counts, connection) 
 
 const testFiles = [
   'scripts/run-tests.js',
-  ...fs.readdirSync(path.join(root, 'tests')).filter((name) => /^(?:Step(?:8|9)|Rendered).*Test\.ts$/.test(name)).map((name) => `tests/${name}`),
+  ...fs.readdirSync(path.join(root, 'tests')).filter((name) => /^(?:Step(?:8|9)|RealRendered|Rendered).*Test\.(?:ts|tsx)$/.test(name)).map((name) => `tests/${name}`),
 ];
-const testQuality = { SOURCE_TEXT: 0, PURE_STATE: 0, REPOSITORY_BEHAVIOR: 0, NAVIGATION_BEHAVIOR: 0, PERSISTENCE_BEHAVIOR: 0, RENDERED_COMPONENT: 0, E2E_NATIVE: 0 };
+const testQuality = { SOURCE_TEXT: 0, PURE_STATE: 0, REPOSITORY_BEHAVIOR: 0, NAVIGATION_BEHAVIOR: 0, PERSISTENCE_BEHAVIOR: 0, STRUCTURAL_COMPONENT_HARNESS: 0, RENDERED_COMPONENT: 0, E2E_NATIVE: 0 };
 for (const file of testFiles) {
   const source = read(file);
   const assertionLines = source.split(/\r?\n/).filter((line) => /\bassert\s*\(/.test(line) && !/function\s+assert\s*\(/.test(line));
   for (const line of assertionLines) {
-    if (file.includes('RenderedComponentBehaviorTest')) testQuality.RENDERED_COMPONENT += 1;
+    if (file.includes('RealRenderedComponentBehaviorTest')) testQuality.RENDERED_COMPONENT += 1;
+    else if (file.includes('RenderedComponentBehaviorTest')) testQuality.STRUCTURAL_COMPONENT_HARNESS += 1;
     else if (/readFileSync|existsSync|Content\b|Code\b|includes\(|\.test\(/.test(line)) testQuality.SOURCE_TEXT += 1;
     else if (/hydrate|persist|storage|reload|AsyncStorage|stored/i.test(line)) testQuality.PERSISTENCE_BEHAVIOR += 1;
     else if (/repository|orders\.|getOrder|createOrder|selectedOrder/i.test(line)) testQuality.REPOSITORY_BEHAVIOR += 1;
@@ -184,7 +185,7 @@ for (const file of testFiles) {
   }
 }
 
-const renderedHarnessPresent = fs.existsSync(path.join(root, 'tests/RenderedComponentBehaviorTest.ts'));
+const renderedHarnessPresent = fs.existsSync(path.join(root, 'tests/RenderedComponentBehaviorTest.tsx')) || fs.existsSync(path.join(root, 'tests/RealRenderedComponentBehaviorTest.tsx')) || fs.existsSync(path.join(root, 'tests/RenderedComponentBehaviorTest.ts'));
 
 const result = {
   canonical: {

@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { localeState } from './localeState';
 
 export interface PaymentMethodFixture {
   id: string;
@@ -28,8 +29,8 @@ const PREFERENCES_STORAGE_KEY = 'mayush-mobile:account-preferences';
 
 class AccountPreferencesStateManager {
   private static instance: AccountPreferencesStateManager;
+  private hydrated: boolean = false;
 
-  private selectedLanguage: AppLanguage = 'fr';
   private region: RegionInfo = {
     country: 'Maroc',
     countryCode: 'MA',
@@ -86,7 +87,8 @@ class AccountPreferencesStateManager {
   private listeners: (() => void)[] = [];
 
   private constructor() {
-    this.loadFromStorage();
+    localeState.subscribe(() => this.notifyListeners());
+    void this.loadFromStorage();
   }
 
   public static getInstance(): AccountPreferencesStateManager {
@@ -96,17 +98,22 @@ class AccountPreferencesStateManager {
     return AccountPreferencesStateManager.instance;
   }
 
+  public isHydrated(): boolean {
+    return this.hydrated;
+  }
+
   private async loadFromStorage() {
     try {
       const stored = await AsyncStorage.getItem(PREFERENCES_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed.selectedLanguage) this.selectedLanguage = parsed.selectedLanguage;
         if (parsed.selectedPaymentMethodId) this.selectedPaymentMethodId = parsed.selectedPaymentMethodId;
       }
     } catch {
       // Ignore storage errors
     }
+    this.hydrated = true;
+    this.notifyListeners();
   }
 
   private async persistToStorage() {
@@ -114,7 +121,6 @@ class AccountPreferencesStateManager {
       await AsyncStorage.setItem(
         PREFERENCES_STORAGE_KEY,
         JSON.stringify({
-          selectedLanguage: this.selectedLanguage,
           selectedPaymentMethodId: this.selectedPaymentMethodId,
         }),
       );
@@ -130,8 +136,12 @@ class AccountPreferencesStateManager {
     };
   }
 
-  private notify() {
+  private notifyListeners() {
     this.listeners.forEach((l) => l());
+  }
+
+  private notify() {
+    this.notifyListeners();
     this.persistToStorage();
   }
 
@@ -172,16 +182,18 @@ class AccountPreferencesStateManager {
   // ── Language & Region ──
 
   public getSelectedLanguage(): AppLanguage {
-    return this.selectedLanguage;
+    return (localeState.getLanguage() as AppLanguage) || 'fr';
   }
 
   public getLanguage(): AppLanguage {
-    return this.selectedLanguage;
+    return (localeState.getLanguage() as AppLanguage) || 'fr';
   }
 
   public setSelectedLanguage(language: AppLanguage) {
-    this.selectedLanguage = language;
-    this.notify();
+    if (language === 'fr' || language === 'ar') {
+      void localeState.setLanguage(language);
+    }
+    this.notifyListeners();
   }
 
   public getRegionInfo(): RegionInfo {
@@ -189,7 +201,7 @@ class AccountPreferencesStateManager {
   }
 
   public reset() {
-    this.selectedLanguage = 'fr';
+    void localeState.setLanguage('fr');
     this.selectedPaymentMethodId = 'pm-card';
     this.paymentMethods = [
       {

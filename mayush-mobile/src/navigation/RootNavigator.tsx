@@ -462,7 +462,6 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         setDeliveryMethod(parsedSession.deliveryMethod);
         setPaymentMethod(parsedSession.paymentMethod);
         setTermsAcceptance(parsedSession.termsAcceptance);
-        authState.replaceSavedAddresses(parsedSession.savedAddresses);
         if (parsedSession.selectedPaymentPreferenceId) {
           accountPreferencesState.setSelectedPaymentMethod(parsedSession.selectedPaymentPreferenceId);
         }
@@ -483,7 +482,6 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         selectedAddressId,
         deliveryMethod,
         paymentMethod,
-        savedAddresses,
         selectedPaymentPreferenceId,
         termsAcceptance,
       }).catch(() => undefined);

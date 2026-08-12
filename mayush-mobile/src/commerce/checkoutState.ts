@@ -204,7 +204,7 @@ export interface CheckoutStorage { getItem(key: string): Promise<string | null>;
 export const createLocalCheckoutAttemptId = (now: number = Date.now(), entropy: string = Math.random().toString(36).slice(2, 10)): string => `checkout-${now}-${entropy}`;
 export type ResumableCheckoutScreen = 'checkout-summary' | 'checkout-skeleton' | 'checkout-error' | 'address-selection' | 'add-address' | 'city-selector' | 'delivery-zone-selector' | 'edit-checkout-address' | 'no-saved-address' | 'delivery-method' | 'delivery-by-vendor' | 'delivery-unavailable' | 'payment-method' | 'wallet-balance' | 'saved-payment-cards' | 'order-review' | 'checkout-terms-confirmation' | 'order-already-in-progress' | 'order-needs-update' | 'payment-step-intro' | 'payment-failed' | 'payment-cancelled' | 'payment-confirmation-delayed' | 'payment-pending';
 export interface CheckoutTermsAcceptance { checkoutAttemptId: string; materialSignature: string; acceptedAt: string }
-export interface CheckoutSession { checkoutAttemptId: string; screen: ResumableCheckoutScreen; selectedAddressId: string; deliveryMethod: DeliveryMethod; paymentMethod: PaymentMethod; savedAddresses: SavedAddress[]; selectedPaymentPreferenceId?: string; termsAcceptance?: CheckoutTermsAcceptance }
+export interface CheckoutSession { checkoutAttemptId: string; screen: ResumableCheckoutScreen; selectedAddressId: string; deliveryMethod: DeliveryMethod; paymentMethod: PaymentMethod; savedAddresses?: SavedAddress[]; selectedPaymentPreferenceId?: string; termsAcceptance?: CheckoutTermsAcceptance }
 export const isResumableCheckoutScreen = (screen: string): screen is ResumableCheckoutScreen => ['checkout-summary','checkout-skeleton','checkout-error','address-selection','add-address','city-selector','delivery-zone-selector','edit-checkout-address','no-saved-address','delivery-method','delivery-by-vendor','delivery-unavailable','payment-method','wallet-balance','saved-payment-cards','order-review','checkout-terms-confirmation','order-already-in-progress','order-needs-update','payment-step-intro','payment-failed','payment-cancelled','payment-confirmation-delayed','payment-pending'].includes(screen);
 export const getDurableCheckoutScreen = (screen: ResumableCheckoutScreen): ResumableCheckoutScreen => {
   if (['checkout-skeleton','checkout-error'].includes(screen)) return 'checkout-summary';
@@ -230,19 +230,30 @@ export const parseCheckoutSession = (value: string | null): CheckoutSession | nu
   if (!value) return null;
   try {
     const parsed = JSON.parse(value) as Partial<CheckoutSession>;
-    if (!parsed.screen || !parsed.checkoutAttemptId || !isResumableCheckoutScreen(parsed.screen) || !parsed.deliveryMethod || !parsed.paymentMethod || !Array.isArray(parsed.savedAddresses)) return null;
-    const savedAddresses = parsed.savedAddresses.map(inferAddressIds).filter((address): address is SavedAddress => Boolean(address));
-    const selectedAddressId = savedAddresses.some((address) => address.id === parsed.selectedAddressId) ? parsed.selectedAddressId || '' : savedAddresses.find((address) => address.isDefault)?.id || savedAddresses[0]?.id || '';
+    if (!parsed.screen || !parsed.checkoutAttemptId || !isResumableCheckoutScreen(parsed.screen) || !parsed.deliveryMethod || !parsed.paymentMethod) return null;
+    const legacySaved = Array.isArray(parsed.savedAddresses) ? parsed.savedAddresses.map(inferAddressIds).filter((a): a is SavedAddress => Boolean(a)) : [];
+    let selectedAddressId = parsed.selectedAddressId || '';
+    if (Array.isArray(parsed.savedAddresses) && parsed.savedAddresses.length > 0) {
+      if (parsed.savedAddresses.some((a) => inferAddressIds(a) === null)) {
+        selectedAddressId = '';
+      }
+    }
+    if (!selectedAddressId && legacySaved.length > 0) {
+      selectedAddressId = legacySaved[0].id;
+    }
     const termsAcceptance = parsed.termsAcceptance
       && parsed.termsAcceptance.checkoutAttemptId === parsed.checkoutAttemptId
       && typeof parsed.termsAcceptance.materialSignature === 'string'
       && typeof parsed.termsAcceptance.acceptedAt === 'string'
       ? { ...parsed.termsAcceptance }
       : undefined;
-    return { checkoutAttemptId: parsed.checkoutAttemptId, screen: parsed.screen, selectedAddressId, deliveryMethod: parsed.deliveryMethod, paymentMethod: parsed.paymentMethod, savedAddresses, selectedPaymentPreferenceId: typeof parsed.selectedPaymentPreferenceId === 'string' ? parsed.selectedPaymentPreferenceId : undefined, termsAcceptance };
+    return { checkoutAttemptId: parsed.checkoutAttemptId, screen: parsed.screen, selectedAddressId, deliveryMethod: parsed.deliveryMethod, paymentMethod: parsed.paymentMethod, selectedPaymentPreferenceId: typeof parsed.selectedPaymentPreferenceId === 'string' ? parsed.selectedPaymentPreferenceId : undefined, termsAcceptance };
   } catch { return null; }
 };
-export const saveCheckoutSession = async (storage: CheckoutStorage, session: CheckoutSession): Promise<void> => storage.setItem(CHECKOUT_SESSION_KEY, JSON.stringify({ ...session, screen: getDurableCheckoutScreen(session.screen) }));
+export const saveCheckoutSession = async (storage: CheckoutStorage, session: CheckoutSession): Promise<void> => {
+  const { savedAddresses: _unused, ...durableSession } = session;
+  return storage.setItem(CHECKOUT_SESSION_KEY, JSON.stringify({ ...durableSession, screen: getDurableCheckoutScreen(session.screen) }));
+};
 export const loadCheckoutSession = async (storage: CheckoutStorage): Promise<CheckoutSession | null> => parseCheckoutSession(await storage.getItem(CHECKOUT_SESSION_KEY));
 export const clearCheckoutSession = async (storage: CheckoutStorage): Promise<void> => { await storage.removeItem(CHECKOUT_SESSION_KEY); };
 

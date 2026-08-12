@@ -50,6 +50,7 @@ const DEFAULT_DATA_USAGE: AppDataUsageSettings = {
 
 class AppSettingsStateManager {
   private static instance: AppSettingsStateManager;
+  private hydrated: boolean = false;
 
   private accessibility: AppAccessibilitySettings = { ...DEFAULT_ACCESSIBILITY };
   private permissions: AppPermissionSettings = { ...DEFAULT_PERMISSIONS };
@@ -58,7 +59,7 @@ class AppSettingsStateManager {
   private listeners: (() => void)[] = [];
 
   private constructor() {
-    this.loadFromStorage();
+    void this.loadFromStorage();
   }
 
   public static getInstance(): AppSettingsStateManager {
@@ -66,6 +67,10 @@ class AppSettingsStateManager {
       AppSettingsStateManager.instance = new AppSettingsStateManager();
     }
     return AppSettingsStateManager.instance;
+  }
+
+  public isHydrated(): boolean {
+    return this.hydrated;
   }
 
   private async loadFromStorage() {
@@ -80,6 +85,12 @@ class AppSettingsStateManager {
     } catch {
       // Ignore storage error
     }
+    this.hydrated = true;
+    this.notifyListeners();
+  }
+
+  private notifyListeners() {
+    this.listeners.forEach((l) => l());
   }
 
   private async persistToStorage() {

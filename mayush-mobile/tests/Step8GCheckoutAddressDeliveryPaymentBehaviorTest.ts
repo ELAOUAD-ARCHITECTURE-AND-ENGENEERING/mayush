@@ -48,9 +48,9 @@ export const runStep8GCheckoutAddressDeliveryPaymentBehaviorTests = async (asser
   assert(!isNoSavedAddressState([firstAddress]) && validateAddressDraft(addressToDraft(firstAddress)).name === undefined, '7 adding the first valid address exits no-address condition');
 
   const sessionStorage = new MemoryStorage();
-  const session: CheckoutSession = { checkoutAttemptId:'attempt-8g', screen:'address-selection', selectedAddressId:firstAddress.id, deliveryMethod:'standard', paymentMethod:'cmi', savedAddresses:[firstAddress], selectedPaymentPreferenceId:'pm-card' };
+  const session: CheckoutSession = { checkoutAttemptId:'attempt-8g', screen:'address-selection', selectedAddressId:firstAddress.id, deliveryMethod:'standard', paymentMethod:'cmi', selectedPaymentPreferenceId:'pm-card' };
   await saveCheckoutSession(sessionStorage,session); const hydrated = await loadCheckoutSession(sessionStorage);
-  assert(hydrated?.selectedAddressId === firstAddress.id && hydrated.savedAddresses[0].cityId === 'casablanca', '8 checkout address selection survives hydration');
+  assert(hydrated?.selectedAddressId === firstAddress.id, '8 checkout address selection survives hydration');
 
   const projection = buildSellerDeliveryProjection(cartLines,firstAddress,'standard');
   assert(projection.groups.map((group)=>group.sellerId).sort().join('|') === 'seller-artisanal|seller-bois', '9 multi-seller delivery reuses cart seller identities');
@@ -86,7 +86,7 @@ export const runStep8GCheckoutAddressDeliveryPaymentBehaviorTests = async (asser
   assert(resumed?.checkoutAttemptId==='attempt-8g' && resumed.deliveryMethod==='standard' && resumed.selectedPaymentPreferenceId==='pm-card', '27 checkout reload restores compatible new selections');
   const invalidStorage=new MemoryStorage(); invalidStorage.values.set(CHECKOUT_SESSION_KEY,JSON.stringify({...session,savedAddresses:[{...firstAddress,cityId:'rabat',zoneId:'maarif'}]}));
   const rejected=await loadCheckoutSession(invalidStorage);
-  assert(rejected?.savedAddresses.length===0 && rejected.selectedAddressId==='', '28 hydration rejects invalid city-zone combinations');
+  assert(rejected?.selectedAddressId==='', '28 hydration rejects invalid city-zone combinations');
   assert(!buildSellerDeliveryProjection(cartLines,unsupportedAddress,'standard').available, '29 hydration consumers revalidate delivery availability');
   const transientStorage=new MemoryStorage(); await saveCheckoutSession(transientStorage,{...session,screen:'delivery-unavailable'}); const transientRaw=transientStorage.values.get(CHECKOUT_SESSION_KEY)||'';
   assert(JSON.parse(transientRaw).screen==='delivery-method' && !/warningVisible|selectorVisible|errorVisible/.test(transientRaw), '30 transient selector and error states do not persist');

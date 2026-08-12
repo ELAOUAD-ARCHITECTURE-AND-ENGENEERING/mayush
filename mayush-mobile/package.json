@@ -17,8 +17,11 @@
     "react-native-web": "^0.21.2"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^22.0.0",
     "@types/react": "~19.2.2",
+    "happy-dom": "^20.11.2",
+    "jsdom": "^27.0.1",
     "pixelmatch": "^7.2.0",
     "pngjs": "^7.0.0",
     "typescript": "~6.0.3"
@@ -28,7 +31,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "node scripts/run-tests.js && node scripts/run-step8b0-behavior-tests.js && node scripts/run-step8b-behavior-tests.js && node scripts/run-step8c-behavior-tests.js && node scripts/run-step8d-behavior-tests.js && node scripts/run-step8e-behavior-tests.js && node scripts/run-step8f-behavior-tests.js && node scripts/run-step8g-behavior-tests.js && node scripts/run-step8h-behavior-tests.js && node scripts/run-step8i-behavior-tests.js && node scripts/run-step9b-behavior-tests.js && node scripts/run-rendered-tests.js"
+    "test": "node scripts/run-tests.js && node scripts/run-step8b0-behavior-tests.js && node scripts/run-step8b-behavior-tests.js && node scripts/run-step8c-behavior-tests.js && node scripts/run-step8d-behavior-tests.js && node scripts/run-step8e-behavior-tests.js && node scripts/run-step8f-behavior-tests.js && node scripts/run-step8g-behavior-tests.js && node scripts/run-step8h-behavior-tests.js && node scripts/run-step8i-behavior-tests.js && node scripts/run-step9b-behavior-tests.js && node scripts/run-rendered-tests.js && node scripts/run-step9b2-behavior-tests.js"
   },
   "private": true
 }

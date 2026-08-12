@@ -1,6 +1,6 @@
 import { authState, createCheckoutAuthReturnDestination } from '../src/commerce/authState';
 import { addCartLine, createSelectedVariantCartLine, emptyCartState } from '../src/commerce/cartState';
-import { createLocalCheckoutAttemptId, loadCheckoutSession, saveCheckoutSession } from '../src/commerce/checkoutState';
+import { createLocalCheckoutAttemptId, defaultSavedAddresses, loadCheckoutSession, saveCheckoutSession } from '../src/commerce/checkoutState';
 import { createBuyerOrderRepository, OrderStorage } from '../src/commerce/orderState';
 import { getSupportSelectableOrderIds } from '../src/commerce/supportState';
 import { resolveNotificationBuyerOrder } from '../src/commerce/notificationPreferencesState';
@@ -58,7 +58,7 @@ export const runStep8B0OrderFoundationBehaviorTests = async (
   await repository.hydrate();
   const input = {
     cart,
-    address: restoredCheckout!.savedAddresses[0],
+    address: (restoredCheckout as any)?.savedAddresses?.[0] || defaultSavedAddresses[0],
     deliveryMethod: restoredCheckout!.deliveryMethod,
     paymentMethod: restoredCheckout!.paymentMethod,
     checkoutAttemptId,

@@ -21,6 +21,7 @@ class WishlistStateManager {
   private items: WishlistItem[] = initialWishlistItems.map((item) => ({ ...item }));
   private listeners = new Set<() => void>();
   private currentUserId: string | undefined = undefined;
+  private hydrated: boolean = false;
 
   constructor() {
     this.currentUserId = authState.getUser()?.id;
@@ -29,10 +30,48 @@ class WishlistStateManager {
     authState.subscribe(() => {
       const nextUserId = authState.getUser()?.id;
       if (nextUserId !== this.currentUserId) {
+        const previousUserId = this.currentUserId;
         this.currentUserId = nextUserId;
-        void this.hydrate();
+        void this.handleUserTransition(previousUserId, nextUserId);
       }
     });
+  }
+
+  public isHydrated(): boolean {
+    return this.hydrated;
+  }
+
+  private async handleUserTransition(prevUserId?: string, nextUserId?: string): Promise<void> {
+    const key = getWishlistStorageKey(nextUserId);
+    try {
+      const stored = await AsyncStorage.getItem(key);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          this.items = parsed;
+          this.hydrated = true;
+          this.notify();
+          return;
+        }
+      }
+    } catch {
+      // Fallback
+    }
+
+    // If logging into a buyer account for the first time without stored items:
+    // merge current guest items if transitioning from guest, or reset to empty
+    if (!prevUserId && nextUserId && this.items.length) {
+      // Keep existing guest items for newly logged in buyer
+      this.hydrated = true;
+      this.notify();
+      void this.persist();
+      return;
+    }
+
+    // If logging out or switching between buyers with no stored wishlist
+    this.items = nextUserId ? [] : initialWishlistItems.map((item) => ({ ...item }));
+    this.hydrated = true;
+    this.notify();
   }
 
   public async hydrate(userId?: string): Promise<void> {
@@ -44,13 +83,16 @@ class WishlistStateManager {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed)) {
           this.items = parsed;
+          this.hydrated = true;
           this.notify();
           return;
         }
       }
     } catch {
-      // Fall back to current in-memory items
+      // Fall back safely
     }
+    this.hydrated = true;
+    this.notify();
   }
 
   private async persist(): Promise<void> {

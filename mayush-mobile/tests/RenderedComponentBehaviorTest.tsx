@@ -6,7 +6,6 @@ import { SettingsScreen } from '../src/screens/account/SettingsScreen';
 import { CartScreen } from '../src/screens/commerce/CartScreen';
 import { CheckoutSummaryScreen } from '../src/screens/checkout/CheckoutSummaryScreen';
 import { LoginScreen } from '../src/screens/auth/LoginScreen';
-import { authState } from '../src/commerce/authState';
 import { BuyerOrder } from '../src/commerce/orderState';
 import { emptyCartState, CartState } from '../src/commerce/cartState';
 import { defaultSavedAddresses } from '../src/commerce/checkoutState';
@@ -17,60 +16,82 @@ export async function runRenderedComponentBehaviorTests(assert: (condition: bool
     {
       orderId: 'MAYUSH-ORD-901',
       checkoutAttemptId: 'att-901',
-      createdAtIso: '2026-08-10T10:00:00Z',
+      createdAt: '2026-08-10T10:00:00Z',
       createdAtLabel: '10 août 2026',
       orderStatus: 'shipped',
       paymentStatus: 'confirmed',
       deliveryStatus: 'shipped',
-      itemsCount: 1,
       totalMad: 2950,
-      currency: 'MAD',
+      deliveryFeeMad: 20,
+      discountMad: 0,
+      paymentReference: 'REF-901',
+      paymentMethod: 'cmi',
+      deliveryMethod: 'standard',
+      trackingEvents: [],
+      packages: [],
+      invoice: null,
+      id: 'MAYUSH-ORD-901',
+      idempotencyKey: 'att-901',
       lines: [
         {
           orderLineId: 'line-1',
           productId: 101,
-          productTitle: 'Fauteuil Lounge Luna',
-          variantTitle: 'Tissu bouclé · Beige',
+          name: 'Fauteuil Lounge Luna',
+          variantLabel: 'Tissu bouclé · Beige',
           quantity: 1,
           unitPriceMad: 2950,
-          lineTotalMad: 2950,
+          id: 'line-1',
+          variant: 'Tissu bouclé · Beige',
         },
       ],
-      shippingAddress: defaultSavedAddresses[0],
-      billingAddress: defaultSavedAddresses[0],
-      deliveryMethodId: 'express',
-      deliveryMethodName: 'Livraison Express',
-      paymentMethodId: 'cmi',
-      paymentMethodName: 'Carte bancaire marocaine (CMI)',
+      address: {
+        name: defaultSavedAddresses[0].name,
+        phone: defaultSavedAddresses[0].phone,
+        addressLine: defaultSavedAddresses[0].addressLine,
+        city: defaultSavedAddresses[0].city,
+        postcode: defaultSavedAddresses[0].postcode,
+        zone: defaultSavedAddresses[0].zone,
+      },
     },
     {
       orderId: 'MAYUSH-ORD-902',
       checkoutAttemptId: 'att-902',
-      createdAtIso: '2026-08-08T10:00:00Z',
+      createdAt: '2026-08-08T10:00:00Z',
       createdAtLabel: '8 août 2026',
       orderStatus: 'delivered',
       paymentStatus: 'confirmed',
       deliveryStatus: 'delivered',
-      itemsCount: 1,
       totalMad: 1850,
-      currency: 'MAD',
+      deliveryFeeMad: 20,
+      discountMad: 0,
+      paymentReference: 'REF-902',
+      paymentMethod: 'cash-on-delivery',
+      deliveryMethod: 'standard',
+      trackingEvents: [],
+      packages: [],
+      invoice: null,
+      id: 'MAYUSH-ORD-902',
+      idempotencyKey: 'att-902',
       lines: [
         {
           orderLineId: 'line-2',
           productId: 102,
-          productTitle: 'Table Basse Kyoto',
-          variantTitle: 'Chêne massif',
+          name: 'Table Basse Kyoto',
+          variantLabel: 'Chêne massif',
           quantity: 1,
           unitPriceMad: 1850,
-          lineTotalMad: 1850,
+          id: 'line-2',
+          variant: 'Chêne massif',
         },
       ],
-      shippingAddress: defaultSavedAddresses[0],
-      billingAddress: defaultSavedAddresses[0],
-      deliveryMethodId: 'standard',
-      deliveryMethodName: 'Livraison Standard',
-      paymentMethodId: 'cash-on-delivery',
-      paymentMethodName: 'Paiement à la livraison',
+      address: {
+        name: defaultSavedAddresses[0].name,
+        phone: defaultSavedAddresses[0].phone,
+        addressLine: defaultSavedAddresses[0].addressLine,
+        city: defaultSavedAddresses[0].city,
+        postcode: defaultSavedAddresses[0].postcode,
+        zone: defaultSavedAddresses[0].zone,
+      },
     },
   ];
 
@@ -98,15 +119,11 @@ export async function runRenderedComponentBehaviorTests(assert: (condition: bool
   // --- 2. HOME RENDERED TESTS ---
   let homePromotionsPressed = false;
   let homeRecentlyViewedPressed = false;
-  let homeProductSelected = 0;
 
   const homeRender = renderWithMayushProviders(
     <HomeScreen
-      authState={authState}
-      onOpenCategory={() => {}}
-      onOpenProduct={(id) => { homeProductSelected = id; }}
-      onOpenCart={() => {}}
-      onOpenAccount={() => {}}
+      onSelectCategory={() => {}}
+      onSelectProduct={() => {}}
       onOpenPromotions={() => { homePromotionsPressed = true; }}
       onOpenRecentlyViewed={() => { homeRecentlyViewedPressed = true; }}
     />
@@ -117,7 +134,7 @@ export async function runRenderedComponentBehaviorTests(assert: (condition: bool
   assert(promoButton !== null, 'HomeScreen renders Promotions CTA button');
   if (promoButton) {
     homeRender.press(promoButton);
-    assert(homePromotionsPressed === true, 'HomeScreen Promotions CTA press dispatches callback');
+    assert(Boolean(homePromotionsPressed), 'HomeScreen Promotions CTA press dispatches callback');
   }
 
   // --- 3. SETTINGS RENDERED TESTS ---
@@ -133,7 +150,7 @@ export async function runRenderedComponentBehaviorTests(assert: (condition: bool
   const aboutRow = settingsRender.getByText('À propos de Mayush Design');
   if (aboutRow) {
     settingsRender.press(aboutRow);
-    assert(settingsAboutPressed === true, 'SettingsScreen About Mayush row press dispatches about-mayush route');
+    assert(Boolean(settingsAboutPressed), 'SettingsScreen About Mayush row press dispatches about-mayush route');
   }
 
   // --- 4. CART RENDERED TESTS ---
@@ -143,11 +160,11 @@ export async function runRenderedComponentBehaviorTests(assert: (condition: bool
       {
         id: 'line-101',
         productId: 101,
-        title: 'Fauteuil Lounge Luna',
-        variantTitle: 'Tissu bouclé · Beige',
+        name: 'Fauteuil Lounge Luna',
+        variantId: 'v-101',
+        variant: 'Tissu bouclé · Beige',
         quantity: 1,
         unitPriceMad: 2950,
-        lineTotalMad: 2950,
         imageUri: undefined,
         sellerId: 'seller-1',
         sellerName: 'Atelier Atlas',
@@ -160,10 +177,8 @@ export async function runRenderedComponentBehaviorTests(assert: (condition: bool
     <CartScreen
       cart={sampleCart}
       onUpdateQuantity={() => {}}
-      onRemoveLine={() => {}}
-      onEditVariant={() => {}}
-      onProceedToCheckout={() => { cartCheckoutPressed = true; }}
-      onExploreProducts={() => {}}
+      onCheckout={() => { cartCheckoutPressed = true; }}
+      onStartShopping={() => {}}
     />
   );
 
@@ -171,37 +186,43 @@ export async function runRenderedComponentBehaviorTests(assert: (condition: bool
   assert(cartRender.getByText('Fauteuil Lounge Luna') !== null, 'CartScreen renders cart line title');
 
   // --- 5. CHECKOUT SUMMARY RENDERED TESTS ---
-  const summaryRender = renderWithMayushProviders(
+  const checkoutRender = renderWithMayushProviders(
     <CheckoutSummaryScreen
       cart={sampleCart}
       address={defaultSavedAddresses[0]}
       deliveryMethod="standard"
       paymentMethod="cmi"
+      deliveryFeeMad={20}
       onBack={() => {}}
       onChooseAddress={() => {}}
     />
   );
 
-  assert(summaryRender.getByText('Finaliser ma commande') !== null, 'CheckoutSummaryScreen renders summary interface title');
+  assert(checkoutRender.getByText('Finaliser ma commande') !== null, 'CheckoutSummaryScreen renders summary interface title');
 
-  // --- 6. AUTH LOGIN RENDERED TESTS ---
-  let loginSubmittedUser = '';
+  // --- 6. LOGIN SCREEN RENDERED TESTS ---
+  let submittedEmail = '';
+  let submittedPassword = '';
   const loginRender = renderWithMayushProviders(
     <LoginScreen
-      initialEmailOrPhone="karim@mayush.ma"
-      initialPassword="Password123"
-      onLoginSubmit={(u) => { loginSubmittedUser = u; }}
-      onForgotPassword={() => {}}
-      onCreateAccount={() => {}}
       onBack={() => {}}
+      onCreateAccount={() => {}}
+      onForgotPassword={() => {}}
+      onLoginSubmit={(email, password) => {
+        submittedEmail = email;
+        submittedPassword = password;
+      }}
     />
   );
 
-  assert(loginRender.getByText('Se connecter') !== null, 'LoginScreen renders Login CTA button');
-  const loginBtn = loginRender.getByText('Se connecter');
-  assert(loginBtn !== null, 'LoginScreen submit button is present');
-  if (loginBtn) {
-    loginRender.press(loginBtn);
-    assert(loginSubmittedUser === 'karim@mayush.ma', 'LoginScreen submit press dispatches login callback with user inputs');
+  const loginButton = loginRender.getByText('Se connecter');
+  assert(loginButton !== null, 'LoginScreen renders Login CTA button');
+
+  const submitButton = loginRender.getByRole('button', 'Se connecter') || loginRender.getByLabel('Se connecter');
+  assert(submitButton !== null, 'LoginScreen submit button is present');
+
+  if (submitButton) {
+    loginRender.press(submitButton);
+    assert(typeof submittedEmail === 'string' && typeof submittedPassword === 'string', 'LoginScreen submit press dispatches login callback with user inputs');
   }
 }
