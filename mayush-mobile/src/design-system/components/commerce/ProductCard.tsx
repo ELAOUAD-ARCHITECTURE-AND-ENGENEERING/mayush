@@ -14,6 +14,7 @@ export interface ProductCardProps {
   originalPriceFormatted?: string;
   hasDiscount?: boolean;
   discountPercentage?: string;
+  badgeText?: string;
   rating?: number;
   salesCount?: number;
   subtitle?: string;
@@ -34,6 +35,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   originalPriceFormatted,
   hasDiscount = false,
   discountPercentage,
+  badgeText,
   rating,
   salesCount,
   subtitle,
@@ -47,27 +49,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const grid = variant === 'grid';
   const cardWidth = width ?? (grid ? '48%' : 164);
+  const activeBadge = badgeText || (hasDiscount && discountPercentage ? (discountPercentage.startsWith('-') ? discountPercentage : `-${discountPercentage}`) : null);
 
   return (
     <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={[{ width: cardWidth as never }, style]}>
       <View style={[styles.card, grid && styles.gridCard]}>
         <View style={[styles.imageWrap, grid ? styles.gridImage : styles.compactImage]}>
           <Image source={thumbnailSource ?? { uri: thumbnailUrl || 'https://via.placeholder.com/320' }} style={styles.image} resizeMode="cover" />
-          {hasDiscount && discountPercentage ? (
-            <View style={styles.discountBadge}>
+          {activeBadge ? (
+            <View style={[styles.discountBadge, badgeText ? styles.ticketBadge : undefined]}>
               <MayushText variant="caption" color={colors.surface.white} style={styles.discountText}>
-                {discountPercentage.startsWith('-') ? discountPercentage : `-${discountPercentage}`}
+                {activeBadge}
               </MayushText>
             </View>
           ) : null}
           <TouchableOpacity
             activeOpacity={0.72}
             onPress={onFavoritePress}
-            style={styles.favorite}
+            style={[styles.favorite, isFavorite && styles.favoriteActive]}
             accessibilityRole="button"
-            accessibilityLabel="Ajouter aux favoris"
+            accessibilityLabel={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
           >
-            <MayushIcon name="heart" size={grid ? 22 : 20} color={isFavorite ? colors.brand.orange500 : colors.brand.navy900} />
+            <MayushIcon
+              name={isFavorite ? 'heart-filled' : 'heart'}
+              size={grid ? 22 : 20}
+              color={isFavorite ? '#E53935' : colors.brand.navy900}
+            />
           </TouchableOpacity>
         </View>
 
@@ -126,6 +133,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7,
     paddingVertical: 4,
   },
+  ticketBadge: {
+    backgroundColor: colors.brand.navy900,
+  },
   discountText: { fontWeight: '700' },
   favorite: {
     position: 'absolute',
@@ -137,6 +147,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.95)',
     borderRadius: 16,
+  },
+  favoriteActive: {
+    backgroundColor: '#FFEBEA',
   },
   details: { paddingHorizontal: 10, paddingTop: 8, paddingBottom: 9, gap: 3 },
   gridDetails: { paddingHorizontal: 11, paddingVertical: 10, gap: 4 },

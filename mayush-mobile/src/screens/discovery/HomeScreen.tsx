@@ -145,10 +145,13 @@ export interface HomeScreenProps {
   onOpenOrder?: (orderId: string) => void;
   onOpenPromotions?: () => void;
   onOpenRecentlyViewed?: () => void;
+  onOpenBestSellers?: () => void;
+  onOpenNewArrivals?: () => void;
+  onOpenInspiration?: () => void;
   cartBadgeCount?: number;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectCategory, onSelectProduct, onNavigateTab, activeTab = 'home', isAuthenticated = false, authenticatedUser = null, orders = [], cartProductIds = [], wishlistedProductIds = [], onToggleWishlist, onOpenWishlist, onOpenOrder, onOpenPromotions, onOpenRecentlyViewed, cartBadgeCount = 2 }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectCategory, onSelectProduct, onNavigateTab, activeTab = 'home', isAuthenticated = false, authenticatedUser = null, orders = [], cartProductIds = [], wishlistedProductIds = [], onToggleWishlist, onOpenWishlist, onOpenOrder, onOpenPromotions, onOpenRecentlyViewed, onOpenBestSellers, onOpenNewArrivals, onOpenInspiration, cartBadgeCount = 2 }) => {
   const { language, isRTL } = useTheme();
   const { width } = useWindowDimensions();
   const contentPadding = Math.max(20, Math.round(width * 0.031));
@@ -277,22 +280,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onSelectCategory, onSele
           </TouchableOpacity>
         </ScrollView>
 
-        <SectionHeader label={heading('Nouveaut\u00e9s', '\u0648\u0635\u0648\u0644 \u062c\u062f\u064a\u062f')} action={heading('Voir tout', '\u0639\u0631\u0636 \u0627\u0644\u0643\u0644')} />
-        <ProductRail products={NEW_ARRIVALS} cardWidth={productWidth} onSelect={onSelectProduct} />
+        <SectionHeader label={heading('Nouveautés', 'وصول جديد')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenNewArrivals ?? onOpenPromotions ?? (() => onNavigateTab?.('categories'))} />
+        <ProductRail products={NEW_ARRIVALS} cardWidth={productWidth} onSelect={onSelectProduct} wishlistedProductIds={wishlistedProductIds} onToggleWishlist={onToggleWishlist} badgeText={heading('Nouveau', 'جديد')} />
 
-        <SectionHeader label={heading('Meilleures ventes', '\u0627\u0644\u0623\u0643\u062b\u0631 \u0645\u0628\u064a\u0639\u064b\u0627')} action={heading('Voir tout', '\u0639\u0631\u0636 \u0627\u0644\u0643\u0644')} />
-        <ProductRail products={BEST_SELLERS} cardWidth={productWidth} onSelect={onSelectProduct} showRating />
+        <SectionHeader label={heading('Meilleures ventes', 'الأكثر مبيعاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenBestSellers ?? (() => onNavigateTab?.('categories'))} />
+        <ProductRail products={BEST_SELLERS} cardWidth={productWidth} onSelect={onSelectProduct} showRating wishlistedProductIds={wishlistedProductIds} onToggleWishlist={onToggleWishlist} badgeText={heading('Meilleure vente', 'الأكثر مبيعاً')} />
 
         <View style={styles.offerBanner}>
           <View style={styles.offerIcon}><MayushIcon name="tag" size={23} color={colors.brand.orange500} /></View>
-          <View style={styles.offerCopy}><MayushText variant="sectionTitle" color={colors.brand.navy900} style={styles.offerTitle}>{heading('Offres du moment', '\u0639\u0631\u0648\u0636 \u0627\u0644\u0644\u062d\u0638\u0629')}</MayushText><MayushText variant="smallBody" color={colors.neutral.gray700}>{heading('Jusqu\u2019\u00e0 -20% sur une s\u00e9lection de pi\u00e8ces d\u2019exception.', '\u062d\u062a\u0649 20% \u0639\u0644\u0649 \u0645\u0646\u062a\u062c\u0627\u062a \u0645\u062e\u062a\u0627\u0631\u0629.')}</MayushText></View>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Profiter des offres', '\u0627\u0633\u062a\u0641\u062f \u0645\u0646 \u0627\u0644\u0639\u0631\u0648\u0636')} onPress={onOpenPromotions} style={styles.offerButton}><MayushText variant="smallBody" color={colors.brand.orange500} style={styles.offerButtonLabel}>{heading('En profiter', '\u0627\u0633\u062a\u0641\u062f')}</MayushText></TouchableOpacity>
+          <View style={styles.offerCopy}><MayushText variant="sectionTitle" color={colors.brand.navy900} style={styles.offerTitle}>{heading('Offres du moment', 'عروض اللحظة')}</MayushText><MayushText variant="smallBody" color={colors.neutral.gray700}>{heading('Jusqu’à -20% sur une sélection de pièces d’exception.', 'حتى 20% على منتجات مختارة.')}</MayushText></View>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Profiter des offres', 'استفد من العروض')} onPress={onOpenPromotions} style={styles.offerButton}><MayushText variant="smallBody" color={colors.brand.orange500} style={styles.offerButtonLabel}>{heading('En profiter', 'استفد')}</MayushText></TouchableOpacity>
         </View>
 
-        <SectionHeader label={heading('Inspiration du moment', '\u0625\u0644\u0647\u0627\u0645 \u0627\u0644\u064a\u0648\u0645')} action={heading('Voir tout', '\u0639\u0631\u0636 \u0627\u0644\u0643\u0644')} />
+        <SectionHeader label={heading('Inspiration du moment', 'إلهام اليوم')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenInspiration ?? onOpenWishlist ?? (() => onNavigateTab?.('categories'))} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.inspirationRail}>
-          <InspirationCard source={INSPIRATION_ARTWORK[0]} width={Math.round(contentWidth * 0.488)} />
-          <InspirationCard source={INSPIRATION_ARTWORK[1]} width={Math.round(contentWidth * 0.488)} />
+          <InspirationCard source={INSPIRATION_ARTWORK[0]} width={Math.round(contentWidth * 0.488)} onPress={onOpenInspiration ?? onOpenWishlist ?? (() => onNavigateTab?.('categories'))} />
+          <InspirationCard source={INSPIRATION_ARTWORK[1]} width={Math.round(contentWidth * 0.488)} onPress={onOpenInspiration ?? onOpenWishlist ?? (() => onNavigateTab?.('categories'))} />
         </ScrollView>
       </ScrollView>
       <BottomTabBar activeTab={activeTab} onTabPress={onNavigateTab ?? (() => undefined)} cartBadgeCount={cartBadgeCount} />
@@ -486,15 +489,50 @@ const ActionSectionHeader: React.FC<{ label: string; action: string; isRTL: bool
   </View>
 );
 
-const SectionHeader: React.FC<{ label: string; action: string }> = ({ label, action }) => <View style={styles.sectionHeader}><MayushText variant="sectionTitle" color={colors.brand.navy900} style={styles.sectionTitle}>{label}</MayushText><MayushText variant="smallBody" color={colors.brand.orange500} style={styles.seeAll}>{action}</MayushText></View>;
+const SectionHeader: React.FC<{ label: string; action: string; isRTL?: boolean; onPress?: () => void }> = ({ label, action, isRTL, onPress }) => (
+  <View style={[styles.sectionHeader, isRTL && styles.rowReverse]}>
+    <MayushText variant="sectionTitle" color={colors.brand.navy900} style={[styles.sectionTitle, isRTL && styles.rtlText]}>{label}</MayushText>
+    <TouchableOpacity accessibilityRole="button" accessibilityLabel={action} onPress={onPress}>
+      <MayushText variant="smallBody" color={colors.brand.orange500} style={styles.seeAll}>{action}</MayushText>
+    </TouchableOpacity>
+  </View>
+);
 
-const ProductRail: React.FC<{ products: ShowcaseProduct[]; cardWidth: number; onSelect?: (product: ProductMiniDto) => void; showRating?: boolean }> = ({ products, cardWidth, onSelect, showRating }) => (
+const ProductRail: React.FC<{
+  products: ShowcaseProduct[];
+  cardWidth: number;
+  onSelect?: (product: ProductMiniDto) => void;
+  showRating?: boolean;
+  wishlistedProductIds?: number[];
+  onToggleWishlist?: (product: ProductMiniDto) => void;
+  badgeText?: string;
+}> = ({ products, cardWidth, onSelect, showRating, wishlistedProductIds = [], onToggleWishlist, badgeText }) => (
   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.productRail}>
-    {products.map(({ product: item, art }) => <ProductCard key={item.id} name={item.name} thumbnailUrl="" thumbnailSource={art} currentPriceFormatted={item.main_price} hasDiscount={false} rating={showRating ? item.rating : undefined} salesCount={showRating ? item.sales : undefined} width={cardWidth} onPress={() => onSelect?.(item)} />)}
+    {products.map(({ product: item, art }) => (
+      <ProductCard
+        key={item.id}
+        name={item.name}
+        thumbnailUrl=""
+        thumbnailSource={art}
+        currentPriceFormatted={item.main_price}
+        hasDiscount={false}
+        badgeText={badgeText}
+        rating={showRating ? item.rating : undefined}
+        salesCount={showRating ? item.sales : undefined}
+        width={cardWidth}
+        isFavorite={wishlistedProductIds.includes(item.id)}
+        onFavoritePress={() => onToggleWishlist?.(item)}
+        onPress={() => onSelect?.(item)}
+      />
+    ))}
   </ScrollView>
 );
 
-const InspirationCard: React.FC<{ source: ImageSourcePropType; width: number }> = ({ source, width }) => <View style={[styles.inspirationCard, { width, height: Math.round(width * (143 / 432)) }]}><Image source={source} style={styles.inspirationImage} resizeMode="cover" /></View>;
+const InspirationCard: React.FC<{ source: ImageSourcePropType; width: number; onPress?: () => void }> = ({ source, width, onPress }) => (
+  <TouchableOpacity activeOpacity={0.82} onPress={onPress} style={[styles.inspirationCard, { width, height: Math.round(width * (143 / 432)) }]}>
+    <Image source={source} style={styles.inspirationImage} resizeMode="cover" />
+  </TouchableOpacity>
+);
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFCF8' },
@@ -511,7 +549,7 @@ const styles = StyleSheet.create({
   personalizedHeroCopy: { flex: 1, width: '64%', paddingLeft: 22, justifyContent: 'center', alignItems: 'flex-start', zIndex: 1 },
   personalizedHeroCopyRtl: { alignItems: 'flex-end', alignSelf: 'flex-end', paddingLeft: 0, paddingRight: 22 },
   premiumEyebrow: { fontSize: 10, fontWeight: '800', letterSpacing: 0.8 },
-  personalizedHeroTitle: { marginTop: 6, fontFamily: 'Georgia', fontSize: 25, lineHeight: 28, fontWeight: '700' },
+  personalizedHeroTitle: { marginTop: 6, fontSize: 25, lineHeight: 28, fontWeight: '700' },
   personalizedHeroBody: { marginTop: 7, fontSize: 12, lineHeight: 17 },
   personalizedHeroCta: { marginTop: 11, borderRadius: 9, backgroundColor: colors.brand.orange500, paddingHorizontal: 13, paddingVertical: 9 },
   personalizedDots: { position: 'absolute', left: 22, bottom: 9, flexDirection: 'row', alignItems: 'center', gap: 7 },
@@ -538,7 +576,7 @@ const styles = StyleSheet.create({
   heroImage: { position: 'absolute', right: 0, width: '66%', height: '100%' },
   heroCopyPanel: { flex: 1, width: '57%', paddingLeft: 40, justifyContent: 'center', alignItems: 'flex-start', zIndex: 1 },
   heroCopyPanelRtl: { alignItems: 'flex-end', alignSelf: 'flex-end', paddingLeft: 0, paddingRight: 28 },
-  heroTitle: { fontFamily: 'Georgia', fontWeight: '700', letterSpacing: -0.4 },
+  heroTitle: { fontWeight: '700', letterSpacing: -0.4 },
   heroBody: { marginTop: 13, fontSize: 16, lineHeight: 23 },
   heroCta: { marginTop: 20, borderRadius: 13, backgroundColor: colors.brand.orange500, paddingHorizontal: 21, paddingVertical: 14 },
   heroCtaLabel: { fontSize: 16, fontWeight: '700' },
@@ -550,13 +588,13 @@ const styles = StyleSheet.create({
   categoryLabel: { fontSize: 15, lineHeight: 18, width: 116 },
   moreCircle: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface.white, borderWidth: 1, borderColor: '#ECE7E0' },
   sectionHeader: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 2 },
-  sectionTitle: { fontFamily: 'Georgia', fontSize: 27, lineHeight: 32 },
+  sectionTitle: { fontSize: 27, lineHeight: 32 },
   seeAll: { fontSize: 16, fontWeight: '600' },
   productRail: { gap: 16, paddingRight: 8 },
   offerBanner: { minHeight: 96, flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 18, backgroundColor: '#FFF0DE', padding: 15 },
   offerIcon: { width: 52, height: 52, borderRadius: 26, backgroundColor: '#FFD8AB', alignItems: 'center', justifyContent: 'center' },
   offerCopy: { flex: 1, gap: 3 },
-  offerTitle: { fontFamily: 'Georgia', fontSize: 21 },
+  offerTitle: { fontSize: 21 },
   offerButton: { borderWidth: 1.5, borderColor: colors.brand.orange500, borderRadius: 11, paddingHorizontal: 17, paddingVertical: 12 },
   offerButtonLabel: { fontSize: 15, fontWeight: '700' },
   inspirationRail: { gap: 16, paddingRight: 8 },
