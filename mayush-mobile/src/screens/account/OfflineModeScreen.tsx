@@ -11,7 +11,6 @@ import { spacing } from '../../design-system/tokens/spacing';
 export interface OfflineModeScreenProps {
   onNavigateTab?: (tab: TabKey) => void;
   onBack?: () => void;
-  onNavigateLegalCenter?: () => void;
 }
 
 export const OfflineModeScreen: React.FC<OfflineModeScreenProps> = ({

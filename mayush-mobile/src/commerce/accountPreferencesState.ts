@@ -102,6 +102,10 @@ class AccountPreferencesStateManager {
     return this.hydrated;
   }
 
+  public async rehydrate(): Promise<void> {
+    await this.loadFromStorage();
+  }
+
   private async loadFromStorage() {
     try {
       const stored = await AsyncStorage.getItem(PREFERENCES_STORAGE_KEY);

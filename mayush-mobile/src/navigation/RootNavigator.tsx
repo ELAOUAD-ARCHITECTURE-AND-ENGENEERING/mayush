@@ -839,8 +839,8 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       {currentScreen === 'category-products' ? <CategoryProductListScreen activeTab={activeTab} category={selectedCategory} onBack={() => setCurrentScreen('category-landing')} onSelectProduct={selectProduct} onNavigateTab={navigateTab} /> : null}
       {currentScreen === 'collection-shop-the-look' ? <CollectionShopTheLookScreen onBack={() => setCurrentScreen('category-landing')} onSelectProduct={selectProduct} onAddAllToCart={() => setCurrentScreen('cart')} onOpenFilter={() => setCurrentScreen('filter-panel-modal')} /> : null}
       {currentScreen === 'flash-deals' ? <FlashDealsScreen onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} onOpenProductDetails={(id) => { selectProduct({ id, name: 'Produit Flash', thumbnail_image: '', has_discount: false, discount: '', stroked_price: '', priceMad: 1000, formattedPrice: '1 000 MAD', main_price: '1 000 MAD', rating: 5, sales: 1, links: { details: '' } }); setCurrentScreen('product-details'); }} /> : null}
-      {currentScreen === 'promotions-campaigns' ? <PromotionsCampaignsScreen onBack={() => setCurrentScreen('home')} onExploreDeals={() => setCurrentScreen('flash-deals')} onOpenRecentlyViewed={() => setCurrentScreen('recently-viewed')} /> : null}
-      {currentScreen === 'recently-viewed' ? <RecentlyViewedScreen products={getRecentlyViewedFallbackProducts()} onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} onOpenSearch={() => setCurrentScreen('search-landing')} /> : null}
+      {currentScreen === 'promotions-campaigns' ? <PromotionsCampaignsScreen onBack={() => setCurrentScreen('home')} onExploreDeals={() => setCurrentScreen('flash-deals')} /> : null}
+      {currentScreen === 'recently-viewed' ? <RecentlyViewedScreen products={getRecentlyViewedFallbackProducts()} onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} /> : null}
 
       {currentScreen === 'search-landing' ? <SearchLandingScreen onBack={() => setCurrentScreen('home')} onSearchSubmit={(q) => { handleSearchSubmit(q); setCurrentScreen('search-results'); }} onSelectCategoryShortcut={() => setCurrentScreen('category-landing')} /> : null}
       {currentScreen === 'search-results' ? <SearchResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen('search-landing')} onOpenFilter={() => setFilterModalVisible(true)} onSelectProduct={(p) => { selectProduct(p); setCurrentScreen('product-details'); }} onToggleWishlist={(pid) => { if (!isAuthenticated) { setFavoritesPromptItemId(String(pid)); setFavoritesPromptVisible(true); } }} /> : null}
@@ -986,7 +986,6 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onLanguageApplied={(lang) => {
             setCurrentScreen('account');
           }}
-          onNavigateNotificationSettings={() => setCurrentScreen('notification-settings-toggles')}
         />
       ) : null}
 
@@ -1003,7 +1002,6 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('marketing-cart-reminders')}
           onNavigateToggles={() => setCurrentScreen('marketing-toggles')}
-          onNavigateSilentHours={() => setCurrentScreen('silent-hours-day-selection')}
         />
       ) : null}
 
@@ -1028,7 +1026,6 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('notification-channels')}
           onNavigateNotificationDetails={() => setCurrentScreen('notification-detail-prep')}
-          onNavigateMarketingPreferences={() => setCurrentScreen('marketing-detailed-preferences')}
         />
       ) : null}
 
@@ -1055,7 +1052,6 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('notification-detail-shipped')}
           onSaveSchedule={() => setCurrentScreen('silent-hours-dnd')}
-          onNavigateOfflineMode={() => setCurrentScreen('offline-mode')}
         />
       ) : null}
 
@@ -1139,7 +1135,6 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         <OfflineModeScreen
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('settings')}
-          onNavigateLegalCenter={() => setCurrentScreen('legal-center')}
         />
       ) : null}
 

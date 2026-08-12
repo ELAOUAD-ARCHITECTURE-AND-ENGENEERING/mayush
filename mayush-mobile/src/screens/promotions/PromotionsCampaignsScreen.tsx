@@ -19,7 +19,6 @@ import { radii } from '../../design-system/tokens/radii';
 export interface PromotionsCampaignsScreenProps {
   onBack: () => void;
   onExploreDeals: () => void;
-  onOpenRecentlyViewed?: () => void;
 }
 
 export const PromotionsCampaignsScreen: React.FC<PromotionsCampaignsScreenProps> = ({

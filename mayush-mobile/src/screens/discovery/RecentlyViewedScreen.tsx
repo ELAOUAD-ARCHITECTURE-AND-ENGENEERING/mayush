@@ -20,7 +20,6 @@ export interface RecentlyViewedScreenProps {
   products: ProductMiniDto[];
   onBack: () => void;
   onSelectProduct: (product: ProductMiniDto) => void;
-  onOpenSearch?: () => void;
 }
 
 export const RecentlyViewedScreen: React.FC<RecentlyViewedScreenProps> = ({ products, onBack, onSelectProduct }) => {

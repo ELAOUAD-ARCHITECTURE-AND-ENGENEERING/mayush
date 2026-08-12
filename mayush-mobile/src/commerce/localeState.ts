@@ -58,9 +58,12 @@ class LocaleStateManager {
       const legacyPrefs = await AsyncStorage.getItem(LEGACY_ACCOUNT_PREFERENCES_KEY);
       if (legacyPrefs) {
         const parsed = JSON.parse(legacyPrefs);
-        if (parsed.selectedLanguage === 'fr' || parsed.selectedLanguage === 'ar') {
-          this.currentLanguage = parsed.selectedLanguage;
-          await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, parsed.selectedLanguage);
+        if (parsed && typeof parsed === 'object' && (parsed.selectedLanguage === 'fr' || parsed.selectedLanguage === 'ar')) {
+          const lang = parsed.selectedLanguage;
+          this.currentLanguage = lang;
+          await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+          const { selectedLanguage: _extracted, ...remainingPrefs } = parsed;
+          await AsyncStorage.setItem(LEGACY_ACCOUNT_PREFERENCES_KEY, JSON.stringify(remainingPrefs));
           this.hydrated = true;
           this.notify();
           return;

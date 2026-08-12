@@ -15,7 +15,6 @@ export interface MarketingDetailedPreferencesScreenProps {
   onNavigateTab?: (tab: TabKey) => void;
   onBack?: () => void;
   onNavigateToggles?: () => void;
-  onNavigateSilentHours?: () => void;
 }
 
 export const MarketingDetailedPreferencesScreen: React.FC<MarketingDetailedPreferencesScreenProps> = ({

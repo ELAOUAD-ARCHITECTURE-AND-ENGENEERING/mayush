@@ -6,6 +6,9 @@ import { SavedAddress, defaultSavedAddresses } from './checkoutState';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const AUTH_SESSION_STORAGE_KEY = 'mayush-mobile:auth-session:v1';
+export const ADDRESSES_STORAGE_KEY_PREFIX = 'mayush-mobile:addresses:v1:';
+export const getAddressesStorageKey = (userId?: string): string =>
+  `${ADDRESSES_STORAGE_KEY_PREFIX}${userId && userId.trim() ? userId.trim() : 'guest'}`;
 
 export interface MockUser {
   id: string;
@@ -179,6 +182,31 @@ export class AuthStateManager {
     }));
   }
 
+  public async persistAddresses(): Promise<void> {
+    const key = getAddressesStorageKey(this.user?.id);
+    try {
+      await AsyncStorage.setItem(key, JSON.stringify(this.savedAddresses));
+    } catch {
+      // Storage error ignored
+    }
+  }
+
+  public async hydrateAddresses(userId?: string): Promise<void> {
+    const key = getAddressesStorageKey(userId ?? this.user?.id);
+    try {
+      const stored = await AsyncStorage.getItem(key);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          this.savedAddresses = parsed;
+          return;
+        }
+      }
+    } catch {
+      // Storage fallback
+    }
+  }
+
   public async hydrate(): Promise<void> {
     if (this.hydrated) return;
     this.status = 'hydrating';
@@ -202,6 +230,7 @@ export class AuthStateManager {
       this.user = null;
       this.status = 'guest';
     } finally {
+      await this.hydrateAddresses(this.user?.id);
       this.hydrated = true;
       this.notify();
     }
@@ -248,9 +277,11 @@ export class AuthStateManager {
   public setGuest() {
     this.status = 'guest';
     this.user = null;
+    this.savedAddresses = [...defaultSavedAddresses];
     this.loginError = null;
     this.hydrated = true;
     void this.persistSession();
+    void this.hydrateAddresses(undefined);
     this.notify();
   }
 
@@ -288,9 +319,11 @@ export class AuthStateManager {
       gender: (this.user.gender as 'm' | 'f' | 'other' | null) || 'm',
       birthDate: this.user.birthDate || '1992-06-15',
     };
+    this.savedAddresses = [...defaultSavedAddresses];
     this.loginError = null;
     this.hydrated = true;
     void this.persistSession();
+    void this.hydrateAddresses(this.user.id);
     this.notify();
   }
 
@@ -325,8 +358,10 @@ export class AuthStateManager {
       gender: 'm',
       birthDate: '1995-01-01',
     };
+    this.savedAddresses = [...defaultSavedAddresses];
     this.hydrated = true;
     void this.persistSession();
+    void this.hydrateAddresses(this.user.id);
     this.notify();
   }
 
@@ -414,9 +449,11 @@ export class AuthStateManager {
   public logout() {
     this.status = 'guest';
     this.user = null;
+    this.savedAddresses = [...defaultSavedAddresses];
     this.loginError = null;
     this.hydrated = true;
     void this.persistSession();
+    void this.hydrateAddresses(undefined);
     this.notify();
   }
 
@@ -521,6 +558,7 @@ export class AuthStateManager {
   /** Hydrates the canonical address book from checkout's durable session. */
   public replaceSavedAddresses(addresses: SavedAddress[]) {
     this.savedAddresses = addresses.map((address) => ({ ...address }));
+    void this.persistAddresses();
     this.notify();
   }
 
@@ -529,6 +567,7 @@ export class AuthStateManager {
       this.savedAddresses = this.savedAddresses.map((a) => ({ ...a, isDefault: false }));
     }
     this.savedAddresses.push(address);
+    void this.persistAddresses();
     this.notify();
   }
 
@@ -539,6 +578,7 @@ export class AuthStateManager {
     this.savedAddresses = this.savedAddresses.map((a) =>
       a.id === id ? { ...a, ...updated } : a,
     );
+    void this.persistAddresses();
     this.notify();
   }
 
@@ -551,6 +591,7 @@ export class AuthStateManager {
     if (this.addressToDelete?.id === id) {
       this.addressToDelete = null;
     }
+    void this.persistAddresses();
     this.notify();
   }
 
@@ -559,6 +600,7 @@ export class AuthStateManager {
       ...a,
       isDefault: a.id === id,
     }));
+    void this.persistAddresses();
     this.notify();
   }
 
