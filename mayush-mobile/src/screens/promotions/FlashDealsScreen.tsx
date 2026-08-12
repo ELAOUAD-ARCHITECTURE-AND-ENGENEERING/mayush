@@ -24,6 +24,7 @@ const FAUTEUIL_IMG = require('../../../assets/reference-art/home-new-nori.png');
 export interface FlashDealsScreenProps {
   onBack: () => void;
   onSelectProduct: (product: ProductMiniDto) => void;
+  onOpenProductDetails?: (productId: number) => void;
 }
 
 export const FlashDealsScreen: React.FC<FlashDealsScreenProps> = ({

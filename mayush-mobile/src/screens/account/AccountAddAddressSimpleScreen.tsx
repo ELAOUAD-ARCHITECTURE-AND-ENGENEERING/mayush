@@ -20,6 +20,7 @@ export interface AccountAddAddressSimpleScreenProps {
   onBack: () => void;
   onSaved: () => void;
   language?: 'fr' | 'ar';
+  onEditAddress?: (addressId: string) => void;
 }
 
 const update = (draft: AddressDraft, key: keyof AddressDraft, value: string | boolean): AddressDraft => ({ ...draft, [key]: value });

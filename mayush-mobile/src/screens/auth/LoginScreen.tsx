@@ -20,6 +20,8 @@ export interface LoginScreenProps {
   onForgotPassword: () => void;
   onCreateAccount: () => void;
   onBack: () => void;
+  initialEmailOrPhone?: string;
+  initialPassword?: string;
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({
@@ -27,9 +29,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   onForgotPassword,
   onCreateAccount,
   onBack,
+  initialEmailOrPhone = '',
+  initialPassword = '',
 }) => {
-  const [emailOrPhone, setEmailOrPhone] = useState('');
-  const [password, setPassword] = useState('');
+  const [emailOrPhone, setEmailOrPhone] = useState(initialEmailOrPhone);
+  const [password, setPassword] = useState(initialPassword);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');

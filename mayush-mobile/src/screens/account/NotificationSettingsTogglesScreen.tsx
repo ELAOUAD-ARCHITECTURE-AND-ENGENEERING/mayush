@@ -15,6 +15,7 @@ export interface NotificationSettingsTogglesScreenProps {
   onNavigateTab?: (tab: TabKey) => void;
   onBack?: () => void;
   onNavigateNotificationDetails?: () => void;
+  onNavigateMarketingPreferences?: () => void;
 }
 
 export const NotificationSettingsTogglesScreen: React.FC<NotificationSettingsTogglesScreenProps> = ({

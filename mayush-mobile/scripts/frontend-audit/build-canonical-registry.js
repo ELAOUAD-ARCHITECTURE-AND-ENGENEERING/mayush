@@ -82,8 +82,11 @@ const statusOverrides = routeMapData.connectionStatusOverrides || {};
 
 if (connections.length !== 206) fail(`Expected 206 prototype connections, found ${connections.length}.`);
 
-const screenKeyMatch = navigatorCode.match(/export type ScreenKey\s*=([\s\S]*?);\s*\n/);
-if (!screenKeyMatch) fail('Unable to parse ScreenKey from RootNavigator.tsx.');
+const screenKeysCode = fs.existsSync(path.join(rootDir, 'src/navigation/screenKeys.ts'))
+  ? fs.readFileSync(path.join(rootDir, 'src/navigation/screenKeys.ts'), 'utf8')
+  : navigatorCode;
+const screenKeyMatch = screenKeysCode.match(/export type ScreenKey\s*=([\s\S]*?);\s*\n/);
+if (!screenKeyMatch) fail('Unable to parse ScreenKey from RootNavigator.tsx or screenKeys.ts.');
 const screenKeys = new Set([...screenKeyMatch[1].matchAll(/'([^']+)'/g)].map((match) => match[1]));
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const literalTransitionCount = (route) => (navigatorCode.match(new RegExp(`setCurrentScreen\\((?:(?!\\))[\\s\\S]){0,300}?['"]${escapeRegex(route)}['"]`, 'g')) || []).length;

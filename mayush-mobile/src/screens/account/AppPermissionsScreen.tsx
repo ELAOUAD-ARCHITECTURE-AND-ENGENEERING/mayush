@@ -11,6 +11,7 @@ import { spacing } from '../../design-system/tokens/spacing';
 export interface AppPermissionsScreenProps {
   onNavigateTab?: (tab: TabKey) => void;
   onBack?: () => void;
+  onNavigateDataUsage?: () => void;
 }
 
 export const AppPermissionsScreen: React.FC<AppPermissionsScreenProps> = ({

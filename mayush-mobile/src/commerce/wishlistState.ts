@@ -1,4 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ProductMiniDto } from '../contracts/api/dto';
+import { authState } from './authState';
 
 export interface WishlistItem extends ProductMiniDto {
   inStock: boolean;
@@ -11,9 +13,54 @@ const initialWishlistItems: readonly WishlistItem[] = [
   { id: 703, name: 'Table Basse Oval Plâtre', priceMad: 2200, formattedPrice: '2 200 MAD', inStock: false, thumbnail_image: '', has_discount: false, discount: null, stroked_price: '2 200 MAD', main_price: '2 200 MAD', rating: 5, sales: 5, links: { details: '' } },
 ];
 
+export const getWishlistStorageKey = (userId?: string): string => {
+  return `mayush-mobile:wishlist:${userId && userId.trim() ? userId.trim() : 'guest'}`;
+};
+
 class WishlistStateManager {
   private items: WishlistItem[] = initialWishlistItems.map((item) => ({ ...item }));
   private listeners = new Set<() => void>();
+  private currentUserId: string | undefined = undefined;
+
+  constructor() {
+    this.currentUserId = authState.getUser()?.id;
+    void this.hydrate();
+
+    authState.subscribe(() => {
+      const nextUserId = authState.getUser()?.id;
+      if (nextUserId !== this.currentUserId) {
+        this.currentUserId = nextUserId;
+        void this.hydrate();
+      }
+    });
+  }
+
+  public async hydrate(userId?: string): Promise<void> {
+    const activeUserId = userId ?? this.currentUserId;
+    const key = getWishlistStorageKey(activeUserId);
+    try {
+      const stored = await AsyncStorage.getItem(key);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          this.items = parsed;
+          this.notify();
+          return;
+        }
+      }
+    } catch {
+      // Fall back to current in-memory items
+    }
+  }
+
+  private async persist(): Promise<void> {
+    const key = getWishlistStorageKey(this.currentUserId);
+    try {
+      await AsyncStorage.setItem(key, JSON.stringify(this.items));
+    } catch {
+      // Ignore storage errors safely
+    }
+  }
 
   public subscribe(listener: () => void): () => void {
     this.listeners.add(listener);
@@ -43,6 +90,7 @@ class WishlistStateManager {
     }
     this.items = [{ ...product, inStock: true }, ...this.items];
     this.notify();
+    void this.persist();
     return true;
   }
 
@@ -51,11 +99,13 @@ class WishlistStateManager {
     if (next.length === this.items.length) return;
     this.items = next;
     this.notify();
+    void this.persist();
   }
 
   public reset(): void {
     this.items = initialWishlistItems.map((item) => ({ ...item }));
     this.notify();
+    void this.persist();
   }
 }
 

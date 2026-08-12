@@ -11,6 +11,7 @@ import { spacing } from '../../design-system/tokens/spacing';
 export interface LanguageSelectionAccountScreenProps {
   onBack: () => void;
   onLanguageApplied: (selected: AppLanguage) => void;
+  onNavigateNotificationSettings?: () => void;
 }
 
 interface LanguageOptionItem {

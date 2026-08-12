@@ -12,6 +12,7 @@ export interface SilentHoursDaySelectionScreenProps {
   onNavigateTab?: (tab: TabKey) => void;
   onBack?: () => void;
   onSaveSchedule?: () => void;
+  onNavigateOfflineMode?: () => void;
 }
 
 const ALL_WEEKDAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];

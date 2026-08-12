@@ -183,181 +183,8 @@ import { SearchLandingScreen } from '../screens/search/SearchLandingScreen';
 import { SearchNoResultsScreen } from '../screens/search/SearchNoResultsScreen';
 import { SearchResultsScreen } from '../screens/search/SearchResultsScreen';
 
-export type ScreenKey =
-  | 'splash'
-  | 'language'
-  | 'preparing'
-  | 'onboarding-1'
-  | 'onboarding-2'
-  | 'onboarding-3'
-  | 'home'
-  | 'categories'
-  | 'wishlist'
-  | 'cart'
-  | 'account'
-  | 'account-settings'
-  | 'settings'
-  | 'my-information'
-  | 'edit-profile'
-  | 'change-email'
-  | 'change-phone'
-  | 'account-verify-phone'
-  | 'change-password'
-  | 'account-security'
-  | 'security-privacy'
-  | 'security-2fa'
-  | 'active-sessions'
-  | 'my-addresses'
-  | 'my-addresses-v2'
-  | 'account-add-address'
-  | 'account-add-address-simple'
-  | 'account-edit-address'
-  | 'payment-methods'
-  | 'language-region'
-  | 'language-selection'
-  | 'logout-confirmation'
-  | 'marketing-cart-reminders'
-  | 'marketing-detailed-preferences'
-  | 'marketing-toggles'
-  | 'notification-channels'
-  | 'notification-settings-toggles'
-  | 'notification-detail-prep'
-  | 'notification-detail-shipped'
-  | 'silent-hours-day-selection'
-  | 'silent-hours-dnd'
-  | 'about-app'
-  | 'about-mayush'
-  | 'accessibility'
-  | 'app-permissions'
-  | 'data-usage'
-  | 'storage-cache'
-  | 'offline-mode'
-  | 'legal-center'
-  | 'privacy-data'
-  | 'privacy-policy'
-  | 'faq'
-  | 'faq-detail'
-  | 'faq-categories'
-  | 'help-center'
-  | 'help-center-requests'
-  | 'help-support'
-  | 'help-center-home'
-  | 'help-category-orders-delivery'
-  | 'help-center-search-results'
-  | 'faq-tab-categories'
-  | 'faq-article-track-order-steps'
-  | 'my-support-tickets-list'
-  | 'no-support-requests-empty-state'
-  | 'contact-support-form'
-  | 'attach-files-documents'
-  | 'review-send-support-request'
-  | 'select-order-for-support'
-  | 'reply-to-support-message'
-  | 'ticket-detail-conversation-thread'
-  | 'close-request-confirmation'
-  | 'support-request-sent-success'
-  | 'ticket-resolved-rating'
-  | 'support-connection-error'
-  | 'support-temporarily-unavailable'
-  | 'maintenance-mode-services-impacted'
-  | 'app-update-available'
-  | 'forced-update-required'
-  | 'settings-error-loading-state'
-  | 'settings-skeleton-loading-state'
-  | 'category-products'
-  | 'category-landing'
-  | 'collection-shop-the-look'
-  | 'flash-deals'
-  | 'promotions-campaigns'
-  | 'recently-viewed'
-  | 'search-landing'
-  | 'search-results'
-  | 'search-no-results'
-  | 'product-details'
-  | 'product-gallery'
-  | 'product-description'
-  | 'product-specifications'
-  | 'product-delivery-returns'
-  | 'product-reviews'
-  | 'added-to-cart'
-  | 'checkout-summary'
-  | 'address-selection'
-  | 'add-address'
-  | 'add-address-errors'
-  | 'city-selector'
-  | 'delivery-zone-selector'
-  | 'edit-checkout-address'
-  | 'no-saved-address'
-  | 'delivery-method'
-  | 'delivery-by-vendor'
-  | 'delivery-unavailable'
-  | 'payment-method'
-  | 'wallet-balance'
-  | 'saved-payment-cards'
-  | 'auth-gate'
-  | 'auth-welcome'
-  | 'login'
-  | 'login-error'
-  | 'login-loading'
-  | 'registration'
-  | 'terms-consent'
-  | 'account-created'
-  | 'favorites-auth-prompt'
-  | 'forgot-password'
-  | 'recovery-email-sent'
-  | 'otp-verification'
-  | 'otp-error'
-  | 'create-new-password'
-  | 'password-changed-success'
-  | 'order-review'
-  | 'checkout-terms-confirmation'
-  | 'order-already-in-progress'
-  | 'order-needs-update'
-  | 'checkout-skeleton'
-  | 'checkout-error'
-  | 'order-processing'
-  | 'payment-step-intro'
-  | 'secure-payment-redirect'
-  | 'secure-payment-loading'
-  | 'payment-verification'
-  | 'payment-confirmation-delayed'
-  | 'payment-pending'
-  | 'cash-on-delivery-confirmation'
-  | 'payment-failed'
-  | 'payment-cancelled'
-  | 'payment-success'
-  | 'order-thank-you'
-  | 'orders-list'
-  | 'order-detail-preparing'
-  | 'order-detail-shipped'
-  | 'order-tracking'
-  | 'order-detail-delivered'
-  | 'order-detail-multi-vendor'
-  | 'order-packages'
-  | 'order-package-detail'
-  | 'order-invoice'
-  | 'order-cancel-confirmation'
-  | 'order-cancel-reason'
-  | 'order-cancel-registered'
-  | 'order-cannot-cancel'
-  | 'order-product-review'
-  | 'order-reorder-changes'
-  | 'order-reorder-added'
-  | 'order-reorder-availability'
-  | 'order-return-selection'
-  | 'order-return-detail'
-  | 'order-return-tracking'
-  | 'order-refund-request'
-  | 'order-refund-completed'
-  | 'delivery-delayed'
-  | 'delivery-failed'
-  | 'order-support-contact'
-  | 'tracking-unavailable'
-  | 'order-not-found'
-  | 'orders-empty'
-  | 'orders-error'
-  | 'orders-skeleton'
-  | 'order-detail-skeleton';
+import { ScreenKey } from './screenKeys';
+export { ScreenKey };
 
 const ONBOARDING_COMPLETE_KEY = 'mayush-mobile:onboarding-complete';
 const LANGUAGE_KEY = 'mayush-mobile:language';
@@ -1012,13 +839,13 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       {currentScreen === 'categories' ? <CategoriesScreen activeTab={activeTab} onSelectCategory={(cat) => { setSelectedCategory(cat); setCurrentScreen('category-landing'); }} onNavigateTab={navigateTab} /> : null}
       {currentScreen === 'category-landing' ? <CategoryLandingScreen category={selectedCategory} onBack={() => setCurrentScreen('categories')} onSelectSubcategory={() => setCurrentScreen('category-products')} onOpenCollection={() => setCurrentScreen('collection-shop-the-look')} onSelectProduct={selectProduct} onOpenSearch={() => setCurrentScreen('search-landing')} /> : null}
       {currentScreen === 'category-products' ? <CategoryProductListScreen activeTab={activeTab} category={selectedCategory} onBack={() => setCurrentScreen('category-landing')} onSelectProduct={selectProduct} onNavigateTab={navigateTab} /> : null}
-      {currentScreen === 'collection-shop-the-look' ? <CollectionShopTheLookScreen onBack={() => setCurrentScreen('category-landing')} onSelectProduct={selectProduct} onAddAllToCart={() => setCurrentScreen('cart')} /> : null}
-      {currentScreen === 'flash-deals' ? <FlashDealsScreen onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} /> : null}
-      {currentScreen === 'promotions-campaigns' ? <PromotionsCampaignsScreen onBack={() => setCurrentScreen('home')} onExploreDeals={() => setCurrentScreen('flash-deals')} /> : null}
-      {currentScreen === 'recently-viewed' ? <RecentlyViewedScreen products={getRecentlyViewedFallbackProducts()} onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} /> : null}
+      {currentScreen === 'collection-shop-the-look' ? <CollectionShopTheLookScreen onBack={() => setCurrentScreen('category-landing')} onSelectProduct={selectProduct} onAddAllToCart={() => setCurrentScreen('cart')} onOpenFilter={() => setCurrentScreen('filter-panel-modal')} /> : null}
+      {currentScreen === 'flash-deals' ? <FlashDealsScreen onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} onOpenProductDetails={(id) => { selectProduct({ id, name: 'Produit Flash', thumbnail_image: '', has_discount: false, discount: '', stroked_price: '', priceMad: 1000, formattedPrice: '1 000 MAD', main_price: '1 000 MAD', rating: 5, sales: 1, links: { details: '' } }); setCurrentScreen('product-details'); }} /> : null}
+      {currentScreen === 'promotions-campaigns' ? <PromotionsCampaignsScreen onBack={() => setCurrentScreen('home')} onExploreDeals={() => setCurrentScreen('flash-deals')} onOpenRecentlyViewed={() => setCurrentScreen('recently-viewed')} /> : null}
+      {currentScreen === 'recently-viewed' ? <RecentlyViewedScreen products={getRecentlyViewedFallbackProducts()} onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} onOpenSearch={() => setCurrentScreen('search-landing')} /> : null}
 
-      {currentScreen === 'search-landing' ? <SearchLandingScreen onBack={() => setCurrentScreen('home')} onSearchSubmit={handleSearchSubmit} onSelectCategoryShortcut={() => setCurrentScreen('category-landing')} /> : null}
-      {currentScreen === 'search-results' ? <SearchResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen('search-landing')} onOpenFilter={() => setFilterModalVisible(true)} onSelectProduct={selectProduct} onToggleWishlist={(pid) => { if (!isAuthenticated) { setFavoritesPromptItemId(String(pid)); setFavoritesPromptVisible(true); } }} /> : null}
+      {currentScreen === 'search-landing' ? <SearchLandingScreen onBack={() => setCurrentScreen('home')} onSearchSubmit={(q) => { handleSearchSubmit(q); setCurrentScreen('search-results'); }} onSelectCategoryShortcut={() => setCurrentScreen('category-landing')} /> : null}
+      {currentScreen === 'search-results' ? <SearchResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen('search-landing')} onOpenFilter={() => setFilterModalVisible(true)} onSelectProduct={(p) => { selectProduct(p); setCurrentScreen('product-details'); }} onToggleWishlist={(pid) => { if (!isAuthenticated) { setFavoritesPromptItemId(String(pid)); setFavoritesPromptVisible(true); } }} /> : null}
       {currentScreen === 'search-no-results' ? <SearchNoResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen('search-landing')} onClearSearch={() => setCurrentScreen('search-landing')} onBrowseCategories={() => setCurrentScreen('categories')} /> : null}
 
       {currentScreen === 'wishlist' ? <WishlistScreen onNavigateTab={navigateTab} onBrowseCollections={() => setCurrentScreen('categories')} onSelectProduct={selectProduct} onMoveToCart={moveWishlistItemToCart} /> : null}
@@ -1110,6 +937,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         <AccountAddAddressSimpleScreen
           onBack={() => setCurrentScreen('my-addresses')}
           onSaved={() => setCurrentScreen('my-addresses')}
+          onEditAddress={(id) => setCurrentScreen('account-edit-address')}
         />
       ) : null}
 
@@ -1160,6 +988,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onLanguageApplied={(lang) => {
             setCurrentScreen('account');
           }}
+          onNavigateNotificationSettings={() => setCurrentScreen('notification-settings-toggles')}
         />
       ) : null}
 
@@ -1176,6 +1005,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('marketing-cart-reminders')}
           onNavigateToggles={() => setCurrentScreen('marketing-toggles')}
+          onNavigateSilentHours={() => setCurrentScreen('silent-hours-day-selection')}
         />
       ) : null}
 
@@ -1200,6 +1030,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('notification-channels')}
           onNavigateNotificationDetails={() => setCurrentScreen('notification-detail-prep')}
+          onNavigateMarketingPreferences={() => setCurrentScreen('marketing-detailed-preferences')}
         />
       ) : null}
 
@@ -1226,6 +1057,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('notification-detail-shipped')}
           onSaveSchedule={() => setCurrentScreen('silent-hours-dnd')}
+          onNavigateOfflineMode={() => setCurrentScreen('offline-mode')}
         />
       ) : null}
 
@@ -1234,6 +1066,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('silent-hours-day-selection')}
           onEditSchedule={() => setCurrentScreen('silent-hours-day-selection')}
+          onNavigateFaq={() => setCurrentScreen('faq')}
         />
       ) : null}
 
@@ -1261,6 +1094,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         <AboutAppVersionScreen
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('settings')}
+          onNavigateAboutMayush={() => setCurrentScreen('about-mayush')}
         />
       ) : null}
 
@@ -1268,6 +1102,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         <AboutMayushCompanyScreen
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen(resolveAboutMayushBackDestination())}
+          onNavigateAccessibility={() => setCurrentScreen('accessibility')}
         />
       ) : null}
 
@@ -1282,6 +1117,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         <AppPermissionsScreen
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('settings')}
+          onNavigateDataUsage={() => setCurrentScreen('data-usage')}
         />
       ) : null}
 
@@ -1289,6 +1125,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         <DataUsageScreen
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('settings')}
+          onNavigateStorageCache={() => setCurrentScreen('storage-cache')}
         />
       ) : null}
 
@@ -1304,6 +1141,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         <OfflineModeScreen
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('settings')}
+          onNavigateLegalCenter={() => setCurrentScreen('legal-center')}
         />
       ) : null}
 
@@ -1676,6 +1514,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('account-settings')}
           onSuccess={() => setCurrentScreen('my-information')}
+          onChangePassword={() => setCurrentScreen('change-password')}
         />
       ) : null}
 

@@ -1,18 +1,23 @@
 {
   "screenName": "06-payment-confirmed-success-v2-fr",
   "figmaNodeId": "309:698",
-  "applicationScreenKey": "payment-success",
+  "applicationScreenKey": "06-payment-confirmed-success-v2-fr",
   "implementationFile": "mayush-mobile/src/screens/checkout/PaymentSuccessScreen.tsx",
   "sourceDimensions": {
     "width": 393,
     "height": 852
   },
-  "applicationDimensions": null,
+  "applicationDimensions": {
+    "width": 393,
+    "height": 852
+  },
   "comparisonDate": "2026-08-06",
   "captureMethod": {
-    "source": "Figma get_screenshot at maxDimension 852",
-    "application": null,
-    "limitation": "No compliant 393×852 application capture was available: Android SDK/device/emulator are absent, iOS cannot run on this Windows host, and the available Expo web browser surface is fixed at 1280×720 with no viewport control."
+    "engine": "Playwright Chromium",
+    "viewport": "393×852",
+    "deviceScaleFactor": 1,
+    "source": "Figma get_screenshot at 393×852",
+    "application": "Deterministically rendered via VisualQaApp (after)"
   },
   "correctedFiles": [],
   "remainingDifferences": [
@@ -23,10 +28,19 @@
   "finalStatus": "NEEDS_PIXEL_CORRECTION",
   "evidencePaths": {
     "figmaSource": "figma-source-393x852.png",
-    "appBefore": null,
-    "overlayBefore": null,
-    "appAfter": null,
-    "overlayAfter": null,
-    "pixelDiff": null
+    "appBefore": "app-before-393x852.png",
+    "overlayBefore": "overlay-before-50.png",
+    "appAfter": "app-after-393x852.png",
+    "overlayAfter": "overlay-after-50.png",
+    "pixelDiff": null,
+    "sideBySideBefore": "side-by-side-before.png",
+    "pixelDiffBefore": "pixel-diff-before.png",
+    "sideBySideAfter": "side-by-side-after.png",
+    "pixelDiffAfter": "pixel-diff-after.png"
+  },
+  "diffMetrics": {
+    "mismatchedPixels": 51188,
+    "totalPixels": 334836,
+    "mismatchPercentage": 15.29
   }
 }

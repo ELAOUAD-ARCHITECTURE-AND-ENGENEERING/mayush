@@ -28,7 +28,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "node scripts/run-tests.js && node scripts/run-step8b0-behavior-tests.js && node scripts/run-step8b-behavior-tests.js && node scripts/run-step8c-behavior-tests.js && node scripts/run-step8d-behavior-tests.js && node scripts/run-step8e-behavior-tests.js && node scripts/run-step8f-behavior-tests.js && node scripts/run-step8g-behavior-tests.js && node scripts/run-step8h-behavior-tests.js && node scripts/run-step8i-behavior-tests.js && node scripts/run-step9b-behavior-tests.js"
+    "test": "node scripts/run-tests.js && node scripts/run-step8b0-behavior-tests.js && node scripts/run-step8b-behavior-tests.js && node scripts/run-step8c-behavior-tests.js && node scripts/run-step8d-behavior-tests.js && node scripts/run-step8e-behavior-tests.js && node scripts/run-step8f-behavior-tests.js && node scripts/run-step8g-behavior-tests.js && node scripts/run-step8h-behavior-tests.js && node scripts/run-step8i-behavior-tests.js && node scripts/run-step9b-behavior-tests.js && node scripts/run-rendered-tests.js"
   },
   "private": true
 }

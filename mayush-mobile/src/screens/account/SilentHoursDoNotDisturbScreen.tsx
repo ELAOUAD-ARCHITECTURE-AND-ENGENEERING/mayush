@@ -12,6 +12,7 @@ export interface SilentHoursDoNotDisturbScreenProps {
   onNavigateTab?: (tab: TabKey) => void;
   onBack?: () => void;
   onEditSchedule?: () => void;
+  onNavigateFaq?: () => void;
 }
 
 export const SilentHoursDoNotDisturbScreen: React.FC<SilentHoursDoNotDisturbScreenProps> = ({

@@ -13,6 +13,7 @@ export interface ChangeEmailScreenProps {
   onNavigateTab?: (tab: TabKey) => void;
   onBack?: () => void;
   onSuccess?: () => void;
+  onChangePassword?: () => void;
 }
 
 export const ChangeEmailScreen: React.FC<ChangeEmailScreenProps> = ({

@@ -28,6 +28,7 @@ export interface CollectionShopTheLookScreenProps {
   onBack: () => void;
   onSelectProduct: (product: ProductMiniDto) => void;
   onAddAllToCart: () => void;
+  onOpenFilter?: () => void;
 }
 
 export const CollectionShopTheLookScreen: React.FC<CollectionShopTheLookScreenProps> = ({

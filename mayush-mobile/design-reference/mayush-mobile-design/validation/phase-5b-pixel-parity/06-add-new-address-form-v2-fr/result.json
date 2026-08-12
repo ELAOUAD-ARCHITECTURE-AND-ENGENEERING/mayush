@@ -1,32 +1,45 @@
 {
   "screenName": "06-add-new-address-form-v2-fr",
   "figmaNodeId": "309:681",
-  "applicationScreenKey": "add-address",
-  "implementationFile": "mayush-mobile/src/screens/checkout/AddAddressFormScreen.tsx",
-  "sourceDimensions": {
-    "width": 393,
-    "height": 852
-  },
-  "applicationDimensions": null,
-  "comparisonDate": "2026-08-06",
-  "captureMethod": {
-    "source": "Figma get_screenshot at maxDimension 852",
-    "application": null,
-    "limitation": "No compliant 393×852 application capture was available: Android SDK/device/emulator are absent, iOS cannot run on this Windows host, and the available Expo web browser surface is fixed at 1280×720 with no viewport control."
-  },
-  "correctedFiles": [],
-  "remainingDifferences": [
-    "A source frame has been recorded at 393×852; a corresponding running-app capture, side-by-side, 50% overlay, and pixel-difference image remain required.",
-    "No native visual parity status can be promoted without real Android or an approved mobile-capable capture surface."
+  "navigatorKey": "add-address",
+  "implementationFiles": [
+    "mayush-mobile/src/screens/checkout/AddAddressFormScreen.tsx"
   ],
-  "missingAssets": [],
-  "finalStatus": "NEEDS_PIXEL_CORRECTION",
-  "evidencePaths": {
-    "figmaSource": "figma-source-393x852.png",
-    "appBefore": null,
-    "overlayBefore": null,
-    "appAfter": null,
-    "overlayAfter": null,
-    "pixelDiff": null
-  }
+  "sourceDimensions": "393×852",
+  "appDimensions": "393×852",
+  "browserEngine": "Playwright Chromium",
+  "deviceScaleFactor": 1,
+  "fixtureKey": "addressDraftValid",
+  "baselineMismatchPixels": 39970,
+  "baselineMismatchPercent": 11.94,
+  "afterMismatchPixels": 37929,
+  "afterMismatchPercent": 11.33,
+  "bestMismatchPercent": 11.33,
+  "bestMismatchPixels": 37929,
+  "bestCapturePath": "app-best-393x852.png",
+  "bestOverlayPath": "overlay-after-50.png",
+  "bestDiffPath": "pixel-diff-best.png",
+  "bestExperimentId": "EXP-004",
+  "threshold": 0.1,
+  "antiAliasHandling": true,
+  "correctionsApplied": [
+    "EXP-004: Unified AddAddressFormScreen structure with exact 64px header and surface white background aligns default and validation states"
+  ],
+  "sharedComponentsChanged": [
+    "AddAddressFormScreen.tsx"
+  ],
+  "behavioralImpact": "None (100% functional state preservation)",
+  "remainingDifferences": [
+    "Input placeholder text font anti-aliasing and subpixel web font rasterization differences",
+    "Form scroll container bottom padding spacing in Playwright headless Chromium"
+  ],
+  "sourceEvidencePath": "figma-source-393x852.png",
+  "appBeforePath": "app-before-393x852.png",
+  "overlayBeforePath": "overlay-before-50.png",
+  "diffBeforePath": "pixel-diff-before.png",
+  "appAfterPath": "app-best-393x852.png",
+  "overlayAfterPath": "overlay-after-50.png",
+  "diffAfterPath": "pixel-diff-best.png",
+  "finalStatus": "MEASURABLE_IMPROVEMENT_STILL_NEEDS_PIXEL_CORRECTION",
+  "checkedAt": "2026-08-06T14:31:00Z"
 }
