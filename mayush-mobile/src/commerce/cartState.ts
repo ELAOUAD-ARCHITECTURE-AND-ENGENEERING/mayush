@@ -1,3 +1,8 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { authState } from './authState';
+import { cartService } from '../services/api/cartService';
+import type { LaravelCartListResponse } from '../services/api/cartService';
+
 export const CART_STORAGE_KEY = 'mayush-mobile:cart-state';
 
 export interface CartVariantOption {
@@ -385,3 +390,247 @@ export const parseMadPrice = (value: string): number => {
 export const formatMadPrice = (amount: number): string => `${new Intl.NumberFormat('fr-MA', {
   maximumFractionDigits: 0,
 }).format(Math.max(0, Math.round(amount)))} MAD`;
+
+// ── Server → Local Cart Mapper ──
+
+/**
+ * Converts a LaravelCartListResponse from cartService.getCart() into the
+ * local CartState shape. Seller groups are flattened into lines; each line
+ * carries sellerId/sellerName derived from the shop group.
+ */
+export const mapServerCartToState = (response: LaravelCartListResponse): CartState => {
+  const lines: CartLine[] = [];
+  for (const group of response.data) {
+    for (const item of group.cart_items) {
+      const variant = item.variation || 'Standard';
+      lines.push({
+        id: String(item.id),
+        productId: item.product_id,
+        name: item.product_name,
+        productName: item.product_name,
+        variant,
+        variantId: variant,
+        selectedVariantText: variant,
+        quantity: Math.max(1, item.quantity),
+        unitPriceMad: parseMadPrice(String(item.price)),
+        imageUri: item.product_thumbnail_image || undefined,
+        imageAsset: item.product_thumbnail_image || undefined,
+        sellerId: group.owner_id ? String(group.owner_id) : undefined,
+        sellerName: group.name || undefined,
+        maxQuantity: item.upper_limit ?? undefined,
+      });
+    }
+  }
+  return revalidateCartPromotion({ lines });
+};
+
+// ── CartStateManager ──
+
+class CartStateManager {
+  private state: CartState = emptyCartState();
+  private listeners = new Set<() => void>();
+  private hydrated: boolean = false;
+
+  constructor() {
+    authState.subscribe(() => {
+      const user = authState.getUser();
+      if (user) {
+        void this.hydrateFromServer(user.id);
+      } else {
+        void this.hydrateFromStorage();
+      }
+    });
+  }
+
+  // ── Observer ──
+
+  public subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  private notify(): void {
+    this.listeners.forEach((listener) => listener());
+  }
+
+  // ── Read accessors ──
+
+  public isHydrated(): boolean {
+    return this.hydrated;
+  }
+
+  public getState(): CartState {
+    return this.state;
+  }
+
+  public getTotals(): CartTotals {
+    return getCartTotals(this.state);
+  }
+
+  public getLinesBySeller(): SellerCartProjection[] {
+    return groupCartLinesBySeller(this.state);
+  }
+
+  // ── Hydration ──
+
+  public async hydrate(): Promise<void> {
+    const user = authState.getUser();
+    if (user) {
+      await this.hydrateFromServer(user.id);
+    } else {
+      await this.hydrateFromStorage();
+    }
+  }
+
+  private async hydrateFromServer(userId: string): Promise<void> {
+    try {
+      const response = await cartService.getCart({ userId });
+      this.state = mapServerCartToState(response);
+      this.hydrated = true;
+      this.notify();
+      void this.persistLocal();
+    } catch {
+      // Server unreachable — fall back to local snapshot
+      await this.hydrateFromStorage();
+    }
+  }
+
+  private async hydrateFromStorage(): Promise<void> {
+    try {
+      const stored = await AsyncStorage.getItem(CART_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        this.state = hydrateCartState(parsed);
+      } else {
+        this.state = emptyCartState();
+      }
+    } catch {
+      this.state = emptyCartState();
+    }
+    this.hydrated = true;
+    this.notify();
+  }
+
+  private async persistLocal(): Promise<void> {
+    try {
+      await AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(this.state));
+    } catch {
+      // Ignore storage errors
+    }
+  }
+
+  private async refreshFromServer(): Promise<void> {
+    const user = authState.getUser();
+    if (!user) return;
+    try {
+      const response = await cartService.getCart({ userId: user.id });
+      this.state = mapServerCartToState(response);
+      this.notify();
+      void this.persistLocal();
+    } catch {
+      // Keep current in-memory state on network failure
+    }
+  }
+
+  // ── Mutations ──
+
+  public async addLine(line: CartLine): Promise<void> {
+    const user = authState.getUser();
+    if (user) {
+      try {
+        await cartService.addToCart({
+          productId: line.productId,
+          variant: line.variant,
+          quantity: line.quantity,
+          userId: user.id,
+        });
+        await this.refreshFromServer();
+        return;
+      } catch {
+        // Fall through to local mutation
+      }
+    }
+    this.state = addCartLine(this.state, line);
+    this.notify();
+    void this.persistLocal();
+  }
+
+  public async updateQuantity(lineId: string, quantity: number): Promise<void> {
+    const user = authState.getUser();
+    if (user) {
+      const numericId = parseInt(lineId, 10);
+      if (!isNaN(numericId)) {
+        try {
+          await cartService.changeQuantity(numericId, quantity);
+          await this.refreshFromServer();
+          return;
+        } catch {
+          // Fall through to local mutation
+        }
+      }
+    }
+    this.state = updateCartLineQuantity(this.state, lineId, quantity);
+    this.notify();
+    void this.persistLocal();
+  }
+
+  public async removeLine(lineId: string): Promise<void> {
+    const user = authState.getUser();
+    if (user) {
+      const numericId = parseInt(lineId, 10);
+      if (!isNaN(numericId)) {
+        try {
+          await cartService.removeCartItem(numericId);
+          await this.refreshFromServer();
+          return;
+        } catch {
+          // Fall through to local mutation
+        }
+      }
+    }
+    this.state = updateCartLineQuantity(this.state, lineId, 0);
+    this.notify();
+    void this.persistLocal();
+  }
+
+  public async applyPromoCode(code: string): Promise<PromotionValidationResult> {
+    const user = authState.getUser();
+    if (user) {
+      try {
+        const response = await cartService.applyCoupon({ couponCode: code, userId: user.id });
+        if (response.result) {
+          // Server accepted the coupon; apply locally using existing pure function
+          const { cart, validation } = applyPromotionCode(this.state, code);
+          this.state = cart;
+          this.notify();
+          void this.persistLocal();
+          return validation;
+        }
+        // Server rejected — return local validation result without mutating state
+        return { code: 'INVALID_CODE', discountMad: 0 };
+      } catch {
+        // Fall through to local validation
+      }
+    }
+    const { cart, validation } = applyPromotionCode(this.state, code);
+    this.state = cart;
+    this.notify();
+    void this.persistLocal();
+    return validation;
+  }
+
+  public async removePromo(): Promise<void> {
+    this.state = removeCartPromotion(this.state);
+    this.notify();
+    void this.persistLocal();
+  }
+
+  public reset(): void {
+    this.state = emptyCartState();
+    this.hydrated = false;
+    this.notify();
+    void AsyncStorage.removeItem(CART_STORAGE_KEY).catch(() => undefined);
+  }
+}
+
+export const cartStateManager = new CartStateManager();
