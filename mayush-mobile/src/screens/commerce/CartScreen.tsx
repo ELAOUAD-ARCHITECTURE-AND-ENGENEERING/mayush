@@ -24,6 +24,7 @@ import {
   CartState,
   CartVariantSelection,
   PromotionValidationResult,
+  cartStateManager,
   formatMadPrice,
   getAvailablePromotions,
   getCartTotals,
@@ -41,7 +42,7 @@ import { SavedForLaterList } from '../../components/cart/SavedForLaterList';
 import { SellerCartGroup } from '../../components/cart/SellerCartGroup';
 import { VariantEditSheet } from '../../components/cart/VariantEditSheet';
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
-import { BottomTabBar, TabKey } from '../../design-system/components/navigation/BottomTabBar';
+import { TabKey } from '../../design-system/components/navigation/BottomTabBar';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { useTheme } from '../../design-system/theme/useTheme';
@@ -88,7 +89,15 @@ export const CartScreen: React.FC<CartScreenProps> = ({
   onMergeCartLines,
 }) => {
   const { isRTL, language } = useTheme();
-  const activeCart = cart || { lines: [] };
+
+  // Subscribe to cartStateManager so the component re-renders after server sync.
+  // When no external cart prop is supplied, we read from the manager's state.
+  const [managerCart, setManagerCart] = useState<CartState>(() => cartStateManager.getState());
+  useEffect(() => cartStateManager.subscribe(() => {
+    setManagerCart(cartStateManager.getState());
+  }), []);
+
+  const activeCart = cart ?? managerCart;
   const totals = getCartTotals(activeCart);
   const sellerGroups = groupCartLinesBySeller(activeCart);
   const availablePromotions = getAvailablePromotions(activeCart);
@@ -99,31 +108,11 @@ export const CartScreen: React.FC<CartScreenProps> = ({
   const freeShippingProgress = Math.min(100, (totals.subtotalMad / FREE_SHIPPING_THRESHOLD) * 100);
 
   // System State: Price & Stock changes alert (Node 309:666)
-  const [priceStockChanges, setPriceStockChanges] = useState<PriceStockChangeItem[]>([
-    {
-      id: '101:beige-boucle',
-      productName: 'Fauteuil Lounge Luna',
-      oldPriceMad: 2950,
-      newPriceMad: 2700,
-    },
-  ]);
+  const [priceStockChanges, setPriceStockChanges] = useState<PriceStockChangeItem[]>([]);
 
   // System State: Guest & Account Cart Merge Modal (Node 309:677)
   const [mergeModalVisible, setMergeModalVisible] = useState(false);
-  const [accountCartFixture] = useState<CartState>({
-    lines: [
-      {
-        id: 'acc-1',
-        productId: 201,
-        name: 'Canapé Nori 3 Places',
-        productName: 'Canapé Nori 3 Places',
-        variant: 'Tissu Beige · 210cm',
-        selectedVariantText: 'Tissu Beige · 210cm',
-        quantity: 1,
-        unitPriceMad: 4800,
-      },
-    ],
-  });
+  const [accountCartFixture] = useState<CartState>({ lines: [] });
 
   // Toast feedback state (Node 309:659)
   const [toastVisible, setToastVisible] = useState(false);
@@ -154,19 +143,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({
   const [groupBySeller, setGroupBySeller] = useState(false);
 
   // Saved for later items state (Node 309:676)
-  const [savedForLater, setSavedForLater] = useState<CartLine[]>([
-    {
-      id: 'saved-1',
-      productId: 901,
-      name: 'Table Basse Oval Plâtre',
-      productName: 'Table Basse Oval Plâtre',
-      variant: 'Plâtre Blanc · 110cm',
-      selectedVariantText: 'Plâtre Blanc · 110cm',
-      unitPriceMad: 2200,
-      imageAsset: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?q=80&w=350&auto=format&fit=crop',
-      quantity: 1,
-    },
-  ]);
+  const [savedForLater, setSavedForLater] = useState<CartLine[]>([]);
 
   const handleAcceptPriceChanges = () => {
     setPriceStockChanges([]);
@@ -178,10 +155,10 @@ export const CartScreen: React.FC<CartScreenProps> = ({
     triggerToast('Articles indisponibles retirés');
   };
 
-  const handleApplyPromo = () => {
+  const handleApplyPromo = async () => {
     setPromoError(null);
     const cleanCode = promoInput.trim().toUpperCase();
-    const validation = onApplyPromotion?.(cleanCode);
+    const validation = await cartStateManager.applyPromoCode(cleanCode);
     if (validation?.code === 'VALID' && validation.promotion) {
       setPromoInput('');
       triggerToast(`Code promotionnel ${validation.promotion.code} appliqué`);
@@ -189,12 +166,13 @@ export const CartScreen: React.FC<CartScreenProps> = ({
       setPromoError(language === 'ar'
         ? 'رمز التخفيض هذا غير قابل للتطبيق على المنتجات الموجودة في سلتك.'
         : validation?.code === 'MINIMUM_NOT_REACHED'
-          ? 'Le montant minimum requis pour ce code n’est pas atteint.'
-          : 'Ce code promotionnel n’est pas applicable aux produits présents dans votre panier.');
+          ? "Le montant minimum requis pour ce code n'est pas atteint."
+          : "Ce code promotionnel n'est pas applicable aux produits présents dans votre panier.");
     }
   };
 
   const handleIncrementQuantity = (line: CartLine) => {
+    void cartStateManager.updateQuantity(line.id, line.quantity + 1);
     onUpdateQuantity?.(line.id, 1);
     triggerToast(language === 'ar' ? 'جارٍ تحديث السلة' : 'Mise à jour du panier');
   };
@@ -203,12 +181,14 @@ export const CartScreen: React.FC<CartScreenProps> = ({
     if (line.quantity <= 1) {
       setLineToRemove(line);
     } else {
+      void cartStateManager.updateQuantity(line.id, line.quantity - 1);
       onUpdateQuantity?.(line.id, -1);
       triggerToast(language === 'ar' ? 'جارٍ تحديث السلة' : 'Mise à jour du panier');
     }
   };
 
   const handleMoveToLater = (line: CartLine) => {
+    void cartStateManager.removeLine(line.id);
     onUpdateQuantity?.(line.id, -line.quantity);
     setSavedForLater((prev) => [...prev, line]);
     triggerToast('Article enregistré pour plus tard');
@@ -216,6 +196,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({
 
   const handleMoveBackToCart = (line: CartLine) => {
     setSavedForLater((prev) => prev.filter((item) => item.id !== line.id));
+    void cartStateManager.addLine({ ...line, quantity: 1 });
     onUpdateQuantity?.(line.id, 1);
     triggerToast('Article replacé dans le panier');
   };
@@ -227,6 +208,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({
 
   const confirmRemoveLine = () => {
     if (lineToRemove) {
+      void cartStateManager.removeLine(lineToRemove.id);
       onUpdateQuantity?.(lineToRemove.id, -lineToRemove.quantity);
       triggerToast(`${lineToRemove.productName || lineToRemove.name} retiré du panier`);
       setLineToRemove(null);
@@ -243,8 +225,9 @@ export const CartScreen: React.FC<CartScreenProps> = ({
     triggerToast('Paniers fusionnés avec succès !');
   };
 
-  const applyOffer = (code: string) => {
-    const validation = onApplyPromotion?.(code);
+  const applyOffer = async (code: string) => {
+    const validation = await cartStateManager.applyPromoCode(code);
+    onApplyPromotion?.(code);
     if (validation?.code !== 'VALID' || !validation.promotion) return;
     setPromoError(null);
     setVouchersModalVisible(false);
@@ -270,7 +253,6 @@ export const CartScreen: React.FC<CartScreenProps> = ({
     return (
       <View style={styles.screen}>
         <CartSkeleton />
-        <BottomTabBar activeTab="cart" onTabPress={(tab) => onNavigateTab?.(tab)} cartBadgeCount={0} />
       </View>
     );
   }
@@ -287,7 +269,6 @@ export const CartScreen: React.FC<CartScreenProps> = ({
           <View style={{ width: 40 }} />
         </View>
         <CartErrorState onRetry={onRetry || (() => undefined)} />
-        <BottomTabBar activeTab="cart" onTabPress={(tab) => onNavigateTab?.(tab)} cartBadgeCount={0} />
       </View>
     );
   }
@@ -416,7 +397,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({
                   <MayushText variant="caption" color={colors.brand.navy900} style={styles.appliedPromoText}>
                     Code {totals.promotionCode} appliqué (-{formatMadPrice(totals.discountMad)})
                   </MayushText>
-                  <TouchableOpacity onPress={() => { onRemovePromotion?.(); triggerToast('Code promo retiré'); }}>
+                  <TouchableOpacity onPress={() => { void cartStateManager.removePromo(); onRemovePromotion?.(); triggerToast('Code promo retiré'); }}>
                     <MayushIcon name="x" size={16} color={colors.neutral.gray500} />
                   </TouchableOpacity>
                 </View>
@@ -581,7 +562,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({
                 </TouchableOpacity>
               ))}
               <MayushText variant="caption" color={colors.neutral.gray700} align={isRTL ? 'right' : 'left'}>
-                {language === 'ar' ? 'اجمع ووفر! يمكن دمج بعض الرموز مع عروض أخرى.' : 'Cumulez et économisez ! Certains codes peuvent être combinés avec d’autres offres.'}
+                {language === 'ar' ? 'اجمع ووفر! يمكن دمج بعض الرموز مع عروض أخرى.' : "Cumulez et économisez ! Certains codes peuvent être combinés avec d'autres offres."}
               </MayushText>
             </ScrollView>
           </View>
@@ -599,7 +580,6 @@ export const CartScreen: React.FC<CartScreenProps> = ({
         </View>
       ) : null}
 
-      <BottomTabBar activeTab="cart" onTabPress={(tab) => onNavigateTab?.(tab)} cartBadgeCount={totals.itemCount} />
     </View>
   );
 };
