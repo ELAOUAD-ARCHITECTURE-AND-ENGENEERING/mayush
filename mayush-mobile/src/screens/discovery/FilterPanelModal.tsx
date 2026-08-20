@@ -22,26 +22,33 @@ import { radii } from '../../design-system/tokens/radii';
 export interface FilterPanelModalProps {
   visible: boolean;
   onClose: () => void;
-  onApplyFilters: (filters: { inStockOnly: boolean; selectedColor: string; selectedMaterial: string }) => void;
+  onApplyFilters?: (filters: { colors: string[]; materials: string[]; inStockOnly: boolean }) => void;
+  availableColors?: string[];
+  availableMaterials?: string[];
 }
 
 export const FilterPanelModal: React.FC<FilterPanelModalProps> = ({
   visible,
   onClose,
   onApplyFilters,
+  availableColors,
+  availableMaterials,
 }) => {
   const { language } = useTheme();
   const [inStockOnly, setInStockOnly] = useState(true);
-  const [selectedColor, setSelectedColor] = useState('Beige');
-  const [selectedMaterial, setSelectedMaterial] = useState('Bouclé');
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
 
-  const colorOptions = ['Beige', 'Vert Sauge', 'Moka', 'Noir', 'Terracotta'];
-  const materialOptions = ['Bouclé', 'Velours', 'Bois Massif', 'Métal'];
+  // Use provided options or fall back to hardcoded defaults
+  const colorOptions = availableColors || ['Beige', 'Vert Sauge', 'Moka', 'Noir', 'Terracotta'];
+  const materialOptions = availableMaterials || ['Bouclé', 'Velours', 'Bois Massif', 'Métal'];
 
   const handleReset = () => {
     setInStockOnly(false);
-    setSelectedColor('Beige');
-    setSelectedMaterial('Bouclé');
+    setSelectedColors([]);
+    setSelectedMaterials([]);
+    // Call onApplyFilters with empty/default values
+    onApplyFilters?.({ colors: [], materials: [], inStockOnly: false });
   };
 
   return (
@@ -69,12 +76,16 @@ export const FilterPanelModal: React.FC<FilterPanelModalProps> = ({
               </MayushText>
               <View style={styles.chipRow}>
                 {colorOptions.map((c) => {
-                  const selected = selectedColor === c;
+                  const selected = selectedColors.includes(c);
                   return (
                     <TouchableOpacity
                       key={c}
                       style={[styles.chip, selected && styles.chipSelected]}
-                      onPress={() => setSelectedColor(c)}
+                      onPress={() => {
+                        setSelectedColors(
+                          selected ? selectedColors.filter((col) => col !== c) : [...selectedColors, c]
+                        );
+                      }}
                     >
                       <MayushText variant="caption" color={selected ? colors.brand.orange500 : colors.brand.navy900}>
                         {c}
@@ -91,12 +102,16 @@ export const FilterPanelModal: React.FC<FilterPanelModalProps> = ({
               </MayushText>
               <View style={styles.chipRow}>
                 {materialOptions.map((m) => {
-                  const selected = selectedMaterial === m;
+                  const selected = selectedMaterials.includes(m);
                   return (
                     <TouchableOpacity
                       key={m}
                       style={[styles.chip, selected && styles.chipSelected]}
-                      onPress={() => setSelectedMaterial(m)}
+                      onPress={() => {
+                        setSelectedMaterials(
+                          selected ? selectedMaterials.filter((mat) => mat !== m) : [...selectedMaterials, m]
+                        );
+                      }}
                     >
                       <MayushText variant="caption" color={selected ? colors.brand.orange500 : colors.brand.navy900}>
                         {m}
@@ -124,7 +139,7 @@ export const FilterPanelModal: React.FC<FilterPanelModalProps> = ({
             <PrimaryButton
               label={language === 'ar' ? 'تطبيق الفلاتر' : 'Appliquer les filtres'}
               onPress={() => {
-                onApplyFilters({ inStockOnly, selectedColor, selectedMaterial });
+                onApplyFilters?.({ colors: selectedColors, materials: selectedMaterials, inStockOnly });
                 onClose();
               }}
             />
