@@ -3,8 +3,9 @@
  * Time-limited promotional flash sales screen with live countdown timer.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -12,14 +13,63 @@ import {
   View,
 } from 'react-native';
 import { ProductMiniDto } from '../../contracts/api/dto';
+import { apiClient } from '../../services/api/apiClient';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
 import { radii } from '../../design-system/tokens/radii';
 
-const CANAPE_IMG = require('../../../assets/reference-art/home-new-luna.png');
-const FAUTEUIL_IMG = require('../../../assets/reference-art/home-new-nori.png');
+// ── API shapes ────────────────────────────────────────────────────────────────
+
+interface FlashDealItem {
+  id: number;
+  title: string;
+  end_date: string;   // ISO date string
+  banner_image?: string;
+  slug?: string;
+}
+
+interface FlashDealResponse {
+  data: FlashDealItem[];
+}
+
+interface FlashDealProductRaw {
+  id: number;
+  name: string;
+  thumbnail_image: string;
+  base_price: string;
+  base_discounted_price: string;
+  discount: number;
+  slug: string;
+}
+
+interface FlashDealProductsResponse {
+  data: FlashDealProductRaw[];
+}
+
+// ── Local extended type ───────────────────────────────────────────────────────
+
+type FlashItem = ProductMiniDto & { discountPercent: number; originalPriceMad: number };
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function msToHMS(ms: number): { hours: number; minutes: number; seconds: number } {
+  if (ms <= 0) return { hours: 0, minutes: 0, seconds: 0 };
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return { hours, minutes, seconds };
+}
+
+function formatMAD(value: string | number): string {
+  const n = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(n)) return `${value} MAD`;
+  return `${n.toLocaleString('fr-FR')} MAD`;
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export interface FlashDealsScreenProps {
   onBack: () => void;
@@ -32,24 +82,113 @@ export const FlashDealsScreen: React.FC<FlashDealsScreenProps> = ({
   onSelectProduct,
 }) => {
   const { isRTL, language } = useTheme();
-  const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 15, seconds: 30 });
 
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  const [flashItems, setFlashItems] = useState<FlashItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Keep end date in a ref so the timer interval always has the latest value
+  const endDateRef = useRef<Date | null>(null);
+
+  // ── Fetch flash deals then fetch products for the first active deal ──────
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchData() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const dealsResp = await apiClient<FlashDealResponse>('/api/v2/flash-deals', {
+          language,
+        });
+
+        if (cancelled) return;
+
+        const deals = Array.isArray(dealsResp?.data) ? dealsResp.data : [];
+
+        if (deals.length === 0) {
+          setFlashItems([]);
+          setLoading(false);
+          return;
+        }
+
+        // Use the first deal for the countdown and product list
+        const deal = deals[0];
+        const endDate = new Date(deal.end_date);
+        endDateRef.current = endDate;
+        setTimeLeft(msToHMS(endDate.getTime() - Date.now()));
+
+        // Fetch products for this deal
+        const productsResp = await apiClient<FlashDealProductsResponse>(
+          `/api/v2/flash-deal-products/${deal.id}`,
+          { language }
+        );
+
+        if (cancelled) return;
+
+        const rawProducts: FlashDealProductRaw[] = Array.isArray(productsResp?.data)
+          ? productsResp.data
+          : [];
+
+        const mapped: FlashItem[] = rawProducts.map((p) => {
+          const basePrice = parseFloat(p.base_price) || 0;
+          const discountedPrice = parseFloat(p.base_discounted_price) || basePrice;
+          return {
+            id: p.id,
+            slug: p.slug,
+            name: p.name,
+            thumbnail_image: p.thumbnail_image,
+            priceMad: discountedPrice,
+            originalPriceMad: basePrice,
+            formattedPrice: formatMAD(discountedPrice),
+            base_price: basePrice,
+            base_discounted_price: discountedPrice,
+            has_discount: p.discount > 0,
+            discount: p.discount > 0 ? `-${p.discount}%` : null,
+            discountPercent: p.discount,
+            stroked_price: formatMAD(basePrice),
+            main_price: formatMAD(discountedPrice),
+            rating: 0,
+            sales: 0,
+            links: { details: '' },
+          };
+        });
+
+        setFlashItems(mapped);
+      } catch (err: any) {
+        if (!cancelled) {
+          setError(err?.message || 'Erreur de chargement');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    fetchData();
+    return () => { cancelled = true; };
+  }, [language]);
+
+  // ── Countdown timer — ticks every second, reads endDateRef ───────────────
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        return prev;
-      });
+      if (endDateRef.current) {
+        setTimeLeft(msToHMS(endDateRef.current.getTime() - Date.now()));
+      } else {
+        // Fallback decrement (before data loads)
+        setTimeLeft((prev) => {
+          if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+          if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+          if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+          return prev;
+        });
+      }
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const flashItems: (ProductMiniDto & { discountPercent: number; originalPriceMad: number })[] = [
-    { id: 501, name: 'Canapé Luna 3 Places · Tissu Bouclé', priceMad: 3950, originalPriceMad: 4500, formattedPrice: '3 950 MAD', discountPercent: 12, thumbnail_image: '', has_discount: true, discount: '-12%', stroked_price: '4 500 MAD', main_price: '3 950 MAD', rating: 5, sales: 15, links: { details: '' } },
-    { id: 502, name: 'Fauteuil Nori Accent · Vert Sauge', priceMad: 1440, originalPriceMad: 1800, formattedPrice: '1 440 MAD', discountPercent: 20, thumbnail_image: '', has_discount: true, discount: '-20%', stroked_price: '1 800 MAD', main_price: '1 440 MAD', rating: 5, sales: 20, links: { details: '' } },
-  ];
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <View style={styles.screen} accessibilityLabel="Flash Deals Screen">
@@ -75,38 +214,62 @@ export const FlashDealsScreen: React.FC<FlashDealsScreenProps> = ({
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {flashItems.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={styles.dealCard}
-            onPress={() => onSelectProduct(item)}
-            activeOpacity={0.85}
-          >
-            <View style={styles.imgCol}>
-              <Image source={item.id === 501 ? CANAPE_IMG : FAUTEUIL_IMG} style={styles.itemImg} resizeMode="cover" />
-              <View style={styles.badge}>
-                <MayushText variant="caption" color={colors.surface.white} style={styles.badgeText}>
-                  -{item.discountPercent}%
-                </MayushText>
+      {loading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colors.brand.orange500} />
+        </View>
+      ) : error ? (
+        <View style={styles.centered}>
+          <MayushText variant="body" color={colors.semantic.error}>
+            {error}
+          </MayushText>
+        </View>
+      ) : flashItems.length === 0 ? (
+        <View style={styles.centered}>
+          <MayushText variant="body" color={colors.neutral.gray500}>
+            {language === 'ar' ? 'لا توجد عروض سريعة حالياً' : 'Aucune vente flash en cours'}
+          </MayushText>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          {flashItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.dealCard}
+              onPress={() => onSelectProduct(item)}
+              activeOpacity={0.85}
+            >
+              <View style={styles.imgCol}>
+                <Image
+                  source={item.thumbnail_image ? { uri: item.thumbnail_image } : require('../../../assets/reference-art/home-new-luna.png')}
+                  style={styles.itemImg}
+                  resizeMode="cover"
+                />
+                {item.discountPercent > 0 && (
+                  <View style={styles.badge}>
+                    <MayushText variant="caption" color={colors.surface.white} style={styles.badgeText}>
+                      -{item.discountPercent}%
+                    </MayushText>
+                  </View>
+                )}
               </View>
-            </View>
-            <View style={styles.metaCol}>
-              <MayushText variant="strongBody" color={colors.brand.navy900} numberOfLines={2}>
-                {item.name}
-              </MayushText>
-              <View style={styles.priceRow}>
-                <MayushText variant="priceRegular" color={colors.brand.orange500}>
-                  {item.formattedPrice}
+              <View style={styles.metaCol}>
+                <MayushText variant="strongBody" color={colors.brand.navy900} numberOfLines={2}>
+                  {item.name}
                 </MayushText>
-                <MayushText variant="caption" color={colors.neutral.gray500} style={styles.originalPrice}>
-                  {item.originalPriceMad} MAD
-                </MayushText>
+                <View style={styles.priceRow}>
+                  <MayushText variant="priceRegular" color={colors.brand.orange500}>
+                    {item.formattedPrice}
+                  </MayushText>
+                  <MayushText variant="caption" color={colors.neutral.gray500} style={styles.originalPrice}>
+                    {item.originalPriceMad} MAD
+                  </MayushText>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -140,6 +303,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.sm,
   },
   content: { padding: 16 },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
   dealCard: {
     flexDirection: 'row',
     padding: 12,
