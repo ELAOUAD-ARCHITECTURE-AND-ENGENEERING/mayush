@@ -18,21 +18,30 @@ import { radii } from '../../design-system/tokens/radii';
 
 export interface ProductFullDescriptionScreenProps {
   productTitle?: string;
+  productName?: string;
+  description?: string;
+  features?: string[];
   onBack: () => void;
 }
 
 export const ProductFullDescriptionScreen: React.FC<ProductFullDescriptionScreenProps> = ({
   productTitle = 'Fauteuil Lounge Luna',
+  productName,
+  description,
+  features: featuresProp,
   onBack,
 }) => {
   const { isRTL, language } = useTheme();
 
-  const features = [
+  const defaultFeatures = [
     language === 'ar' ? 'هيكل من الخشب الصلب المعالج' : 'Structure en bois massif de hêtre certifié FSC.',
     language === 'ar' ? 'قماش بوقلي عالي الجودة مقاوِم للبقع' : 'Revêtement tissu bouclé premium résistant aux taches.',
     language === 'ar' ? 'حشوة رغوية عالية الكثافة (35 كجم/م³)' : 'Mousse haute résilience 35 kg/m³ pour un confort durable.',
     language === 'ar' ? 'تصميم مريح لدعم أسفل الظهر' : 'Ergonomie étudiée pour un soutien lombaire parfait.',
   ];
+
+  const resolvedTitle = productName ?? productTitle;
+  const features = featuresProp && featuresProp.length > 0 ? featuresProp : defaultFeatures;
 
   return (
     <View style={styles.screen} accessibilityLabel="Product Full Description Screen">
@@ -48,7 +57,7 @@ export const ProductFullDescriptionScreen: React.FC<ProductFullDescriptionScreen
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <MayushText variant="pageTitle" color={colors.brand.navy900} style={styles.prodTitle}>
-          {productTitle}
+          {resolvedTitle}
         </MayushText>
 
         <View style={styles.card}>
@@ -56,9 +65,9 @@ export const ProductFullDescriptionScreen: React.FC<ProductFullDescriptionScreen
             {language === 'ar' ? 'قصة التصميم والحرفية' : 'Histoire du Design & Artisanat'}
           </MayushText>
           <MayushText variant="body" color={colors.neutral.gray700} style={styles.paragraph}>
-            {language === 'ar'
+            {description ?? (language === 'ar'
               ? 'تم تصميم هذا الكرسي ليكون قطعة مركزية في صالونك الحديث. يجمع بين البساطة السكاندينافية ولمسات الحرفية المغربية العصرية.'
-              : 'Imaginé par les artisans Mayush Design, le fauteuil Luna allie rondeur contemporaine et confort enveloppant. Ses lignes douces et son tissu bouclé naturel apportent une touche chaleureuse et raffinée à votre pièce de vie.'}
+              : 'Imaginé par les artisans Mayush Design, le fauteuil Luna allie rondeur contemporaine et confort enveloppant. Ses lignes douces et son tissu bouclé naturel apportent une touche chaleureuse et raffinée à votre pièce de vie.')}
           </MayushText>
         </View>
 

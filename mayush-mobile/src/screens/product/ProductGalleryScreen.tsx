@@ -1,13 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
-import { BottomTabBar, TabKey } from '../../design-system/components/navigation/BottomTabBar';
+import { TabKey } from '../../design-system/components/navigation/BottomTabBar';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
 
-const galleryImages = [
+const fallbackGalleryImages = [
   require('../../../assets/reference-art/home-new-luna.png'),
   require('../../../assets/reference-art/home-new-nori.png'),
   require('../../../assets/reference-art/home-new-kyoto.png'),
@@ -19,16 +19,23 @@ export interface ProductGalleryScreenProps {
   onBack: () => void;
   onNavigateTab: (tab: TabKey) => void;
   activeTab?: TabKey;
+  images?: string[];
 }
 
 export const ProductGalleryScreen: React.FC<ProductGalleryScreenProps> = ({
   onBack,
   onNavigateTab,
   activeTab = 'home',
+  images,
 }) => {
   const { isRTL, language } = useTheme();
-  const [activeImage, setActiveImage] = useState(1);
+  const [activeImage, setActiveImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
+
+  const useNetworkImages = images && images.length > 0;
+  const galleryImages: Array<{ uri: string } | ReturnType<typeof require>> = useNetworkImages
+    ? images.map((url) => ({ uri: url }))
+    : fallbackGalleryImages;
   const copy = useMemo(() => language === 'ar'
     ? {
       title: '\u0645\u0639\u0631\u0636 \u0627\u0644\u0645\u0646\u062a\u062c',
@@ -72,7 +79,7 @@ export const ProductGalleryScreen: React.FC<ProductGalleryScreenProps> = ({
 
         <TouchableOpacity activeOpacity={0.96} accessibilityRole="imagebutton" accessibilityLabel={copy.zoom} onPress={() => setIsZoomed((value) => !value)} style={styles.heroFrame}>
           <Image source={galleryImages[activeImage]} resizeMode="cover" style={[styles.heroImage, isZoomed && styles.heroImageZoomed]} />
-          <View style={[styles.imageCount, isRTL && styles.countRTL]}><MayushText variant="caption" color={colors.surface.white} style={styles.imageCountText}>{activeImage + 1} / 8</MayushText></View>
+          <View style={[styles.imageCount, isRTL && styles.countRTL]}><MayushText variant="caption" color={colors.surface.white} style={styles.imageCountText}>{activeImage + 1} / {galleryImages.length}</MayushText></View>
           <View style={[styles.zoomHint, isRTL && styles.zoomHintRTL]}><MayushIcon name="search" size={15} color={colors.brand.navy900} /><MayushText variant="caption" color={colors.brand.navy900} style={styles.zoomText}>{copy.zoom}</MayushText></View>
         </TouchableOpacity>
 
@@ -101,7 +108,6 @@ export const ProductGalleryScreen: React.FC<ProductGalleryScreenProps> = ({
           <MayushIcon name="share" size={29} color={colors.brand.orange500} strokeWidth={1.5} />
         </View>
       </ScrollView>
-      <BottomTabBar activeTab={activeTab} onTabPress={onNavigateTab} cartBadgeCount={3} />
     </View>
   );
 };

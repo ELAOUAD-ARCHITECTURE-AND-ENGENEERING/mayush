@@ -16,18 +16,25 @@ import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
 import { radii } from '../../design-system/tokens/radii';
 
+export interface ProductSpecificationRow {
+  label: string;
+  value: string;
+}
+
 export interface ProductSpecificationsScreenProps {
   productTitle?: string;
+  customSpecs?: ProductSpecificationRow[];
   onBack: () => void;
 }
 
 export const ProductSpecificationsScreen: React.FC<ProductSpecificationsScreenProps> = ({
   productTitle = 'Fauteuil Lounge Luna',
+  customSpecs,
   onBack,
 }) => {
   const { isRTL, language } = useTheme();
 
-  const specs = [
+  const defaultSpecs: ProductSpecificationRow[] = [
     { label: language === 'ar' ? 'العرض' : 'Largeur totale', value: '85 cm' },
     { label: language === 'ar' ? 'الارتفاع' : 'Hauteur totale', value: '78 cm' },
     { label: language === 'ar' ? 'العمق' : 'Profondeur totale', value: '82 cm' },
@@ -38,6 +45,8 @@ export const ProductSpecificationsScreen: React.FC<ProductSpecificationsScreenPr
     { label: language === 'ar' ? 'بلد الصنع' : 'Origine de fabrication', value: language === 'ar' ? 'المغرب (صنع يدوي)' : 'Maroc (Fait main)' },
     { label: language === 'ar' ? 'الضمان' : 'Garantie', value: language === 'ar' ? 'سنتان (24 شهرًا)' : '2 ans (24 mois)' },
   ];
+
+  const specs = customSpecs && customSpecs.length > 0 ? customSpecs : defaultSpecs;
 
   return (
     <View style={styles.screen} accessibilityLabel="Product Specifications Screen">
