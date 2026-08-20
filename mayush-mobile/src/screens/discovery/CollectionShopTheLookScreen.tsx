@@ -25,25 +25,31 @@ const FAUTEUIL_IMG = require('../../../assets/reference-art/home-new-nori.png');
 
 export interface CollectionShopTheLookScreenProps {
   collectionTitle?: string;
+  heroImage?: string;
+  items?: ProductMiniDto[];
   onBack: () => void;
   onSelectProduct: (product: ProductMiniDto) => void;
   onAddAllToCart: () => void;
   onOpenFilter?: () => void;
 }
 
+const FALLBACK_ITEMS: ProductMiniDto[] = [
+  { id: 301, name: 'Canapé Luna 3 Places · Bouclé Beige', priceMad: 4500, formattedPrice: '4 500 MAD', thumbnail_image: '', has_discount: false, discount: null, stroked_price: '4 500 MAD', main_price: '4 500 MAD', rating: 5, sales: 10, links: { details: '' } },
+  { id: 302, name: 'Fauteuil Nori Accent · Vert Sauge', priceMad: 1800, formattedPrice: '1 800 MAD', thumbnail_image: '', has_discount: false, discount: null, stroked_price: '1 800 MAD', main_price: '1 800 MAD', rating: 5, sales: 5, links: { details: '' } },
+  { id: 303, name: 'Table Basse Oval Plâtre', priceMad: 2200, formattedPrice: '2 200 MAD', thumbnail_image: '', has_discount: false, discount: null, stroked_price: '2 200 MAD', main_price: '2 200 MAD', rating: 5, sales: 7, links: { details: '' } },
+];
+
 export const CollectionShopTheLookScreen: React.FC<CollectionShopTheLookScreenProps> = ({
   collectionTitle = 'Salon Contemporain',
+  heroImage,
+  items: itemsProp,
   onBack,
   onSelectProduct,
   onAddAllToCart,
 }) => {
   const { isRTL } = useTheme();
 
-  const items: ProductMiniDto[] = [
-    { id: 301, name: 'Canapé Luna 3 Places · Bouclé Beige', priceMad: 4500, formattedPrice: '4 500 MAD', thumbnail_image: '', has_discount: false, discount: null, stroked_price: '4 500 MAD', main_price: '4 500 MAD', rating: 5, sales: 10, links: { details: '' } },
-    { id: 302, name: 'Fauteuil Nori Accent · Vert Sauge', priceMad: 1800, formattedPrice: '1 800 MAD', thumbnail_image: '', has_discount: false, discount: null, stroked_price: '1 800 MAD', main_price: '1 800 MAD', rating: 5, sales: 5, links: { details: '' } },
-    { id: 303, name: 'Table Basse Oval Plâtre', priceMad: 2200, formattedPrice: '2 200 MAD', thumbnail_image: '', has_discount: false, discount: null, stroked_price: '2 200 MAD', main_price: '2 200 MAD', rating: 5, sales: 7, links: { details: '' } },
-  ];
+  const items = itemsProp && itemsProp.length > 0 ? itemsProp : FALLBACK_ITEMS;
 
   return (
     <View style={styles.screen} accessibilityLabel="Collection Shop the Look Screen">
@@ -59,7 +65,7 @@ export const CollectionShopTheLookScreen: React.FC<CollectionShopTheLookScreenPr
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.sceneCard}>
-          <Image source={ROOM_HERO} style={styles.sceneImg} resizeMode="cover" />
+          <Image source={heroImage ? { uri: heroImage } : ROOM_HERO} style={styles.sceneImg} resizeMode="cover" />
           <View style={styles.hotspot1}>
             <View style={styles.dot} />
           </View>
@@ -73,7 +79,7 @@ export const CollectionShopTheLookScreen: React.FC<CollectionShopTheLookScreenPr
             {collectionTitle}
           </MayushText>
           <MayushText variant="smallBody" color={colors.neutral.gray700} style={styles.subtitle}>
-            3 articles associés dans cette pièce d'inspiration.
+            {items.length} article{items.length !== 1 ? 's' : ''} associé{items.length !== 1 ? 's' : ''} dans cette pièce d'inspiration.
           </MayushText>
         </View>
 
@@ -100,7 +106,7 @@ export const CollectionShopTheLookScreen: React.FC<CollectionShopTheLookScreenPr
 
       <View style={styles.footer}>
         <PrimaryButton
-          label="Ajouter le look complet (8 500 MAD)"
+          label={`Ajouter le look complet (${items.reduce((sum, it) => sum + (it.priceMad ?? 0), 0).toLocaleString('fr-MA')} MAD)`}
           onPress={onAddAllToCart}
         />
       </View>

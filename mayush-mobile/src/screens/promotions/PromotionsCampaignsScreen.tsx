@@ -16,22 +16,34 @@ import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
 import { radii } from '../../design-system/tokens/radii';
 
+export interface PromoCode {
+  code: string;
+  discount: string;
+  label: string;
+}
+
+const FALLBACK_PROMO_CODES = [
+  { code: 'WELCOME10', discount: '10% de réduction', minOrder: '1 500 MAD', desc: 'Valable sur votre première commande' },
+  { code: 'SALON2026', discount: '15% de réduction', minOrder: '4 000 MAD', desc: 'Valable sur la catégorie Salon' },
+];
+
 export interface PromotionsCampaignsScreenProps {
+  promoCodes?: PromoCode[];
   onBack: () => void;
   onExploreDeals: () => void;
 }
 
 export const PromotionsCampaignsScreen: React.FC<PromotionsCampaignsScreenProps> = ({
+  promoCodes: promoCodesProp,
   onBack,
   onExploreDeals,
 }) => {
   const { isRTL, language } = useTheme();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  const promoCodes = [
-    { code: 'WELCOME10', discount: '10% de réduction', minOrder: '1 500 MAD', desc: 'Valable sur votre première commande' },
-    { code: 'SALON2026', discount: '15% de réduction', minOrder: '4 000 MAD', desc: 'Valable sur la catégorie Salon' },
-  ];
+  const promoCodes = promoCodesProp && promoCodesProp.length > 0
+    ? promoCodesProp.map((p) => ({ code: p.code, discount: p.discount, minOrder: '', desc: p.label }))
+    : FALLBACK_PROMO_CODES;
 
   const handleCopy = (code: string) => {
     setCopiedCode(code);
