@@ -15,12 +15,14 @@ import {
 } from 'react-native';
 import { ProductMiniDto } from '../../contracts/api/dto';
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
-import { BottomTabBar, TabKey } from '../../design-system/components/navigation/BottomTabBar';
+import { TabKey } from '../../design-system/components/navigation/BottomTabBar';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
 import { radii } from '../../design-system/tokens/radii';
+import { cartStateManager, createSelectedVariantCartLine, parseMadPrice } from '../../commerce/cartState';
+import { WishlistItem } from '../../commerce/wishlistState';
 import { wishlistState } from '../../commerce/wishlistState';
 
 const CANAPE_IMG = require('../../../assets/reference-art/home-new-luna.png');
@@ -55,6 +57,19 @@ export const WishlistScreen: React.FC<WishlistScreenProps> = ({
       wishlistState.remove(itemToRemove);
       setItemToRemove(null);
     }
+  };
+
+  const handleMoveToCart = async (item: WishlistItem) => {
+    const line = createSelectedVariantCartLine({
+      productId: String(item.id),
+      name: item.name,
+      variant: '',
+      quantity: 1,
+      unitPriceMad: item.main_price ? parseMadPrice(String(item.main_price)) : 0,
+      imageUri: item.thumbnail_image,
+    });
+    await cartStateManager.addLine(line);
+    wishlistState.remove(item.id);
   };
 
   const copy = language === 'ar'
@@ -122,7 +137,7 @@ export const WishlistScreen: React.FC<WishlistScreenProps> = ({
                   </View>
 
                   {item.inStock ? (
-                    <TouchableOpacity style={styles.moveCartBtn} onPress={() => onMoveToCart?.(item)}>
+                    <TouchableOpacity style={styles.moveCartBtn} onPress={() => { void handleMoveToCart(item); }}>
                       <MayushIcon name="shopping-bag" size={14} color={colors.surface.white} />
                       <MayushText variant="caption" color={colors.surface.white} style={styles.moveCartText}>
                         {language === 'ar' ? 'إضافة للسلة' : 'Ajouter au panier'}
@@ -197,22 +212,15 @@ export const WishlistScreen: React.FC<WishlistScreenProps> = ({
             </View>
             <ScrollView contentContainerStyle={styles.altBody}>
               <TouchableOpacity style={styles.altItemRow} onPress={() => { setAltModalVisible(false); onBrowseCollections?.(); }}>
-                <Image source={CANAPE_IMG} style={styles.altThumb} />
-                <View style={styles.altMeta}>
-                  <MayushText variant="strongBody" color={colors.brand.navy900}>
-                    Canapé Luna 2 Places · Bouclé
-                  </MayushText>
-                  <MayushText variant="priceRegular" color={colors.brand.orange500}>
-                    3 800 MAD
-                  </MayushText>
-                </View>
+                <MayushText variant="body" color={colors.neutral.gray700}>
+                  {language === 'ar' ? 'اكتشف المنتجات المشابهة' : 'Découvrir des articles similaires'}
+                </MayushText>
               </TouchableOpacity>
             </ScrollView>
           </View>
         </View>
       </Modal>
 
-      <BottomTabBar activeTab="wishlist" onTabPress={(tab) => onNavigateTab?.(tab)} />
     </View>
   );
 };
