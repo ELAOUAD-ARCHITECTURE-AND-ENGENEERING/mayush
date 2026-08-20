@@ -1,4 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CartState, CartTotals, getCartTotals } from './cartState';
+import { authState } from './authState';
+import { checkoutService } from '../services/api/checkoutService';
 
 export type MoroccoCityId = 'casablanca' | 'rabat' | 'marrakech' | 'tanger' | 'agadir' | 'fes' | 'mohammedia' | 'temara';
 
@@ -53,6 +56,11 @@ export interface SavedAddress {
   deliveryInstructions?: string;
   label?: AddressDraft['label'];
   isDefault?: boolean;
+  // Backend IDs for Laravel API mutations
+  backendCityId?: number;
+  backendStateId?: number;
+  backendCountryId?: number;
+  backendAreaId?: number;
 }
 
 export interface AddressDraft {
@@ -353,3 +361,136 @@ export const resolveFrontendPaymentVerificationOutcome = (
   if (order.paymentVerificationScenario === 'failed_fixture') return 'failed';
   return 'pending';
 };
+
+const DELIVERY_METHOD_TO_SHIPPING_TYPE: Record<DeliveryMethod, string> = {
+  standard: 'home_delivery',
+  express: 'express',
+  relay: 'pickup_point',
+};
+
+class CheckoutStateManager {
+  private session: CheckoutSession | null = null;
+  private listeners = new Set<() => void>();
+
+  private notify(): void {
+    this.listeners.forEach((listener) => listener());
+  }
+
+  public subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => { this.listeners.delete(listener); };
+  }
+
+  public getSession(): CheckoutSession | null {
+    return this.session;
+  }
+
+  public async loadSession(): Promise<CheckoutSession | null> {
+    try {
+      const loaded = await loadCheckoutSession(AsyncStorage);
+      this.session = loaded;
+      this.notify();
+      return this.session;
+    } catch {
+      return this.session;
+    }
+  }
+
+  public async updateSession(partial: Partial<CheckoutSession>): Promise<void> {
+    if (!this.session) return;
+    this.session = { ...this.session, ...partial };
+    try {
+      await saveCheckoutSession(AsyncStorage, this.session);
+    } catch {
+      // Continue with in-memory state on storage failure
+    }
+    this.notify();
+  }
+
+  public async selectAddress(addressId: string): Promise<boolean> {
+    const user = authState.getUser();
+    if (user) {
+      try {
+        const addressIdNum = parseInt(addressId, 10);
+        const result = await checkoutService.updateAddressInCart({
+          address_id: isNaN(addressIdNum) ? addressId : addressIdNum,
+          user_id: user.id,
+        });
+        if (!result.result) return false;
+      } catch {
+        // Continue with local-only on failure
+      }
+    }
+    await this.updateSession({ selectedAddressId: addressId });
+    return true;
+  }
+
+  public async selectDeliveryMethod(method: DeliveryMethod): Promise<boolean> {
+    const user = authState.getUser();
+    if (user) {
+      try {
+        const result = await checkoutService.updateShippingTypeInCart({
+          shipping_type: DELIVERY_METHOD_TO_SHIPPING_TYPE[method],
+          user_id: user.id,
+        });
+        if (!result.result) return false;
+      } catch {
+        // Continue with local-only on failure
+      }
+    }
+    await this.updateSession({ deliveryMethod: method });
+    return true;
+  }
+
+  public async submitOrder(payload: {
+    cart: CartState;
+    address: SavedAddress;
+    deliveryMethod: DeliveryMethod;
+    paymentMethod: PaymentMethod;
+  }): Promise<{ success: boolean; orderId?: number; message?: string }> {
+    const user = authState.getUser();
+    if (!user) {
+      return { success: false, message: 'User not authenticated' };
+    }
+    const paymentType = payload.paymentMethod === 'cash-on-delivery'
+      ? ('cash_on_delivery' as const)
+      : (payload.paymentMethod as 'cmi' | 'wallet');
+    const addressIdNum = parseInt(payload.address.id, 10);
+    try {
+      const response = await checkoutService.submitOrder({
+        payment_type: paymentType,
+        address_id: isNaN(addressIdNum) ? payload.address.id : addressIdNum,
+        user_id: user.id,
+        shipping_type: DELIVERY_METHOD_TO_SHIPPING_TYPE[payload.deliveryMethod],
+      });
+      if (response.result) {
+        return { success: true, orderId: response.combined_order_id, message: response.message };
+      }
+      return { success: false, message: response.message };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Order submission failed';
+      return { success: false, message };
+    }
+  }
+
+  public async getAvailablePaymentTypes(): Promise<Array<{ key: string; name: string; image?: string }>> {
+    try {
+      const types = await checkoutService.getPaymentTypes();
+      return types.map((t) => ({ key: t.key, name: t.name, image: t.image }));
+    } catch {
+      return [];
+    }
+  }
+
+  public async clearSession(): Promise<void> {
+    this.session = null;
+    try {
+      await clearCheckoutSession(AsyncStorage);
+    } catch {
+      // Continue even if storage clear fails
+    }
+    this.notify();
+  }
+}
+
+export const checkoutStateManager = new CheckoutStateManager();
