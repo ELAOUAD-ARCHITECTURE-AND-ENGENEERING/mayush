@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CartState, getCartTotals } from './cartState';
+import { CartState, getCartTotals, parseMadPrice } from './cartState';
 import { DeliveryMethod, FrontendPaymentVerificationScenario, PaymentMethod, SavedAddress } from './checkoutState';
+import { orderService } from '../services/api/orderService';
+import { authState } from './authState';
 
 export const BUYER_ORDER_STORAGE_KEY = 'mayush-mobile:buyer-orders:v1';
 
@@ -477,11 +479,13 @@ export class BuyerOrderRepository {
   private selectedPackageId: string | null = null;
   private hydrated = false;
   private listeners: Array<() => void> = [];
+  private readonly seedOrders?: BuyerOrder[];
 
   public constructor(
     private readonly storage: OrderStorage,
     options: BuyerOrderRepositoryOptions = {},
   ) {
+    this.seedOrders = options.seedOrders;
     this.orders = (options.seedOrders ?? canonicalBuyerOrderFixtures).map(cloneOrder);
     this.selectedOrderId = this.orders[0]?.orderId || null;
     this.nextOrderSequence = options.initialSequence ?? 1843;
@@ -517,6 +521,61 @@ export class BuyerOrderRepository {
       } catch {
         // Keep deterministic seed state when persisted prototype data is corrupt.
       }
+    }
+    let serverOrdersLoaded = false;
+    if (authState.isAuthenticated()) {
+      try {
+        const history = await orderService.getPurchaseHistory();
+        if (history?.data && Array.isArray(history.data) && history.data.length > 0) {
+          const serverOrders: BuyerOrder[] = history.data.map((item) => ({
+            orderId: String(item.id),
+            checkoutAttemptId: `attempt-server-${item.id}`,
+            createdAt: item.date || new Date().toISOString(),
+            orderStatus: (item.delivery_status === 'delivered' ? 'delivered' : item.delivery_status === 'cancelled' ? 'cancelled' : 'confirmed') as OrderStatus,
+            deliveryStatus: (item.delivery_status === 'delivered' ? 'delivered' : item.delivery_status === 'cancelled' ? 'cancelled' : 'preparing') as DeliveryStatus,
+            paymentStatus: (item.payment_status === 'paid' ? 'confirmed' : 'cash_on_delivery_pending') as PaymentStatus,
+            paymentMethod: (item.payment_type === 'cmi' ? 'cmi' : 'cash-on-delivery') as PaymentMethod,
+            deliveryMethod: 'standard',
+            deliveryFeeMad: 0,
+            deliveryPackageCount: 1,
+            totalMad: parseMadPrice(item.grand_total || '0 MAD'),
+            discountMad: 0,
+            paymentReference: `SERVER-${item.id}`,
+            invoice: null,
+            lines: [],
+            packages: [],
+            trackingEvents: [],
+            address: {
+              name: 'Client Mayush',
+              phone: '+212 6 00 00 00 00',
+              addressLine: 'Adresse de livraison',
+              city: 'Casablanca',
+              postcode: '20000',
+              zone: 'Grand Casablanca',
+            },
+            id: String(item.id),
+            idempotencyKey: `attempt-server-${item.id}`,
+            createdAtLabel: item.date || new Date().toLocaleDateString('fr-MA'),
+          }));
+          // Authenticated + server returned orders: use only server orders (no fixtures).
+          // Locally-created orders (checkoutAttemptId does not start with 'attempt-server-') are preserved.
+          const localOnlyOrders = this.orders.filter(
+            (o) => !o.checkoutAttemptId.startsWith('attempt-server-')
+              && !canonicalBuyerOrderFixtures.some((f) => f.orderId === o.orderId),
+          );
+          const serverIds = new Set(serverOrders.map((o) => o.orderId));
+          const localNotOnServer = localOnlyOrders.filter((o) => !serverIds.has(o.orderId));
+          this.orders = [...serverOrders, ...localNotOnServer];
+          serverOrdersLoaded = true;
+        }
+      } catch {
+        // Keep offline cached orders
+      }
+    }
+    // If no server data was loaded and no persisted data existed, seed fixtures as demo/fallback.
+    if (!serverOrdersLoaded && !stored) {
+      this.orders = (this.seedOrders ?? canonicalBuyerOrderFixtures).map(cloneOrder);
+      this.selectedOrderId = this.orders[0]?.orderId || null;
     }
     this.hydrated = true;
     this.notify();
@@ -702,6 +761,60 @@ export class BuyerOrderRepository {
     this.notify();
     await this.persist();
     return cloneOrder(this.orders[index]);
+  }
+
+  public async cancelOrder(orderId: string): Promise<boolean> {
+    const user = authState.getUser();
+    if (user) {
+      try {
+        const response = await orderService.cancelOrder(Number(orderId));
+        if (response.result) {
+          const idx = this.orders.findIndex((o) => o.orderId === orderId);
+          if (idx >= 0) {
+            this.orders[idx] = { ...this.orders[idx], orderStatus: 'cancelled', deliveryStatus: 'cancelled' };
+            this.notify();
+            await this.persist();
+          }
+          return true;
+        }
+      } catch { /* silent */ }
+    }
+    return false;
+  }
+
+  public async submitRefundRequest(orderId: string, reason: string): Promise<boolean> {
+    const user = authState.getUser();
+    if (!user) return false;
+    try {
+      const response = await orderService.submitRefundRequest({
+        orderDetailId: Number(orderId),
+        reason,
+      });
+      if (response.success) {
+        const idx = this.orders.findIndex((o) => o.orderId === orderId);
+        if (idx >= 0) {
+          this.orders[idx] = { ...this.orders[idx], orderStatus: 'return_requested' };
+          this.notify();
+          await this.persist();
+        }
+        return true;
+      }
+    } catch { /* silent */ }
+    return false;
+  }
+
+  public async reOrder(orderId: string): Promise<{ successCount: number; failedCount: number }> {
+    const user = authState.getUser();
+    if (!user) return { successCount: 0, failedCount: 0 };
+    try {
+      const response = await orderService.reOrder(Number(orderId));
+      return {
+        successCount: response.success_msgs?.length ?? 0,
+        failedCount: response.failed_msgs?.length ?? 0,
+      };
+    } catch {
+      return { successCount: 0, failedCount: 0 };
+    }
   }
 
   public async clearPrototypeOrders(): Promise<void> {
