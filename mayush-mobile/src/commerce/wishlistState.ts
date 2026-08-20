@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ProductMiniDto } from '../contracts/api/dto';
 import { authState } from './authState';
+import { wishlistService } from '../services/api/wishlistService';
 
 export interface WishlistItem extends ProductMiniDto {
   inStock: boolean;
@@ -18,7 +19,7 @@ export const getWishlistStorageKey = (userId?: string): string => {
 };
 
 class WishlistStateManager {
-  private items: WishlistItem[] = initialWishlistItems.map((item) => ({ ...item }));
+  private items: WishlistItem[] = [];
   private listeners = new Set<() => void>();
   private currentUserId: string | undefined = undefined;
   private hydrated: boolean = false;
@@ -69,7 +70,7 @@ class WishlistStateManager {
     }
 
     // If logging out or switching between buyers with no stored wishlist
-    this.items = nextUserId ? [] : initialWishlistItems.map((item) => ({ ...item }));
+    this.items = [];
     this.hydrated = true;
     this.notify();
   }
@@ -85,12 +86,38 @@ class WishlistStateManager {
           this.items = parsed;
           this.hydrated = true;
           this.notify();
-          return;
         }
       }
     } catch {
       // Fall back safely
     }
+
+    if (authState.isAuthenticated()) {
+      try {
+        const remote = await wishlistService.getWishlist();
+        if (remote?.data && Array.isArray(remote.data)) {
+          this.items = remote.data.map((entry) => ({
+            id: entry.product.id,
+            name: entry.product.name,
+            priceMad: entry.product.base_discounted_price || entry.product.base_price || 0,
+            formattedPrice: `${entry.product.base_discounted_price || entry.product.base_price || 0} MAD`,
+            inStock: (entry.product.current_stock ?? 1) > 0,
+            thumbnail_image: entry.product.thumbnail_image || '',
+            has_discount: Boolean(entry.product.base_discounted_price && entry.product.base_discounted_price < (entry.product.base_price || 0)),
+            discount: null,
+            stroked_price: `${entry.product.base_price || 0} MAD`,
+            main_price: `${entry.product.base_discounted_price || entry.product.base_price || 0} MAD`,
+            rating: entry.product.rating || 5,
+            sales: 0,
+            links: { details: '' },
+          }));
+          void this.persist();
+        }
+      } catch {
+        // Keep offline/cached items
+      }
+    }
+
     this.hydrated = true;
     this.notify();
   }
@@ -128,24 +155,37 @@ class WishlistStateManager {
   public toggle(product: ProductMiniDto): boolean {
     if (this.isWishlisted(product.id)) {
       this.remove(product.id);
+      if (authState.isAuthenticated()) {
+        const slug = (product as any).slug || String(product.id);
+        wishlistService.removeFromWishlist(slug).catch(() => undefined);
+      }
       return false;
     }
     this.items = [{ ...product, inStock: true }, ...this.items];
     this.notify();
     void this.persist();
+    if (authState.isAuthenticated()) {
+      const slug = (product as any).slug || String(product.id);
+      wishlistService.addToWishlist(slug).catch(() => undefined);
+    }
     return true;
   }
 
   public remove(productId: number): void {
     const next = this.items.filter((item) => item.id !== productId);
     if (next.length === this.items.length) return;
+    const removedItem = this.items.find((item) => item.id === productId);
     this.items = next;
     this.notify();
     void this.persist();
+    if (authState.isAuthenticated() && removedItem) {
+      const slug = (removedItem as any).slug || String(removedItem.id);
+      wishlistService.removeFromWishlist(slug).catch(() => undefined);
+    }
   }
 
   public reset(): void {
-    this.items = initialWishlistItems.map((item) => ({ ...item }));
+    this.items = [];
     this.notify();
     void this.persist();
   }
