@@ -3,8 +3,9 @@
  * Category landing page with subcategories, curated collections, and featured products.
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -17,6 +18,7 @@ import { MayushText } from '../../design-system/components/typography/MayushText
 import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
 import { radii } from '../../design-system/tokens/radii';
+import { catalogService } from '../../services/api/catalogService';
 
 const SALON_HERO = require('../../../assets/reference-art/home-hero-scene.png');
 const CANAPE_THUMB = require('../../../assets/reference-art/home-new-luna.png');
@@ -31,6 +33,22 @@ export interface CategoryLandingScreenProps {
   onOpenSearch: () => void;
 }
 
+const FALLBACK_SUBCATEGORIES = [
+  { id: 'canapes', name: 'Canapés', nameAr: 'أرائك', image: CANAPE_THUMB, isLocal: true as const },
+  { id: 'fauteuils', name: 'Fauteuils', nameAr: 'كراسي مريحة', image: FAUTEUIL_THUMB, isLocal: true as const },
+  { id: 'tables-basses', name: 'Tables Basses', nameAr: 'طاولات قهوة', image: CANAPE_THUMB, isLocal: true as const },
+  { id: 'meubles-tv', name: 'Meubles TV', nameAr: 'خزائن تلفزيون', image: FAUTEUIL_THUMB, isLocal: true as const },
+];
+
+const FALLBACK_PRODUCTS: ProductMiniDto[] = [
+  { id: 201, name: 'Canapé Luna 3 Places', priceMad: 4500, formattedPrice: '4 500 MAD', thumbnail_image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=350&auto=format&fit=crop', has_discount: false, discount: null, stroked_price: '4 500 MAD', main_price: '4 500 MAD', rating: 5, sales: 12, links: { details: '' } },
+  { id: 202, name: 'Fauteuil Nori Accent', priceMad: 1800, formattedPrice: '1 800 MAD', thumbnail_image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=350&auto=format&fit=crop', has_discount: false, discount: null, stroked_price: '1 800 MAD', main_price: '1 800 MAD', rating: 5, sales: 8, links: { details: '' } },
+];
+
+type SubcategoryItem =
+  | { id: string; name: string; nameAr: string; image: ReturnType<typeof require>; isLocal: true }
+  | { id: string; name: string; nameAr?: string; image: { uri: string }; isLocal: false };
+
 export const CategoryLandingScreen: React.FC<CategoryLandingScreenProps> = ({
   category,
   onBack,
@@ -42,17 +60,47 @@ export const CategoryLandingScreen: React.FC<CategoryLandingScreenProps> = ({
   const { isRTL, language } = useTheme();
   const title = category ? (language === 'ar' ? category.nameAr || category.name : category.name) : 'Salon & Séjour';
 
-  const subcategories = [
-    { id: 'canapes', name: language === 'ar' ? 'أرائك' : 'Canapés', image: CANAPE_THUMB },
-    { id: 'fauteuils', name: language === 'ar' ? 'كراسي مريحة' : 'Fauteuils', image: FAUTEUIL_THUMB },
-    { id: 'tables-basses', name: language === 'ar' ? 'طاولات قهوة' : 'Tables Basses', image: CANAPE_THUMB },
-    { id: 'meubles-tv', name: language === 'ar' ? 'خزائن تلفزيون' : 'Meubles TV', image: FAUTEUIL_THUMB },
-  ];
+  const [subcategories, setSubcategories] = useState<SubcategoryItem[]>(FALLBACK_SUBCATEGORIES);
+  const [featuredProducts, setFeaturedProducts] = useState<ProductMiniDto[]>(FALLBACK_PRODUCTS);
+  const [loading, setLoading] = useState(false);
 
-  const featuredProducts: ProductMiniDto[] = [
-    { id: 201, name: 'Canapé Luna 3 Places', priceMad: 4500, formattedPrice: '4 500 MAD', thumbnail_image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=350&auto=format&fit=crop', has_discount: false, discount: null, stroked_price: '4 500 MAD', main_price: '4 500 MAD', rating: 5, sales: 12, links: { details: '' } },
-    { id: 202, name: 'Fauteuil Nori Accent', priceMad: 1800, formattedPrice: '1 800 MAD', thumbnail_image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=350&auto=format&fit=crop', has_discount: false, discount: null, stroked_price: '1 800 MAD', main_price: '1 800 MAD', rating: 5, sales: 8, links: { details: '' } },
-  ];
+  useEffect(() => {
+    if (!category) return;
+
+    let cancelled = false;
+    setLoading(true);
+
+    const fetchData = async () => {
+      try {
+        const [subcatData, productsData] = await Promise.allSettled([
+          catalogService.getSubCategories(category.id, language),
+          catalogService.getCategoryProducts(category.slug || String(category.id), 1, language),
+        ]);
+
+        if (cancelled) return;
+
+        if (subcatData.status === 'fulfilled' && subcatData.value.length > 0) {
+          const mapped: SubcategoryItem[] = subcatData.value.map((cat) => ({
+            id: cat.slug || String(cat.id),
+            name: cat.name,
+            nameAr: cat.nameAr,
+            image: { uri: cat.icon || cat.banner },
+            isLocal: false as const,
+          }));
+          setSubcategories(mapped);
+        }
+
+        if (productsData.status === 'fulfilled' && productsData.value.data.length > 0) {
+          setFeaturedProducts(productsData.value.data.slice(0, 4));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchData();
+    return () => { cancelled = true; };
+  }, [category, language]);
 
   return (
     <View style={styles.screen} accessibilityLabel="Category Landing Screen">
@@ -88,27 +136,37 @@ export const CategoryLandingScreen: React.FC<CategoryLandingScreenProps> = ({
           {language === 'ar' ? 'الفئات الفرعية' : 'Catégories populaires'}
         </MayushText>
 
-        <View style={styles.subcatGrid}>
-          {subcategories.map((sub) => (
-            <TouchableOpacity
-              key={sub.id}
-              style={styles.subcatCard}
-              onPress={() => onSelectSubcategory(sub.id)}
-              activeOpacity={0.8}
-            >
-              <Image source={sub.image} style={styles.subcatImage} resizeMode="cover" />
-              <View style={styles.subcatLabelBar}>
-                <MayushText variant="strongBody" color={colors.brand.navy900}>
-                  {sub.name}
-                </MayushText>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color={colors.brand.orange500} />
+          </View>
+        ) : (
+          <View style={styles.subcatGrid}>
+            {subcategories.map((sub) => {
+              const displayName = language === 'ar' ? (sub.nameAr || sub.name) : sub.name;
+              const imageSource = sub.isLocal ? sub.image : sub.image;
+              return (
+                <TouchableOpacity
+                  key={sub.id}
+                  style={styles.subcatCard}
+                  onPress={() => onSelectSubcategory(sub.id)}
+                  activeOpacity={0.8}
+                >
+                  <Image source={imageSource} style={styles.subcatImage} resizeMode="cover" />
+                  <View style={styles.subcatLabelBar}>
+                    <MayushText variant="strongBody" color={colors.brand.navy900}>
+                      {displayName}
+                    </MayushText>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
         <TouchableOpacity
           style={styles.lookBanner}
-          onPress={() => onOpenCollection('salon-contemporain')}
+          onPress={() => onOpenCollection(category?.slug || 'salon-contemporain')}
           activeOpacity={0.85}
         >
           <View style={styles.lookTextCol}>
@@ -130,24 +188,29 @@ export const CategoryLandingScreen: React.FC<CategoryLandingScreenProps> = ({
         </MayushText>
 
         <View style={styles.productGrid}>
-          {featuredProducts.map((prod) => (
-            <TouchableOpacity
-              key={prod.id}
-              style={styles.productCard}
-              onPress={() => onSelectProduct(prod)}
-              activeOpacity={0.8}
-            >
-              <Image source={prod.id === 201 ? CANAPE_THUMB : FAUTEUIL_THUMB} style={styles.productImg} resizeMode="cover" />
-              <View style={styles.productMeta}>
-                <MayushText variant="strongBody" color={colors.brand.navy900} numberOfLines={1}>
-                  {prod.name}
-                </MayushText>
-                <MayushText variant="priceRegular" color={colors.brand.orange500}>
-                  {prod.formattedPrice}
-                </MayushText>
-              </View>
-            </TouchableOpacity>
-          ))}
+          {featuredProducts.map((prod, index) => {
+            const prodImageSource = prod.thumbnail_image && prod.thumbnail_image.startsWith('http')
+              ? { uri: prod.thumbnail_image }
+              : index % 2 === 0 ? CANAPE_THUMB : FAUTEUIL_THUMB;
+            return (
+              <TouchableOpacity
+                key={prod.id}
+                style={styles.productCard}
+                onPress={() => onSelectProduct(prod)}
+                activeOpacity={0.8}
+              >
+                <Image source={prodImageSource} style={styles.productImg} resizeMode="cover" />
+                <View style={styles.productMeta}>
+                  <MayushText variant="strongBody" color={colors.brand.navy900} numberOfLines={1}>
+                    {prod.name}
+                  </MayushText>
+                  <MayushText variant="priceRegular" color={colors.brand.orange500}>
+                    {prod.formattedPrice || prod.main_price}
+                  </MayushText>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ScrollView>
     </View>
@@ -186,6 +249,7 @@ const styles = StyleSheet.create({
   heroTitle: { fontSize: 22, marginTop: 4 },
   heroSubtitle: { marginTop: 2 },
   sectionHeading: { marginBottom: 12 },
+  loadingContainer: { height: 120, alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
   subcatGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 20 },
   subcatCard: {
     width: '48%',
