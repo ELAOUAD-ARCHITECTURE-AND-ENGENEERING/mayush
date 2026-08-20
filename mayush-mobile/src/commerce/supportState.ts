@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BuyerOrderRepository, orderState } from './orderState';
+import { supportTicketService } from '../services/api/supportTicketService';
+import { authState } from './authState';
 
 // ── FAQ Types ──
 
@@ -430,7 +432,14 @@ class SupportStateManager {
 
   private listeners: (() => void)[] = [];
 
-  private constructor() {}
+  private constructor() {
+    // Subscribe to auth state changes so ticket list stays in sync
+    authState.subscribe(() => {
+      this.hydrate();
+    });
+    // Initial load
+    this.hydrate();
+  }
 
   public static getInstance(): SupportStateManager {
     if (!SupportStateManager.instance) {
@@ -448,6 +457,63 @@ class SupportStateManager {
 
   private notify() {
     this.listeners.forEach((l) => l());
+  }
+
+  // ── Server Hydration ──
+
+  public async hydrate(): Promise<void> {
+    if (!authState.isAuthenticated()) {
+      // Reset to seeded data when unauthenticated
+      this.supportRequests = [...SEEDED_SUPPORT_REQUESTS];
+      this.notify();
+      return;
+    }
+
+    try {
+      const result = await supportTicketService.getConversations();
+      if (result.success && Array.isArray(result.data)) {
+        this.supportRequests = result.data.map((conv): SupportRequest => ({
+          id: String(conv.id),
+          reference: `SUP-${conv.id}`,
+          title: conv.title,
+          titleAr: conv.title,
+          categoryId: 'commandes',
+          status: 'open',
+          statusLabel: 'Ouvert',
+          statusLabelAr: 'مفتوح',
+          date: conv.date,
+          summary: conv.last_message ?? '',
+          summaryAr: conv.last_message ?? '',
+          unreadCount: conv.unread ? 1 : 0,
+          messages: [],
+        }));
+        this.notify();
+      }
+    } catch {
+      // Keep existing data on error
+    }
+  }
+
+  public async loadMessages(ticketId: string): Promise<void> {
+    const req = this.supportRequests.find((r) => r.id === ticketId || r.reference === ticketId);
+    if (!req) return;
+
+    try {
+      const result = await supportTicketService.getMessages(Number(ticketId));
+      if (result.success && Array.isArray(result.data)) {
+        const currentUserId = authState.getUser()?.id;
+        req.messages = result.data.map((item): SupportMessage => ({
+          id: String(item.id),
+          sender: currentUserId !== undefined && item.user_id === Number(currentUserId) ? 'user' : 'agent',
+          senderName: currentUserId !== undefined && item.user_id === Number(currentUserId) ? 'Vous' : 'Support Mayush',
+          timestamp: item.date,
+          text: item.message,
+        }));
+        this.notify();
+      }
+    } catch {
+      // Keep existing messages on error
+    }
   }
 
   // ── FAQ ──
@@ -643,6 +709,15 @@ class SupportStateManager {
     this.selectedSupportRequestId = newReq.id;
     this.clearContactDraft();
     this.notify();
+
+    if (authState.isAuthenticated()) {
+      supportTicketService.createConversation({
+        product_id: 0,
+        title: draft.subject || 'Demande d\'assistance',
+        message: draft.message,
+      }).catch(() => undefined);
+    }
+
     return newReq;
   }
 
@@ -669,6 +744,17 @@ class SupportStateManager {
 
     this.clearReplyDraft();
     this.notify();
+
+    if (authState.isAuthenticated()) {
+      const numericId = Number.parseInt(ticketId.replace(/\D/g, ''), 10);
+      if (Number.isFinite(numericId)) {
+        supportTicketService.sendMessage({
+          conversation_id: numericId,
+          message: messageText,
+        }).catch(() => undefined);
+      }
+    }
+
     return newMsg;
   }
 
