@@ -14,6 +14,7 @@ import { MayushIcon } from '../../design-system/components/navigation/MayushIcon
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { colors } from '../../design-system/tokens/colors';
 import { authState } from '../../commerce/authState';
+import { useTheme } from '../../design-system/theme/useTheme';
 
 export interface RegistrationScreenProps {
   onNextToConsent: () => void;
@@ -26,6 +27,9 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
   onSignInClick,
   onBack,
 }) => {
+  const { isRTL } = useTheme();
+  const heading = (fr: string, ar: string) => (isRTL ? ar : fr);
+
   const existingDraft = authState.getRegistrationDraft();
   const [fullName, setFullName] = useState(existingDraft.fullName || '');
   const [emailOrPhone, setEmailOrPhone] = useState(existingDraft.emailOrPhone || '');
@@ -52,19 +56,19 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
 
   const handleNext = () => {
     if (!fullName.trim()) {
-      setErrorMessage('Veuillez entrer votre nom complet.');
+      setErrorMessage(heading('Veuillez entrer votre nom complet.', 'يرجى إدخال اسمك الكامل.'));
       return;
     }
     if (!emailOrPhone.trim() || !validatePhoneOrEmail(emailOrPhone)) {
-      setErrorMessage('Veuillez saisir un email valide ou un numéro marocain (+212 6/7).');
+      setErrorMessage(heading('Veuillez saisir un email valide ou un numéro marocain (+212 6/7).', 'يرجى إدخال بريد إلكتروني صالح أو رقم مغربي (+212 6/7).'));
       return;
     }
     if (!isPasswordValid) {
-      setErrorMessage('Le mot de passe ne respecte pas les exigences de sécurité.');
+      setErrorMessage(heading('Le mot de passe ne respecte pas les exigences de sécurité.', 'كلمة المرور لا تستوفي متطلبات الأمان.'));
       return;
     }
     if (password !== confirmPassword) {
-      setErrorMessage('Les mots de passe ne correspondent pas.');
+      setErrorMessage(heading('Les mots de passe ne correspondent pas.', 'كلمتا المرور غير متطابقتين.'));
       return;
     }
 
@@ -81,7 +85,7 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      accessibilityLabel="Formulaire d'inscription"
+      accessibilityLabel={heading("Formulaire d'inscription", 'نموذج التسجيل')}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -93,7 +97,7 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
             onPress={onBack}
             style={styles.backBtn}
             accessibilityRole="button"
-            accessibilityLabel="Retour"
+            accessibilityLabel={heading('Retour', 'رجوع')}
           >
             <MayushIcon name="chevron-left" size={24} color={colors.brand.navy900} />
           </TouchableOpacity>
@@ -103,10 +107,13 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
 
         <View style={styles.titleSection}>
           <MayushText variant="pageTitle" color={colors.brand.navy900} style={styles.title}>
-            Créer un compte
+            {heading('Créer un compte', 'إنشاء حساب')}
           </MayushText>
           <MayushText variant="caption" color={colors.neutral.gray700} style={styles.subtitle}>
-            Rejoignez la communauté Mayush Design pour réserver vos collections d'exception.
+            {heading(
+              "Rejoignez la communauté Mayush Design pour réserver vos collections d'exception.",
+              'انضم إلى مجتمع Mayush Design لحجز مجموعاتك الاستثنائية.'
+            )}
           </MayushText>
         </View>
 
@@ -121,8 +128,8 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
 
         <View style={styles.formCard}>
           <TextField
-            label="Nom et prénom"
-            placeholder="Ex: Karim Benjelloun"
+            label={heading('Nom et prénom', 'الاسم الكامل')}
+            placeholder={heading('Ex: Karim Benjelloun', 'مثال: كريم بنجلون')}
             value={fullName}
             onChangeText={(txt) => {
               setFullName(txt);
@@ -132,8 +139,8 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
           />
 
           <TextField
-            label="Email ou téléphone mobile (+212)"
-            placeholder="+212 661-234567 ou karim@example.ma"
+            label={heading('Email ou téléphone mobile (+212)', 'البريد الإلكتروني أو الهاتف (+212)')}
+            placeholder={heading('+212 661-234567 ou karim@example.ma', '+212 661-234567 أو karim@example.ma')}
             value={emailOrPhone}
             onChangeText={(txt) => {
               setEmailOrPhone(txt);
@@ -143,12 +150,12 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
             autoCapitalize="none"
             leftIcon="phone"
             containerStyle={styles.fieldSpacing}
-            helperText="Format marocain +212 (06/07) ou email valide."
+            helperText={heading('Format marocain +212 (06/07) ou email valide.', 'الصيغة المغربية +212 (06/07) أو بريد إلكتروني صالح.')}
           />
 
           <TextField
-            label="Mot de passe"
-            placeholder="Créer un mot de passe sécurisé"
+            label={heading('Mot de passe', 'كلمة المرور')}
+            placeholder={heading('Créer un mot de passe sécurisé', 'أنشئ كلمة مرور آمنة')}
             value={password}
             onChangeText={(txt) => {
               setPassword(txt);
@@ -172,7 +179,7 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
                 variant="caption"
                 color={hasMinLength ? colors.semantic.success : colors.neutral.gray700}
               >
-                Au moins 8 caractères
+                {heading('Au moins 8 caractères', '8 أحرف على الأقل')}
               </MayushText>
             </View>
             <View style={styles.ruleRow}>
@@ -185,7 +192,7 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
                 variant="caption"
                 color={hasLetter ? colors.semantic.success : colors.neutral.gray700}
               >
-                Contient des lettres
+                {heading('Contient des lettres', 'يحتوي على حروف')}
               </MayushText>
             </View>
             <View style={styles.ruleRow}>
@@ -198,14 +205,14 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
                 variant="caption"
                 color={hasNumber ? colors.semantic.success : colors.neutral.gray700}
               >
-                Contient des chiffres
+                {heading('Contient des chiffres', 'يحتوي على أرقام')}
               </MayushText>
             </View>
           </View>
 
           <TextField
-            label="Confirmer le mot de passe"
-            placeholder="Répétez votre mot de passe"
+            label={heading('Confirmer le mot de passe', 'تأكيد كلمة المرور')}
+            placeholder={heading('Répétez votre mot de passe', 'أعد إدخال كلمة المرور')}
             value={confirmPassword}
             onChangeText={(txt) => {
               setConfirmPassword(txt);
@@ -217,7 +224,7 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
           />
 
           <PrimaryButton
-            label="Continuer (Conditions & Confidentialité)"
+            label={heading('Continuer (Conditions & Confidentialité)', 'متابعة (الشروط والخصوصية)')}
             onPress={handleNext}
             style={styles.submitBtn}
           />
@@ -225,11 +232,11 @@ export const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
 
         <View style={styles.footerSection}>
           <MayushText variant="caption" color={colors.neutral.gray700}>
-            Vous avez déjà un compte ?
+            {heading('Vous avez déjà un compte ?', 'لديك حساب بالفعل؟')}
           </MayushText>
           <TouchableOpacity onPress={onSignInClick} style={styles.signInBtn} accessibilityRole="button">
             <MayushText variant="button" color={colors.brand.orange500}>
-              Se connecter
+              {heading('Se connecter', 'تسجيل الدخول')}
             </MayushText>
           </TouchableOpacity>
         </View>

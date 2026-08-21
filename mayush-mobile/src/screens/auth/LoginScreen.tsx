@@ -14,6 +14,7 @@ import { MayushIcon } from '../../design-system/components/navigation/MayushIcon
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { colors } from '../../design-system/tokens/colors';
 import { authState } from '../../commerce/authState';
+import { useTheme } from '../../design-system/theme/useTheme';
 
 export interface LoginScreenProps {
   onLoginSubmit: (emailOrPhone: string, pass: string) => void;
@@ -32,6 +33,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   initialEmailOrPhone = '',
   initialPassword = '',
 }) => {
+  const { isRTL } = useTheme();
+  const heading = (fr: string, ar: string) => (isRTL ? ar : fr);
+
   const [emailOrPhone, setEmailOrPhone] = useState(initialEmailOrPhone);
   const [password, setPassword] = useState(initialPassword);
   const [showPassword, setShowPassword] = useState(false);
@@ -40,11 +44,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   const handleLogin = () => {
     if (!emailOrPhone.trim()) {
-      setErrorMessage('Veuillez saisir votre email ou téléphone.');
+      setErrorMessage(heading('Veuillez saisir votre email ou téléphone.', 'يرجى إدخال بريدك الإلكتروني أو رقم هاتفك.'));
       return;
     }
     if (!password) {
-      setErrorMessage('Veuillez saisir votre mot de passe.');
+      setErrorMessage(heading('Veuillez saisir votre mot de passe.', 'يرجى إدخال كلمة المرور.'));
       return;
     }
     setErrorMessage('');
@@ -55,7 +59,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      accessibilityLabel="Ecran de connexion"
+      accessibilityLabel={heading('Ecran de connexion', 'شاشة تسجيل الدخول')}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -67,7 +71,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             onPress={onBack}
             style={styles.backButton}
             accessibilityRole="button"
-            accessibilityLabel="Retour"
+            accessibilityLabel={heading('Retour', 'رجوع')}
           >
             <MayushIcon name="chevron-left" size={24} color={colors.brand.navy900} />
           </TouchableOpacity>
@@ -77,10 +81,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
         <View style={styles.titleSection}>
           <MayushText variant="pageTitle" color={colors.brand.navy900} style={styles.title}>
-            Connexion
+            {heading('Connexion', 'تسجيل الدخول')}
           </MayushText>
           <MayushText variant="caption" color={colors.neutral.gray700} style={styles.subtitle}>
-            Accédez à votre espace client Mayush Design avec votre adresse email ou votre numéro de téléphone marocain (+212).
+            {heading(
+              'Accédez à votre espace client Mayush Design avec votre adresse email ou votre numéro de téléphone marocain (+212).',
+              'ادخل إلى حسابك في Mayush Design بعنوان بريدك الإلكتروني أو رقم هاتفك المغربي (+212).'
+            )}
           </MayushText>
         </View>
 
@@ -95,8 +102,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
         <View style={styles.formGroup}>
           <TextField
-            label="Email ou téléphone (+212)"
-            placeholder="exemple@mayush.ma ou +212 661-234567"
+            label={heading('Email ou téléphone (+212)', 'البريد الإلكتروني أو الهاتف (+212)')}
+            placeholder={heading('exemple@mayush.ma ou +212 661-234567', 'exemple@mayush.ma أو +212 661-234567')}
             value={emailOrPhone}
             onChangeText={(txt) => {
               setEmailOrPhone(txt);
@@ -108,8 +115,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           />
 
           <TextField
-            label="Mot de passe"
-            placeholder="Votre mot de passe"
+            label={heading('Mot de passe', 'كلمة المرور')}
+            placeholder={heading('Votre mot de passe', 'كلمة المرور الخاصة بك')}
             value={password}
             onChangeText={(txt) => {
               setPassword(txt);
@@ -135,23 +142,23 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 ) : null}
               </View>
               <MayushText variant="caption" color={colors.brand.navy900}>
-                Se souvenir de moi
+                {heading('Se souvenir de moi', 'تذكرني')}
               </MayushText>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={onForgotPassword}
               accessibilityRole="button"
-              accessibilityLabel="Mot de passe oublié"
+              accessibilityLabel={heading('Mot de passe oublié', 'نسيت كلمة المرور')}
             >
               <MayushText variant="caption" color={colors.brand.orange500} style={styles.forgotText}>
-                Mot de passe oublié ?
+                {heading('Mot de passe oublié ?', 'نسيت كلمة المرور؟')}
               </MayushText>
             </TouchableOpacity>
           </View>
 
           <PrimaryButton
-            label="Se connecter"
+            label={heading('Se connecter', 'تسجيل الدخول')}
             onPress={handleLogin}
             style={styles.submitBtn}
           />
@@ -159,7 +166,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
         <View style={styles.footerSection}>
           <MayushText variant="caption" color={colors.neutral.gray700}>
-            Vous n'avez pas encore de compte ?
+            {heading('Vous n\'avez pas encore de compte ?', 'ليس لديك حساب؟')}
           </MayushText>
           <TouchableOpacity
             onPress={onCreateAccount}
@@ -167,7 +174,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             accessibilityRole="button"
           >
             <MayushText variant="button" color={colors.brand.orange500}>
-              Créer un compte
+              {heading('Créer un compte', 'إنشاء حساب')}
             </MayushText>
           </TouchableOpacity>
         </View>
