@@ -89,19 +89,32 @@ export const WishlistScreen: React.FC<WishlistScreenProps> = ({
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {wishlistItems.some((i) => i.oldPriceMad) ? (
-          <View style={styles.priceDropBanner}>
-            <MayushIcon name="trending-down" size={20} color={colors.semantic.error} />
-            <View style={styles.bannerTextCol}>
-              <MayushText variant="strongBody" color={colors.brand.navy900}>
-                {language === 'ar' ? 'انخفاض في السعر!' : 'Baisse de prix détectée !'}
-              </MayushText>
-              <MayushText variant="caption" color={colors.neutral.gray700}>
-                {language === 'ar' ? 'وفر 300 درهم على كرسي نوري الأخضر' : 'Économisez 300 MAD sur Fauteuil Nori Accent'}
-              </MayushText>
+        {(() => {
+          const droppedItems = wishlistItems.filter((i) => i.oldPriceMad != null && i.priceMad != null);
+          if (droppedItems.length === 0) return null;
+          const firstDrop = droppedItems[0];
+          const savings = firstDrop.oldPriceMad! - (firstDrop.priceMad ?? 0);
+          const savingsText = language === 'ar'
+            ? `وفر ${savings} درهم على ${firstDrop.name}`
+            : `Économisez ${savings} MAD sur ${firstDrop.name}`;
+          const extraCount = droppedItems.length - 1;
+          const extraText = extraCount > 0
+            ? (language === 'ar' ? ` و${extraCount} منتجات أخرى` : ` et ${extraCount} autre${extraCount > 1 ? 's' : ''}`)
+            : '';
+          return (
+            <View style={styles.priceDropBanner}>
+              <MayushIcon name="trending-down" size={20} color={colors.semantic.error} />
+              <View style={styles.bannerTextCol}>
+                <MayushText variant="strongBody" color={colors.brand.navy900}>
+                  {language === 'ar' ? 'انخفاض في السعر!' : 'Baisse de prix détectée !'}
+                </MayushText>
+                <MayushText variant="caption" color={colors.neutral.gray700}>
+                  {savingsText}{extraText}
+                </MayushText>
+              </View>
             </View>
-          </View>
-        ) : null}
+          );
+        })()}
 
         {wishlistItems.length > 0 ? (
           <View style={styles.grid}>

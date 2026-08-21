@@ -8,11 +8,6 @@ export interface WishlistItem extends ProductMiniDto {
   oldPriceMad?: number;
 }
 
-const initialWishlistItems: readonly WishlistItem[] = [
-  { id: 701, name: 'Fauteuil Nori Accent · Vert Sauge', priceMad: 1500, oldPriceMad: 1800, formattedPrice: '1 500 MAD', inStock: true, thumbnail_image: '', has_discount: true, discount: '-17%', stroked_price: '1 800 MAD', main_price: '1 500 MAD', rating: 5, sales: 12, links: { details: '' } },
-  { id: 702, name: 'Canapé Luna 3 Places · Bouclé', priceMad: 4500, formattedPrice: '4 500 MAD', inStock: true, thumbnail_image: '', has_discount: false, discount: null, stroked_price: '4 500 MAD', main_price: '4 500 MAD', rating: 5, sales: 8, links: { details: '' } },
-  { id: 703, name: 'Table Basse Oval Plâtre', priceMad: 2200, formattedPrice: '2 200 MAD', inStock: false, thumbnail_image: '', has_discount: false, discount: null, stroked_price: '2 200 MAD', main_price: '2 200 MAD', rating: 5, sales: 5, links: { details: '' } },
-];
 
 export const getWishlistStorageKey = (userId?: string): string => {
   return `mayush-mobile:wishlist:${userId && userId.trim() ? userId.trim() : 'guest'}`;
@@ -96,21 +91,38 @@ class WishlistStateManager {
       try {
         const remote = await wishlistService.getWishlist();
         if (remote?.data && Array.isArray(remote.data)) {
-          this.items = remote.data.map((entry) => ({
-            id: entry.product.id,
-            name: entry.product.name,
-            priceMad: entry.product.base_discounted_price || entry.product.base_price || 0,
-            formattedPrice: `${entry.product.base_discounted_price || entry.product.base_price || 0} MAD`,
-            inStock: (entry.product.current_stock ?? 1) > 0,
-            thumbnail_image: entry.product.thumbnail_image || '',
-            has_discount: Boolean(entry.product.base_discounted_price && entry.product.base_discounted_price < (entry.product.base_price || 0)),
-            discount: null,
-            stroked_price: `${entry.product.base_price || 0} MAD`,
-            main_price: `${entry.product.base_discounted_price || entry.product.base_price || 0} MAD`,
-            rating: entry.product.rating || 5,
-            sales: 0,
-            links: { details: '' },
-          }));
+          // Build a price map from previously cached items to detect price drops
+          const cachedPriceMap = new Map<number, number>();
+          for (const existing of this.items) {
+            if (existing.priceMad != null && existing.priceMad > 0) {
+              cachedPriceMap.set(existing.id, existing.priceMad);
+            }
+          }
+
+          this.items = remote.data.map((entry) => {
+            const currentPrice = entry.product.base_discounted_price || entry.product.base_price || 0;
+            const cachedPrice = cachedPriceMap.get(entry.product.id);
+            // Set oldPriceMad only when price has dropped compared to last cached value
+            const oldPriceMad =
+              cachedPrice != null && cachedPrice > currentPrice ? cachedPrice : undefined;
+
+            return {
+              id: entry.product.id,
+              name: entry.product.name,
+              priceMad: currentPrice,
+              formattedPrice: `${currentPrice} MAD`,
+              inStock: (entry.product.current_stock ?? 1) > 0,
+              thumbnail_image: entry.product.thumbnail_image || '',
+              has_discount: Boolean(entry.product.base_discounted_price && entry.product.base_discounted_price < (entry.product.base_price || 0)),
+              discount: null,
+              stroked_price: `${entry.product.base_price || 0} MAD`,
+              main_price: `${currentPrice} MAD`,
+              rating: entry.product.rating || 5,
+              sales: 0,
+              links: { details: '' },
+              oldPriceMad,
+            };
+          });
           void this.persist();
         }
       } catch {

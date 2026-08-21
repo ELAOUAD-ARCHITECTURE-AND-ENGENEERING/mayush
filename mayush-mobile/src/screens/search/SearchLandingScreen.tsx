@@ -3,8 +3,9 @@
  * Search entry screen with recent searches, popular keywords, and trending category shortcuts.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -16,6 +17,7 @@ import { MayushText } from '../../design-system/components/typography/MayushText
 import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
 import { radii } from '../../design-system/tokens/radii';
+import { catalogService } from '../../services/api/catalogService';
 
 export interface SearchLandingScreenProps {
   onBack: () => void;
@@ -44,12 +46,70 @@ export const SearchLandingScreen: React.FC<SearchLandingScreenProps> = ({
     'Tapis berbère',
   ];
 
-  const trendingCategories = [
-    { slug: 'salon', name: language === 'ar' ? 'صالون' : 'Salon & Séjour', icon: 'sofa' },
-    { slug: 'chambre', name: language === 'ar' ? 'غرفة النوم' : 'Chambre à coucher', icon: 'home' },
-    { slug: 'salle-a-manger', name: language === 'ar' ? 'غرفة الطعام' : 'Salle à manger', icon: 'tag' },
-    { slug: 'decoration', name: language === 'ar' ? 'ديكور' : 'Décoration & Miroirs', icon: 'briefcase' },
+  // Fallback trending categories used when API returns empty
+  const FALLBACK_TRENDING = [
+    { slug: 'salon', name: language === 'ar' ? 'صالون' : 'Salon & Séjour', icon: 'sofa' as const },
+    { slug: 'chambre', name: language === 'ar' ? 'غرفة النوم' : 'Chambre à coucher', icon: 'home' as const },
+    { slug: 'salle-a-manger', name: language === 'ar' ? 'غرفة الطعام' : 'Salle à manger', icon: 'tag' as const },
+    { slug: 'decoration', name: language === 'ar' ? 'ديكور' : 'Décoration & Miroirs', icon: 'briefcase' as const },
   ];
+
+  const [trendingCategories, setTrendingCategories] = useState(FALLBACK_TRENDING);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+
+  // Fetch featured categories from API on mount
+  useEffect(() => {
+    let cancelled = false;
+    setCategoriesLoading(true);
+    catalogService
+      .getFeaturedCategories(language)
+      .then((apiCategories) => {
+        if (cancelled) return;
+        if (apiCategories && apiCategories.length > 0) {
+          setTrendingCategories(
+            apiCategories.slice(0, 8).map((cat) => ({
+              slug: cat.slug || String(cat.id),
+              name: cat.name,
+              // API categories have image URLs for icon, not icon name strings —
+              // map to a generic icon; the card renders the name prominently.
+              icon: 'tag' as const,
+            }))
+          );
+        }
+        // Empty API response: keep fallback (already set as initial state)
+      })
+      .catch(() => {
+        // Error: keep fallback — no re-throw so the screen stays usable
+      })
+      .finally(() => {
+        if (!cancelled) setCategoriesLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [language]);
+
+  // Fetch live search suggestions when query changes
+  useEffect(() => {
+    if (!query || query.trim().length < 2) {
+      setSearchSuggestions([]);
+      return;
+    }
+    let cancelled = false;
+    catalogService
+      .getSearchSuggestions(query.trim(), language)
+      .then((suggestions) => {
+        if (cancelled) return;
+        setSearchSuggestions(suggestions.map((s) => s.name).slice(0, 5));
+      })
+      .catch(() => {
+        if (!cancelled) setSearchSuggestions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [query, language]);
 
   const handleSearch = (term: string) => {
     if (!term.trim()) return;
@@ -84,6 +144,24 @@ export const SearchLandingScreen: React.FC<SearchLandingScreenProps> = ({
           ) : null}
         </View>
       </View>
+
+      {/* Live search suggestions overlay — shown while typing */}
+      {query.trim().length >= 2 && searchSuggestions.length > 0 ? (
+        <View style={styles.suggestionsPanel}>
+          {searchSuggestions.map((suggestion) => (
+            <TouchableOpacity
+              key={suggestion}
+              style={styles.suggestionRow}
+              onPress={() => handleSearch(suggestion)}
+            >
+              <MayushIcon name="search" size={14} color={colors.neutral.gray500} style={styles.chipIcon} />
+              <MayushText variant="body" color={colors.brand.navy900}>
+                {suggestion}
+              </MayushText>
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : null}
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {recentSearches.length > 0 ? (
@@ -131,20 +209,29 @@ export const SearchLandingScreen: React.FC<SearchLandingScreenProps> = ({
           <MayushText variant="sectionTitle" color={colors.brand.navy900} style={styles.sectionTitle}>
             {language === 'ar' ? 'الفئات المتداولة' : 'Catégories en tendance'}
           </MayushText>
-          <View style={styles.catGrid}>
-            {trendingCategories.map((cat) => (
-              <TouchableOpacity
-                key={cat.slug}
-                style={styles.catCard}
-                onPress={() => onSelectCategoryShortcut(cat.slug)}
-              >
-                <MayushIcon name={cat.icon as any} size={22} color={colors.brand.navy900} />
-                <MayushText variant="strongBody" color={colors.brand.navy900} style={styles.catName}>
-                  {cat.name}
-                </MayushText>
-              </TouchableOpacity>
-            ))}
-          </View>
+          {categoriesLoading ? (
+            <ActivityIndicator
+              size="small"
+              color={colors.brand.orange500}
+              style={styles.loadingIndicator}
+              accessibilityLabel={language === 'ar' ? 'جارٍ التحميل' : 'Chargement…'}
+            />
+          ) : (
+            <View style={styles.catGrid}>
+              {trendingCategories.map((cat) => (
+                <TouchableOpacity
+                  key={cat.slug}
+                  style={styles.catCard}
+                  onPress={() => onSelectCategoryShortcut(cat.slug)}
+                >
+                  <MayushIcon name={cat.icon as any} size={22} color={colors.brand.navy900} />
+                  <MayushText variant="strongBody" color={colors.brand.navy900} style={styles.catName}>
+                    {cat.name}
+                  </MayushText>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -202,6 +289,22 @@ const styles = StyleSheet.create({
     borderColor: colors.surface.borderWarm,
   },
   chipIcon: { marginRight: 6 },
+  suggestionsPanel: {
+    backgroundColor: colors.surface.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.surface.borderWarm,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+  },
+  suggestionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.surface.borderWarm,
+    gap: 10,
+  },
+  loadingIndicator: { marginTop: 12 },
   catGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   catCard: {
     width: '48%',

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { acceptCheckoutTerms, AddressDraft, addressToDraft, buildSellerDeliveryProjection, CheckoutTermsAcceptance, clearCheckoutSession, createCheckoutMaterialSignature, createLocalCheckoutAttemptId, createSavedAddress, defaultSavedAddresses, DeliveryMethod, emptyAddressDraft, getCheckoutGrandTotalMad, getCityById, isCheckoutTermsAcceptanceValid, isResumableCheckoutScreen, loadCheckoutSession, PaymentMethod, resolveCheckoutRecovery, resolveFrontendPaymentVerificationOutcome, ResumableCheckoutScreen, saveCheckoutSession, setAddressDraftCity, setAddressDraftZone, validateAddressDraft } from '../commerce/checkoutState';
+import { acceptCheckoutTerms, AddressDraft, addressToDraft, buildSellerDeliveryProjection, CheckoutTermsAcceptance, clearCheckoutSession, createCheckoutMaterialSignature, createLocalCheckoutAttemptId, createSavedAddress, DeliveryMethod, emptyAddressDraft, getCheckoutGrandTotalMad, getCityById, isCheckoutTermsAcceptanceValid, isResumableCheckoutScreen, loadCheckoutSession, PaymentMethod, resolveCheckoutRecovery, resolveFrontendPaymentVerificationOutcome, ResumableCheckoutScreen, saveCheckoutSession, setAddressDraftCity, setAddressDraftZone, validateAddressDraft } from '../commerce/checkoutState';
 import {
   CART_STORAGE_KEY,
   CartLine,
@@ -24,9 +24,13 @@ import { getCanonicalOrderDetailRoute, orderState } from '../commerce/orderState
 import { canCancelOrder, orderActionState, ReorderCartResult } from '../commerce/orderActionState';
 import { hasOrderTrackingMetadata, orderViewState } from '../commerce/orderViewState';
 import { supportState } from '../commerce/supportState';
+import { systemRuntimeState } from '../commerce/systemRuntimeState';
+import { cartService } from '../services/api/cartService';
+import { checkoutService } from '../services/api/checkoutService';
 import { CategoryDto, MvpAppLanguage, ProductDetailDto, ProductMiniDto } from '../contracts/api/dto';
-import { TabKey } from '../design-system/components/navigation/BottomTabBar';
+import { BottomTabBar, TabKey } from '../design-system/components/navigation/BottomTabBar';
 import { ThemeProvider } from '../design-system/theme/ThemeProvider';
+import { SystemStatusGate } from '../components/system/SystemStatusGate';
 import { AccountScreen } from '../screens/commerce/AccountScreen';
 import { AddedToCartConfirmationScreen } from '../screens/commerce/AddedToCartConfirmationScreen';
 import { CartScreen } from '../screens/commerce/CartScreen';
@@ -77,6 +81,7 @@ import { ChangePasswordFormScreen } from '../screens/account/ChangePasswordFormS
 import { AccountSecurityScreen } from '../screens/account/AccountSecurityScreen';
 import { SecurityPrivacyMenuScreen } from '../screens/account/SecurityPrivacyMenuScreen';
 import { TwoFactorAuthScreen } from '../screens/account/TwoFactorAuthScreen';
+import { BiometricAppLockScreen } from '../screens/account/BiometricAppLockScreen';
 import { ActiveSessionsScreen } from '../screens/account/ActiveSessionsScreen';
 import { MyAddressesListScreen } from '../screens/account/MyAddressesListScreen';
 import { MyAddressesListV2Screen } from '../screens/account/MyAddressesListV2Screen';
@@ -97,6 +102,7 @@ import { NotificationDetailShippedScreen } from '../screens/account/Notification
 import { SilentHoursDaySelectionScreen } from '../screens/account/SilentHoursDaySelectionScreen';
 import { SilentHoursDoNotDisturbScreen } from '../screens/account/SilentHoursDoNotDisturbScreen';
 import { SettingsScreen } from '../screens/account/SettingsScreen';
+import { ThemeAppearanceScreen } from '../screens/account/ThemeAppearanceScreen';
 import { AboutAppVersionScreen } from '../screens/account/AboutAppVersionScreen';
 import { AboutMayushCompanyScreen } from '../screens/account/AboutMayushCompanyScreen';
 import { AccessibilitySettingsScreen } from '../screens/account/AccessibilitySettingsScreen';
@@ -183,11 +189,18 @@ import { SearchLandingScreen } from '../screens/search/SearchLandingScreen';
 import { SearchNoResultsScreen } from '../screens/search/SearchNoResultsScreen';
 import { SearchResultsScreen } from '../screens/search/SearchResultsScreen';
 
+import * as Linking from 'expo-linking';
 import { ScreenKey } from './screenKeys';
+import { resolveScreen } from './resolveScreen';
+import { useBackgroundSyncDetector } from '../services/sync/useBackgroundSyncDetector';
 export { ScreenKey };
 
 const ONBOARDING_COMPLETE_KEY = 'mayush-mobile:onboarding-complete';
 const LANGUAGE_KEY = 'mayush-mobile:language';
+
+const SCREENS_WITH_TABBAR = new Set<ScreenKey>([
+  'about-app', 'about-mayush', 'accessibility', 'account-security', 'account-settings', 'account-verify-phone', 'active-sessions', 'app-permissions', 'change-email', 'change-password', 'change-phone', 'data-usage', 'edit-profile', 'language-region', 'legal-center', 'marketing-cart-reminders', 'marketing-detailed-preferences', 'marketing-toggles', 'my-addresses', 'my-addresses-v2', 'my-information', 'notification-channels', 'notification-detail-prep', 'notification-detail-shipped', 'notification-settings-toggles', 'offline-mode', 'payment-methods', 'privacy-data', 'privacy-policy', 'security-privacy', 'settings', 'silent-hours-day-selection', 'silent-hours-dnd', 'storage-cache', 'security-2fa', 'theme-appearance', 'account', 'cart', 'wishlist', 'categories', 'category-products', 'home', 'orders-list', 'product-details', 'product-gallery', 'app-update-available', 'attach-files-documents', 'close-request-confirmation', 'contact-support-form', 'faq', 'faq-article-track-order-steps', 'faq-categories', 'faq-detail', 'faq-tab-categories', 'help-category-orders-delivery', 'help-center', 'help-center-home', 'help-center-requests', 'help-center-search-results', 'help-support', 'maintenance-mode-services-impacted', 'my-support-tickets-list', 'no-support-requests-empty-state', 'reply-to-support-message', 'review-send-support-request', 'select-order-for-support', 'support-connection-error', 'support-request-sent-success', 'support-temporarily-unavailable', 'ticket-detail-conversation-thread', 'ticket-resolved-rating'
+]);
 
 interface RootNavigatorContentProps {
   hasCompletedOnboarding: boolean | null;
@@ -202,6 +215,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
 }) => {
   const [currentScreen, setCurrentScreen] = useState<ScreenKey>('splash');
   const [splashFinished, setSplashFinished] = useState(false);
+  const categoryProductsBackRef = useRef<ScreenKey>('category-landing');
   const [selectedCategory, setSelectedCategory] = useState<CategoryDto>();
   const [selectedProduct, setSelectedProduct] = useState<ProductMiniDto>();
   const [variantProduct, setVariantProduct] = useState<ProductDetailDto | null>(null);
@@ -210,7 +224,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('Fauteuil');
   const [cart, setCart] = useState<CartState>(emptyCartState);
-  const [selectedAddressId, setSelectedAddressId] = useState(defaultSavedAddresses[0].id);
+  const [selectedAddressId, setSelectedAddressId] = useState('');
   const [addressDraft, setAddressDraft] = useState<AddressDraft>(emptyAddressDraft);
   const [addressEditorMode, setAddressEditorMode] = useState<'add' | 'edit'>('add');
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
@@ -223,9 +237,10 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const [checkoutSessionResolved, setCheckoutSessionResolved] = useState(false);
   const [orderRepositoryResolved, setOrderRepositoryResolved] = useState(false);
   const [authRepositoryResolved, setAuthRepositoryResolved] = useState(false);
-  const [, setDomainRevision] = useState(0);
+  const [domainRevision, setDomainRevision] = useState(0);
   const [favoritesPromptVisible, setFavoritesPromptVisible] = useState(false);
   const [favoritesPromptItemId, setFavoritesPromptItemId] = useState<string | undefined>();
+  const [authPromptType, setAuthPromptType] = useState<'wishlist' | 'cart'>('wishlist');
   const [isClearCacheModalVisible, setIsClearCacheModalVisible] = useState(false);
   const [lastReorderResult, setLastReorderResult] = useState<ReorderCartResult | null>(null);
   const paymentLock = useRef(false);
@@ -404,6 +419,16 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
 
   const selectCategory = (category: CategoryDto) => { setSelectedCategory(category); setCurrentScreen('category-products'); };
   const selectProduct = (product: ProductMiniDto) => { setSelectedProduct(product); setCurrentScreen('product-details'); };
+
+  const handleToggleWishlist = (product: ProductMiniDto) => {
+    if (isAuthenticated) {
+      wishlistState.toggle(product);
+    } else {
+      setAuthPromptType('wishlist');
+      setFavoritesPromptItemId(String(product.id));
+      setFavoritesPromptVisible(true);
+    }
+  };
   const activeTab: TabKey = currentScreen === 'categories' || currentScreen === 'category-products' || currentScreen === 'category-landing'
     ? 'categories'
     : currentScreen === 'wishlist'
@@ -413,6 +438,28 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         : currentScreen === 'account'
           ? 'account'
           : 'home';
+
+  // Background sync detector — triggers sync after 15+ min, session restore after 30+ min
+  useBackgroundSyncDetector();
+
+  // Deep link handler — resolves incoming URLs or shows page-not-found
+  const previousScreenRef = useRef<ScreenKey>('home');
+  useEffect(() => { previousScreenRef.current = currentScreen; }, [currentScreen]);
+
+  useEffect(() => {
+    if (!splashFinished) return;
+    const handleDeepLink = (event: { url: string }) => {
+      const resolution = resolveScreen(event.url);
+      if (resolution.key) {
+        setCurrentScreen(resolution.key);
+      } else {
+        // Unknown destination: could integrate page-not-found system state here
+        setCurrentScreen('home');
+      }
+    };
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+    return () => subscription.remove();
+  }, [splashFinished]);
 
   useEffect(() => {
     if (!splashFinished || hasCompletedOnboarding === null || !checkoutSessionResolved || !orderRepositoryResolved || !authRepositoryResolved) return;
@@ -427,11 +474,45 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
     const unsubscribeOrders = orderState.subscribe(refresh);
     const unsubscribeOrderActions = orderActionState.subscribe(refresh);
     const unsubscribeOrderViews = orderViewState.subscribe(refresh);
-    void orderState.hydrate().finally(() => setOrderRepositoryResolved(true));
-    void authState.hydrate().finally(() => setAuthRepositoryResolved(true));
-    void orderActionState.hydrate();
-    return () => { unsubscribeAuth(); unsubscribeWishlist(); unsubscribePreferences(); unsubscribeOrders(); unsubscribeOrderActions(); unsubscribeOrderViews(); };
+    let active = true;
+    const restorationToken = systemRuntimeState.begin('data-restoration', 0);
+    const restorePersistedData = async () => {
+      try {
+        await wishlistState.hydrate();
+      } finally {
+        if (active) systemRuntimeState.update(restorationToken, 1 / 3);
+      }
+      try {
+        await authState.hydrate();
+      } finally {
+        if (active) {
+          setAuthRepositoryResolved(true);
+          systemRuntimeState.update(restorationToken, 2 / 3);
+        }
+      }
+      try {
+        await Promise.all([orderState.hydrate(), orderActionState.hydrate()]);
+      } finally {
+        if (active) {
+          setOrderRepositoryResolved(true);
+          systemRuntimeState.complete(restorationToken);
+        }
+      }
+    };
+    void restorePersistedData();
+    return () => {
+      active = false;
+      systemRuntimeState.clear(restorationToken);
+      unsubscribeAuth(); unsubscribeWishlist(); unsubscribePreferences(); unsubscribeOrders(); unsubscribeOrderActions(); unsubscribeOrderViews();
+    };
   }, []);
+
+  useEffect(() => {
+    if (authState.consumeSessionInvalidation()) {
+      authState.setReturnDestination({ route: currentScreen });
+      setCurrentScreen('login');
+    }
+  }, [currentScreen, domainRevision]);
 
   useEffect(() => {
     if (currentScreen !== 'order-package-detail' || activePackage) return;
@@ -448,6 +529,40 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         setCart(emptyCartState());
       }
     });
+
+    if (authState.isAuthenticated()) {
+      const currentUserId = authState.getUser()?.id;
+      cartService.getCart({ userId: currentUserId }).then((remoteCart) => {
+        if (!isMounted || !remoteCart?.data || !Array.isArray(remoteCart.data)) return;
+        const remoteLines: CartLine[] = [];
+        remoteCart.data.forEach((group) => {
+          if (Array.isArray(group.cart_items)) {
+            group.cart_items.forEach((item) => {
+              remoteLines.push({
+                id: String(item.id),
+                productId: item.product_id,
+                name: item.product_name,
+                productName: item.product_name,
+                variant: item.variation || 'Standard',
+                variantId: item.variation || 'Standard',
+                selectedVariantText: item.variation || 'Standard',
+                quantity: item.quantity,
+                unitPriceMad: typeof item.price === 'number' ? item.price : parseMadPrice(String(item.price)),
+                imageUri: item.product_thumbnail_image || '',
+                imageAsset: item.product_thumbnail_image || '',
+                sellerId: String(item.owner_id),
+                sellerName: group.name,
+              });
+            });
+          }
+        });
+        if (remoteLines.length > 0) {
+          setCart((prev) => hydrateCartState({ ...prev, lines: remoteLines }));
+          void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify({ lines: remoteLines })).catch(() => undefined);
+        }
+      }).catch(() => undefined);
+    }
+
     return () => { isMounted = false; };
   }, []);
 
@@ -455,7 +570,8 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
     let isMounted = true;
     void loadCheckoutSession(AsyncStorage).then((parsedSession) => {
       if (!isMounted) return;
-      if (parsedSession) {
+      const terminalPaymentScreens = ['payment-pending', 'payment-failed', 'payment-cancelled', 'payment-confirmation-delayed'];
+      if (parsedSession && !terminalPaymentScreens.includes(parsedSession.screen)) {
         setRestoredCheckoutScreen(parsedSession.screen);
         setCheckoutAttemptId(parsedSession.checkoutAttemptId);
         setSelectedAddressId(parsedSession.selectedAddressId);
@@ -465,6 +581,8 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         if (parsedSession.selectedPaymentPreferenceId) {
           accountPreferencesState.setSelectedPaymentMethod(parsedSession.selectedPaymentPreferenceId);
         }
+      } else if (parsedSession) {
+        void clearCheckoutSession(AsyncStorage);
       }
       setCheckoutSessionResolved(true);
     }).catch(() => {
@@ -496,6 +614,15 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       const nextQuantity = line.quantity + delta;
       const nextCart = updateCartLineQuantity(prev, lineId, nextQuantity);
       void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
+
+      const numericLineId = Number.parseInt(lineId.replace(/\D/g, ''), 10);
+      if (Number.isFinite(numericLineId)) {
+        if (nextQuantity <= 0) {
+          cartService.removeCartItem(numericLineId).catch(() => undefined);
+        } else {
+          cartService.changeQuantity(numericLineId, nextQuantity).catch(() => undefined);
+        }
+      }
       return nextCart;
     });
   };
@@ -522,6 +649,15 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
       return nextCart;
     });
+
+    const user = authState.getUser();
+    cartService.addToCart({
+      productId: variantProduct.id,
+      variant,
+      quantity,
+      userId: user?.id,
+    }).catch(() => undefined);
+
     setVariantSheetVisible(false);
     setCurrentScreen('added-to-cart');
   };
@@ -545,6 +681,15 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
       return nextCart;
     });
+
+    const user = authState.getUser();
+    cartService.addToCart({
+      productId: product.id,
+      variant: 'Standard',
+      quantity: 1,
+      userId: user?.id,
+    }).catch(() => undefined);
+
     setCurrentScreen('added-to-cart');
   };
 
@@ -608,8 +753,14 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const navigateTab = (tab: TabKey) => {
     if (tab === 'home') setCurrentScreen('home');
     if (tab === 'categories') setCurrentScreen('categories');
-    if (tab === 'wishlist') setCurrentScreen('wishlist');
-    if (tab === 'cart') setCurrentScreen('cart');
+    if (tab === 'wishlist') {
+      if (!isAuthenticated) { setAuthPromptType('wishlist'); setFavoritesPromptVisible(true); return; }
+      setCurrentScreen('wishlist');
+    }
+    if (tab === 'cart') {
+      if (!isAuthenticated) { setAuthPromptType('cart'); setFavoritesPromptVisible(true); return; }
+      setCurrentScreen('cart');
+    }
     if (tab === 'account') setCurrentScreen('account');
   };
 
@@ -756,6 +907,16 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       setCurrentScreen('order-already-in-progress');
       return;
     }
+
+    if (authState.isAuthenticated()) {
+      const backendPaymentType = paymentMethod === 'cmi' ? 'cmi' : paymentMethod === 'wallet' ? 'wallet' : 'cash_on_delivery';
+      checkoutService.submitOrder({
+        payment_type: backendPaymentType,
+        user_id: authState.getUser()?.id,
+        address_id: selectedAddress?.id,
+      }).catch(() => undefined);
+    }
+
     setCurrentScreen('order-processing');
   };
 
@@ -804,10 +965,17 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   };
 
   const applyCartPromotion = (code: string) => {
-    const result = applyPromotionCode(cart, code);
+    const cleanCode = code.trim().toUpperCase();
+    const result = applyPromotionCode(cart, cleanCode);
     if (result.validation.code === 'VALID') {
       setCart(result.cart);
       void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(result.cart)).catch(() => undefined);
+    }
+    if (authState.isAuthenticated()) {
+      cartService.applyCoupon({
+        couponCode: cleanCode,
+        userId: authState.getUser()?.id,
+      }).catch(() => undefined);
     }
     return result.validation;
   };
@@ -833,17 +1001,17 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       {currentScreen === 'onboarding-2' ? <OnboardingScreen step={2} onNext={() => setCurrentScreen('onboarding-3')} onSkip={onOnboardingCompleted} /> : null}
       {currentScreen === 'onboarding-3' ? <OnboardingScreen step={3} onNext={onOnboardingCompleted} onSkip={onOnboardingCompleted} /> : null}
 
-      {currentScreen === 'home' ? <HomeScreen activeTab={activeTab} isAuthenticated={isAuthenticated} authenticatedUser={authenticatedUser} orders={orders} cartProductIds={cart.lines.map((line) => Number(line.productId)).filter(Number.isFinite)} wishlistedProductIds={wishlistedProductIds} cartBadgeCount={cart.lines.reduce((sum, line) => sum + line.quantity, 0)} onSelectCategory={selectCategory} onSelectProduct={selectProduct} onNavigateTab={navigateTab} onOpenWishlist={() => setCurrentScreen('wishlist')} onOpenPromotions={() => setCurrentScreen(resolveHomeCanonicalDestination('promotions'))} onOpenRecentlyViewed={() => setCurrentScreen(resolveHomeCanonicalDestination('recently_viewed'))} onOpenBestSellers={() => setCurrentScreen('flash-deals')} onOpenNewArrivals={() => setCurrentScreen('promotions-campaigns')} onOpenInspiration={() => setCurrentScreen('categories')} onOpenOrder={(orderId) => { void openOrderById(orderId); }} onToggleWishlist={(product) => { if (!isAuthenticated) { setFavoritesPromptItemId(String(product.id)); setFavoritesPromptVisible(true); return; } wishlistState.toggle(product); }} /> : null}
-      {currentScreen === 'categories' ? <CategoriesScreen activeTab={activeTab} onSelectCategory={(cat) => { setSelectedCategory(cat); setCurrentScreen('category-landing'); }} onNavigateTab={navigateTab} /> : null}
+      {currentScreen === 'home' ? <HomeScreen activeTab={activeTab} isAuthenticated={isAuthenticated} authenticatedUser={authenticatedUser} orders={orders} cartProductIds={cart.lines.map((line) => Number(line.productId)).filter(Number.isFinite)} wishlistedProductIds={wishlistedProductIds} cartBadgeCount={isAuthenticated ? cart.lines.reduce((sum, line) => sum + line.quantity, 0) : 0} onSelectCategory={selectCategory} onSelectProduct={selectProduct} onNavigateTab={navigateTab} onOpenWishlist={() => setCurrentScreen('wishlist')} onOpenPromotions={() => setCurrentScreen(resolveHomeCanonicalDestination('promotions'))} onOpenRecentlyViewed={() => setCurrentScreen(resolveHomeCanonicalDestination('recently_viewed'))} onOpenBestSellers={() => { setSelectedCategory({ id: 0, name: 'Meilleures ventes', banner: '', icon: '', number_of_children: 0, links: { products: '', sub_categories: '' } }); categoryProductsBackRef.current = 'home'; setCurrentScreen('category-products'); }} onOpenNewArrivals={() => { setSelectedCategory({ id: 0, name: 'Nouveautés', banner: '', icon: '', number_of_children: 0, links: { products: '', sub_categories: '' } }); categoryProductsBackRef.current = 'home'; setCurrentScreen('category-products'); }} onOpenInspiration={() => { setSelectedCategory({ id: 0, name: 'Inspiration', banner: '', icon: '', number_of_children: 0, links: { products: '', sub_categories: '' } }); categoryProductsBackRef.current = 'home'; setCurrentScreen('category-products'); }} onOpenOrder={(orderId) => { void openOrderById(orderId); }} onToggleWishlist={handleToggleWishlist} /> : null}
+      {currentScreen === 'categories' ? <CategoriesScreen activeTab={activeTab} onSelectCategory={(cat) => { setSelectedCategory(cat); categoryProductsBackRef.current = 'categories'; setCurrentScreen('category-products'); }} onNavigateTab={navigateTab} /> : null}
       {currentScreen === 'category-landing' ? <CategoryLandingScreen category={selectedCategory} onBack={() => setCurrentScreen('categories')} onSelectSubcategory={() => setCurrentScreen('category-products')} onOpenCollection={() => setCurrentScreen('collection-shop-the-look')} onSelectProduct={selectProduct} onOpenSearch={() => setCurrentScreen('search-landing')} /> : null}
-      {currentScreen === 'category-products' ? <CategoryProductListScreen activeTab={activeTab} category={selectedCategory} onBack={() => setCurrentScreen('category-landing')} onSelectProduct={selectProduct} onNavigateTab={navigateTab} /> : null}
+      {currentScreen === 'category-products' ? <CategoryProductListScreen activeTab={activeTab} category={selectedCategory} onBack={() => { const dest = categoryProductsBackRef.current; categoryProductsBackRef.current = 'category-landing'; setCurrentScreen(dest); }} onSelectProduct={selectProduct} onNavigateTab={navigateTab} wishlistedProductIds={wishlistedProductIds} onToggleWishlist={handleToggleWishlist} /> : null}
       {currentScreen === 'collection-shop-the-look' ? <CollectionShopTheLookScreen onBack={() => setCurrentScreen('category-landing')} onSelectProduct={selectProduct} onAddAllToCart={() => setCurrentScreen('cart')} onOpenFilter={() => setCurrentScreen('filter-panel-modal')} /> : null}
       {currentScreen === 'flash-deals' ? <FlashDealsScreen onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} onOpenProductDetails={(id) => { selectProduct({ id, name: 'Produit Flash', thumbnail_image: '', has_discount: false, discount: '', stroked_price: '', priceMad: 1000, formattedPrice: '1 000 MAD', main_price: '1 000 MAD', rating: 5, sales: 1, links: { details: '' } }); setCurrentScreen('product-details'); }} /> : null}
       {currentScreen === 'promotions-campaigns' ? <PromotionsCampaignsScreen onBack={() => setCurrentScreen('home')} onExploreDeals={() => setCurrentScreen('flash-deals')} /> : null}
-      {currentScreen === 'recently-viewed' ? <RecentlyViewedScreen products={getRecentlyViewedFallbackProducts()} onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} /> : null}
+      {currentScreen === 'recently-viewed' ? <RecentlyViewedScreen onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} /> : null}
 
-      {currentScreen === 'search-landing' ? <SearchLandingScreen onBack={() => setCurrentScreen('home')} onSearchSubmit={(q) => { handleSearchSubmit(q); setCurrentScreen('search-results'); }} onSelectCategoryShortcut={() => setCurrentScreen('category-landing')} /> : null}
-      {currentScreen === 'search-results' ? <SearchResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen('search-landing')} onOpenFilter={() => setFilterModalVisible(true)} onSelectProduct={(p) => { selectProduct(p); setCurrentScreen('product-details'); }} onToggleWishlist={(pid) => { if (!isAuthenticated) { setFavoritesPromptItemId(String(pid)); setFavoritesPromptVisible(true); } }} /> : null}
+      {currentScreen === 'search-landing' ? <SearchLandingScreen onBack={() => setCurrentScreen('home')} onSearchSubmit={(q) => { handleSearchSubmit(q); setCurrentScreen('search-results'); }} onSelectCategoryShortcut={() => setCurrentScreen('categories')} /> : null}
+      {currentScreen === 'search-results' ? <SearchResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen('search-landing')} onOpenFilter={() => setFilterModalVisible(true)} onSelectProduct={(p) => { selectProduct(p); setCurrentScreen('product-details'); }} wishlistedProductIds={wishlistedProductIds} onToggleWishlist={handleToggleWishlist} /> : null}
       {currentScreen === 'search-no-results' ? <SearchNoResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen('search-landing')} onClearSearch={() => setCurrentScreen('search-landing')} onBrowseCategories={() => setCurrentScreen('categories')} /> : null}
 
       {currentScreen === 'wishlist' ? <WishlistScreen onNavigateTab={navigateTab} onBrowseCollections={() => setCurrentScreen('categories')} onSelectProduct={selectProduct} onMoveToCart={moveWishlistItemToCart} /> : null}
@@ -888,6 +1056,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateChangePassword={() => setCurrentScreen('change-password')}
           onNavigateTwoFactor={() => setCurrentScreen('security-2fa')}
           onNavigateActiveSessions={() => setCurrentScreen('active-sessions')}
+          onNavigateBiometricAppLock={() => setCurrentScreen('biometric-app-lock')}
         />
       ) : null}
 
@@ -895,6 +1064,13 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         <TwoFactorAuthScreen
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('account-security')}
+        />
+      ) : null}
+
+      {currentScreen === 'biometric-app-lock' ? (
+        <BiometricAppLockScreen
+          onNavigateTab={navigateTab}
+          onBack={() => setCurrentScreen('security-privacy')}
         />
       ) : null}
 
@@ -1069,6 +1245,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('account')}
           onNavigateLanguage={() => setCurrentScreen('language-selection')}
+          onNavigateTheme={() => setCurrentScreen('theme-appearance')}
           onNavigateNotificationChannels={() => setCurrentScreen('notification-channels')}
           onNavigateMarketingPreferences={() => setCurrentScreen('marketing-cart-reminders')}
           onNavigateSilentHours={() => setCurrentScreen('silent-hours-dnd')}
@@ -1081,6 +1258,12 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onNavigateStorageCache={() => setCurrentScreen('storage-cache')}
           onNavigateOfflineMode={() => setCurrentScreen('offline-mode')}
           onNavigateLegalPrivacy={() => setCurrentScreen('legal-center')}
+        />
+      ) : null}
+
+      {currentScreen === 'theme-appearance' ? (
+        <ThemeAppearanceScreen
+          onBack={() => setCurrentScreen('settings')}
         />
       ) : null}
 
@@ -1360,7 +1543,6 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         <TicketResolvedRatingScreen
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('my-support-tickets-list')}
-          onNavigateConnectionError={() => setCurrentScreen('support-connection-error')}
           onNavigateFaqDetail={() => setCurrentScreen('faq-detail')}
           onNavigateTrackOrderFaq={() => setCurrentScreen('faq-article-track-order-steps')}
         />
@@ -1372,7 +1554,6 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onBack={() => setCurrentScreen('help-center-home')}
           onRetry={() => setCurrentScreen('support-connection-error')}
           onContinueInApp={() => setCurrentScreen('home')}
-          onNavigateTemporarilyUnavailable={() => setCurrentScreen('support-temporarily-unavailable')}
         />
       ) : null}
 
@@ -1382,7 +1563,6 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onBack={() => setCurrentScreen('help-center-home')}
           onRetry={() => setCurrentScreen('support-temporarily-unavailable')}
           onNavigateFaq={() => setCurrentScreen('help-center-home')}
-          onNavigateMaintenanceMode={() => setCurrentScreen('maintenance-mode-services-impacted')}
         />
       ) : null}
 
@@ -1392,7 +1572,6 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onBack={() => setCurrentScreen('home')}
           onRetry={() => setCurrentScreen('maintenance-mode-services-impacted')}
           onContactSupport={() => setCurrentScreen('contact-support-form')}
-          onNavigateAppUpdate={() => setCurrentScreen('app-update-available')}
         />
       ) : null}
 
@@ -1400,33 +1579,25 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         <AppUpdateAvailableScreen
           onNavigateTab={navigateTab}
           onBack={() => setCurrentScreen('settings')}
-          onUpdateNow={() => {}}
           onLater={() => setCurrentScreen('home')}
           onNavigateLegalCenter={() => setCurrentScreen('legal-center')}
           onNavigatePrivacyPolicy={() => setCurrentScreen('privacy-policy')}
-          onNavigateForcedUpdate={() => setCurrentScreen('forced-update-required')}
         />
       ) : null}
 
       {currentScreen === 'forced-update-required' ? (
-        <ForcedUpdateRequiredScreen
-          onUpdateNow={() => {}}
-          onNavigatePrototypeNext={() => setCurrentScreen('settings-error-loading-state')}
-        />
+        <ForcedUpdateRequiredScreen />
       ) : null}
 
       {currentScreen === 'settings-error-loading-state' ? (
         <SettingsErrorLoadingStateScreen
-          onRetry={() => setCurrentScreen('settings-skeleton-loading-state')}
+          onRetry={() => setCurrentScreen('settings')}
           onGoHome={() => setCurrentScreen('home')}
-          onNavigatePrototypeNext={() => setCurrentScreen('settings-skeleton-loading-state')}
         />
       ) : null}
 
       {currentScreen === 'settings-skeleton-loading-state' ? (
-        <SettingsSkeletonLoadingStateScreen
-          onSimulateComplete={() => setCurrentScreen('settings')}
-        />
+        <SettingsSkeletonLoadingStateScreen />
       ) : null}
 
       {currentScreen === 'faq' ? (
@@ -1538,7 +1709,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       {currentScreen === 'product-details' ? <ProductDetailsScreen activeTab={activeTab} productId={selectedProduct?.id || 101} initialProduct={selectedProduct} onBack={() => setCurrentScreen('home')} onOpenGallery={() => setCurrentScreen('product-gallery')} onOpenVariantSheet={(product) => { setVariantProduct(product); setVariantSheetVisible(true); }} onOpenDescription={() => setCurrentScreen('product-description')} onOpenSpecifications={() => setCurrentScreen('product-specifications')} onOpenDeliveryReturns={() => setCurrentScreen('product-delivery-returns')} onOpenReviews={() => setCurrentScreen('product-reviews')} onNavigateTab={navigateTab} /> : null}
       {currentScreen === 'product-gallery' ? <ProductGalleryScreen activeTab={activeTab} onBack={() => setCurrentScreen('product-details')} onNavigateTab={navigateTab} /> : null}
       {currentScreen === 'product-description' ? <ProductFullDescriptionScreen productTitle={selectedProduct?.name || 'Fauteuil Lounge Luna'} onBack={() => setCurrentScreen('product-details')} /> : null}
-      {currentScreen === 'product-specifications' ? <ProductSpecificationsScreen productTitle={selectedProduct?.name || 'Fauteuil Lounge Luna'} onBack={() => setCurrentScreen('product-details')} /> : null}
+      {currentScreen === 'product-specifications' ? <ProductSpecificationsScreen productTitle={selectedProduct?.name || 'Fauteuil Lounge Luna'} customSpecs={selectedProduct?.choice_options && selectedProduct.choice_options.length > 0 ? selectedProduct.choice_options.map((opt) => ({ label: opt.title, value: opt.options.join(', ') })) : undefined} onBack={() => setCurrentScreen('product-details')} /> : null}
       {currentScreen === 'product-delivery-returns' ? <ProductDeliveryReturnsScreen onBack={() => setCurrentScreen('product-details')} /> : null}
       {currentScreen === 'product-reviews' ? <ProductReviewsRatingsScreen productTitle={selectedProduct?.name || 'Fauteuil Lounge Luna'} onBack={() => setCurrentScreen('product-details')} /> : null}
       {currentScreen === 'added-to-cart' ? <AddedToCartConfirmationScreen cart={cart} onViewCart={() => setCurrentScreen('cart')} /> : null}
@@ -1576,14 +1747,15 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       ) : null}
       {currentScreen === 'login' ? (
         <LoginScreen
-          onLoginSubmit={(emailOrPhone, pass) => {
-            if (pass === 'error' || emailOrPhone === 'error') {
-              authState.failLogin('Identifiants incorrects.');
-              setCurrentScreen('login-error');
+          onLoginSubmit={async (emailOrPhone, pass) => {
+            setCurrentScreen('login-loading');
+            await authState.completeLogin(emailOrPhone, pass);
+            if (authState.getStatus() === 'authenticated') {
+              resumeAuthReturnDestination();
+            } else if (authState.getStatus() === 'otp-sent') {
+              setCurrentScreen('otp-verification');
             } else {
-              authState.startLogin();
-              authState.completeLogin(emailOrPhone);
-              setCurrentScreen('login-loading');
+              setCurrentScreen('login-error');
             }
           }}
           onForgotPassword={() => setCurrentScreen('forgot-password')}
@@ -1593,13 +1765,16 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       ) : null}
       {currentScreen === 'login-error' ? (
         <LoginErrorScreen
+          errorMessage={authState.getLoginError() || undefined}
           onRetry={() => setCurrentScreen('login')}
           onForgotPassword={() => setCurrentScreen('forgot-password')}
           onBack={() => setCurrentScreen('login')}
+          onSupport={() => setCurrentScreen('contact-support-form')}
         />
       ) : null}
       {currentScreen === 'login-loading' ? (
         <LoginLoadingScreen
+          autoProgress={false}
           onComplete={() => resumeAuthReturnDestination()}
         />
       ) : null}
@@ -1612,13 +1787,30 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       ) : null}
       {currentScreen === 'terms-consent' ? (
         <TermsConsentScreen
-          onAccept={() => setCurrentScreen('otp-verification')}
+          onAccept={async () => {
+            setCurrentScreen('login-loading'); // Use loading screen
+            await authState.completeRegistration();
+            if (authState.getStatus() === 'otp-sent' || authState.getStatus() === 'registration-success') {
+              setCurrentScreen('otp-verification');
+            } else {
+              // Registration failed
+              alert(authState.getLoginError() || 'Erreur lors de l\'inscription');
+              setCurrentScreen('registration');
+            }
+          }}
           onDecline={() => setCurrentScreen('registration')}
         />
       ) : null}
       {currentScreen === 'account-created' ? (
         <AccountCreatedSuccessScreen
-          onContinue={() => resumeAuthReturnDestination()}
+          onContinue={() => {
+            authState.setReturnDestination({ route: 'home' });
+            setCurrentScreen('login');
+          }}
+          onCompleteProfile={() => {
+            authState.setReturnDestination({ route: 'edit-profile' });
+            setCurrentScreen('login');
+          }}
         />
       ) : null}
       {currentScreen === 'forgot-password' ? (
@@ -1635,9 +1827,15 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       ) : null}
       {currentScreen === 'otp-verification' ? (
         <PhoneOtpVerificationScreen
-          onBack={() => setCurrentScreen('terms-consent')}
+          onBack={() => setCurrentScreen('registration')}
+          onHome={() => setCurrentScreen('home')}
           onSuccess={() => setCurrentScreen('account-created')}
-          onError={() => setCurrentScreen('otp-error')}
+        />
+      ) : null}
+      {currentScreen === 'account-created' ? (
+        <AccountCreatedSuccessScreen
+          onContinue={() => setCurrentScreen('home')}
+          onCompleteProfile={() => setCurrentScreen('edit-profile')}
         />
       ) : null}
       {currentScreen === 'otp-error' ? (
@@ -1716,6 +1914,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         onSignIn={() => setCurrentScreen('login')}
         onCreateAccount={() => setCurrentScreen('registration')}
         favoriteItemId={favoritesPromptItemId}
+        promptType={authPromptType}
       />
       <LogoutConfirmationModal
         visible={logoutModalVisible || currentScreen === 'logout-confirmation'}
@@ -1729,6 +1928,14 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           setCurrentScreen('home');
         }}
       />
+
+      {SCREENS_WITH_TABBAR.has(currentScreen) ? (
+        <BottomTabBar
+          activeTab={activeTab}
+          onTabPress={navigateTab}
+          cartBadgeCount={isAuthenticated ? cart.lines.reduce((sum, line) => sum + line.quantity, 0) : 0}
+        />
+      ) : null}
     </View>
   );
 };
@@ -1768,11 +1975,13 @@ export const RootNavigator: React.FC = () => {
 
   return (
     <ThemeProvider initialLanguage={initialLanguage}>
-      <RootNavigatorContent
-        hasCompletedOnboarding={hasCompletedOnboarding}
-        onLanguageSelected={rememberLanguage}
-        onOnboardingCompleted={completeOnboarding}
-      />
+      <SystemStatusGate>
+        <RootNavigatorContent
+          hasCompletedOnboarding={hasCompletedOnboarding}
+          onLanguageSelected={rememberLanguage}
+          onOnboardingCompleted={completeOnboarding}
+        />
+      </SystemStatusGate>
     </ThemeProvider>
   );
 };

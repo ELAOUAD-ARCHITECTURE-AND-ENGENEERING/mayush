@@ -1,29 +1,108 @@
 /**
  * RecentlyViewedScreen (Figma Node 309:599 - 02-recently-viewed-products)
- * Uses the same deterministic catalog fallback as authenticated Home until a
- * durable recently-viewed history domain exists.
+ * Fetches authenticated user's last-viewed products from GET /api/v2/products/last-viewed.
+ * Falls back to hardcoded fixtures when the API returns an empty list.
  */
 
-import React from 'react';
-import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ProductMiniDto } from '../../contracts/api/dto';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
 import { radii } from '../../design-system/tokens/radii';
+import { catalogService } from '../../services/api/catalogService';
 
 const CANAPE_IMG = require('../../../assets/reference-art/home-new-luna.png');
 const FAUTEUIL_IMG = require('../../../assets/reference-art/home-new-nori.png');
 
+const FALLBACK_PRODUCTS_FR: ProductMiniDto[] = [
+  {
+    id: 101,
+    name: 'Canapé Luna Bouclé',
+    slug: 'canape-luna-boucle',
+    thumbnail_image: '',
+    has_discount: true,
+    discount: '-15%',
+    stroked_price: '14 500 MAD',
+    main_price: '12 325 MAD',
+    rating: 4.9,
+    sales: 124,
+    links: { details: '' },
+  },
+  {
+    id: 102,
+    name: 'Fauteuil Nori Velours',
+    slug: 'fauteuil-nori-velours',
+    thumbnail_image: '',
+    has_discount: false,
+    discount: null,
+    stroked_price: '',
+    main_price: '8 900 MAD',
+    rating: 4.7,
+    sales: 89,
+    links: { details: '' },
+  },
+];
+
+const FALLBACK_PRODUCTS_AR: ProductMiniDto[] = [
+  {
+    id: 101,
+    name: 'أريكة لونا الفاخرة',
+    slug: 'canape-luna-boucle',
+    thumbnail_image: '',
+    has_discount: true,
+    discount: '-15%',
+    stroked_price: '14 500 د.م.',
+    main_price: '12 325 د.م.',
+    rating: 4.9,
+    sales: 124,
+    links: { details: '' },
+  },
+  {
+    id: 102,
+    name: 'كرسي نوري المخملي',
+    slug: 'fauteuil-nori-velours',
+    thumbnail_image: '',
+    has_discount: false,
+    discount: null,
+    stroked_price: '',
+    main_price: '8 900 د.م.',
+    rating: 4.7,
+    sales: 89,
+    links: { details: '' },
+  },
+];
+
 export interface RecentlyViewedScreenProps {
-  products: ProductMiniDto[];
   onBack: () => void;
   onSelectProduct: (product: ProductMiniDto) => void;
 }
 
-export const RecentlyViewedScreen: React.FC<RecentlyViewedScreenProps> = ({ products, onBack, onSelectProduct }) => {
+export const RecentlyViewedScreen: React.FC<RecentlyViewedScreenProps> = ({ onBack, onSelectProduct }) => {
   const { isRTL, language } = useTheme();
+  const [products, setProducts] = useState<ProductMiniDto[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    catalogService.getLastViewedProducts(language).then((data) => {
+      if (cancelled) return;
+      if (data && data.length > 0) {
+        setProducts(data);
+      } else {
+        setProducts(language === 'ar' ? FALLBACK_PRODUCTS_AR : FALLBACK_PRODUCTS_FR);
+      }
+      setLoading(false);
+    }).catch(() => {
+      if (cancelled) return;
+      setProducts(language === 'ar' ? FALLBACK_PRODUCTS_AR : FALLBACK_PRODUCTS_FR);
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [language]);
 
   return (
     <View style={styles.screen} accessibilityLabel="Recently Viewed Screen">
@@ -38,22 +117,21 @@ export const RecentlyViewedScreen: React.FC<RecentlyViewedScreenProps> = ({ prod
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <MayushText variant="caption" color={colors.neutral.gray700} style={[styles.dataBoundary, isRTL && styles.rtlText]}>
-          {language === 'ar'
-            ? '\u0627\u062e\u062a\u064a\u0627\u0631 \u0645\u062d\u0644\u064a \u062b\u0627\u0628\u062a \u062d\u062a\u0649 \u064a\u062a\u0648\u0641\u0631 \u0633\u062c\u0644 \u0645\u0634\u0627\u0647\u062f\u0629 \u062d\u0642\u064a\u0642\u064a.'
-            : 'S\u00e9lection locale d\u00e9terministe en attendant un historique r\u00e9el.'}
-        </MayushText>
-        <View style={[styles.grid, isRTL && styles.rowReverse]}>
-          {products.map((product) => (
-            <TouchableOpacity key={product.id} accessibilityRole="button" accessibilityLabel={product.name} style={styles.card} onPress={() => onSelectProduct(product)} activeOpacity={0.8}>
-              <Image source={Number(product.id) % 2 === 0 ? FAUTEUIL_IMG : CANAPE_IMG} style={styles.cardImg} resizeMode="cover" />
-              <View style={styles.cardBody}>
-                <MayushText variant="strongBody" color={colors.brand.navy900} numberOfLines={2} style={[styles.prodName, isRTL && styles.rtlText]}>{product.name}</MayushText>
-                <MayushText variant="priceRegular" color={colors.brand.orange500} style={styles.ltrValue}>{product.main_price}</MayushText>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {loading ? (
+          <ActivityIndicator size="large" color={colors.brand.orange500} style={styles.loader} />
+        ) : (
+          <View style={[styles.grid, isRTL && styles.rowReverse]}>
+            {products.map((product) => (
+              <TouchableOpacity key={product.id} accessibilityRole="button" accessibilityLabel={product.name} style={styles.card} onPress={() => onSelectProduct(product)} activeOpacity={0.8}>
+                <Image source={Number(product.id) % 2 === 0 ? FAUTEUIL_IMG : CANAPE_IMG} style={styles.cardImg} resizeMode="cover" />
+                <View style={styles.cardBody}>
+                  <MayushText variant="strongBody" color={colors.brand.navy900} numberOfLines={2} style={[styles.prodName, isRTL && styles.rtlText]}>{product.name}</MayushText>
+                  <MayushText variant="priceRegular" color={colors.brand.orange500} style={styles.ltrValue}>{product.main_price}</MayushText>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -65,7 +143,7 @@ const styles = StyleSheet.create({
   iconBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontSize: 18, fontWeight: '700' },
   content: { padding: 16 },
-  dataBoundary: { marginBottom: 14, lineHeight: 17 },
+  loader: { marginTop: 48 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   card: { width: '48%', borderRadius: radii.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.surface.borderWarm, backgroundColor: colors.surface.white },
   cardImg: { width: '100%', height: 130 },
