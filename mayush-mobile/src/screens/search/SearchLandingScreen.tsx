@@ -46,16 +46,8 @@ export const SearchLandingScreen: React.FC<SearchLandingScreenProps> = ({
     'Tapis berbère',
   ];
 
-  // Fallback trending categories used when API returns empty
-  const FALLBACK_TRENDING = [
-    { slug: 'salon', name: language === 'ar' ? 'صالون' : 'Salon & Séjour', icon: 'sofa' as const },
-    { slug: 'chambre', name: language === 'ar' ? 'غرفة النوم' : 'Chambre à coucher', icon: 'home' as const },
-    { slug: 'salle-a-manger', name: language === 'ar' ? 'غرفة الطعام' : 'Salle à manger', icon: 'tag' as const },
-    { slug: 'decoration', name: language === 'ar' ? 'ديكور' : 'Décoration & Miroirs', icon: 'briefcase' as const },
-  ];
-
-  const [trendingCategories, setTrendingCategories] = useState(FALLBACK_TRENDING);
-  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [trendingCategories, setTrendingCategories] = useState<{ slug: string; name: string; icon: string }[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
 
   // Fetch featured categories from API on mount
@@ -71,16 +63,15 @@ export const SearchLandingScreen: React.FC<SearchLandingScreenProps> = ({
             apiCategories.slice(0, 8).map((cat) => ({
               slug: cat.slug || String(cat.id),
               name: cat.name,
-              // API categories have image URLs for icon, not icon name strings —
-              // map to a generic icon; the card renders the name prominently.
-              icon: 'tag' as const,
+              icon: 'tag',
             }))
           );
+        } else {
+          setTrendingCategories([]);
         }
-        // Empty API response: keep fallback (already set as initial state)
       })
       .catch(() => {
-        // Error: keep fallback — no re-throw so the screen stays usable
+        if (!cancelled) setTrendingCategories([]);
       })
       .finally(() => {
         if (!cancelled) setCategoriesLoading(false);

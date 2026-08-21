@@ -597,14 +597,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   const displayCartCount = cartBadgeCount ?? 0;
 
-  const displayCollections = collections.length > 0
-    ? collections.map((col) => ({
-        id: String(col.id),
-        name: col.name || '',
-        description: col.description || '',
-        image: col.hero_image ? { uri: normalizeImageUrl(col.hero_image) } : COLLECTION_FALLBACK_IMAGE,
-      }))
-    : COLLECTIONS_VEDETTES_DATA;
+  const displayCollections = collections.map((col) => ({
+    id: String(col.id),
+    name: col.name || '',
+    description: col.description || '',
+    image: col.hero_image ? { uri: normalizeImageUrl(col.hero_image) } : COLLECTION_FALLBACK_IMAGE,
+  }));
 
   const displayCategories = FIXED_CATEGORIES_DATA.flatMap((fixed) => {
     const matchedDbCat = categories.find((c) => c.slug?.toLowerCase() === fixed.slug);
@@ -881,75 +879,67 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </View>
 
           {/* 5. Recommandé pour vous Section */}
-          <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
-          <ProductRail
-            products={recommendedProducts.length > 0 ? recommendedProducts : LOGGED_IN_RECOMMENDED_PRODUCTS as any}
-            cardWidth={productWidth}
-            onSelect={onSelectProduct}
-            wishlistedProductIds={wishlistedProductIds}
-            onToggleWishlist={onToggleWishlist}
-          />
+          {recommendedProducts.length > 0 && (
+            <>
+              <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+              <ProductRail
+                products={recommendedProducts}
+                cardWidth={productWidth}
+                onSelect={onSelectProduct}
+                wishlistedProductIds={wishlistedProductIds}
+                onToggleWishlist={onToggleWishlist}
+              />
+            </>
+          )}
 
           {/* 6. Consultés récemment Section */}
-          <SectionHeader label={heading('Consultés récemment', 'شوهدت مؤخراً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenRecentlyViewed ?? (() => onNavigateTab?.('categories'))} />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentlyViewedRail}>
-            {(recentlyViewed.length > 0
-              ? recentlyViewed.map((p) => ({ id: p.id, title: p.name, image: p.thumbnail_image ? { uri: normalizeImageUrl(p.thumbnail_image) } : COLLECTION_FALLBACK_IMAGE }))
-              : RECENTLY_VIEWED_ITEMS
-            ).map((item) => (
-              <TouchableOpacity key={item.id} activeOpacity={0.84} style={styles.recentlyViewedCard} onPress={onOpenRecentlyViewed ?? (() => onNavigateTab?.('categories'))}>
-                <Image source={item.image} style={styles.recentlyViewedImage} resizeMode="cover" />
-                <View style={styles.recentlyViewedWishlistBtn}>
-                  <MayushIcon name="heart" size={14} color={colors.brand.navy900} />
-                </View>
-                <View style={styles.recentlyViewedEyeBadge}>
-                  <MayushIcon name="eye" size={14} color={colors.brand.navy900} />
-                </View>
-                <View style={styles.recentlyViewedTitlePill}>
-                  <MayushText variant="caption" color={colors.surface.white} numberOfLines={1} style={styles.recentlyViewedTitleText}>
-                    {item.title}
-                  </MayushText>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+          {recentlyViewed.length > 0 && (
+            <>
+              <SectionHeader label={heading('Consultés récemment', 'شوهدت مؤخراً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenRecentlyViewed ?? (() => onNavigateTab?.('categories'))} />
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentlyViewedRail}>
+                {recentlyViewed.map((p) => (
+                  <TouchableOpacity key={p.id} activeOpacity={0.84} style={styles.recentlyViewedCard} onPress={onOpenRecentlyViewed ?? (() => onNavigateTab?.('categories'))}>
+                    <Image source={p.thumbnail_image ? { uri: normalizeImageUrl(p.thumbnail_image) } : COLLECTION_FALLBACK_IMAGE} style={styles.recentlyViewedImage} resizeMode="cover" />
+                    <View style={styles.recentlyViewedWishlistBtn}>
+                      <MayushIcon name="heart" size={14} color={colors.brand.navy900} />
+                    </View>
+                    <View style={styles.recentlyViewedEyeBadge}>
+                      <MayushIcon name="eye" size={14} color={colors.brand.navy900} />
+                    </View>
+                    <View style={styles.recentlyViewedTitlePill}>
+                      <MayushText variant="caption" color={colors.surface.white} numberOfLines={1} style={styles.recentlyViewedTitleText}>
+                        {p.name}
+                      </MayushText>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </>
+          )}
 
           {/* 7. Catégories Section (8 Circular Categories + Voir tout) */}
-          <SectionHeader label={heading('Catégories', 'الأقسام')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.loggedInCategoriesRail}>
-            {(displayCategories.length > 0
-              ? displayCategories.map((cat) => ({
-                  id: String(cat.id),
-                  name: cat.name,
-                  slug: cat.slug,
-                  art: cat.art,
-                  categoryDto: cat.categoryDto,
-                }))
-              : LOGGED_IN_CATEGORIES_DATA.map((cat) => ({
-                  id: cat.id,
-                  name: isRTL ? cat.nameAr : cat.name,
-                  slug: cat.slug,
-                  art: cat.art,
-                  categoryDto: categories.find((c) => c.slug?.toLowerCase() === cat.slug),
-                }))
-            ).map((cat) => (
-              <TouchableOpacity
-                key={cat.id}
-                activeOpacity={0.82}
-                style={styles.loggedInCategoryItem}
-                onPress={() => {
-                  if (cat.categoryDto) onSelectCategory?.(cat.categoryDto);
-                  else onNavigateTab?.('categories');
-                }}
-              >
-                <View style={styles.loggedInCategoryCircle}>
-                  <Image source={cat.art} style={styles.loggedInCategoryArt} resizeMode="cover" />
-                </View>
-                <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.loggedInCategoryLabel} numberOfLines={1}>
-                  {cat.name}
-                </MayushText>
-              </TouchableOpacity>
-            ))}
+          {displayCategories.length > 0 && (
+            <>
+              <SectionHeader label={heading('Catégories', 'الأقسام')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.loggedInCategoriesRail}>
+                {displayCategories.map((cat) => (
+                  <TouchableOpacity
+                    key={cat.id}
+                    activeOpacity={0.82}
+                    style={styles.loggedInCategoryItem}
+                    onPress={() => {
+                      if (cat.categoryDto) onSelectCategory?.(cat.categoryDto);
+                      else onNavigateTab?.('categories');
+                    }}
+                  >
+                    <View style={styles.loggedInCategoryCircle}>
+                      <Image source={cat.art} style={styles.loggedInCategoryArt} resizeMode="cover" />
+                    </View>
+                    <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.loggedInCategoryLabel} numberOfLines={1}>
+                      {cat.name}
+                    </MayushText>
+                  </TouchableOpacity>
+                ))}
             <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Voir tout', 'عرض الكل')} activeOpacity={0.82} style={styles.loggedInCategoryItem} onPress={() => onNavigateTab?.('categories')}>
               <View style={styles.loggedInCategoryMoreCircle}>
                 <MayushIcon name="more-horizontal" size={22} color={colors.brand.navy900} />
@@ -958,38 +948,44 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 {heading('Voir tout', 'عرض الكل')}
               </MayushText>
             </TouchableOpacity>
-          </ScrollView>
+              </ScrollView>
+            </>
+          )}
 
-          {/* 8. Flash Deal Section (With live countdown timer) */}
-          <View style={[styles.flashDealHeaderRow, isRTL && styles.rowReverse]}>
-            <View style={[styles.flashDealTitleGroup, isRTL && styles.rowReverse]}>
-              <MayushIcon name="zap" size={20} color={colors.brand.orange500} />
-              <MayushText variant="sectionTitle" color={colors.brand.navy900} style={styles.flashDealTitleText}>
-                {heading('Flash Deal', 'عروض سريعة')}
-              </MayushText>
-            </View>
-            <View style={[styles.flashDealRightGroup, isRTL && styles.rowReverse]}>
-              <View style={styles.countdownBadge}>
-                <MayushText variant="caption" color={colors.brand.orange500} style={styles.countdownText}>
-                  {flashCountdown
-                    ? heading(`Fin dans ${flashCountdown}`, `ينتهي خلال ${flashCountdown}`)
-                    : heading('Fin dans 12h : 45m : 30s', 'ينتهي خلال 12س : 45د : 30ث')}
-                </MayushText>
+          {/* 8. Flash Deal Section (With live countdown timer) — hidden when no active deals */}
+          {flashDeals.length > 0 && (
+            <>
+              <View style={[styles.flashDealHeaderRow, isRTL && styles.rowReverse]}>
+                <View style={[styles.flashDealTitleGroup, isRTL && styles.rowReverse]}>
+                  <MayushIcon name="zap" size={20} color={colors.brand.orange500} />
+                  <MayushText variant="sectionTitle" color={colors.brand.navy900} style={styles.flashDealTitleText}>
+                    {heading('Flash Deal', 'عروض سريعة')}
+                  </MayushText>
+                </View>
+                <View style={[styles.flashDealRightGroup, isRTL && styles.rowReverse]}>
+                  {flashCountdown ? (
+                    <View style={styles.countdownBadge}>
+                      <MayushText variant="caption" color={colors.brand.orange500} style={styles.countdownText}>
+                        {heading(`Fin dans ${flashCountdown}`, `ينتهي خلال ${flashCountdown}`)}
+                      </MayushText>
+                    </View>
+                  ) : null}
+                  <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Voir tout', 'عرض الكل')} onPress={onOpenPromotions} activeOpacity={0.78}>
+                    <MayushText variant="smallBody" color={colors.brand.orange500} style={styles.actionLabel}>
+                      {heading('Voir tout >', 'عرض الكل >')}
+                    </MayushText>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Voir tout', 'عرض الكل')} onPress={onOpenPromotions} activeOpacity={0.78}>
-                <MayushText variant="smallBody" color={colors.brand.orange500} style={styles.actionLabel}>
-                  {heading('Voir tout >', 'عرض الكل >')}
-                </MayushText>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <ProductRail
-            products={flashDeals.length > 0 ? flashDeals : LOGGED_IN_FLASH_DEALS_PRODUCTS as any}
-            cardWidth={productWidth}
-            onSelect={onSelectProduct}
-            wishlistedProductIds={wishlistedProductIds}
-            onToggleWishlist={onToggleWishlist}
-          />
+              <ProductRail
+                products={flashDeals}
+                cardWidth={productWidth}
+                onSelect={onSelectProduct}
+                wishlistedProductIds={wishlistedProductIds}
+                onToggleWishlist={onToggleWishlist}
+              />
+            </>
+          )}
 
           {/* 9. Middle Promo Banner ("Offre spéciale -15% sur tout le site") */}
           <View style={styles.middlePromoBannerWrapper}>
@@ -1017,24 +1013,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </View>
 
           {/* 10. Nouveautés Section */}
-          <SectionHeader label={heading('Nouveautés', 'وصل حديثاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenNewArrivals ?? onOpenPromotions ?? (() => onNavigateTab?.('categories'))} />
-          <ProductRail
-            products={newArrivals.length > 0 ? newArrivals : LOGGED_IN_NEW_ARRIVALS as any}
-            cardWidth={productWidth}
-            onSelect={onSelectProduct}
-            wishlistedProductIds={wishlistedProductIds}
-            onToggleWishlist={onToggleWishlist}
-          />
+          {newArrivals.length > 0 && (
+            <>
+              <SectionHeader label={heading('Nouveautés', 'وصل حديثاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenNewArrivals ?? onOpenPromotions ?? (() => onNavigateTab?.('categories'))} />
+              <ProductRail
+                products={newArrivals}
+                cardWidth={productWidth}
+                onSelect={onSelectProduct}
+                wishlistedProductIds={wishlistedProductIds}
+                onToggleWishlist={onToggleWishlist}
+              />
+            </>
+          )}
 
           {/* 11. Meilleures ventes Section */}
-          <SectionHeader label={heading('Meilleures ventes', 'الأكثر مبيعاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenBestSellers ?? (() => onNavigateTab?.('categories'))} />
-          <ProductRail
-            products={bestSellers.length > 0 ? bestSellers : LOGGED_IN_BEST_SELLERS as any}
-            cardWidth={productWidth}
-            onSelect={onSelectProduct}
-            wishlistedProductIds={wishlistedProductIds}
-            onToggleWishlist={onToggleWishlist}
-          />
+          {bestSellers.length > 0 && (
+            <>
+              <SectionHeader label={heading('Meilleures ventes', 'الأكثر مبيعاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenBestSellers ?? (() => onNavigateTab?.('categories'))} />
+              <ProductRail
+                products={bestSellers}
+                cardWidth={productWidth}
+                onSelect={onSelectProduct}
+                wishlistedProductIds={wishlistedProductIds}
+                onToggleWishlist={onToggleWishlist}
+              />
+            </>
+          )}
 
           {/* 12. Inspiration du moment Section */}
           <SectionHeader label={heading('Inspiration du moment', 'إلهام اليوم')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenInspiration ?? onOpenWishlist ?? (() => onNavigateTab?.('categories'))} />
@@ -1044,61 +1048,54 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </ScrollView>
 
           {/* 13. Collections vedettes Section */}
-          <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.collectionsRow}>
-            {displayCollections.map((col) => (
-              <TouchableOpacity key={col.id} activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
-                <View style={styles.collectionCircleWrap}>
-                  <Image source={col.image} style={styles.collectionImage} resizeMode="cover" />
-                </View>
-                <MayushText variant="caption" color={colors.brand.navy900} align="center" numberOfLines={2} style={styles.collectionTitle}>
-                  {col.name}
-                </MayushText>
-                <MayushText variant="caption" color={colors.neutral.gray500} align="center" numberOfLines={2} style={styles.collectionSubtitle}>
-                  {col.description}
-                </MayushText>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
-              <View style={styles.collectionMoreCircle}>
-                <MayushIcon name="more-horizontal" size={24} color={colors.brand.navy900} />
-              </View>
-              <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.collectionTitle}>
-                {heading('Voir toutes les\ncollections', 'عرض كل التشكيلات')}
-              </MayushText>
-            </TouchableOpacity>
-          </ScrollView>
+          {displayCollections.length > 0 && (
+            <>
+              <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.collectionsRow}>
+                {displayCollections.map((col) => (
+                  <TouchableOpacity key={col.id} activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
+                    <View style={styles.collectionCircleWrap}>
+                      <Image source={col.image} style={styles.collectionImage} resizeMode="cover" />
+                    </View>
+                    <MayushText variant="caption" color={colors.brand.navy900} align="center" numberOfLines={2} style={styles.collectionTitle}>
+                      {col.name}
+                    </MayushText>
+                    <MayushText variant="caption" color={colors.neutral.gray500} align="center" numberOfLines={2} style={styles.collectionSubtitle}>
+                      {col.description}
+                    </MayushText>
+                  </TouchableOpacity>
+                ))}
+                <TouchableOpacity activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
+                  <View style={styles.collectionMoreCircle}>
+                    <MayushIcon name="more-horizontal" size={24} color={colors.brand.navy900} />
+                  </View>
+                  <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.collectionTitle}>
+                    {heading('Voir toutes les\ncollections', 'عرض كل التشكيلات')}
+                  </MayushText>
+                </TouchableOpacity>
+              </ScrollView>
+            </>
+          )}
 
           {/* 14. Nos sélections partenaires Section */}
-          <View style={styles.partnersSection}>
-            <SectionHeader label={heading('Nos sélections partenaires', 'شركاؤنا المختارون')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.partnersRow}>
-              {topBrands.length > 0
-                ? topBrands.map((b) => (
-                    <View key={b.id} style={styles.partnerCard}>
-                      {b.logo ? (
-                        <Image source={{ uri: b.logo }} style={{ width: 60, height: 40 }} resizeMode="contain" />
-                      ) : (
-                        <MayushText variant="strongBody" color={colors.brand.navy900} align="center" style={styles.partnerBrandName}>
-                          {b.name}
-                        </MayushText>
-                      )}
-                    </View>
-                  ))
-                : PARTNERS_DATA.map((p) => (
-                    <View key={p.id} style={styles.partnerCard}>
+          {topBrands.length > 0 && (
+            <View style={styles.partnersSection}>
+              <SectionHeader label={heading('Nos sélections partenaires', 'شركاؤنا المختارون')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.partnersRow}>
+                {topBrands.map((b) => (
+                  <View key={b.id} style={styles.partnerCard}>
+                    {b.logo ? (
+                      <Image source={{ uri: b.logo }} style={{ width: 60, height: 40 }} resizeMode="contain" />
+                    ) : (
                       <MayushText variant="strongBody" color={colors.brand.navy900} align="center" style={styles.partnerBrandName}>
-                        {p.name}
+                        {b.name}
                       </MayushText>
-                      {p.subtitle ? (
-                        <MayushText variant="caption" color={colors.neutral.gray700} align="center" style={styles.partnerBrandSub}>
-                          {p.subtitle}
-                        </MayushText>
-                      ) : null}
-                    </View>
-                  ))}
-            </ScrollView>
-          </View>
+                    )}
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
 
           {/* 15. Pièces par ambiance Section */}
           <SectionHeader label={heading('Pièces par ambiance', 'غرف حسب الطراز')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
@@ -1219,32 +1216,42 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </ScrollView>
 
         {/* 5. Nouveautés Section */}
-        <SectionHeader label={heading('Nouveautés', 'وصول جديد')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenNewArrivals ?? onOpenPromotions ?? (() => onNavigateTab?.('categories'))} />
         {newArrivalsLoading ? (
-          <ProductRailSkeleton cardWidth={productWidth} count={3} />
-        ) : (
-          <ProductRail
-            products={newArrivals.length > 0 ? newArrivals : LOGGED_IN_NEW_ARRIVALS as any}
-            cardWidth={productWidth}
-            onSelect={onSelectProduct}
-            wishlistedProductIds={wishlistedProductIds}
-            onToggleWishlist={onToggleWishlist}
-          />
-        )}
+          <>
+            <SectionHeader label={heading('Nouveautés', 'وصول جديد')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenNewArrivals ?? onOpenPromotions ?? (() => onNavigateTab?.('categories'))} />
+            <ProductRailSkeleton cardWidth={productWidth} count={3} />
+          </>
+        ) : newArrivals.length > 0 ? (
+          <>
+            <SectionHeader label={heading('Nouveautés', 'وصول جديد')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenNewArrivals ?? onOpenPromotions ?? (() => onNavigateTab?.('categories'))} />
+            <ProductRail
+              products={newArrivals}
+              cardWidth={productWidth}
+              onSelect={onSelectProduct}
+              wishlistedProductIds={wishlistedProductIds}
+              onToggleWishlist={onToggleWishlist}
+            />
+          </>
+        ) : null}
 
         {/* 6. Meilleures ventes Section */}
-        <SectionHeader label={heading('Meilleures ventes', 'الأكثر مبيعاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenBestSellers ?? (() => onNavigateTab?.('categories'))} />
         {bestSellersLoading ? (
-          <ProductRailSkeleton cardWidth={productWidth} count={3} />
-        ) : (
-          <ProductRail
-            products={bestSellers.length > 0 ? bestSellers : LOGGED_IN_BEST_SELLERS as any}
-            cardWidth={productWidth}
-            onSelect={onSelectProduct}
-            wishlistedProductIds={wishlistedProductIds}
-            onToggleWishlist={onToggleWishlist}
-          />
-        )}
+          <>
+            <SectionHeader label={heading('Meilleures ventes', 'الأكثر مبيعاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenBestSellers ?? (() => onNavigateTab?.('categories'))} />
+            <ProductRailSkeleton cardWidth={productWidth} count={3} />
+          </>
+        ) : bestSellers.length > 0 ? (
+          <>
+            <SectionHeader label={heading('Meilleures ventes', 'الأكثر مبيعاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenBestSellers ?? (() => onNavigateTab?.('categories'))} />
+            <ProductRail
+              products={bestSellers}
+              cardWidth={productWidth}
+              onSelect={onSelectProduct}
+              wishlistedProductIds={wishlistedProductIds}
+              onToggleWishlist={onToggleWishlist}
+            />
+          </>
+        ) : null}
 
         {/* 7. Offres du moment Banner */}
         <View style={[styles.offerBanner, isRTL && styles.rowReverse]}>
@@ -1274,71 +1281,68 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </ScrollView>
 
         {/* 9. Collections vedettes Section */}
-        <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir toutes les collections', 'عرض كل التشكيلات')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.collectionsRow}>
-          {displayCollections.map((col) => (
-            <TouchableOpacity key={col.id} activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
-              <View style={styles.collectionCircleWrap}>
-                <Image source={col.image} style={styles.collectionImage} resizeMode="cover" />
-              </View>
-              <MayushText variant="caption" color={colors.brand.navy900} align="center" numberOfLines={2} style={styles.collectionTitle}>
-                {col.name}
-              </MayushText>
-              <MayushText variant="caption" color={colors.neutral.gray500} align="center" numberOfLines={2} style={styles.collectionSubtitle}>
-                {col.description}
-              </MayushText>
-            </TouchableOpacity>
-          ))}
-          <TouchableOpacity activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
-            <View style={styles.collectionMoreCircle}>
-              <MayushIcon name="more-horizontal" size={24} color={colors.brand.navy900} />
-            </View>
-            <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.collectionTitle}>
-              {heading('Voir toutes les\ncollections', 'عرض كل التشكيلات')}
-            </MayushText>
-          </TouchableOpacity>
-        </ScrollView>
+        {displayCollections.length > 0 && (
+          <>
+            <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir toutes les collections', 'عرض كل التشكيلات')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.collectionsRow}>
+              {displayCollections.map((col) => (
+                <TouchableOpacity key={col.id} activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
+                  <View style={styles.collectionCircleWrap}>
+                    <Image source={col.image} style={styles.collectionImage} resizeMode="cover" />
+                  </View>
+                  <MayushText variant="caption" color={colors.brand.navy900} align="center" numberOfLines={2} style={styles.collectionTitle}>
+                    {col.name}
+                  </MayushText>
+                  <MayushText variant="caption" color={colors.neutral.gray500} align="center" numberOfLines={2} style={styles.collectionSubtitle}>
+                    {col.description}
+                  </MayushText>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
+                <View style={styles.collectionMoreCircle}>
+                  <MayushIcon name="more-horizontal" size={24} color={colors.brand.navy900} />
+                </View>
+                <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.collectionTitle}>
+                  {heading('Voir toutes les\ncollections', 'عرض كل التشكيلات')}
+                </MayushText>
+              </TouchableOpacity>
+            </ScrollView>
+          </>
+        )}
 
         {/* 10. Nos sélections partenaires Section */}
-        <View style={styles.partnersSection}>
-          <SectionHeader label={heading('Nos sélections partenaires', 'شركاؤنا المختارون')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.partnersRow}>
-            {topBrands.length > 0
-              ? topBrands.map((b) => (
-                  <View key={b.id} style={styles.partnerCard}>
-                    {b.logo ? (
-                      <Image source={{ uri: b.logo }} style={{ width: 60, height: 40 }} resizeMode="contain" />
-                    ) : (
-                      <MayushText variant="strongBody" color={colors.brand.navy900} align="center" style={styles.partnerBrandName}>
-                        {b.name}
-                      </MayushText>
-                    )}
-                  </View>
-                ))
-              : PARTNERS_DATA.map((p) => (
-                  <View key={p.id} style={styles.partnerCard}>
+        {topBrands.length > 0 && (
+          <View style={styles.partnersSection}>
+            <SectionHeader label={heading('Nos sélections partenaires', 'شركاؤنا المختارون')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.partnersRow}>
+              {topBrands.map((b) => (
+                <View key={b.id} style={styles.partnerCard}>
+                  {b.logo ? (
+                    <Image source={{ uri: b.logo }} style={{ width: 60, height: 40 }} resizeMode="contain" />
+                  ) : (
                     <MayushText variant="strongBody" color={colors.brand.navy900} align="center" style={styles.partnerBrandName}>
-                      {p.name}
+                      {b.name}
                     </MayushText>
-                    {p.subtitle ? (
-                      <MayushText variant="caption" color={colors.neutral.gray700} align="center" style={styles.partnerBrandSub}>
-                        {p.subtitle}
-                      </MayushText>
-                    ) : null}
-                  </View>
-                ))}
-          </ScrollView>
-        </View>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* 11. Recommandé pour vous Section */}
-        <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
-        <ProductRail
-          products={recommendedProducts.length > 0 ? recommendedProducts : GUEST_RECOMMENDED_PRODUCTS as any}
-          cardWidth={productWidth}
-          onSelect={onSelectProduct}
-          wishlistedProductIds={wishlistedProductIds}
-          onToggleWishlist={onToggleWishlist}
-        />
+        {recommendedProducts.length > 0 && (
+          <>
+            <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+            <ProductRail
+              products={recommendedProducts}
+              cardWidth={productWidth}
+              onSelect={onSelectProduct}
+              wishlistedProductIds={wishlistedProductIds}
+              onToggleWishlist={onToggleWishlist}
+            />
+          </>
+        )}
 
         {/* 12. Pièces par ambiance Section */}
         <SectionHeader label={heading('Pièces par ambiance', 'غرف حسب الطراز')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />

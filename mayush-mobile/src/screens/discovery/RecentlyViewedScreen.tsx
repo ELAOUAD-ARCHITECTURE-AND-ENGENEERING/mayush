@@ -90,15 +90,11 @@ export const RecentlyViewedScreen: React.FC<RecentlyViewedScreenProps> = ({ onBa
     setLoading(true);
     catalogService.getLastViewedProducts(language).then((data) => {
       if (cancelled) return;
-      if (data && data.length > 0) {
-        setProducts(data);
-      } else {
-        setProducts(language === 'ar' ? FALLBACK_PRODUCTS_AR : FALLBACK_PRODUCTS_FR);
-      }
+      setProducts(data && data.length > 0 ? data : []);
       setLoading(false);
     }).catch(() => {
       if (cancelled) return;
-      setProducts(language === 'ar' ? FALLBACK_PRODUCTS_AR : FALLBACK_PRODUCTS_FR);
+      setProducts([]);
       setLoading(false);
     });
     return () => { cancelled = true; };
@@ -119,6 +115,12 @@ export const RecentlyViewedScreen: React.FC<RecentlyViewedScreenProps> = ({ onBa
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {loading ? (
           <ActivityIndicator size="large" color={colors.brand.orange500} style={styles.loader} />
+        ) : products.length === 0 ? (
+          <View style={styles.emptyState}>
+            <MayushText variant="body" color={colors.neutral.gray500} align="center">
+              {language === 'ar' ? 'لا توجد منتجات معروضة مؤخراً' : 'Aucun produit consulté récemment'}
+            </MayushText>
+          </View>
         ) : (
           <View style={[styles.grid, isRTL && styles.rowReverse]}>
             {products.map((product) => (
@@ -144,6 +146,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: '700' },
   content: { padding: 16 },
   loader: { marginTop: 48 },
+  emptyState: { marginTop: 48, alignItems: 'center', paddingHorizontal: 24 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   card: { width: '48%', borderRadius: radii.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.surface.borderWarm, backgroundColor: colors.surface.white },
   cardImg: { width: '100%', height: 130 },
