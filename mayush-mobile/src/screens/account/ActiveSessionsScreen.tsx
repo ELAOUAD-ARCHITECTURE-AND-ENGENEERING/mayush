@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ActiveSession, authState } from '../../commerce/authState';
-import { BottomTabBar, TabKey } from '../../design-system/components/navigation/BottomTabBar';
+import { TabKey } from '../../design-system/components/navigation/BottomTabBar';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { colors } from '../../design-system/tokens/colors';
@@ -22,8 +22,19 @@ export const ActiveSessionsScreen: React.FC<ActiveSessionsScreenProps> = ({
   const isRTL = language === 'ar';
   const [sessions, setSessions] = useState<ActiveSession[]>(authState.getActiveSessions());
   const [selectedSession, setSelectedSession] = useState<ActiveSession | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Fetch active sessions from backend
+    const fetchSessions = async () => {
+      setLoading(true);
+      await authState.fetchActiveSessions();
+      setLoading(false);
+    };
+
+    void fetchSessions();
+
+    // Subscribe to auth state changes
     const unsub = authState.subscribe(() => {
       setSessions(authState.getActiveSessions());
       setSelectedSession(authState.getSelectedSession());
@@ -158,7 +169,6 @@ export const ActiveSessionsScreen: React.FC<ActiveSessionsScreenProps> = ({
         language={language}
       />
 
-      <BottomTabBar activeTab="account" onTabPress={onNavigateTab} />
     </View>
   );
 };

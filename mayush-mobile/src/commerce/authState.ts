@@ -924,6 +924,36 @@ export class AuthStateManager {
     }
   }
 
+  public async updateProfilePhoto(imageUri: string): Promise<boolean> {
+    try {
+      const formData = new FormData();
+      formData.append('photo', {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: 'profile.jpg',
+      } as any);
+
+      const res = await apiClient<{ result: boolean; path?: string }>('/api/v2/profile/update-image', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      if (res?.result && res.path) {
+        const user = this.getUser();
+        if (user) {
+          this.user = { ...user, avatarUrl: res.path };
+          this.notify();
+          void this.persistSession();
+        }
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
   public changeAvatar(avatarUrl: string | null) {
     if (this.user) {
       this.user.avatarUrl = avatarUrl;

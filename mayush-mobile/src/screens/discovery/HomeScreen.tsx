@@ -14,6 +14,8 @@ import { catalogService, SliderItemDto } from '../../services/api/catalogService
 import { MockUser } from '../../commerce/authState';
 import { BuyerOrder } from '../../commerce/orderState';
 import { systemRuntimeState } from '../../commerce/systemRuntimeState';
+import { notificationService } from '../../services/api/notificationService';
+import { brandService, BrandDto } from '../../services/api/brandService';
 
 const CATEGORY_ARTWORK = [
   require('../../../assets/reference-art/home-category-salon.png'),
@@ -345,6 +347,11 @@ const homeCache = {
   collections: [] as ProductCollectionDto[],
   newArrivals: [] as ProductMiniDto[],
   bestSellers: [] as ProductMiniDto[],
+  flashDeals: [] as ProductMiniDto[],
+  flashDealEndDate: '' as string,
+  recommendedProducts: [] as ProductMiniDto[],
+  recentlyViewed: [] as ProductMiniDto[],
+  topBrands: [] as BrandDto[],
   language: '' as string,
 };
 
@@ -417,6 +424,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [collectionsLoading, setCollectionsLoading] = useState(!hasCachedData);
   const [newArrivalsLoading, setNewArrivalsLoading] = useState(!hasCachedData);
   const [bestSellersLoading, setBestSellersLoading] = useState(!hasCachedData);
+  const [flashDeals, setFlashDeals] = useState<ProductMiniDto[]>(hasCachedData ? homeCache.flashDeals : []);
+  const [flashDealEndDate, setFlashDealEndDate] = useState(hasCachedData ? homeCache.flashDealEndDate : '');
+  const [recommendedProducts, setRecommendedProducts] = useState<ProductMiniDto[]>(hasCachedData ? homeCache.recommendedProducts : []);
+  const [recentlyViewed, setRecentlyViewed] = useState<ProductMiniDto[]>(hasCachedData ? homeCache.recentlyViewed : []);
+  const [topBrands, setTopBrands] = useState<BrandDto[]>(hasCachedData ? homeCache.topBrands : []);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [flashCountdown, setFlashCountdown] = useState('');
 
   useEffect(() => {
     if (homeCache.loaded && homeCache.language === language) return;
@@ -513,11 +527,68 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       .catch(() => { if (mounted) setBestSellersLoading(false); })
       .finally(() => { markRequestComplete(); updateCache(); });
 
+    // Flash deals
+    catalogService
+      .getFlashDealsForHome(language)
+      .then((res) => {
+        if (mounted && res.length > 0) {
+          const deal = res[0];
+          setFlashDeals(deal.products || []);
+          homeCache.flashDeals = deal.products || [];
+          if (deal.end_date) {
+            setFlashDealEndDate(deal.end_date);
+            homeCache.flashDealEndDate = deal.end_date;
+          }
+        }
+      })
+      .catch(() => {});
+
+    // Recommended / featured products
+    catalogService
+      .getFeaturedProducts(language)
+      .then((res) => {
+        if (mounted && res.length > 0) {
+          setRecommendedProducts(res);
+          homeCache.recommendedProducts = res;
+        }
+      })
+      .catch(() => {});
+
+    // Recently viewed (auth-only, silent fail for guests)
+    if (isAuthenticated) {
+      catalogService
+        .getLastViewedProducts(language)
+        .then((res) => {
+          if (mounted && res.length > 0) {
+            setRecentlyViewed(res);
+            homeCache.recentlyViewed = res;
+          }
+        })
+        .catch(() => {});
+
+      // Notification count
+      notificationService
+        .getUnreadCount()
+        .then((count) => { if (mounted) setNotificationCount(count); })
+        .catch(() => {});
+    }
+
+    // Top brands / partners
+    brandService
+      .getTopBrands(language)
+      .then((res) => {
+        if (mounted && res.length > 0) {
+          setTopBrands(res);
+          homeCache.topBrands = res;
+        }
+      })
+      .catch(() => {});
+
     return () => {
       mounted = false;
       if (contentLoadToken) systemRuntimeState.clear(contentLoadToken);
     };
-  }, [language]);
+  }, [language, isAuthenticated]);
 
   const selectHeroSlide = (index: number) => {
     setActiveHeroIndex(index);
@@ -573,6 +644,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
     return () => clearInterval(timer);
   }, [contentWidth, sliders.length]);
+
+  // Flash deal countdown timer
+  useEffect(() => {
+    if (!flashDealEndDate) return;
+    const tick = () => {
+      const now = Date.now();
+      const end = new Date(flashDealEndDate).getTime();
+      const diff = end - now;
+      if (diff <= 0) { setFlashCountdown(''); return; }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      const pad = (n: number) => String(n).padStart(2, '0');
+      setFlashCountdown(`${pad(h)}h : ${pad(m)}m : ${pad(s)}s`);
+    };
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [flashDealEndDate]);
 
   const userFirstName = authenticatedUser?.fullName
     ? authenticatedUser.fullName.trim().split(' ')[0]
@@ -701,11 +791,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <View style={[styles.headerActionsCluster, isRTL && styles.rowReverse]}>
               <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Notifications', 'الإشعارات')} style={styles.headerIconButton}>
                 <MayushIcon name="bell" size={24} color={colors.brand.navy900} />
-                <View style={styles.headerCartBadge}>
-                  <MayushText variant="caption" color={colors.surface.white} style={styles.badgeText}>
-                    3
-                  </MayushText>
-                </View>
+                {notificationCount > 0 && (
+                  <View style={styles.headerCartBadge}>
+                    <MayushText variant="caption" color={colors.surface.white} style={styles.badgeText}>
+                      {notificationCount}
+                    </MayushText>
+                  </View>
+                )}
               </TouchableOpacity>
               <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Mon panier', 'سلة التسوق')} onPress={() => onNavigateTab?.('cart')} style={styles.headerIconButton}>
                 <MayushIcon name="shopping-cart" size={24} color={colors.brand.navy900} />
@@ -763,7 +855,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {/* 4. Hero Carousel Banner ("L'art d'habiter selon vos envies") */}
           <View style={styles.heroWrapper}>
-            <Image source={LOGGED_IN_HERO_IMAGE} resizeMode="cover" style={styles.heroImage} />
+            <Image source={heroSlides.length > 0 ? heroSlides[activeHeroIndex]?.bg : LOGGED_IN_HERO_IMAGE} resizeMode="cover" style={styles.heroImage} />
             <View style={styles.heroOverlayDarkener} />
             <View style={[styles.heroCopyPanel, isRTL && styles.heroCopyPanelRtl]}>
               <MayushText variant="display" color={colors.surface.white} style={styles.heroTitle}>
@@ -791,7 +883,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {/* 5. Recommandé pour vous Section */}
           <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
           <ProductRail
-            products={LOGGED_IN_RECOMMENDED_PRODUCTS as any}
+            products={recommendedProducts.length > 0 ? recommendedProducts : LOGGED_IN_RECOMMENDED_PRODUCTS as any}
             cardWidth={productWidth}
             onSelect={onSelectProduct}
             wishlistedProductIds={wishlistedProductIds}
@@ -801,7 +893,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {/* 6. Consultés récemment Section */}
           <SectionHeader label={heading('Consultés récemment', 'شوهدت مؤخراً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenRecentlyViewed ?? (() => onNavigateTab?.('categories'))} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentlyViewedRail}>
-            {RECENTLY_VIEWED_ITEMS.map((item) => (
+            {(recentlyViewed.length > 0
+              ? recentlyViewed.map((p) => ({ id: p.id, title: p.name, image: p.thumbnail_image ? { uri: normalizeImageUrl(p.thumbnail_image) } : COLLECTION_FALLBACK_IMAGE }))
+              : RECENTLY_VIEWED_ITEMS
+            ).map((item) => (
               <TouchableOpacity key={item.id} activeOpacity={0.84} style={styles.recentlyViewedCard} onPress={onOpenRecentlyViewed ?? (() => onNavigateTab?.('categories'))}>
                 <Image source={item.image} style={styles.recentlyViewedImage} resizeMode="cover" />
                 <View style={styles.recentlyViewedWishlistBtn}>
@@ -822,14 +917,28 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {/* 7. Catégories Section (8 Circular Categories + Voir tout) */}
           <SectionHeader label={heading('Catégories', 'الأقسام')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.loggedInCategoriesRail}>
-            {LOGGED_IN_CATEGORIES_DATA.map((cat) => (
+            {(displayCategories.length > 0
+              ? displayCategories.map((cat) => ({
+                  id: String(cat.id),
+                  name: cat.name,
+                  slug: cat.slug,
+                  art: cat.art,
+                  categoryDto: cat.categoryDto,
+                }))
+              : LOGGED_IN_CATEGORIES_DATA.map((cat) => ({
+                  id: cat.id,
+                  name: isRTL ? cat.nameAr : cat.name,
+                  slug: cat.slug,
+                  art: cat.art,
+                  categoryDto: categories.find((c) => c.slug?.toLowerCase() === cat.slug),
+                }))
+            ).map((cat) => (
               <TouchableOpacity
                 key={cat.id}
                 activeOpacity={0.82}
                 style={styles.loggedInCategoryItem}
                 onPress={() => {
-                  const matched = categories.find((c) => c.slug?.toLowerCase() === cat.slug);
-                  if (matched) onSelectCategory?.(matched);
+                  if (cat.categoryDto) onSelectCategory?.(cat.categoryDto);
                   else onNavigateTab?.('categories');
                 }}
               >
@@ -837,7 +946,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   <Image source={cat.art} style={styles.loggedInCategoryArt} resizeMode="cover" />
                 </View>
                 <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.loggedInCategoryLabel} numberOfLines={1}>
-                  {isRTL ? cat.nameAr : cat.name}
+                  {cat.name}
                 </MayushText>
               </TouchableOpacity>
             ))}
@@ -862,7 +971,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <View style={[styles.flashDealRightGroup, isRTL && styles.rowReverse]}>
               <View style={styles.countdownBadge}>
                 <MayushText variant="caption" color={colors.brand.orange500} style={styles.countdownText}>
-                  {heading('Fin dans 12h : 45m : 30s', 'ينتهي خلال 12س : 45د : 30ث')}
+                  {flashCountdown
+                    ? heading(`Fin dans ${flashCountdown}`, `ينتهي خلال ${flashCountdown}`)
+                    : heading('Fin dans 12h : 45m : 30s', 'ينتهي خلال 12س : 45د : 30ث')}
                 </MayushText>
               </View>
               <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Voir tout', 'عرض الكل')} onPress={onOpenPromotions} activeOpacity={0.78}>
@@ -873,7 +984,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </View>
           </View>
           <ProductRail
-            products={LOGGED_IN_FLASH_DEALS_PRODUCTS as any}
+            products={flashDeals.length > 0 ? flashDeals : LOGGED_IN_FLASH_DEALS_PRODUCTS as any}
             cardWidth={productWidth}
             onSelect={onSelectProduct}
             wishlistedProductIds={wishlistedProductIds}
@@ -962,18 +1073,30 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <View style={styles.partnersSection}>
             <SectionHeader label={heading('Nos sélections partenaires', 'شركاؤنا المختارون')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.partnersRow}>
-              {PARTNERS_DATA.map((p) => (
-                <View key={p.id} style={styles.partnerCard}>
-                  <MayushText variant="strongBody" color={colors.brand.navy900} align="center" style={styles.partnerBrandName}>
-                    {p.name}
-                  </MayushText>
-                  {p.subtitle ? (
-                    <MayushText variant="caption" color={colors.neutral.gray700} align="center" style={styles.partnerBrandSub}>
-                      {p.subtitle}
-                    </MayushText>
-                  ) : null}
-                </View>
-              ))}
+              {topBrands.length > 0
+                ? topBrands.map((b) => (
+                    <View key={b.id} style={styles.partnerCard}>
+                      {b.logo ? (
+                        <Image source={{ uri: b.logo }} style={{ width: 60, height: 40 }} resizeMode="contain" />
+                      ) : (
+                        <MayushText variant="strongBody" color={colors.brand.navy900} align="center" style={styles.partnerBrandName}>
+                          {b.name}
+                        </MayushText>
+                      )}
+                    </View>
+                  ))
+                : PARTNERS_DATA.map((p) => (
+                    <View key={p.id} style={styles.partnerCard}>
+                      <MayushText variant="strongBody" color={colors.brand.navy900} align="center" style={styles.partnerBrandName}>
+                        {p.name}
+                      </MayushText>
+                      {p.subtitle ? (
+                        <MayushText variant="caption" color={colors.neutral.gray700} align="center" style={styles.partnerBrandSub}>
+                          {p.subtitle}
+                        </MayushText>
+                      ) : null}
+                    </View>
+                  ))}
             </ScrollView>
           </View>
 
@@ -1180,25 +1303,37 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <View style={styles.partnersSection}>
           <SectionHeader label={heading('Nos sélections partenaires', 'شركاؤنا المختارون')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.partnersRow}>
-            {PARTNERS_DATA.map((p) => (
-              <View key={p.id} style={styles.partnerCard}>
-                <MayushText variant="strongBody" color={colors.brand.navy900} align="center" style={styles.partnerBrandName}>
-                  {p.name}
-                </MayushText>
-                {p.subtitle ? (
-                  <MayushText variant="caption" color={colors.neutral.gray700} align="center" style={styles.partnerBrandSub}>
-                    {p.subtitle}
-                  </MayushText>
-                ) : null}
-              </View>
-            ))}
+            {topBrands.length > 0
+              ? topBrands.map((b) => (
+                  <View key={b.id} style={styles.partnerCard}>
+                    {b.logo ? (
+                      <Image source={{ uri: b.logo }} style={{ width: 60, height: 40 }} resizeMode="contain" />
+                    ) : (
+                      <MayushText variant="strongBody" color={colors.brand.navy900} align="center" style={styles.partnerBrandName}>
+                        {b.name}
+                      </MayushText>
+                    )}
+                  </View>
+                ))
+              : PARTNERS_DATA.map((p) => (
+                  <View key={p.id} style={styles.partnerCard}>
+                    <MayushText variant="strongBody" color={colors.brand.navy900} align="center" style={styles.partnerBrandName}>
+                      {p.name}
+                    </MayushText>
+                    {p.subtitle ? (
+                      <MayushText variant="caption" color={colors.neutral.gray700} align="center" style={styles.partnerBrandSub}>
+                        {p.subtitle}
+                      </MayushText>
+                    ) : null}
+                  </View>
+                ))}
           </ScrollView>
         </View>
 
         {/* 11. Recommandé pour vous Section */}
         <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
         <ProductRail
-          products={GUEST_RECOMMENDED_PRODUCTS as any}
+          products={recommendedProducts.length > 0 ? recommendedProducts : GUEST_RECOMMENDED_PRODUCTS as any}
           cardWidth={productWidth}
           onSelect={onSelectProduct}
           wishlistedProductIds={wishlistedProductIds}

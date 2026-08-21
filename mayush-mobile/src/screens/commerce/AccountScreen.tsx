@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { authState } from '../../commerce/authState';
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
-import { BottomTabBar, TabKey } from '../../design-system/components/navigation/BottomTabBar';
+import { TabKey } from '../../design-system/components/navigation/BottomTabBar';
 import { MayushIcon, MayushIconName } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { useTheme } from '../../design-system/theme/useTheme';
@@ -29,6 +29,28 @@ export interface AccountScreenProps {
   onNavigateHelpSupport?: () => void;
   onConfirmLogoutTrigger?: () => void;
 }
+
+const computeProfileCompletion = (user: any): number => {
+  if (!user) return 0;
+  let filled = 0;
+  let total = 0;
+
+  const checkField = (value: any) => {
+    total += 1;
+    if (value && String(value).trim().length > 0) filled += 1;
+  };
+
+  checkField(user.name);
+  checkField(user.email);
+  checkField(user.phone);
+  checkField(user.avatar);
+
+  // Check if user has addresses
+  total += 1;
+  if (user.addresses && user.addresses.length > 0) filled += 1;
+
+  return Math.round((filled / total) * 100);
+};
 
 export const AccountScreen: React.FC<AccountScreenProps> = ({
   onNavigateTab,
@@ -63,15 +85,16 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
   const isAuthenticated = authStatus === 'authenticated' || authStatus === 'registration-success';
 
   if (isAuthenticated && user) {
-    const fullName = user.fullName || 'Karim Benjelloun';
-    const email = user.email || user.emailOrPhone || 'karim.benjelloun@example.ma';
+    const fullName = user.fullName || '';
+    const email = user.email || user.emailOrPhone || '';
     const initials = fullName
       .split(' ')
       .map((n) => n[0])
       .join('')
       .substring(0, 2)
       .toUpperCase();
-    const completionPercent = user.profileCompletionPercent || 60;
+    // Compute profile completion from real user data
+    const completionPercent = computeProfileCompletion(user);
 
     return (
       <View style={styles.screen} accessibilityLabel="Tableau de bord Mon compte">
@@ -92,9 +115,17 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
           {/* Profile Card */}
           <View style={styles.profileCard}>
             <View style={[styles.profileHeaderRow, isRTL && styles.rowReverse]}>
-              <View style={styles.avatarCircle}>
-                <MayushText style={styles.avatarInitials}>{initials}</MayushText>
-              </View>
+              <TouchableOpacity
+                onPress={onNavigateMyInformation}
+                activeOpacity={0.85}
+                style={styles.avatarCircle}
+              >
+                {user?.avatarUrl ? (
+                  <Image source={{ uri: user.avatarUrl }} style={styles.avatarImage} />
+                ) : (
+                  <MayushText style={styles.avatarInitials}>{initials}</MayushText>
+                )}
+              </TouchableOpacity>
               <View style={styles.profileInfo}>
                 <MayushText variant="sectionTitle" color={colors.brand.navy900} style={isRTL && styles.rtlText}>
                   {fullName}
@@ -310,7 +341,6 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
             </MayushText>
           </TouchableOpacity>
         </ScrollView>
-        <BottomTabBar activeTab="account" onTabPress={(tab) => onNavigateTab?.(tab)} />
       </View>
     );
   }
@@ -421,7 +451,6 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
           </TouchableOpacity>
         </View>
       </ScrollView>
-      <BottomTabBar activeTab="account" onTabPress={(tab) => onNavigateTab?.(tab)} />
     </View>
   );
 };
@@ -524,6 +553,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brand.navy900,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
   },
   avatarInitials: { color: colors.surface.white, fontSize: 18, fontWeight: '700' },
   profileInfo: { flex: 1, gap: 2 },
