@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { accountPreferencesState } from '../../commerce/accountPreferencesState';
 import { supportState } from '../../commerce/supportState';
-import { BottomTabBar, TabKey } from '../../design-system/components/navigation/BottomTabBar';
+import { TabKey } from '../../design-system/components/navigation/BottomTabBar';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { colors } from '../../design-system/tokens/colors';
@@ -29,48 +29,29 @@ export const HelpCategoryOrdersDeliveryScreen: React.FC<HelpCategoryOrdersDelive
 }) => {
   const isRTL = accountPreferencesState.getSelectedLanguage() === 'ar';
 
-  const popularQuestions = [
-    {
-      id: 'faq-1',
-      titleFr: 'Comment suivre ma commande ?',
-      titleAr: 'كيف أتتبع طلبي؟',
-      icon: 'truck',
-      onPress: () => {
-        supportState.setSelectedArticleId('faq-1');
-        onNavigateArticleTrackOrder?.();
-      },
-    },
-    {
-      id: 'faq-2',
-      titleFr: 'Quels sont les délais de livraison ?',
-      titleAr: 'ما هي مواعيد التسليم؟',
-      icon: 'clock',
-      onPress: () => {
-        supportState.setSelectedArticleId('faq-2');
-        onNavigateArticleTrackOrder?.();
-      },
-    },
-    {
-      id: 'faq-8',
-      titleFr: 'Puis-je modifier ou annuler ma commande ?',
-      titleAr: 'هل يمكنني تعديل أو إلغاء طلبي؟',
-      icon: 'package',
-      onPress: () => {
-        supportState.setSelectedArticleId('faq-8');
-        onNavigateArticleTrackOrder?.();
-      },
-    },
-    {
-      id: 'faq-9',
-      titleFr: 'Livrez-vous dans ma ville ?',
-      titleAr: 'هل تقومون بالتوصيل إلى مدينتي؟',
-      icon: 'map-pin',
-      onPress: () => {
-        supportState.setSelectedArticleId('faq-9');
-        onNavigateArticleTrackOrder?.();
-      },
-    },
+  const POPULAR_FAQ_IDS: { id: string; icon: string }[] = [
+    { id: 'faq-1', icon: 'truck' },
+    { id: 'faq-2', icon: 'clock' },
+    { id: 'faq-8', icon: 'package' },
+    { id: 'faq-9', icon: 'map-pin' },
   ];
+
+  const popularQuestions = POPULAR_FAQ_IDS
+    .map(({ id, icon }) => {
+      const item = supportState.getFaqItemById(id);
+      if (!item) return null;
+      return {
+        id,
+        titleFr: item.question,
+        titleAr: item.questionAr,
+        icon,
+        onPress: () => {
+          supportState.setSelectedArticleId(id);
+          onNavigateArticleTrackOrder?.();
+        },
+      };
+    })
+    .filter((q): q is NonNullable<typeof q> => q !== null);
 
   const linkedActions = [
     {
@@ -200,7 +181,6 @@ export const HelpCategoryOrdersDeliveryScreen: React.FC<HelpCategoryOrdersDelive
         </TouchableOpacity>
       </ScrollView>
 
-      <BottomTabBar activeTab="account" onTabPress={(tab) => onNavigateTab?.(tab)} />
     </View>
   );
 };

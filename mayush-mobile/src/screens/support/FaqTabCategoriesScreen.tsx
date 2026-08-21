@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { accountPreferencesState } from '../../commerce/accountPreferencesState';
-import { FaqItem, supportState } from '../../commerce/supportState';
-import { BottomTabBar, TabKey } from '../../design-system/components/navigation/BottomTabBar';
+import { FaqCategory, FaqItem, supportState } from '../../commerce/supportState';
+import { TabKey } from '../../design-system/components/navigation/BottomTabBar';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { colors } from '../../design-system/tokens/colors';
@@ -26,19 +26,25 @@ export const FaqTabCategoriesScreen: React.FC<FaqTabCategoriesScreenProps> = ({
   const [expandedFaqId, setExpandedFaqId] = useState<string>('faq-1');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [feedbackGiven, setFeedbackGiven] = useState<'yes' | 'no' | null>(null);
+  const [faqCategories, setFaqCategories] = useState<FaqCategory[]>(supportState.getFaqCategories());
+  const [allFaqs, setAllFaqs] = useState<FaqItem[]>(supportState.getFaqItems());
 
+  useEffect(() => {
+    const unsub = supportState.subscribe(() => {
+      setFaqCategories(supportState.getFaqCategories());
+      setAllFaqs(supportState.getFaqItems());
+    });
+    return unsub;
+  }, []);
+
+  const ALL_TAB = { id: 'all', label: 'Toutes', labelAr: 'الكل' };
   const tabs = [
-    { id: 'all', labelFr: 'Toutes', labelAr: 'الكل' },
-    { id: 'commandes', labelFr: 'Commandes', labelAr: 'الطلبات' },
-    { id: 'paiement', labelFr: 'Paiements', labelAr: 'الدفع' },
-    { id: 'livraison', labelFr: 'Livraison', labelAr: 'التوصيل' },
-    { id: 'retours', labelFr: 'Retours', labelAr: 'الإرجاع' },
+    ALL_TAB,
+    ...faqCategories.map((cat) => ({ id: cat.id, label: cat.label.split(' ')[0], labelAr: cat.labelAr.split(' ')[0] })),
   ];
 
-  const allFaqs = supportState.getFaqItems();
-
   const filteredFaqs = allFaqs.filter((item) => {
-    const matchesTab = selectedTab === 'all' || item.categoryId === selectedTab || (selectedTab === 'livraison' && item.categoryId === 'commandes');
+    const matchesTab = selectedTab === 'all' || item.categoryId === selectedTab;
     const q = searchQuery.toLowerCase().trim();
     const matchesSearch = !q || item.question.toLowerCase().includes(q) || item.answer.toLowerCase().includes(q) || item.questionAr.includes(q);
     return matchesTab && matchesSearch;
@@ -124,7 +130,7 @@ export const FaqTabCategoriesScreen: React.FC<FaqTabCategoriesScreenProps> = ({
                 activeOpacity={0.7}
               >
                 <MayushText variant="strongBody" color={isSelected ? colors.brand.orange500 : colors.brand.navy900}>
-                  {isRTL ? tab.labelAr : tab.labelFr}
+                  {isRTL ? tab.labelAr : tab.label}
                 </MayushText>
                 {isSelected && <View style={styles.tabIndicator} />}
               </TouchableOpacity>
@@ -231,7 +237,6 @@ export const FaqTabCategoriesScreen: React.FC<FaqTabCategoriesScreenProps> = ({
         </View>
       </ScrollView>
 
-      <BottomTabBar activeTab="account" onTabPress={(tab) => onNavigateTab?.(tab)} />
     </View>
   );
 };

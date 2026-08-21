@@ -518,6 +518,24 @@ class SupportStateManager {
 
   // ── FAQ ──
 
+  /**
+   * Load FAQ data from a remote source.
+   * When a backend FAQ endpoint is available, replace this stub with an API call.
+   * Falls back to the bundled FAQ_CATEGORIES / FAQ_ITEMS constants on any error.
+   *
+   * Example future implementation:
+   *   const result = await faqService.getFaqData();
+   *   if (result.success) {
+   *     this.faqCategories = result.data.categories;
+   *     this.faqItems      = result.data.items;
+   *     this.notify();
+   *   }
+   */
+  public async loadFaqData(): Promise<void> {
+    // No FAQ API endpoint exists yet — static fixtures are used as the source of truth.
+    // This method is a no-op until a backend endpoint is wired up.
+  }
+
   public getFaqCategories(): FaqCategory[] {
     return [...this.faqCategories];
   }

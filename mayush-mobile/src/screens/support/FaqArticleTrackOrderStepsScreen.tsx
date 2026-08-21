@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { accountPreferencesState } from '../../commerce/accountPreferencesState';
 import { supportState } from '../../commerce/supportState';
-import { BottomTabBar, TabKey } from '../../design-system/components/navigation/BottomTabBar';
+import { TabKey } from '../../design-system/components/navigation/BottomTabBar';
 import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { colors } from '../../design-system/tokens/colors';
@@ -58,11 +58,11 @@ export const FaqArticleTrackOrderStepsScreen: React.FC<FaqArticleTrackOrderSteps
     },
   ];
 
-  const relatedArticles = [
-    { id: 'faq-2', titleFr: 'Quels sont les délais de livraison ?', titleAr: 'ما هي مواعيد التسليم؟' },
-    { id: 'faq-8', titleFr: 'Que faire si ma commande est en retard ?', titleAr: 'ماذا أفعل إذا تأخر طلبي؟' },
-    { id: 'faq-3', titleFr: 'Puis-je modifier ou annuler ma commande ?', titleAr: 'هل يمكنني تعديل أو إلغاء طلبي؟' },
-  ];
+  const RELATED_IDS = ['faq-2', 'faq-8', 'faq-3'];
+  const relatedArticles = RELATED_IDS
+    .map((id) => supportState.getFaqItemById(id))
+    .filter((item): item is NonNullable<typeof item> => item !== undefined)
+    .map((item) => ({ id: item.id, titleFr: item.question, titleAr: item.questionAr }));
 
   return (
     <View style={styles.container}>
@@ -217,7 +217,6 @@ export const FaqArticleTrackOrderStepsScreen: React.FC<FaqArticleTrackOrderSteps
         </TouchableOpacity>
       </ScrollView>
 
-      <BottomTabBar activeTab="account" onTabPress={(tab) => onNavigateTab?.(tab)} />
     </View>
   );
 };
