@@ -111,6 +111,13 @@ export const CART_PROMOTION_CATALOG: readonly CartPromotion[] = [
 
 export const emptyCartState = (): CartState => ({ lines: [] });
 
+/**
+ * Runtime cache for promotions validated by the server. Keyed by promoId.
+ * Allows getPromotionById to resolve server-issued coupons that are not in
+ * the static CART_PROMOTION_CATALOG.
+ */
+const serverPromotionCache = new Map<string, CartPromotion>();
+
 const normalizedQuantity = (quantity: number, maxQuantity?: number) => {
   const normalized = Math.max(1, Math.floor(quantity));
   return typeof maxQuantity === 'number' ? Math.min(normalized, Math.max(1, Math.floor(maxQuantity))) : normalized;
@@ -121,8 +128,10 @@ const getSubtotalMad = (state: CartState): number => state.lines.reduce(
   0,
 );
 
-export const getPromotionById = (promoId?: string): CartPromotion | undefined =>
-  promoId ? CART_PROMOTION_CATALOG.find((promotion) => promotion.promoId === promoId) : undefined;
+export const getPromotionById = (promoId?: string): CartPromotion | undefined => {
+  if (!promoId) return undefined;
+  return serverPromotionCache.get(promoId) ?? CART_PROMOTION_CATALOG.find((promotion) => promotion.promoId === promoId);
+};
 
 export const getPromotionByCode = (code: string): CartPromotion | undefined => {
   const normalizedCode = code.trim().toUpperCase();
@@ -599,17 +608,29 @@ class CartStateManager {
       try {
         const response = await cartService.applyCoupon({ couponCode: code, userId: user.id });
         if (response.result) {
-          // Server accepted the coupon; apply locally using existing pure function
-          const { cart, validation } = applyPromotionCode(this.state, code);
-          this.state = cart;
+          // Server accepted the coupon — build a synthetic CartPromotion from server data
+          // and register it in the cache so getPromotionById can resolve it later.
+          const normalizedCode = code.trim().toUpperCase();
+          const promoId = `server-${normalizedCode}`;
+          const discountMad = response.discount ?? 0;
+          const serverPromotion: CartPromotion = {
+            promoId,
+            code: normalizedCode,
+            type: 'fixed',
+            value: discountMad,
+            visible: false,
+            title: response.coupon_code ? `Code promo ${response.coupon_code}` : `Code promo ${normalizedCode}`,
+          };
+          serverPromotionCache.set(promoId, serverPromotion);
+          this.state = { ...this.state, appliedPromotionId: promoId };
           this.notify();
           void this.persistLocal();
-          return validation;
+          return { code: 'VALID', promotion: serverPromotion, discountMad };
         }
-        // Server rejected — return local validation result without mutating state
+        // Server rejected — do not mutate state
         return { code: 'INVALID_CODE', discountMad: 0 };
       } catch {
-        // Fall through to local validation
+        // Network/server error — fall through to local validation for offline support
       }
     }
     const { cart, validation } = applyPromotionCode(this.state, code);
