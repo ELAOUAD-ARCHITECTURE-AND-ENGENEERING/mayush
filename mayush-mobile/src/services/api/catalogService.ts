@@ -928,4 +928,35 @@ export const catalogService = {
     }
     return [];
   },
+
+  /**
+   * Fetch available coupons for display
+   * GET /api/v2/coupon-list
+   */
+  async getCouponList(language: MvpAppLanguage = 'fr'): Promise<Array<{
+    id: number;
+    code: string;
+    discount: number;
+    discount_type: 'percent' | 'amount';
+    start_date: string;
+    end_date: string;
+    min_buy: number;
+    details?: string;
+  }>> {
+    try {
+      const res = await apiClient<{ data: Array<{
+        id: number;
+        code: string;
+        discount: number;
+        discount_type: 'percent' | 'amount';
+        start_date: string;
+        end_date: string;
+        min_buy: number;
+        details?: string;
+      }> }>('/api/v2/coupon-list', { language });
+      return res.data || [];
+    } catch {
+      return [];
+    }
+  },
 };

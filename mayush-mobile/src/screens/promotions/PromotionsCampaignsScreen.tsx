@@ -3,8 +3,9 @@
  * Promotional campaigns, seasonal vouchers, and discount codes screen.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -15,17 +16,13 @@ import { MayushText } from '../../design-system/components/typography/MayushText
 import { useTheme } from '../../design-system/theme/useTheme';
 import { colors } from '../../design-system/tokens/colors';
 import { radii } from '../../design-system/tokens/radii';
+import { catalogService } from '../../services/api/catalogService';
 
 export interface PromoCode {
   code: string;
   discount: string;
   label: string;
 }
-
-const FALLBACK_PROMO_CODES = [
-  { code: 'WELCOME10', discount: '10% de réduction', minOrder: '1 500 MAD', desc: 'Valable sur votre première commande' },
-  { code: 'SALON2026', discount: '15% de réduction', minOrder: '4 000 MAD', desc: 'Valable sur la catégorie Salon' },
-];
 
 export interface PromotionsCampaignsScreenProps {
   promoCodes?: PromoCode[];
@@ -34,21 +31,31 @@ export interface PromotionsCampaignsScreenProps {
 }
 
 export const PromotionsCampaignsScreen: React.FC<PromotionsCampaignsScreenProps> = ({
-  promoCodes: promoCodesProp,
   onBack,
   onExploreDeals,
 }) => {
   const { isRTL, language } = useTheme();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [coupons, setCoupons] = useState<Array<{
+    id: number; code: string; discount: number; discount_type: 'percent' | 'amount';
+    min_buy: number; end_date: string;
+  }>>([]);
+  const [loading, setLoading] = useState(true);
 
-  const promoCodes = promoCodesProp && promoCodesProp.length > 0
-    ? promoCodesProp.map((p) => ({ code: p.code, discount: p.discount, minOrder: '', desc: p.label }))
-    : FALLBACK_PROMO_CODES;
+  useEffect(() => {
+    catalogService.getCouponList(language).then((data) => {
+      setCoupons(data);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, [language]);
 
   const handleCopy = (code: string) => {
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
   };
+
+  const formatDiscount = (discount: number, discount_type: 'percent' | 'amount') =>
+    discount_type === 'percent' ? `${discount}%` : `${discount} MAD`;
 
   return (
     <View style={styles.screen} accessibilityLabel="Promotions Campaigns Screen">
@@ -84,26 +91,38 @@ export const PromotionsCampaignsScreen: React.FC<PromotionsCampaignsScreenProps>
           {language === 'ar' ? 'قسائم الخصم' : 'Codes promo disponibles'}
         </MayushText>
 
-        {promoCodes.map((item) => (
-          <View key={item.code} style={styles.voucherCard}>
-            <View style={styles.voucherLeft}>
-              <MayushText variant="strongBody" color={colors.brand.navy900}>
-                {item.discount}
-              </MayushText>
-              <MayushText variant="caption" color={colors.neutral.gray700}>
-                {item.desc}
-              </MayushText>
-              <MayushText variant="caption" color={colors.brand.orange500} style={styles.minOrder}>
-                Min. d'achat: {item.minOrder}
-              </MayushText>
-            </View>
-            <TouchableOpacity style={styles.codeBtn} onPress={() => handleCopy(item.code)}>
-              <MayushText variant="caption" color={colors.brand.navy900} style={styles.codeText}>
-                {copiedCode === item.code ? 'Copié !' : item.code}
-              </MayushText>
-            </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator size="large" color={colors.brand.orange500} style={styles.loader} />
+        ) : coupons.length === 0 ? (
+          <View style={styles.emptyState}>
+            <MayushIcon name="tag" size={40} color={colors.neutral.gray500} />
+            <MayushText variant="body" color={colors.neutral.gray500} style={styles.emptyText}>
+              {language === 'ar' ? 'لا توجد عروض متاحة حالياً' : 'Aucune promotion disponible pour le moment'}
+            </MayushText>
           </View>
-        ))}
+        ) : (
+          coupons.map((item) => (
+            <View key={item.id} style={styles.voucherCard}>
+              <View style={styles.voucherLeft}>
+                <MayushText variant="strongBody" color={colors.brand.navy900}>
+                  {formatDiscount(item.discount, item.discount_type)}{' '}
+                  {language === 'ar' ? 'خصم' : 'de réduction'}
+                </MayushText>
+                <MayushText variant="caption" color={colors.neutral.gray700} style={styles.endDate}>
+                  {language === 'ar' ? 'ينتهي:' : 'Expire le:'} {item.end_date}
+                </MayushText>
+                <MayushText variant="caption" color={colors.brand.orange500} style={styles.minOrder}>
+                  {language === 'ar' ? `الحد الأدنى: ${item.min_buy} درهم` : `Minimum: ${item.min_buy} MAD`}
+                </MayushText>
+              </View>
+              <TouchableOpacity style={styles.codeBtn} onPress={() => handleCopy(item.code)}>
+                <MayushText variant="caption" color={colors.brand.navy900} style={styles.codeText}>
+                  {copiedCode === item.code ? (language === 'ar' ? 'تم النسخ!' : 'Copié !') : item.code}
+                </MayushText>
+              </TouchableOpacity>
+            </View>
+          ))
+        )}
       </ScrollView>
     </View>
   );
@@ -157,7 +176,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   voucherLeft: { flex: 1, marginRight: 12 },
+  endDate: { marginTop: 2 },
   minOrder: { marginTop: 4, fontWeight: '600' },
+  loader: { marginTop: 40 },
+  emptyState: { alignItems: 'center', paddingTop: 48, paddingBottom: 24 },
+  emptyText: { marginTop: 12, textAlign: 'center' },
   codeBtn: {
     paddingHorizontal: 12,
     paddingVertical: 8,
