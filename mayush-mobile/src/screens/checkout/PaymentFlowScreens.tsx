@@ -45,12 +45,25 @@ export const SecurePaymentRedirectScreen: React.FC<PaymentFlowProps> = ({ order,
 
 export const SecurePaymentLoadingScreen: React.FC<PaymentFlowProps> = ({ order, onContinue, redirectUrl }) => {
   useEffect(() => {
-    if (redirectUrl) {
-      Linking.openURL(redirectUrl).catch(() => onContinue());
-      return;
+    let cancelled = false;
+
+    const isValidUrl = redirectUrl && redirectUrl.startsWith('http');
+
+    if (isValidUrl) {
+      Linking.openURL(redirectUrl).catch(() => {
+        if (!cancelled) onContinue();
+      });
+    } else {
+      const timer = setTimeout(() => {
+        if (!cancelled) onContinue();
+      }, 700);
+      return () => {
+        cancelled = true;
+        clearTimeout(timer);
+      };
     }
-    const timer = setTimeout(onContinue, 700);
-    return () => clearTimeout(timer);
+
+    return () => { cancelled = true; };
   }, [onContinue, redirectUrl]);
   return <FlowShell><View style={styles.loading}><ActivityIndicator size="large" color={colors.brand.orange500} /><MayushText variant="pageTitle" color={colors.brand.navy900} align="center" style={styles.loadingTitle}>Connexion au paiement sécurisé…</MayushText><MayushText variant="body" color={colors.neutral.gray700} align="center">Ne fermez pas l’application pendant la redirection.</MayushText><OrderSummary order={order} /></View></FlowShell>;
 };

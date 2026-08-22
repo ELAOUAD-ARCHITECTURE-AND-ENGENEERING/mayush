@@ -464,7 +464,7 @@ class CheckoutStateManager {
         shipping_type: DELIVERY_METHOD_TO_SHIPPING_TYPE[payload.deliveryMethod],
       });
       if (response.result) {
-        return { success: true, orderId: response.combined_order_id, message: response.message, redirectUrl: response.redirect_url };
+        return { success: true, orderId: response.combined_order_id, message: response.message, redirectUrl: response.redirect_url || undefined };
       }
       return { success: false, message: response.message };
     } catch (err) {
