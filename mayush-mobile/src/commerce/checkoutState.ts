@@ -447,7 +447,7 @@ class CheckoutStateManager {
     address: SavedAddress;
     deliveryMethod: DeliveryMethod;
     paymentMethod: PaymentMethod;
-  }): Promise<{ success: boolean; orderId?: number; message?: string }> {
+  }): Promise<{ success: boolean; orderId?: number; message?: string; redirectUrl?: string }> {
     const user = authState.getUser();
     if (!user) {
       return { success: false, message: 'User not authenticated' };
@@ -464,7 +464,7 @@ class CheckoutStateManager {
         shipping_type: DELIVERY_METHOD_TO_SHIPPING_TYPE[payload.deliveryMethod],
       });
       if (response.result) {
-        return { success: true, orderId: response.combined_order_id, message: response.message };
+        return { success: true, orderId: response.combined_order_id, message: response.message, redirectUrl: response.redirect_url };
       }
       return { success: false, message: response.message };
     } catch (err) {

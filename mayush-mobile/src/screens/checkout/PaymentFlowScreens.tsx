@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { formatMadPrice } from '../../commerce/cartState';
 import { PrototypeOrder } from '../../commerce/orderState';
 import { MayushLogo } from '../../design-system/components/brand/MayushLogo';
@@ -11,6 +11,7 @@ interface PaymentFlowProps {
   order: PrototypeOrder;
   onContinue: () => void;
   onCancel?: () => void;
+  redirectUrl?: string;
 }
 
 const OrderSummary: React.FC<{ order: PrototypeOrder }> = ({ order }) => (
@@ -42,11 +43,15 @@ export const SecurePaymentRedirectScreen: React.FC<PaymentFlowProps> = ({ order,
   </FlowShell>
 );
 
-export const SecurePaymentLoadingScreen: React.FC<PaymentFlowProps> = ({ order, onContinue }) => {
+export const SecurePaymentLoadingScreen: React.FC<PaymentFlowProps> = ({ order, onContinue, redirectUrl }) => {
   useEffect(() => {
+    if (redirectUrl) {
+      Linking.openURL(redirectUrl).catch(() => onContinue());
+      return;
+    }
     const timer = setTimeout(onContinue, 700);
     return () => clearTimeout(timer);
-  }, [onContinue]);
+  }, [onContinue, redirectUrl]);
   return <FlowShell><View style={styles.loading}><ActivityIndicator size="large" color={colors.brand.orange500} /><MayushText variant="pageTitle" color={colors.brand.navy900} align="center" style={styles.loadingTitle}>Connexion au paiement sécurisé…</MayushText><MayushText variant="body" color={colors.neutral.gray700} align="center">Ne fermez pas l’application pendant la redirection.</MayushText><OrderSummary order={order} /></View></FlowShell>;
 };
 
