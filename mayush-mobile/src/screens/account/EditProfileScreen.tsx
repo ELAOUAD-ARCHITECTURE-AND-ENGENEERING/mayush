@@ -87,7 +87,7 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
         const ext = asset.uri.split('.').pop() || 'jpg';
         const filename = `avatar_${Date.now()}.${ext}`;
 
-        const uploadRes = await authState.uploadAvatar(asset.base64, filename);
+        const uploadRes = await authState.uploadAvatar(asset.base64 || '', filename);
         setUploadingAvatar(false);
 
         if (uploadRes.success && uploadRes.path) {

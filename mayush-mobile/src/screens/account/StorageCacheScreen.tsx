@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { accountPreferencesState } from '../../commerce/accountPreferencesState';
-import { cacheState } from '../../commerce/cacheState';
-import { BottomTabBar, TabKey } from '../../design-system/components/navigation/BottomTabBar';
-import { MayushIcon } from '../../design-system/components/navigation/MayushIcon';
+import { cacheState, CacheLayerStatus, CacheMetrics } from '../../commerce/cacheState';
+import { TabKey } from '../../design-system/components/navigation/BottomTabBar';
+import { MayushIcon, MayushIconName } from '../../design-system/components/navigation/MayushIcon';
 import { MayushText } from '../../design-system/components/typography/MayushText';
 import { colors } from '../../design-system/tokens/colors';
 import { spacing } from '../../design-system/tokens/spacing';
@@ -14,13 +14,26 @@ export interface StorageCacheScreenProps {
   onOpenClearCacheModal?: () => void;
 }
 
+function layerStatusIcon(status: CacheLayerStatus): { name: MayushIconName; color: string } {
+  switch (status) {
+    case 'cleared':
+      return { name: 'check-circle', color: colors.semantic.success };
+    case 'clearing':
+      return { name: 'refresh-cw', color: colors.brand.orange500 };
+    case 'failed':
+      return { name: 'alert-circle', color: colors.semantic.error };
+    default:
+      return { name: 'circle', color: colors.neutral.gray500 };
+  }
+}
+
 export const StorageCacheScreen: React.FC<StorageCacheScreenProps> = ({
   onNavigateTab,
   onBack,
   onOpenClearCacheModal,
 }) => {
   const isRTL = accountPreferencesState.getSelectedLanguage() === 'ar';
-  const [metrics, setMetrics] = useState(cacheState.getMetrics());
+  const [metrics, setMetrics] = useState<CacheMetrics>(cacheState.getMetrics());
 
   useEffect(() => {
     return cacheState.subscribe(() => {
@@ -28,7 +41,9 @@ export const StorageCacheScreen: React.FC<StorageCacheScreenProps> = ({
     });
   }, []);
 
-  const formattedSize = cacheState.getFormattedCacheSize();
+  const handleRetry = () => {
+    cacheState.retryClear();
+  };
 
   return (
     <View style={styles.container}>
@@ -44,84 +59,104 @@ export const StorageCacheScreen: React.FC<StorageCacheScreenProps> = ({
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Storage Summary Card */}
+        {/* Summary Card */}
         <View style={styles.summaryCard}>
           <View style={styles.iconBox}>
             <MayushIcon name="sliders" size={28} color={colors.brand.orange500} />
           </View>
           <MayushText variant="cardTitle" color={colors.brand.navy900} style={styles.summaryTitle}>
-            {formattedSize}
+            {isRTL ? 'إدارة الذاكرة المؤقتة' : 'Gestion du cache'}
           </MayushText>
           <MayushText variant="smallBody" color={colors.neutral.gray500}>
-            {isRTL ? 'إجمالي الذاكرة المؤقتة المستخدمة' : 'Taille totale du cache d\'images et médias'}
+            {metrics.lastClearedAt
+              ? `${isRTL ? 'آخر تفريغ: ' : 'Dernier nettoyage : '}${new Date(metrics.lastClearedAt).toLocaleDateString()} ${new Date(metrics.lastClearedAt).toLocaleTimeString()}`
+              : isRTL
+                ? 'لم يتم تفريغ الذاكرة المؤقتة بعد'
+                : 'Cache jamais vidé'}
           </MayushText>
 
-          {/* Progress Bar */}
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: metrics.cacheSizeBytes > 0 ? '75%' : '0%' }]} />
-          </View>
+          {/* Progress Bar — visible during clearing */}
+          {metrics.isClearing && (
+            <View style={styles.progressTrack}>
+              <View style={[styles.progressFill, { width: `${Math.round(metrics.clearProgress * 100)}%` }]} />
+            </View>
+          )}
         </View>
 
-        {/* Breakdown Card */}
+        {/* Layer Status Card */}
         <View style={styles.card}>
           <MayushText variant="sectionTitle" color={colors.brand.navy900} style={[styles.cardLabel, isRTL && styles.rtlText]}>
-            {isRTL ? 'تفاصيل التخزين' : 'Détail de l\'espace occupé'}
+            {isRTL ? 'طبقات الذاكرة المؤقتة' : 'Couches du cache'}
           </MayushText>
 
+          {metrics.layers.map((layer, index) => {
+            const icon = layerStatusIcon(layer.status);
+            return (
+              <React.Fragment key={layer.id}>
+                {index > 0 && <View style={styles.divider} />}
+                <View style={[styles.itemRow, isRTL && styles.rtlRow]}>
+                  <MayushIcon name={icon.name} size={18} color={icon.color} />
+                  <View style={styles.textCol}>
+                    <MayushText variant="strongBody" color={colors.brand.navy900} style={isRTL && styles.rtlText}>
+                      {isRTL ? layer.labelAr : layer.label}
+                    </MayushText>
+                  </View>
+                  <MayushText variant="smallBody" color={icon.color}>
+                    {layer.status === 'idle'
+                      ? (isRTL ? 'جاهز' : 'Prêt')
+                      : layer.status === 'clearing'
+                        ? (isRTL ? 'جاري...' : 'En cours...')
+                        : layer.status === 'cleared'
+                          ? (isRTL ? 'تم' : 'Vidé')
+                          : (isRTL ? 'فشل' : 'Échec')}
+                  </MayushText>
+                </View>
+              </React.Fragment>
+            );
+          })}
+        </View>
+
+        {/* Durable Data Info */}
+        <View style={styles.card}>
           <View style={[styles.itemRow, isRTL && styles.rtlRow]}>
-            <MayushIcon name="bookmark" size={18} color={colors.brand.navy900} />
+            <MayushIcon name="shield" size={18} color={colors.semantic.success} />
             <View style={styles.textCol}>
               <MayushText variant="strongBody" color={colors.brand.navy900} style={isRTL && styles.rtlText}>
-                {isRTL ? 'صور المنتجات والمعاينة' : 'Cache d\'images & aperçus'}
+                {isRTL ? 'بيانات محمية' : 'Données protégées'}
               </MayushText>
               <MayushText variant="smallBody" color={colors.neutral.gray500} style={isRTL && styles.rtlText}>
-                {metrics.cachedImageCount} {isRTL ? 'ملف مخزن مؤقتاً' : 'fichiers temporaires'}
+                {isRTL ? 'السلة، المفضلة، العناوين والحساب (لا يتم حذفها)' : 'Panier, favoris, adresses & compte (jamais supprimés)'}
               </MayushText>
             </View>
-            <MayushText variant="strongBody" color={colors.brand.navy900}>
-              {formattedSize}
-            </MayushText>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={[styles.itemRow, isRTL && styles.rtlRow]}>
-            <MayushIcon name="sliders" size={18} color={colors.brand.navy900} />
-            <View style={styles.textCol}>
-              <MayushText variant="strongBody" color={colors.brand.navy900} style={isRTL && styles.rtlText}>
-                {isRTL ? 'بيانات التطبيق والتفضيلات' : 'Préférences & données locales'}
-              </MayushText>
-              <MayushText variant="smallBody" color={colors.neutral.gray500} style={isRTL && styles.rtlText}>
-                {isRTL ? 'السلة، المفضلة وإعدادات الحساب (دائمة)' : 'Panier, favoris & compte (durable)'}
-              </MayushText>
-            </View>
-            <MayushText variant="strongBody" color={colors.semantic.success}>
-              4 Mo
-            </MayushText>
           </View>
         </View>
 
-        {/* Clear Cache CTA */}
-        <TouchableOpacity
-          style={[styles.clearButton, isRTL && styles.rtlRow]}
-          onPress={onOpenClearCacheModal}
-          activeOpacity={0.85}
-        >
-          <MayushIcon name="trash-2" size={18} color={colors.semantic.error} />
-          <MayushText variant="button" color={colors.semantic.error}>
-            {isRTL ? 'تفراغ الذاكرة المؤقتة (Vider le cache)' : 'Vider le cache'}
-          </MayushText>
-        </TouchableOpacity>
-
-        {metrics.lastClearedAt && (
-          <MayushText variant="caption" color={colors.neutral.gray500} align="center">
-            {isRTL ? 'آخر تفريغ للذاكرة: ' : 'Dernier nettoyage : '}
-            {new Date(metrics.lastClearedAt).toLocaleTimeString()}
-          </MayushText>
+        {/* Clear Cache CTA or Retry */}
+        {metrics.failedLayer ? (
+          <TouchableOpacity
+            style={[styles.retryButton, isRTL && styles.rtlRow]}
+            onPress={handleRetry}
+            activeOpacity={0.85}
+          >
+            <MayushIcon name="refresh-cw" size={18} color={colors.brand.orange500} />
+            <MayushText variant="button" color={colors.brand.orange500}>
+              {isRTL ? 'إعادة المحاولة' : 'Réessayer'}
+            </MayushText>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[styles.clearButton, isRTL && styles.rtlRow]}
+            onPress={onOpenClearCacheModal}
+            activeOpacity={0.85}
+            disabled={metrics.isClearing}
+          >
+            <MayushIcon name="trash-2" size={18} color={metrics.isClearing ? colors.neutral.gray500 : colors.semantic.error} />
+            <MayushText variant="button" color={metrics.isClearing ? colors.neutral.gray500 : colors.semantic.error}>
+              {isRTL ? 'تفراغ الذاكرة المؤقتة (Vider le cache)' : 'Vider le cache'}
+            </MayushText>
+          </TouchableOpacity>
         )}
       </ScrollView>
-
-      <BottomTabBar activeTab="account" onTabPress={(tab) => onNavigateTab?.(tab)} />
     </View>
   );
 };
@@ -144,7 +179,7 @@ const styles = StyleSheet.create({
     width: 56, height: 56, borderRadius: 16, backgroundColor: 'rgba(217,116,52,0.1)',
     alignItems: 'center', justifyContent: 'center', marginBottom: spacing.xs,
   },
-  summaryTitle: { fontSize: 26, fontWeight: '800', marginTop: spacing.xs },
+  summaryTitle: { fontSize: 22, fontWeight: '800', marginTop: spacing.xs },
   progressTrack: {
     width: '100%', height: 8, borderRadius: 4, backgroundColor: colors.neutral.gray300,
     marginTop: spacing.md, overflow: 'hidden',
@@ -162,6 +197,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs,
     backgroundColor: colors.neutral.white, borderRadius: 14, padding: spacing.md,
     borderWidth: 1, borderColor: colors.semantic.error,
+  },
+  retryButton: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs,
+    backgroundColor: colors.neutral.white, borderRadius: 14, padding: spacing.md,
+    borderWidth: 1, borderColor: colors.brand.orange500,
   },
   rtlRow: { flexDirection: 'row-reverse' },
   rtlText: { textAlign: 'right' },

@@ -1583,12 +1583,12 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   heroImage: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
   },
   heroOverlayDarkener: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(15, 23, 42, 0.42)',
   },
   heroCopyPanel: {
@@ -1876,12 +1876,12 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   middlePromoBannerImage: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
   },
   middlePromoOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(20, 15, 10, 0.45)',
   },
   middlePromoContent: {

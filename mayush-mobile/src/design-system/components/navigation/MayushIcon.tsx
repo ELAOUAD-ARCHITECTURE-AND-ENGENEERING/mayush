@@ -20,6 +20,7 @@ export type MayushIconName =
   | 'chevron-right'
   | 'grid'
   | 'heart'
+  | 'heart-filled'
   | 'home'
   | 'info'
   | 'menu'
@@ -57,6 +58,10 @@ export type MayushIconName =
   | 'truck'
   | 'refresh-cw'
   | 'shield-check'
+  | 'desk'
+  | 'vase-outline'
+  | 'bookshelf'
+  | 'table-chair'
   | 'file-text'
   | 'thumbs-up'
   | 'x-circle'
@@ -93,7 +98,10 @@ export type MayushIconName =
   | 'download'
   | 'list'
   | 'wrench'
-  | 'wifi-off';
+  | 'zap'
+  | 'wifi-off'
+  | 'moon'
+  | 'smartphone';
 
 interface MayushIconProps {
   name: MayushIconName;
@@ -116,19 +124,25 @@ const MATERIAL_MAP: Record<string, keyof typeof MaterialCommunityIcons.glyphMap>
   'outdoor-lamp': 'outdoor-lamp',
   'truck-outline': 'truck-outline',
   'shield-check': 'shield-check-outline',
+  desk: 'desk',
+  'vase-outline': 'flower-tulip-outline',
+  bookshelf: 'bookshelf',
+  'table-chair': 'table-chair',
   wallet: 'wallet-outline',
   'star-filled': 'star',
+  'heart-filled': 'heart',
 };
 
 export const MayushIcon: React.FC<MayushIconProps> = ({ name, size = 24, color = '#1F2A3A', strokeWidth, style }) => {
-  const materialGlyph = MATERIAL_MAP[name];
+  const resolvedName = (name as string) === 'close' ? 'x' : name;
+  const materialGlyph = MATERIAL_MAP[resolvedName];
   if (materialGlyph) {
     return <MaterialCommunityIcons name={materialGlyph} size={size} color={color as string} style={style} />;
   }
 
   return (
     <Feather
-      name={name as keyof typeof Feather.glyphMap}
+      name={resolvedName as keyof typeof Feather.glyphMap}
       size={size}
       color={color as string}
       strokeWidth={strokeWidth}

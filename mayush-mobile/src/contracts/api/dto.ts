@@ -58,11 +58,62 @@ export interface AddressDto {
   id: number;
   user_id: number;
   address: string;
+  country_id: number;
+  state_id: number;
+  city_id: number;
+  area_id: number;
   country_name: string;
+  state_name: string | null;
   city_name: string;
+  area_name: string | null;
   postal_code: string;
   phone: string;
   set_default: number;
+  set_billing: number;
+  location_available: boolean;
+  lat: number;
+  lang: number;
+  valid: boolean;
+}
+
+export interface CityDto {
+  id: number;
+  state_id: number;
+  country_id: number;
+  name: string;
+  cost: number;
+}
+
+export interface StateDto {
+  id: number;
+  country_id: number;
+  name: string;
+}
+
+export interface AddressCreatePayload {
+  address: string;
+  country_id: number;
+  state_id?: number;
+  city_id: number;
+  area_id?: number;
+  postal_code: string;
+  phone: string;
+}
+
+export interface AddressUpdatePayload extends AddressCreatePayload {
+  id: number;
+}
+
+export interface ProfileUpdatePayload {
+  name?: string;
+  phone?: string;
+  password?: string;
+  city?: string;
+  address?: string;
+  postal_code?: string;
+  gender?: string;
+  birth_date?: string;
+  birthDate?: string;
 }
 
 // Catalog DTOs
@@ -71,13 +122,23 @@ export interface CategoryDto {
   name: string;
   nameFr?: string;
   nameAr?: string;
+  slug?: string;
   banner: string;
+  cover_image?: string;
   icon: string;
   number_of_children: number;
   links: {
     products: string;
     sub_categories: string;
   };
+}
+
+export interface ProductCollectionDto {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  hero_image: string;
 }
 
 export interface ProductImageDto {
@@ -88,18 +149,22 @@ export interface ProductImageDto {
 
 export interface ProductMiniDto {
   id: number;
+  slug?: string;
   name: string;
   nameFr?: string;
   nameAr?: string;
   priceMad?: number;
   formattedPrice?: string;
   thumbnail_image: string;
+  base_price?: number;
+  base_discounted_price?: number;
   has_discount: boolean;
   discount: string | null;
   stroked_price: string;
   main_price: string;
   rating: number;
   sales: number;
+  choice_options?: Array<{ title: string; options: string[] }>;
   links: {
     details: string;
   };
@@ -107,6 +172,7 @@ export interface ProductMiniDto {
 
 export interface ProductDetailDto {
   id: number;
+  slug?: string;
   name: string;
   title?: string;
   added_by: string;
@@ -118,6 +184,7 @@ export interface ProductDetailDto {
   images?: ProductImageDto[];
   fallbackImageAsset?: string;
   thumbnail_img: string;
+  thumbnail_image?: string;
   tags: string[];
   price_high_low: string;
   priceFormatted?: string;
@@ -163,6 +230,9 @@ export interface VariantPriceResponseDto {
     stock: number;
     stock_txt?: string;
     digital?: number;
+    max_limit?: number;
+    in_stock?: number;
+    image?: string;
   };
 }
 
