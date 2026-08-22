@@ -803,6 +803,33 @@ export class BuyerOrderRepository {
     return false;
   }
 
+  public async loadOrderLines(orderId: string): Promise<boolean> {
+    const index = this.orders.findIndex((o) => o.orderId === orderId);
+    if (index < 0) return false;
+    try {
+      const response = await orderService.getOrderItems(Number(orderId));
+      if (!response?.data || !Array.isArray(response.data) || response.data.length === 0) return false;
+      const lines: OrderLine[] = response.data.map((item) => ({
+        orderLineId: `line-${item.id}`,
+        productId: item.product_id,
+        name: item.product_name,
+        variantId: item.variation || undefined,
+        variantLabel: item.variation || '',
+        quantity: item.quantity,
+        unitPriceMad: parseMadPrice(item.price || '0'),
+        imageUri: undefined,
+        sellerId: undefined,
+        id: `line-${item.id}`,
+        variant: item.variation || '',
+      }));
+      this.orders[index] = { ...this.orders[index], lines };
+      this.notify();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   public async reOrder(orderId: string): Promise<{ successCount: number; failedCount: number }> {
     const user = authState.getUser();
     if (!user) return { successCount: 0, failedCount: 0 };
