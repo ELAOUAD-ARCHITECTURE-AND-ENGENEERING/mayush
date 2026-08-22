@@ -329,7 +329,7 @@ export class AuthStateManager {
       phone: data.phone as string | undefined,
       avatarUrl: data.avatar_original ? normalizeImageUrl(data.avatar_original as string) : null,
       city: data.city as string | undefined,
-      gender: (data.gender as string) || null,
+      gender: (['m', 'f', 'other'].includes(data.gender as string) ? data.gender : null) as 'm' | 'f' | 'other' | null,
       birthDate: (data.birthDate as string) || '',
       profileCompletionPercent: undefined,
     };
@@ -723,6 +723,7 @@ export class AuthStateManager {
       this.user = {
         id: 'usr-buyer-current',
         fullName: this.profileDraft.fullName || 'Client Mayush',
+        emailOrPhone: this.profileDraft.email || this.profileDraft.phone || '',
         email: this.profileDraft.email || '',
         phone: this.profileDraft.phone || '',
         avatarUrl: null,
@@ -734,6 +735,7 @@ export class AuthStateManager {
     }
 
     try {
+      const currentUser = this.user!;
       const payload: { name?: string; phone?: string; city?: string; gender?: string; birth_date?: string; birthDate?: string } = {};
       if (this.profileDraft.fullName !== undefined) {
         payload.name = this.profileDraft.fullName;
@@ -768,14 +770,14 @@ export class AuthStateManager {
         const freshUser = await profileService.refreshCurrentUser();
         if (freshUser && (freshUser.id || freshUser.name || freshUser.email)) {
           this.user = {
-            ...this.user,
-            fullName: freshUser.name || this.profileDraft.fullName || this.user.fullName,
-            email: freshUser.email || this.user.email,
-            phone: freshUser.phone || this.profileDraft.phone || this.user.phone,
-            avatarUrl: freshUser.avatar_original ? normalizeImageUrl(freshUser.avatar_original) : this.user.avatarUrl,
-            city: freshUser.city || this.profileDraft.city || this.user.city,
-            gender: (this.profileDraft.gender || freshUser.gender || this.user.gender) as 'm' | 'f' | 'other' | null,
-            birthDate: freshUser.birthDate || freshUser.birth_date || this.profileDraft.birthDate || this.user.birthDate,
+            ...currentUser,
+            fullName: freshUser.name || this.profileDraft.fullName || currentUser.fullName,
+            email: freshUser.email || currentUser.email,
+            phone: freshUser.phone || this.profileDraft.phone || currentUser.phone,
+            avatarUrl: freshUser.avatar_original ? normalizeImageUrl(freshUser.avatar_original) : currentUser.avatarUrl,
+            city: freshUser.city || this.profileDraft.city || currentUser.city,
+            gender: (this.profileDraft.gender || freshUser.gender || currentUser.gender) as 'm' | 'f' | 'other' | null,
+            birthDate: freshUser.birthDate || freshUser.birth_date || this.profileDraft.birthDate || currentUser.birthDate,
           };
         } else {
           throw new Error('Fresh user returned empty');
@@ -783,22 +785,23 @@ export class AuthStateManager {
       } catch {
         // Apply draft locally
         this.user = {
-          ...this.user,
-          fullName: this.profileDraft.fullName || this.user.fullName,
-          phone: this.profileDraft.phone || this.user.phone,
-          city: this.profileDraft.city || this.user.city,
-          gender: (this.profileDraft.gender || this.user.gender) as 'm' | 'f' | 'other' | null,
-          birthDate: this.profileDraft.birthDate || this.user.birthDate,
+          ...currentUser,
+          fullName: this.profileDraft.fullName || currentUser.fullName,
+          phone: this.profileDraft.phone || currentUser.phone,
+          city: this.profileDraft.city || currentUser.city,
+          gender: (this.profileDraft.gender || currentUser.gender) as 'm' | 'f' | 'other' | null,
+          birthDate: this.profileDraft.birthDate || currentUser.birthDate,
         };
       }
 
+      const savedUser = this.user!;
       this.profileDraft = {
-        fullName: this.user.fullName,
-        email: this.user.email || '',
-        phone: this.user.phone || '',
-        city: this.user.city || '',
-        gender: (this.user.gender as 'm' | 'f' | 'other' | null) || null,
-        birthDate: this.user.birthDate || '',
+        fullName: savedUser.fullName,
+        email: savedUser.email || '',
+        phone: savedUser.phone || '',
+        city: savedUser.city || '',
+        gender: (savedUser.gender as 'm' | 'f' | 'other' | null) || null,
+        birthDate: savedUser.birthDate || '',
       };
       this.notify();
       void this.persistSession();
@@ -882,6 +885,7 @@ export class AuthStateManager {
       this.user = {
         id: 'usr-buyer-current',
         fullName: this.profileDraft.fullName || 'Client Mayush',
+        emailOrPhone: this.profileDraft.email || this.profileDraft.phone || '',
         email: this.profileDraft.email || '',
         phone: this.profileDraft.phone || '',
         avatarUrl: null,
@@ -896,7 +900,7 @@ export class AuthStateManager {
       if (response.result && response.path) {
         const normalized = normalizeImageUrl(response.path);
         this.user = {
-          ...this.user,
+          ...this.user!,
           avatarUrl: normalized,
         };
         void this.persistSession();
@@ -906,7 +910,7 @@ export class AuthStateManager {
       // If backend returned false result, fall back to local preview
       const dataUri = base64Image.startsWith('data:') ? base64Image : `data:image/jpeg;base64,${base64Image}`;
       this.user = {
-        ...this.user,
+        ...this.user!,
         avatarUrl: dataUri,
       };
       void this.persistSession();
@@ -915,7 +919,7 @@ export class AuthStateManager {
     } catch (error: any) {
       const dataUri = base64Image.startsWith('data:') ? base64Image : `data:image/jpeg;base64,${base64Image}`;
       this.user = {
-        ...this.user,
+        ...this.user!,
         avatarUrl: dataUri,
       };
       void this.persistSession();
@@ -1160,46 +1164,6 @@ export class AuthStateManager {
     } catch {
       return false;
     }
-  }
-
-  public reset(): void {
-    this.status = 'guest';
-    this.user = null;
-    this.loginError = null;
-    this.sessionInvalidated = false;
-    this.returnDestination = null;
-    this.twoFactorEnabled = false;
-    this.activeSessions = [
-      {
-        id: 'session-1',
-        device: 'iPhone 15 Pro',
-        browser: 'Mayush App v1.0.0',
-        location: 'Casablanca, Maroc',
-        lastActive: 'Actif maintenant',
-        isCurrent: true,
-        ipAddress: '196.200.150.12',
-      },
-      {
-        id: 'session-2',
-        device: 'MacBook Pro 16"',
-        browser: 'Safari 17.2',
-        location: 'Rabat, Maroc',
-        lastActive: 'Il y a 2 heures',
-        isCurrent: false,
-        ipAddress: '196.200.150.14',
-      },
-      {
-        id: 'session-3',
-        device: 'Samsung Galaxy Tab S9',
-        browser: 'Chrome Mobile',
-        location: 'Marrakech, Maroc',
-        lastActive: 'Il y a 3 jours',
-        isCurrent: false,
-        ipAddress: '105.154.20.45',
-      },
-    ];
-    this.selectedSession = null;
-    this.notify();
   }
 
   public isTwoFactorEnabled(): boolean {
