@@ -47,10 +47,13 @@ export interface ShopDetailsDto {
 }
 
 export interface ReviewItemDto {
-  id: number;
-  product_id: number;
+  id?: number;
+  user_id?: number;
+  product_id?: number;
   user_name: string;
-  user_avatar: string;
+  avatar?: string;
+  user_avatar?: string;
+  images?: { path: string }[];
   rating: number;
   comment: string;
   time: string;
@@ -74,6 +77,19 @@ export interface SearchParams {
   sort_key?: string;
   page?: number;
 }
+
+export const SORT_KEY_MAP: Record<string, string> = {
+  price_low: 'price_low_to_high',
+  price_high: 'price_high_to_low',
+  new: 'new_arrival',
+  popular: 'popularity',
+  top_rated: 'top_rated',
+  // Passthrough if already backend format
+  price_low_to_high: 'price_low_to_high',
+  price_high_to_low: 'price_high_to_low',
+  new_arrival: 'new_arrival',
+  popularity: 'popularity',
+};
 
 // Intentional developer QA fallback datasets for explicit offline testing
 const FALLBACK_SLIDERS: SliderItemDto[] = [
@@ -255,6 +271,44 @@ export const catalogService = {
   },
 
   /**
+   * Fetch product collections related to a specific category
+   * GET /api/v2/product-collections?category_id={id}&category_slug={slug}
+   */
+  async getCategoryCollections(
+    category: CategoryDto | number | string,
+    language: MvpAppLanguage = 'fr'
+  ): Promise<ProductCollectionDto[]> {
+    try {
+      const categoryId = typeof category === 'object' ? category?.id : typeof category === 'number' ? category : undefined;
+      const categorySlug = typeof category === 'object' ? category?.slug : typeof category === 'string' ? category : undefined;
+
+      const res = await apiClient<{ data: ProductCollectionDto[] }>('/api/v2/product-collections', {
+        language,
+        params: {
+          category_id: categoryId,
+          category_slug: categorySlug,
+        },
+      });
+
+      if (res && Array.isArray(res.data)) {
+        logCatalogSource(
+          `Category collections (${categorySlug || categoryId || ''})`,
+          res.data.length === 0 ? 'EMPTY_API' : 'LIVE_API'
+        );
+        return res.data
+          .filter((col) => col && col.name)
+          .map((col) => ({
+            ...col,
+            hero_image: normalizeImageUrl(col.hero_image),
+          }));
+      }
+    } catch (err) {
+      if (isDevEnvironment()) console.log('[CATALOG] Category collections API call failed:', err);
+    }
+    return [];
+  },
+
+  /**
    * Fetch featured categories grid
    * GET /api/v2/categories/featured
    */
@@ -398,6 +452,40 @@ export const catalogService = {
   },
 
   /**
+   * Fetch paginated subcategory products
+   * GET /api/v2/products/sub-category/{id}?page={page}
+   */
+  async getSubCategoryProducts(
+    subCategoryIdOrSlug: number | string,
+    page: number = 1,
+    language: MvpAppLanguage = 'fr'
+  ): Promise<PaginatedCollectionDto<ProductMiniDto>> {
+    try {
+      const res = await apiClient<PaginatedCollectionDto<ProductMiniDto>>(
+        `/api/v2/products/sub-category/${encodeURIComponent(String(subCategoryIdOrSlug))}`,
+        {
+          language,
+          params: { page },
+        }
+      );
+      if (res && Array.isArray(res.data)) {
+        logCatalogSource(`Subcategory products (${subCategoryIdOrSlug})`, res.data.length === 0 ? 'EMPTY_API' : 'LIVE_API');
+        return {
+          ...res,
+          data: res.data.map((prod) => ({
+            ...prod,
+            thumbnail_image: normalizeImageUrl(prod.thumbnail_image),
+          })),
+        };
+      }
+    } catch {
+      // Fallback to getCategoryProducts
+      return this.getCategoryProducts(String(subCategoryIdOrSlug), page, language);
+    }
+    return { data: [], meta: { current_page: 1, from: 0, last_page: 1, path: '', per_page: 10, to: 0, total: 0 } };
+  },
+
+  /**
    * Fetch today's deal products
    * GET /api/v2/products/todays-deal
    */
@@ -524,7 +612,7 @@ export const catalogService = {
           discount: fallback.discount,
           stroked_price: fallback.stroked_price,
           main_price: fallback.main_price,
-          calculable_price: 12325,
+          calculable_price: parseFloat((fallback.main_price || fallback.stroked_price || '0').replace(/[^0-9.,]/g, '').replace('.', '').replace(',', '.')) || 0,
           currency_symbol: 'MAD',
           current_stock: 12,
           unit: 'pièce',
@@ -557,6 +645,9 @@ export const catalogService = {
         return {
           ...item,
           thumbnail_img: normalizeImageUrl(item.thumbnail_img || item.thumbnail_image),
+          photos: (item.photos || []).map((p) =>
+            typeof p === 'string' ? normalizeImageUrl(p) : normalizeImageUrl((p as any)?.path || '')
+          ) as any,
         };
       }
       return null;
@@ -624,18 +715,18 @@ export const catalogService = {
     language: MvpAppLanguage = 'fr'
   ): Promise<PaginatedCollectionDto<ProductMiniDto>> {
     try {
+      const rawSort = params.sort_key || params.sort_by;
+      const normalizedSort = rawSort ? (SORT_KEY_MAP[rawSort] || rawSort) : undefined;
+
       const res = await apiClient<PaginatedCollectionDto<ProductMiniDto>>('/api/v2/products/search', {
         language,
         params: {
           name: params.name,
-          category: params.category || params.categories,
           categories: params.categories || params.category,
-          brand: params.brand || params.brands,
           brands: params.brands || params.brand,
           min: params.min,
           max: params.max,
-          sort_key: params.sort_key || params.sort_by,
-          sort_by: params.sort_by || params.sort_key,
+          sort_key: normalizedSort,
           page: params.page || 1,
         },
       });
@@ -671,31 +762,36 @@ export const catalogService = {
 
   /**
    * Fetch search suggestions for autocomplete
-   * GET /api/v2/get-search-suggestions?keyword={keyword}
+   * GET /api/v2/get-search-suggestions?query_key={keyword}
    */
   async getSearchSuggestions(
     keyword: string,
     language: MvpAppLanguage = 'fr'
-  ): Promise<Array<{ id: number; name: string; count?: number }>> {
-    if (!keyword || keyword.trim().length === 0) {
+  ): Promise<Array<{ id: number; name: string; count?: number; type?: string }>> {
+    const clean = keyword?.trim() || '';
+    if (clean.length === 0) {
       return [];
     }
 
     try {
       const res = await apiClient<any>('/api/v2/get-search-suggestions', {
         language,
-        params: { keyword: keyword.trim() },
+        params: { query_key: clean },
       });
-      if (res && Array.isArray(res)) {
-        logCatalogSource(`Search suggestions ("${keyword}")`, 'LIVE_API');
-        return res;
-      }
-      if (res && Array.isArray(res.data)) {
-        logCatalogSource(`Search suggestions ("${keyword}")`, 'LIVE_API');
-        return res.data;
+      const rawList = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
+      if (rawList.length > 0) {
+        logCatalogSource(`Search suggestions ("${clean}")`, 'LIVE_API');
+        return rawList
+          .map((item: any) => ({
+            id: Number(item.id) || 0,
+            name: String(item.query || item.name || '').trim(),
+            count: Number(item.count) || 0,
+            type: item.type || 'search',
+          }))
+          .filter((item: { id: number; name: string; count: number; type: string }) => Boolean(item.name));
       }
     } catch (err) {
-      if (isDevEnvironment()) console.log(`[CATALOG] ERROR: Search suggestions API call failed for "${keyword}"`, err);
+      if (isDevEnvironment()) console.log(`[CATALOG] ERROR: Search suggestions API call failed for "${clean}"`, err);
     }
     return [];
   },
@@ -818,33 +914,62 @@ export const catalogService = {
         logCatalogSource(`Product reviews (${productId})`, res.data.length === 0 ? 'EMPTY_API' : 'LIVE_API');
         return {
           ...res,
-          data: res.data.map((r) => ({
-            ...r,
-            user_avatar: normalizeImageUrl(r.user_avatar),
-          })),
+          data: res.data.map((r: any) => {
+            const avatarUrl = normalizeImageUrl(r.avatar || r.user_avatar);
+            const imageList = Array.isArray(r.images)
+              ? r.images.map((img: any) => ({
+                  path: typeof img === 'string' ? normalizeImageUrl(img) : normalizeImageUrl(img?.path),
+                }))
+              : [];
+            return {
+              id: r.id ?? r.user_id,
+              user_id: r.user_id,
+              product_id: r.product_id ?? productId,
+              user_name: r.user_name || (r.user_id ? `Client #${r.user_id}` : 'Client'),
+              avatar: avatarUrl,
+              user_avatar: avatarUrl,
+              images: imageList,
+              rating: typeof r.rating === 'number' ? r.rating : parseFloat(r.rating) || 5,
+              comment: r.comment || '',
+              time: r.time || '',
+            };
+          }),
         };
       }
     } catch (err) {
-      if (ENABLE_CATALOG_FALLBACKS) {
-        logCatalogSource(`Product reviews (${productId})`, 'DEV_FIXTURE');
-        return {
-          data: [
-            {
-              id: 1,
-              product_id: productId,
-              user_name: 'Salma K.',
-              user_avatar: normalizeImageUrl(''),
-              rating: 5,
-              comment: 'Superbe qualité ! Livré rapidement à Casablanca.',
-              time: 'Il y a 2 jours',
-            },
-          ],
-          meta: { current_page: 1, from: 1, last_page: 1, path: '', per_page: 10, to: 1, total: 1 },
-        };
-      }
-      if (isDevEnvironment()) console.log(`[CATALOG] ERROR: Product reviews API call failed for ${productId}`, err);
+      if (isDevEnvironment()) console.log(`[CATALOG] Product reviews for ${productId}:`, err);
     }
     return { data: [], meta: { current_page: 1, from: 0, last_page: 1, path: '', per_page: 10, to: 0, total: 0 } };
+  },
+
+  /**
+   * Fetch frequently bought / related products for a product
+   * GET /api/v2/products/frequently-bought/{slug}
+   */
+  async getFrequentlyBought(
+    slugOrId: string | number,
+    language: MvpAppLanguage = 'fr'
+  ): Promise<ProductMiniDto[]> {
+    try {
+      const res = await apiClient<{ data: ProductMiniDto[] }>(`/api/v2/products/frequently-bought/${slugOrId}`, { language });
+      if (res && Array.isArray(res.data) && res.data.length > 0) {
+        logCatalogSource(`Frequently bought (${slugOrId})`, 'LIVE_API');
+        return res.data.map((prod) => ({
+          ...prod,
+          thumbnail_image: normalizeImageUrl(prod.thumbnail_image),
+        }));
+      }
+    } catch (err) {
+      if (ENABLE_CATALOG_FALLBACKS) {
+        logCatalogSource(`Frequently bought (${slugOrId})`, 'DEV_FIXTURE');
+        return (language === 'ar' ? FALLBACK_PRODUCTS_AR : FALLBACK_PRODUCTS_FR).slice(0, 4).map((prod) => ({
+          ...prod,
+          thumbnail_image: normalizeImageUrl(prod.thumbnail_image),
+        }));
+      }
+      if (isDevEnvironment()) console.log(`[CATALOG] Frequently bought call for ${slugOrId}:`, err);
+    }
+    return [];
   },
 
   /**
@@ -927,6 +1052,30 @@ export const catalogService = {
       if (isDevEnvironment()) console.log('[CATALOG] ERROR: Last viewed products API call failed', err);
     }
     return [];
+  },
+
+  /**
+   * Fetch active promo banner for home screen
+   * GET /api/v2/banners-one
+   */
+  async getPromoBanner(language: MvpAppLanguage = 'fr'): Promise<{
+    imageUrl: string;
+    linkUrl: string;
+  } | null> {
+    try {
+      const res = await apiClient<{ data: Array<{ photo: string; url: string }> }>(
+        '/api/v2/banners-one',
+        { params: { language } }
+      );
+      const banner = res?.data?.[0];
+      if (!banner) return null;
+      return {
+        imageUrl: banner.photo ? normalizeImageUrl(banner.photo) : '',
+        linkUrl: banner.url || '',
+      };
+    } catch {
+      return null;
+    }
   },
 
   /**

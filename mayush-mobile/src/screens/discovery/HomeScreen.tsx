@@ -41,8 +41,6 @@ const FIXED_CATEGORIES_DATA = [
 const COLLECTION_FALLBACK_IMAGE = require('../../../assets/reference-art/home-hero-category-scene.png');
 const LOGGED_IN_HERO_IMAGE = require('../../../assets/reference-art/home-hero-scene.png');
 const DEFAULT_USER_AVATAR = require('../../../assets/reference-art/home-user-avatar-default.png');
-const PROMO_BANNER_BG = require('../../../assets/reference-art/home-promo-site-banner.png');
-const JOURNAL_BANNER_BG = require('../../../assets/reference-art/home-journal-banner.png');
 
 const AMBIANCES_DATA = [
   { id: 'boheme', title: 'Ambiance Bohème', subtitle: 'Chaleur & authenticité', image: require('../../../assets/reference-art/home-ambiance-boheme.png') },
@@ -103,6 +101,7 @@ const homeCache = {
   recommendedProducts: [] as ProductMiniDto[],
   recentlyViewed: [] as ProductMiniDto[],
   topBrands: [] as BrandDto[],
+  promoBanner: null as { imageUrl: string; linkUrl: string } | null,
   language: '' as string,
 };
 
@@ -190,6 +189,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [recommendedProducts, setRecommendedProducts] = useState<ProductMiniDto[]>(hasCachedData ? homeCache.recommendedProducts : []);
   const [recentlyViewed, setRecentlyViewed] = useState<ProductMiniDto[]>(hasCachedData ? homeCache.recentlyViewed : []);
   const [topBrands, setTopBrands] = useState<BrandDto[]>(hasCachedData ? homeCache.topBrands : []);
+  const [promoBanner, setPromoBanner] = useState<{ imageUrl: string; linkUrl: string } | null>(hasCachedData ? homeCache.promoBanner : null);
   const [notificationCount, setNotificationCount] = useState(0);
   const [flashCountdown, setFlashCountdown] = useState('');
 
@@ -344,6 +344,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         }
       })
       .catch(() => {});
+
+    // Promo banner
+    catalogService.getPromoBanner(language).then((banner) => {
+      if (banner && mounted) {
+        setPromoBanner(banner);
+        homeCache.promoBanner = banner;
+      }
+    }).catch(() => {});
 
     return () => {
       mounted = false;
@@ -752,30 +760,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </>
           )}
 
-          {/* 9. Middle Promo Banner ("Offre spéciale -15% sur tout le site") */}
-          <View style={styles.middlePromoBannerWrapper}>
-            <Image source={PROMO_BANNER_BG} resizeMode="cover" style={styles.middlePromoBannerImage} />
-            <View style={styles.middlePromoOverlay} />
-            <View style={[styles.middlePromoContent, isRTL && styles.middlePromoContentRtl]}>
-              <MayushText variant="caption" color={colors.surface.white} style={styles.middlePromoPreTitle}>
-                {heading('Offre spéciale', 'عرض خاص')}
-              </MayushText>
-              <MayushText variant="display" color={colors.surface.white} style={styles.middlePromoTitle}>
-                {heading('-15% sur tout le site', '15%- على كامل الموقع')}
-              </MayushText>
-              <MayushText variant="smallBody" color={colors.surface.white} style={styles.middlePromoSubtitle}>
-                {heading('Des pièces uniques pour sublimer votre intérieur.', 'قطع فريدة لترقية ديكور منزلك.')}
-              </MayushText>
-              <TouchableOpacity activeOpacity={0.84} style={styles.middlePromoCtaButton} onPress={onOpenPromotions}>
-                <MayushText variant="smallBody" color={colors.surface.white} style={styles.middlePromoCtaText}>
-                  {heading('Profitez-en maintenant', 'استفد الآن')}
-                </MayushText>
-              </TouchableOpacity>
-              <MayushText variant="caption" color={colors.surface.white} style={styles.middlePromoExpiry}>
-                {heading("Jusqu'au 31 mai 2024", 'حتى 31 مايو 2024')}
-              </MayushText>
-            </View>
-          </View>
+          {/* 9. Promo Banner — only shown when backend provides active promo */}
+          {promoBanner && promoBanner.imageUrl ? (
+            <TouchableOpacity activeOpacity={0.84} onPress={onOpenPromotions} style={styles.middlePromoBannerWrapper}>
+              <Image source={{ uri: promoBanner.imageUrl }} resizeMode="cover" style={styles.middlePromoBannerImage} />
+            </TouchableOpacity>
+          ) : null}
 
           {/* 10. Nouveautés Section */}
           {newArrivals.length > 0 && (
@@ -1018,25 +1008,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </>
         ) : null}
 
-        {/* 7. Offres du moment Banner */}
-        <View style={[styles.offerBanner, isRTL && styles.rowReverse]}>
-          <View style={styles.offerIcon}>
-            <MayushIcon name="tag" size={22} color={colors.brand.orange500} />
-          </View>
-          <View style={styles.offerCopy}>
-            <MayushText variant="sectionTitle" color={colors.brand.navy900} style={styles.offerTitle}>
-              {heading('Offres du moment', 'عروض اللحظة')}
-            </MayushText>
-            <MayushText variant="smallBody" color={colors.neutral.gray700}>
-              {heading('Jusqu’à -20% sur une sélection de pièces d’exception.', 'حتى 20% على منتجات مختارة.')}
-            </MayushText>
-          </View>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Profiter des offres', 'استفد من العروض')} onPress={onOpenPromotions} style={styles.offerButton}>
-            <MayushText variant="smallBody" color={colors.brand.orange500} style={styles.offerButtonLabel}>
-              {heading('En profiter', 'استفد')}
-            </MayushText>
+        {/* 7. Offres du moment Banner — only shown when backend provides active promo */}
+        {promoBanner && promoBanner.imageUrl ? (
+          <TouchableOpacity activeOpacity={0.84} onPress={onOpenPromotions} style={styles.middlePromoBannerWrapper}>
+            <Image source={{ uri: promoBanner.imageUrl }} resizeMode="cover" style={styles.middlePromoBannerImage} />
           </TouchableOpacity>
-        </View>
+        ) : null}
 
         {/* 8. Inspiration du moment Section */}
         <SectionHeader label={heading('Inspiration du moment', 'إلهام اليوم')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenInspiration ?? onOpenWishlist ?? (() => onNavigateTab?.('categories'))} />
