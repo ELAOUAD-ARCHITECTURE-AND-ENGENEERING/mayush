@@ -600,6 +600,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </View>
           </View>
 
+          {/* Search Input Bar */}
+          <TouchableOpacity activeOpacity={0.88} onPress={onOpenSearch || (() => onNavigateTab?.('categories'))} style={[styles.searchBar, isRTL && styles.rowReverse]}>
+            <MayushIcon name="search" size={20} color={colors.neutral.gray500} style={styles.searchIcon} />
+            <MayushText variant="body" color={colors.neutral.gray500} style={styles.searchPlaceholder}>
+              {heading('Rechercher un produit, une collection...', 'ابحث عن منتج أو تشكيلة...')}
+            </MayushText>
+          </TouchableOpacity>
+
           {/* 3. Active Order Card: "Commande en cours" */}
           <View style={[styles.activeOrderCard, isRTL && styles.rowReverse]}>
             <View style={[styles.activeOrderLeft, isRTL && styles.rowReverse]}>
