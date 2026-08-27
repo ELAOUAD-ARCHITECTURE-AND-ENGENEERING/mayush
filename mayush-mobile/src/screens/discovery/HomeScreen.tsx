@@ -140,6 +140,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const contentPadding = Math.max(16, Math.round(width * 0.04));
   const contentWidth = Math.max(280, width - contentPadding * 2);
   const productWidth = Math.max(164, Math.round((contentWidth - 12) / 2.15));
+  const collectionCardWidth = (contentWidth - 12) / 2;
   const logoWidth = 142;
   const heroHeight = 175;
   const heading = (fr: string, ar: string) => (isRTL ? ar : fr);
@@ -751,33 +752,23 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <InspirationCard source={INSPIRATION_ARTWORK[1]} width={Math.round(contentWidth * 0.72)} onPress={onOpenInspiration ?? onOpenWishlist ?? (() => onNavigateTab?.('categories'))} />
           </ScrollView>
 
-          {/* 12. Collections vedettes Section */}
+          {/* 12. Collections vedettes Section (2x2 grid per design) */}
           {displayCollections.length > 0 && (
             <>
               <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))} />
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.collectionsRow}>
-                {displayCollections.map((col) => (
-                  <TouchableOpacity key={col.id} activeOpacity={0.84} style={styles.collectionItem} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))}>
-                    <View style={styles.collectionCircleWrap}>
-                      <Image source={col.image} style={styles.collectionImage} resizeMode="cover" />
+              <View style={styles.collectionsGrid}>
+                {displayCollections.slice(0, 4).map((col) => (
+                  <TouchableOpacity key={col.id} activeOpacity={0.84} style={[styles.collectionGridItem, { width: collectionCardWidth }]} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))}>
+                    <Image source={col.image} style={styles.collectionGridImage} resizeMode="cover" />
+                    <View style={styles.collectionGridOverlay} />
+                    <View style={styles.collectionGridLabel}>
+                      <MayushText variant="strongBody" color={colors.surface.white} numberOfLines={2}>
+                        {col.name}
+                      </MayushText>
                     </View>
-                    <MayushText variant="caption" color={colors.brand.navy900} align="center" numberOfLines={2} style={styles.collectionTitle}>
-                      {col.name}
-                    </MayushText>
-                    <MayushText variant="caption" color={colors.neutral.gray500} align="center" numberOfLines={2} style={styles.collectionSubtitle}>
-                      {col.description}
-                    </MayushText>
                   </TouchableOpacity>
                 ))}
-                <TouchableOpacity activeOpacity={0.84} style={styles.collectionItem} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))}>
-                  <View style={styles.collectionMoreCircle}>
-                    <MayushIcon name="more-horizontal" size={24} color={colors.brand.navy900} />
-                  </View>
-                  <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.collectionTitle}>
-                    {heading('Voir toutes les\ncollections', 'عرض كل التشكيلات')}
-                  </MayushText>
-                </TouchableOpacity>
-              </ScrollView>
+              </View>
             </>
           )}
 
@@ -994,33 +985,23 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <InspirationCard source={INSPIRATION_ARTWORK[1]} width={Math.round(contentWidth * 0.72)} onPress={onOpenInspiration ?? onOpenWishlist ?? (() => onNavigateTab?.('categories'))} />
         </ScrollView>
 
-        {/* 9. Collections vedettes Section */}
+        {/* 9. Collections vedettes Section (2x2 grid per design) */}
         {displayCollections.length > 0 && (
           <>
-            <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir toutes les collections', 'عرض كل التشكيلات')} isRTL={isRTL} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))} />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.collectionsRow}>
-              {displayCollections.map((col) => (
-                <TouchableOpacity key={col.id} activeOpacity={0.84} style={styles.collectionItem} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))}>
-                  <View style={styles.collectionCircleWrap}>
-                    <Image source={col.image} style={styles.collectionImage} resizeMode="cover" />
+            <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))} />
+            <View style={styles.collectionsGrid}>
+              {displayCollections.slice(0, 4).map((col) => (
+                <TouchableOpacity key={col.id} activeOpacity={0.84} style={[styles.collectionGridItem, { width: collectionCardWidth }]} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))}>
+                  <Image source={col.image} style={styles.collectionGridImage} resizeMode="cover" />
+                  <View style={styles.collectionGridOverlay} />
+                  <View style={styles.collectionGridLabel}>
+                    <MayushText variant="strongBody" color={colors.surface.white} numberOfLines={2}>
+                      {col.name}
+                    </MayushText>
                   </View>
-                  <MayushText variant="caption" color={colors.brand.navy900} align="center" numberOfLines={2} style={styles.collectionTitle}>
-                    {col.name}
-                  </MayushText>
-                  <MayushText variant="caption" color={colors.neutral.gray500} align="center" numberOfLines={2} style={styles.collectionSubtitle}>
-                    {col.description}
-                  </MayushText>
                 </TouchableOpacity>
               ))}
-              <TouchableOpacity activeOpacity={0.84} style={styles.collectionItem} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))}>
-                <View style={styles.collectionMoreCircle}>
-                  <MayushIcon name="more-horizontal" size={24} color={colors.brand.navy900} />
-                </View>
-                <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.collectionTitle}>
-                  {heading('Voir toutes les\ncollections', 'عرض كل التشكيلات')}
-                </MayushText>
-              </TouchableOpacity>
-            </ScrollView>
+            </View>
           </>
         )}
 
@@ -1744,46 +1725,32 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  collectionsRow: {
-    paddingVertical: 6,
-    gap: 14,
-    marginBottom: 18,
+  collectionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 8,
+    marginBottom: 16,
   },
-  collectionItem: {
-    alignItems: 'center',
-    width: 105,
-  },
-  collectionCircleWrap: {
-    width: 90,
-    height: 60,
-    borderRadius: 30,
+  collectionGridItem: {
+    aspectRatio: 1.2,
+    borderRadius: 16,
     overflow: 'hidden',
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: '#EFE8DC',
   },
-  collectionImage: {
+  collectionGridImage: {
+    ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
   },
-  collectionMoreCircle: {
-    width: 90,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: '#EFE8DC',
+  collectionGridOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0,0,0,0.25)',
   },
-  collectionTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  collectionSubtitle: {
-    fontSize: 9,
-    marginTop: 1,
+  collectionGridLabel: {
+    position: 'absolute',
+    bottom: 12,
+    left: 12,
+    right: 12,
   },
   ambianceGrid: {
     flexDirection: 'row',
