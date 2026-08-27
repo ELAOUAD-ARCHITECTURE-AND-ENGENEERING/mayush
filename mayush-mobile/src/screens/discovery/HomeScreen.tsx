@@ -139,8 +139,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const { width } = useWindowDimensions();
   const contentPadding = Math.max(16, Math.round(width * 0.04));
   const contentWidth = Math.max(280, width - contentPadding * 2);
-  const categoryItemWidth = Math.max(54, Math.round((contentWidth - 10) / 6));
-  const categoryCircleSize = Math.max(50, categoryItemWidth - 4);
   const productWidth = Math.max(164, Math.round((contentWidth - 12) / 2.15));
   const logoWidth = 142;
   const heroHeight = 175;
@@ -598,37 +596,41 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </View>
           </View>
 
-          {/* 4. Catégories Section (Circular Categories + Voir tout) */}
+          {/* 4. Catégories Section (Chip-style row per design) */}
           {displayCategories.length > 0 && (
             <>
               <SectionHeader label={heading('Catégories', 'الأقسام')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.loggedInCategoriesRail}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryChipRow}>
                 {displayCategories.map((cat) => (
                   <TouchableOpacity
                     key={cat.id}
                     activeOpacity={0.82}
-                    style={styles.loggedInCategoryItem}
+                    style={[styles.categoryChip, isRTL && styles.rowReverse]}
                     onPress={() => {
                       if (cat.categoryDto) onSelectCategory?.(cat.categoryDto);
                       else onNavigateTab?.('categories');
                     }}
                   >
-                    <View style={styles.loggedInCategoryCircle}>
-                      <Image source={cat.art} style={styles.loggedInCategoryArt} resizeMode="cover" />
-                    </View>
-                    <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.loggedInCategoryLabel} numberOfLines={1}>
+                    <Image source={cat.art} style={styles.categoryChipImage} resizeMode="cover" />
+                    <MayushText variant="smallBody" color={colors.brand.navy900} numberOfLines={1}>
                       {cat.name}
                     </MayushText>
                   </TouchableOpacity>
                 ))}
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Voir tout', 'عرض الكل')} activeOpacity={0.82} style={styles.loggedInCategoryItem} onPress={() => onNavigateTab?.('categories')}>
-              <View style={styles.loggedInCategoryMoreCircle}>
-                <MayushIcon name="more-horizontal" size={22} color={colors.brand.navy900} />
-              </View>
-              <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.loggedInCategoryLabel} numberOfLines={1}>
-                {heading('Voir tout', 'عرض الكل')}
-              </MayushText>
-            </TouchableOpacity>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={heading('Voir tout', 'عرض الكل')}
+                  activeOpacity={0.82}
+                  style={[styles.categoryChip, isRTL && styles.rowReverse]}
+                  onPress={() => onNavigateTab?.('categories')}
+                >
+                  <View style={styles.categoryChipMoreIcon}>
+                    <MayushIcon name="more-horizontal" size={18} color={colors.brand.navy900} />
+                  </View>
+                  <MayushText variant="smallBody" color={colors.brand.navy900} numberOfLines={1}>
+                    {heading('Voir tout', 'عرض الكل')}
+                  </MayushText>
+                </TouchableOpacity>
               </ScrollView>
             </>
           )}
@@ -899,23 +901,46 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </View>
         ) : null}
 
-        {/* 4. Featured Categories Row (5 Circles + Voir tout) */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
-          {displayCategories.map((cat) => (
-            <TouchableOpacity key={cat.id} accessibilityRole="button" accessibilityLabel={cat.name} activeOpacity={0.82} style={[styles.categoryItem, { width: categoryItemWidth }]} onPress={() => onSelectCategory?.(cat.categoryDto)}>
-              <View style={[styles.categoryCircleWrap, { width: categoryCircleSize, height: categoryCircleSize, borderRadius: categoryCircleSize / 2 }]}>
-                <Image source={cat.art} style={{ width: categoryCircleSize, height: categoryCircleSize, borderRadius: categoryCircleSize / 2 }} resizeMode="cover" />
-              </View>
-              <MayushText variant="smallBody" color={colors.brand.navy900} align="center" style={styles.categoryLabel} numberOfLines={1}>{cat.name}</MayushText>
-            </TouchableOpacity>
-          ))}
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Voir tout', 'عرض الكل')} activeOpacity={0.82} style={[styles.categoryItem, { width: categoryItemWidth }]} onPress={() => onNavigateTab?.('categories')}>
-            <View style={[styles.moreCircleWrap, { width: categoryCircleSize, height: categoryCircleSize, borderRadius: categoryCircleSize / 2 }]}>
-              <MayushIcon name="more-horizontal" size={22} color={colors.brand.navy900} />
-            </View>
-            <MayushText variant="smallBody" color={colors.brand.navy900} align="center" style={styles.categoryLabel} numberOfLines={1}>{heading('Voir tout', 'عرض الكل')}</MayushText>
-          </TouchableOpacity>
-        </ScrollView>
+        {/* 4. Featured Categories Row (Chip-style per design) */}
+        {displayCategories.length > 0 && (
+          <>
+            <SectionHeader label={heading('Catégories', 'الأقسام')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryChipRow}>
+              {displayCategories.map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={cat.name}
+                  activeOpacity={0.82}
+                  style={[styles.categoryChip, isRTL && styles.rowReverse]}
+                  onPress={() => {
+                    if (cat.categoryDto) onSelectCategory?.(cat.categoryDto);
+                    else onNavigateTab?.('categories');
+                  }}
+                >
+                  <Image source={cat.art} style={styles.categoryChipImage} resizeMode="cover" />
+                  <MayushText variant="smallBody" color={colors.brand.navy900} numberOfLines={1}>
+                    {cat.name}
+                  </MayushText>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={heading('Voir tout', 'عرض الكل')}
+                activeOpacity={0.82}
+                style={[styles.categoryChip, isRTL && styles.rowReverse]}
+                onPress={() => onNavigateTab?.('categories')}
+              >
+                <View style={styles.categoryChipMoreIcon}>
+                  <MayushIcon name="more-horizontal" size={18} color={colors.brand.navy900} />
+                </View>
+                <MayushText variant="smallBody" color={colors.brand.navy900} numberOfLines={1}>
+                  {heading('Voir tout', 'عرض الكل')}
+                </MayushText>
+              </TouchableOpacity>
+            </ScrollView>
+          </>
+        )}
 
         {/* 5. Nouveautés Section */}
         {newArrivalsLoading ? (
@@ -1480,46 +1505,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
   },
-  loggedInCategoriesRail: {
-    paddingVertical: 6,
-    gap: 12,
-    marginBottom: 18,
-  },
-  loggedInCategoryItem: {
-    alignItems: 'center',
-    width: 68,
-  },
-  loggedInCategoryCircle: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    overflow: 'hidden',
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: '#EFE8DC',
-  },
-  loggedInCategoryArt: {
-    width: '100%',
-    height: '100%',
-  },
-  loggedInCategoryMoreCircle: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: '#EFE8DC',
-  },
-  loggedInCategoryLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
   flashDealHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1672,31 +1657,34 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-  categoryRow: {
-    paddingVertical: 6,
-    gap: 8,
-    marginBottom: 16,
+  categoryChipRow: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+    gap: 10,
   },
-  categoryItem: {
+  categoryChip: {
+    flexDirection: 'row',
     alignItems: 'center',
-  },
-  categoryCircleWrap: {
-    overflow: 'hidden',
+    backgroundColor: colors.surface.white,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#EFE8DC',
-    marginBottom: 6,
+    borderColor: colors.surface.borderWarm,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    gap: 8,
   },
-  moreCircleWrap: {
-    backgroundColor: '#F3F4F6',
+  categoryChipImage: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+  },
+  categoryChipMoreIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.surface.cream,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: '#EFE8DC',
-  },
-  categoryLabel: {
-    fontSize: 11,
-    fontWeight: '600',
   },
   productRail: {
     paddingVertical: 6,
