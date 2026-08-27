@@ -24,13 +24,13 @@ export const fontFamilies = {
 } as const;
 
 export const fontSizes = {
-  xs: 11,
+  xs: 12,
   sm: 13,
   md: 15,
   lg: 17,
-  xl: 20,
-  xxl: 24,
-  display: 30,
+  xl: 22,
+  xxl: 28,
+  display: 32,
 } as const;
 
 export const fontWeights = {
@@ -41,13 +41,13 @@ export const fontWeights = {
 };
 
 export const lineHeights = {
-  xs: 15,
+  xs: 16,
   sm: 18,
   md: 22,
   lg: 24,
-  xl: 28,
-  xxl: 32,
-  display: 38,
+  xl: 30,
+  xxl: 36,
+  display: 42,
 } as const;
 
 export const typographyStyles = {

@@ -5,6 +5,7 @@
 import { colors } from '../tokens/colors';
 import { typographyStyles } from '../tokens/typography';
 import { createTheme } from '../theme/theme';
+import { decodeHtmlEntities } from '../components/typography/HtmlContent';
 
 export const runTokenAssertions = () => {
   if (colors.brand.orange500 !== '#D97434') {
@@ -17,7 +18,7 @@ export const runTokenAssertions = () => {
     throw new Error('Assertion failed: cream color mismatch');
   }
 
-  if (typographyStyles.display.fontSize !== 30) {
+  if (typographyStyles.display.fontSize !== 32) {
     throw new Error('Assertion failed: display font size mismatch');
   }
 
@@ -31,5 +32,11 @@ export const runTokenAssertions = () => {
     throw new Error('Assertion failed: Arabic theme should be RTL');
   }
 
+  const decoded = decodeHtmlEntities('&Eacute;l&eacute;gance &amp; Confort &bull; 100&euro;');
+  if (decoded !== 'Élégance & Confort • 100€') {
+    throw new Error(`Assertion failed: decodeHtmlEntities failed, got "${decoded}"`);
+  }
+
   console.log('All token assertions passed');
 };
+
