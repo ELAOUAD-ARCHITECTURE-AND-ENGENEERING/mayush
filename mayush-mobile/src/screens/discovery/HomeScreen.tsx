@@ -57,29 +57,6 @@ const SERVICES_DATA = [
   { id: 'guarantee', icon: 'shield-check', title: 'Garantie qualité\nsélectionnée' },
 ];
 
-const CUSTOMER_REVIEWS_DATA = [
-  {
-    id: 1,
-    rating: 5,
-    quote: 'Produits magnifiques et service client au top. Livraison soignée et rapide !',
-    quoteAr: 'منتجات رائعة وخدمة عملاء ممتازة. توصيل سريع ومتقن!',
-    author: 'Sophie L.',
-  },
-  {
-    id: 2,
-    rating: 5,
-    quote: 'Qualité exceptionnelle et design soigné. Je recommande vivement Mayush Design.',
-    quoteAr: 'جودة استثنائية وتصميم متقن. أنصح بشدة بميوش ديزاين.',
-    author: 'Thomas D.',
-  },
-  {
-    id: 3,
-    rating: 5,
-    quote: "Très belle expérience d'achat, tout était parfait du début à la fin.",
-    quoteAr: 'تجربة شراء ممتازة، كل شيء كان مثاليًا من البداية إلى النهاية.',
-    author: 'Camille R.',
-  },
-];
 
 const FOOTER_TRUST_BADGES = [
   { id: 1, icon: 'tag', label: 'Marques & créateurs\nsélectionnés' },
@@ -462,47 +439,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               </View>
               <MayushText variant="caption" color={colors.brand.navy900} align="center" style={styles.serviceTitle}>
                 {srv.title}
-              </MayushText>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Ils nous font confiance / Customer Reviews Section */}
-      <View style={styles.reviewsSectionWrap}>
-        <SectionHeader
-          label={heading('Ils nous font confiance', 'ثقة عملائنا')}
-          action={heading('Voir tous les avis', 'عرض كل التقييمات')}
-          isRTL={isRTL}
-          onPress={onOpenArticles}
-        />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.reviewsRow}>
-          <View style={styles.reviewScoreBox}>
-            <MayushText variant="display" color={colors.brand.navy900} style={styles.reviewScoreValue}>
-              4,8/5
-            </MayushText>
-            <View style={styles.starsGroup}>
-              {[1, 2, 3, 4, 5].map((s) => (
-                <MayushIcon key={s} name="star-filled" size={13} color="#F59E0B" />
-              ))}
-            </View>
-            <MayushText variant="caption" color={colors.neutral.gray500} style={styles.reviewScoreCount}>
-              {heading('Basé sur 842 avis', 'بناءً على 842 تقييم')}
-            </MayushText>
-          </View>
-
-          {CUSTOMER_REVIEWS_DATA.map((rev) => (
-            <View key={rev.id} style={styles.customerReviewCard}>
-              <View style={styles.starsGroup}>
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <MayushIcon key={s} name="star-filled" size={12} color="#F59E0B" />
-                ))}
-              </View>
-              <MayushText variant="smallBody" color={colors.brand.navy900} style={styles.customerReviewQuote}>
-                {isRTL ? rev.quoteAr : `"${rev.quote}"`}
-              </MayushText>
-              <MayushText variant="strongBody" color={colors.brand.navy900} style={styles.customerReviewAuthor}>
-                {rev.author}
               </MayushText>
             </View>
           ))}
@@ -1485,11 +1421,6 @@ const styles = StyleSheet.create({
     gap: 4,
     marginTop: 2,
   },
-  starsGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
   salesCountText: {
     fontSize: 11,
   },
@@ -1920,51 +1851,6 @@ const styles = StyleSheet.create({
   serviceTitle: {
     fontSize: 10,
     lineHeight: 13,
-  },
-  reviewsSectionWrap: {
-    marginVertical: 14,
-  },
-  reviewsRow: {
-    gap: 12,
-    paddingVertical: 4,
-  },
-  reviewScoreBox: {
-    width: 125,
-    backgroundColor: colors.surface.white,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#EFE8DC',
-    padding: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  reviewScoreValue: {
-    fontSize: 22,
-    fontWeight: '800',
-  },
-  reviewScoreCount: {
-    fontSize: 9,
-    textAlign: 'center',
-  },
-  customerReviewCard: {
-    width: 220,
-    backgroundColor: colors.surface.white,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#EFE8DC',
-    padding: 12,
-    justifyContent: 'space-between',
-    gap: 6,
-  },
-  customerReviewQuote: {
-    fontSize: 11,
-    lineHeight: 15,
-    flex: 1,
-  },
-  customerReviewAuthor: {
-    fontSize: 12,
-    fontWeight: '700',
   },
   journalBannerWrapper: {
     borderRadius: 16,
