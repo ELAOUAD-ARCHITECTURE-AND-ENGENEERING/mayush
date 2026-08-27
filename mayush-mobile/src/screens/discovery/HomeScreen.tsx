@@ -417,11 +417,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     ? { uri: normalizeImageUrl(authenticatedUser.avatarUrl) }
     : DEFAULT_USER_AVATAR;
 
-  const activeOrder = orders.length > 0 ? orders[0] : null;
-  const orderIdText = activeOrder?.orderId || 'CMD-2024-00123';
-  const orderDeliveryDateText = activeOrder?.createdAt
-    ? `Livraison estimée : ${activeOrder.createdAt}`
-    : heading('Livraison estimée : 24 mai 2024', 'التسليم المتوقع : 24 مايو 2024');
+  const activeOrder = orders && orders.length > 0 ? orders[0] : null;
 
   // Shared Bottom Sections Renderer
   const renderSharedBottomSections = () => (
@@ -545,6 +541,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </TouchableOpacity>
 
           {/* 3. Active Order Card: "Commande en cours" */}
+          {activeOrder && (
           <View style={[styles.activeOrderCard, isRTL && styles.rowReverse]}>
             <View style={[styles.activeOrderLeft, isRTL && styles.rowReverse]}>
               <View style={styles.activeOrderIconCircle}>
@@ -555,20 +552,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   {heading('Commande en cours', 'طلب قيد التنفيذ')}
                 </MayushText>
                 <MayushText variant="strongBody" color={colors.brand.navy900} style={styles.activeOrderIdText}>
-                  {orderIdText}
+                  {activeOrder.orderId}
                 </MayushText>
                 <MayushText variant="caption" color="#16A34A" style={styles.activeOrderDateText}>
-                  {orderDeliveryDateText}
+                  {heading(`Livraison estimée : ${activeOrder.createdAt}`, `التسليم المتوقع : ${activeOrder.createdAt}`)}
                 </MayushText>
               </View>
             </View>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Voir le suivi', 'تتبع الطلب')} onPress={() => onOpenOrder?.(orderIdText)} style={[styles.activeOrderTrackButton, isRTL && styles.rowReverse]}>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Voir le suivi', 'تتبع الطلب')} onPress={() => onOpenOrder?.(activeOrder.orderId)} style={[styles.activeOrderTrackButton, isRTL && styles.rowReverse]}>
               <MayushText variant="smallBody" color={colors.brand.orange500} style={styles.activeOrderTrackText}>
                 {heading('Voir le suivi', 'تتبع الطلب')}
               </MayushText>
               <MayushIcon name={isRTL ? 'chevron-left' : 'chevron-right'} size={16} color={colors.brand.orange500} />
             </TouchableOpacity>
           </View>
+          )}
 
           {/* 4. Hero Carousel Banner ("L'art d'habiter selon vos envies") */}
           <View style={styles.heroWrapper}>
