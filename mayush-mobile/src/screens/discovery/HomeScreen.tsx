@@ -412,7 +412,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   const userFirstName = authenticatedUser?.fullName
     ? authenticatedUser.fullName.trim().split(' ')[0]
-    : 'Mohamed';
+    : '';
   const userAvatarSource = authenticatedUser?.avatarUrl
     ? { uri: normalizeImageUrl(authenticatedUser.avatarUrl) }
     : DEFAULT_USER_AVATAR;
@@ -524,7 +524,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </View>
             <View style={[styles.welcomeCopyWrap, isRTL && { alignItems: 'flex-end' }]}>
               <MayushText variant="sectionTitle" color={colors.brand.navy900} style={[styles.welcomeTitle, isRTL && styles.rtlText]}>
-                {heading(`Bonjour ${userFirstName} 👋`, `مرحبًا ${userFirstName} 👋`)}
+                {userFirstName
+                  ? heading(`Bonjour ${userFirstName} 👋`, `مرحباً ${userFirstName} 👋`)
+                  : heading('Bonjour 👋', 'مرحباً 👋')
+                }
               </MayushText>
               <MayushText variant="smallBody" color={colors.neutral.gray700} style={[styles.welcomeSubtitle, isRTL && styles.rtlText]}>
                 {heading('Ravi de vous revoir ! Découvrez\nnos nouveautés sélectionnées pour vous.', 'سعداء برؤيتك مجددًا! اكتشف تشكيلتنا الجديدة المختارة لك.')}
