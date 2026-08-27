@@ -653,46 +653,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </View>
           </View>
 
-          {/* 5. Recommandé pour vous Section */}
-          {recommendedProducts.length > 0 && (
-            <>
-              <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenRecommended ?? (() => onNavigateTab?.('categories'))} />
-              <ProductRail
-                products={recommendedProducts}
-                cardWidth={productWidth}
-                onSelect={onSelectProduct}
-                wishlistedProductIds={wishlistedProductIds}
-                onToggleWishlist={onToggleWishlist}
-              />
-            </>
-          )}
-
-          {/* 6. Consultés récemment Section */}
-          {recentlyViewed.length > 0 && (
-            <>
-              <SectionHeader label={heading('Consultés récemment', 'شوهدت مؤخراً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenRecentlyViewed ?? (() => onNavigateTab?.('categories'))} />
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentlyViewedRail}>
-                {recentlyViewed.map((p) => (
-                  <TouchableOpacity key={p.id} activeOpacity={0.84} style={styles.recentlyViewedCard} onPress={onOpenRecentlyViewed ?? (() => onNavigateTab?.('categories'))}>
-                    <Image source={p.thumbnail_image ? { uri: normalizeImageUrl(p.thumbnail_image) } : COLLECTION_FALLBACK_IMAGE} style={styles.recentlyViewedImage} resizeMode="cover" />
-                    <View style={styles.recentlyViewedWishlistBtn}>
-                      <MayushIcon name="heart" size={14} color={colors.brand.navy900} />
-                    </View>
-                    <View style={styles.recentlyViewedEyeBadge}>
-                      <MayushIcon name="eye" size={14} color={colors.brand.navy900} />
-                    </View>
-                    <View style={styles.recentlyViewedTitlePill}>
-                      <MayushText variant="caption" color={colors.surface.white} numberOfLines={1} style={styles.recentlyViewedTitleText}>
-                        {p.name}
-                      </MayushText>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </>
-          )}
-
-          {/* 7. Catégories Section (8 Circular Categories + Voir tout) */}
+          {/* 4. Catégories Section (Circular Categories + Voir tout) */}
           {displayCategories.length > 0 && (
             <>
               <SectionHeader label={heading('Catégories', 'الأقسام')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
@@ -727,7 +688,35 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </>
           )}
 
-          {/* 8. Flash Deal Section (With live countdown timer) — hidden when no active deals */}
+          {/* 5. Nouveautés Section */}
+          {newArrivals.length > 0 && (
+            <>
+              <SectionHeader label={heading('Nouveautés', 'وصل حديثاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenNewArrivals ?? onOpenPromotions ?? (() => onNavigateTab?.('categories'))} />
+              <ProductRail
+                products={newArrivals}
+                cardWidth={productWidth}
+                onSelect={onSelectProduct}
+                wishlistedProductIds={wishlistedProductIds}
+                onToggleWishlist={onToggleWishlist}
+              />
+            </>
+          )}
+
+          {/* 6. Meilleures ventes Section */}
+          {bestSellers.length > 0 && (
+            <>
+              <SectionHeader label={heading('Meilleures ventes', 'الأكثر مبيعاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenBestSellers ?? (() => onNavigateTab?.('categories'))} />
+              <ProductRail
+                products={bestSellers}
+                cardWidth={productWidth}
+                onSelect={onSelectProduct}
+                wishlistedProductIds={wishlistedProductIds}
+                onToggleWishlist={onToggleWishlist}
+              />
+            </>
+          )}
+
+          {/* 7. Flash Deal Section (With live countdown timer) — hidden when no active deals */}
           {flashDeals.length > 0 && (
             <>
               <View style={[styles.flashDealHeaderRow, isRTL && styles.rowReverse]}>
@@ -762,19 +751,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </>
           )}
 
-          {/* 9. Promo Banner — only shown when backend provides active promo */}
+          {/* 8. Promo Banner — only shown when backend provides active promo */}
           {promoBanner && promoBanner.imageUrl ? (
             <TouchableOpacity activeOpacity={0.84} onPress={onOpenPromotions} style={styles.middlePromoBannerWrapper}>
               <Image source={{ uri: promoBanner.imageUrl }} resizeMode="cover" style={styles.middlePromoBannerImage} />
             </TouchableOpacity>
           ) : null}
 
-          {/* 10. Nouveautés Section */}
-          {newArrivals.length > 0 && (
+          {/* 9. Recommandé pour vous Section */}
+          {recommendedProducts.length > 0 && (
             <>
-              <SectionHeader label={heading('Nouveautés', 'وصل حديثاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenNewArrivals ?? onOpenPromotions ?? (() => onNavigateTab?.('categories'))} />
+              <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenRecommended ?? (() => onNavigateTab?.('categories'))} />
               <ProductRail
-                products={newArrivals}
+                products={recommendedProducts}
                 cardWidth={productWidth}
                 onSelect={onSelectProduct}
                 wishlistedProductIds={wishlistedProductIds}
@@ -783,28 +772,39 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </>
           )}
 
-          {/* 11. Meilleures ventes Section */}
-          {bestSellers.length > 0 && (
+          {/* 10. Consultés récemment Section */}
+          {recentlyViewed.length > 0 && (
             <>
-              <SectionHeader label={heading('Meilleures ventes', 'الأكثر مبيعاً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenBestSellers ?? (() => onNavigateTab?.('categories'))} />
-              <ProductRail
-                products={bestSellers}
-                cardWidth={productWidth}
-                onSelect={onSelectProduct}
-                wishlistedProductIds={wishlistedProductIds}
-                onToggleWishlist={onToggleWishlist}
-              />
+              <SectionHeader label={heading('Consultés récemment', 'شوهدت مؤخراً')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenRecentlyViewed ?? (() => onNavigateTab?.('categories'))} />
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentlyViewedRail}>
+                {recentlyViewed.map((p) => (
+                  <TouchableOpacity key={p.id} activeOpacity={0.84} style={styles.recentlyViewedCard} onPress={onOpenRecentlyViewed ?? (() => onNavigateTab?.('categories'))}>
+                    <Image source={p.thumbnail_image ? { uri: normalizeImageUrl(p.thumbnail_image) } : COLLECTION_FALLBACK_IMAGE} style={styles.recentlyViewedImage} resizeMode="cover" />
+                    <View style={styles.recentlyViewedWishlistBtn}>
+                      <MayushIcon name="heart" size={14} color={colors.brand.navy900} />
+                    </View>
+                    <View style={styles.recentlyViewedEyeBadge}>
+                      <MayushIcon name="eye" size={14} color={colors.brand.navy900} />
+                    </View>
+                    <View style={styles.recentlyViewedTitlePill}>
+                      <MayushText variant="caption" color={colors.surface.white} numberOfLines={1} style={styles.recentlyViewedTitleText}>
+                        {p.name}
+                      </MayushText>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
             </>
           )}
 
-          {/* 12. Inspiration du moment Section */}
+          {/* 11. Inspiration du moment Section */}
           <SectionHeader label={heading('Inspiration du moment', 'إلهام اليوم')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenInspiration ?? onOpenWishlist ?? (() => onNavigateTab?.('categories'))} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.inspirationRail}>
             <InspirationCard source={INSPIRATION_ARTWORK[0]} width={Math.round(contentWidth * 0.72)} onPress={onOpenInspiration ?? onOpenWishlist ?? (() => onNavigateTab?.('categories'))} />
             <InspirationCard source={INSPIRATION_ARTWORK[1]} width={Math.round(contentWidth * 0.72)} onPress={onOpenInspiration ?? onOpenWishlist ?? (() => onNavigateTab?.('categories'))} />
           </ScrollView>
 
-          {/* 13. Collections vedettes Section */}
+          {/* 12. Collections vedettes Section */}
           {displayCollections.length > 0 && (
             <>
               <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))} />
@@ -834,7 +834,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </>
           )}
 
-          {/* 14. Nos sélections partenaires Section */}
+          {/* 13. Nos sélections partenaires Section */}
           {topBrands.length > 0 && (
             <View style={styles.partnersSection}>
               <SectionHeader label={heading('Nos sélections partenaires', 'شركاؤنا المختارون')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenPartners ?? (() => onNavigateTab?.('categories'))} />
@@ -854,7 +854,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </View>
           )}
 
-          {/* 15. Pièces par ambiance Section */}
+          {/* 14. Pièces par ambiance Section */}
           <SectionHeader label={heading('Pièces par ambiance', 'غرف حسب الطراز')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenAmbiances ?? (() => onNavigateTab?.('categories'))} />
           <View style={styles.ambianceGrid}>
             {AMBIANCES_DATA.map((amb) => (
@@ -872,7 +872,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             ))}
           </View>
 
-          {/* 16. Services, Reviews, Journal, and Trust Badges */}
+          {/* 15. Services, Reviews, Journal, and Trust Badges */}
           {renderSharedBottomSections()}
         </ScrollView>
       </View>
