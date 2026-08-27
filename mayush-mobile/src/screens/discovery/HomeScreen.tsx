@@ -893,7 +893,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         ) : null}
 
         {/* 4. Featured Categories Row (Chip-style per design) */}
-        {displayCategories.length > 0 && (
+        {categoriesLoading ? (
+          <CategoryRowSkeleton />
+        ) : displayCategories.length > 0 ? (
           <>
             <SectionHeader label={heading('Catégories', 'الأقسام')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryChipRow}>
@@ -931,7 +933,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               </TouchableOpacity>
             </ScrollView>
           </>
-        )}
+        ) : null}
 
         {/* 5. Nouveautés Section */}
         {newArrivalsLoading ? (
