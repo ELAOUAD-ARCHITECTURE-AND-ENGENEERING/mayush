@@ -385,12 +385,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     }];
   });
 
-  const heroCopy = [
-    { title1: "L'art d'habiter", title2: 'selon vos envies', subtitle: 'Mobilier & décoration haut de gamme sélectionnés avec passion.', button: 'Découvrir la collection' },
-    { title1: 'Élégance & Confort', title2: 'pour votre intérieur', subtitle: 'Des créations exclusives pensées pour sublimer vos espaces.', button: 'Explorer les produits' },
-  ];
-  const heroSlides = sliders.slice(0, 3).map((slider, index) => ({
-    ...heroCopy[index % heroCopy.length],
+  const heroSlides = sliders.slice(0, 3).map((slider) => ({
+    title1: heading("L'art d'habiter", 'تصميم يلهم'),
+    title2: heading('selon vos envies', 'كل زاوية'),
+    subtitle: heading(
+      'Mobilier & décoration haut de gamme sélectionnés avec passion.',
+      'أثاث وديكور راقٍ مختار بعناية وشغف.'
+    ),
+    button: heading('Découvrir la collection', 'تسوق الآن'),
     bg: { uri: normalizeImageUrl(slider.photo) },
   }));
 
