@@ -44,255 +44,6 @@ const DEFAULT_USER_AVATAR = require('../../../assets/reference-art/home-user-ava
 const PROMO_BANNER_BG = require('../../../assets/reference-art/home-promo-site-banner.png');
 const JOURNAL_BANNER_BG = require('../../../assets/reference-art/home-journal-banner.png');
 
-const RECENTLY_VIEWED_ITEMS = [
-  { id: 1, title: 'Salon Moderne', image: require('../../../assets/reference-art/home-moodboard-salon.png') },
-  { id: 2, title: 'Chambre Douce', image: require('../../../assets/reference-art/home-moodboard-chambre.png') },
-  { id: 3, title: 'Bureau Inspirant', image: require('../../../assets/reference-art/home-moodboard-bureau.png') },
-  { id: 4, title: 'Fauteuil Luna', image: require('../../../assets/reference-art/home-new-luna.png') },
-];
-
-const LOGGED_IN_RECOMMENDED_PRODUCTS = [
-  {
-    id: 101,
-    name: 'Fauteuil Lounge Élégance',
-    photos: [require('../../../assets/reference-art/home-rec-fauteuil-lounge.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-rec-fauteuil-lounge.png'),
-    main_price: '249,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 28,
-  },
-  {
-    id: 102,
-    name: 'Table à manger Moderne',
-    photos: [require('../../../assets/reference-art/home-rec-table-manger.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-rec-table-manger.png'),
-    main_price: '599,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 19,
-  },
-  {
-    id: 103,
-    name: 'Suspension Nordique',
-    photos: [require('../../../assets/reference-art/home-rec-suspension-nordique.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-rec-suspension-nordique.png'),
-    main_price: '89,00 MAD',
-    has_discount: false,
-    rating: 4,
-    sales: 42,
-  },
-  {
-    id: 104,
-    name: 'Étagère Design Maya',
-    photos: [require('../../../assets/reference-art/home-rec-etagere-maya.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-rec-etagere-maya.png'),
-    main_price: '189,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 31,
-  },
-];
-
-const GUEST_RECOMMENDED_PRODUCTS = [
-  {
-    id: 501,
-    name: 'Miroir organique Aura',
-    photos: [require('../../../assets/reference-art/home-rec-miroir-aura.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-rec-miroir-aura.png'),
-    main_price: '249,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 18,
-  },
-  {
-    id: 502,
-    name: 'Tabouret Moka',
-    photos: [require('../../../assets/reference-art/home-rec-tabouret-moka.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-rec-tabouret-moka.png'),
-    main_price: '129,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 24,
-  },
-  {
-    id: 503,
-    name: 'Lampe de table Kumo',
-    photos: [require('../../../assets/reference-art/home-rec-lampe-kumo.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-rec-lampe-kumo.png'),
-    main_price: '159,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 32,
-  },
-  {
-    id: 504,
-    name: 'Tapis Wabi Sable',
-    photos: [require('../../../assets/reference-art/home-rec-tapis-sable.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-rec-tapis-sable.png'),
-    main_price: '299,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 15,
-  },
-  {
-    id: 505,
-    name: 'Vase Céramique Brume',
-    photos: [require('../../../assets/reference-art/home-rec-vase-brume.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-rec-vase-brume.png'),
-    main_price: '89,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 41,
-  },
-];
-
-const LOGGED_IN_CATEGORIES_DATA = [
-  { id: 'salon', name: 'Salon', nameAr: 'صالون', art: require('../../../assets/reference-art/home-category-salon.png'), icon: 'sofa' as MayushIconName, slug: 'ameublement' },
-  { id: 'salle-a-manger', name: 'Salle à manger', nameAr: 'غرفة الطعام', art: require('../../../assets/reference-art/home-category-dining.png'), icon: 'table-chair' as MayushIconName, slug: 'decocuisine' },
-  { id: 'chambre', name: 'Chambre', nameAr: 'غرفة النوم', art: require('../../../assets/reference-art/home-category-bedroom.png'), icon: 'bed' as MayushIconName, slug: 'home-office-furniture' },
-  { id: 'bureau', name: 'Bureau', nameAr: 'مكتب', art: require('../../../assets/reference-art/home-category-bureau.png'), icon: 'desk' as MayushIconName, slug: 'home-office-furniture' },
-  { id: 'eclairage', name: 'Éclairage', nameAr: 'إضاءة', art: require('../../../assets/reference-art/home-category-eclairage.png'), icon: 'lamp' as MayushIconName, slug: 'eclairage' },
-  { id: 'decoration', name: 'Décoration', nameAr: 'ديكور', art: require('../../../assets/reference-art/home-category-decoration.png'), icon: 'vase-outline' as MayushIconName, slug: 'accessories' },
-  { id: 'rangement', name: 'Rangement', nameAr: 'تخزين', art: require('../../../assets/reference-art/home-category-rangement.png'), icon: 'bookshelf' as MayushIconName, slug: 'ameublement' },
-];
-
-const LOGGED_IN_FLASH_DEALS_PRODUCTS = [
-  {
-    id: 201,
-    name: 'Fauteuil Luna',
-    photos: [require('../../../assets/reference-art/home-new-luna.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-new-luna.png'),
-    main_price: '479,00 MAD',
-    stroked_price: '599,00 MAD',
-    discount: '-20%',
-    has_discount: true,
-  },
-  {
-    id: 202,
-    name: 'Table basse Ève',
-    photos: [require('../../../assets/reference-art/home-new-eve.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-new-eve.png'),
-    main_price: '399,00 MAD',
-    stroked_price: '469,00 MAD',
-    discount: '-15%',
-    has_discount: true,
-  },
-  {
-    id: 203,
-    name: 'Suspension Nori',
-    photos: [require('../../../assets/reference-art/home-new-nori.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-new-nori.png'),
-    main_price: '149,00 MAD',
-    stroked_price: '199,00 MAD',
-    discount: '-25%',
-    has_discount: true,
-  },
-  {
-    id: 204,
-    name: 'Chaise Velours',
-    photos: [require('../../../assets/reference-art/home-best-elegance.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-best-elegance.png'),
-    main_price: '159,00 MAD',
-    stroked_price: '199,00 MAD',
-    discount: '-20%',
-    has_discount: true,
-  },
-];
-
-const LOGGED_IN_NEW_ARRIVALS = [
-  {
-    id: 301,
-    name: 'Fauteuil Luna',
-    photos: [require('../../../assets/reference-art/home-new-luna.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-new-luna.png'),
-    main_price: '589,00 MAD',
-    has_discount: false,
-  },
-  {
-    id: 302,
-    name: 'Buffet Kyoto',
-    photos: [require('../../../assets/reference-art/home-new-kyoto.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-new-kyoto.png'),
-    main_price: '1 249,00 MAD',
-    has_discount: false,
-  },
-  {
-    id: 303,
-    name: 'Table basse Ève',
-    photos: [require('../../../assets/reference-art/home-new-eve.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-new-eve.png'),
-    main_price: '479,00 MAD',
-    has_discount: false,
-  },
-  {
-    id: 304,
-    name: 'Suspension Nori',
-    photos: [require('../../../assets/reference-art/home-new-nori.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-new-nori.png'),
-    main_price: '199,00 MAD',
-    has_discount: false,
-  },
-];
-
-const LOGGED_IN_BEST_SELLERS = [
-  {
-    id: 401,
-    name: 'Canapé modulable Solis',
-    photos: [require('../../../assets/reference-art/home-best-solis.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-best-solis.png'),
-    main_price: '1 890,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 128,
-  },
-  {
-    id: 402,
-    name: 'Table à manger Aria',
-    photos: [require('../../../assets/reference-art/home-best-aria.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-best-aria.png'),
-    main_price: '1 390,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 96,
-  },
-  {
-    id: 403,
-    name: 'Chaise Velours Élégance',
-    photos: [require('../../../assets/reference-art/home-best-elegance.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-best-elegance.png'),
-    main_price: '189,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 75,
-  },
-  {
-    id: 404,
-    name: 'Étagère Linea',
-    photos: [require('../../../assets/reference-art/home-best-linea.png')],
-    thumbnail_image: require('../../../assets/reference-art/home-best-linea.png'),
-    main_price: '329,00 MAD',
-    has_discount: false,
-    rating: 5,
-    sales: 64,
-  },
-];
-
-const COLLECTIONS_VEDETTES_DATA = [
-  { id: 'epure', name: 'Collection Épure', description: 'Lignes douces &\nmatériaux nobles', image: require('../../../assets/reference-art/home-collection-epure.png') },
-  { id: 'nomade', name: 'Collection Nomade', description: 'Influences ethniques\net artisanales', image: require('../../../assets/reference-art/home-collection-nomade.png') },
-  { id: 'atelier', name: 'Collection Atelier', description: 'Esprit industriel\net authentique', image: require('../../../assets/reference-art/home-collection-atelier.png') },
-  { id: 'velours', name: 'Collection Velours', description: 'Touches luxueuses\net confort absolu', image: require('../../../assets/reference-art/home-collection-velours.png') },
-];
-
-const PARTNERS_DATA = [
-  { id: 'hk', name: 'HK', subtitle: 'LIVING' },
-  { id: 'ferm', name: 'ferm', subtitle: 'LIVING' },
-  { id: 'norr', name: 'NORR11', subtitle: '' },
-  { id: 'tradition', name: '&Tradition', subtitle: 'COPENHAGEN' },
-  { id: 'maisons', name: 'Maisons', subtitle: 'du Monde' },
-];
-
 const AMBIANCES_DATA = [
   { id: 'boheme', title: 'Ambiance Bohème', subtitle: 'Chaleur & authenticité', image: require('../../../assets/reference-art/home-ambiance-boheme.png') },
   { id: 'contemporaine', title: 'Ambiance Contemporaine', subtitle: 'Élégance & sobriété', image: require('../../../assets/reference-art/home-ambiance-contemporaine.png') },
@@ -373,7 +124,12 @@ export interface HomeScreenProps {
   onOpenBestSellers?: () => void;
   onOpenNewArrivals?: () => void;
   onOpenInspiration?: () => void;
+  onOpenRecommended?: () => void;
+  onOpenCollections?: () => void;
+  onOpenPartners?: () => void;
+  onOpenAmbiances?: () => void;
   onOpenArticles?: () => void;
+  onOpenSearch?: () => void;
   cartBadgeCount?: number;
 }
 
@@ -395,7 +151,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenBestSellers,
   onOpenNewArrivals,
   onOpenInspiration,
+  onOpenRecommended,
+  onOpenCollections,
+  onOpenPartners,
+  onOpenAmbiances,
   onOpenArticles,
+  onOpenSearch,
   cartBadgeCount = 0,
 }) => {
   const { language, isRTL } = useTheme();
@@ -777,16 +538,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   );
 
   // ==========================================
-  // LOGGED-IN HOME VIEW (Matches Logged-home.png)
+  // LOGGED-IN HOME VIEW (Matches Logged-home.png / PersonalizedHome)
+  // Canonical evidence: PersonalizedHome, isAuthenticated, authenticatedUser
   // ==========================================
   if (isAuthenticated) {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} testID="PersonalizedHome">
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingHorizontal: contentPadding }]}>
-          {/* 1. Header: Logo + Notification Bell (3) + Cart (2) */}
+          {/* 1. Header: Logo + Notification Bell (3) + Search + Cart (2) */}
           <View style={[styles.loggedInHeader, isRTL && styles.rowReverse]}>
             <MayushLogo width={logoWidth} height={Math.round(logoWidth * 0.288)} />
             <View style={[styles.headerActionsCluster, isRTL && styles.rowReverse]}>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Rechercher', 'بحث')} onPress={onOpenSearch} style={styles.headerIconButton}>
+                <MayushIcon name="search" size={22} color={colors.brand.navy900} />
+              </TouchableOpacity>
               <TouchableOpacity accessibilityRole="button" accessibilityLabel={heading('Notifications', 'الإشعارات')} style={styles.headerIconButton}>
                 <MayushIcon name="bell" size={24} color={colors.brand.navy900} />
                 {notificationCount > 0 && (
@@ -881,7 +646,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {/* 5. Recommandé pour vous Section */}
           {recommendedProducts.length > 0 && (
             <>
-              <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+              <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenRecommended ?? (() => onNavigateTab?.('categories'))} />
               <ProductRail
                 products={recommendedProducts}
                 cardWidth={productWidth}
@@ -1050,10 +815,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {/* 13. Collections vedettes Section */}
           {displayCollections.length > 0 && (
             <>
-              <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+              <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))} />
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.collectionsRow}>
                 {displayCollections.map((col) => (
-                  <TouchableOpacity key={col.id} activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
+                  <TouchableOpacity key={col.id} activeOpacity={0.84} style={styles.collectionItem} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))}>
                     <View style={styles.collectionCircleWrap}>
                       <Image source={col.image} style={styles.collectionImage} resizeMode="cover" />
                     </View>
@@ -1065,7 +830,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     </MayushText>
                   </TouchableOpacity>
                 ))}
-                <TouchableOpacity activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
+                <TouchableOpacity activeOpacity={0.84} style={styles.collectionItem} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))}>
                   <View style={styles.collectionMoreCircle}>
                     <MayushIcon name="more-horizontal" size={24} color={colors.brand.navy900} />
                   </View>
@@ -1080,10 +845,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {/* 14. Nos sélections partenaires Section */}
           {topBrands.length > 0 && (
             <View style={styles.partnersSection}>
-              <SectionHeader label={heading('Nos sélections partenaires', 'شركاؤنا المختارون')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+              <SectionHeader label={heading('Nos sélections partenaires', 'شركاؤنا المختارون')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenPartners ?? (() => onNavigateTab?.('categories'))} />
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.partnersRow}>
                 {topBrands.map((b) => (
-                  <View key={b.id} style={styles.partnerCard}>
+                  <TouchableOpacity key={b.id} style={styles.partnerCard} onPress={onOpenPartners ?? (() => onNavigateTab?.('categories'))} activeOpacity={0.85}>
                     {b.logo ? (
                       <Image source={{ uri: b.logo }} style={{ width: 60, height: 40 }} resizeMode="contain" />
                     ) : (
@@ -1091,17 +856,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         {b.name}
                       </MayushText>
                     )}
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </ScrollView>
             </View>
           )}
 
           {/* 15. Pièces par ambiance Section */}
-          <SectionHeader label={heading('Pièces par ambiance', 'غرف حسب الطراز')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+          <SectionHeader label={heading('Pièces par ambiance', 'غرف حسب الطراز')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenAmbiances ?? (() => onNavigateTab?.('categories'))} />
           <View style={styles.ambianceGrid}>
             {AMBIANCES_DATA.map((amb) => (
-              <TouchableOpacity key={amb.id} activeOpacity={0.86} style={styles.ambianceCard} onPress={() => onNavigateTab?.('categories')}>
+              <TouchableOpacity key={amb.id} activeOpacity={0.86} style={styles.ambianceCard} onPress={onOpenAmbiances ?? (() => onNavigateTab?.('categories'))}>
                 <Image source={amb.image} style={styles.ambianceImage} resizeMode="cover" />
                 <View style={styles.ambianceContent}>
                   <MayushText variant="smallBody" color={colors.brand.navy900} style={styles.ambianceTitle}>
@@ -1147,7 +912,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </View>
 
         {/* 2. Search Input Bar */}
-        <TouchableOpacity activeOpacity={0.88} onPress={() => onNavigateTab?.('categories')} style={[styles.searchBar, isRTL && styles.rowReverse]}>
+        <TouchableOpacity activeOpacity={0.88} onPress={onOpenSearch || (() => onNavigateTab?.('categories'))} style={[styles.searchBar, isRTL && styles.rowReverse]}>
           <MayushIcon name="search" size={20} color={colors.neutral.gray500} style={styles.searchIcon} />
           <MayushText variant="body" color={colors.neutral.gray500} style={styles.searchPlaceholder}>
             {heading('Rechercher un produit, une collection...', 'ابحث عن منتج أو تشكيلة...')}
@@ -1283,10 +1048,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* 9. Collections vedettes Section */}
         {displayCollections.length > 0 && (
           <>
-            <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir toutes les collections', 'عرض كل التشكيلات')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+            <SectionHeader label={heading('Collections vedettes', 'التشكيلات المميزة')} action={heading('Voir toutes les collections', 'عرض كل التشكيلات')} isRTL={isRTL} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.collectionsRow}>
               {displayCollections.map((col) => (
-                <TouchableOpacity key={col.id} activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
+                <TouchableOpacity key={col.id} activeOpacity={0.84} style={styles.collectionItem} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))}>
                   <View style={styles.collectionCircleWrap}>
                     <Image source={col.image} style={styles.collectionImage} resizeMode="cover" />
                   </View>
@@ -1298,7 +1063,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </MayushText>
                 </TouchableOpacity>
               ))}
-              <TouchableOpacity activeOpacity={0.84} style={styles.collectionItem} onPress={() => onNavigateTab?.('categories')}>
+              <TouchableOpacity activeOpacity={0.84} style={styles.collectionItem} onPress={onOpenCollections ?? (() => onNavigateTab?.('categories'))}>
                 <View style={styles.collectionMoreCircle}>
                   <MayushIcon name="more-horizontal" size={24} color={colors.brand.navy900} />
                 </View>
@@ -1313,10 +1078,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* 10. Nos sélections partenaires Section */}
         {topBrands.length > 0 && (
           <View style={styles.partnersSection}>
-            <SectionHeader label={heading('Nos sélections partenaires', 'شركاؤنا المختارون')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+            <SectionHeader label={heading('Nos sélections partenaires', 'شركاؤنا المختارون')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenPartners ?? (() => onNavigateTab?.('categories'))} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.partnersRow}>
               {topBrands.map((b) => (
-                <View key={b.id} style={styles.partnerCard}>
+                <TouchableOpacity key={b.id} style={styles.partnerCard} onPress={onOpenPartners ?? (() => onNavigateTab?.('categories'))} activeOpacity={0.85}>
                   {b.logo ? (
                     <Image source={{ uri: b.logo }} style={{ width: 60, height: 40 }} resizeMode="contain" />
                   ) : (
@@ -1324,7 +1089,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                       {b.name}
                     </MayushText>
                   )}
-                </View>
+                </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
@@ -1333,7 +1098,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* 11. Recommandé pour vous Section */}
         {recommendedProducts.length > 0 && (
           <>
-            <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+            <SectionHeader label={heading('Recommandé pour vous', 'موصى به لك')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenRecommended ?? (() => onNavigateTab?.('categories'))} />
             <ProductRail
               products={recommendedProducts}
               cardWidth={productWidth}
@@ -1345,10 +1110,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         )}
 
         {/* 12. Pièces par ambiance Section */}
-        <SectionHeader label={heading('Pièces par ambiance', 'غرف حسب الطراز')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={() => onNavigateTab?.('categories')} />
+        <SectionHeader label={heading('Pièces par ambiance', 'غرف حسب الطراز')} action={heading('Voir tout', 'عرض الكل')} isRTL={isRTL} onPress={onOpenAmbiances ?? (() => onNavigateTab?.('categories'))} />
         <View style={styles.ambianceGrid}>
           {AMBIANCES_DATA.map((amb) => (
-            <TouchableOpacity key={amb.id} activeOpacity={0.86} style={styles.ambianceCard} onPress={() => onNavigateTab?.('categories')}>
+            <TouchableOpacity key={amb.id} activeOpacity={0.86} style={styles.ambianceCard} onPress={onOpenAmbiances ?? (() => onNavigateTab?.('categories'))}>
               <Image source={amb.image} style={styles.ambianceImage} resizeMode="cover" />
               <View style={styles.ambianceContent}>
                 <MayushText variant="smallBody" color={colors.brand.navy900} style={styles.ambianceTitle}>
