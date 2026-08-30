@@ -1,19 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { acceptCheckoutTerms, AddressDraft, addressToDraft, buildSellerDeliveryProjection, CheckoutTermsAcceptance, clearCheckoutSession, createCheckoutMaterialSignature, createLocalCheckoutAttemptId, createSavedAddress, DeliveryMethod, emptyAddressDraft, getCheckoutGrandTotalMad, getCityById, isCheckoutTermsAcceptanceValid, isResumableCheckoutScreen, loadCheckoutSession, PaymentMethod, resolveCheckoutRecovery, resolveFrontendPaymentVerificationOutcome, ResumableCheckoutScreen, saveCheckoutSession, setAddressDraftCity, setAddressDraftZone, validateAddressDraft } from '../commerce/checkoutState';
 import {
-  CART_STORAGE_KEY,
   CartLine,
   CartState,
   CartVariantSelection,
   addCartLine,
   applyCartConflictChanges,
   applyPromotionCode,
+  cartStateManager,
   createSelectedVariantCartLine,
-  emptyCartState,
   getCartTotals,
-  hydrateCartState,
   parseMadPrice,
   removeCartPromotion,
   revalidateCartPromotion,
@@ -148,6 +147,7 @@ import { CategoriesScreen } from '../screens/discovery/CategoriesScreen';
 import { CategoryLandingScreen } from '../screens/discovery/CategoryLandingScreen';
 import { CategoryProductListScreen } from '../screens/discovery/CategoryProductListScreen';
 import { CollectionShopTheLookScreen } from '../screens/discovery/CollectionShopTheLookScreen';
+import { CollectionsListScreen } from '../screens/discovery/CollectionsListScreen';
 import { FilterPanelModal } from '../screens/discovery/FilterPanelModal';
 import { HomeScreen } from '../screens/discovery/HomeScreen';
 import { RecentlyViewedScreen } from '../screens/discovery/RecentlyViewedScreen';
@@ -178,6 +178,7 @@ import { ProductDeliveryReturnsScreen } from '../screens/product/ProductDelivery
 import { ProductDetailsScreen } from '../screens/product/ProductDetailsScreen';
 import { ProductFullDescriptionScreen } from '../screens/product/ProductFullDescriptionScreen';
 import { ProductGalleryScreen } from '../screens/product/ProductGalleryScreen';
+import InspirationDetailScreen from '../screens/discovery/InspirationDetailScreen';
 import { ProductReviewsRatingsScreen } from '../screens/product/ProductReviewsRatingsScreen';
 import { ProductSpecificationsScreen } from '../screens/product/ProductSpecificationsScreen';
 import { VariantSelectorSheet } from '../screens/product/VariantSelectorSheet';
@@ -187,7 +188,8 @@ import { PromotionsCampaignsScreen } from '../screens/promotions/PromotionsCampa
 
 import { SearchLandingScreen } from '../screens/search/SearchLandingScreen';
 import { SearchNoResultsScreen } from '../screens/search/SearchNoResultsScreen';
-import { SearchResultsScreen } from '../screens/search/SearchResultsScreen';
+import { SearchResultsScreen, CatalogListType } from '../screens/search/SearchResultsScreen';
+import { notificationService } from '../services/api/notificationService';
 
 import * as Linking from 'expo-linking';
 import { ScreenKey } from './screenKeys';
@@ -199,7 +201,7 @@ const ONBOARDING_COMPLETE_KEY = 'mayush-mobile:onboarding-complete';
 const LANGUAGE_KEY = 'mayush-mobile:language';
 
 const SCREENS_WITH_TABBAR = new Set<ScreenKey>([
-  'about-app', 'about-mayush', 'accessibility', 'account-security', 'account-settings', 'account-verify-phone', 'active-sessions', 'app-permissions', 'change-email', 'change-password', 'change-phone', 'data-usage', 'edit-profile', 'language-region', 'legal-center', 'marketing-cart-reminders', 'marketing-detailed-preferences', 'marketing-toggles', 'my-addresses', 'my-addresses-v2', 'my-information', 'notification-channels', 'notification-detail-prep', 'notification-detail-shipped', 'notification-settings-toggles', 'offline-mode', 'payment-methods', 'privacy-data', 'privacy-policy', 'security-privacy', 'settings', 'silent-hours-day-selection', 'silent-hours-dnd', 'storage-cache', 'security-2fa', 'theme-appearance', 'account', 'cart', 'wishlist', 'categories', 'category-products', 'home', 'orders-list', 'product-details', 'product-gallery', 'app-update-available', 'attach-files-documents', 'close-request-confirmation', 'contact-support-form', 'faq', 'faq-article-track-order-steps', 'faq-categories', 'faq-detail', 'faq-tab-categories', 'help-category-orders-delivery', 'help-center', 'help-center-home', 'help-center-requests', 'help-center-search-results', 'help-support', 'maintenance-mode-services-impacted', 'my-support-tickets-list', 'no-support-requests-empty-state', 'reply-to-support-message', 'review-send-support-request', 'select-order-for-support', 'support-connection-error', 'support-request-sent-success', 'support-temporarily-unavailable', 'ticket-detail-conversation-thread', 'ticket-resolved-rating'
+  'about-app', 'about-mayush', 'accessibility', 'account-security', 'account-settings', 'account-verify-phone', 'active-sessions', 'app-permissions', 'change-email', 'change-password', 'change-phone', 'data-usage', 'edit-profile', 'language-region', 'legal-center', 'marketing-cart-reminders', 'marketing-detailed-preferences', 'marketing-toggles', 'my-addresses', 'my-addresses-v2', 'my-information', 'notification-channels', 'notification-detail-prep', 'notification-detail-shipped', 'notification-settings-toggles', 'offline-mode', 'payment-methods', 'privacy-data', 'privacy-policy', 'security-privacy', 'settings', 'silent-hours-day-selection', 'silent-hours-dnd', 'storage-cache', 'security-2fa', 'theme-appearance', 'account', 'cart', 'wishlist', 'categories', 'category-products', 'collections-list', 'home', 'orders-list', 'product-details', 'product-gallery', 'app-update-available', 'attach-files-documents', 'close-request-confirmation', 'contact-support-form', 'faq', 'faq-article-track-order-steps', 'faq-categories', 'faq-detail', 'faq-tab-categories', 'help-category-orders-delivery', 'help-center', 'help-center-home', 'help-center-requests', 'help-center-search-results', 'help-support', 'maintenance-mode-services-impacted', 'my-support-tickets-list', 'no-support-requests-empty-state', 'reply-to-support-message', 'review-send-support-request', 'select-order-for-support', 'support-connection-error', 'support-request-sent-success', 'support-temporarily-unavailable', 'ticket-detail-conversation-thread', 'ticket-resolved-rating'
 ]);
 
 interface RootNavigatorContentProps {
@@ -216,14 +218,21 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const [currentScreen, setCurrentScreen] = useState<ScreenKey>('splash');
   const [splashFinished, setSplashFinished] = useState(false);
   const categoryProductsBackRef = useRef<ScreenKey>('category-landing');
+  const searchResultsBackRef = useRef<ScreenKey>('search-landing');
+  const collectionsListBackRef = useRef<ScreenKey>('home');
+  const [catalogListType, setCatalogListType] = useState<CatalogListType>('search');
+  const [catalogListTitle, setCatalogListTitle] = useState<string | undefined>();
   const [selectedCategory, setSelectedCategory] = useState<CategoryDto>();
   const [selectedProduct, setSelectedProduct] = useState<ProductMiniDto>();
   const [variantProduct, setVariantProduct] = useState<ProductDetailDto | null>(null);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryProductName, setGalleryProductName] = useState<string | undefined>();
+  const [inspirationSlug, setInspirationSlug] = useState<string | undefined>();
   const [variantSheetVisible, setVariantSheetVisible] = useState(false);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('Fauteuil');
-  const [cart, setCart] = useState<CartState>(emptyCartState);
+  const [cart, setCart] = useState<CartState>(() => cartStateManager.getState());
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [addressDraft, setAddressDraft] = useState<AddressDraft>(emptyAddressDraft);
   const [addressEditorMode, setAddressEditorMode] = useState<'add' | 'edit'>('add');
@@ -243,6 +252,21 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const [authPromptType, setAuthPromptType] = useState<'wishlist' | 'cart'>('wishlist');
   const [isClearCacheModalVisible, setIsClearCacheModalVisible] = useState(false);
   const [lastReorderResult, setLastReorderResult] = useState<ReorderCartResult | null>(null);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+    notificationService
+      .getUnreadCount()
+      .then((count) => {
+        if (mounted) setUnreadNotificationCount(count);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, [domainRevision]);
+
   const paymentLock = useRef(false);
   const isAuthenticated = authState.isAuthenticated();
   const authenticatedUser = authState.getUser();
@@ -378,11 +402,10 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   };
 
   const commitReorderToCart = (): boolean => {
-    const result = orderActionState.addSelectedReorderItemsToCart(cart);
+    const result = orderActionState.addSelectedReorderItemsToCart(cartStateManager.getState());
     if (!result || result.addedLineIds.length === 0) return false;
-    setCart(result.cart);
+    cartStateManager.setCart(result.cart);
     setLastReorderResult(result);
-    void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(result.cart)).catch(() => undefined);
     setCurrentScreen('order-reorder-added');
     return true;
   };
@@ -417,7 +440,11 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
     }
   };
 
-  const selectCategory = (category: CategoryDto) => { setSelectedCategory(category); setCurrentScreen('category-products'); };
+  const selectCategory = (category: CategoryDto) => {
+    setSelectedCategory(category);
+    categoryProductsBackRef.current = currentScreen;
+    setCurrentScreen('category-landing');
+  };
   const selectProduct = (product: ProductMiniDto) => { setSelectedProduct(product); setCurrentScreen('product-details'); };
 
   const handleToggleWishlist = (product: ProductMiniDto) => {
@@ -519,51 +546,18 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
     setCurrentScreen(activeOrder?.packages.length ? 'order-packages' : 'orders-list');
   }, [activeOrder?.orderId, activeOrder?.packages.length, activePackage?.packageId, currentScreen]);
 
+  // Subscribe to cartStateManager so React state stays in sync across
+  // app reload, login, logout, and background hydration.
   useEffect(() => {
-    let isMounted = true;
-    void AsyncStorage.getItem(CART_STORAGE_KEY).then((storedCart) => {
-      if (!isMounted || !storedCart) return;
-      try {
-        setCart(hydrateCartState(JSON.parse(storedCart)));
-      } catch {
-        setCart(emptyCartState());
-      }
+    // Immediately pick up whatever cartStateManager already has (may be
+    // hydrated from AsyncStorage by the time this effect runs).
+    setCart(cartStateManager.getState());
+
+    const unsubscribeCart = cartStateManager.subscribe(() => {
+      setCart(cartStateManager.getState());
     });
 
-    if (authState.isAuthenticated()) {
-      const currentUserId = authState.getUser()?.id;
-      cartService.getCart({ userId: currentUserId }).then((remoteCart) => {
-        if (!isMounted || !remoteCart?.data || !Array.isArray(remoteCart.data)) return;
-        const remoteLines: CartLine[] = [];
-        remoteCart.data.forEach((group) => {
-          if (Array.isArray(group.cart_items)) {
-            group.cart_items.forEach((item) => {
-              remoteLines.push({
-                id: String(item.id),
-                productId: item.product_id,
-                name: item.product_name,
-                productName: item.product_name,
-                variant: item.variation || 'Standard',
-                variantId: item.variation || 'Standard',
-                selectedVariantText: item.variation || 'Standard',
-                quantity: item.quantity,
-                unitPriceMad: typeof item.price === 'number' ? item.price : parseMadPrice(String(item.price)),
-                imageUri: item.product_thumbnail_image || '',
-                imageAsset: item.product_thumbnail_image || '',
-                sellerId: String(item.owner_id),
-                sellerName: group.name,
-              });
-            });
-          }
-        });
-        if (remoteLines.length > 0) {
-          setCart((prev) => hydrateCartState({ ...prev, lines: remoteLines }));
-          void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify({ lines: remoteLines })).catch(() => undefined);
-        }
-      }).catch(() => undefined);
-    }
-
-    return () => { isMounted = false; };
+    return () => { unsubscribeCart(); };
   }, []);
 
   useEffect(() => {
@@ -608,47 +602,46 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
 
 
   const updateCartQuantity = (lineId: string, delta: number) => {
-    setCart((prev) => {
-      const line = prev.lines.find((item) => item.id === lineId);
-      if (!line) return prev;
-      const nextQuantity = line.quantity + delta;
-      const nextCart = updateCartLineQuantity(prev, lineId, nextQuantity);
-      void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
+    const currentCart = cartStateManager.getState();
+    const line = currentCart.lines.find((item) => item.id === lineId);
+    if (!line) return;
+    const nextQuantity = line.quantity + delta;
+    const nextCart = updateCartLineQuantity(currentCart, lineId, nextQuantity);
+    cartStateManager.setCart(nextCart);
 
-      const numericLineId = Number.parseInt(lineId.replace(/\D/g, ''), 10);
-      if (Number.isFinite(numericLineId)) {
-        if (nextQuantity <= 0) {
-          cartService.removeCartItem(numericLineId).catch(() => undefined);
-        } else {
-          cartService.changeQuantity(numericLineId, nextQuantity).catch(() => undefined);
-        }
+    const numericLineId = Number.parseInt(lineId.replace(/\D/g, ''), 10);
+    if (Number.isFinite(numericLineId)) {
+      if (nextQuantity <= 0) {
+        cartService.removeCartItem(numericLineId).catch(() => undefined);
+      } else {
+        cartService.changeQuantity(numericLineId, nextQuantity).catch(() => undefined);
       }
-      return nextCart;
-    });
+    }
   };
 
-  const addSelectedVariantToCart = (variant: string, quantity: number) => {
+  const addSelectedVariantToCart = (variant: string, quantity: number, selectedUnitPriceMad?: number) => {
     if (!variantProduct) return;
-    const unitPriceMad = parseMadPrice(variantProduct.main_price || '2950 MAD');
-    const primaryImage = variantProduct.photos?.[0] || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=350&auto=format&fit=crop';
-    setCart((prevCart) => {
-      const lineName = variantProduct.name || 'Produit Mayush';
-      const nextCart = addCartLine(prevCart, createSelectedVariantCartLine({
-        productId: variantProduct.id,
-        name: lineName,
-        variant,
-        quantity,
-        unitPriceMad,
-        imageUri: primaryImage,
-        variantOptions: /fauteuil|louna|luna/i.test(lineName) ? [
-          { variantId: 'louna-70', label: 'Bouclé · Beige · 70cm P', unitPriceMad: 2250 },
-          { variantId: 'louna-75', label: 'Bouclé · Beige · 75cm P', unitPriceMad: 2450 },
-          { variantId: 'louna-80', label: 'Bouclé · Beige · 80cm P', unitPriceMad: 2650 },
-        ] : [{ variantId: variant, label: variant, unitPriceMad }],
-      }));
-      void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
-      return nextCart;
-    });
+    // Use the authoritative numeric price from the backend; fall back to parsing formatted strings
+    const basePrice = variantProduct.calculable_price > 0
+      ? Math.round(variantProduct.calculable_price)
+      : parseMadPrice(variantProduct.main_price || variantProduct.stroked_price || variantProduct.priceFormatted || '0');
+    const unitPriceMad = (selectedUnitPriceMad && selectedUnitPriceMad > 0) ? selectedUnitPriceMad : basePrice;
+    const primaryImage = variantProduct.photos?.[0] || variantProduct.thumbnail_image || variantProduct.thumbnail_img || '';
+    const lineName = variantProduct.name || 'Produit Mayush';
+    const sellerId = variantProduct.seller_id ? String(variantProduct.seller_id) : undefined;
+    const sellerName = variantProduct.shop_name || undefined;
+    const nextCart = addCartLine(cartStateManager.getState(), createSelectedVariantCartLine({
+      productId: variantProduct.id,
+      name: lineName,
+      variant,
+      quantity,
+      unitPriceMad,
+      imageUri: primaryImage,
+      sellerId,
+      sellerName,
+      variantOptions: [{ variantId: variant, label: variant, unitPriceMad }],
+    }));
+    cartStateManager.setCart(nextCart);
 
     const user = authState.getUser();
     cartService.addToCart({
@@ -656,6 +649,9 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       variant,
       quantity,
       userId: user?.id,
+    }).then(() => {
+      // Re-sync from server to get authoritative prices
+      void cartStateManager.hydrate(user?.id ? String(user.id) : undefined);
     }).catch(() => undefined);
 
     setVariantSheetVisible(false);
@@ -663,24 +659,24 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   };
 
   const moveWishlistItemToCart = (product: ProductMiniDto) => {
-    const unitPriceMad = product.priceMad || parseMadPrice(product.main_price || '1500 MAD');
-    setCart((prevCart) => {
-      const imgSrc = product.thumbnail_image || 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=350&auto=format&fit=crop';
-      const nextCart = addCartLine(prevCart, {
-        id: `${product.id}:wishlist`,
-        productId: product.id,
-        name: product.name,
-        productName: product.name,
-        variant: 'Standard',
-        selectedVariantText: 'Standard',
-        quantity: 1,
-        unitPriceMad,
-        imageUri: imgSrc,
-        imageAsset: imgSrc,
-      });
-      void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
-      return nextCart;
+    const unitPriceMad = product.priceMad
+      || product.base_discounted_price
+      || product.base_price
+      || parseMadPrice(product.main_price || product.stroked_price || '0');
+    const imgSrc = product.thumbnail_image || '';
+    const nextCart = addCartLine(cartStateManager.getState(), {
+      id: `${product.id}:wishlist`,
+      productId: product.id,
+      name: product.name,
+      productName: product.name,
+      variant: 'Standard',
+      selectedVariantText: 'Standard',
+      quantity: 1,
+      unitPriceMad,
+      imageUri: imgSrc,
+      imageAsset: imgSrc,
     });
+    cartStateManager.setCart(nextCart);
 
     const user = authState.getUser();
     cartService.addToCart({
@@ -688,12 +684,14 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       variant: 'Standard',
       quantity: 1,
       userId: user?.id,
+    }).then(() => {
+      void cartStateManager.hydrate(user?.id ? String(user.id) : undefined);
     }).catch(() => undefined);
 
     setCurrentScreen('added-to-cart');
   };
 
-  const saveAddress = () => {
+  const saveAddress = async () => {
     const errors = validateAddressDraft(addressDraft);
     if (Object.keys(errors).length > 0) {
       setCurrentScreen('add-address-errors');
@@ -701,15 +699,15 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
     }
     const newId = `address-${Date.now()}`;
     const newAddress = createSavedAddress(addressDraft, newId);
-    authState.addAddress(newAddress);
+    await authState.addAddress(newAddress);
     setSelectedAddressId(newId);
     setCurrentScreen('address-selection');
   };
 
-  const saveEditedAddress = () => {
+  const saveEditedAddress = async () => {
     const errors = validateAddressDraft(addressDraft);
     if (!editingAddressId || Object.keys(errors).length > 0) return;
-    authState.updateAddress(editingAddressId, createSavedAddress(addressDraft, editingAddressId));
+    await authState.updateAddress(editingAddressId, createSavedAddress(addressDraft, editingAddressId));
     setSelectedAddressId(editingAddressId);
     setCurrentScreen('address-selection');
   };
@@ -776,8 +774,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   const finalizeSuccessfulCheckout = () => {
     paymentLock.current = false;
     setPaymentProcessing(false);
-    setCart(emptyCartState());
-    void AsyncStorage.removeItem(CART_STORAGE_KEY).catch(() => undefined);
+    cartStateManager.reset();
     void clearCheckoutSession(AsyncStorage).catch(() => undefined);
     setCheckoutAttemptId(createLocalCheckoutAttemptId());
     setTermsAcceptance(undefined);
@@ -791,7 +788,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
     const order = orderState.getSelectedOrder();
     if (!order) { setCurrentScreen('checkout-error'); return; }
     const destination = resolveOrderProcessingDestination(order.paymentMethod);
-    if (destination === 'payment-step-intro' || destination === 'cash-on-delivery-confirmation') {
+    if (destination === 'secure-payment-redirect' || destination === 'cash-on-delivery-confirmation') {
       setCurrentScreen(destination);
       return;
     }
@@ -927,14 +924,14 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   };
 
   const acceptCheckoutConflictChanges = () => {
-    const nextCart = applyCartConflictChanges(cart, [
+    const currentCart = cartStateManager.getState();
+    const nextCart = applyCartConflictChanges(currentCart, [
       { kind: 'price', lineId: 'line-fs-1023', oldPriceMad: 2890, newPriceMad: 3190 },
       { kind: 'stock', lineId: 'line-tb-2045', oldQuantity: 5, newQuantity: 2 },
-      ...(cart.appliedPromotionId ? [{ kind: 'promotion_invalidated' as const, promotionId: cart.appliedPromotionId }] : []),
+      ...(currentCart.appliedPromotionId ? [{ kind: 'promotion_invalidated' as const, promotionId: currentCart.appliedPromotionId }] : []),
     ]);
-    setCart(nextCart);
+    cartStateManager.setCart(nextCart);
     setTermsAcceptance(undefined);
-    void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
     setCurrentScreen('checkout-skeleton');
     Promise.resolve().then(() => setCurrentScreen('order-review')).catch(() => setCurrentScreen('checkout-error'));
   };
@@ -948,28 +945,22 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   };
 
   const handleSearchSubmit = (query: string) => {
-    setSearchQuery(query);
-    if (query.toLowerCase().includes('xyz') || query.toLowerCase().includes('000')) {
-      setCurrentScreen('search-no-results');
-    } else {
-      setCurrentScreen('search-results');
-    }
+    setSearchQuery(query.trim());
+    setCurrentScreen('search-results');
   };
 
   const updateCartVariant = (lineId: string, selection: CartVariantSelection): boolean => {
-    const result = updateCartLineVariant(cart, lineId, selection);
+    const result = updateCartLineVariant(cartStateManager.getState(), lineId, selection);
     if (!result.updated) return false;
-    setCart(result.cart);
-    void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(result.cart)).catch(() => undefined);
+    cartStateManager.setCart(result.cart);
     return true;
   };
 
   const applyCartPromotion = (code: string) => {
     const cleanCode = code.trim().toUpperCase();
-    const result = applyPromotionCode(cart, cleanCode);
+    const result = applyPromotionCode(cartStateManager.getState(), cleanCode);
     if (result.validation.code === 'VALID') {
-      setCart(result.cart);
-      void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(result.cart)).catch(() => undefined);
+      cartStateManager.setCart(result.cart);
     }
     if (authState.isAuthenticated()) {
       cartService.applyCoupon({
@@ -981,19 +972,26 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
   };
 
   const clearCartPromotion = () => {
-    const nextCart = removeCartPromotion(cart);
-    setCart(nextCart);
-    void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
+    const nextCart = removeCartPromotion(cartStateManager.getState());
+    cartStateManager.setCart(nextCart);
   };
 
   const handleMergeCartLines = (mergedLines: CartLine[]) => {
-    const nextCart = revalidateCartPromotion({ ...cart, lines: mergedLines });
-    setCart(nextCart);
-    void AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(nextCart)).catch(() => undefined);
+    const currentCart = cartStateManager.getState();
+    const nextCart = revalidateCartPromotion({ ...currentCart, lines: mergedLines });
+    cartStateManager.setCart(nextCart);
   };
 
+  const insets = useSafeAreaInsets();
+  const safeTopPadding = currentScreen === 'splash'
+    ? 0
+    : Math.max(
+        insets.top,
+        Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : (Platform.OS === 'ios' ? 44 : 0)
+      );
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: safeTopPadding }]}>
       {currentScreen === 'splash' ? <SplashScreen onFinish={() => setSplashFinished(true)} /> : null}
       {currentScreen === 'language' ? <LanguageSelectionScreen onContinue={(language) => { onLanguageSelected(language); setCurrentScreen('preparing'); }} /> : null}
       {currentScreen === 'preparing' ? <PreparingExperienceScreen onFinish={() => setCurrentScreen('onboarding-1')} /> : null}
@@ -1001,21 +999,283 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
       {currentScreen === 'onboarding-2' ? <OnboardingScreen step={2} onNext={() => setCurrentScreen('onboarding-3')} onSkip={onOnboardingCompleted} /> : null}
       {currentScreen === 'onboarding-3' ? <OnboardingScreen step={3} onNext={onOnboardingCompleted} onSkip={onOnboardingCompleted} /> : null}
 
-      {currentScreen === 'home' ? <HomeScreen activeTab={activeTab} isAuthenticated={isAuthenticated} authenticatedUser={authenticatedUser} orders={orders} cartProductIds={cart.lines.map((line) => Number(line.productId)).filter(Number.isFinite)} wishlistedProductIds={wishlistedProductIds} cartBadgeCount={isAuthenticated ? cart.lines.reduce((sum, line) => sum + line.quantity, 0) : 0} onSelectCategory={selectCategory} onSelectProduct={selectProduct} onNavigateTab={navigateTab} onOpenWishlist={() => setCurrentScreen('wishlist')} onOpenPromotions={() => setCurrentScreen(resolveHomeCanonicalDestination('promotions'))} onOpenRecentlyViewed={() => setCurrentScreen(resolveHomeCanonicalDestination('recently_viewed'))} onOpenBestSellers={() => { setSelectedCategory({ id: 0, name: 'Meilleures ventes', banner: '', icon: '', number_of_children: 0, links: { products: '', sub_categories: '' } }); categoryProductsBackRef.current = 'home'; setCurrentScreen('category-products'); }} onOpenNewArrivals={() => { setSelectedCategory({ id: 0, name: 'Nouveautés', banner: '', icon: '', number_of_children: 0, links: { products: '', sub_categories: '' } }); categoryProductsBackRef.current = 'home'; setCurrentScreen('category-products'); }} onOpenInspiration={() => { setSelectedCategory({ id: 0, name: 'Inspiration', banner: '', icon: '', number_of_children: 0, links: { products: '', sub_categories: '' } }); categoryProductsBackRef.current = 'home'; setCurrentScreen('category-products'); }} onOpenOrder={(orderId) => { void openOrderById(orderId); }} onToggleWishlist={handleToggleWishlist} /> : null}
-      {currentScreen === 'categories' ? <CategoriesScreen activeTab={activeTab} onSelectCategory={(cat) => { setSelectedCategory(cat); categoryProductsBackRef.current = 'categories'; setCurrentScreen('category-products'); }} onNavigateTab={navigateTab} /> : null}
-      {currentScreen === 'category-landing' ? <CategoryLandingScreen category={selectedCategory} onBack={() => setCurrentScreen('categories')} onSelectSubcategory={() => setCurrentScreen('category-products')} onOpenCollection={() => setCurrentScreen('collection-shop-the-look')} onSelectProduct={selectProduct} onOpenSearch={() => setCurrentScreen('search-landing')} /> : null}
-      {currentScreen === 'category-products' ? <CategoryProductListScreen activeTab={activeTab} category={selectedCategory} onBack={() => { const dest = categoryProductsBackRef.current; categoryProductsBackRef.current = 'category-landing'; setCurrentScreen(dest); }} onSelectProduct={selectProduct} onNavigateTab={navigateTab} wishlistedProductIds={wishlistedProductIds} onToggleWishlist={handleToggleWishlist} /> : null}
+      {currentScreen === 'home' ? (
+        <HomeScreen
+          activeTab={activeTab}
+          isAuthenticated={isAuthenticated}
+          authenticatedUser={authenticatedUser}
+          orders={orders}
+          cartProductIds={cart.lines.map((line) => Number(line.productId)).filter(Number.isFinite)}
+          wishlistedProductIds={wishlistedProductIds}
+          cartBadgeCount={isAuthenticated ? cart.lines.reduce((sum, line) => sum + line.quantity, 0) : 0}
+          onSelectCategory={selectCategory}
+          onSelectProduct={selectProduct}
+          onNavigateTab={navigateTab}
+          onOpenSearch={() => setCurrentScreen('search-landing')}
+          onOpenWishlist={() => setCurrentScreen('wishlist')}
+          onOpenPromotions={() => {
+            setCatalogListType('promotions');
+            setCatalogListTitle(undefined);
+            setSearchQuery('');
+            searchResultsBackRef.current = 'home';
+            setCurrentScreen('search-results');
+          }}
+          onOpenRecentlyViewed={() => setCurrentScreen(resolveHomeCanonicalDestination('recently_viewed'))}
+          onOpenBestSellers={() => {
+            setCatalogListType('best_sellers');
+            setCatalogListTitle(undefined);
+            setSearchQuery('');
+            searchResultsBackRef.current = 'home';
+            setCurrentScreen('search-results');
+          }}
+          onOpenNewArrivals={() => {
+            setCatalogListType('new_arrivals');
+            setCatalogListTitle(undefined);
+            setSearchQuery('');
+            searchResultsBackRef.current = 'home';
+            setCurrentScreen('search-results');
+          }}
+          onOpenInspiration={() => {
+            setCatalogListType('inspiration');
+            setCatalogListTitle(undefined);
+            setSearchQuery('');
+            searchResultsBackRef.current = 'home';
+            setCurrentScreen('search-results');
+          }}
+          onOpenRecommended={() => {
+            setCatalogListType('recommended');
+            setCatalogListTitle(undefined);
+            setSearchQuery('');
+            searchResultsBackRef.current = 'home';
+            setCurrentScreen('search-results');
+          }}
+          onOpenCollections={() => {
+            collectionsListBackRef.current = 'home';
+            setCurrentScreen('collections-list');
+          }}
+          onSelectCollection={(collection) => {
+            setCatalogListType('collections');
+            setCatalogListTitle(collection.name);
+            setSearchQuery('');
+            searchResultsBackRef.current = 'home';
+            setCurrentScreen('search-results');
+          }}
+          onOpenPartners={() => {
+            setCatalogListType('partners');
+            setCatalogListTitle(undefined);
+            setSearchQuery('');
+            searchResultsBackRef.current = 'home';
+            setCurrentScreen('search-results');
+          }}
+          onOpenAmbiances={() => {
+            setCatalogListType('ambiances');
+            setCatalogListTitle(undefined);
+            setSearchQuery('');
+            searchResultsBackRef.current = 'home';
+            setCurrentScreen('search-results');
+          }}
+          onOpenOrder={(orderId) => { void openOrderById(orderId); }}
+          onToggleWishlist={handleToggleWishlist}
+        />
+      ) : null}
+      {currentScreen === 'categories' ? (
+        <CategoriesScreen
+          activeTab={activeTab}
+          onSelectCategory={(cat) => {
+            setSelectedCategory(cat);
+            categoryProductsBackRef.current = 'categories';
+            setCurrentScreen('category-landing');
+          }}
+          onNavigateTab={navigateTab}
+          onOpenSearch={() => setCurrentScreen('search-landing')}
+          onOpenCart={() => setCurrentScreen('cart')}
+          onOpenNotifications={() => setCurrentScreen('notification-settings-toggles')}
+          cartCount={cart.lines.reduce((sum, line) => sum + line.quantity, 0)}
+          notificationCount={unreadNotificationCount}
+        />
+      ) : null}
+      {currentScreen === 'category-landing' ? (
+        <CategoryLandingScreen
+          category={selectedCategory}
+          onBack={() => setCurrentScreen(categoryProductsBackRef.current)}
+          onSelectSubcategory={(subcat) => {
+            if (typeof subcat === 'object') {
+              setSelectedCategory(subcat);
+              categoryProductsBackRef.current = 'category-landing';
+              setCurrentScreen('category-landing');
+            } else {
+              setSelectedCategory({ id: 0, name: subcat, slug: subcat, banner: '', icon: '', number_of_children: 0, links: { products: '', sub_categories: '' } });
+              categoryProductsBackRef.current = 'category-landing';
+              setCurrentScreen('category-landing');
+            }
+          }}
+          onOpenCollection={(colId) => {
+            setCatalogListType('collections');
+            setCatalogListTitle(`Collection ${colId}`);
+            searchResultsBackRef.current = 'category-landing';
+            setCurrentScreen('search-results');
+          }}
+          onViewAllCollections={() => {
+            collectionsListBackRef.current = 'category-landing';
+            setCurrentScreen('collections-list');
+          }}
+          onViewAllPopular={() => {
+            setCatalogListType('best_sellers');
+            setCatalogListTitle(selectedCategory?.name ? `Populaires - ${selectedCategory.name}` : undefined);
+            searchResultsBackRef.current = 'category-landing';
+            setCurrentScreen('search-results');
+          }}
+          onViewAllNewArrivals={() => {
+            setCatalogListType('new_arrivals');
+            setCatalogListTitle(selectedCategory?.name ? `Nouveautés - ${selectedCategory.name}` : undefined);
+            searchResultsBackRef.current = 'category-landing';
+            setCurrentScreen('search-results');
+          }}
+          onSelectProduct={(p) => {
+            selectProduct(p);
+            setCurrentScreen('product-details');
+          }}
+          onToggleWishlist={handleToggleWishlist}
+          wishlistedProductIds={wishlistedProductIds}
+          onOpenSearch={() => setCurrentScreen('search-landing')}
+          onOpenCart={() => setCurrentScreen('cart')}
+          onOpenWishlist={() => setCurrentScreen('wishlist')}
+          onOpenNotifications={() => setCurrentScreen('notification-settings-toggles')}
+          onNavigateTab={navigateTab}
+          activeTab={activeTab}
+          cartCount={cart.lines.reduce((sum, line) => sum + line.quantity, 0)}
+          notificationCount={unreadNotificationCount}
+        />
+      ) : null}
+      {currentScreen === 'category-products' ? <CategoryProductListScreen activeTab={activeTab} category={selectedCategory || null} onBack={() => { const dest = categoryProductsBackRef.current; categoryProductsBackRef.current = 'category-landing'; setCurrentScreen(dest); }} onSelectProduct={selectProduct} onNavigateTab={navigateTab} onOpenSearch={() => setCurrentScreen('search-landing')} wishlistedProductIds={wishlistedProductIds} onToggleWishlist={handleToggleWishlist} /> : null}
       {currentScreen === 'collection-shop-the-look' ? <CollectionShopTheLookScreen onBack={() => setCurrentScreen('category-landing')} onSelectProduct={selectProduct} onAddAllToCart={() => setCurrentScreen('cart')} onOpenFilter={() => setCurrentScreen('filter-panel-modal')} /> : null}
-      {currentScreen === 'flash-deals' ? <FlashDealsScreen onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} onOpenProductDetails={(id) => { selectProduct({ id, name: 'Produit Flash', thumbnail_image: '', has_discount: false, discount: '', stroked_price: '', priceMad: 1000, formattedPrice: '1 000 MAD', main_price: '1 000 MAD', rating: 5, sales: 1, links: { details: '' } }); setCurrentScreen('product-details'); }} /> : null}
+      {currentScreen === 'collections-list' ? (
+        <CollectionsListScreen
+          onBack={() => setCurrentScreen(collectionsListBackRef.current)}
+          onSelectCollection={(col) => {
+            setCatalogListType('collections');
+            setCatalogListTitle(col.name);
+            setSearchQuery('');
+            searchResultsBackRef.current = 'collections-list';
+            setCurrentScreen('search-results');
+          }}
+          onOpenSearch={() => setCurrentScreen('search-landing')}
+          onOpenCart={() => setCurrentScreen('cart')}
+          onOpenWishlist={() => setCurrentScreen('wishlist')}
+          onOpenNotifications={() => setCurrentScreen('notification-settings-toggles')}
+          cartBadgeCount={cart.lines.reduce((sum, line) => sum + line.quantity, 0)}
+          wishlistBadgeCount={wishlistedProductIds.length}
+          notificationBadgeCount={unreadNotificationCount}
+        />
+      ) : null}
+      {currentScreen === 'flash-deals' ? (
+        <FlashDealsScreen
+          onBack={() => setCurrentScreen('home')}
+          onSelectProduct={selectProduct}
+          onOpenProductDetails={(id) => { selectProduct({ id, name: 'Produit Flash', thumbnail_image: '', has_discount: false, discount: '', stroked_price: '', priceMad: 1000, formattedPrice: '1 000 MAD', main_price: '1 000 MAD', rating: 5, sales: 1, links: { details: '' } }); setCurrentScreen('product-details'); }}
+          onOpenCart={() => setCurrentScreen('cart')}
+          onOpenNotifications={() => setCurrentScreen('notification-settings-toggles')}
+          cartCount={cart.lines.reduce((sum, line) => sum + line.quantity, 0)}
+          notificationCount={unreadNotificationCount}
+        />
+      ) : null}
       {currentScreen === 'promotions-campaigns' ? <PromotionsCampaignsScreen onBack={() => setCurrentScreen('home')} onExploreDeals={() => setCurrentScreen('flash-deals')} /> : null}
-      {currentScreen === 'recently-viewed' ? <RecentlyViewedScreen onBack={() => setCurrentScreen('home')} onSelectProduct={selectProduct} /> : null}
+      {currentScreen === 'recently-viewed' ? (
+        <RecentlyViewedScreen
+          onBack={() => setCurrentScreen('home')}
+          onSelectProduct={selectProduct}
+          onOpenSearch={() => setCurrentScreen('search-landing')}
+          onOpenCart={() => setCurrentScreen('cart')}
+          onOpenWishlist={() => setCurrentScreen('wishlist')}
+          onOpenNotifications={() => setCurrentScreen('notification-settings-toggles')}
+          cartCount={cart.lines.reduce((sum, line) => sum + line.quantity, 0)}
+          notificationCount={unreadNotificationCount}
+        />
+      ) : null}
 
-      {currentScreen === 'search-landing' ? <SearchLandingScreen onBack={() => setCurrentScreen('home')} onSearchSubmit={(q) => { handleSearchSubmit(q); setCurrentScreen('search-results'); }} onSelectCategoryShortcut={() => setCurrentScreen('categories')} /> : null}
-      {currentScreen === 'search-results' ? <SearchResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen('search-landing')} onOpenFilter={() => setFilterModalVisible(true)} onSelectProduct={(p) => { selectProduct(p); setCurrentScreen('product-details'); }} wishlistedProductIds={wishlistedProductIds} onToggleWishlist={handleToggleWishlist} /> : null}
-      {currentScreen === 'search-no-results' ? <SearchNoResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen('search-landing')} onClearSearch={() => setCurrentScreen('search-landing')} onBrowseCategories={() => setCurrentScreen('categories')} /> : null}
+      {currentScreen === 'search-landing' ? <SearchLandingScreen onBack={() => setCurrentScreen('home')} onSearchSubmit={(q) => { setCatalogListType('search'); searchResultsBackRef.current = 'search-landing'; handleSearchSubmit(q); }} onSelectProduct={(p) => { selectProduct(p); setCurrentScreen('product-details'); }} onOpenCart={() => setCurrentScreen('cart')} onOpenNotifications={() => setCurrentScreen('notification-settings-toggles')} onBrowseCategories={() => setCurrentScreen('categories')} onSelectCategoryShortcut={(catSlug) => { setSelectedCategory({ id: 0, name: catSlug, slug: catSlug, banner: '', icon: '', number_of_children: 0, links: { products: '', sub_categories: '' } }); categoryProductsBackRef.current = 'search-landing'; setCurrentScreen('category-products'); }} cartCount={cart.lines.reduce((sum, line) => sum + line.quantity, 0)} notificationCount={unreadNotificationCount} /> : null}
+      {currentScreen === 'search-results' ? <SearchResultsScreen searchQuery={searchQuery} listType={catalogListType} listTitle={catalogListTitle} onBack={() => setCurrentScreen(searchResultsBackRef.current)} onBrowseCategories={() => setCurrentScreen('categories')} onSelectProduct={(p) => { selectProduct(p); setCurrentScreen('product-details'); }} onOpenCart={() => setCurrentScreen('cart')} onOpenWishlist={() => setCurrentScreen('wishlist')} onOpenNotifications={() => setCurrentScreen('notification-settings-toggles')} onSearchAgain={(q) => { setCatalogListType('search'); handleSearchSubmit(q); }} wishlistedProductIds={wishlistedProductIds} onToggleWishlist={handleToggleWishlist} cartCount={cart.lines.reduce((sum, line) => sum + line.quantity, 0)} wishlistCount={wishlistedProductIds.length} notificationCount={unreadNotificationCount} /> : null}
+      {currentScreen === 'search-no-results' ? <SearchNoResultsScreen searchQuery={searchQuery} onBack={() => setCurrentScreen(searchResultsBackRef.current)} onClearSearch={() => setCurrentScreen('search-landing')} onBrowseCategories={() => setCurrentScreen('categories')} onSearchAgain={(q) => { setCatalogListType('search'); handleSearchSubmit(q); }} onDiscoverNewArrivals={() => setCurrentScreen('categories')} onOpenCart={() => setCurrentScreen('cart')} onOpenWishlist={() => setCurrentScreen('wishlist')} onOpenNotifications={() => setCurrentScreen('notification-settings-toggles')} onSelectCategoryShortcut={(catSlug) => { setSelectedCategory({ id: 0, name: catSlug, slug: catSlug, banner: '', icon: '', number_of_children: 0, links: { products: '', sub_categories: '' } }); categoryProductsBackRef.current = 'search-landing'; setCurrentScreen('category-products'); }} cartCount={cart.lines.reduce((sum, line) => sum + line.quantity, 0)} notificationCount={unreadNotificationCount} /> : null}
 
-      {currentScreen === 'wishlist' ? <WishlistScreen onNavigateTab={navigateTab} onBrowseCollections={() => setCurrentScreen('categories')} onSelectProduct={selectProduct} onMoveToCart={moveWishlistItemToCart} /> : null}
-      {currentScreen === 'cart' ? <CartScreen cart={cart} onNavigateTab={navigateTab} onStartShopping={() => setCurrentScreen('home')} onViewWishlist={() => setCurrentScreen('wishlist')} onSelectProduct={(pid) => selectProduct({ id: pid, name: 'Produit Mayush', thumbnail_image: '', has_discount: false, discount: '', stroked_price: '', priceMad: 1000, formattedPrice: '1 000 MAD', main_price: '1 000 MAD', rating: 5, sales: 1, links: { details: '' } })} onUpdateQuantity={updateCartQuantity} onUpdateVariant={updateCartVariant} onApplyPromotion={applyCartPromotion} onRemovePromotion={clearCartPromotion} onCheckout={startCheckout} onMergeCartLines={handleMergeCartLines} /> : null}
+      {currentScreen === 'cart' ? (
+        <CartScreen
+          cart={cart}
+          onNavigateTab={navigateTab}
+          onStartShopping={() => setCurrentScreen('home')}
+          onViewWishlist={() => setCurrentScreen('wishlist')}
+          onOpenNotifications={() => setCurrentScreen('notification-settings-toggles')}
+          notificationCount={unreadNotificationCount}
+          onViewAllSuggestions={() => {
+            setCatalogListType('recommended');
+            setCatalogListTitle(undefined);
+            searchResultsBackRef.current = 'cart';
+            setCurrentScreen('search-results');
+          }}
+          onSelectCategory={(catSlug) => {
+            setSelectedCategory({
+              id: 0,
+              name: catSlug,
+              slug: catSlug,
+              banner: '',
+              icon: '',
+              number_of_children: 0,
+              links: { products: '', sub_categories: '' },
+            });
+            setCurrentScreen('category-products');
+          }}
+          onSelectProduct={(pid) =>
+            selectProduct({
+              id: pid,
+              name: 'Produit Mayush',
+              thumbnail_image: '',
+              has_discount: false,
+              discount: '',
+              stroked_price: '',
+              priceMad: 1000,
+              formattedPrice: '1 000 MAD',
+              main_price: '1 000 MAD',
+              rating: 5,
+              sales: 1,
+              links: { details: '' },
+            })
+          }
+          onUpdateQuantity={updateCartQuantity}
+          onUpdateVariant={updateCartVariant}
+          onApplyPromotion={applyCartPromotion}
+          onRemovePromotion={clearCartPromotion}
+          onCheckout={startCheckout}
+          onMergeCartLines={handleMergeCartLines}
+        />
+      ) : null}
+      {currentScreen === 'wishlist' ? (
+        <WishlistScreen
+          onNavigateTab={navigateTab}
+          onBrowseCollections={() => {
+            collectionsListBackRef.current = 'wishlist';
+            setCurrentScreen('collections-list');
+          }}
+          onSelectCategory={(catSlug) => {
+            setSelectedCategory({
+              id: 0,
+              name: catSlug,
+              slug: catSlug,
+              banner: '',
+              icon: '',
+              number_of_children: 0,
+              links: { products: '', sub_categories: '' },
+            });
+            categoryProductsBackRef.current = 'wishlist';
+            setCurrentScreen('category-products');
+          }}
+          onSelectProduct={(p) => {
+            selectProduct(p);
+            setCurrentScreen('product-details');
+          }}
+          onOpenSearch={() => setCurrentScreen('search-landing')}
+          onOpenNotifications={() => setCurrentScreen('notification-settings-toggles')}
+          notificationCount={unreadNotificationCount}
+        />
+      ) : null}
       {currentScreen === 'account' ? (
         <AccountScreen
           onNavigateTab={navigateTab}
@@ -1706,26 +1966,141 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         />
       ) : null}
 
-      {currentScreen === 'product-details' ? <ProductDetailsScreen activeTab={activeTab} productId={selectedProduct?.id || 101} initialProduct={selectedProduct} onBack={() => setCurrentScreen('home')} onOpenGallery={() => setCurrentScreen('product-gallery')} onOpenVariantSheet={(product) => { setVariantProduct(product); setVariantSheetVisible(true); }} onOpenDescription={() => setCurrentScreen('product-description')} onOpenSpecifications={() => setCurrentScreen('product-specifications')} onOpenDeliveryReturns={() => setCurrentScreen('product-delivery-returns')} onOpenReviews={() => setCurrentScreen('product-reviews')} onNavigateTab={navigateTab} /> : null}
-      {currentScreen === 'product-gallery' ? <ProductGalleryScreen activeTab={activeTab} onBack={() => setCurrentScreen('product-details')} onNavigateTab={navigateTab} /> : null}
-      {currentScreen === 'product-description' ? <ProductFullDescriptionScreen productTitle={selectedProduct?.name || 'Fauteuil Lounge Luna'} onBack={() => setCurrentScreen('product-details')} /> : null}
-      {currentScreen === 'product-specifications' ? <ProductSpecificationsScreen productTitle={selectedProduct?.name || 'Fauteuil Lounge Luna'} customSpecs={selectedProduct?.choice_options && selectedProduct.choice_options.length > 0 ? selectedProduct.choice_options.map((opt) => ({ label: opt.title, value: opt.options.join(', ') })) : undefined} onBack={() => setCurrentScreen('product-details')} /> : null}
-      {currentScreen === 'product-delivery-returns' ? <ProductDeliveryReturnsScreen onBack={() => setCurrentScreen('product-details')} /> : null}
-      {currentScreen === 'product-reviews' ? <ProductReviewsRatingsScreen productTitle={selectedProduct?.name || 'Fauteuil Lounge Luna'} onBack={() => setCurrentScreen('product-details')} /> : null}
-      {currentScreen === 'added-to-cart' ? <AddedToCartConfirmationScreen cart={cart} onViewCart={() => setCurrentScreen('cart')} /> : null}
+      {currentScreen === 'product-details' ? (
+        <ProductDetailsScreen
+          activeTab={activeTab}
+          productId={selectedProduct?.id || 101}
+          initialProduct={selectedProduct}
+          onBack={() => setCurrentScreen('home')}
+          onOpenGallery={(imgs, name) => { setGalleryImages(imgs); setGalleryProductName(name); setCurrentScreen('product-gallery'); }}
+          onOpenVariantSheet={(product) => {
+            setVariantProduct(product);
+            setVariantSheetVisible(true);
+          }}
+          onOpenDescription={(prod) => {
+            if (prod) setVariantProduct(prod);
+            setCurrentScreen('product-description');
+          }}
+          onOpenSpecifications={(prod) => {
+            if (prod) setVariantProduct(prod);
+            setCurrentScreen('product-specifications');
+          }}
+          onOpenDeliveryReturns={(prod) => {
+            if (prod) setVariantProduct(prod);
+            setCurrentScreen('product-delivery-returns');
+          }}
+          onOpenReviews={(prod) => {
+            if (prod) setVariantProduct(prod);
+            setCurrentScreen('product-reviews');
+          }}
+          onSelectProduct={(item) => {
+            setSelectedProduct(item);
+            setCurrentScreen('product-details');
+          }}
+          onNavigateTab={navigateTab}
+        />
+      ) : null}
+      {currentScreen === 'product-gallery' ? <ProductGalleryScreen activeTab={activeTab} onBack={() => setCurrentScreen('product-details')} onNavigateTab={navigateTab} images={galleryImages.length > 0 ? galleryImages : variantProduct?.photos || (selectedProduct?.thumbnail_image ? [selectedProduct.thumbnail_image] : undefined)} productName={galleryProductName || variantProduct?.name || selectedProduct?.name} /> : null}
+      {currentScreen === 'inspiration-detail' ? (
+        <InspirationDetailScreen
+          activeTab={activeTab}
+          onBack={() => setCurrentScreen('home')}
+          onNavigateTab={navigateTab}
+          slug={inspirationSlug as string}
+          onSelectProduct={(product) => {
+            setSelectedProduct(product);
+            setCurrentScreen('product-details');
+          }}
+        />
+      ) : null}
+      {currentScreen === 'product-description' ? <ProductFullDescriptionScreen productTitle={variantProduct?.name || selectedProduct?.name || 'Mayush Collection'} description={variantProduct?.description} onBack={() => setCurrentScreen('product-details')} /> : null}
+      {currentScreen === 'product-specifications' ? <ProductSpecificationsScreen product={variantProduct || selectedProduct} productTitle={variantProduct?.name || selectedProduct?.name || 'Mayush Collection'} customSpecs={variantProduct?.choice_options && variantProduct.choice_options.length > 0 ? variantProduct.choice_options.map((opt) => ({ label: opt.title, value: opt.options.join(', ') })) : (selectedProduct?.choice_options && selectedProduct.choice_options.length > 0 ? selectedProduct.choice_options.map((opt) => ({ label: opt.title, value: opt.options.join(', ') })) : undefined)} onBack={() => setCurrentScreen('product-details')} /> : null}
+      {currentScreen === 'product-delivery-returns' ? <ProductDeliveryReturnsScreen product={variantProduct || selectedProduct} onBack={() => setCurrentScreen('product-details')} /> : null}
+      {currentScreen === 'product-reviews' ? <ProductReviewsRatingsScreen productId={variantProduct?.id || selectedProduct?.id} productTitle={variantProduct?.name || selectedProduct?.name || 'Fauteuil Lounge Luna'} onBack={() => setCurrentScreen('product-details')} /> : null}
+      {currentScreen === 'added-to-cart' ? <AddedToCartConfirmationScreen cart={cart} onViewCart={() => setCurrentScreen('cart')} onContinueShopping={() => setCurrentScreen('product-details')} /> : null}
 
-      {currentScreen === 'checkout-summary' && selectedAddress ? <CheckoutSummaryScreen cart={cart} address={selectedAddress} deliveryMethod={deliveryMethod} paymentMethod={paymentMethod} deliveryFeeMad={deliveryProjection.deliveryFeeMad} onBack={() => setCurrentScreen('cart')} onChooseAddress={() => setCurrentScreen(savedAddresses.length ? 'address-selection' : 'no-saved-address')} /> : null}
+      {currentScreen === 'checkout-summary' && selectedAddress ? (
+        <CheckoutSummaryScreen
+          cart={cart}
+          address={selectedAddress}
+          deliveryMethod={deliveryMethod}
+          paymentMethod={paymentMethod}
+          deliveryFeeMad={deliveryProjection.deliveryFeeMad}
+          onBack={() => setCurrentScreen('cart')}
+          onChooseAddress={() => setCurrentScreen(savedAddresses.length ? 'address-selection' : 'no-saved-address')}
+          onChooseDeliveryMethod={() => setCurrentScreen('delivery-method')}
+          onChoosePaymentMethod={() => setCurrentScreen('payment-method')}
+          onContinue={() => setCurrentScreen('delivery-method')}
+        />
+      ) : null}
       {currentScreen === 'checkout-summary' && !selectedAddress ? <NoSavedAddressScreen onBack={() => setCurrentScreen('cart')} onAddAddress={openAddCheckoutAddress} /> : null}
-      {currentScreen === 'address-selection' ? <AddressSelectionScreen addresses={savedAddresses} selectedAddressId={selectedAddressId} onBack={() => setCurrentScreen('checkout-summary')} onSelect={setSelectedAddressId} onContinue={() => setCurrentScreen(savedAddresses.length ? 'delivery-method' : 'no-saved-address')} onAddAddress={openAddCheckoutAddress} onEdit={(addressId) => { setSelectedAddressId(addressId); const address = savedAddresses.find((item) => item.id === addressId); if (!address) return; setAddressEditorMode('edit'); setEditingAddressId(address.id); setAddressDraft(addressToDraft(address)); setCurrentScreen('edit-checkout-address'); }} /> : null}
+      {currentScreen === 'address-selection' ? (
+        <AddressSelectionScreen
+          addresses={savedAddresses}
+          selectedAddressId={selectedAddressId}
+          onBack={() => setCurrentScreen('cart')}
+          onSelect={setSelectedAddressId}
+          onContinue={() => setCurrentScreen(savedAddresses.length ? 'delivery-method' : 'no-saved-address')}
+          onAddAddress={openAddCheckoutAddress}
+          onEdit={(addressId) => {
+            setSelectedAddressId(addressId);
+            const address = savedAddresses.find((item) => item.id === addressId);
+            if (!address) return;
+            setAddressEditorMode('edit');
+            setEditingAddressId(address.id);
+            setAddressDraft(addressToDraft(address));
+            setCurrentScreen('edit-checkout-address');
+          }}
+        />
+      ) : null}
       {currentScreen === 'add-address' || currentScreen === 'add-address-errors' ? <AddAddressFormScreen draft={addressDraft} errors={currentScreen === 'add-address-errors' ? validateAddressDraft(addressDraft) : {}} onChange={(next) => { setAddressDraft(next); if (currentScreen === 'add-address-errors') setCurrentScreen('add-address'); }} onBack={() => setCurrentScreen(savedAddresses.length ? 'address-selection' : 'no-saved-address')} onSave={saveAddress} onChooseCity={() => { setAddressEditorMode('add'); setCurrentScreen('city-selector'); }} onChooseZone={() => setCurrentScreen(addressDraft.cityId ? 'delivery-zone-selector' : 'city-selector')} /> : null}
       {currentScreen === 'city-selector' ? <CitySelectorScreen selectedCityId={addressDraft.cityId} onBack={() => setCurrentScreen(addressEditorMode === 'edit' ? 'edit-checkout-address' : (savedAddresses.length ? 'address-selection' : 'no-saved-address'))} onSelect={(city) => { setAddressDraft((draft) => setAddressDraftCity(draft, city.cityId)); setCurrentScreen('delivery-zone-selector'); }} /> : null}
       {currentScreen === 'delivery-zone-selector' && getCityById(addressDraft.cityId) ? <DeliveryZoneSelectorScreen city={getCityById(addressDraft.cityId)!} selectedZoneId={addressDraft.zoneId} onBack={() => setCurrentScreen('city-selector')} onSelect={(zone) => setAddressDraft((draft) => setAddressDraftZone(draft, zone.zoneId))} onContinue={() => setCurrentScreen(addressEditorMode === 'edit' ? 'edit-checkout-address' : 'add-address')} /> : null}
       {currentScreen === 'edit-checkout-address' ? <EditCheckoutAddressScreen draft={addressDraft} errors={validateAddressDraft(addressDraft)} onChange={setAddressDraft} onBack={() => setCurrentScreen('address-selection')} onChooseCity={() => setCurrentScreen('city-selector')} onChooseZone={() => setCurrentScreen(addressDraft.cityId ? 'delivery-zone-selector' : 'city-selector')} onSave={saveEditedAddress} onDelete={() => { if (!editingAddressId) return; authState.deleteAddress(editingAddressId); const remaining = authState.getSavedAddresses(); setSelectedAddressId(remaining.find((address) => address.isDefault)?.id || remaining[0]?.id || ''); setEditingAddressId(null); setCurrentScreen(remaining.length ? 'address-selection' : 'no-saved-address'); }} /> : null}
       {currentScreen === 'no-saved-address' ? <NoSavedAddressScreen onBack={() => setCurrentScreen('cart')} onAddAddress={openAddCheckoutAddress} /> : null}
-      {currentScreen === 'delivery-method' && selectedAddress ? <DeliveryMethodScreen address={selectedAddress} selectedMethod={deliveryMethod} onBack={() => setCurrentScreen('address-selection')} onSelect={setDeliveryMethod} onContinue={() => { const next = buildSellerDeliveryProjection(cart.lines, selectedAddress, deliveryMethod); setCurrentScreen(!next.available ? 'delivery-unavailable' : next.groups.length > 1 ? 'delivery-by-vendor' : 'payment-method'); }} /> : null}
-      {currentScreen === 'delivery-by-vendor' ? <DeliveryByVendorScreen projection={deliveryProjection} onBack={() => setCurrentScreen('delivery-method')} onContinue={() => setCurrentScreen('payment-method')} /> : null}
-      {currentScreen === 'delivery-unavailable' && selectedAddress ? <DeliveryUnavailableScreen address={selectedAddress} lines={cart.lines} onBack={() => setCurrentScreen('delivery-method')} onEditAddress={openEditCheckoutAddress} onRemoveAffected={() => { setCart(emptyCartState()); void AsyncStorage.removeItem(CART_STORAGE_KEY).catch(() => undefined); setCurrentScreen('cart'); }} onSupport={() => setCurrentScreen('contact-support-form')} /> : null}
-      {currentScreen === 'payment-method' ? <PaymentMethodScreen totalMad={checkoutTotalMad} selectedMethod={paymentMethod} processing={paymentProcessing} onBack={() => setCurrentScreen(deliveryProjection.groups.length > 1 ? 'delivery-by-vendor' : 'delivery-method')} onSelect={setPaymentMethod} onContinue={continueFromPaymentMethod} /> : null}
+      {currentScreen === 'delivery-method' && selectedAddress ? (
+        <DeliveryMethodScreen
+          address={selectedAddress}
+          selectedMethod={deliveryMethod}
+          onBack={() => setCurrentScreen(savedAddresses.length ? 'address-selection' : 'cart')}
+          onSelect={setDeliveryMethod}
+          onChangeAddress={() => setCurrentScreen(savedAddresses.length ? 'address-selection' : 'no-saved-address')}
+          onContinue={() => {
+            const next = buildSellerDeliveryProjection(cart.lines, selectedAddress, deliveryMethod);
+            setCurrentScreen(!next.available ? 'delivery-unavailable' : next.groups.length > 1 ? 'delivery-by-vendor' : 'payment-method');
+          }}
+        />
+      ) : null}
+      {currentScreen === 'delivery-by-vendor' ? (
+        <DeliveryByVendorScreen
+          projection={deliveryProjection}
+          onBack={() => setCurrentScreen('delivery-method')}
+          onContinue={() => setCurrentScreen('payment-method')}
+        />
+      ) : null}
+      {currentScreen === 'delivery-unavailable' && selectedAddress ? (
+        <DeliveryUnavailableScreen
+          address={selectedAddress}
+          lines={cart.lines}
+          onBack={() => setCurrentScreen('delivery-method')}
+          onEditAddress={openEditCheckoutAddress}
+          onRemoveAffected={() => {
+            cartStateManager.reset();
+            setCurrentScreen('cart');
+          }}
+          onSupport={() => setCurrentScreen('contact-support-form')}
+        />
+      ) : null}
+      {currentScreen === 'payment-method' ? (
+        <PaymentMethodScreen
+          totalMad={checkoutTotalMad}
+          selectedMethod={paymentMethod}
+          processing={paymentProcessing}
+          onBack={() => setCurrentScreen(deliveryProjection.groups.length > 1 ? 'delivery-by-vendor' : 'delivery-method')}
+          onSelect={setPaymentMethod}
+          onContinue={continueFromPaymentMethod}
+        />
+      ) : null}
       {currentScreen === 'wallet-balance' ? <WalletBalanceScreen balanceMad={accountPreferencesState.getWalletBalanceMad()} totalMad={checkoutTotalMad} onBack={() => setCurrentScreen('payment-method')} onUseWallet={() => { accountPreferencesState.setSelectedPaymentMethod('pm-wallet'); completeCheckout(); }} /> : null}
       {currentScreen === 'saved-payment-cards' ? <SavedPaymentCardsScreen methods={paymentPreferences} selectedId={selectedPaymentPreferenceId} onBack={() => setCurrentScreen('payment-method')} onSelect={(id) => accountPreferencesState.setSelectedPaymentMethod(id)} onDelete={(id) => accountPreferencesState.removePaymentMethod(id)} onAdd={() => undefined} onContinue={() => { setPaymentMethod('cmi'); completeCheckout(); }} /> : null}
       {currentScreen === 'auth-gate' || currentScreen === 'auth-welcome' ? (
@@ -1830,6 +2205,7 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
           onBack={() => setCurrentScreen('registration')}
           onHome={() => setCurrentScreen('home')}
           onSuccess={() => setCurrentScreen('account-created')}
+          onError={() => setCurrentScreen('otp-error')}
         />
       ) : null}
       {currentScreen === 'account-created' ? (
@@ -1857,7 +2233,21 @@ export const RootNavigatorContent: React.FC<RootNavigatorContentProps> = ({
         />
       ) : null}
 
-      {currentScreen === 'order-review' && selectedAddress ? <OrderReviewScreen cart={cart} address={selectedAddress} deliveryMethod={deliveryMethod} paymentMethod={paymentMethod} deliveryFeeMad={deliveryProjection.deliveryFeeMad} onBack={() => setCurrentScreen('payment-method')} onConfirm={() => void beginOrderReview()} /> : null}
+      {currentScreen === 'order-review' && selectedAddress ? (
+        <OrderReviewScreen
+          cart={cart}
+          address={selectedAddress}
+          deliveryMethod={deliveryMethod}
+          paymentMethod={paymentMethod}
+          deliveryFeeMad={deliveryProjection.deliveryFeeMad}
+          onBack={() => setCurrentScreen('payment-method')}
+          onConfirm={() => void beginOrderReview()}
+          onChangeAddress={() => setCurrentScreen(savedAddresses.length ? 'address-selection' : 'no-saved-address')}
+          onChangeDelivery={() => setCurrentScreen('delivery-method')}
+          onChangePayment={() => setCurrentScreen('payment-method')}
+          onTermsClick={() => setCurrentScreen('checkout-terms-confirmation')}
+        />
+      ) : null}
       {currentScreen === 'checkout-terms-confirmation' ? <CheckoutTermsConfirmationScreen onBack={() => setCurrentScreen('order-review')} onAccept={acceptCheckoutTermsAndContinue} onTerms={() => setCurrentScreen('legal-center')} onPrivacy={() => setCurrentScreen('privacy-policy')} /> : null}
       {currentScreen === 'order-already-in-progress' && activeOrder ? <OrderAlreadyInProgressScreen order={activeOrder} onBack={() => setCurrentScreen('order-review')} onOrder={openActiveOrderDetails} onStatus={() => setCurrentScreen(activeOrder.paymentStatus === 'prototype_pending_confirmation' ? 'payment-pending' : getCanonicalOrderDetailRoute(activeOrder))} onSupport={openOrderSupport} /> : null}
       {currentScreen === 'order-needs-update' ? <OrderNeedsUpdateScreen onBack={() => setCurrentScreen('order-review')} onAccept={acceptCheckoutConflictChanges} onCart={() => setCurrentScreen('cart')} /> : null}
