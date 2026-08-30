@@ -1257,7 +1257,38 @@ class ProductController extends Controller
     }
 
     public function get_products_by_subcategory() { return 'Stub'; }
-    public function search() { return 'Stub'; }
+    public function search(Request $request)
+    {
+        $query = $request->input('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json(['data' => []]);
+        }
+
+        $products = Product::where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('slug', 'like', "%{$query}%");
+            })
+            ->where('published', 1)
+            ->where('approved', 1)
+            ->select('id', 'name', 'slug', 'thumbnail_img', 'unit_price', 'published', 'approved', 'current_stock', 'photos')
+            ->orderByDesc('id')
+            ->limit(20)
+            ->get();
+
+        $data = $products->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'name' => $p->getTranslation('name', 'fr'),
+                'price' => format_price(convert_price($p->unit_price)),
+                'image' => uploaded_asset($p->thumbnail_img),
+                'available' => (bool) ($p->published && $p->approved),
+                'stock' => $p->current_stock > 0 ? 'in_stock' : 'out_of_stock',
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
     public function get_custom_review_product_by_category() { return 'Stub'; }
     public function reviews() { return 'Stub'; }
 }
