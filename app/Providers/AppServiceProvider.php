@@ -40,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
       \App\Models\FlashDeal::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\FlashDealProduct::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\ProductCollection::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\Inspiration::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\TopBanner::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\TopBannerTranslation::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\DynamicPopup::observe(\App\Observers\StorefrontCacheObserver::class);
