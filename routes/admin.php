@@ -74,6 +74,7 @@ use App\Http\Controllers\PosController;
 use App\Http\Controllers\TodaysDealController;
 use App\Http\Controllers\AIController;
 use App\Http\Controllers\Admin\ProductCollectionController;
+use App\Http\Controllers\Admin\InspirationController;
 use App\Http\Controllers\ProductTranslationController;
 use App\Http\Controllers\ProductTranslationDiagnosticsController;
 
@@ -839,6 +840,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     
     Route::resource('custom_label', CustomLabelController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::resource('product-collections', ProductCollectionController::class)->except('show');
+    Route::resource('inspirations', InspirationController::class)->except('show');
+    Route::get('inspirations/{inspiration}/mapper', [InspirationController::class, 'mapper'])->name('inspirations.mapper');
+    Route::post('inspirations/{inspiration}/hotspots', [InspirationController::class, 'storeHotspot'])->name('inspirations.hotspots.store');
+    Route::put('inspirations/{inspiration}/hotspots/{hotspot}', [InspirationController::class, 'updateHotspot'])->name('inspirations.hotspots.update');
+    Route::delete('inspirations/{inspiration}/hotspots/{hotspot}', [InspirationController::class, 'destroyHotspot'])->name('inspirations.hotspots.destroy');
     Route::controller(CustomLabelController::class)->group(function () {
         Route::get('/custom-label/products', 'custom_label_products')->name('custom_label.products');
         Route::post('/custom-label/update-status', 'update_status')->name('custom-label.update-status');
