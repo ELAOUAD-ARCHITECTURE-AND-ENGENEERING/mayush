@@ -43,5 +43,6 @@ class VerifyCsrfToken extends Middleware
         '/api/v2/analytics/*',
         '/livechat/*',
         'livechat/*',
+        '/ajax-search',
     ];
 }
