@@ -202,13 +202,18 @@ if (!function_exists('internal_sellers_id')) {
 if (!function_exists('get_system_default_currency')) {
     function get_system_default_currency()
     {
-        return Cache::remember('system_default_currency', 86400, function () {
-            $currency_id = get_setting('system_default_currency');
-            $currency = $currency_id ? Currency::find($currency_id) : null;
-            return $currency
-                ?: Currency::where('status', 1)->first()
-                ?: (object)['code' => 'MAD', 'symbol' => 'MAD', 'exchange_rate' => 1];
-        });
+        // In-process memoization: fetch from Redis once per request.
+        static $currency = null;
+        if ($currency === null) {
+            $currency = Cache::remember('system_default_currency', 86400, function () {
+                $currency_id = get_setting('system_default_currency');
+                $currency = $currency_id ? Currency::find($currency_id) : null;
+                return $currency
+                    ?: Currency::where('status', 1)->first()
+                    ?: (object)['code' => 'MAD', 'symbol' => 'MAD', 'exchange_rate' => 1];
+            });
+        }
+        return $currency;
     }
 }
 
@@ -945,9 +950,15 @@ if (!function_exists('translate')) {
 
         $lang_key = preg_replace('/[^A-Za-z0-9\_]/', '', str_replace(' ', '_', strtolower($key)));
 
-        $translations_en = Cache::rememberForever('translations-en', function () {
-            return Translation::where('lang', 'en')->pluck('lang_value', 'lang_key')->toArray();
-        });
+        // In-process memoization: each translation array fetched from Redis only once per request.
+        static $memo = [];
+
+        if (!array_key_exists('en', $memo)) {
+            $memo['en'] = Cache::rememberForever('translations-en', function () {
+                return Translation::where('lang', 'en')->pluck('lang_value', 'lang_key')->toArray();
+            });
+        }
+        $translations_en = $memo['en'];
 
         if (!isset($translations_en[$lang_key])) {
             $translation_def = new Translation;
@@ -965,20 +976,28 @@ if (!function_exists('translate')) {
                 }
 
             Cache::forget('translations-en');
+            unset($memo['en']); // force re-fetch on next call within this request
         }
 
         // return user session lang
-        $translation_locale = Cache::rememberForever("translations-{$lang}", function () use ($lang) {
-            return Translation::where('lang', $lang)->pluck('lang_value', 'lang_key')->toArray();
-        });
+        if (!array_key_exists($lang, $memo)) {
+            $memo[$lang] = Cache::rememberForever("translations-{$lang}", function () use ($lang) {
+                return Translation::where('lang', $lang)->pluck('lang_value', 'lang_key')->toArray();
+            });
+        }
+        $translation_locale = $memo[$lang];
         if (isset($translation_locale[$lang_key])) {
             return $addslashes ? addslashes(trim($translation_locale[$lang_key])) : trim($translation_locale[$lang_key]);
         }
 
         // return default lang if session lang not found
-        $translations_default = Cache::rememberForever('translations-' . env('DEFAULT_LANGUAGE', 'en'), function () {
-            return Translation::where('lang', env('DEFAULT_LANGUAGE', 'en'))->pluck('lang_value', 'lang_key')->toArray();
-        });
+        $defaultLang = env('DEFAULT_LANGUAGE', 'en');
+        if (!array_key_exists($defaultLang, $memo)) {
+            $memo[$defaultLang] = Cache::rememberForever('translations-' . $defaultLang, function () use ($defaultLang) {
+                return Translation::where('lang', $defaultLang)->pluck('lang_value', 'lang_key')->toArray();
+            });
+        }
+        $translations_default = $memo[$defaultLang];
         if (isset($translations_default[$lang_key])) {
             return $addslashes ? addslashes(trim($translations_default[$lang_key])) : trim($translations_default[$lang_key]);
         }
@@ -1630,9 +1649,14 @@ if (!function_exists('get_setting')) {
         if ($key === 'cloudflare_turnstile' && (app()->isLocal() || request()->ip() === '127.0.0.1' || request()->ip() === '::1')) {
             return 0;
         }
-        $settings = Cache::remember('business_settings', 86400, function () {
-            return BusinessSetting::all();
-        });
+
+        // In-process memoization: fetch from Redis once per request, reuse from static var.
+        static $settings = null;
+        if ($settings === null) {
+            $settings = Cache::remember('business_settings', 86400, function () {
+                return BusinessSetting::all();
+            });
+        }
 
         if ($lang == false) {
             $setting = $settings->where('type', $key)->first();
@@ -1990,9 +2014,13 @@ if (!function_exists('addon_is_activated')) {
             return true;
         }
 
-        $addons = Cache::remember('addons', 86400, function () {
-            return Addon::all();
-        });
+        // In-process memoization: fetch from Redis once per request.
+        static $addons = null;
+        if ($addons === null) {
+            $addons = Cache::remember('addons', 86400, function () {
+                return Addon::all();
+            });
+        }
 
         $activation = $addons->where('unique_identifier', $identifier)->where('activated', 1)->first();
         return $activation == null ? false : true;
@@ -2117,9 +2145,16 @@ if (!function_exists('get_active_taxes')) {
 if (!function_exists('get_system_language')) {
     function get_system_language()
     {
+        // In-process memoization: locale rarely changes mid-request.
+        static $memo = [];
+
         $locale = 'en';
         if (Session::has('locale')) {
             $locale = Session::get('locale', Config::get('app.locale'));
+        }
+
+        if (array_key_exists($locale, $memo)) {
+            return $memo[$locale];
         }
 
         $revision = app(\App\Services\StorefrontCacheService::class)->revision();
@@ -2131,7 +2166,7 @@ if (!function_exists('get_system_language')) {
             $lang = Language::query()->where('status', 1)->first() ?? (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
         }
 
-        return $lang;
+        return $memo[$locale] = $lang;
     }
 }
 
