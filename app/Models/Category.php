@@ -93,7 +93,7 @@ class Category extends Model
 
     public function childrenCategories()
     {
-        return $this->hasMany(Category::class, 'parent_id')->with('categories');
+        return $this->hasMany(Category::class, 'parent_id');
     }
 
     public function parentCategory()
@@ -128,11 +128,7 @@ class Category extends Model
 
     public function descendantIds($ids = [])
     {
-        foreach ($this->childrenCategories as $child) {
-            $ids[] = $child->id;
-            $ids = $child->descendantIds($ids);
-        }
-        return $ids;
+        return \App\Utility\CategoryUtility::children_ids($this->id);
     }
 
     public function getTotalProductCountAttribute()

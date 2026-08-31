@@ -6,6 +6,48 @@ use App\Models\Category;
 
 class CategoryUtility
 {
+    /**
+     * In-process cache of the full parent_id → children map.
+     * Built once per request from a single query; reused by all
+     * descendant lookups to eliminate recursive N+1 queries.
+     */
+    private static ?array $parentChildMap = null;
+
+    /**
+     * Load the entire category parent→children map in one query.
+     */
+    private static function getParentChildMap(): array
+    {
+        if (self::$parentChildMap === null) {
+            $all = Category::select('id', 'parent_id')
+                ->orderBy('order_level', 'desc')
+                ->get();
+
+            self::$parentChildMap = [];
+            foreach ($all as $cat) {
+                self::$parentChildMap[$cat->parent_id][] = $cat->id;
+            }
+        }
+
+        return self::$parentChildMap;
+    }
+
+    /**
+     * Collect all descendant IDs using the in-memory map (zero extra queries).
+     */
+    private static function collectDescendantIds(int $parentId, array $map): array
+    {
+        $ids = [];
+        if (!isset($map[$parentId])) {
+            return $ids;
+        }
+        foreach ($map[$parentId] as $childId) {
+            $ids[] = $childId;
+            $ids = array_merge($ids, self::collectDescendantIds($childId, $map));
+        }
+        return $ids;
+    }
+
     /*when with trashed is true id will get even the deleted items*/
     public static function get_immediate_children($id, $with_trashed = false, $as_array = false)
     {
@@ -44,24 +86,20 @@ class CategoryUtility
         return $container;
     }
 
-    /*when with trashed is true id will get even the deleted items*/
+    /**
+     * Get all descendant category IDs using a single-query in-memory tree.
+     * Replaces the old recursive N+1 implementation.
+     */
     public static function children_ids($id, $with_trashed = false)
     {
-        $children = CategoryUtility::flat_children($id, $with_trashed = false);
-
-        return !empty($children) ? array_column($children, 'id') : array();
+        // Fast path: use the in-memory map (1 query total per request).
+        $map = self::getParentChildMap();
+        return self::collectDescendantIds((int) $id, $map);
     }
 
     public static function category_tree_ids($category, $category_ids)
     {
-        foreach ($category->childrenCategories as $category) {
-            $category_ids[] = $category->id;
-
-            if (count($category->childrenCategories) > 0) {
-                $category_ids = static::category_tree_ids($category, $category_ids);
-            }
-        }
-        return $category_ids;
+        return array_merge($category_ids, self::children_ids($category->id));
     }
 
     public static function move_children_to_parent($id)
