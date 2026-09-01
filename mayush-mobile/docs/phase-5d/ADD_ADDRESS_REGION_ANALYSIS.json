@@ -1,0 +1,153 @@
+{
+  "screenName": "06-add-new-address-form-v2-fr",
+  "figmaNodeId": "309:681",
+  "analyzedAt": "2026-08-06T14:09:12.324Z",
+  "targetImage": "app-after-393x852.png",
+  "totalPixels": 334836,
+  "regionalBreakdown": [
+    {
+      "region": "Safe Area",
+      "boundingBox": {
+        "x": 0,
+        "y": 0,
+        "width": 393,
+        "height": 44
+      },
+      "totalRegionPixels": 17292,
+      "mismatchedPixels": 1636,
+      "mismatchPercent": 9.46
+    },
+    {
+      "region": "Header",
+      "boundingBox": {
+        "x": 0,
+        "y": 44,
+        "width": 393,
+        "height": 64
+      },
+      "totalRegionPixels": 25152,
+      "mismatchedPixels": 2952,
+      "mismatchPercent": 11.74
+    },
+    {
+      "region": "Checkout Progress Indicator",
+      "boundingBox": {
+        "x": 0,
+        "y": 108,
+        "width": 393,
+        "height": 50
+      },
+      "totalRegionPixels": 19650,
+      "mismatchedPixels": 3483,
+      "mismatchPercent": 17.73
+    },
+    {
+      "region": "Screen Title & Introduction",
+      "boundingBox": {
+        "x": 0,
+        "y": 158,
+        "width": 393,
+        "height": 50
+      },
+      "totalRegionPixels": 19650,
+      "mismatchedPixels": 4388,
+      "mismatchPercent": 22.33
+    },
+    {
+      "region": "Name Fields",
+      "boundingBox": {
+        "x": 0,
+        "y": 208,
+        "width": 393,
+        "height": 120
+      },
+      "totalRegionPixels": 47160,
+      "mismatchedPixels": 6434,
+      "mismatchPercent": 13.64
+    },
+    {
+      "region": "Address Field",
+      "boundingBox": {
+        "x": 0,
+        "y": 328,
+        "width": 393,
+        "height": 80
+      },
+      "totalRegionPixels": 31440,
+      "mismatchedPixels": 3383,
+      "mismatchPercent": 10.76
+    },
+    {
+      "region": "City and Postal Fields",
+      "boundingBox": {
+        "x": 0,
+        "y": 408,
+        "width": 393,
+        "height": 80
+      },
+      "totalRegionPixels": 31440,
+      "mismatchedPixels": 4355,
+      "mismatchPercent": 13.85
+    },
+    {
+      "region": "Phone Field",
+      "boundingBox": {
+        "x": 0,
+        "y": 488,
+        "width": 393,
+        "height": 80
+      },
+      "totalRegionPixels": 31440,
+      "mismatchedPixels": 5535,
+      "mismatchPercent": 17.6
+    },
+    {
+      "region": "Default-Address Control",
+      "boundingBox": {
+        "x": 0,
+        "y": 568,
+        "width": 393,
+        "height": 50
+      },
+      "totalRegionPixels": 19650,
+      "mismatchedPixels": 2685,
+      "mismatchPercent": 13.66
+    },
+    {
+      "region": "Validation/Helper Area",
+      "boundingBox": {
+        "x": 0,
+        "y": 618,
+        "width": 393,
+        "height": 40
+      },
+      "totalRegionPixels": 15720,
+      "mismatchedPixels": 2561,
+      "mismatchPercent": 16.29
+    },
+    {
+      "region": "Fixed CTA Area",
+      "boundingBox": {
+        "x": 0,
+        "y": 658,
+        "width": 393,
+        "height": 110
+      },
+      "totalRegionPixels": 43230,
+      "mismatchedPixels": 16126,
+      "mismatchPercent": 37.3
+    },
+    {
+      "region": "Bottom Safe Area",
+      "boundingBox": {
+        "x": 0,
+        "y": 768,
+        "width": 393,
+        "height": 84
+      },
+      "totalRegionPixels": 33012,
+      "mismatchedPixels": 2404,
+      "mismatchPercent": 7.28
+    }
+  ]
+}

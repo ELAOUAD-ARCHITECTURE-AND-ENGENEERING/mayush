@@ -8,9 +8,16 @@ use App\Http\Controllers\OTPVerificationController;
 use App\Mail\GuestAccountOpeningMailManager;
 use App\Models\Address;
 use App\Models\BusinessSetting;
+use App\Models\LoginSecurityState;
+use App\Models\SecurityChallenge;
+use App\Models\SecurityEvent;
+use App\Models\UserDevice;
+use App\Notifications\DeviceVerificationNotification;
+use App\Services\Security\SecurityEventService;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Notifications\AppEmailVerificationNotification;
+use Carbon\Carbon;
 use Hash;
 use Socialite;
 use App\Models\Cart;
@@ -194,32 +201,171 @@ class AuthController extends Controller
                 ->first();
         }
         // if (!$delivery_boy_condition) {
-        if (!$delivery_boy_condition && !$seller_condition) {
+        if (!$delivery_boy_condition && !$seller_condition && $request->filled('identity_matrix')) {
             if (\App\Utility\PayhereUtility::create_wallet_reference($request->identity_matrix) == false) {
                 return response()->json(['result' => false, 'message' => 'Identity matrix error', 'user' => null], 401);
             }
         }
 
-        if ($user != null) {
-            if (!$user->banned) {
-                if (Hash::check($request->password, $user->password)) {
-                    $tempUserId = $request->has('temp_user_id') ? $request->temp_user_id : null;
-                    return $this->loginSuccess($user,'', $tempUserId);
-
-                } else {
-                    return response()->json(['result' => false, 'message' => translate('Unauthorized'), 'user' => null], 401);
-                }
-            } else {
-                return response()->json(['result' => false, 'message' => translate('User is banned'), 'user' => null], 401);
-            }
-        } else {
+        if ($user == null) {
             return response()->json(['result' => false, 'message' => translate('User not found'), 'user' => null], 401);
         }
+
+        // Permanent ban check (unchanged)
+        if ($user->banned) {
+            return response()->json(['result' => false, 'code' => 'ACCESS_DENIED', 'message' => translate('User is banned'), 'user' => null], 403);
+        }
+
+        // Indefinite security hold (support-reversible, distinct from ban)
+        if ($user->security_hold_at !== null) {
+            return response()->json([
+                'result' => false,
+                'code' => 'ACCOUNT_SECURITY_HOLD',
+                'message' => 'Votre compte est temporairement suspendu pour des raisons de sécurité. Veuillez contacter le support.',
+                'user' => null,
+            ], 403);
+        }
+
+        // Temporary lock check
+        $securityState = LoginSecurityState::where('user_id', $user->id)->first();
+        if ($securityState && $securityState->isLocked()) {
+            return response()->json([
+                'result' => false,
+                'code' => 'ACCOUNT_TEMPORARILY_BLOCKED',
+                'message' => 'Trop de tentatives de connexion. Veuillez réessayer plus tard.',
+                'retry_after_seconds' => $securityState->remainingLockSeconds(),
+                'user' => null,
+            ], 403);
+        }
+
+        if (Hash::check($request->password, $user->password)) {
+            // Successful login: reset all escalation state
+            LoginSecurityState::where('user_id', $user->id)->delete();
+
+            // Unusual activity detection
+            $securityEvent = SecurityEventService::logLoginEvent($user, $request, 'login_success');
+            if ($securityEvent->flagged && SecurityEventService::isEnforced()) {
+                return response()->json([
+                    'result' => false,
+                    'code' => 'UNUSUAL_ACTIVITY_VERIFICATION_REQUIRED',
+                    'message' => 'Activité inhabituelle détectée. Veuillez confirmer votre identité.',
+                    'flag_reason' => $securityEvent->flag_reason,
+                    'user' => null,
+                ], 403);
+            }
+
+            // Device verification check
+            $deviceId = $request->header('X-Device-Id');
+            if ($deviceId) {
+                $hasVerifiedDevices = UserDevice::where('user_id', $user->id)->whereNotNull('verified_at')->exists();
+
+                if ($hasVerifiedDevices) {
+                    $knownDevice = UserDevice::where('user_id', $user->id)
+                        ->where('device_id', $deviceId)
+                        ->whereNotNull('verified_at')
+                        ->first();
+
+                    if (!$knownDevice) {
+                        // New unverified device — require verification
+                        ['challenge' => $challenge, 'code' => $code] = SecurityChallenge::createForDevice($user, $deviceId);
+
+                        try {
+                            $user->notify(new DeviceVerificationNotification($code));
+                        } catch (\Exception $e) {
+                            // Log but don't block
+                        }
+
+                        return response()->json([
+                            'result' => false,
+                            'code' => 'DEVICE_VERIFICATION_REQUIRED',
+                            'message' => 'Un code de vérification a été envoyé à votre adresse e-mail.',
+                            'challenge_id' => $challenge->id,
+                            'expires_at' => $challenge->expires_at->toIso8601String(),
+                            'method' => $challenge->method,
+                            'user' => null,
+                        ], 403);
+                    }
+
+                    // Known device — update last_seen and continue
+                    $knownDevice->update(['last_seen_at' => now()]);
+                } else {
+                    // First-ever login: auto-verify this device
+                    UserDevice::create([
+                        'user_id' => $user->id,
+                        'device_id' => $deviceId,
+                        'device_name' => $request->header('User-Agent', 'Unknown Device'),
+                        'verified_at' => now(),
+                        'last_seen_at' => now(),
+                    ]);
+                }
+            }
+
+            $tempUserId = $request->has('temp_user_id') ? $request->temp_user_id : null;
+            return $this->loginSuccess($user, '', $tempUserId);
+        }
+
+        // Log failed login event
+        SecurityEventService::logLoginEvent($user, $request, 'login_failed');
+
+        // Failed password: increment failures and apply escalation
+        $securityState = LoginSecurityState::firstOrCreate(
+            ['user_id' => $user->id],
+            ['consecutive_failures' => 0, 'escalation_level' => 0]
+        );
+        $securityState->consecutive_failures++;
+        $securityState->applyEscalation();
+        $securityState->save();
+
+        // If escalation just locked the account, return the lock response
+        if ($securityState->isLocked()) {
+            return response()->json([
+                'result' => false,
+                'code' => 'ACCOUNT_TEMPORARILY_BLOCKED',
+                'message' => 'Trop de tentatives de connexion. Veuillez réessayer plus tard.',
+                'retry_after_seconds' => $securityState->remainingLockSeconds(),
+                'user' => null,
+            ], 403);
+        }
+
+        // If escalation triggered a security hold
+        if ($user->fresh()->security_hold_at !== null) {
+            return response()->json([
+                'result' => false,
+                'code' => 'ACCOUNT_SECURITY_HOLD',
+                'message' => 'Votre compte est temporairement suspendu pour des raisons de sécurité. Veuillez contacter le support.',
+                'user' => null,
+            ], 403);
+        }
+
+        return response()->json(['result' => false, 'message' => translate('Unauthorized'), 'user' => null], 401);
     }
 
     public function user(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user() ?? auth()->user();
+        if (!$user) {
+            return response()->json([
+                'result' => false,
+                'message' => translate('User not found')
+            ], 401);
+        }
+
+        return response()->json([
+            'result' => true,
+            'id' => $user->id,
+            'type' => $user->user_type,
+            'name' => $user->name,
+            'email' => $user->email,
+            'avatar' => $user->avatar,
+            'avatar_original' => uploaded_asset($user->avatar_original),
+            'phone' => $user->phone,
+            'city' => $user->city,
+            'postal_code' => $user->postal_code,
+            'address' => $user->address,
+            'gender' => $user->gender ?? null,
+            'birthDate' => $user->birth_date ?? null,
+            'email_verified' => $user->email_verified_at != null
+        ]);
     }
 
     public function logout(Request $request)
@@ -231,6 +377,43 @@ class AuthController extends Controller
         return response()->json([
             'result' => true,
             'message' => translate('Successfully logged out')
+        ]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'result' => false,
+                'code' => 'VALIDATION_ERROR',
+                'message' => $validator->errors()->all(),
+            ], 422);
+        }
+
+        $user = $request->user();
+        if (!$user || !Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'result' => false,
+                'code' => 'CURRENT_PASSWORD_INVALID',
+                'message' => translate('Current password is incorrect'),
+            ], 422);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+        $user->tokens()->delete();
+
+        SecurityEventService::logEvent($user, $request, 'password_change');
+
+        return response()->json([
+            'result' => true,
+            'message' => translate('Password changed successfully. Please login again.'),
+            'sessions_revoked' => true,
         ]);
     }
 
@@ -463,6 +646,7 @@ class AuthController extends Controller
             "message" => translate('Your account deletion successfully done')
         ]);
     }
+
 
     public function getUserInfoByAccessToken(Request $request)
     {

@@ -18,10 +18,10 @@ return [
     'profiles' => [
         'hero' => [
             'variant' => 'large',
-            'variants' => ['medium', 'large'],
+            'variants' => ['card', 'medium', 'large'],
             'width' => 1600,
             'height' => 720,
-            'sizes' => '100vw',
+            'sizes' => '(max-width: 768px) 100vw, (max-width: 1200px) calc(100vw - 270px), 100vw',
         ],
         'category' => [
             'variant' => 'thumb',

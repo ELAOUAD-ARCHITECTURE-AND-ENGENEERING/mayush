@@ -138,6 +138,34 @@ class Handler extends ExceptionHandler
             }
         }
 
+        if ($request->is('api/v2/*') || $request->expectsJson()) {
+            $status = null;
+            if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                $status = 401;
+            } elseif ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+                $status = $e->getStatusCode();
+            }
+
+            $error = match ($status) {
+                401 => ['SESSION_EXPIRED', translate('Your session has expired. Please login again.')],
+                403 => ['ACCESS_DENIED', translate('You are not authorized to perform this action.')],
+                429 => ['TOO_MANY_ATTEMPTS', translate('Too many attempts. Please try again later.')],
+                500 => ['SERVER_ERROR', translate('The server encountered an unexpected error.')],
+                503 => ['SERVER_UNAVAILABLE', translate('The service is temporarily unavailable.')],
+                default => null,
+            };
+
+            if ($error) {
+                $retryAfter = $status === 429 ? max(1, (int) ($e->getHeaders()['Retry-After'] ?? 60)) : null;
+                return response()->json(array_filter([
+                    'result' => false,
+                    'code' => $error[0],
+                    'message' => $error[1],
+                    'retry_after_seconds' => $retryAfter,
+                ], static fn ($value) => $value !== null), $status, $status === 429 ? ['Retry-After' => $retryAfter] : []);
+            }
+        }
+
         if($this->isHttpException($e))
         {
             if ($request->is('customer-products/admin')) {

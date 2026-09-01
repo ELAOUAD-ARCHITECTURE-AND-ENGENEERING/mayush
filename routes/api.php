@@ -22,13 +22,26 @@ Route::group(['prefix' => 'v2/auth', 'middleware' => ['app_language']], function
         Route::post('social-login', 'socialLogin');
     });
 
+    // Device verification (no auth required — user isn't logged in yet)
+    Route::controller(DeviceController::class)->middleware(['throttle:otp'])->group(function () {
+        Route::post('verify-device', 'verifyDevice');
+        Route::post('resend-device-code', 'resendDeviceCode');
+    });
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::controller(AuthController::class)->group(function () {
             Route::get('logout', 'logout');
             Route::get('user', 'user');
+            Route::post('password/change', 'changePassword');
             Route::get('account-deletion', 'account_deletion');
             Route::get('resend_code', 'resendCode');
             Route::post('confirm_code', 'confirmCode');
+        });
+
+        // Device management (authenticated)
+        Route::controller(DeviceController::class)->group(function () {
+            Route::get('devices', 'listDevices');
+            Route::delete('devices/{id}', 'revokeDevice');
         });
     });
     Route::controller(PasswordResetController::class)->group(function () {
@@ -41,6 +54,8 @@ Route::group(['prefix' => 'v2/auth', 'middleware' => ['app_language']], function
 
 
 Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
+
+    Route::get('system/status', [SystemStatusController::class, 'show']);
 
     Route::post(
         'notification-delivery-webhooks/{channel}',
@@ -315,6 +330,12 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
     Route::get('filter/categories', 'App\Http\Controllers\Api\V2\FilterController@categories');
     Route::get('filter/brands', 'App\Http\Controllers\Api\V2\FilterController@brands');
 
+    Route::get('product-collections', 'App\Http\Controllers\Api\V2\ProductCollectionController@index');
+
+    Route::get('inspirations', 'App\Http\Controllers\Api\V2\InspirationController@index');
+    Route::get('inspirations/featured', 'App\Http\Controllers\Api\V2\InspirationController@featured');
+    Route::get('inspirations/{slug}', 'App\Http\Controllers\Api\V2\InspirationController@show');
+
     Route::get('products/inhouse', 'App\Http\Controllers\Api\V2\ProductController@inhouse');
     Route::get('products/seller/{id}', 'App\Http\Controllers\Api\V2\ProductController@seller');
     Route::get('products/category/{slug}', 'App\Http\Controllers\Api\V2\ProductController@categoryProducts')->name('api.products.category');
@@ -366,6 +387,11 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
     Route::get('policies/seller', 'App\Http\Controllers\Api\V2\PolicyController@sellerPolicy')->name('policies.seller');
     Route::get('policies/support', 'App\Http\Controllers\Api\V2\PolicyController@supportPolicy')->name('policies.support');
     Route::get('policies/return', 'App\Http\Controllers\Api\V2\PolicyController@returnPolicy')->name('policies.return');
+    Route::get('policies/privacy', 'App\Http\Controllers\Api\V2\PolicyController@privacyPolicy')->name('policies.privacy');
+    Route::get('policies/terms', 'App\Http\Controllers\Api\V2\PolicyController@termsConditions')->name('policies.terms');
+    Route::get('pages/useful-links', [PageController::class, 'useful_links'])->name('pages.useful_links');
+    Route::get('pages/{slug}', [PageController::class, 'show'])->name('pages.show');
+    Route::get('custom-pages/{slug}', [PageController::class, 'show'])->name('custom_pages.show');
 
     Route::post('get-user-by-access_token', 'App\Http\Controllers\Api\V2\UserController@getUserInfoByAccessToken');
 

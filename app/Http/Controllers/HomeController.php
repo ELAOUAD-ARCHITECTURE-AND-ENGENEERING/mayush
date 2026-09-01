@@ -233,7 +233,7 @@ class HomeController extends Controller
 
     public function all_categories(Request $request)
     {
-        $categories = Category::with('childrenCategories')->where('parent_id', 0)->orderBy('order_level', 'desc')->get();
+        $categories = Category::with('childrenCategories.childrenCategories')->where('parent_id', 0)->orderBy('order_level', 'desc')->get();
 
         return view('frontend.all_category', compact('categories'));
     }
@@ -246,7 +246,7 @@ class HomeController extends Controller
 
     public function get_category_items(Request $request)
     {
-        $categories = Category::with('childrenCategories')->findOrFail($request->id);
+        $categories = Category::with('childrenCategories.childrenCategories')->findOrFail($request->id);
         return view('frontend.partials.category_elements', compact('categories'));
     }
 

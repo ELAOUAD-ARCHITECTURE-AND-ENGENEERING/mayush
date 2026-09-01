@@ -1,0 +1,12 @@
+element,source_x,source_y,source_width,source_height,app_x,app_y,app_width,app_height,delta_x,delta_y,delta_width,delta_height,source_font,app_font,source_font_size,app_font_size,source_line_height,app_line_height,source_color,app_color,source_radius,app_radius,source_border,app_border,status,notes
+Header,0,44,393,64,0,44,393,64,0,0,0,0,Inter,Inter,18,18,24,24,#1F2A3A,#1F2A3A,0,0,0,0,FIGMA_METADATA,Standard 64px header bar
+ProgressIndicator,0,108,393,48,0,108,393,48,0,0,0,0,Inter,Inter,12,12,16,16,#D97434,#D97434,12,12,0,0,FIGMA_METADATA,4-step progress indicator bar
+FormIntro,20,165,353,40,20,165,353,40,0,0,0,0,Inter,Inter,20,20,26,26,#1F2A3A,#1F2A3A,0,0,0,0,FIGMA_METADATA,Ajouter une adresse section title
+FirstNameInput,20,215,170,52,20,215,170,52,0,0,0,0,Inter,Inter,15,15,20,20,#1F2A3A,#1F2A3A,14,14,1,1,FIGMA_METADATA,Prénom input field
+LastNameInput,203,215,170,52,203,215,170,52,0,0,0,0,Inter,Inter,15,15,20,20,#1F2A3A,#1F2A3A,14,14,1,1,FIGMA_METADATA,Nom input field
+AddressInput,20,285,353,52,20,285,353,52,0,0,0,0,Inter,Inter,15,15,20,20,#1F2A3A,#1F2A3A,14,14,1,1,FIGMA_METADATA,Adresse complète input field
+CityInput,20,355,170,52,20,355,170,52,0,0,0,0,Inter,Inter,15,15,20,20,#1F2A3A,#1F2A3A,14,14,1,1,FIGMA_METADATA,Ville input field
+PostalInput,203,355,170,52,203,355,170,52,0,0,0,0,Inter,Inter,15,15,20,20,#1F2A3A,#1F2A3A,14,14,1,1,FIGMA_METADATA,Code postal input field
+PhoneInput,20,425,353,52,20,425,353,52,0,0,0,0,Inter,Inter,15,15,20,20,#1F2A3A,#1F2A3A,14,14,1,1,FIGMA_METADATA,Téléphone field with +212 prefix
+DefaultAddressCheckbox,20,495,353,30,20,495,353,30,0,0,0,0,Inter,Inter,13,13,18,18,#1F2A3A,#1F2A3A,4,4,1,1,FIGMA_METADATA,Définir comme adresse par défaut checkbox
+PrimaryCTA,20,700,353,52,20,770,353,52,0,70,0,0,Inter,Inter,15,15,20,20,#FFFFFF,#FFFFFF,16,16,0,0,PIXEL_MEASURED,Enregistrer cette adresse CTA button y position offset

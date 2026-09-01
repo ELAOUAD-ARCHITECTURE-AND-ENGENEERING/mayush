@@ -14,7 +14,8 @@ class CheckoutController
 {
     public function apply_coupon_code(Request $request)
     {
-        $coupon = Coupon::where('code', $request->coupon_code)->first();
+        $code = $request->coupon_code ?: $request->code;
+        $coupon = Coupon::where('code', $code)->first();
         if ($coupon == null) {
             return response()->json([
                 'result' => false,
@@ -25,9 +26,13 @@ class CheckoutController
         $user_id        = $request->user_id;
         $temp_user_id   = $request->temp_user_id;
         
+        $admin_user = \App\Models\User::where('user_type', 'admin')->first();
+        $admin_id = $admin_user ? $admin_user->id : 0;
+        $is_admin_coupon = ($coupon->user_id == $admin_id || $coupon->user_id == 0 || $coupon->user_id == null);
+
         $cart_items     = ($user_id != null) ?
-                            Cart::where('user_id', $user_id)->where('owner_id', $coupon->user_id)->active()->get():
-                            Cart::where('temp_user_id', $temp_user_id)->where('owner_id', $coupon->user_id)->active()->get();
+                            ($is_admin_coupon ? Cart::where('user_id', $user_id)->active()->get() : Cart::where('user_id', $user_id)->where('owner_id', $coupon->user_id)->active()->get()):
+                            ($is_admin_coupon ? Cart::where('temp_user_id', $temp_user_id)->active()->get() : Cart::where('temp_user_id', $temp_user_id)->where('owner_id', $coupon->user_id)->active()->get());
 
         $coupon_discount = 0;
         if ($cart_items->isEmpty()) {
@@ -107,15 +112,20 @@ class CheckoutController
 
         if($coupon_discount>0){
             $cart_query = $user_id != null ? Cart::where('user_id', $user_id) : Cart::where('temp_user_id', $temp_user_id);
-            $cart_query->where('owner_id', $coupon->user_id)->active()->update([
-                'discount' => $coupon_discount / count($cart_items),
-                'coupon_code' => $request->coupon_code,
+            if (!$is_admin_coupon) {
+                $cart_query->where('owner_id', $coupon->user_id);
+            }
+            $cart_query->active()->update([
+                'discount' => $coupon_discount / max(1, count($cart_items)),
+                'coupon_code' => $code,
                 'coupon_applied' => 1
             ]);
             
 
             return response()->json([
                 'result' => true,
+                'discount' => (float) $coupon_discount,
+                'coupon_code' => $code,
                 'message' => translate('Coupon Applied')
             ]);
         }else{

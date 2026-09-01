@@ -1,0 +1,152 @@
+{
+  "screenName": "06-add-address-validation-errors-fr",
+  "analyzedAt": "2026-08-06T14:30:52.900Z",
+  "targetImage": "app-after-393x852.png",
+  "totalPixels": 334836,
+  "regionalBreakdown": [
+    {
+      "region": "Safe Area",
+      "boundingBox": {
+        "x": 0,
+        "y": 0,
+        "width": 393,
+        "height": 44
+      },
+      "totalRegionPixels": 17292,
+      "mismatchedPixels": 1636,
+      "mismatchPercent": 9.46
+    },
+    {
+      "region": "Header",
+      "boundingBox": {
+        "x": 0,
+        "y": 44,
+        "width": 393,
+        "height": 64
+      },
+      "totalRegionPixels": 25152,
+      "mismatchedPixels": 3110,
+      "mismatchPercent": 12.36
+    },
+    {
+      "region": "Checkout Progress Indicator",
+      "boundingBox": {
+        "x": 0,
+        "y": 108,
+        "width": 393,
+        "height": 50
+      },
+      "totalRegionPixels": 19650,
+      "mismatchedPixels": 3216,
+      "mismatchPercent": 16.37
+    },
+    {
+      "region": "Screen Title & Introduction",
+      "boundingBox": {
+        "x": 0,
+        "y": 158,
+        "width": 393,
+        "height": 50
+      },
+      "totalRegionPixels": 19650,
+      "mismatchedPixels": 4485,
+      "mismatchPercent": 22.82
+    },
+    {
+      "region": "First Error Field (Name)",
+      "boundingBox": {
+        "x": 0,
+        "y": 208,
+        "width": 393,
+        "height": 80
+      },
+      "totalRegionPixels": 31440,
+      "mismatchedPixels": 3595,
+      "mismatchPercent": 11.43
+    },
+    {
+      "region": "Phone Field & Error",
+      "boundingBox": {
+        "x": 0,
+        "y": 288,
+        "width": 393,
+        "height": 80
+      },
+      "totalRegionPixels": 31440,
+      "mismatchedPixels": 4908,
+      "mismatchPercent": 15.61
+    },
+    {
+      "region": "City and Postal Fields & Error",
+      "boundingBox": {
+        "x": 0,
+        "y": 368,
+        "width": 393,
+        "height": 100
+      },
+      "totalRegionPixels": 39300,
+      "mismatchedPixels": 5890,
+      "mismatchPercent": 14.99
+    },
+    {
+      "region": "Address Field & Error",
+      "boundingBox": {
+        "x": 0,
+        "y": 468,
+        "width": 393,
+        "height": 80
+      },
+      "totalRegionPixels": 31440,
+      "mismatchedPixels": 5977,
+      "mismatchPercent": 19.01
+    },
+    {
+      "region": "Default-Address Control",
+      "boundingBox": {
+        "x": 0,
+        "y": 548,
+        "width": 393,
+        "height": 50
+      },
+      "totalRegionPixels": 19650,
+      "mismatchedPixels": 4670,
+      "mismatchPercent": 23.77
+    },
+    {
+      "region": "Validation/Helper Area",
+      "boundingBox": {
+        "x": 0,
+        "y": 598,
+        "width": 393,
+        "height": 40
+      },
+      "totalRegionPixels": 15720,
+      "mismatchedPixels": 3046,
+      "mismatchPercent": 19.38
+    },
+    {
+      "region": "Fixed CTA Area",
+      "boundingBox": {
+        "x": 0,
+        "y": 638,
+        "width": 393,
+        "height": 130
+      },
+      "totalRegionPixels": 51090,
+      "mismatchedPixels": 19832,
+      "mismatchPercent": 38.82
+    },
+    {
+      "region": "Bottom Safe Area",
+      "boundingBox": {
+        "x": 0,
+        "y": 768,
+        "width": 393,
+        "height": 84
+      },
+      "totalRegionPixels": 33012,
+      "mismatchedPixels": 1383,
+      "mismatchPercent": 4.19
+    }
+  ]
+}

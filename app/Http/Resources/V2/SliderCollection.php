@@ -14,6 +14,10 @@ class SliderCollection extends ResourceCollection
                 return [
                     'photo' => uploaded_asset($data['image']),
                     'url' => ($data['link']),
+                    'title' => $data['title'] ?? null,
+                    'description' => $data['description'] ?? null,
+                    'cta_text' => $data['cta_text'] ?? null,
+                    'cta_link' => $data['cta_link'] ?? null,
                 ];
             })
         ];

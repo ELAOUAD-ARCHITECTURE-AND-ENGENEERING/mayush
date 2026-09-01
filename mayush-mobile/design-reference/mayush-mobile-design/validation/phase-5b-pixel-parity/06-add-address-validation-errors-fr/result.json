@@ -1,0 +1,45 @@
+{
+  "screenName": "06-add-address-validation-errors-fr",
+  "figmaNodeId": "309:682",
+  "navigatorKey": "add-address-errors",
+  "implementationFiles": [
+    "mayush-mobile/src/screens/checkout/AddAddressFormScreen.tsx"
+  ],
+  "sourceDimensions": "393×852",
+  "appDimensions": "393×852",
+  "browserEngine": "Playwright Chromium",
+  "deviceScaleFactor": 1,
+  "fixtureKey": "addressDraftValidWithErrors",
+  "baselineMismatchPixels": 51816,
+  "baselineMismatchPercent": 15.50,
+  "afterMismatchPixels": 48431,
+  "afterMismatchPercent": 14.46,
+  "bestMismatchPercent": 14.46,
+  "bestMismatchPixels": 48431,
+  "bestCapturePath": "app-best-393x852.png",
+  "bestOverlayPath": "overlay-after-50.png",
+  "bestDiffPath": "pixel-diff-best.png",
+  "bestExperimentId": "EXP-004",
+  "threshold": 0.1,
+  "antiAliasHandling": true,
+  "correctionsApplied": [
+    "EXP-004: Unified AddAddressFormScreen structure with exact 64px header and surface white background aligns default and validation states"
+  ],
+  "sharedComponentsChanged": [
+    "AddAddressFormScreen.tsx"
+  ],
+  "behavioralImpact": "None (100% functional state preservation)",
+  "remainingDifferences": [
+    "Error text font anti-aliasing and subpixel web font rasterization differences",
+    "Form scroll container bottom padding spacing in Playwright headless Chromium"
+  ],
+  "sourceEvidencePath": "figma-source-393x852.png",
+  "appBeforePath": "app-before-393x852.png",
+  "overlayBeforePath": "overlay-before-50.png",
+  "diffBeforePath": "pixel-diff-before.png",
+  "appAfterPath": "app-best-393x852.png",
+  "overlayAfterPath": "overlay-after-50.png",
+  "diffAfterPath": "pixel-diff-best.png",
+  "finalStatus": "MEASURABLE_IMPROVEMENT_STILL_NEEDS_PIXEL_CORRECTION",
+  "checkedAt": "2026-08-06T14:31:00Z"
+}

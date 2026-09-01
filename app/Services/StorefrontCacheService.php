@@ -25,9 +25,16 @@ class StorefrontCacheService
         'home_preorder_featured_products',
     ];
 
+    private ?int $revisionMemo = null;
+
     public function revision(): int
     {
-        return (int) Cache::get(self::REVISION_KEY, 1);
+        // In-process memoization: revision never changes mid-request.
+        if ($this->revisionMemo !== null) {
+            return $this->revisionMemo;
+        }
+
+        return $this->revisionMemo = (int) Cache::get(self::REVISION_KEY, 1);
     }
 
     public function bump(): int

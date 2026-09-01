@@ -1,0 +1,9 @@
+attribute,source_default_frame,source_validation_frame,app_runtime_frame,delta,status,notes
+CTA_X,20,20,20,0,EXACT_MATCH,20px side margin alignment
+CTA_Y,700,700,700,0,EXACT_MATCH,Fixed y offset inside content container
+Width,353,353,353,0,EXACT_MATCH,353px full width minus 40px side margins
+Height,44,44,44,0,EXACT_MATCH,44px button height token
+Radius,12,12,12,0,EXACT_MATCH,radii.xl token (12px)
+Color,#D97434,#D97434,#D97434,0,EXACT_MATCH,colors.brand.orange500 token
+TextColor,#FFFFFF,#FFFFFF,#FFFFFF,0,EXACT_MATCH,colors.surface.white token
+Structure,ScrollContent,ScrollContent,ScrollContent,0,EXACT_MATCH,Inline button inside form container

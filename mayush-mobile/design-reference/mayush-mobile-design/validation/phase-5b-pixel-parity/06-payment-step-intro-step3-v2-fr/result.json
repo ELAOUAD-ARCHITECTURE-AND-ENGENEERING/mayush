@@ -1,0 +1,46 @@
+{
+  "screenName": "06-payment-step-intro-step3-v2-fr",
+  "figmaNodeId": "309:693",
+  "applicationScreenKey": "06-payment-step-intro-step3-v2-fr",
+  "implementationFile": "mayush-mobile/src/screens/checkout/PaymentStepIntroScreen.tsx",
+  "sourceDimensions": {
+    "width": 393,
+    "height": 852
+  },
+  "applicationDimensions": {
+    "width": 393,
+    "height": 852
+  },
+  "comparisonDate": "2026-08-06",
+  "captureMethod": {
+    "engine": "Playwright Chromium",
+    "viewport": "393×852",
+    "deviceScaleFactor": 1,
+    "source": "Figma get_screenshot at 393×852",
+    "application": "Deterministically rendered via VisualQaApp (after)"
+  },
+  "correctedFiles": [],
+  "remainingDifferences": [
+    "A source frame has been recorded at 393×852; a corresponding running-app capture, side-by-side, 50% overlay, and pixel-difference image remain required.",
+    "No native visual parity status can be promoted without real Android or an approved mobile-capable capture surface."
+  ],
+  "missingAssets": [],
+  "finalStatus": "NEEDS_PIXEL_CORRECTION",
+  "evidencePaths": {
+    "figmaSource": "figma-source-393x852.png",
+    "appBefore": "app-before-393x852.png",
+    "overlayBefore": "overlay-before-50.png",
+    "appAfter": "app-after-393x852.png",
+    "overlayAfter": "overlay-after-50.png",
+    "pixelDiff": null,
+    "sideBySideBefore": "side-by-side-before.png",
+    "pixelDiffBefore": "pixel-diff-before.png",
+    "sideBySideAfter": "side-by-side-after.png",
+    "pixelDiffAfter": "pixel-diff-after.png"
+  },
+  "diffMetrics": {
+    "mismatchedPixels": 55344,
+    "totalPixels": 334836,
+    "mismatchPercentage": 16.53
+  }
+}

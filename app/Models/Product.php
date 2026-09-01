@@ -211,6 +211,39 @@ class Product extends Model
         return get_setting('vendor_system_activation') == 1 || (bool) $user->is_intern;
     }
 
+    /**
+     * Whether the product can currently be purchased from a public storefront.
+     */
+    public function isAvailable(): bool
+    {
+        if (!$this->isPubliclyVisible()) {
+            return false;
+        }
+
+        if ((int) $this->digital === 1) {
+            return true;
+        }
+
+        if ($this->relationLoaded('stocks')) {
+            return $this->stocks->isNotEmpty()
+                ? $this->stocks->contains(fn ($stock) => (int) $stock->qty > 0)
+                : (int) $this->current_stock > 0;
+        }
+
+        $stockState = $this->stocks()
+            ->selectRaw('COUNT(*) AS total_rows, MAX(CASE WHEN qty > 0 THEN 1 ELSE 0 END) AS has_available_stock')
+            ->first();
+
+        return (int) ($stockState?->total_rows ?? 0) > 0
+            ? (bool) $stockState->has_available_stock
+            : (int) $this->current_stock > 0;
+    }
+
+    public function stockStatus(): string
+    {
+        return $this->isAvailable() ? 'in_stock' : 'out_of_stock';
+    }
+
     public function last_viewed_products()
     {
         return $this->hasMany(LastViewedProduct::class);

@@ -189,6 +189,12 @@ Route::controller(HomeController::class)->group(function () {
     Route::get('/inhouse', 'inhouse_products')->name('inhouse.all');
 
 
+    // Inspirations Storefront
+    Route::controller(\App\Http\Controllers\InspirationStorefrontController::class)->group(function () {
+        Route::get('/inspirations', 'index')->name('inspirations.all');
+        Route::get('/inspirations/{slug}', 'show')->name('inspirations.show');
+    });
+
     // Stock Alert (Public)
     Route::post('/stock-alert/subscribe', [\App\Http\Controllers\StockAlertController::class, 'subscribe'])->name('stock.alert.subscribe');
 });

@@ -84,4 +84,8 @@ return [
         'embedding_dimensions' => (int) env('OPENROUTER_EMBEDDING_DIMENSIONS', 768),
     ],
 
+    'security' => [
+        'unusual_activity_enforce' => env('SECURITY_UNUSUAL_ACTIVITY_ENFORCE', false),
+    ],
+
 ];

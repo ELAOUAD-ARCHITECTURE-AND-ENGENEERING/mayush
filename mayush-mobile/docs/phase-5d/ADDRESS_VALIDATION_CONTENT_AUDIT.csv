@@ -1,0 +1,9 @@
+element,figma_text,fixture_text,runtime_text,match_status,correction,notes
+ScreenTitle,Ajouter une adresse,Ajouter une adresse,Ajouter une adresse,EXACT_MATCH,None,Matches French LTR section title
+NameError,Le nom complet est requis.,Le nom complet est requis.,Le nom complet est requis.,EXACT_MATCH,None,Error message when name is empty
+PhoneError,Saisissez un numéro marocain valide.,Saisissez un numéro marocain valide.,Saisissez un numéro marocain valide.,EXACT_MATCH,None,Error message when phone is incomplete
+CityError,Sélectionnez votre ville.,Sélectionnez votre ville.,Sélectionnez votre ville.,EXACT_MATCH,None,Error message when city is empty
+ZoneError,Sélectionnez votre zone de livraison.,Sélectionnez votre zone de livraison.,Sélectionnez votre zone de livraison.,EXACT_MATCH,None,Error message when zone is empty
+AddressError,L’adresse est requise.,L’adresse est requise.,L’adresse est requise.,EXACT_MATCH,None,Error message when address is empty
+PostcodeError,Le code postal est requis.,Le code postal est requis.,Le code postal est requis.,EXACT_MATCH,None,Error message when postcode is empty
+CTAButton,Enregistrer l’adresse,Enregistrer l’adresse,Enregistrer l’adresse,EXACT_MATCH,None,Save address action button

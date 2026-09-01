@@ -1,0 +1,43 @@
+{
+  "runId": "mayush-figma-visual-correction",
+  "guidelinePath": "figma-handoff/MAYUSH_FIGMA_DESIGN_GUIDELINES.md",
+  "guidelineLoaded": true,
+  "figmaFileName": "Mayush Mobile — Design System & Buyer App",
+  "figmaFileKey": "wAdLNmlKanvI0AEPyEbrMs",
+  "activePhase": "screen-parity",
+  "activeFeature": "Entry",
+  "activeScreen": "UI / Entry / Language Selection / FR + AR / Default",
+  "officialLogoComponentId": "80:2",
+  "variableCollections": {
+    "Mayush / Primitives": "VariableCollectionId:2:2",
+    "Mayush / Color": "VariableCollectionId:2:3",
+    "Mayush / Spacing": "VariableCollectionId:2:4",
+    "Mayush / Radius & Layout": "VariableCollectionId:2:5",
+    "Mayush / Typography": "VariableCollectionId:2:6"
+  },
+  "components": {
+    "CMP / Commerce / Product Card": "181:31",
+    "CMP / Forms / Text Input": "181:40"
+  },
+  "compliantScreens": [],
+  "screensNeedingCorrection": [
+    "UI / Discovery / Categories / AR / Default"
+  ],
+  "screensNeedingProductDecision": [],
+  "completedCorrections": [
+    {
+      "operation": "Reset project checkpoint at Cover before re-analysis",
+      "nodeIds": ["181:28", "181:31", "181:40"],
+      "visualStatus": "RESTARTED_FROM_COVER",
+      "checkedAgainst": "Cover / Mayush Mobile / Project Index",
+      "checkedAt": "2026-08-03T00:00:00Z"
+    }
+  ],
+  "pendingCorrections": [
+    "Re-analyse Foundations variables, styles, and native-readiness contract",
+    "Re-validate Components only after Foundations gate",
+    "Resume screen parity from the first failing source after the Cover checkpoint"
+  ],
+  "lastSuccessfulOperation": "Rebuilt Entry language selection as editable layers, corrected card-local geometry from screenshot comparison, and captured QA overlay",
+  "nextOperation": "Correct UI / Entry / Onboarding 01 / FR / Default against SRC / 01-onboarding-step1-discover-interior-fr.png with measured hero-image and CTA comparison"
+}

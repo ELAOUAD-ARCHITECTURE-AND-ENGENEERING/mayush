@@ -85,13 +85,13 @@ class ProductDetailCollection extends ResourceCollection
                     'id' => (int)$data->id,
                     'name' => $data->getTranslation('name'),
                     'added_by' => $data->added_by,
-                    'seller_id' => $data->user->id,
-                    'shop_id' => $data->added_by == 'admin' ? 0 : $data->user->shop->id,
-                    'shop_slug' => $data->added_by == 'admin' ? '' : $data->user->shop->slug,
-                    'shop_name' => $data->added_by == 'admin' ? translate('In House Product') : $data->user->shop->name,
-                    'shop_logo' => $data->added_by == 'admin' ? uploaded_asset(get_setting('header_logo')) : uploaded_asset($data->user->shop->logo) ?? "",
+                    'seller_id' => $data->user ? $data->user->id : 0,
+                    'shop_id' => $data->added_by == 'admin' ? 0 : ($data->user && $data->user->shop ? $data->user->shop->id : 0),
+                    'shop_slug' => $data->added_by == 'admin' ? '' : ($data->user && $data->user->shop ? $data->user->shop->slug : ''),
+                    'shop_name' => $data->added_by == 'admin' ? translate('In House Product') : ($data->user && $data->user->shop ? $data->user->shop->name : translate('In House Product')),
+                    'shop_logo' => $data->added_by == 'admin' ? uploaded_asset(get_setting('header_logo')) : ($data->user && $data->user->shop ? uploaded_asset($data->user->shop->logo) : uploaded_asset(get_setting('header_logo'))),
                     'photos' => $photos,
-                    'thumbnail_image' => uploaded_asset($data->thumbnail_img),
+                    'thumbnail_image' => self::resolveProductImage($data),
                     'tags' => explode(',', $data->tags),
                     'price_high_low' => (float)explode('-', home_discounted_base_price($data, false))[0] == (float)explode('-', home_discounted_price($data, false))[1] ? format_price((float)explode('-', home_discounted_price($data, false))[0]) : "From " . format_price((float)explode('-', home_discounted_price($data, false))[0]) . " to " . format_price((float)explode('-', home_discounted_price($data, false))[1]),
                     'choice_options' => $this->convertToChoiceOptions($data, json_decode($data->choice_options)),
@@ -113,7 +113,10 @@ class ProductDetailCollection extends ResourceCollection
                     'brand' => $brand,
                     'link' => route('product', $data->slug),
                     'wholesale' => $whole_sale,
-                    'est_shipping_time' => (int)$data->est_shipping_days,
+                    'est_shipping_time' => (int)($data->est_shipping_days ?: 2),
+                    'free_shipping_min_order' => (float)get_setting('free_shipping_min_order_amount', 3000),
+                    'flat_rate_shipping_cost' => (float)get_setting('flat_rate_shipping_cost', 0),
+                    'return_policy_days' => (int)get_setting('refund_request_time', 14),
                     'videos' => $videos,
 
                 ];
@@ -152,5 +155,28 @@ class ProductDetailCollection extends ResourceCollection
             array_push($result, uploaded_asset($item));
         }
         return $result;
+    }
+
+    private static function resolveProductImage($product): ?string
+    {
+        $url = uploaded_asset($product->thumbnail_img);
+        if ($url && !str_contains($url, 'placeholder')) {
+            return $url;
+        }
+
+        $photos = is_string($product->photos)
+            ? json_decode($product->photos, true)
+            : $product->photos;
+        if (is_array($photos)) {
+            foreach ($photos as $photoId) {
+                if (!is_numeric($photoId)) continue;
+                $photoUrl = uploaded_asset($photoId);
+                if ($photoUrl && !str_contains($photoUrl, 'placeholder')) {
+                    return $photoUrl;
+                }
+            }
+        }
+
+        return null;
     }
 }

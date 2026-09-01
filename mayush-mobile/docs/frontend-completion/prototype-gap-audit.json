@@ -1,0 +1,1461 @@
+{
+  "schemaVersion": "2.0.0",
+  "sourceCapturedAt": "2026-08-05",
+  "screenInventory": {
+    "totalRelevantFigmaNodes": 207,
+    "implementedNodes": 207,
+    "missingNodes": 0,
+    "screenCompletionPercentage": "100.0%"
+  },
+  "prototypeConnections": {
+    "totalConnections": 206,
+    "implementedConnections": 66,
+    "mismatchedConnections": 45,
+    "missingConnections": 95,
+    "interactionCompletionPercentage": "32.0%"
+  },
+  "connections": [
+    {
+      "connectionId": "FIGMA-PROT-001",
+      "sourceFigmaNodeId": "309:583",
+      "destinationFigmaNodeId": "309:584",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "PRESENTATION_ONLY_CONNECTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-002",
+      "sourceFigmaNodeId": "309:584",
+      "destinationFigmaNodeId": "309:585",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "PRESENTATION_ONLY_CONNECTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-003",
+      "sourceFigmaNodeId": "309:585",
+      "destinationFigmaNodeId": "309:586",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-004",
+      "sourceFigmaNodeId": "309:586",
+      "destinationFigmaNodeId": "309:587",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-005",
+      "sourceFigmaNodeId": "309:587",
+      "destinationFigmaNodeId": "309:588",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-006",
+      "sourceFigmaNodeId": "309:588",
+      "destinationFigmaNodeId": "309:590",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-007",
+      "sourceFigmaNodeId": "309:590",
+      "destinationFigmaNodeId": "309:592",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-008",
+      "sourceFigmaNodeId": "309:591",
+      "destinationFigmaNodeId": "309:592",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-009",
+      "sourceFigmaNodeId": "309:592",
+      "destinationFigmaNodeId": "309:593",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-010",
+      "sourceFigmaNodeId": "309:593",
+      "destinationFigmaNodeId": "309:594",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-011",
+      "sourceFigmaNodeId": "309:594",
+      "destinationFigmaNodeId": "309:604",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-012",
+      "sourceFigmaNodeId": "309:595",
+      "destinationFigmaNodeId": "309:596",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-013",
+      "sourceFigmaNodeId": "309:596",
+      "destinationFigmaNodeId": "309:597",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-014",
+      "sourceFigmaNodeId": "309:597",
+      "destinationFigmaNodeId": "309:604",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-015",
+      "sourceFigmaNodeId": "309:598",
+      "destinationFigmaNodeId": "309:599",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-016",
+      "sourceFigmaNodeId": "309:599",
+      "destinationFigmaNodeId": "309:600",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-017",
+      "sourceFigmaNodeId": "309:600",
+      "destinationFigmaNodeId": "309:601",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-018",
+      "sourceFigmaNodeId": "309:601",
+      "destinationFigmaNodeId": "309:604",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-019",
+      "sourceFigmaNodeId": "309:602",
+      "destinationFigmaNodeId": "309:600",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-020",
+      "sourceFigmaNodeId": "309:604",
+      "destinationFigmaNodeId": "309:605",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-021",
+      "sourceFigmaNodeId": "309:605",
+      "destinationFigmaNodeId": "309:604",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-022",
+      "sourceFigmaNodeId": "309:606",
+      "destinationFigmaNodeId": "309:607",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-023",
+      "sourceFigmaNodeId": "309:607",
+      "destinationFigmaNodeId": "309:611",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-024",
+      "sourceFigmaNodeId": "309:608",
+      "destinationFigmaNodeId": "309:609",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-025",
+      "sourceFigmaNodeId": "309:609",
+      "destinationFigmaNodeId": "309:610",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-026",
+      "sourceFigmaNodeId": "309:610",
+      "destinationFigmaNodeId": "309:611",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-027",
+      "sourceFigmaNodeId": "309:611",
+      "destinationFigmaNodeId": "309:658",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-028",
+      "sourceFigmaNodeId": "309:613",
+      "destinationFigmaNodeId": "309:648",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-029",
+      "sourceFigmaNodeId": "309:614",
+      "destinationFigmaNodeId": "309:622",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-030",
+      "sourceFigmaNodeId": "309:618",
+      "destinationFigmaNodeId": "309:614",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-031",
+      "sourceFigmaNodeId": "309:622",
+      "destinationFigmaNodeId": "309:590",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-032",
+      "sourceFigmaNodeId": "309:626",
+      "destinationFigmaNodeId": "309:630",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-033",
+      "sourceFigmaNodeId": "309:630",
+      "destinationFigmaNodeId": "309:639",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-034",
+      "sourceFigmaNodeId": "309:634",
+      "destinationFigmaNodeId": "309:649",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-035",
+      "sourceFigmaNodeId": "309:638",
+      "destinationFigmaNodeId": "309:639",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-036",
+      "sourceFigmaNodeId": "309:639",
+      "destinationFigmaNodeId": "309:756",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-037",
+      "sourceFigmaNodeId": "309:643",
+      "destinationFigmaNodeId": "309:644",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-038",
+      "sourceFigmaNodeId": "309:644",
+      "destinationFigmaNodeId": "309:634",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-039",
+      "sourceFigmaNodeId": "309:648",
+      "destinationFigmaNodeId": "309:644",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-040",
+      "sourceFigmaNodeId": "309:649",
+      "destinationFigmaNodeId": "309:590",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-041",
+      "sourceFigmaNodeId": "309:653",
+      "destinationFigmaNodeId": "309:658",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-042",
+      "sourceFigmaNodeId": "309:658",
+      "destinationFigmaNodeId": "309:679",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-043",
+      "sourceFigmaNodeId": "309:659",
+      "destinationFigmaNodeId": "309:660",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-044",
+      "sourceFigmaNodeId": "309:660",
+      "destinationFigmaNodeId": "309:661",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-045",
+      "sourceFigmaNodeId": "309:661",
+      "destinationFigmaNodeId": "309:662",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-046",
+      "sourceFigmaNodeId": "309:662",
+      "destinationFigmaNodeId": "309:663",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-047",
+      "sourceFigmaNodeId": "309:663",
+      "destinationFigmaNodeId": "309:664",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-048",
+      "sourceFigmaNodeId": "309:664",
+      "destinationFigmaNodeId": "309:663",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-049",
+      "sourceFigmaNodeId": "309:665",
+      "destinationFigmaNodeId": "309:668",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-050",
+      "sourceFigmaNodeId": "309:666",
+      "destinationFigmaNodeId": "309:667",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-051",
+      "sourceFigmaNodeId": "309:667",
+      "destinationFigmaNodeId": "309:668",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-052",
+      "sourceFigmaNodeId": "309:668",
+      "destinationFigmaNodeId": "309:669",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-053",
+      "sourceFigmaNodeId": "309:669",
+      "destinationFigmaNodeId": "309:670",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-054",
+      "sourceFigmaNodeId": "309:670",
+      "destinationFigmaNodeId": "309:671",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-055",
+      "sourceFigmaNodeId": "309:671",
+      "destinationFigmaNodeId": "309:672",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-056",
+      "sourceFigmaNodeId": "309:672",
+      "destinationFigmaNodeId": "309:673",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-057",
+      "sourceFigmaNodeId": "309:673",
+      "destinationFigmaNodeId": "309:674",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-058",
+      "sourceFigmaNodeId": "309:674",
+      "destinationFigmaNodeId": "309:675",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-059",
+      "sourceFigmaNodeId": "309:675",
+      "destinationFigmaNodeId": "309:676",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-060",
+      "sourceFigmaNodeId": "309:676",
+      "destinationFigmaNodeId": "309:677",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-061",
+      "sourceFigmaNodeId": "309:677",
+      "destinationFigmaNodeId": "309:679",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-062",
+      "sourceFigmaNodeId": "309:679",
+      "destinationFigmaNodeId": "309:680",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-063",
+      "sourceFigmaNodeId": "309:680",
+      "destinationFigmaNodeId": "309:687",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-064",
+      "sourceFigmaNodeId": "309:681",
+      "destinationFigmaNodeId": "309:680",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-065",
+      "sourceFigmaNodeId": "309:682",
+      "destinationFigmaNodeId": "309:681",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-066",
+      "sourceFigmaNodeId": "309:683",
+      "destinationFigmaNodeId": "309:684",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-067",
+      "sourceFigmaNodeId": "309:684",
+      "destinationFigmaNodeId": "309:685",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-068",
+      "sourceFigmaNodeId": "309:685",
+      "destinationFigmaNodeId": "309:686",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-069",
+      "sourceFigmaNodeId": "309:686",
+      "destinationFigmaNodeId": "309:687",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-070",
+      "sourceFigmaNodeId": "309:687",
+      "destinationFigmaNodeId": "309:690",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-071",
+      "sourceFigmaNodeId": "309:688",
+      "destinationFigmaNodeId": "309:689",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-072",
+      "sourceFigmaNodeId": "309:689",
+      "destinationFigmaNodeId": "309:690",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-073",
+      "sourceFigmaNodeId": "309:690",
+      "destinationFigmaNodeId": "309:698",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-074",
+      "sourceFigmaNodeId": "309:691",
+      "destinationFigmaNodeId": "309:692",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-075",
+      "sourceFigmaNodeId": "309:692",
+      "destinationFigmaNodeId": "309:693",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-076",
+      "sourceFigmaNodeId": "309:693",
+      "destinationFigmaNodeId": "309:694",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-077",
+      "sourceFigmaNodeId": "309:694",
+      "destinationFigmaNodeId": "309:695",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-078",
+      "sourceFigmaNodeId": "309:695",
+      "destinationFigmaNodeId": "309:696",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-079",
+      "sourceFigmaNodeId": "309:696",
+      "destinationFigmaNodeId": "309:697",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-080",
+      "sourceFigmaNodeId": "309:697",
+      "destinationFigmaNodeId": "309:698",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-081",
+      "sourceFigmaNodeId": "309:698",
+      "destinationFigmaNodeId": "309:705",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-082",
+      "sourceFigmaNodeId": "309:699",
+      "destinationFigmaNodeId": "309:690",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-083",
+      "sourceFigmaNodeId": "309:700",
+      "destinationFigmaNodeId": "309:690",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-084",
+      "sourceFigmaNodeId": "309:701",
+      "destinationFigmaNodeId": "309:702",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-085",
+      "sourceFigmaNodeId": "309:702",
+      "destinationFigmaNodeId": "309:712",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-086",
+      "sourceFigmaNodeId": "309:703",
+      "destinationFigmaNodeId": "309:706",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-087",
+      "sourceFigmaNodeId": "309:704",
+      "destinationFigmaNodeId": "309:705",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-088",
+      "sourceFigmaNodeId": "309:705",
+      "destinationFigmaNodeId": "309:712",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-089",
+      "sourceFigmaNodeId": "309:706",
+      "destinationFigmaNodeId": "309:698",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-090",
+      "sourceFigmaNodeId": "309:707",
+      "destinationFigmaNodeId": "309:708",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-091",
+      "sourceFigmaNodeId": "309:708",
+      "destinationFigmaNodeId": "309:709",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-092",
+      "sourceFigmaNodeId": "309:709",
+      "destinationFigmaNodeId": "309:710",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-093",
+      "sourceFigmaNodeId": "309:710",
+      "destinationFigmaNodeId": "309:712",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-094",
+      "sourceFigmaNodeId": "309:712",
+      "destinationFigmaNodeId": "309:716",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-095",
+      "sourceFigmaNodeId": "309:713",
+      "destinationFigmaNodeId": "309:716",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-096",
+      "sourceFigmaNodeId": "309:714",
+      "destinationFigmaNodeId": "309:715",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-097",
+      "sourceFigmaNodeId": "309:715",
+      "destinationFigmaNodeId": "309:716",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-098",
+      "sourceFigmaNodeId": "309:716",
+      "destinationFigmaNodeId": "309:718",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-099",
+      "sourceFigmaNodeId": "309:717",
+      "destinationFigmaNodeId": "309:718",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-100",
+      "sourceFigmaNodeId": "309:718",
+      "destinationFigmaNodeId": "309:719",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-101",
+      "sourceFigmaNodeId": "309:719",
+      "destinationFigmaNodeId": "309:728",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-102",
+      "sourceFigmaNodeId": "309:720",
+      "destinationFigmaNodeId": "309:721",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-103",
+      "sourceFigmaNodeId": "309:721",
+      "destinationFigmaNodeId": "309:722",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-104",
+      "sourceFigmaNodeId": "309:722",
+      "destinationFigmaNodeId": "309:723",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-105",
+      "sourceFigmaNodeId": "309:723",
+      "destinationFigmaNodeId": "309:724",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-106",
+      "sourceFigmaNodeId": "309:724",
+      "destinationFigmaNodeId": "309:725",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-107",
+      "sourceFigmaNodeId": "309:725",
+      "destinationFigmaNodeId": "309:726",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-108",
+      "sourceFigmaNodeId": "309:726",
+      "destinationFigmaNodeId": "309:727",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-109",
+      "sourceFigmaNodeId": "309:727",
+      "destinationFigmaNodeId": "309:728",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-110",
+      "sourceFigmaNodeId": "309:728",
+      "destinationFigmaNodeId": "309:729",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-111",
+      "sourceFigmaNodeId": "309:729",
+      "destinationFigmaNodeId": "309:730",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-112",
+      "sourceFigmaNodeId": "309:730",
+      "destinationFigmaNodeId": "309:731",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-113",
+      "sourceFigmaNodeId": "309:731",
+      "destinationFigmaNodeId": "309:732",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-114",
+      "sourceFigmaNodeId": "309:732",
+      "destinationFigmaNodeId": "309:733",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-115",
+      "sourceFigmaNodeId": "309:733",
+      "destinationFigmaNodeId": "309:734",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-116",
+      "sourceFigmaNodeId": "309:734",
+      "destinationFigmaNodeId": "309:736",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-117",
+      "sourceFigmaNodeId": "309:735",
+      "destinationFigmaNodeId": "309:736",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-118",
+      "sourceFigmaNodeId": "309:736",
+      "destinationFigmaNodeId": "309:737",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-119",
+      "sourceFigmaNodeId": "309:737",
+      "destinationFigmaNodeId": "309:738",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-120",
+      "sourceFigmaNodeId": "309:738",
+      "destinationFigmaNodeId": "309:739",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-121",
+      "sourceFigmaNodeId": "309:739",
+      "destinationFigmaNodeId": "309:740",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-122",
+      "sourceFigmaNodeId": "309:740",
+      "destinationFigmaNodeId": "309:741",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-123",
+      "sourceFigmaNodeId": "309:741",
+      "destinationFigmaNodeId": "309:742",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-124",
+      "sourceFigmaNodeId": "309:742",
+      "destinationFigmaNodeId": "309:743",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-125",
+      "sourceFigmaNodeId": "309:743",
+      "destinationFigmaNodeId": "309:744",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-126",
+      "sourceFigmaNodeId": "309:744",
+      "destinationFigmaNodeId": "309:745",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-127",
+      "sourceFigmaNodeId": "309:745",
+      "destinationFigmaNodeId": "309:747",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-128",
+      "sourceFigmaNodeId": "309:747",
+      "destinationFigmaNodeId": "309:748",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-129",
+      "sourceFigmaNodeId": "309:748",
+      "destinationFigmaNodeId": "309:749",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-130",
+      "sourceFigmaNodeId": "309:749",
+      "destinationFigmaNodeId": "309:750",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-131",
+      "sourceFigmaNodeId": "309:750",
+      "destinationFigmaNodeId": "309:747",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-132",
+      "sourceFigmaNodeId": "309:751",
+      "destinationFigmaNodeId": "309:752",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-133",
+      "sourceFigmaNodeId": "309:752",
+      "destinationFigmaNodeId": "309:753",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-134",
+      "sourceFigmaNodeId": "309:753",
+      "destinationFigmaNodeId": "309:643",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-135",
+      "sourceFigmaNodeId": "309:754",
+      "destinationFigmaNodeId": "309:755",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-136",
+      "sourceFigmaNodeId": "309:755",
+      "destinationFigmaNodeId": "309:756",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-137",
+      "sourceFigmaNodeId": "309:756",
+      "destinationFigmaNodeId": "309:614",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-138",
+      "sourceFigmaNodeId": "309:757",
+      "destinationFigmaNodeId": "309:758",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-139",
+      "sourceFigmaNodeId": "309:758",
+      "destinationFigmaNodeId": "309:759",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-140",
+      "sourceFigmaNodeId": "309:759",
+      "destinationFigmaNodeId": "309:760",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-141",
+      "sourceFigmaNodeId": "309:760",
+      "destinationFigmaNodeId": "309:761",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-142",
+      "sourceFigmaNodeId": "309:761",
+      "destinationFigmaNodeId": "309:762",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-143",
+      "sourceFigmaNodeId": "309:762",
+      "destinationFigmaNodeId": "309:765",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-144",
+      "sourceFigmaNodeId": "309:763",
+      "destinationFigmaNodeId": "309:764",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-145",
+      "sourceFigmaNodeId": "309:764",
+      "destinationFigmaNodeId": "309:765",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-146",
+      "sourceFigmaNodeId": "309:765",
+      "destinationFigmaNodeId": "309:766",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-147",
+      "sourceFigmaNodeId": "309:766",
+      "destinationFigmaNodeId": "309:767",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-148",
+      "sourceFigmaNodeId": "309:767",
+      "destinationFigmaNodeId": "309:768",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-149",
+      "sourceFigmaNodeId": "309:768",
+      "destinationFigmaNodeId": "309:769",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-150",
+      "sourceFigmaNodeId": "309:769",
+      "destinationFigmaNodeId": "309:770",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-151",
+      "sourceFigmaNodeId": "309:770",
+      "destinationFigmaNodeId": "309:771",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-152",
+      "sourceFigmaNodeId": "309:771",
+      "destinationFigmaNodeId": "309:613",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-153",
+      "sourceFigmaNodeId": "309:772",
+      "destinationFigmaNodeId": "309:773",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-154",
+      "sourceFigmaNodeId": "309:773",
+      "destinationFigmaNodeId": "309:774",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-155",
+      "sourceFigmaNodeId": "309:774",
+      "destinationFigmaNodeId": "309:775",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-156",
+      "sourceFigmaNodeId": "309:775",
+      "destinationFigmaNodeId": "309:776",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-157",
+      "sourceFigmaNodeId": "309:776",
+      "destinationFigmaNodeId": "309:777",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-158",
+      "sourceFigmaNodeId": "309:777",
+      "destinationFigmaNodeId": "309:778",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-159",
+      "sourceFigmaNodeId": "309:778",
+      "destinationFigmaNodeId": "309:779",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-160",
+      "sourceFigmaNodeId": "309:779",
+      "destinationFigmaNodeId": "309:780",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-161",
+      "sourceFigmaNodeId": "309:780",
+      "destinationFigmaNodeId": "309:781",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-162",
+      "sourceFigmaNodeId": "309:781",
+      "destinationFigmaNodeId": "309:782",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-163",
+      "sourceFigmaNodeId": "309:782",
+      "destinationFigmaNodeId": "309:783",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-164",
+      "sourceFigmaNodeId": "309:783",
+      "destinationFigmaNodeId": "309:784",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-165",
+      "sourceFigmaNodeId": "309:784",
+      "destinationFigmaNodeId": "309:785",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-166",
+      "sourceFigmaNodeId": "309:785",
+      "destinationFigmaNodeId": "309:786",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-167",
+      "sourceFigmaNodeId": "309:786",
+      "destinationFigmaNodeId": "309:787",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-168",
+      "sourceFigmaNodeId": "309:787",
+      "destinationFigmaNodeId": "309:789",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-169",
+      "sourceFigmaNodeId": "309:789",
+      "destinationFigmaNodeId": "309:805",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-170",
+      "sourceFigmaNodeId": "309:790",
+      "destinationFigmaNodeId": "309:791",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-171",
+      "sourceFigmaNodeId": "309:791",
+      "destinationFigmaNodeId": "309:792",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-172",
+      "sourceFigmaNodeId": "309:792",
+      "destinationFigmaNodeId": "309:793",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-173",
+      "sourceFigmaNodeId": "309:793",
+      "destinationFigmaNodeId": "309:794",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-174",
+      "sourceFigmaNodeId": "309:794",
+      "destinationFigmaNodeId": "309:795",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-175",
+      "sourceFigmaNodeId": "309:795",
+      "destinationFigmaNodeId": "309:796",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-176",
+      "sourceFigmaNodeId": "309:796",
+      "destinationFigmaNodeId": "309:797",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-177",
+      "sourceFigmaNodeId": "309:797",
+      "destinationFigmaNodeId": "309:798",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-178",
+      "sourceFigmaNodeId": "309:798",
+      "destinationFigmaNodeId": "309:799",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-179",
+      "sourceFigmaNodeId": "309:799",
+      "destinationFigmaNodeId": "309:800",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-180",
+      "sourceFigmaNodeId": "309:800",
+      "destinationFigmaNodeId": "309:801",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-181",
+      "sourceFigmaNodeId": "309:801",
+      "destinationFigmaNodeId": "309:802",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-182",
+      "sourceFigmaNodeId": "309:802",
+      "destinationFigmaNodeId": "309:803",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-183",
+      "sourceFigmaNodeId": "309:803",
+      "destinationFigmaNodeId": "309:804",
+      "connectionStatus": "MISSING",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-184",
+      "sourceFigmaNodeId": "309:804",
+      "destinationFigmaNodeId": "309:805",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-185",
+      "sourceFigmaNodeId": "309:805",
+      "destinationFigmaNodeId": "309:783",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-186",
+      "sourceFigmaNodeId": "309:806",
+      "destinationFigmaNodeId": "309:807",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-187",
+      "sourceFigmaNodeId": "309:807",
+      "destinationFigmaNodeId": "309:808",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-188",
+      "sourceFigmaNodeId": "309:808",
+      "destinationFigmaNodeId": "309:809",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-189",
+      "sourceFigmaNodeId": "309:809",
+      "destinationFigmaNodeId": "309:810",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-190",
+      "sourceFigmaNodeId": "309:810",
+      "destinationFigmaNodeId": "309:817",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-191",
+      "sourceFigmaNodeId": "309:811",
+      "destinationFigmaNodeId": "309:812",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-192",
+      "sourceFigmaNodeId": "309:812",
+      "destinationFigmaNodeId": "309:814",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-193",
+      "sourceFigmaNodeId": "309:813",
+      "destinationFigmaNodeId": "309:814",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-194",
+      "sourceFigmaNodeId": "309:814",
+      "destinationFigmaNodeId": "309:819",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-195",
+      "sourceFigmaNodeId": "309:815",
+      "destinationFigmaNodeId": "309:816",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-196",
+      "sourceFigmaNodeId": "309:816",
+      "destinationFigmaNodeId": "309:817",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-197",
+      "sourceFigmaNodeId": "309:817",
+      "destinationFigmaNodeId": "309:820",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-198",
+      "sourceFigmaNodeId": "309:818",
+      "destinationFigmaNodeId": "309:819",
+      "connectionStatus": "MISMATCHED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-199",
+      "sourceFigmaNodeId": "309:819",
+      "destinationFigmaNodeId": "309:820",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-200",
+      "sourceFigmaNodeId": "309:820",
+      "destinationFigmaNodeId": "309:821",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-201",
+      "sourceFigmaNodeId": "309:821",
+      "destinationFigmaNodeId": "309:822",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-202",
+      "sourceFigmaNodeId": "309:822",
+      "destinationFigmaNodeId": "309:823",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-203",
+      "sourceFigmaNodeId": "309:823",
+      "destinationFigmaNodeId": "309:824",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-204",
+      "sourceFigmaNodeId": "309:824",
+      "destinationFigmaNodeId": "309:825",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-205",
+      "sourceFigmaNodeId": "309:825",
+      "destinationFigmaNodeId": "309:826",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    },
+    {
+      "connectionId": "FIGMA-PROT-206",
+      "sourceFigmaNodeId": "309:826",
+      "destinationFigmaNodeId": "309:827",
+      "connectionStatus": "IMPLEMENTED",
+      "implementationType": "USER_INTERACTION"
+    }
+  ]
+}

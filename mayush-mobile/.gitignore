@@ -1,0 +1,56 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+web-build/
+expo-env.d.ts
+coverage/
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.stackdump
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env
+.env.*
+!.env.example
+!.env.*.example
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
+
+# temporary visual-QA comparison captures (reproducible, never checkpointed)
+design-reference/mayush-mobile-design/validation/phase-5b-pixel-parity/**/app-*-393x852.png
+design-reference/mayush-mobile-design/validation/phase-5b-pixel-parity/**/figma-source-live.png
+design-reference/mayush-mobile-design/validation/phase-5b-pixel-parity/**/overlay-*.png
+design-reference/mayush-mobile-design/validation/phase-5b-pixel-parity/**/pixel-diff-*.png
+design-reference/mayush-mobile-design/validation/phase-5b-pixel-parity/**/side-by-side-*.png
+docs/frontend-completion/previews/

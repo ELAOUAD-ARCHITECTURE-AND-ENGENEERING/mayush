@@ -43,7 +43,13 @@ class AddressController extends Controller
 
     public function updateShippingAddress(Request $request)
     {
-        $address = Address::find($request->id);
+        $address = Address::where('id', $request->id)->where('user_id', auth()->user()->id)->first();
+        if ($address == null) {
+            return response()->json([
+                'result' => false,
+                'message' => translate('Address not found')
+            ]);
+        }
         $address->address = $request->address;
         $address->country_id = $request->country_id;
         if ($request->country_id && !$request->state_id && $request->country_id != $address->country_id) {
@@ -65,7 +71,13 @@ class AddressController extends Controller
 
     public function updateShippingAddressLocation(Request $request)
     {
-        $address = Address::find($request->id);
+        $address = Address::where('id', $request->id)->where('user_id', auth()->user()->id)->first();
+        if ($address == null) {
+            return response()->json([
+                'result' => false,
+                'message' => translate('Address not found')
+            ]);
+        }
         $address->latitude = $request->latitude;
         $address->longitude = $request->longitude;
         $address->save();
@@ -95,9 +107,14 @@ class AddressController extends Controller
 
     public function makeShippingAddressDefault(Request $request)
     {
-        Address::where('user_id', auth()->user()->id)->update(['set_default' => 0]); //make all user addressed non default first
-
-        $address = Address::find($request->id);
+        $address = Address::where('id', $request->id)->where('user_id', auth()->user()->id)->first();
+        if ($address == null) {
+            return response()->json([
+                'result' => false,
+                'message' => translate('Address not found')
+            ]);
+        }
+        Address::where('user_id', auth()->user()->id)->update(['set_default' => 0]);
         $address->set_default = 1;
         $address->save();
         return response()->json([

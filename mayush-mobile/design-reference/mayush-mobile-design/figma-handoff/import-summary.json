@@ -1,0 +1,78 @@
+﻿{
+    "sourceRoot":  "mayush mobile design",
+    "discoveredImageCount":  395,
+    "supportedImageCount":  395,
+    "importedImageCount":  395,
+    "failedImageCount":  0,
+    "skippedImageCount":  0,
+    "duplicateSourcePathCount":  0,
+    "folders":  {
+                    "00-foundation":  {
+                                          "discovered":  9,
+                                          "imported":  9,
+                                          "failed":  0
+                                      },
+                    "01-entry":  {
+                                     "discovered":  9,
+                                     "imported":  9,
+                                     "failed":  0
+                                 },
+                    "02-discovery":  {
+                                         "discovered":  16,
+                                         "imported":  16,
+                                         "failed":  0
+                                     },
+                    "03-product":  {
+                                       "discovered":  8,
+                                       "imported":  8,
+                                       "failed":  0
+                                   },
+                    "04-auth":  {
+                                    "discovered":  20,
+                                    "imported":  20,
+                                    "failed":  0
+                                },
+                    "05-cart-wishlist":  {
+                                             "discovered":  22,
+                                             "imported":  22,
+                                             "failed":  0
+                                         },
+                    "06-checkout":  {
+                                        "discovered":  52,
+                                        "imported":  52,
+                                        "failed":  0
+                                    },
+                    "07-orders":  {
+                                      "discovered":  37,
+                                      "imported":  37,
+                                      "failed":  0
+                                  },
+                    "08-account":  {
+                                       "discovered":  51,
+                                       "imported":  51,
+                                       "failed":  0
+                                   },
+                    "09-support-settings":  {
+                                                "discovered":  41,
+                                                "imported":  41,
+                                                "failed":  0
+                                            },
+                    "10-system-states":  {
+                                             "discovered":  63,
+                                             "imported":  63,
+                                             "failed":  0
+                                         },
+                    "11-arabic-rtl":  {
+                                          "discovered":  46,
+                                          "imported":  46,
+                                          "failed":  0
+                                      },
+                    "assetsl":  {
+                                    "discovered":  21,
+                                    "imported":  21,
+                                    "failed":  0
+                                }
+                },
+    "lastImportedIndex":  395,
+    "completed":  true
+}

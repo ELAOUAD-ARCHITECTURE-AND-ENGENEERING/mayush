@@ -48,12 +48,27 @@ class ProfileController extends Controller
         if(isset($request->phone)){
             $user->phone = $request->phone;
         }
+        if(isset($request->city)){
+            $user->city = $request->city;
+        }
+        if(isset($request->address)){
+            $user->address = $request->address;
+        }
+        if(isset($request->postal_code)){
+            $user->postal_code = $request->postal_code;
+        }
+        if(isset($request->gender) && Schema::hasColumn('users', 'gender')){
+            $user->gender = $request->gender;
+        }
+        if((isset($request->birth_date) || isset($request->birthDate)) && Schema::hasColumn('users', 'birth_date')){
+            $user->birth_date = $request->birth_date ?? $request->birthDate;
+        }
 
         if(isset($request->password)){
-        if ($request->password != "") {
-            $user->password = Hash::make($request->password);
+            if ($request->password != "") {
+                $user->password = Hash::make($request->password);
+            }
         }
-    }
         $user->save();
 
         return response()->json([
