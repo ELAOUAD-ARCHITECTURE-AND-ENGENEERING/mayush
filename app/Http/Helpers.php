@@ -202,6 +202,14 @@ if (!function_exists('internal_sellers_id')) {
 if (!function_exists('get_system_default_currency')) {
     function get_system_default_currency()
     {
+        if (app()->runningUnitTests()) {
+            $currency_id = get_setting('system_default_currency');
+            $currency = $currency_id ? Currency::find($currency_id) : null;
+            return $currency
+                ?: Currency::where('status', 1)->first()
+                ?: (object)['code' => 'MAD', 'symbol' => 'MAD', 'exchange_rate' => 1];
+        }
+
         // In-process memoization: fetch from Redis once per request.
         static $currency = null;
         if ($currency === null) {
@@ -951,7 +959,11 @@ if (!function_exists('translate')) {
         $lang_key = preg_replace('/[^A-Za-z0-9\_]/', '', str_replace(' ', '_', strtolower($key)));
 
         // In-process memoization: each translation array fetched from Redis only once per request.
-        static $memo = [];
+        if (app()->runningUnitTests()) {
+            $memo = [];
+        } else {
+            static $memo = [];
+        }
 
         if (!array_key_exists('en', $memo)) {
             $memo['en'] = Cache::rememberForever('translations-en', function () {
@@ -1650,12 +1662,16 @@ if (!function_exists('get_setting')) {
             return 0;
         }
 
-        // In-process memoization: fetch from Redis once per request, reuse from static var.
-        static $settings = null;
-        if ($settings === null) {
-            $settings = Cache::remember('business_settings', 86400, function () {
-                return BusinessSetting::all();
-            });
+        if (app()->runningUnitTests()) {
+            $settings = BusinessSetting::all();
+        } else {
+            // In-process memoization: fetch from Redis once per request, reuse from static var.
+            static $settings = null;
+            if ($settings === null) {
+                $settings = Cache::remember('business_settings', 86400, function () {
+                    return BusinessSetting::all();
+                });
+            }
         }
 
         if ($lang == false) {
@@ -2014,12 +2030,16 @@ if (!function_exists('addon_is_activated')) {
             return true;
         }
 
-        // In-process memoization: fetch from Redis once per request.
-        static $addons = null;
-        if ($addons === null) {
-            $addons = Cache::remember('addons', 86400, function () {
-                return Addon::all();
-            });
+        if (app()->runningUnitTests()) {
+            $addons = Addon::all();
+        } else {
+            // In-process memoization: fetch from Redis once per request.
+            static $addons = null;
+            if ($addons === null) {
+                $addons = Cache::remember('addons', 86400, function () {
+                    return Addon::all();
+                });
+            }
         }
 
         $activation = $addons->where('unique_identifier', $identifier)->where('activated', 1)->first();
@@ -2145,16 +2165,17 @@ if (!function_exists('get_active_taxes')) {
 if (!function_exists('get_system_language')) {
     function get_system_language()
     {
-        // In-process memoization: locale rarely changes mid-request.
-        static $memo = [];
-
         $locale = 'en';
         if (Session::has('locale')) {
             $locale = Session::get('locale', Config::get('app.locale'));
         }
 
-        if (array_key_exists($locale, $memo)) {
-            return $memo[$locale];
+        if (!app()->runningUnitTests()) {
+            // In-process memoization: locale rarely changes mid-request.
+            static $memo = [];
+            if (array_key_exists($locale, $memo)) {
+                return $memo[$locale];
+            }
         }
 
         $revision = app(\App\Services\StorefrontCacheService::class)->revision();
@@ -2166,7 +2187,11 @@ if (!function_exists('get_system_language')) {
             $lang = Language::query()->where('status', 1)->first() ?? (object)['code' => 'en', 'rtl' => 0, 'name' => 'English'];
         }
 
-        return $memo[$locale] = $lang;
+        if (!app()->runningUnitTests()) {
+            $memo[$locale] = $lang;
+        }
+
+        return $lang;
     }
 }
 
