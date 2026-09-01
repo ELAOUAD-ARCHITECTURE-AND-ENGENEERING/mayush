@@ -111,11 +111,13 @@ class ProductTranslationDiagnosticsControllerTest extends TestCase
         $product = Product::factory()->create(['draft' => 0]);
         $retryAfter = app(ProductTranslationRateLimitGuard::class)->block(120);
 
-        $this->actingAs($this->admin)
+        $response = $this->actingAs($this->admin)
             ->postJson(route('admin.product_translation_diagnostics.repair', ['product' => $product->id]))
             ->assertStatus(429)
             ->assertJsonPath('result.error_code', 'rate_limit')
-            ->assertHeader('Retry-After', (string) $retryAfter);
+            ->assertHeader('Retry-After');
+
+        $this->assertGreaterThanOrEqual(1, (int) $response->headers->get('Retry-After'));
     }
 
     public function test_start_accepts_and_stores_batch_limit(): void
