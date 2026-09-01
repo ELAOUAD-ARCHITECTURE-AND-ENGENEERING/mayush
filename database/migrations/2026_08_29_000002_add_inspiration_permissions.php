@@ -7,7 +7,7 @@ use Spatie\Permission\Models\Role;
 return new class extends Migration
 {
     private array $permissions = [
-        'view_inspirations',
+        'view_inspiration',
         'add_inspiration',
         'edit_inspiration',
         'delete_inspiration',

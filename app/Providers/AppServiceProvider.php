@@ -32,15 +32,19 @@ class AppServiceProvider extends ServiceProvider
           \URL::forceScheme('https');
       }
       \App\Models\Upload::observe(\App\Observers\UploadObserver::class);
-      \App\Models\Product::observe(\App\Observers\ProductObserver::class);
-      \App\Models\ProductStock::observe(\App\Observers\ProductStockObserver::class);
+       \App\Models\Product::observe(\App\Observers\ProductObserver::class);
+       \App\Models\ProductStock::observe(\App\Observers\ProductStockObserver::class);
+       \App\Models\ProductTax::observe(\App\Observers\InspirationProductDataObserver::class);
+       \App\Models\ProductTranslation::observe(\App\Observers\InspirationProductDataObserver::class);
       \App\Models\BusinessSetting::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\Category::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\Blog::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\FlashDeal::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\FlashDealProduct::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\ProductCollection::observe(\App\Observers\StorefrontCacheObserver::class);
-      \App\Models\Inspiration::observe(\App\Observers\StorefrontCacheObserver::class);
+      \App\Models\Inspiration::observe(\App\Observers\InspirationObserver::class);
+      \App\Models\InspirationItem::observe(\App\Observers\InspirationItemObserver::class);
+      \App\Models\InspirationHotspot::observe(\App\Observers\InspirationHotspotObserver::class);
       \App\Models\TopBanner::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\TopBannerTranslation::observe(\App\Observers\StorefrontCacheObserver::class);
       \App\Models\DynamicPopup::observe(\App\Observers\StorefrontCacheObserver::class);

@@ -15,8 +15,9 @@ class IsAppUserUnbanned
             return response()->json([
                 'result' => false,
                 'status' => 'banned',
+                'code' => 'ACCESS_DENIED',
                 'message' => translate('user is banned')
-            ]);
+            ], 403);
         }
         return $next($request);
     }

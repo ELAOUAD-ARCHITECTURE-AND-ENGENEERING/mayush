@@ -7,6 +7,7 @@ use App\Models\StockAlertSubscription;
 use App\Notifications\RestockNotification;
 use App\Services\Notifications\NotificationDispatcher;
 use Notification;
+use App\Services\InspirationCacheService;
 
 class ProductStockObserver
 {
@@ -18,10 +19,22 @@ class ProductStockObserver
      */
     public function updated(ProductStock $productStock)
     {
+        app(InspirationCacheService::class)->invalidateForProduct((int) $productStock->product_id);
+
         // Check if stock was 0 and is now greater than 0
         if ($productStock->qty > 0 && $productStock->getOriginal('qty') == 0) {
             $this->notifySubscribers($productStock);
         }
+    }
+
+    public function created(ProductStock $productStock): void
+    {
+        app(InspirationCacheService::class)->invalidateForProduct((int) $productStock->product_id);
+    }
+
+    public function deleted(ProductStock $productStock): void
+    {
+        app(InspirationCacheService::class)->invalidateForProduct((int) $productStock->product_id);
     }
 
     /**

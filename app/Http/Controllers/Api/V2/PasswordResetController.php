@@ -62,15 +62,21 @@ class PasswordResetController extends Controller
 
     public function confirmReset(Request $request)
     {
+        $request->validate([
+            'verification_code' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
         $user = User::where('verification_code', $request->verification_code)->first();
 
         if ($user != null) {
             $user->verification_code = null;
             $user->password = Hash::make($request->password);
             $user->save();
+            $user->tokens()->delete();
             return response()->json([
                 'result' => true,
                 'message' => translate('Your password is reset.Please login'),
+                'sessions_revoked' => true,
             ], 200);
         } else {
             return response()->json([

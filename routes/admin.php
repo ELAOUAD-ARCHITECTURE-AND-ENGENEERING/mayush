@@ -841,6 +841,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::resource('custom_label', CustomLabelController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::resource('product-collections', ProductCollectionController::class)->except('show');
     Route::resource('inspirations', InspirationController::class)->except('show');
+    Route::patch('inspirations/{inspiration}/featured', [InspirationController::class, 'updateFeatured'])->name('inspirations.featured');
     Route::get('inspirations/{inspiration}/mapper', [InspirationController::class, 'mapper'])->name('inspirations.mapper');
     Route::post('inspirations/{inspiration}/hotspots', [InspirationController::class, 'storeHotspot'])->name('inspirations.hotspots.store');
     Route::put('inspirations/{inspiration}/hotspots/{hotspot}', [InspirationController::class, 'updateHotspot'])->name('inspirations.hotspots.update');

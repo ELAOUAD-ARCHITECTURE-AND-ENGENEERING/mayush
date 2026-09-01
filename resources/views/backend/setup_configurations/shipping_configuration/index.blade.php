@@ -119,6 +119,29 @@
 
         
 
+        <div class="card">
+            <div>
+                <div class="card-header">
+                    <h5 class="mb-0 h6">{{translate('Free Shipping Minimum Order Amount')}} (MAD)</h5>
+                </div>
+                <form action="{{ route('shipping_configuration.update') }}" method="POST" enctype="multipart/form-data">
+                <div class="card-body">
+                    <span>{{ translate('Orders with total equal to or exceeding this amount will automatically qualify for Free Shipping (Gratuit dès X MAD). Default is 3000 MAD') }}.</span>
+                    @csrf
+                    <input type="hidden" name="type" value="free_shipping_min_order_amount">
+                    <div class="form-group d-flex justify-content-between pt-3">
+                        <div class="w-100">
+                            <input class="form-control" type="number" step="0.01" name="free_shipping_min_order_amount" value="{{ get_setting('free_shipping_min_order_amount', 3000) }}">
+                        </div>
+                        <div class="w-80 ml-2">
+                            <button type="submit" class="btn btn-primary w-100">{{translate('Save')}}</button>
+                        </div>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+
         <div class="card ">
             <div class="{{ get_setting('shipping_type') == 'carrier_wise_shipping' ? 'border border-primary border-2 rounded-2' : '' }}">
                 <div class="card-header">

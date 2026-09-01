@@ -1265,13 +1265,11 @@ class ProductController extends Controller
             return response()->json(['data' => []]);
         }
 
-        $products = Product::where(function ($q) use ($query) {
+        $products = Product::publiclyVisible()->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
                   ->orWhere('slug', 'like', "%{$query}%");
             })
-            ->where('published', 1)
-            ->where('approved', 1)
-            ->select('id', 'name', 'slug', 'thumbnail_img', 'unit_price', 'published', 'approved', 'current_stock', 'photos')
+            ->with(['user.shop', 'taxes', 'stocks'])
             ->orderByDesc('id')
             ->limit(20)
             ->get();
@@ -1280,10 +1278,10 @@ class ProductController extends Controller
             return [
                 'id' => $p->id,
                 'name' => $p->getTranslation('name', 'fr'),
-                'price' => format_price(convert_price($p->unit_price)),
+                'price' => home_discounted_base_price($p),
                 'image' => uploaded_asset($p->thumbnail_img),
-                'available' => (bool) ($p->published && $p->approved),
-                'stock' => $p->current_stock > 0 ? 'in_stock' : 'out_of_stock',
+                'available' => $p->isAvailable(),
+                'stock' => $p->stockStatus(),
             ];
         });
 

@@ -73,6 +73,14 @@ class Inspiration extends Model
 
     public function getHeroImageUrlAttribute()
     {
-        return $this->hero_image ? asset('storage/' . $this->hero_image) : null;
+        if (!$this->hero_image) {
+            return null;
+        }
+
+        if (str_starts_with($this->hero_image, 'http://') || str_starts_with($this->hero_image, 'https://') || str_starts_with($this->hero_image, '//')) {
+            return $this->hero_image;
+        }
+
+        return my_asset('storage/' . ltrim($this->hero_image, '/'));
     }
 }

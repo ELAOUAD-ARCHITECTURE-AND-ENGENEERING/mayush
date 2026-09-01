@@ -54,7 +54,15 @@ class ProductController extends Controller
 
     public function getPrice(Request $request)
     {
-        $product = Product::publiclyVisible()->where("slug", $request->slug)->first();
+        $product = Product::publiclyVisible()->where(function ($q) use ($request) {
+            $q->where("slug", $request->slug);
+            if (is_numeric($request->slug)) {
+                $q->orWhere('id', (int) $request->slug);
+            }
+            if ($request->has('id') && is_numeric($request->id)) {
+                $q->orWhere('id', (int) $request->id);
+            }
+        })->first();
         if (!$product) {
             return response()->json(['result' => false, 'message' => translate('Product not found')], 404);
         }
@@ -82,6 +90,9 @@ class ProductController extends Controller
         }
 
         $product_stock = CartUtility::find_product_stock($product, $str);
+        if (!$product_stock) {
+            $product_stock = $product->stocks->first();
+        }
         if (!$product_stock) {
             return response()->json(['result' => false, 'message' => translate('Variant not found')], 404);
         }
@@ -182,20 +193,64 @@ class ProductController extends Controller
 
     public function categoryProducts($slug, Request $request)
     {
-        $category = Category::where('slug', $slug)->first();
-        $category = Category::with('childrenCategories')->find($category->id);
-        $products = $category->products();
+        $category = Category::where('slug', $slug)
+            ->orWhere('id', is_numeric($slug) ? (int)$slug : 0)
+            ->first();
+        if (!$category) {
+            return new ProductMiniCollection(collect());
+        }
+
+        $category_ids = array_merge([$category->id], CategoryUtility::children_ids($category->id));
+
+        $products = Product::query()->where(function ($query) use ($category_ids) {
+            $query->whereIn('category_id', $category_ids)
+                ->orWhereHas('product_categories', function ($q) use ($category_ids) {
+                    $q->whereIn('category_id', $category_ids);
+                });
+        });
 
         if ($request->name != "" || $request->name != null) {
             $products = $products->where('name', 'like', '%' . $request->name . '%');
         }
 
-        return new ProductMiniCollection(filter_products($products)->latest()->paginate(10));
+        $perPage = (int) $request->input('per_page', 20);
+        $perPage = min(max($perPage, 10), 50);
+
+        return new ProductMiniCollection(filter_products($products)->latest()->paginate($perPage));
+    }
+
+    public function subCategory($id, Request $request)
+    {
+        $category = is_numeric($id) ? Category::find((int)$id) : Category::where('slug', $id)->first();
+        if (!$category) {
+            return new ProductMiniCollection(collect());
+        }
+
+        $category_ids = array_merge([$category->id], CategoryUtility::children_ids($category->id));
+
+        $products = Product::query()->where(function ($query) use ($category_ids) {
+            $query->whereIn('category_id', $category_ids)
+                ->orWhereHas('product_categories', function ($q) use ($category_ids) {
+                    $q->whereIn('category_id', $category_ids);
+                });
+        });
+
+        if ($request->name != "" || $request->name != null) {
+            $products = $products->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        $perPage = (int) $request->input('per_page', 20);
+        $perPage = min(max($perPage, 10), 50);
+
+        return new ProductMiniCollection(filter_products($products)->latest()->paginate($perPage));
     }
 
     public function brand($slug, Request $request)
     {
         $brand = Brand::where('slug', $slug)->first();
+        if (!$brand) {
+            return new ProductMiniCollection(collect());
+        }
         $products = Product::where('brand_id', $brand->id)->physical();
         if ($request->name != "" || $request->name != null) {
             $products = $products->where('name', 'like', '%' . $request->name . '%');
@@ -250,21 +305,42 @@ class ProductController extends Controller
 
     public function frequentlyBought($slug)
     {
-        $product = Product::publiclyVisible()->where("slug", $slug)->first();
+        $product = Product::publiclyVisible()->where(function ($q) use ($slug) {
+            $q->where("slug", $slug);
+            if (is_numeric($slug)) {
+                $q->orWhere('id', (int) $slug);
+            }
+        })->first();
         if (!$product) {
             return new ProductMiniCollection(collect());
         }
         $products = get_frequently_bought_products($product);
-        return new ProductMiniCollection($products);
+        $isEmpty = empty($products) 
+            || (is_object($products) && method_exists($products, 'isEmpty') && $products->isEmpty())
+            || (is_countable($products) && count($products) === 0);
+
+        if ($isEmpty && $product->category_id) {
+            $products = Product::publiclyVisible()
+                ->where('category_id', $product->category_id)
+                ->where('id', '!=', $product->id)
+                ->limit(6)
+                ->get();
+        }
+        return new ProductMiniCollection(is_array($products) ? collect($products) : $products);
     }
 
     public function topFromSeller($slug)
     {
-        $product = Product::publiclyVisible()->where("slug", $slug)->first();
+        $product = Product::publiclyVisible()->where(function ($q) use ($slug) {
+            $q->where("slug", $slug);
+            if (is_numeric($slug)) {
+                $q->orWhere('id', (int) $slug);
+            }
+        })->first();
         if (!$product) {
             return new ProductMiniCollection(collect());
         }
-        $products = Product::publiclyVisible()->where('user_id', $product->user_id)->orderBy('num_of_sale', 'desc')->physical();
+        $products = Product::publiclyVisible()->where('user_id', $product->user_id)->where('id', '!=', $product->id)->orderBy('num_of_sale', 'desc')->physical();
         return new ProductMiniCollection(filter_products($products)->limit(10)->get());
     }
 
@@ -282,7 +358,7 @@ class ProductController extends Controller
             $brand_ids = explode(',', $request->brands);
         }
 
-        $sort_by = $request->sort_key;
+        $sort_by = $request->sort_key ?? $request->sort_by;
         $rawName = $request->name;
         $normalizedName = app(SearchQueryNormalizer::class)->normalize($rawName);
         $name = $normalizedName['is_truncated'] ? '' : $normalizedName['normalized'];
@@ -302,6 +378,13 @@ class ProductController extends Controller
             $products->digital();
         } else {
             $products->physical();
+        }
+
+        if ($request->has('has_discount') && $request->has_discount == 1) {
+            $products->where(function ($q) {
+                $q->where('discount', '>', 0)
+                  ->orWhere('todays_deal', 1);
+            });
         }
 
 
@@ -384,7 +467,10 @@ class ProductController extends Controller
                 break;
         }
 
-        return new ProductMiniCollection(filter_products($products)->paginate(10));
+        $perPage = (int) $request->input('per_page', 20);
+        $perPage = min(max($perPage, 10), 50);
+
+        return new ProductMiniCollection(filter_products($products)->paginate($perPage));
     }
 
     public function variantPrice(Request $request)

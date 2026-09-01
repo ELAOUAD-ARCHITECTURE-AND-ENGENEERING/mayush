@@ -69,9 +69,20 @@
                     </td>
                     <td>{{ $inspiration->items_count ?? 0 }}</td>
                     <td>
-                        @if($inspiration->is_featured)
-                            <span class="badge badge-inline badge-info">{{ translate('Featured') }}</span>
-                        @endif
+                        @can('edit_inspiration')
+                            <form method="POST" action="{{ route('inspirations.featured', $inspiration) }}" class="d-inline">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="is_featured" value="{{ $inspiration->is_featured ? 0 : 1 }}">
+                                <button type="submit" class="btn btn-sm {{ $inspiration->is_featured ? 'btn-info' : 'btn-soft-secondary' }}" aria-label="{{ translate('Toggle featured') }}">
+                                    {{ $inspiration->is_featured ? translate('Featured') : translate('Not featured') }}
+                                </button>
+                            </form>
+                        @else
+                            <span class="badge badge-inline {{ $inspiration->is_featured ? 'badge-info' : 'badge-secondary' }}">
+                                {{ $inspiration->is_featured ? translate('Featured') : translate('Not featured') }}
+                            </span>
+                        @endcan
                         @if($inspiration->show_on_home)
                             <span class="badge badge-inline badge-primary">{{ translate('Home') }}</span>
                         @endif
@@ -96,6 +107,11 @@
                     </td>
                 </tr>
                 @endforeach
+                @if($inspirations->isEmpty())
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">{{ translate('No inspirations found') }}</td>
+                    </tr>
+                @endif
             </tbody>
         </table>
         <div class="aiz-pagination">

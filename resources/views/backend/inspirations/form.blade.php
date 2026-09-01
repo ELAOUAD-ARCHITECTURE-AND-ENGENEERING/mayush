@@ -76,8 +76,8 @@
                         </div>
                     @endif
                     <div class="form-group">
-                        <label>{{ $inspiration->hero_image ? translate('Replace Image') : translate('Upload Image') }}</label>
-                        <input type="file" name="hero_image" class="form-control-file" accept="image/*">
+                        <label>{{ $inspiration->hero_image ? translate('Replace Image') : translate('Upload Image') }} @if(!$inspiration->exists)<span class="text-danger">*</span>@endif</label>
+                        <input type="file" name="hero_image" class="form-control-file" accept="image/jpeg,image/png,image/webp" {{ $inspiration->exists ? '' : 'required' }}>
                         <small class="text-muted">{{ translate('Recommended: high-resolution professional interior photography (min 1200px wide)') }}</small>
                     </div>
                 </div>

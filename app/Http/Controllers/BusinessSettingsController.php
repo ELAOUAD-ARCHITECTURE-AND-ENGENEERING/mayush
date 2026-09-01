@@ -679,9 +679,8 @@ class BusinessSettingsController extends Controller
                 return back();
             }
         }
-        $business_settings = BusinessSetting::where('type', $request->type)->first();
+        $business_settings = BusinessSetting::firstOrNew(['type' => $request->type]);
         $business_settings->value = $request[$request->type];
-
         $business_settings->save();
 
         Artisan::call('cache:clear');

@@ -4,21 +4,27 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Inspiration;
-use App\Models\InspirationItem;
 use App\Models\InspirationHotspot;
+use App\Models\InspirationItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class InspirationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['permission:view_inspirations'])->only('index');
+        $this->middleware(['permission:view_inspiration'])->only('index');
         $this->middleware(['permission:add_inspiration'])->only('create', 'store');
-        $this->middleware(['permission:edit_inspiration'])->only('edit', 'update', 'mapper', 'storeHotspot', 'updateHotspot', 'destroyHotspot');
+        $this->middleware(['permission:edit_inspiration'])->only(
+            'edit', 'update', 'updateFeatured', 'mapper',
+            'storeHotspot', 'updateHotspot', 'destroyHotspot'
+        );
         $this->middleware(['permission:delete_inspiration'])->only('destroy');
     }
 
@@ -27,28 +33,42 @@ class InspirationController extends Controller
         $query = Inspiration::withCount('items')->latest();
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('status', $request->string('status'));
         }
 
-        $inspirations = $query->paginate(20);
-        return view('backend.inspirations.index', compact('inspirations'));
+        return view('backend.inspirations.index', [
+            'inspirations' => $query->paginate(20),
+        ]);
     }
 
     public function create()
     {
-        $inspiration = new Inspiration();
-        return view('backend.inspirations.form', compact('inspiration'));
+        return view('backend.inspirations.form', [
+            'inspiration' => new Inspiration(),
+        ]);
     }
 
     public function store(Request $request)
     {
         $data = $this->validatedData($request);
+
+        if ($data['status'] === 'published') {
+            throw ValidationException::withMessages([
+                'items' => [translate('Au moins un produit doit etre associe')],
+            ]);
+        }
+
         $data = $this->handleImageUpload($request, $data);
         $data['created_by'] = auth()->id();
-
-        $inspiration = Inspiration::create($data);
+        try {
+            $inspiration = Inspiration::create($data);
+        } catch (Throwable $exception) {
+            Storage::disk('public')->delete($data['hero_image']);
+            throw $exception;
+        }
 
         flash(translate('Inspiration created successfully.'))->success();
+
         return redirect()->route('inspirations.edit', $inspiration);
     }
 
@@ -60,69 +80,111 @@ class InspirationController extends Controller
     public function update(Request $request, Inspiration $inspiration)
     {
         $data = $this->validatedData($request, $inspiration);
-        $data = $this->handleImageUpload($request, $data, $inspiration);
 
-        // Publication validation
-        if (($data['status'] ?? $inspiration->status) === 'published' && $inspiration->status !== 'published') {
-            $errors = $this->validateForPublication($inspiration, $data);
-            if (!empty($errors)) {
-                flash(implode(' ', $errors))->error();
-                return redirect()->back()->withInput();
+        if ($data['status'] === 'published') {
+            $errors = $this->validateForPublication(
+                $inspiration,
+                $data,
+                $request->hasFile('hero_image')
+            );
+
+            if ($errors) {
+                throw ValidationException::withMessages($errors);
             }
         }
 
-        $inspiration->update($data);
-        $this->clearInspirationCache($inspiration);
+        $data = $this->handleImageUpload($request, $data);
+        $previousHeroImage = $inspiration->hero_image;
+        try {
+            $inspiration->update($data);
+        } catch (Throwable $exception) {
+            if (isset($data['hero_image']) && $data['hero_image'] !== $previousHeroImage) {
+                Storage::disk('public')->delete($data['hero_image']);
+            }
+            throw $exception;
+        }
 
         flash(translate('Inspiration updated successfully.'))->success();
+
         return redirect()->route('inspirations.edit', $inspiration);
+    }
+
+    public function updateFeatured(Request $request, Inspiration $inspiration)
+    {
+        $validated = $request->validate(['is_featured' => ['required', 'boolean']]);
+        $inspiration->update(['is_featured' => $validated['is_featured']]);
+
+        return back()->with('success', translate('Inspiration updated successfully.'));
     }
 
     public function destroy(Inspiration $inspiration)
     {
-        $this->clearInspirationCache($inspiration);
         $inspiration->delete();
         flash(translate('Inspiration deleted successfully.'))->success();
+
         return redirect()->route('inspirations.index');
     }
 
-    // --- Hotspot Mapper ---
-
     public function mapper(Inspiration $inspiration)
     {
-        $inspiration->load(['items' => function ($q) {
-            $q->orderBy('display_order')->with(['product', 'hotspot']);
-        }]);
+        $inspiration->load(['items' => fn ($query) => $query
+            ->orderBy('display_order')
+            ->with([
+                'hotspot',
+                'product' => fn ($productQuery) => $productQuery->with(['user.shop', 'stocks', 'taxes']),
+            ])]);
 
-        return view('backend.inspirations.mapper', compact('inspiration'));
+        $mapperItems = $inspiration->items->map(fn ($item) => [
+            'id' => $item->id,
+            'hotspot_id' => $item->hotspot?->id,
+            'display_order' => $item->display_order,
+            'x' => $item->hotspot ? (float) $item->hotspot->x : null,
+            'y' => $item->hotspot ? (float) $item->hotspot->y : null,
+            'product' => [
+                'id' => $item->product?->id,
+                'name' => $item->product?->getTranslation('name', 'fr') ?? translate('Unknown product'),
+                'price' => $item->product ? home_discounted_base_price($item->product) : '-',
+                'image' => $item->product ? uploaded_asset($item->product->thumbnail_img) : '',
+                'available' => (bool) $item->product?->isAvailable(),
+                'stock_status' => $item->product?->stockStatus() ?? 'out_of_stock',
+            ],
+        ])->values();
+
+        return view('backend.inspirations.mapper', compact('inspiration', 'mapperItems'));
     }
 
     public function storeHotspot(Request $request, Inspiration $inspiration)
     {
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'x' => 'required|numeric|min:0|max:1',
-            'y' => 'required|numeric|min:0|max:1',
+            'product_id' => [
+                'required',
+                'exists:products,id',
+                Rule::unique('inspiration_items', 'product_id')
+                    ->where(fn ($query) => $query->where('inspiration_id', $inspiration->id)),
+            ],
+            'x' => ['required', 'numeric', 'between:0,1'],
+            'y' => ['required', 'numeric', 'between:0,1'],
+            'display_order' => ['sometimes', 'integer', 'min:0'],
         ]);
 
-        $maxOrder = $inspiration->items()->max('display_order') ?? 0;
+        [$item, $hotspot] = DB::transaction(function () use ($validated, $inspiration) {
+            $displayOrder = $validated['display_order']
+                ?? (((int) $inspiration->items()->max('display_order')) + 1);
+            $item = $inspiration->items()->create([
+                'product_id' => $validated['product_id'],
+                'display_order' => $displayOrder,
+            ]);
+            $hotspot = $item->hotspot()->create([
+                'inspiration_id' => $inspiration->id,
+                'x' => $validated['x'],
+                'y' => $validated['y'],
+                'display_order' => $displayOrder,
+            ]);
 
-        $item = InspirationItem::create([
-            'inspiration_id' => $inspiration->id,
-            'product_id' => $validated['product_id'],
-            'display_order' => $maxOrder + 1,
-        ]);
+            return [$item, $hotspot];
+        });
 
-        $hotspot = InspirationHotspot::create([
-            'inspiration_id' => $inspiration->id,
-            'inspiration_item_id' => $item->id,
-            'x' => $validated['x'],
-            'y' => $validated['y'],
-            'display_order' => $maxOrder + 1,
-        ]);
-
-        $product = Product::find($validated['product_id']);
-        $this->clearInspirationCache($inspiration);
+        $product = Product::with(['user.shop', 'stocks'])->findOrFail($validated['product_id']);
 
         return response()->json([
             'success' => true,
@@ -135,49 +197,68 @@ class InspirationController extends Controller
                 'product' => [
                     'id' => $product->id,
                     'name' => $product->getTranslation('name', 'fr'),
-                    'price' => format_price(convert_price($product->unit_price)),
+                    'price' => home_discounted_base_price($product),
                     'image' => uploaded_asset($product->thumbnail_img),
-                    'available' => (bool) ($product->published && $product->approved),
+                    'available' => $product->isAvailable(),
+                    'stock_status' => $product->stockStatus(),
                 ],
             ],
-        ]);
+        ], 201);
     }
 
-    public function updateHotspot(Request $request, Inspiration $inspiration, InspirationHotspot $hotspot)
-    {
+    public function updateHotspot(
+        Request $request,
+        Inspiration $inspiration,
+        InspirationHotspot $hotspot
+    ) {
+        $this->ensureHotspotBelongsToInspiration($hotspot, $inspiration);
+
         $validated = $request->validate([
-            'x' => 'sometimes|numeric|min:0|max:1',
-            'y' => 'sometimes|numeric|min:0|max:1',
-            'product_id' => 'sometimes|exists:products,id',
+            'x' => ['sometimes', 'required_with:y', 'numeric', 'between:0,1'],
+            'y' => ['sometimes', 'required_with:x', 'numeric', 'between:0,1'],
+            'product_id' => [
+                'sometimes',
+                'exists:products,id',
+                Rule::unique('inspiration_items', 'product_id')
+                    ->where(fn ($query) => $query->where('inspiration_id', $inspiration->id))
+                    ->ignore($hotspot->inspiration_item_id),
+            ],
         ]);
 
-        if (isset($validated['x']) && isset($validated['y'])) {
-            $hotspot->update(['x' => $validated['x'], 'y' => $validated['y']]);
+        if ($validated === []) {
+            throw ValidationException::withMessages([
+                'hotspot' => [translate('A position or product change is required')],
+            ]);
         }
 
-        if (isset($validated['product_id'])) {
-            $hotspot->item->update(['product_id' => $validated['product_id']]);
-        }
+        DB::transaction(function () use ($validated, $hotspot) {
+            if (array_key_exists('x', $validated)) {
+                $hotspot->update(['x' => $validated['x'], 'y' => $validated['y']]);
+            }
 
-        $this->clearInspirationCache($inspiration);
+            if (array_key_exists('product_id', $validated)) {
+                $hotspot->item()->update(['product_id' => $validated['product_id']]);
+            }
+        });
 
         return response()->json(['success' => true]);
     }
 
-    public function destroyHotspot(Request $request, Inspiration $inspiration, InspirationHotspot $hotspot)
-    {
-        $item = $hotspot->item;
-        $hotspot->delete();
-        if ($item) {
-            $item->delete();
-        }
+    public function destroyHotspot(
+        Request $request,
+        Inspiration $inspiration,
+        InspirationHotspot $hotspot
+    ) {
+        $this->ensureHotspotBelongsToInspiration($hotspot, $inspiration);
 
-        $this->clearInspirationCache($inspiration);
+        DB::transaction(function () use ($hotspot) {
+            $item = $hotspot->item;
+            $hotspot->delete();
+            $item?->delete();
+        });
 
         return response()->json(['success' => true]);
     }
-
-    // --- Private helpers ---
 
     private function validatedData(Request $request, ?Inspiration $inspiration = null): array
     {
@@ -188,22 +269,34 @@ class InspirationController extends Controller
             'subtitle_ar' => ['nullable', 'string', 'max:255'],
             'description_fr' => ['nullable', 'string'],
             'description_ar' => ['nullable', 'string'],
-            'slug' => ['nullable', 'string', 'max:255', Rule::unique('inspirations', 'slug')->ignore($inspiration?->id)],
+            'slug' => [
+                'nullable', 'string', 'max:255',
+                Rule::unique('inspirations', 'slug')->ignore($inspiration?->id),
+            ],
             'status' => ['required', Rule::in(['draft', 'published', 'archived'])],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'hero_image' => [
+                $inspiration ? 'nullable' : 'required',
+                'image',
+                'mimes:jpeg,jpg,png,webp',
+                'max:10240',
+                'dimensions:min_width=800,min_height=400,max_width=6000,max_height=6000',
+            ],
         ]);
 
-        $slug = $data['slug'] ?? null;
-        $data['slug'] = Str::slug($slug ?: $data['title_fr']);
-        if (!$slug) {
+        unset($data['hero_image']);
+        $requestedSlug = $data['slug'] ?? null;
+        $data['slug'] = Str::slug($requestedSlug ?: $data['title_fr']);
+
+        if (!$requestedSlug) {
             $baseSlug = $data['slug'];
             $suffix = 2;
             while (Inspiration::where('slug', $data['slug'])
-                ->when($inspiration, fn ($q) => $q->where('id', '!=', $inspiration->id))
+                ->when($inspiration, fn ($query) => $query->where('id', '!=', $inspiration->id))
                 ->exists()) {
-                $data['slug'] = $baseSlug . '-' . $suffix++;
+                $data['slug'] = $baseSlug.'-'.$suffix++;
             }
         }
 
@@ -211,64 +304,80 @@ class InspirationController extends Controller
         $data['show_on_home'] = $request->boolean('show_on_home');
         $data['sort_order'] = $data['sort_order'] ?? 0;
 
-        if ($data['status'] === 'published' && !($inspiration?->published_at)) {
+        if ($data['status'] === 'published' && !$inspiration?->published_at) {
             $data['published_at'] = now();
         }
 
         return $data;
     }
 
-    private function handleImageUpload(Request $request, array $data, ?Inspiration $inspiration = null): array
+    private function handleImageUpload(Request $request, array $data): array
     {
-        if ($request->hasFile('hero_image')) {
-            $file = $request->file('hero_image');
-            $path = $file->store('inspirations', 'public');
-            $data['hero_image'] = $path;
-
-            // Store image dimensions
-            $imageSize = getimagesize($file->getRealPath());
-            if ($imageSize) {
-                $data['hero_image_width'] = $imageSize[0];
-                $data['hero_image_height'] = $imageSize[1];
-            }
+        if (!$request->hasFile('hero_image')) {
+            return $data;
         }
+
+        $file = $request->file('hero_image');
+        $data['hero_image'] = $file->store('inspirations', 'public');
+        $imageSize = getimagesize($file->getRealPath());
+
+        if ($imageSize) {
+            $data['hero_image_width'] = $imageSize[0];
+            $data['hero_image_height'] = $imageSize[1];
+        }
+
         return $data;
     }
 
-    private function validateForPublication(Inspiration $inspiration, array $data): array
-    {
+    private function validateForPublication(
+        Inspiration $inspiration,
+        array $data,
+        bool $hasNewImage
+    ): array {
         $errors = [];
+        $currentImageExists = $inspiration->hero_image
+            && Storage::disk('public')->exists($inspiration->hero_image);
 
-        $heroImage = $data['hero_image'] ?? $inspiration->hero_image;
-        if (empty($heroImage)) {
-            $errors[] = translate("L'image de la scene est requise.");
+        if (!$hasNewImage && !$currentImageExists) {
+            $errors['hero_image'][] = translate("L'image de la scene est requise");
         }
 
-        $titleFr = $data['title_fr'] ?? $inspiration->title_fr;
-        if (empty($titleFr)) {
-            $errors[] = translate("Le titre (francais) est requis.");
+        if (empty($data['title_fr'] ?? $inspiration->title_fr)) {
+            $errors['title_fr'][] = translate('Le titre (francais) est requis');
         }
 
-        $itemCount = $inspiration->items()->whereHas('product')->count();
-        if ($itemCount === 0) {
-            $errors[] = translate("Au moins un produit doit etre associe.");
+        $totalItems = $inspiration->items()->count();
+        $validItems = $inspiration->items()->whereHas('product')->count();
+
+        if ($validItems === 0) {
+            $errors['items'][] = translate('Au moins un produit doit etre associe');
         }
 
-        $itemsWithoutHotspots = $inspiration->items()
-            ->whereDoesntHave('hotspot')
-            ->count();
-        if ($itemsWithoutHotspots > 0) {
-            $errors[] = translate("$itemsWithoutHotspots produit(s) ne sont pas positionnes dans l'image.");
+        $unpositioned = $inspiration->items()->whereDoesntHave('hotspot')->count();
+        if ($unpositioned > 0) {
+            $errors['hotspots'][] = translate(
+                "$unpositioned produits ne sont pas positionnes dans l'image"
+            );
+        }
+
+        $missingProducts = $totalItems - $validItems;
+        if ($missingProducts > 0) {
+            $errors['products'][] = translate(
+                "$missingProducts produits references n'existent plus dans le catalogue"
+            );
         }
 
         return $errors;
     }
 
-    private function clearInspirationCache(Inspiration $inspiration): void
-    {
-        Cache::forget("inspiration_detail_{$inspiration->slug}_fr");
-        Cache::forget("inspiration_detail_{$inspiration->slug}_ar");
-        Cache::forget('inspirations_featured_fr');
-        Cache::forget('inspirations_featured_ar');
+    private function ensureHotspotBelongsToInspiration(
+        InspirationHotspot $hotspot,
+        Inspiration $inspiration
+    ): void {
+        abort_unless(
+            $hotspot->inspiration_id === $inspiration->id
+            && $hotspot->item?->inspiration_id === $inspiration->id,
+            404
+        );
     }
 }

@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api\V2;
 
+use App\Http\Resources\V2\InspirationDetailResource;
+use App\Http\Resources\V2\InspirationResource;
 use App\Models\Inspiration;
+use App\Services\InspirationCacheService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -10,134 +13,76 @@ class InspirationController extends Controller
 {
     public function index(Request $request)
     {
-        $lang = $request->header('Accept-Language', 'fr');
-
-        $inspirations = Inspiration::published()
-            ->withCount('items')
-            ->with(['items' => function ($q) {
-                $q->where('is_visible', true)
-                    ->orderBy('display_order')
-                    ->limit(4)
-                    ->with('product');
-            }])
+        $inspirations = $this->query()
             ->orderBy('sort_order')
+            ->orderBy('id')
             ->get();
 
-        $data = $inspirations->map(function ($insp) use ($lang) {
-            return $this->formatPreview($insp, $lang);
-        })->values();
-
-        return response()->json(['data' => $data]);
+        return response()->json([
+            'data' => $inspirations
+                ->map(fn ($inspiration) => (new InspirationResource($inspiration))->resolve($request))
+                ->values(),
+        ]);
     }
 
-    public function featured(Request $request)
+    public function featured(Request $request, InspirationCacheService $cache)
     {
-        $lang = $request->header('Accept-Language', 'fr');
-        $cacheKey = "inspirations_featured_{$lang}";
+        $language = $cache->language($this->requestLanguage($request));
 
-        $data = Cache::remember($cacheKey, 900, function () use ($lang) {
-            $inspirations = Inspiration::published()
+        $data = Cache::remember($cache->featuredKey($language), now()->addMinutes(15), function () use ($request) {
+            return $this->query()
                 ->featured()
-                ->withCount('items')
-                ->with(['items' => function ($q) {
-                    $q->where('is_visible', true)
-                        ->orderBy('display_order')
-                        ->limit(4)
-                        ->with('product');
-                }])
                 ->orderBy('sort_order')
+                ->orderBy('id')
                 ->limit(3)
-                ->get();
-
-            return $inspirations->map(function ($insp) use ($lang) {
-                return $this->formatPreview($insp, $lang);
-            })->values();
-        });
-
-        return response()->json(['data' => $data]);
-    }
-
-    public function show(Request $request, $slug)
-    {
-        $lang = $request->header('Accept-Language', 'fr');
-        $cacheKey = "inspiration_detail_{$slug}_{$lang}";
-
-        $data = Cache::remember($cacheKey, 300, function () use ($slug, $lang) {
-            $inspiration = Inspiration::published()
-                ->where('slug', $slug)
-                ->with(['items' => function ($q) {
-                    $q->where('is_visible', true)
-                        ->orderBy('display_order')
-                        ->with(['product', 'hotspot']);
-                }])
-                ->firstOrFail();
-
-            return $this->formatDetail($inspiration, $lang);
-        });
-
-        return response()->json(['data' => $data]);
-    }
-
-    private function formatPreview(Inspiration $insp, string $lang): array
-    {
-        return [
-            'id' => $insp->id,
-            'slug' => $insp->slug,
-            'title' => $insp->getTitle($lang),
-            'subtitle' => $insp->getSubtitle($lang),
-            'image' => $insp->hero_image_url,
-            'products_count' => $insp->items_count ?? 0,
-            'preview_products' => $insp->items
-                ->filter(fn ($item) => $item->product !== null)
-                ->take(4)
-                ->map(fn ($item) => [
-                    'id' => $item->product->id,
-                    'name' => $item->product->getTranslation('name', $lang),
-                    'image' => uploaded_asset($item->product->thumbnail_img),
-                    'price' => format_price(convert_price($item->product->unit_price)),
-                    'available' => (bool) ($item->product->published && $item->product->approved),
-                ])->values()->all(),
-        ];
-    }
-
-    private function formatDetail(Inspiration $inspiration, string $lang): array
-    {
-        return [
-            'id' => $inspiration->id,
-            'slug' => $inspiration->slug,
-            'title' => $inspiration->getTitle($lang),
-            'subtitle' => $inspiration->getSubtitle($lang),
-            'description' => $inspiration->getDescription($lang),
-            'image' => [
-                'url' => $inspiration->hero_image_url,
-                'width' => $inspiration->hero_image_width,
-                'height' => $inspiration->hero_image_height,
-            ],
-            'items' => $inspiration->items
-                ->filter(fn ($item) => $item->product !== null)
+                ->get()
+                ->map(fn ($inspiration) => (new InspirationResource($inspiration))->resolve($request))
                 ->values()
-                ->map(fn ($item) => [
-                    'id' => $item->id,
-                    'display_order' => $item->display_order,
-                    'hotspot' => $item->hotspot ? [
-                        'x' => (float) $item->hotspot->x,
-                        'y' => (float) $item->hotspot->y,
-                    ] : null,
-                    'product' => [
-                        'id' => $item->product->id,
-                        'name' => $item->product->getTranslation('name', $lang),
-                        'slug' => $item->product->slug,
-                        'price' => format_price(convert_price($item->product->unit_price)),
-                        'discount_price' => $item->product->discount > 0
-                            ? format_price(convert_price($item->product->unit_price - ($item->product->discount_type === 'percent'
-                                ? ($item->product->unit_price * $item->product->discount / 100)
-                                : $item->product->discount)))
-                            : null,
-                        'image' => uploaded_asset($item->product->thumbnail_img),
-                        'available' => (bool) ($item->product->published && $item->product->approved),
-                        'stock_status' => $item->product->current_stock > 0 ? 'in_stock' : 'out_of_stock',
-                    ],
-                ])->all(),
-        ];
+                ->all();
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
+    public function show(Request $request, string $slug, InspirationCacheService $cache)
+    {
+        $language = $cache->language($this->requestLanguage($request));
+
+        $data = Cache::remember(
+            $cache->detailKey($slug, $language),
+            now()->addMinutes(5),
+            function () use ($request, $slug) {
+                $inspiration = $this->query()
+                    ->where('slug', $slug)
+                    ->firstOrFail();
+
+                return (new InspirationDetailResource($inspiration))->resolve($request);
+            }
+        );
+
+        return response()->json(['data' => $data]);
+    }
+
+    private function query()
+    {
+        return Inspiration::published()->with([
+            'items' => fn ($query) => $query
+                ->where('is_visible', true)
+                ->orderBy('display_order')
+                ->with([
+                    'hotspot',
+                    'product' => fn ($productQuery) => $productQuery
+                        ->withCount('reviews')
+                        ->with(['user.shop', 'taxes', 'stocks']),
+                ]),
+        ]);
+    }
+
+    private function requestLanguage(Request $request): string
+    {
+        return (string) $request->header(
+            'App-Language',
+            $request->header('Accept-Language', 'fr')
+        );
     }
 }

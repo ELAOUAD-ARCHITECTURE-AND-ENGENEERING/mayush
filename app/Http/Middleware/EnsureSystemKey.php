@@ -16,18 +16,23 @@ class EnsureSystemKey
      */
     public function handle(Request $request, Closure $next)
     {
-        if (app()->environment('testing')) {
+        if ($request->isMethod('OPTIONS') || app()->environment('testing')) {
             return $next($request);
         }
 
-        if (
-            !$request->header('System-Key') ||
-            $request->header('System-Key') !== config('app.system_key')
-        ) {
-            return response()->json([
-                'result' => false,
-                'message' => 'Request not found!'
-            ]);
+        $expectedKey = config('app.system_key');
+
+        if (!empty($expectedKey)) {
+            if (
+                !$request->header('System-Key') ||
+                $request->header('System-Key') !== $expectedKey
+            ) {
+                return response()->json([
+                    'result' => false,
+                    'code' => 'ACCESS_DENIED',
+                    'message' => 'Request not authorized.'
+                ], 403);
+            }
         }
 
         return $next($request);

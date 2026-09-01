@@ -147,7 +147,7 @@
 
                 <!-- Product -->
                 @canany(['add_new_product', 'show_all_products','show_in_house_products','show_seller_products','add_digital_product','edit_digital_product','product_edit','product_bulk_import',
-                        'product_bulk_export','view_product_categories','view_all_brands', 'brand_bulk_upload','view_product_attributes','view_colors','view_product_warranties', 'smart-bar', 'view_custom_label', 'view_product_reviews', 'view_product_collections', 'view_inspirations'])
+                        'product_bulk_export','view_product_categories','view_all_brands', 'brand_bulk_upload','view_product_attributes','view_colors','view_product_warranties', 'smart-bar', 'view_custom_label', 'view_product_reviews', 'view_product_collections', 'view_inspiration'])
                     <li class="aiz-side-nav-item">
                         <a href="#" class="aiz-side-nav-link">
                             <div class="aiz-side-nav-icon">
@@ -270,7 +270,7 @@
                                 </a>
                             </li>
                             @endcan
-                            @can('view_inspirations')
+                            @can('view_inspiration')
                             <li class="aiz-side-nav-item">
                                 <a href="{{route('inspirations.index')}}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['inspirations.index', 'inspirations.create', 'inspirations.edit', 'inspirations.mapper'])}}">
