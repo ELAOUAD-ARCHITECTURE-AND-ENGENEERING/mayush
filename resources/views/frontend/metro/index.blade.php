@@ -6,7 +6,7 @@
     $homepageSeoImage = uploaded_asset(get_setting('meta_image') ?: get_setting('header_logo'));
     $firstMetroHero = app(\App\Services\StorefrontHeroImageService::class)->firstValidHero();
     $firstMetroSliderImage = $firstMetroHero ? uploaded_asset($firstMetroHero, 'large') : null;
-    $firstMetroSliderSrcset = $firstMetroHero ? uploaded_asset_srcset($firstMetroHero, ['medium', 'large']) : null;
+    $firstMetroSliderSrcset = $firstMetroHero ? uploaded_asset_srcset($firstMetroHero, ['card', 'medium', 'large']) : null;
 @endphp
 
 @section('meta_title'){{ $homepageSeoTitle }}@stop
@@ -16,12 +16,25 @@
 
 @if($firstMetroSliderImage)
     @section('preload')
-        <link rel="preload" as="image" href="{{ $firstMetroSliderImage }}" @if($firstMetroSliderSrcset) imagesrcset="{{ $firstMetroSliderSrcset }}" imagesizes="100vw" @endif fetchpriority="high">
+        <link rel="preload" as="image" href="{{ $firstMetroSliderImage }}" @if($firstMetroSliderSrcset) imagesrcset="{{ $firstMetroSliderSrcset }}" imagesizes="(max-width: 768px) 100vw, (max-width: 1200px) calc(100vw - 270px), 100vw" @endif fetchpriority="high">
     @endsection
 @endif
 
 @section('content')
     <style>
+        /* LCP optimisation: show first slide before Slick JS initialises */
+        .aiz-carousel:not(.slick-initialized) .carousel-box:first-child {
+            display: block !important;
+        }
+        .aiz-carousel:not(.slick-initialized) .carousel-box:not(:first-child) {
+            display: none;
+        }
+        /* LCP optimisation: remove transition delay on first slide image */
+        .aiz-carousel .carousel-box:first-child .metro-hero-slide > img,
+        .aiz-carousel .carousel-box:first-child .metro-hero-slide > a > img {
+            transition: none !important;
+        }
+
         /* Luxury Font pairing rules — Charte Graphique v1.0 */
         h1, h2, h3, h4,
         .promoted-category-title,
@@ -704,7 +717,7 @@
                                 $slideCtaText = $configuredCtaText !== '' ? $configuredCtaText : ($configuredCtaLink !== '' ? translate('Shop Now') : '');
                                 $slideCtaLink = $configuredCtaLink !== '' ? $configuredCtaLink : ($slideLink !== '' ? $slideLink : route('search'));
                                 $slideTitleText = trim(strip_tags($slideTitle));
-                                $slideSrcset = $slider ? uploaded_asset_srcset($slider, ['medium', 'large']) : '';
+                                $slideSrcset = $slider ? uploaded_asset_srcset($slider, ['card', 'medium', 'large']) : '';
                             @endphp
                             <div class="carousel-box h-auto">
                                 <div class="metro-hero-slide {{ $hasHeroContent ? 'has-content' : '' }} d-block mw-100 img-fit h-180px h-md-320px h-lg-460px h-xl-553px">
@@ -712,7 +725,7 @@
                                         <a class="d-block h-100" href="{{ $slideLink }}">
                                             <img class="img-fit h-100 m-auto has-transition"
                                             src="{{ $slider ? uploaded_asset($slider, 'large') : static_asset('assets/img/placeholder.jpg') }}"
-                                            @if($slideSrcset) srcset="{{ $slideSrcset }}" sizes="100vw" @endif
+                                            @if($slideSrcset) srcset="{{ $slideSrcset }}" sizes="(max-width: 768px) 100vw, (max-width: 1200px) calc(100vw - 270px), 100vw" @endif
                                             width="1600" height="720"
                                             loading="{{ $isFirstHeroSlide ? 'eager' : 'lazy' }}"
                                             @if($isFirstHeroSlide) fetchpriority="high" @endif
@@ -722,7 +735,7 @@
                                     @else
                                         <img class="img-fit h-100 m-auto has-transition"
                                         src="{{ $slider ? uploaded_asset($slider, 'large') : static_asset('assets/img/placeholder.jpg') }}"
-                                        @if($slideSrcset) srcset="{{ $slideSrcset }}" sizes="100vw" @endif
+                                        @if($slideSrcset) srcset="{{ $slideSrcset }}" sizes="(max-width: 768px) 100vw, (max-width: 1200px) calc(100vw - 270px), 100vw" @endif
                                         width="1600" height="720"
                                         loading="{{ $isFirstHeroSlide ? 'eager' : 'lazy' }}"
                                         @if($isFirstHeroSlide) fetchpriority="high" @endif
@@ -890,6 +903,9 @@
 
     <!-- 17. Top Brands (Hidden as requested) -->
     {{-- @include('frontend.metro.partials.top_brands_section') --}}
+
+    <!-- 17.5 Interactive Room Inspirations -->
+    @include('frontend.metro.partials.inspirations_section')
 
     <!-- 18. Inspiration Articles -->
     @include('frontend.metro.partials.inspiration_articles_section')
