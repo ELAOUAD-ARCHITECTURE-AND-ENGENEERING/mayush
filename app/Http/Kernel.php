@@ -52,6 +52,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\MarkdownForAgents::class,
             \App\Http\Middleware\AgentDiscoveryHeaders::class,
             \App\Http\Middleware\StorefrontServerTiming::class,
+            \App\Http\Middleware\TwoFactorVerified::class,
         ],
 
         'api' => [
@@ -100,6 +101,7 @@ class Kernel extends HttpKernel
         'seller.approved' => \App\Http\Middleware\SellerApproved::class,
         'seller.approved.api' => \App\Http\Middleware\SellerApprovedApi::class,
         'cmi.ip-whitelist' => \App\Http\Middleware\CmiIpWhitelist::class,
+        'two-factor' => \App\Http\Middleware\TwoFactorVerified::class,
     ];
 
     /**
