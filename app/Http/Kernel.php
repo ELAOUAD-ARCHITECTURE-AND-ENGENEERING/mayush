@@ -95,6 +95,7 @@ class Kernel extends HttpKernel
         'prevent-back-history' => \App\Http\Middleware\PreventBackHistory::class,
         'handle-demo-login' => \App\Http\Middleware\HandleDemoLogin::class,
         'portfolio-view' => \App\Http\Middleware\PortfolioView::class,
+        'page.cache' => \App\Http\Middleware\PageCache::class,
         'seller.approved' => \App\Http\Middleware\SellerApproved::class,
         'seller.approved.api' => \App\Http\Middleware\SellerApprovedApi::class,
         'cmi.ip-whitelist' => \App\Http\Middleware\CmiIpWhitelist::class,

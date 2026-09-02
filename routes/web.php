@@ -143,8 +143,8 @@ Route::controller(HomeController::class)->group(function () {
     Route::post('/search/visual', [VisualSearchController::class, 'visualSearch'])->name('search.visual');
 
     //Home Page
-    Route::get('/', 'index')->name('home');
-    Route::get('/mayush', 'index')->name('home.local_subdirectory');
+    Route::get('/', 'index')->middleware('page.cache:300')->name('home');
+    Route::get('/mayush', 'index')->middleware('page.cache:300')->name('home.local_subdirectory');
 
     Route::match(['get', 'post'], '/home/section/featured', 'load_featured_section')->name('home.section.featured');
     Route::match(['get', 'post'], '/home/section/best_selling', 'load_best_selling_section')->name('home.section.best_selling');
