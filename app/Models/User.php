@@ -17,6 +17,39 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable, HasApiTokens, HasRoles, HasFactory, Auditable;
 
+    public function hasTwoFactorEnabled(): bool
+    {
+        return !is_null($this->two_factor_secret) && !is_null($this->two_factor_confirmed_at);
+    }
+
+    public function generateRecoveryCodes(): array
+    {
+        $codes = collect(range(1, 8))->map(fn () => strtoupper(bin2hex(random_bytes(5))))->toArray();
+        $this->two_factor_recovery_codes = encrypt(json_encode($codes));
+        $this->save();
+        return $codes;
+    }
+
+    public function getRecoveryCodes(): array
+    {
+        if (!$this->two_factor_recovery_codes) {
+            return [];
+        }
+        return json_decode(decrypt($this->two_factor_recovery_codes), true);
+    }
+
+    public function useRecoveryCode(string $code): bool
+    {
+        $codes = $this->getRecoveryCodes();
+        $index = array_search($code, $codes);
+        if ($index === false) {
+            return false;
+        }
+        unset($codes[$index]);
+        $this->two_factor_recovery_codes = encrypt(json_encode(array_values($codes)));
+        $this->save();
+        return true;
+    }
 
     public function sendEmailVerificationNotification()
     {
@@ -38,7 +71,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes',
     ];
 
     /**
