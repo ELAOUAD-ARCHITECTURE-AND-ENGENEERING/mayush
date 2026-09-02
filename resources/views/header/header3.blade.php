@@ -360,7 +360,7 @@
                                                                         href="{{ route('notification.read-and-redirect', encrypt($notification->id)) }}">
                                                                 @endif
                                                                     <span
-                                                                        class="fs-12 text-dark text-truncate-2">{!! $notifyContent !!}</span>
+                                                                        class="fs-12 text-dark text-truncate-2">{!! clean($notifyContent) !!}</span>
                                                                     @if ($isLinkable = true)
                                                                         </a>
                                                                     @endif

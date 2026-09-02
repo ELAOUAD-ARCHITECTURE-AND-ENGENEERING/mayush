@@ -21,11 +21,11 @@
             </tr>
             <tr>
                 <td>{{ translate('Query') }}</td>
-                <td>{!! str_replace("\n", "<br>", $contact->content) !!}</td>
+                <td>{!! nl2br(e($contact->content)) !!}</td>
             </tr>
             <tr>
                 <td>{{ translate('Reply') }}</td>
-                <td>{!! $contact->reply != null ? str_replace("\n", "<br>", $contact->reply) : translate('Not Replied Yet.') !!}</td>
+                <td>{!! $contact->reply != null ? nl2br(e($contact->reply)) : translate('Not Replied Yet.') !!}</td>
             </tr>
         </tbody>
     </table>

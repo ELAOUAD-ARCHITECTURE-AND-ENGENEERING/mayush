@@ -67,7 +67,7 @@
                             </span>
                             <span class="ml-3">
                                 <span class="fs-19 fw-700">{{ translate('Address') }}</span><br>
-                                <span class="fs-14 text-secondary">{!! str_replace("\n", "<br>", $content->address) !!}</span>
+                                <span class="fs-14 text-secondary">{!! nl2br(e($content->address)) !!}</span>
                             </span>
                         </div>
                         <div class="d-flex mb-5">

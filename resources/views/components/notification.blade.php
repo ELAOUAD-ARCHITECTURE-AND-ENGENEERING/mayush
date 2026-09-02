@@ -203,9 +203,9 @@
                     @if($notificationActionUrl)
                         <a href="{{ $notificationActionUrl }}"
                            data-notification-open
-                           data-notification-id="{{ $notification->id }}">{!! $notifyContent !!}</a>
+                           data-notification-id="{{ $notification->id }}">{!! clean($notifyContent) !!}</a>
                     @else
-                        {!! $notifyContent !!}
+                        {!! clean($notifyContent) !!}
                     @endif
                 </div>
                 <div class="mayush-notification-item__meta">

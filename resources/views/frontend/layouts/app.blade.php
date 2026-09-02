@@ -138,7 +138,7 @@
     @endif
     
     @if(request()->routeIs('shop.visit', 'shop.visit.type') || request()->is('*contact-us*'))
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" integrity="sha384-/rJKQnzOkEo+daG0jMjU1IwwY9unxt1NBw3Ef2fmOJ3PW/TfAg2KXVoWwMZQZtw9" crossorigin="anonymous" />
     @endif
 
     <script>
@@ -1747,7 +1747,7 @@
     @endif
 
     @if(request()->routeIs('shop.visit', 'shop.visit.type') || request()->is('*contact-us*'))
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" integrity="sha384-n1AULnKdMJlK1oQCLNDL9qZsDgXtH6jRYFCpBtWFc+a9Yve0KSoMn575rk755NZ" crossorigin="anonymous"></script>
         <script>
             $(document).ready(function() {
                 AOS.init({

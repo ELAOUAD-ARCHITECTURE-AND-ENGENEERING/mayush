@@ -95,7 +95,7 @@
                                     route('admin.notification.read-and-redirect', encrypt($notification->id)) :
                                     route('seller.notification.read-and-redirect', encrypt($notification->id)) }}">
                             <p class="mb-1 text-dark text-truncate-2">
-                                {!! $notifyContent !!}
+                                {!! clean($notifyContent) !!}
                             </p>
                             <small class="text-muted">
                                 {{ date('F j Y, g:i a', strtotime($notification->created_at)) }}
