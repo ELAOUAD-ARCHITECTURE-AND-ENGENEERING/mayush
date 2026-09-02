@@ -372,7 +372,7 @@ class AuthController extends Controller
     {
 
         $user = request()->user();
-        $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
+        $user->tokens()->delete();
 
         return response()->json([
             'result' => true,
