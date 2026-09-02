@@ -652,6 +652,15 @@ Route::prefix('livechat')->controller(\App\Http\Controllers\Support\LiveChatCont
     Route::post('/restart', 'restart')->name('livechat.restart');
 });
 
+// Two-Factor Authentication
+Route::middleware('auth')->group(function () {
+    Route::get('/two-factor/setup', [App\Http\Controllers\TwoFactorController::class, 'setup'])->name('two-factor.setup');
+    Route::post('/two-factor/confirm', [App\Http\Controllers\TwoFactorController::class, 'confirm'])->name('two-factor.confirm');
+    Route::post('/two-factor/disable', [App\Http\Controllers\TwoFactorController::class, 'disable'])->name('two-factor.disable');
+    Route::get('/two-factor/challenge', [App\Http\Controllers\TwoFactorController::class, 'challenge'])->name('two-factor.challenge');
+    Route::post('/two-factor/verify', [App\Http\Controllers\TwoFactorController::class, 'verify'])->name('two-factor.verify');
+});
+
 Route::controller(PageController::class)->group(function () {
     //mobile app balnk page for webview
     Route::get('/mobile-page/{slug}', 'mobile_custom_page')->name('mobile.custom-pages');
