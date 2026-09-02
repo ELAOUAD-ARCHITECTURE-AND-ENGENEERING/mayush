@@ -42,15 +42,15 @@ export default function App() {
     Tajawal_700Bold,
   });
 
-  if (!fontsLoaded) {
-    return null;
-  }
-
   useEffect(() => {
     enforceDeviceIntegrity();
     const cleanup = preventScreenCapture();
     return cleanup;
   }, []);
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   const isVisualQaMode =
     process.env.EXPO_PUBLIC_VISUAL_QA === 'true' ||
