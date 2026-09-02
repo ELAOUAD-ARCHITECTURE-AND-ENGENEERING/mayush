@@ -662,4 +662,80 @@ class AuthController extends Controller
 
         return $this->loginSuccess($user, $request->access_token);
     }
+
+    public function twoFactorSetup(Request $request)
+    {
+        $user = $request->user();
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+
+        if (!$user->two_factor_secret) {
+            $secret = $google2fa->generateSecretKey();
+            $user->two_factor_secret = encrypt($secret);
+            $user->save();
+        } else {
+            $secret = decrypt($user->two_factor_secret);
+        }
+
+        $qrCodeUrl = $google2fa->getQRCodeUrl(config('app.name'), $user->email, $secret);
+
+        return response()->json([
+            'result' => true,
+            'secret' => $secret,
+            'qr_code_url' => $qrCodeUrl,
+            'is_confirmed' => $user->hasTwoFactorEnabled(),
+        ]);
+    }
+
+    public function twoFactorConfirm(Request $request)
+    {
+        $request->validate(['code' => 'required|string|size:6']);
+        $user = $request->user();
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+        $secret = decrypt($user->two_factor_secret);
+
+        if (!$google2fa->verifyKey($secret, $request->code)) {
+            return response()->json(['result' => false, 'message' => translate('Invalid code.')], 422);
+        }
+
+        $user->two_factor_confirmed_at = now();
+        $user->save();
+        $codes = $user->generateRecoveryCodes();
+
+        return response()->json([
+            'result' => true,
+            'message' => translate('Two-factor authentication enabled.'),
+            'recovery_codes' => $codes,
+        ]);
+    }
+
+    public function twoFactorVerify(Request $request)
+    {
+        $request->validate(['code' => 'required|string|size:6']);
+        $user = $request->user();
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+        $secret = decrypt($user->two_factor_secret);
+
+        if (!$google2fa->verifyKey($secret, $request->code)) {
+            return response()->json(['result' => false, 'message' => translate('Invalid code.')], 422);
+        }
+
+        return response()->json(['result' => true, 'message' => translate('Verified.')]);
+    }
+
+    public function twoFactorDisable(Request $request)
+    {
+        $request->validate(['password' => 'required|string']);
+        $user = $request->user();
+
+        if (!\Hash::check($request->password, $user->password)) {
+            return response()->json(['result' => false, 'message' => translate('Invalid password.')], 422);
+        }
+
+        $user->two_factor_secret = null;
+        $user->two_factor_confirmed_at = null;
+        $user->two_factor_recovery_codes = null;
+        $user->save();
+
+        return response()->json(['result' => true, 'message' => translate('Two-factor disabled.')]);
+    }
 }

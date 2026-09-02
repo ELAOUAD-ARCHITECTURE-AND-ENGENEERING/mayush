@@ -36,6 +36,10 @@ Route::group(['prefix' => 'v2/auth', 'middleware' => ['app_language']], function
             Route::get('account-deletion', 'account_deletion');
             Route::get('resend_code', 'resendCode');
             Route::post('confirm_code', 'confirmCode');
+            Route::post('two-factor/setup', 'twoFactorSetup');
+            Route::post('two-factor/confirm', 'twoFactorConfirm');
+            Route::post('two-factor/verify', 'twoFactorVerify');
+            Route::post('two-factor/disable', 'twoFactorDisable');
         });
 
         // Device management (authenticated)
