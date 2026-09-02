@@ -238,6 +238,27 @@ class AuthController extends Controller
             ], 403);
         }
 
+        // CAPTCHA escalation after multiple failed attempts
+        if ($securityState && $securityState->consecutive_failures >= 5) {
+            if (!$request->has('captcha_token')) {
+                return response()->json([
+                    'result' => false,
+                    'requires_captcha' => true,
+                    'message' => translate('CAPTCHA verification required.'),
+                ], 429);
+            }
+            $turnstileResponse = \Illuminate\Support\Facades\Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret' => config('services.turnstile.secret_key'),
+                'response' => $request->captcha_token,
+            ]);
+            if (!$turnstileResponse->json('success')) {
+                return response()->json([
+                    'result' => false,
+                    'message' => translate('CAPTCHA verification failed.'),
+                ], 422);
+            }
+        }
+
         if (Hash::check($request->password, $user->password)) {
             // Successful login: reset all escalation state
             LoginSecurityState::where('user_id', $user->id)->delete();
