@@ -9,12 +9,13 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Cart;
 use App\Notifications\EmailVerificationNotification;
 use App\Traits\PreventDemoModeChanges;
+use App\Traits\Auditable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use Notifiable, HasApiTokens, HasRoles, HasFactory;
+    use Notifiable, HasApiTokens, HasRoles, HasFactory, Auditable;
 
 
     public function sendEmailVerificationNotification()

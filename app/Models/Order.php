@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\PreventDemoModeChanges;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
-    use PreventDemoModeChanges, HasFactory;
+    use PreventDemoModeChanges, HasFactory, Auditable;
 
     protected $fillable = [
         'combined_order_id', 'user_id', 'seller_id', 'shipping_address', 'billing_address',
