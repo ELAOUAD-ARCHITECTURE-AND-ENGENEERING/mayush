@@ -132,6 +132,8 @@
         },
         "allow-plugins": {
             "symfony/thanks": true
+        },
+        "platform": {
         }
     },
     "minimum-stability": "dev",
