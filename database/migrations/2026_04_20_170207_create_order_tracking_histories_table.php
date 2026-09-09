@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('order_tracking_histories', function (Blueprint $table) {
             $table->id();
-            $table->integer('order_id');
+            $table->unsignedInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->string('status', 50)->comment('Processing, Shipped, In-Transit, Out for Delivery, Delivered, Failed');
             $table->string('location_name')->nullable();

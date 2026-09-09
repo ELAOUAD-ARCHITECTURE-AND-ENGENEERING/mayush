@@ -230,8 +230,11 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
         Route::post('payments/pay/cod', 'App\Http\Controllers\Api\V2\PaymentController@cashOnDelivery')->middleware('auth:sanctum');
         Route::post('payments/pay/manual', 'App\Http\Controllers\Api\V2\PaymentController@manualPayment')->middleware('auth:sanctum');
         Route::post('order/store', [OrderController::class, 'store'])->middleware('auth:sanctum');
+        Route::get('combined-orders/{id}', [CombinedOrderController::class, 'show'])->middleware('auth:sanctum');
+        Route::post('combined-orders/{id}/payment-session', [CombinedOrderController::class, 'createPaymentSession'])->middleware('auth:sanctum');
 
         Route::get('order/cancel/{id}', 'App\Http\Controllers\Api\V2\OrderController@order_cancel')->middleware('auth:sanctum');
+        Route::get('orders/{id}/tracking', [OrderController::class, 'tracking'])->middleware('auth:sanctum');
 
         Route::get('profile/counters', 'App\Http\Controllers\Api\V2\ProfileController@counters')->middleware('auth:sanctum');
 

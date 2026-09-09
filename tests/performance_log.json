@@ -1790,5 +1790,33 @@
         "duration_ms": 45.42,
         "memory_mb": 9.68,
         "timestamp": "2026-08-31 12:29:11"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_create_category",
+        "operation": "Create Category",
+        "duration_ms": 23.91,
+        "memory_mb": 12.88,
+        "timestamp": "2026-09-01 22:39:44"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_read_category_list",
+        "operation": "Read Category List",
+        "duration_ms": 69.8,
+        "memory_mb": 12.49,
+        "timestamp": "2026-09-01 22:39:46"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_update_category",
+        "operation": "Update Category",
+        "duration_ms": 35.14,
+        "memory_mb": 8.87,
+        "timestamp": "2026-09-01 22:39:47"
+    },
+    {
+        "test": "Tests\\Feature\\CategoryCrudTest::admin_can_delete_category",
+        "operation": "Delete Category",
+        "duration_ms": 14.13,
+        "memory_mb": 9.02,
+        "timestamp": "2026-09-01 22:39:49"
     }
 ]

@@ -47,8 +47,18 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
             'email_or_phone' => [
                 'required',
-                Rule::when($request->register_by === 'email', ['email', 'unique:users,email']),
-                Rule::when($request->register_by === 'phone', ['numeric', 'unique:users,phone']),
+                Rule::when($request->register_by === 'email', [
+                    'email',
+                    Rule::unique('users', 'email')->where(function ($query) {
+                        return $query->whereNotNull('email_verified_at');
+                    })
+                ]),
+                Rule::when($request->register_by === 'phone', [
+                    'numeric',
+                    Rule::unique('users', 'phone')->where(function ($query) {
+                        return $query->whereNotNull('email_verified_at');
+                    })
+                ]),
             ],
             'g-recaptcha-response' => [
                 Rule::when(get_setting('google_recaptcha') == 1 && get_setting('recaptcha_customer_register') == 1 , ['required', new Recaptcha()], ['sometimes'])
@@ -62,10 +72,23 @@ class AuthController extends Controller
             ]);
         }
 
-        $user = new User();
+        $user = null;
+        if ($request->register_by === 'email') {
+            $user = User::where('email', $request->email_or_phone)
+                ->whereNull('email_verified_at')
+                ->first();
+        } else {
+            $user = User::where('phone', $request->email_or_phone)
+                ->whereNull('email_verified_at')
+                ->first();
+        }
+
+        if (!$user) {
+            $user = new User();
+        }
+
         $user->name = $request->name;
         if ($request->register_by == 'email') {
-
             $user->email = $request->email_or_phone;
         }
         if ($request->register_by == 'phone') {
@@ -73,25 +96,28 @@ class AuthController extends Controller
         }
         $user->password = bcrypt($request->password);
         $user->verification_code = rand(100000, 999999);
+        $user->email_verified_at = null;
         $user->save();
 
-
-        $user->email_verified_at = null;
-        if ($user->email != null) {
-            if (BusinessSetting::where('type', 'email_verification')->first()->value != 1) {
-                $user->email_verified_at = date('Y-m-d H:m:s');
-            }
+        $emailVerificationSetting = BusinessSetting::where('type', 'email_verification')->first();
+        if ($user->email != null && (!$emailVerificationSetting || $emailVerificationSetting->value != 1)) {
+            $user->email_verified_at = date('Y-m-d H:i:s');
         }
 
         if ($user->email_verified_at == null) {
             if ($request->register_by == 'email') {
                 try {
                     $user->notify(new AppEmailVerificationNotification());
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
+                    \Log::warning('AppEmailVerificationNotification failed: ' . $e->getMessage());
                 }
             } else {
-                $otpController = new OTPVerificationController();
-                $otpController->send_code($user);
+                try {
+                    $otpController = new OTPVerificationController();
+                    $otpController->send_code($user);
+                } catch (\Throwable $e) {
+                    \Log::warning('OTPVerificationController failed: ' . $e->getMessage());
+                }
             }
         }
 
@@ -615,6 +641,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
             'expires_at' => null,
+            'verification_code' => config('app.debug') ? $user->verification_code : null,
             'user' => [
                 'id' => $user->id,
                 'type' => $user->user_type,

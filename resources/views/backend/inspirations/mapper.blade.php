@@ -1,6 +1,6 @@
 @extends('backend.layouts.app')
 
-@push('css')
+@section('styles')
 <style>
     .mapper-stage { margin: 0 auto; transition: max-width .2s ease; }
     .mapper-stage.preview-frame { border: 2px solid #ddd; border-radius: 8px; overflow: hidden; }
@@ -58,7 +58,7 @@
     .preview-mode #itemsList { display: flex; flex-wrap: wrap; padding: 4px; }
     .preview-mode .item-list-row { flex-wrap: wrap; width: calc(50% - 8px); margin: 4px; border: 1px solid #eee; border-radius: 8px; }
 </style>
-@endpush
+@endsection
 
 @section('content')
 <div class="aiz-titlebar text-left mt-2 mb-3" id="mapperToolbar">

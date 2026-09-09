@@ -13,7 +13,7 @@ return new class extends Migration
         }
 
         Schema::table('notifications', function (Blueprint $table) {
-            $table->unsignedBigInteger('notification_type_id')->nullable()->after('id');
+            $table->unsignedInteger('notification_type_id')->nullable()->after('id');
         });
     }
 

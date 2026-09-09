@@ -36,6 +36,41 @@ class CmiController extends Controller
         $this->paymentStateService = $paymentStateService;
     }
 
+    public function mobileLaunch(Request $request)
+    {
+        $token = $request->query('token');
+        if (!$token) {
+            return response()->view('frontend.payment.cmi_mobile_return', [
+                'status' => 'failed',
+                'message' => translate('Token de session manquant.'),
+            ], 400);
+        }
+
+        $sessionData = \Illuminate\Support\Facades\Cache::pull('cmi_mobile_bridge_' . $token);
+        if (!$sessionData) {
+            return response()->view('frontend.payment.cmi_mobile_return', [
+                'status' => 'failed',
+                'message' => translate('Session de paiement expirée ou invalide. Veuillez réessayer depuis l\'application.'),
+            ], 403);
+        }
+
+        $userId = $sessionData['user_id'];
+        $combinedOrderId = $sessionData['combined_order_id'];
+
+        $user = \App\Models\User::find($userId);
+        if ($user) {
+            Auth::setUser($user);
+            if (Auth::guard('web') instanceof \Illuminate\Contracts\Auth\StatefulGuard) {
+                Auth::guard('web')->login($user);
+            }
+        }
+        Session::put('combined_order_id', $combinedOrderId);
+        Session::put('payment_type', 'cart_payment');
+        Session::put('from_mobile', true);
+
+        return $this->pay($request);
+    }
+
     public function pay(Request $request)
     {
         Log::info('CMI Payment Initiated', ['user_id' => Auth::id(), 'payment_type' => Session::get('payment_type')]);
@@ -333,6 +368,14 @@ class CmiController extends Controller
         $input = $request->all();
 
         if ($request->isMethod('get') && !isset($input['HASH'])) {
+            if (Session::get('from_mobile')) {
+                Session::forget('from_mobile');
+                return response()->view('frontend.payment.cmi_mobile_return', [
+                    'status' => 'success',
+                    'combined_order_id' => Session::get('combined_order_id'),
+                    'message' => translate('Paiement terminé.'),
+                ]);
+            }
             if (Session::has('combined_order_id')) return redirect()->route('order_confirmed');
             return redirect()->route('home');
         }
@@ -362,6 +405,15 @@ class CmiController extends Controller
                         }
                     }
                     if ($combined_order_id) {
+                        if (Session::get('from_mobile')) {
+                            Session::forget('from_mobile');
+                            (new CheckoutController)->checkout_done($combined_order_id, $paymentDetails);
+                            return response()->view('frontend.payment.cmi_mobile_return', [
+                                'status' => 'success',
+                                'combined_order_id' => $combined_order_id,
+                                'message' => translate('Paiement validé avec succès.'),
+                            ]);
+                        }
                         return (new CheckoutController)->checkout_done($combined_order_id, $paymentDetails);
                     }
                 } elseif ($paymentType == 'order_re_payment') {
@@ -397,6 +449,13 @@ class CmiController extends Controller
                         Session::put('payment_data', ['order_id' => $parts[1]]);
                     }
                 }
+            }
+            if (Session::get('from_mobile')) {
+                Session::forget('from_mobile');
+                return response()->view('frontend.payment.cmi_mobile_return', [
+                    'status' => 'failed',
+                    'message' => $input['ErrMsg'] ?? translate("Your payment was not successful."),
+                ]);
             }
             Session::put('payment_error', $input['ErrMsg'] ?? translate("Your payment was not successful."));
             return redirect()->route('payment.failed');
@@ -434,6 +493,14 @@ class CmiController extends Controller
             'error_message_present' => $hashValid && !empty($input['ErrMsg']),
             'hash_valid' => $hashValid,
         ]);
+
+        if (Session::get('from_mobile')) {
+            Session::forget('from_mobile');
+            return response()->view('frontend.payment.cmi_mobile_return', [
+                'status' => 'failed',
+                'message' => $input['ErrMsg'] ?? translate("Payment was cancelled or failed."),
+            ]);
+        }
 
         Session::put('payment_error', $input['ErrMsg'] ?? translate("Payment was cancelled or failed."));
         return redirect()->route('payment.failed');

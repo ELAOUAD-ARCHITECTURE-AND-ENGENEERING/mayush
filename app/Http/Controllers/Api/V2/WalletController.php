@@ -27,32 +27,73 @@ class WalletController extends Controller
 
     public function processPayment(Request $request)
     {
-        $order = new OrderController;
-        $user = User::find($request->user_id);
-
-        if ($user->balance >= $request->amount) {
-            
-            $response =  $order->store($request, true);
-            $decoded_response = $response->original;
-            if ($decoded_response['result'] == true) { // only decrease user balance with a success
-                $user->balance -= $request->amount;
-                $user->save();            
-            }
-
-            $combined_order = CombinedOrder::where('id', $decoded_response['combined_order_id'])->first();
-
-            foreach ($combined_order->orders as $key => $order) {
-                calculateCommissionAffilationClubPoint($order);
-            }
-            
-            return $response;
-
-        } else {
+        $user = auth()->user();
+        if (!$user) {
             return response()->json([
                 'result' => false,
                 'combined_order_id' => 0,
-                'message' => translate('Insufficient wallet balance')
-            ]);
+                'message' => translate('User not authenticated.'),
+            ], 401);
+        }
+
+        $order = new OrderController;
+        $request->merge([
+            'payment_type' => 'wallet',
+            'user_id' => $user->id,
+        ]);
+
+        try {
+            return \Illuminate\Support\Facades\DB::transaction(function () use ($request, $order, $user) {
+                $lockedUser = User::whereKey($user->id)->lockForUpdate()->firstOrFail();
+
+                $response = $order->store($request, true);
+                $decoded_response = $response->getData(true);
+
+                if (empty($decoded_response['result']) || empty($decoded_response['combined_order_id'])) {
+                    return $response;
+                }
+
+                $combined_order = CombinedOrder::with('orders')->find($decoded_response['combined_order_id']);
+                if (!$combined_order) {
+                    return response()->json([
+                        'result' => false,
+                        'combined_order_id' => 0,
+                        'message' => translate('Order creation failed.'),
+                    ], 500);
+                }
+
+                $requiredAmount = (float) $combined_order->grand_total;
+                if ($lockedUser->balance < $requiredAmount) {
+                    // Insufficient funds: trigger rollback of created order
+                    throw new \Exception(translate('Insufficient wallet balance'));
+                }
+
+                // Deduct balance and record ledger entry
+                $lockedUser->balance -= $requiredAmount;
+                $lockedUser->save();
+
+                Wallet::create([
+                    'user_id' => $lockedUser->id,
+                    'amount' => -$requiredAmount,
+                    'payment_method' => 'wallet',
+                    'payment_details' => json_encode(['combined_order_id' => $combined_order->id]),
+                    'payment_reference' => 'CO-' . $combined_order->id . '-' . time(),
+                    'approval' => true,
+                    'offline_payment' => false,
+                ]);
+
+                foreach ($combined_order->orders as $subOrder) {
+                    calculateCommissionAffilationClubPoint($subOrder);
+                }
+
+                return $response;
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'result' => false,
+                'combined_order_id' => 0,
+                'message' => $e->getMessage() ?: translate('Insufficient wallet balance'),
+            ], 422);
         }
     }
 

@@ -14,8 +14,11 @@ class AddLoyaltyTierToUsers extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             if (!Schema::hasColumn('users', 'annual_spend')) {
-                $table->decimal('annual_spend', 12, 2)->default(0)->after('balance')
-                    ->comment('Rolling 12-month spend in system base currency, used for loyalty tier recalculation');
+                $column = $table->decimal('annual_spend', 12, 2)->default(0);
+                if (Schema::hasColumn('users', 'balance')) {
+                    $column->after('balance');
+                }
+                $column->comment('Rolling 12-month spend in system base currency, used for loyalty tier recalculation');
             }
         });
     }

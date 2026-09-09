@@ -30,9 +30,21 @@ class OrderController extends Controller
                 'message' => translate('Unsupported payment method.')
             ], 422);
         }
+
+        $userId = auth()->user()->id;
+        $idempotencyKey = $request->header('Idempotency-Key')
+            ?: $request->header('X-Idempotency-Key')
+            ?: $request->input('idempotency_key')
+            ?: $request->input('checkout_attempt_id');
+
+        $cacheKey = $idempotencyKey ? "order_idempotency_{$userId}_{$idempotencyKey}" : null;
+        if ($cacheKey && \Illuminate\Support\Facades\Cache::has($cacheKey)) {
+            return response()->json(\Illuminate\Support\Facades\Cache::get($cacheKey));
+        }
+
         if (get_setting('minimum_order_amount_check') == 1) {
             $subtotal = 0;
-            foreach (Cart::where('user_id', auth()->user()->id)->active()->get() as $key => $cartItem) {
+            foreach (Cart::where('user_id', $userId)->active()->get() as $key => $cartItem) {
                 $product = Product::publiclyVisible()->find($cartItem['product_id']);
                 if (!$product) {
                     return response()->json([
@@ -47,7 +59,7 @@ class OrderController extends Controller
             }
         }
 
-        $cartItems = Cart::where('user_id', auth()->user()->id)->active()->get();
+        $cartItems = Cart::where('user_id', $userId)->active()->get();
 
         if ($cartItems->isEmpty()) {
             return response()->json([
@@ -55,6 +67,15 @@ class OrderController extends Controller
                 'result' => false,
                 'message' => translate('Cart is Empty')
             ]);
+        }
+
+        // Address fallback: if cartItems have no address_id, but request has address_id, update active cart items
+        if ($cartItems->first()->address_id == null && $request->filled('address_id')) {
+            $targetAddress = Address::where('id', $request->address_id)->where('user_id', $userId)->first();
+            if ($targetAddress) {
+                Cart::where('user_id', $userId)->active()->update(['address_id' => $targetAddress->id]);
+                $cartItems = Cart::where('user_id', $userId)->active()->get();
+            }
         }
 
         foreach ($cartItems as $cartItem) {
@@ -244,11 +265,21 @@ class OrderController extends Controller
             NotificationUtility::sendOrderPlacedNotification($order);
         }
 
-        return response()->json([
+        $firstOrder = Order::where('combined_order_id', $combined_order->id)->first();
+        $responseData = [
             'combined_order_id' => $combined_order->id,
+            'order_id' => $firstOrder ? $firstOrder->id : null,
+            'order_code' => $firstOrder ? $firstOrder->code : null,
+            'grand_total' => $combined_order->grand_total,
             'result' => true,
             'message' => translate('Your order has been placed successfully')
-        ]);
+        ];
+
+        if ($cacheKey) {
+            \Illuminate\Support\Facades\Cache::put($cacheKey, $responseData, now()->addHours(24));
+        }
+
+        return response()->json($responseData);
     }
 
     public function order_cancel($id)
@@ -259,14 +290,76 @@ class OrderController extends Controller
             $order->save();
 
             foreach ($order->orderDetails as $key => $orderDetail) {
+                product_restock($orderDetail);
                 $orderDetail->delivery_status = 'cancelled';
                 $orderDetail->save();
-                product_restock($orderDetail);
             }
 
             return $this->success(translate('Order has been canceled successfully'));
         } else {
             return  $this->failed(translate('Something went wrong'));
         }
+    }
+
+    public function tracking($id)
+    {
+        $order = Order::with(['orderTrackingHistories', 'carrier'])
+            ->where('id', $id)
+            ->where('user_id', auth()->user()->id)
+            ->first();
+
+        if (!$order) {
+            return response()->json([
+                'result' => false,
+                'message' => translate('Order not found'),
+            ], 404);
+        }
+
+        $histories = $order->orderTrackingHistories->sortBy('created_at')->values();
+
+        $formattedHistories = $histories->map(function ($history) {
+            return [
+                'id' => $history->id,
+                'status' => $history->status,
+                'location_name' => $history->location_name,
+                'latitude' => $history->latitude,
+                'longitude' => $history->longitude,
+                'notes' => $history->notes,
+                'expected_delivery_date' => $history->expected_delivery_date ? $history->expected_delivery_date->toISOString() : null,
+                'created_at' => $history->created_at ? $history->created_at->toISOString() : null,
+            ];
+        });
+
+        if ($formattedHistories->isEmpty()) {
+            $formattedHistories = collect([
+                [
+                    'id' => 0,
+                    'status' => $order->delivery_status == 'pending' ? 'confirmed' : $order->delivery_status,
+                    'location_name' => 'Centre de tri Mayush',
+                    'latitude' => null,
+                    'longitude' => null,
+                    'notes' => translate('Order placed and confirmed'),
+                    'expected_delivery_date' => $order->created_at ? $order->created_at->addDays(3)->toISOString() : null,
+                    'created_at' => $order->created_at ? $order->created_at->toISOString() : null,
+                ]
+            ]);
+        }
+
+        $latestHistory = $histories->last();
+        $expectedDelivery = $latestHistory && $latestHistory->expected_delivery_date
+            ? $latestHistory->expected_delivery_date->toISOString()
+            : ($order->created_at ? $order->created_at->addDays(3)->toISOString() : null);
+
+        return response()->json([
+            'result' => true,
+            'order_id' => $order->id,
+            'order_code' => $order->code,
+            'delivery_status' => $order->delivery_status,
+            'payment_status' => $order->payment_status,
+            'carrier_name' => $order->carrier ? $order->carrier->name : 'Mayush Express',
+            'tracking_code' => $order->tracking_code ?: ('MY-' . $order->code),
+            'expected_delivery_date' => $expectedDelivery,
+            'tracking_histories' => $formattedHistories,
+        ]);
     }
 }

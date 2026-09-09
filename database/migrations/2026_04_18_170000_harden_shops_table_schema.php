@@ -20,7 +20,10 @@ return new class extends Migration
                 $table->string('type')->nullable()->after('rc');
             }
             if (!Schema::hasColumn('shops', 'registration_approval')) {
-                $table->integer('registration_approval')->default(1)->after('package_invalid_at');
+                $column = $table->integer('registration_approval')->default(1);
+                if (Schema::hasColumn('shops', 'package_invalid_at')) {
+                    $column->after('package_invalid_at');
+                }
             }
             if (!Schema::hasColumn('shops', 'business_info')) {
                 $table->text('business_info')->nullable();

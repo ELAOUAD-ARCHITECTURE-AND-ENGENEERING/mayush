@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
       // Robust dynamic protocol detection to eliminate Mixed Content errors
       if (env('FORCE_HTTPS') == 'On' 
           || str_starts_with(env('APP_URL', ''), 'https') 
-          || request()->isSecure()
+          || (!app()->runningInConsole() && request()?->isSecure())
       ) {
           \URL::forceScheme('https');
       }

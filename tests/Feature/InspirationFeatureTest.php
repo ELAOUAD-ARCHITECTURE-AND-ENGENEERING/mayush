@@ -283,6 +283,40 @@ class InspirationFeatureTest extends TestCase
         $this->assertSame('draft', $inspiration->fresh()->status);
     }
 
+    public function test_valid_admin_form_submission_publishes_and_exposes_persisted_hotspot(): void
+    {
+        Permission::findOrCreate('edit_inspiration', 'web');
+        $admin = User::factory()->admin()->create();
+        $admin->givePermissionTo('edit_inspiration');
+
+        Storage::disk('public')->put('inspirations/publishable-scene.webp', 'scene');
+        $inspiration = $this->inspiration([
+            'slug' => 'publishable-admin-scene',
+            'status' => 'draft',
+            'published_at' => null,
+            'hero_image' => 'inspirations/publishable-scene.webp',
+        ]);
+        $product = Product::factory()->create(['published' => 1]);
+        $this->attachProduct($inspiration, $product, 0.6047, 0.6149);
+
+        $this->actingAs($admin)
+            ->put(route('inspirations.update', $inspiration), $this->adminPayload([
+                'slug' => $inspiration->slug,
+                'status' => 'published',
+            ]))
+            ->assertRedirect(route('inspirations.edit', $inspiration))
+            ->assertSessionHasNoErrors();
+
+        $inspiration->refresh();
+        $this->assertSame('published', $inspiration->status);
+        $this->assertNotNull($inspiration->published_at);
+        $this->getJson('/api/v2/inspirations/'.$inspiration->slug)
+            ->assertOk()
+            ->assertJsonPath('data.items.0.product.id', $product->id)
+            ->assertJsonPath('data.items.0.hotspot.x', 0.6047)
+            ->assertJsonPath('data.items.0.hotspot.y', 0.6149);
+    }
+
     public function test_admin_index_uses_the_specified_view_permission(): void
     {
         $authorized = User::where('user_type', 'admin')->firstOrFail();
@@ -332,7 +366,10 @@ class InspirationFeatureTest extends TestCase
         $editor = User::factory()->admin()->create();
         $editor->givePermissionTo('edit_inspiration');
         $this->actingAs($editor)->get(route('inspirations.edit', $inspiration))->assertOk();
-        $this->actingAs($editor)->get(route('inspirations.mapper', $inspiration))->assertOk();
+        $this->actingAs($editor)
+            ->get(route('inspirations.mapper', $inspiration))
+            ->assertOk()
+            ->assertSee('.hotspot-marker { position: absolute;', false);
     }
 
     public function test_admin_with_delete_permission_can_soft_delete_an_inspiration(): void

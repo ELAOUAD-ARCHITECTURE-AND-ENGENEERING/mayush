@@ -32,7 +32,7 @@ class Cors
             return response('', 200)
                 ->header('Access-Control-Allow-Origin', $allowedOrigin)
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, System-Key, App-Language, Accept')
+                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, System-Key, App-Language, Accept, X-Device-Id, x-device-id')
                 ->header('Access-Control-Max-Age', '86400');
         }
 
@@ -41,7 +41,7 @@ class Cors
         if (method_exists($response, 'header') && $allowedOrigin) {
             $response->header('Access-Control-Allow-Origin', $allowedOrigin)
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, System-Key, App-Language, Accept');
+                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, System-Key, App-Language, Accept, X-Device-Id, x-device-id');
         }
 
         return $response;
@@ -55,6 +55,11 @@ class Cors
 
         // Allow exact match against allowlist
         if (in_array($origin, $this->allowedOrigins(), true)) {
+            return $origin;
+        }
+
+        // Allow local dev origins (Expo web, React dev servers, LAN mobile testing) in local environment
+        if (app()->isLocal() && preg_match('#^https?://(?:localhost|127\.0\.0\.1|192\.168\.\d+\.\d+)(?::\d+)?$#', $origin)) {
             return $origin;
         }
 

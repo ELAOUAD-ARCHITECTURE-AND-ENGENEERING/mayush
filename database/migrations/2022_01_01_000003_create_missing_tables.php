@@ -174,7 +174,7 @@ class CreateMissingTables extends Migration
                 $table->longText('meta_description')->nullable();
                 $table->string('meta_img', 255)->nullable();
                 $table->string('pdf', 255)->nullable();
-                $table->mediumText('slug');
+                $table->string('slug', 255);
                 $table->double('rating', 8, 2)->default(0.00);
                 $table->string('barcode', 255)->nullable();
                 $table->integer('digital')->default(0);

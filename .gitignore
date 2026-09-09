@@ -55,4 +55,16 @@ Homestead.yaml
 .kiro/
 .qodo/
 .claude-flow/
+.codex-temp/
 skills-lock.json
+
+### Mobile App (separate project, own repo) ###
+/mayush-mobile/
+
+### Generated Reports & AI Plans ###
+/reports/
+/docs/superpowers/
+
+### OS Files ###
+Thumbs.db
+desktop.ini

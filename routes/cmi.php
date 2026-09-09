@@ -4,6 +4,7 @@ use App\Http\Controllers\Payment\CmiController;
 
 Route::controller(CmiController::class)->group(function () {
     Route::get('/cmi/pay', 'pay')->middleware('throttle:checkout-submit')->name('cmi.pay');
+    Route::get('/cmi/mobile-launch', 'mobileLaunch')->name('cmi.mobile.launch');
     
     // Apply IP Whitelisting and Rate Limiting (throttle:60 requests per minute per IP)
     Route::post('/cmi/callback', 'callback')

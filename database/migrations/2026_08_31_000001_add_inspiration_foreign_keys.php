@@ -10,9 +10,11 @@ return new class extends Migration
     public function up(): void
     {
         if (DB::connection()->getDriverName() === 'mysql') {
-            // Match this application's legacy products/users primary-key widths exactly.
-            DB::statement('ALTER TABLE inspiration_items MODIFY product_id INT NOT NULL');
-            DB::statement('ALTER TABLE inspirations MODIFY created_by INT UNSIGNED NULL');
+            // Match both clean-install and legacy primary-key signedness exactly.
+            $productIdType = $this->mysqlIntegerColumnType('products', 'id');
+            $userIdType = $this->mysqlIntegerColumnType('users', 'id');
+            DB::statement("ALTER TABLE inspiration_items MODIFY product_id {$productIdType} NOT NULL");
+            DB::statement("ALTER TABLE inspirations MODIFY created_by {$userIdType} NULL");
 
             $this->addMysqlForeign('inspiration_items', 'inspiration_items_inspiration_id_foreign',
                 'FOREIGN KEY (inspiration_id) REFERENCES inspirations(id) ON DELETE CASCADE');
@@ -59,9 +61,9 @@ return new class extends Migration
         }
 
         Schema::table('inspiration_hotspots', function (Blueprint $table) {
-            $table->dropUnique('hotspot_item_unique');
             $table->dropForeign(['inspiration_item_id']);
             $table->dropForeign(['inspiration_id']);
+            $table->dropUnique('hotspot_item_unique');
         });
         Schema::table('inspiration_items', function (Blueprint $table) {
             $table->dropForeign(['product_id']);
@@ -93,5 +95,20 @@ return new class extends Migration
             ->where('TABLE_NAME', $table)
             ->where('INDEX_NAME', $name)
             ->exists();
+    }
+
+    private function mysqlIntegerColumnType(string $table, string $column): string
+    {
+        $type = strtolower((string) DB::table('information_schema.COLUMNS')
+            ->where('TABLE_SCHEMA', DB::connection()->getDatabaseName())
+            ->where('TABLE_NAME', $table)
+            ->where('COLUMN_NAME', $column)
+            ->value('COLUMN_TYPE'));
+
+        if (!in_array($type, ['int', 'int unsigned', 'bigint', 'bigint unsigned'], true)) {
+            throw new RuntimeException("Unsupported {$table}.{$column} key type: {$type}");
+        }
+
+        return strtoupper($type);
     }
 };
