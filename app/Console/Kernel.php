@@ -73,6 +73,9 @@ class Kernel extends ConsoleKernel
             ->dailyAt('03:15')
             ->withoutOverlapping()
             ->onOneServer();
+
+        // Pulse monitoring: trim old entries to keep DB lean
+        $schedule->command('pulse:purge')->dailyAt('04:00');
     }
 
     /**
