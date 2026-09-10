@@ -1955,10 +1955,19 @@ if (!function_exists('product_restock')) {
             $product_stock = ProductStock::where('product_id', $orderDetail->product_id)->first();
         }
 
-        if ($product_stock != null && (!in_array($orderDetail->delivery_status, ['delivered', 'cancelled']))) {
+        $alreadyRestocked = \App\Models\InventoryLog::where('order_id', $orderDetail->order_id)
+            ->where('product_id', $orderDetail->product_id)
+            ->where('reason', 'restock')
+            ->exists();
+
+        if ($product_stock != null && !$alreadyRestocked && $orderDetail->delivery_status !== 'delivered') {
             $product = $product_stock->product;
             if ($product) {
                 $product->num_of_sale -= $orderDetail->quantity;
+                if ($product->num_of_sale < 0) {
+                    $product->num_of_sale = 0;
+                }
+                $product->current_stock += $orderDetail->quantity;
                 $product->save();
             }
 
@@ -1979,7 +1988,7 @@ if (!function_exists('product_restock')) {
 
             \Log::info("Restocked Product ID: {$orderDetail->product_id}, Variant: {$variant}, Qty: {$orderDetail->quantity}");
         } else {
-             \Log::warning("Restock skipped for Product ID: {$orderDetail->product_id}, Stock Found: " . ($product_stock ? 'Yes' : 'No') . ", Status: {$orderDetail->delivery_status}");
+             \Log::warning("Restock skipped for Product ID: {$orderDetail->product_id}, Stock Found: " . ($product_stock ? 'Yes' : 'No') . ", Status: {$orderDetail->delivery_status}, AlreadyRestocked: " . ($alreadyRestocked ? 'Yes' : 'No'));
         }
     }
 }

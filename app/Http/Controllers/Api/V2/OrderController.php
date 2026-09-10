@@ -285,7 +285,26 @@ class OrderController extends Controller
     public function order_cancel($id)
     {
         $order = Order::where('id', $id)->where('user_id', auth()->user()->id)->first();
-        if ($order && ($order->delivery_status == 'pending' && $order->payment_status == 'unpaid')) {
+        if (!$order) {
+            return $this->failed(translate('Order not found'));
+        }
+
+        $isPendingUnpaid = ($order->delivery_status == 'pending' && $order->payment_status == 'unpaid');
+        $isUnpaidNonDelivered = ($order->payment_status == 'unpaid' && !in_array($order->delivery_status, ['delivered', 'cancelled']));
+
+        $orderAgeDays = 0;
+        if ($order->created_at) {
+            $orderAgeDays = $order->created_at->diffInDays(now());
+        } elseif ($order->date) {
+            $orderAgeDays = (now()->timestamp - (int)$order->date) / 86400;
+        }
+        $isDelayedUnfulfilled = ($orderAgeDays >= 3 && !in_array($order->delivery_status, ['delivered', 'cancelled']));
+
+        if ($order->payment_status == 'paid' && !$isDelayedUnfulfilled) {
+            return $this->failed(translate('Paid orders cannot be directly cancelled. Please request a refund or contact support.'));
+        }
+
+        if ($isPendingUnpaid || $isUnpaidNonDelivered || $isDelayedUnfulfilled) {
             $order->delivery_status = 'cancelled';
             $order->save();
 
@@ -297,13 +316,13 @@ class OrderController extends Controller
 
             return $this->success(translate('Order has been canceled successfully'));
         } else {
-            return  $this->failed(translate('Something went wrong'));
+            return $this->failed(translate('Something went wrong'));
         }
     }
 
     public function tracking($id)
     {
-        $order = Order::with(['orderTrackingHistories', 'carrier'])
+        $order = Order::with(['orderTrackingHistories'])
             ->where('id', $id)
             ->where('user_id', auth()->user()->id)
             ->first();
@@ -350,13 +369,24 @@ class OrderController extends Controller
             ? $latestHistory->expected_delivery_date->toISOString()
             : ($order->created_at ? $order->created_at->addDays(3)->toISOString() : null);
 
+        $carrierName = 'Mayush Express';
+        if ($order->carrier_id) {
+            try {
+                if ($order->carrier) {
+                    $carrierName = $order->carrier->name;
+                }
+            } catch (\Throwable $e) {
+                $carrierName = 'Mayush Express';
+            }
+        }
+
         return response()->json([
             'result' => true,
             'order_id' => $order->id,
             'order_code' => $order->code,
             'delivery_status' => $order->delivery_status,
             'payment_status' => $order->payment_status,
-            'carrier_name' => $order->carrier ? $order->carrier->name : 'Mayush Express',
+            'carrier_name' => $carrierName,
             'tracking_code' => $order->tracking_code ?: ('MY-' . $order->code),
             'expected_delivery_date' => $expectedDelivery,
             'tracking_histories' => $formattedHistories,
