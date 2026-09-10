@@ -66,8 +66,8 @@ class Kernel extends ConsoleKernel
         // Expire stale payment attempts and free up locked stock
         $schedule->command('mayush:payments:expire-stale')->everyFifteenMinutes();
 
-        // Expire inactive guest support chats
-        $schedule->command('support:expire-guest-chats')->everyMinute();
+        // Expire inactive guest support chats (5-min expiry, no need to check every minute)
+        $schedule->command('support:expire-guest-chats')->everyFiveMinutes();
 
         $schedule->command('notifications:prune-inbox')
             ->dailyAt('03:15')

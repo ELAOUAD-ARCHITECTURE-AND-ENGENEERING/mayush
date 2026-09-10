@@ -69,7 +69,7 @@ class AggregateVendorPerformanceJob implements ShouldQueue
                     ->join('products', 'reviews.product_id', '=', 'products.id')
                     ->where('products.user_id', $sellerId)
                     ->where('reviews.created_at', '<=', $endOfDay)
-                    ->avg('rating');
+                    ->avg('reviews.rating');
             }
 
             VendorPerformanceSnapshot::updateOrCreate(
