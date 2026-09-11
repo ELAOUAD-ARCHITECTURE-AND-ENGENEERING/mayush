@@ -44,8 +44,17 @@ class PruneRetentionData extends Command
             // Determine the date column to use
             $dateColumn = 'created_at';
             if (!DB::getSchemaBuilder()->hasColumn($table, 'created_at')) {
-                $this->line("  Skipping <comment>{$table}</comment> — no created_at column.");
-                continue;
+                // Common alternatives
+                foreach (['failed_at', 'timestamp'] as $alt) {
+                    if (DB::getSchemaBuilder()->hasColumn($table, $alt)) {
+                        $dateColumn = $alt;
+                        break 1;
+                    }
+                }
+                if ($dateColumn === 'created_at') {
+                    $this->line("  Skipping <comment>{$table}</comment> — no date column found.");
+                    continue;
+                }
             }
 
             $count = DB::table($table)->where($dateColumn, '<', $cutoff)->count();
