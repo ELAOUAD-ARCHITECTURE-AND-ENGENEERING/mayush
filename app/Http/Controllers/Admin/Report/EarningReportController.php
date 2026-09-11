@@ -32,7 +32,7 @@ class EarningReportController extends Controller
                         ->whereYear('created_at', Carbon::now()->year)
                         ->orderBy(DB::raw('MONTH(created_at)'), 'asc')
                         ->get();
-        $total_product_sale_earning = Order::where('delivery_status', 'delivered')->sum('grand_total');
+        $total_product_sale_earning = Order::where('delivery_status', 'delivered')->whereYear('created_at', Carbon::now()->year)->sum('grand_total');
 
         $seller_subscriptions = array();
         $total_seller_subscriptions_earning = 0;
@@ -43,7 +43,7 @@ class EarningReportController extends Controller
                                     ->where('approval', 1)
                                     ->orderBy(DB::raw('MONTH(created_at)'), 'asc')
                                     ->get();
-            $total_seller_subscriptions_earning = SellerPackagePayment::where('approval', 1)->sum('amount');
+            $total_seller_subscriptions_earning = SellerPackagePayment::where('approval', 1)->whereYear('created_at', Carbon::now()->year)->sum('amount');
         }
 
         $customer_subscriptions = CustomerPackagePayment::groupBy('time')
@@ -52,7 +52,7 @@ class EarningReportController extends Controller
                                 ->where('approval', 1)
                                 ->orderBy(DB::raw('MONTH(created_at)'), 'asc')
                                 ->get();
-        $total_customer_subscriptions_earning = CustomerPackagePayment::where('approval', 1)->sum('amount');
+        $total_customer_subscriptions_earning = CustomerPackagePayment::where('approval', 1)->whereYear('created_at', Carbon::now()->year)->sum('amount');
 
         // Payouts data
         $seller_payments = Payment::groupBy('time')->where('payment_method','!=','Seller paid to admin')
@@ -60,7 +60,7 @@ class EarningReportController extends Controller
                         ->whereYear('created_at', Carbon::now()->year)
                         ->orderBy(DB::raw('MONTH(created_at)'), 'asc')
                         ->get();
-        $total_seller_payment_amount = Payment::where('payment_method','!=','Seller paid to admin')->sum('amount');
+        $total_seller_payment_amount = Payment::where('payment_method','!=','Seller paid to admin')->whereYear('created_at', Carbon::now()->year)->sum('amount');
 
         $refunds = array();
         $total_refund_amount = 0;
@@ -71,7 +71,7 @@ class EarningReportController extends Controller
                         ->where('admin_approval', 1)
                         ->orderBy(DB::raw('MONTH(created_at)'), 'asc')
                         ->get();
-            $total_refund_amount = RefundRequest::where('admin_approval', 1)->sum('refund_amount');
+            $total_refund_amount = RefundRequest::where('admin_approval', 1)->whereYear('created_at', Carbon::now()->year)->sum('refund_amount');
         }
 
         $delivery_boy_payments = array();
@@ -82,7 +82,7 @@ class EarningReportController extends Controller
                                     ->whereYear('created_at', Carbon::now()->year)
                                     ->orderBy(DB::raw('MONTH(created_at)'), 'asc')
                                     ->get();
-            $total_delivery_boy_payment_amount = DeliveryBoyPayment::sum('payment');
+            $total_delivery_boy_payment_amount = DeliveryBoyPayment::whereYear('created_at', Carbon::now()->year)->sum('payment');
         }
         $mymonths = array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
         foreach ($mymonths as $month) {

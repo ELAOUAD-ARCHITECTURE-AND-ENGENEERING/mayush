@@ -232,6 +232,18 @@ class ImageOptimizationService
         try {
             $disk = Storage::disk($this->diskName($sourceKind));
             $source = $disk->get($path);
+
+            // Validate that the binary data is actually a readable image before
+            // passing it to GD/Imagick — corrupt data causes hard failures.
+            if (!$source || @getimagesizefromstring($source) === false) {
+                $state->fill([
+                    'status' => 'failed',
+                    'last_error' => 'Corrupt or unreadable image binary data',
+                ])->save();
+                Log::warning('Image optimization skipped: corrupt binary.', ['path' => $path]);
+                return $state;
+            }
+
             $this->storeDerivative($path, null, $source, (int) config('image-optimization.max_width', 1500), $sourceKind);
 
             foreach ((array) config('image-optimization.variants', []) as $variant => $maxWidth) {

@@ -74,6 +74,9 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->onOneServer();
 
+        // Prune transient data (failed_jobs, password_resets, etc.)
+        $schedule->command('data:prune')->dailyAt('03:30');
+
         // Pulse monitoring: trim old entries to keep DB lean
         $schedule->command('pulse:purge')->dailyAt('04:00');
     }

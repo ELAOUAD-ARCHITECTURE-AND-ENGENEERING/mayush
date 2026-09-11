@@ -8,6 +8,8 @@ class ProductMiniCollection extends ResourceCollection
 {
     public function toArray($request)
     {
+        $this->collection->loadMissing('reviews');
+
         return [
             'data' => $this->collection->map(function ($data) {
                 $wholesale_product =

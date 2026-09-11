@@ -3,7 +3,6 @@
 namespace App\Http\Resources\V2;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
-use App\Models\Review;
 use App\Models\Attribute;
 
 
@@ -11,6 +10,13 @@ class ProductDetailCollection extends ResourceCollection
 {
     public function toArray($request)
     {
+        $this->collection->loadMissing([
+            'brand',
+            'stocks.wholesalePrices',
+            'user.shop',
+        ]);
+        $this->collection->loadCount('reviews');
+
         return [
             'data' => $this->collection->map(function ($data) {
                 $precision = 2;
@@ -105,7 +111,7 @@ class ProductDetailCollection extends ResourceCollection
                     'current_stock' => (int)($firstStock->qty ?? 0),
                     'unit' => $data->unit ?? "",
                     'rating' => (float)$data->rating,
-                    'rating_count' => (int)Review::where(['product_id' => $data->id])->count(),
+                    'rating_count' => (int)($data->reviews_count ?? 0),
                     'earn_point' => (float)$data->earn_point,
                     'description' => $data->getTranslation('description'),
                     'downloads' => $data->pdf ? uploaded_asset($data->pdf) : null,

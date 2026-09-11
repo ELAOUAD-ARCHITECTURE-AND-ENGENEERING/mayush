@@ -18,9 +18,12 @@ class ProductObserver
         app(StorefrontCacheService::class)->bump();
         app(InspirationCacheService::class)->invalidateForProduct((int) $product->id);
 
-        // Offload the heavy OpenRouter AI generation to the Horizon background worker.
-        // It won't stall the user's web request.
-        SyncSemanticEmbeddingJob::dispatch($product);
+        // Only dispatch the expensive OpenRouter embedding job when
+        // content that affects the embedding has actually changed.
+        $embeddingFields = ['name', 'description', 'tags', 'category_id', 'brand_id'];
+        if ($product->wasRecentlyCreated || $product->wasChanged($embeddingFields)) {
+            SyncSemanticEmbeddingJob::dispatch($product);
+        }
     }
 
     /**

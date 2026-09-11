@@ -115,16 +115,26 @@ if (!function_exists('default_language')) {
 if (!function_exists('convert_to_usd')) {
     function convert_to_usd($amount)
     {
-        $currency = Currency::find(get_setting('system_default_currency'));
-        return (floatval($amount) / floatval($currency->exchange_rate)) * Currency::where('code', 'USD')->first()->exchange_rate;
+        static $rates = null;
+        if ($rates === null) {
+            $currency = Currency::find(get_setting('system_default_currency'));
+            $usd = Currency::where('code', 'USD')->first();
+            $rates = ['source' => floatval($currency->exchange_rate), 'target' => floatval($usd->exchange_rate)];
+        }
+        return (floatval($amount) / $rates['source']) * $rates['target'];
     }
 }
 
 if (!function_exists('convert_to_kes')) {
     function convert_to_kes($amount)
     {
-        $currency = Currency::find(get_setting('system_default_currency'));
-        return (floatval($amount) / floatval($currency->exchange_rate)) * Currency::where('code', 'KES')->first()->exchange_rate;
+        static $rates = null;
+        if ($rates === null) {
+            $currency = Currency::find(get_setting('system_default_currency'));
+            $kes = Currency::where('code', 'KES')->first();
+            $rates = ['source' => floatval($currency->exchange_rate), 'target' => floatval($kes->exchange_rate)];
+        }
+        return (floatval($amount) / $rates['source']) * $rates['target'];
     }
 }
 

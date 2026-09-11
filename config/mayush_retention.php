@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'pruning_enabled' => false,
+    'pruning_enabled' => true,
 
     'protected_tables' => [
         'addons',
